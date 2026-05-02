@@ -1,0 +1,73 @@
+// Typed kernel rules for issue #37.
+//
+// These tests keep the documented D1 surface honest: Pi formation, lambda
+// formation, application by beta-reduction, and type membership/query links.
+
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { evaluate } from '../src/rml-links.mjs';
+
+function evaluateClean(src) {
+  const out = evaluate(src);
+  assert.deepStrictEqual(out.diagnostics, []);
+  return out.results;
+}
+
+describe('kernel typing rules', () => {
+  it('forms a Pi type and records it as a Type 0 member', () => {
+    const results = evaluateClean(`
+(Natural: (Type 0) Natural)
+(succ: (Pi (Natural n) Natural))
+(? (Pi (Natural n) Natural))
+(? ((Pi (Natural n) Natural) of (Type 0)))
+(? (succ of (Pi (Natural n) Natural)))
+(? (type of succ))
+`);
+    assert.deepStrictEqual(results, [1, 1, 1, '(Pi (Natural n) Natural)']);
+  });
+
+  it('types a named lambda under its bound parameter context', () => {
+    const results = evaluateClean(`
+(Natural: (Type 0) Natural)
+(identity: lambda (Natural x) x)
+(? (identity of (Pi (Natural x) Natural)))
+(? (type of identity))
+`);
+    assert.deepStrictEqual(results, [1, '(Pi (Natural x) Natural)']);
+  });
+
+  it('keeps a named lambda parameter scoped to the lambda body', () => {
+    const results = evaluateClean(`
+(Natural: (Type 0) Natural)
+(identity: lambda (Natural x) x)
+(? (x of Natural))
+`);
+    assert.deepStrictEqual(results, [0]);
+  });
+
+  it('applies lambdas by beta-reducing the argument into the body', () => {
+    const results = evaluateClean(`
+(Natural: (Type 0) Natural)
+(zero: Natural zero)
+(identity: lambda (Natural x) x)
+(? ((apply identity zero) = zero))
+(? (apply (lambda (Natural x) (x + 0.1)) 0.2))
+`);
+    assert.deepStrictEqual(results, [1, 0.3]);
+  });
+
+  it('checks type membership and returns stored types through of links', () => {
+    const results = evaluateClean(`
+(Type: Type Type)
+(Natural: Type Natural)
+(zero: Natural zero)
+(Type 0)
+(Type 1)
+(? (zero of Natural))
+(? (Natural of Type))
+(? (type of zero))
+(? ((Type 0) of (Type 1)))
+`);
+    assert.deepStrictEqual(results, [1, 1, 'Natural', 1]);
+  });
+});

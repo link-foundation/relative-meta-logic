@@ -1031,8 +1031,15 @@ function defineForm(head, rhs, env){
         const body = rhs[2];
         env.terms.add(storeName);
         env.setLambda(storeName, paramName, paramType, body);
+        const hadParamTerm = env.terms.has(paramName);
+        const previousParamType = env.getType(paramName);
+        env.terms.add(paramName);
+        env.setType(paramName, paramType);
         const paramTypeKey = typeof paramType === 'string' ? paramType : keyOf(paramType);
         const bodyTypeKey = env.getType(body) || (typeof body === 'string' ? body : keyOf(body));
+        if (!hadParamTerm) env.terms.delete(paramName);
+        if (previousParamType === null) env.types.delete(paramName);
+        else env.setType(paramName, previousParamType);
         env.setType(storeName, '(Pi (' + paramTypeKey + ' ' + paramName + ') ' + bodyTypeKey + ')');
         return 1;
       }

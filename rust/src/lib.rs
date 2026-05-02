@@ -2042,6 +2042,10 @@ fn define_form(head: &str, rhs: &[Node], env: &mut Env) -> EvalResult {
                 if let Some((param_name, param_type)) = parse_binding(&rhs[1]) {
                     let body = rhs[2].clone();
                     env.terms.insert(store_name.clone());
+                    let had_param_term = env.terms.contains(&param_name);
+                    let previous_param_type = env.get_type(&param_name).cloned();
+                    env.terms.insert(param_name.clone());
+                    env.set_type(&param_name, &param_type);
                     let body_key = key_of(&body);
                     let body_type =
                         env.get_type(&body_key)
@@ -2050,6 +2054,14 @@ fn define_form(head: &str, rhs: &[Node], env: &mut Env) -> EvalResult {
                                 Node::Leaf(s) => s.clone(),
                                 other => key_of(other),
                             });
+                    if !had_param_term {
+                        env.terms.remove(&param_name);
+                    }
+                    if let Some(previous) = previous_param_type {
+                        env.set_type(&param_name, &previous);
+                    } else {
+                        env.types.remove(&param_name);
+                    }
                     env.set_type(
                         &store_name,
                         &format!("(Pi ({} {}) {})", param_type, param_name, body_type),

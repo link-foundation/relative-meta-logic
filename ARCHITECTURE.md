@@ -96,10 +96,19 @@ Each AST node is evaluated recursively by `eval_node` / `evalNode`. The evaluati
 | `(A = B)`, `(A != B)` | Equality/inequality | `(a = b)` |
 | `(not X)` | Prefix negation | `(not 0.5)` |
 | `(op X Y ...)` | Prefix operator application | `(and X Y Z)` |
+| `(Pi (A x) B)` | Dependent product formation | `(Pi (Natural n) Natural)` |
+| `(lambda (A x) body)` | Lambda formation | `(lambda (Natural x) x)` |
+| `(apply f x)` | Lambda application by beta-reduction | `(apply identity zero)` |
+| `(expr of Type)` | Type membership check | `(zero of Natural)` |
+| `(type of expr)` | Type query | `(type of zero)` |
+
+The typed-kernel rules are specified in [docs/KERNEL.md](./docs/KERNEL.md).
 
 ### Stage 4: Output
 
-Only query expressions `(? ...)` produce output. Their evaluated truth values are collected and returned as an array of numbers.
+Only query expressions `(? ...)` produce output. Their evaluated truth
+values are collected and returned as an array of numbers; `(type of ...)`
+queries return type strings in the typed runner APIs.
 
 ## Public Library API
 
@@ -150,6 +159,8 @@ The environment holds all mutable state during evaluation:
 - **`lo`, `hi`**: Truth value range bounds. Default: `[0, 1]`.
 - **`valence`**: Number of discrete truth levels. Default: `0` (continuous).
 - **`ops`**: Map from operator names to operator implementations.
+- **`types`**: Map from expression keys to type-expression keys.
+- **`lambdas`**: Map from lambda names to their parameter, parameter type, and body.
 
 ### Truth Constants
 
