@@ -1,7 +1,7 @@
 # Typed Kernel
 
 This document specifies the typed-kernel surface implemented by the
-JavaScript and Rust evaluators. It covers the D1 contract from issue #37
+JavaScript and Rust evaluators. It covers the D1 contract from issue #37,
 the D3 convertibility check from issue #40, and the D5 universe hierarchy
 from issue #41: the rules for `Pi`, `lambda`, `apply`, capture-avoiding
 substitution, freshness, checked universe levels, type membership with `of`,
