@@ -55,7 +55,7 @@ Or after building:
 ```rust
 use rml::{
     run, evaluate, format_diagnostic, Diagnostic, EvaluateResult, RunResult, Span,
-    tokenize_one, parse_one, Env, EnvOptions, eval_node, quantize, dec_round,
+    tokenize_one, parse_one, Env, EnvOptions, eval_node, quantize, dec_round, subst,
     formalize_selected_interpretation, evaluate_formalization,
     FormalizationRequest, Interpretation,
 };
@@ -101,14 +101,14 @@ The meta-expression adapter deliberately keeps unsupported real-world claims par
 cargo test
 ```
 
-The test suite includes 199 tests covering:
+The test suite covers:
 - Tokenization, parsing, and quantization
 - Evaluation logic and operator aggregators
 - Many-valued logics: unary, binary (Boolean), ternary (Kleene), quaternary, quinary, higher N-valued, and continuous (fuzzy)
 - Both `[0, 1]` and `[-1, 1]` ranges
 - Liar paradox resolution across logic types
 - Decimal-precision arithmetic and numeric equality
-- Dependent type system: universes, Pi-types, lambdas, application, type queries
+- Dependent type system: universes, Pi-types, lambdas, application, capture-avoiding substitution, freshness, type queries
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Implementation Notes

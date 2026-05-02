@@ -168,6 +168,14 @@ fn expected_rule(expr: &Node, ops: &HashSet<String>, assigned: &HashSet<String>)
                     "Pi" if c.len() == 3 => return "pi-formation",
                     "lambda" if c.len() == 3 => return "lambda-formation",
                     "apply" if c.len() == 3 => return "beta-reduction",
+                    "subst" if c.len() == 4 => return "substitution",
+                    "fresh" if c.len() == 4 => {
+                        if let Node::Leaf(in_kw) = &c[2] {
+                            if in_kw == "in" {
+                                return "fresh";
+                            }
+                        }
+                    }
                     "type" if c.len() == 3 => {
                         if let Node::Leaf(of) = &c[1] {
                             if of == "of" {
@@ -375,7 +383,7 @@ fn check_node(
         | "assigned-inequality" => check_eq(expr, &rule, subs, ops, assigned, path),
         // Type-system witnesses
         "type-universe" | "prop" | "pi-formation" | "lambda-formation" | "type-query"
-        | "type-check" => check_typesys(expr, &rule, subs, path),
+        | "type-check" | "substitution" | "fresh" => check_typesys(expr, &rule, subs, path),
         "beta-reduction" => arity(&rule, subs, 2, path).and_then(|_| match expr {
             Node::List(c) if c.len() == 3 => match &c[0] {
                 Node::Leaf(h) if h == "apply" => {
@@ -676,6 +684,32 @@ fn check_typesys(
                     }
                 }
                 return bad("type-check mismatch");
+            }
+            ("substitution", 4) => {
+                arity(rule, subs, 3, path)?;
+                if let Node::Leaf(h) = &c[0] {
+                    if h == "subst"
+                        && is_structurally_same(&c[1], &subs[0])
+                        && is_structurally_same(&c[2], &subs[1])
+                        && is_structurally_same(&c[3], &subs[2])
+                    {
+                        return Ok(rule.into());
+                    }
+                }
+                return bad("substitution mismatch");
+            }
+            ("fresh", 4) => {
+                arity(rule, subs, 2, path)?;
+                if let (Node::Leaf(h), Node::Leaf(in_kw)) = (&c[0], &c[2]) {
+                    if h == "fresh"
+                        && in_kw == "in"
+                        && is_structurally_same(&c[1], &subs[0])
+                        && is_structurally_same(&c[3], &subs[1])
+                    {
+                        return Ok(rule.into());
+                    }
+                }
+                return bad("fresh mismatch");
             }
             _ => {}
         }

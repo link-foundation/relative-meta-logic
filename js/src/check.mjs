@@ -116,6 +116,8 @@ function expectedRule(expr, ops, assigned) {
   if (head === 'Pi' && expr.length === 3) return 'pi-formation';
   if (head === 'lambda' && expr.length === 3) return 'lambda-formation';
   if (head === 'apply' && expr.length === 3) return 'beta-reduction';
+  if (head === 'subst' && expr.length === 4) return 'substitution';
+  if (head === 'fresh' && expr.length === 4 && expr[2] === 'in') return 'fresh';
   if (head === 'type' && expr.length === 3 && expr[1] === 'of') {
     return 'type-query';
   }
@@ -275,6 +277,8 @@ function checkNode(expr, proof, ops, assigned, path) {
     case 'lambda-formation':
     case 'type-query':
     case 'type-check':
+    case 'substitution':
+    case 'fresh':
       return checkTypesys(expr, rule, subs, path);
     case 'beta-reduction': {
       arity(rule, subs, 2, path);
@@ -477,6 +481,27 @@ function checkTypesys(expr, rule, subs, path) {
       return rule;
     }
     bad('type-check mismatch');
+  }
+  if (rule === 'substitution' && expr.length === 4 && expr[0] === 'subst') {
+    arity(rule, subs, 3, path);
+    if (
+      isStructurallySame(expr[1], subs[0]) &&
+      isStructurallySame(expr[2], subs[1]) &&
+      isStructurallySame(expr[3], subs[2])
+    ) {
+      return rule;
+    }
+    bad('substitution mismatch');
+  }
+  if (rule === 'fresh' && expr.length === 4 && expr[0] === 'fresh' && expr[2] === 'in') {
+    arity(rule, subs, 2, path);
+    if (
+      isStructurallySame(expr[1], subs[0]) &&
+      isStructurallySame(expr[3], subs[1])
+    ) {
+      return rule;
+    }
+    bad('fresh mismatch');
   }
   bad('shape mismatch');
 }

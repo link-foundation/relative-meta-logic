@@ -2,8 +2,8 @@
 
 This document specifies the typed-kernel surface implemented by the
 JavaScript and Rust evaluators. It is the D1 contract from issue #37:
-the rules for `Pi`, `lambda`, `apply`, type membership with `of`, and
-type queries with `(type of ...)`.
+the rules for `Pi`, `lambda`, `apply`, capture-avoiding substitution,
+freshness, type membership with `of`, and type queries with `(type of ...)`.
 
 RML remains a dynamic axiomatic system. These rules install and query type
 facts in the evaluator environment; they are not yet a full bidirectional
@@ -139,8 +139,7 @@ Gamma |- (apply f a) => body[x := a]
 
 The implemented reduction substitutes the argument into the lambda body and
 evaluates the result. Named lambdas and inline lambdas both use the same
-substitution helper. The helper does not substitute under a nested `lambda`
-or `Pi` binder that shadows the same variable.
+capture-avoiding substitution helper.
 
 The intended typing rule is the standard dependent application rule:
 
@@ -153,6 +152,59 @@ Gamma |- (apply f a) : B[x := a]
 
 The evaluator realizes the reduction path today. Full type checking of the
 argument against the domain belongs to the later bidirectional checker.
+
+## Substitution
+
+`subst` is the kernel primitive for capture-avoiding substitution:
+
+```lino
+(subst (lambda (Natural y) (x + y)) x y)
+```
+
+Rule:
+
+```text
+Gamma |- term[x := replacement] = term'
+----------------------------------------
+Gamma |- (subst term x replacement) => term'
+```
+
+The helper substitutes only free occurrences of the target variable. It stops
+at `lambda`, `Pi`, and `fresh` binders that shadow the target variable. When
+the replacement contains a free variable that would be captured by a binder in
+the term, the binder is alpha-renamed deterministically:
+
+```lino
+(? (subst (lambda (Natural y) (x + y)) x y))
+# -> (lambda (Natural y_1) (y + y_1))
+```
+
+## Freshness
+
+`fresh` introduces a scoped name that must not already appear in the current
+environment:
+
+```lino
+(fresh y in ((lambda (Natural x) (x + y)) y))
+```
+
+Rule:
+
+```text
+x notin Gamma
+Gamma, x fresh |- body => v
+---------------------------
+Gamma |- (fresh x in body) => v
+```
+
+If the name is already present in the context, evaluation rejects the form with
+diagnostic `E010`:
+
+```lino
+(Natural: (Type 0) Natural)
+(y: Natural y)
+(? (fresh y in y))  # E010
+```
 
 ## Type Membership And Query Links
 
@@ -205,6 +257,8 @@ links with these rule names:
 | `(Pi (A x) B)` | `pi-formation` |
 | `(lambda (A x) body)` | `lambda-formation` |
 | `(apply f a)` | `beta-reduction` |
+| `(subst term x replacement)` | `substitution` |
+| `(fresh x in body)` | `fresh` |
 | `(type of expr)` | `type-query` |
 | `(expr of Type)` | `type-check` |
 

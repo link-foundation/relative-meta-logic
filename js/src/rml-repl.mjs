@@ -24,7 +24,7 @@ const META_COMMANDS = [
 const BUILTIN_KEYWORDS = [
   'and', 'or', 'not', 'both', 'neither', 'is', 'has', 'probability',
   'range', 'valence', 'true', 'false', 'unknown', 'undefined',
-  'lambda', 'apply', 'Pi', 'Type', 'Prop', 'of', 'type',
+  'lambda', 'apply', 'subst', 'fresh', 'in', 'Pi', 'Type', 'Prop', 'of', 'type',
 ];
 
 function formatNumber(v) {

@@ -99,6 +99,8 @@ Each AST node is evaluated recursively by `eval_node` / `evalNode`. The evaluati
 | `(Pi (A x) B)` | Dependent product formation | `(Pi (Natural n) Natural)` |
 | `(lambda (A x) body)` | Lambda formation | `(lambda (Natural x) x)` |
 | `(apply f x)` | Lambda application by beta-reduction | `(apply identity zero)` |
+| `(subst term x replacement)` | Capture-avoiding substitution | `(subst (x + 0.1) x 0.2)` |
+| `(fresh x in body)` | Temporarily introduce a fresh scoped variable | `(fresh x in (x of Natural))` |
 | `(expr of Type)` | Type membership check | `(zero of Natural)` |
 | `(type of expr)` | Type query | `(type of zero)` |
 
@@ -108,7 +110,8 @@ The typed-kernel rules are specified in [docs/KERNEL.md](./docs/KERNEL.md).
 
 Only query expressions `(? ...)` produce output. Their evaluated truth
 values are collected and returned as an array of numbers; `(type of ...)`
-queries return type strings in the typed runner APIs.
+queries return type strings in the typed runner APIs, and direct `(subst ...)`
+queries return the substituted link string.
 
 ## Public Library API
 

@@ -433,23 +433,171 @@ function parseBindings(binding) {
 }
 
 // ---------- Substitution (for beta-reduction) ----------
-// Substitute all occurrences of variable `name` with `replacement` in `expr`.
-// Both expr and replacement can be strings or arrays (AST nodes).
-function substitute(expr, name, replacement) {
+// Capture-avoiding substitution for kernel terms. Both expr and replacement
+// can be strings or arrays (AST nodes). The public primitive is `subst`;
+// `substitute` remains as the backwards-compatible helper name.
+const NON_VARIABLE_TOKENS = new Set([
+  'lambda', 'Pi', 'fresh', 'in', 'subst', 'apply', 'type', 'of',
+  'has', 'probability', 'with', 'proof', 'range', 'valence',
+  'namespace', 'import', 'as', 'is', '?',
+  '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
+]);
+
+function cloneTerm(node) {
+  return Array.isArray(node) ? node.map(cloneTerm) : node;
+}
+
+function tokenBaseName(token) {
+  if (typeof token !== 'string') return null;
+  return token.replace(/[:,]+$/g, '');
+}
+
+function isVariableToken(token) {
+  if (typeof token !== 'string') return false;
+  const base = tokenBaseName(token);
+  return !!base && base === token && !isNum(base) && !NON_VARIABLE_TOKENS.has(base);
+}
+
+function bindingParamNames(binding) {
+  const parsed = parseBindings(binding);
+  return parsed ? parsed.map(b => b.paramName) : [];
+}
+
+function binderInfo(expr) {
+  if (!Array.isArray(expr)) return null;
+  if (expr.length === 3 && (expr[0] === 'lambda' || expr[0] === 'Pi')) {
+    const params = bindingParamNames(expr[1]);
+    if (params.length > 0) {
+      return { kind: expr[0], params, bodyIndex: 2, bindingIndex: 1 };
+    }
+  }
+  if (expr.length === 4 && expr[0] === 'fresh' && expr[2] === 'in' && typeof expr[1] === 'string') {
+    return { kind: 'fresh', params: [expr[1]], bodyIndex: 3, bindingIndex: 1 };
+  }
+  return null;
+}
+
+function freeVariables(expr, bound = new Set()) {
+  const out = new Set();
+  function addAll(set) {
+    for (const v of set) out.add(v);
+  }
+  if (typeof expr === 'string') {
+    if (isVariableToken(expr) && !bound.has(expr)) out.add(expr);
+    return out;
+  }
+  if (!Array.isArray(expr)) return out;
+
+  const binder = binderInfo(expr);
+  if (binder) {
+    const nested = new Set(bound);
+    for (const param of binder.params) nested.add(param);
+    if (binder.kind !== 'fresh') {
+      const paramSet = new Set(binder.params);
+      for (const child of expr[binder.bindingIndex]) {
+        if (typeof child === 'string' && paramSet.has(tokenBaseName(child))) continue;
+        addAll(freeVariables(child, bound));
+      }
+    }
+    addAll(freeVariables(expr[binder.bodyIndex], nested));
+    return out;
+  }
+
+  for (const child of expr) addAll(freeVariables(child, bound));
+  return out;
+}
+
+function containsFree(expr, name) {
+  return freeVariables(expr).has(name);
+}
+
+function collectNames(expr, out = new Set()) {
+  if (typeof expr === 'string') {
+    const base = tokenBaseName(expr);
+    if (base && !isNum(base) && !NON_VARIABLE_TOKENS.has(base)) out.add(base);
+    return out;
+  }
+  if (Array.isArray(expr)) {
+    for (const child of expr) collectNames(child, out);
+  }
+  return out;
+}
+
+function freshName(base, avoid) {
+  let i = 1;
+  let candidate = `${base}_${i}`;
+  while (avoid.has(candidate)) {
+    i++;
+    candidate = `${base}_${i}`;
+  }
+  return candidate;
+}
+
+function renameBindingParam(binding, oldName, newName) {
+  if (!Array.isArray(binding)) return binding;
+  return binding.map(child => {
+    if (typeof child !== 'string') return cloneTerm(child);
+    if (child === oldName) return newName;
+    if (child === `${oldName},`) return `${newName},`;
+    if (child === `${oldName}:`) return `${newName}:`;
+    return child;
+  });
+}
+
+function renameBoundOccurrences(expr, oldName, newName) {
+  if (typeof expr === 'string') return expr === oldName ? newName : expr;
+  if (!Array.isArray(expr)) return expr;
+
+  const binder = binderInfo(expr);
+  if (binder && binder.params.includes(oldName)) {
+    return cloneTerm(expr);
+  }
+
+  return expr.map(child => renameBoundOccurrences(child, oldName, newName));
+}
+
+function renameBinder(expr, binder, oldName, newName) {
+  const out = expr.map(cloneTerm);
+  if (binder.kind === 'fresh') {
+    out[binder.bindingIndex] = newName;
+  } else {
+    out[binder.bindingIndex] = renameBindingParam(out[binder.bindingIndex], oldName, newName);
+  }
+  out[binder.bodyIndex] = renameBoundOccurrences(out[binder.bodyIndex], oldName, newName);
+  return out;
+}
+
+function subst(expr, name, replacement) {
   if (typeof expr === 'string') {
     return expr === name ? replacement : expr;
   }
   if (Array.isArray(expr)) {
-    // Don't substitute inside a binding that shadows the variable
-    if (expr.length === 3 && (expr[0] === 'lambda' || expr[0] === 'Pi') && Array.isArray(expr[1])) {
-      const parsed = parseBinding(expr[1]);
-      if (parsed && parsed.paramName === name) {
-        return expr; // shadowed
+    const binder = binderInfo(expr);
+    if (binder) {
+      if (binder.params.includes(name)) return expr; // shadowed
+      let current = expr.map(cloneTerm);
+      const replacementFree = freeVariables(replacement);
+      if (containsFree(expr[binder.bodyIndex], name)) {
+        const avoid = collectNames(current);
+        collectNames(replacement, avoid);
+        avoid.add(name);
+        for (const param of binder.params) {
+          if (replacementFree.has(param)) {
+            const next = freshName(param, avoid);
+            avoid.add(next);
+            current = renameBinder(current, binderInfo(current), param, next);
+          }
+        }
       }
+      return current.map(child => subst(child, name, replacement));
     }
-    return expr.map(child => substitute(child, name, replacement));
+    return expr.map(child => subst(child, name, replacement));
   }
   return expr;
+}
+
+function substitute(expr, name, replacement) {
+  return subst(expr, name, replacement);
 }
 
 // ---------- Eval ----------
@@ -592,6 +740,12 @@ function buildProof(node, env) {
   if (node.length === 3 && node[0] === 'apply') {
     return _wrap('beta-reduction', buildProof(node[1], env), buildProof(node[2], env));
   }
+  if (node.length === 4 && node[0] === 'subst') {
+    return _wrap('substitution', node[1], node[2], node[3]);
+  }
+  if (node.length === 4 && node[0] === 'fresh' && node[2] === 'in') {
+    return _wrap('fresh', node[1], node[3]);
+  }
   if (node.length === 3 && node[0] === 'type' && node[1] === 'of') {
     return _wrap('type-query', node[2]);
   }
@@ -630,7 +784,83 @@ function _queryRequestsProof(node) {
 // Evaluate a node in arithmetic context — numeric literals are NOT clamped to the logic range.
 function evalArith(node, env){
   if (typeof node === 'string' && isNum(node)) return parseFloat(node);
-  return evalNode(node, env);
+  const evaluated = evalNode(node, env);
+  if (isTermResult(evaluated)) return evalArith(evaluated.term, env);
+  return evaluated;
+}
+
+function isTermResult(value) {
+  return value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'term');
+}
+
+function evalTermNode(node, env) {
+  if (!Array.isArray(node)) return node;
+
+  if (node.length === 4 && node[0] === 'subst' && typeof node[2] === 'string') {
+    return evalTermNode(subst(evalTermNode(node[1], env), node[2], evalTermNode(node[3], env)), env);
+  }
+
+  if (node.length === 3 && node[0] === 'apply') {
+    const fn = node[1];
+    const arg = evalTermNode(node[2], env);
+    if (Array.isArray(fn) && fn.length === 3 && fn[0] === 'lambda') {
+      const parsed = parseBinding(fn[1]);
+      if (parsed) return evalTermNode(subst(fn[2], parsed.paramName, arg), env);
+    }
+    if (typeof fn === 'string') {
+      const lambda = env.getLambda(fn);
+      if (lambda) return evalTermNode(subst(lambda.body, lambda.param, arg), env);
+    }
+  }
+
+  if (Array.isArray(node[0]) && node[0].length === 3 && node[0][0] === 'lambda' && node.length >= 2) {
+    const parsed = parseBinding(node[0][1]);
+    if (parsed) {
+      const reduced = subst(node[0][2], parsed.paramName, evalTermNode(node[1], env));
+      return node.length === 2 ? evalTermNode(reduced, env) : evalTermNode([reduced, ...node.slice(2)], env);
+    }
+  }
+
+  return node;
+}
+
+function contextHasName(env, name) {
+  if (env.terms.has(name) || env.types.has(name) || env.lambdas.has(name) || env.symbolProb.has(name) || env.ops.has(name)) {
+    return true;
+  }
+  const resolved = env._resolveQualified(name);
+  return resolved !== name && (
+    env.terms.has(resolved) ||
+    env.types.has(resolved) ||
+    env.lambdas.has(resolved) ||
+    env.symbolProb.has(resolved) ||
+    env.ops.has(resolved)
+  );
+}
+
+function evalFresh(varName, body, env) {
+  if (contextHasName(env, varName)) {
+    throw new RmlError('E010', `fresh variable "${varName}" already appears in context`);
+  }
+  const hadTerm = env.terms.has(varName);
+  const hadType = env.types.has(varName);
+  const previousType = env.types.get(varName);
+  const hadLambda = env.lambdas.has(varName);
+  const previousLambda = env.lambdas.get(varName);
+  const hadSymbol = env.symbolProb.has(varName);
+  const previousSymbol = env.symbolProb.get(varName);
+  env.terms.add(varName);
+  try {
+    return evalNode(body, env);
+  } finally {
+    if (!hadTerm) env.terms.delete(varName);
+    if (hadType) env.types.set(varName, previousType);
+    else env.types.delete(varName);
+    if (hadLambda) env.lambdas.set(varName, previousLambda);
+    else env.lambdas.delete(varName);
+    if (hadSymbol) env.symbolProb.set(varName, previousSymbol);
+    else env.symbolProb.delete(varName);
+  }
 }
 
 function evalNode(node, env){
@@ -685,7 +915,18 @@ function evalNode(node, env){
     const v = evalNode(target, env);
     // If inner result is already a query (e.g. from (type of x)), pass it through
     if (v && typeof v === 'object' && v.query) return v;
+    if (isTermResult(v)) return { query:true, value: keyOf(v.term), typeQuery: true };
     return { query:true, value: env.clamp(v) };
+  }
+
+  // Kernel substitution primitive: (subst term x replacement)
+  if (node.length === 4 && node[0] === 'subst' && typeof node[2] === 'string') {
+    return { term: evalTermNode(node, env) };
+  }
+
+  // Freshness binder: (fresh x in body)
+  if (node.length === 4 && node[0] === 'fresh' && node[2] === 'in' && typeof node[1] === 'string') {
+    return evalFresh(node[1], node[3], env);
   }
 
   // Infix arithmetic: (A + B), (A - B), (A * B), (A / B)
@@ -728,20 +969,22 @@ function evalNode(node, env){
   // Infix equality/inequality: (L = R), (L != R)
   if (node.length === 3 && typeof node[1] === 'string' && (node[1]==='=' || node[1]==='!=')) {
     const op = env.getOp(node[1]);
+    const leftTerm = evalTermNode(node[0], env);
+    const rightTerm = evalTermNode(node[2], env);
     // Equality checks assigned probability first, then structural equality,
     // then falls back to numeric comparison of evaluated values (decimal-precision)
-    const raw = op(node[0], node[2], keyOf);
+    const raw = op(leftTerm, rightTerm, keyOf);
     // If structural/assigned equality already gave a definitive answer, use it
     if (raw === env.hi || raw === env.lo) {
       // Check if there's an explicit assignment — if so, trust it
-      const kPrefix = keyOf(['=',node[0],node[2]]);
-      const kInfix = keyOf([node[0],'=',node[2]]);
-      if (env.assign.has(kPrefix) || env.assign.has(kInfix) || isStructurallySame(node[0], node[2])) {
+      const kPrefix = keyOf(['=',leftTerm,rightTerm]);
+      const kInfix = keyOf([leftTerm,'=',rightTerm]);
+      if (env.assign.has(kPrefix) || env.assign.has(kInfix) || isStructurallySame(leftTerm, rightTerm)) {
         return env.clamp(raw);
       }
       // No explicit assignment and not structurally same — try numeric comparison
-      const L = evalNode(node[0], env);
-      const R = evalNode(node[2], env);
+      const L = evalArith(leftTerm, env);
+      const R = evalArith(rightTerm, env);
       const numEq = decRound(L) === decRound(R) ? env.hi : env.lo;
       if (node[1] === '!=') return env.clamp(env.getOp('not')(numEq));
       return env.clamp(numEq);
@@ -812,7 +1055,7 @@ function evalNode(node, env){
       const parsed = parseBinding(fn[1]);
       if (parsed) {
         const body = fn[2];
-        const result = substitute(body, parsed.paramName, arg);
+        const result = subst(body, parsed.paramName, arg);
         return evalNode(result, env);
       }
     }
@@ -821,7 +1064,7 @@ function evalNode(node, env){
     if (typeof fn === 'string') {
       const lambda = env.getLambda(fn);
       if (lambda) {
-        const result = substitute(lambda.body, lambda.param, arg);
+        const result = subst(lambda.body, lambda.param, arg);
         return evalNode(result, env);
       }
     }
@@ -869,7 +1112,7 @@ function evalNode(node, env){
     const lambda = env.getLambda(head) || env.getLambda(env._resolveQualified(head));
     if (lambda) {
       // Apply first argument, then recursively apply rest
-      let result = substitute(lambda.body, lambda.param, args[0]);
+      let result = subst(lambda.body, lambda.param, args[0]);
       if (args.length === 1) {
         return evalNode(result, env);
       }
@@ -880,6 +1123,16 @@ function evalNode(node, env){
         current = evalNode(args[i], env);
       }
       return current;
+    }
+  }
+
+  // Prefix application with an inline lambda head: ((lambda (A x) body) arg)
+  if (Array.isArray(head) && head.length === 3 && head[0] === 'lambda' && args.length >= 1) {
+    const parsed = parseBinding(head[1]);
+    if (parsed) {
+      const result = subst(head[2], parsed.paramName, args[0]);
+      if (args.length === 1) return evalNode(result, env);
+      return evalNode([result, ...args.slice(1)], env);
     }
   }
 
@@ -1301,6 +1554,8 @@ function evaluate(code, options) {
         if (res && res.query) {
           const tag = res.typeQuery ? 'type' : 'query';
           summary = `${formKey} → ${tag} ${formatTraceValue(res.value)}`;
+        } else if (isTermResult(res)) {
+          summary = `${formKey} → term ${keyOf(res.term)}`;
         } else {
           summary = `${formKey} → ${formatTraceValue(res)}`;
         }
@@ -1797,6 +2052,7 @@ export {
   isStructurallySame,
   parseBinding,
   parseBindings,
+  subst,
   substitute,
   formalizeSelectedInterpretation,
   evaluateFormalization,

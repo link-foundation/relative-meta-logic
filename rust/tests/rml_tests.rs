@@ -2013,6 +2013,12 @@ fn example_belnap_four_valued() {
 // --- substitute (beta-reduction helper) ---
 
 #[test]
+fn subst_alias_matches_kernel_substitution_primitive() {
+    let result = subst(&Node::Leaf("x".into()), "x", &Node::Leaf("y".into()));
+    assert_eq!(result, Node::Leaf("y".into()));
+}
+
+#[test]
 fn subst_variable_in_leaf() {
     let result = substitute(&Node::Leaf("x".into()), "x", &Node::Leaf("y".into()));
     assert_eq!(result, Node::Leaf("y".into()));
@@ -2121,6 +2127,86 @@ fn subst_free_var_in_lambda() {
             Node::Leaf("lambda".into()),
             Node::List(vec![Node::Leaf("Natural".into()), Node::Leaf("y".into()),]),
             Node::Leaf("5".into()),
+        ])
+    );
+}
+
+#[test]
+fn subst_alpha_renames_lambda_binder_to_avoid_capture() {
+    let expr = Node::List(vec![
+        Node::Leaf("lambda".into()),
+        Node::List(vec![Node::Leaf("Natural".into()), Node::Leaf("y".into())]),
+        Node::List(vec![
+            Node::Leaf("x".into()),
+            Node::Leaf("+".into()),
+            Node::Leaf("y".into()),
+        ]),
+    ]);
+    let result = subst(&expr, "x", &Node::Leaf("y".into()));
+    assert_eq!(
+        result,
+        Node::List(vec![
+            Node::Leaf("lambda".into()),
+            Node::List(vec![Node::Leaf("Natural".into()), Node::Leaf("y_1".into())]),
+            Node::List(vec![
+                Node::Leaf("y".into()),
+                Node::Leaf("+".into()),
+                Node::Leaf("y_1".into()),
+            ]),
+        ])
+    );
+}
+
+#[test]
+fn subst_alpha_renames_pi_binder_to_avoid_capture() {
+    let expr = Node::List(vec![
+        Node::Leaf("Pi".into()),
+        Node::List(vec![Node::Leaf("Natural".into()), Node::Leaf("y".into())]),
+        Node::List(vec![
+            Node::Leaf("Vec".into()),
+            Node::Leaf("x".into()),
+            Node::Leaf("y".into()),
+        ]),
+    ]);
+    let result = subst(&expr, "x", &Node::Leaf("y".into()));
+    assert_eq!(
+        result,
+        Node::List(vec![
+            Node::Leaf("Pi".into()),
+            Node::List(vec![Node::Leaf("Natural".into()), Node::Leaf("y_1".into())]),
+            Node::List(vec![
+                Node::Leaf("Vec".into()),
+                Node::Leaf("y".into()),
+                Node::Leaf("y_1".into()),
+            ]),
+        ])
+    );
+}
+
+#[test]
+fn subst_alpha_renames_fresh_binder_to_avoid_capture() {
+    let expr = Node::List(vec![
+        Node::Leaf("fresh".into()),
+        Node::Leaf("y".into()),
+        Node::Leaf("in".into()),
+        Node::List(vec![
+            Node::Leaf("x".into()),
+            Node::Leaf("+".into()),
+            Node::Leaf("y".into()),
+        ]),
+    ]);
+    let result = subst(&expr, "x", &Node::Leaf("y".into()));
+    assert_eq!(
+        result,
+        Node::List(vec![
+            Node::Leaf("fresh".into()),
+            Node::Leaf("y_1".into()),
+            Node::Leaf("in".into()),
+            Node::List(vec![
+                Node::Leaf("y".into()),
+                Node::Leaf("+".into()),
+                Node::Leaf("y_1".into()),
+            ]),
         ])
     );
 }

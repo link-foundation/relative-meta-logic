@@ -9,6 +9,7 @@ import {
   quantize,
   decRound,
   substitute,
+  subst,
   formalizeSelectedInterpretation,
   evaluateFormalization,
 } from '../src/rml-links.mjs';
@@ -1608,6 +1609,10 @@ describe('Truth constants: liar paradox using truth constants', () => {
 // =============================================================================
 
 describe('Type System: substitute (beta-reduction helper)', () => {
+  it('should expose subst as the kernel substitution primitive', () => {
+    assert.strictEqual(subst('x', 'x', 'y'), 'y');
+  });
+
   it('should substitute a variable in a string', () => {
     assert.strictEqual(substitute('x', 'x', 'y'), 'y');
   });
@@ -1650,6 +1655,30 @@ describe('Type System: substitute (beta-reduction helper)', () => {
     assert.deepStrictEqual(
       substitute(expr, 'x', '5'),
       ['lambda', ['Natural', 'y'], '5']
+    );
+  });
+
+  it('should alpha-rename lambda binders that would capture the replacement', () => {
+    const expr = ['lambda', ['Natural', 'y'], ['x', '+', 'y']];
+    assert.deepStrictEqual(
+      subst(expr, 'x', 'y'),
+      ['lambda', ['Natural', 'y_1'], ['y', '+', 'y_1']]
+    );
+  });
+
+  it('should alpha-rename Pi binders that would capture the replacement', () => {
+    const expr = ['Pi', ['Natural', 'y'], ['Vec', 'x', 'y']];
+    assert.deepStrictEqual(
+      subst(expr, 'x', 'y'),
+      ['Pi', ['Natural', 'y_1'], ['Vec', 'y', 'y_1']]
+    );
+  });
+
+  it('should alpha-rename fresh binders that would capture the replacement', () => {
+    const expr = ['fresh', 'y', 'in', ['x', '+', 'y']];
+    assert.deepStrictEqual(
+      subst(expr, 'x', 'y'),
+      ['fresh', 'y_1', 'in', ['y', '+', 'y_1']]
     );
   });
 });

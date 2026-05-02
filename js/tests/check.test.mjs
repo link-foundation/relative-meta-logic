@@ -46,11 +46,13 @@ describe('replay acceptance: structural-equality witness', () => {
       '(? (neither 0 nor 0))',
       '(? (1 = 2))',
       '(? (1 != 2))',
+      '(? (subst (x + 0.1) x 0.2))',
+      '(? (fresh z in z))',
     ].join('\n');
     const proofs = proofsFrom(program);
     const r = checkProgram(program, proofs);
     assert.ok(isOk(r), JSON.stringify(r.errors));
-    assert.strictEqual(r.ok.length, 13);
+    assert.strictEqual(r.ok.length, 15);
   });
 });
 

@@ -987,13 +987,14 @@ pub enum EvalResult {
     Value(f64),
     Query(f64),
     TypeQuery(String),
+    Term(Node),
 }
 
 impl EvalResult {
     pub fn as_f64(&self) -> f64 {
         match self {
             EvalResult::Value(v) | EvalResult::Query(v) => *v,
-            EvalResult::TypeQuery(_) => 0.0,
+            EvalResult::TypeQuery(_) | EvalResult::Term(_) => 0.0,
         }
     }
 
@@ -1096,8 +1097,252 @@ pub fn parse_bindings(binding: &Node) -> Option<Vec<(String, String)>> {
 
 // ========== Substitution ==========
 
-/// Substitute all occurrences of variable `name` with `replacement` in `expr`.
-pub fn substitute(expr: &Node, name: &str, replacement: &Node) -> Node {
+/// Capture-avoiding substitution for kernel terms. `subst` is the public
+/// primitive name; `substitute` remains as the backwards-compatible helper.
+#[derive(Debug, Clone, PartialEq)]
+enum BinderKind {
+    Lambda,
+    Pi,
+    Fresh,
+}
+
+#[derive(Debug, Clone)]
+struct BinderInfo {
+    kind: BinderKind,
+    params: Vec<String>,
+    body_index: usize,
+    binding_index: usize,
+}
+
+fn non_variable_token(s: &str) -> bool {
+    matches!(
+        s,
+        "lambda"
+            | "Pi"
+            | "fresh"
+            | "in"
+            | "subst"
+            | "apply"
+            | "type"
+            | "of"
+            | "has"
+            | "probability"
+            | "with"
+            | "proof"
+            | "range"
+            | "valence"
+            | "namespace"
+            | "import"
+            | "as"
+            | "is"
+            | "?"
+            | "+"
+            | "-"
+            | "*"
+            | "/"
+            | "="
+            | "!="
+            | "and"
+            | "or"
+            | "not"
+            | "both"
+            | "neither"
+            | "nor"
+    )
+}
+
+fn token_base_name(token: &str) -> String {
+    token.trim_end_matches(|c| c == ':' || c == ',').to_string()
+}
+
+fn is_variable_token(token: &str) -> bool {
+    let base = token_base_name(token);
+    !base.is_empty() && base == token && !is_num(&base) && !non_variable_token(&base)
+}
+
+fn binding_param_names(binding: &Node) -> Vec<String> {
+    parse_bindings(binding)
+        .map(|bindings| bindings.into_iter().map(|(name, _)| name).collect())
+        .unwrap_or_default()
+}
+
+fn binder_info(expr: &Node) -> Option<BinderInfo> {
+    if let Node::List(children) = expr {
+        if children.len() == 3 {
+            if let Node::Leaf(head) = &children[0] {
+                if head == "lambda" || head == "Pi" {
+                    let params = binding_param_names(&children[1]);
+                    if !params.is_empty() {
+                        return Some(BinderInfo {
+                            kind: if head == "lambda" {
+                                BinderKind::Lambda
+                            } else {
+                                BinderKind::Pi
+                            },
+                            params,
+                            body_index: 2,
+                            binding_index: 1,
+                        });
+                    }
+                }
+            }
+        }
+        if children.len() == 4 {
+            if let (Node::Leaf(head), Node::Leaf(var_name), Node::Leaf(in_kw)) =
+                (&children[0], &children[1], &children[2])
+            {
+                if head == "fresh" && in_kw == "in" {
+                    return Some(BinderInfo {
+                        kind: BinderKind::Fresh,
+                        params: vec![var_name.clone()],
+                        body_index: 3,
+                        binding_index: 1,
+                    });
+                }
+            }
+        }
+    }
+    None
+}
+
+fn free_variables(expr: &Node) -> HashSet<String> {
+    fn walk(expr: &Node, bound: &HashSet<String>, out: &mut HashSet<String>) {
+        match expr {
+            Node::Leaf(s) => {
+                if is_variable_token(s) && !bound.contains(s) {
+                    out.insert(s.clone());
+                }
+            }
+            Node::List(children) => {
+                if let Some(binder) = binder_info(expr) {
+                    if binder.kind != BinderKind::Fresh {
+                        let params: HashSet<String> = binder.params.iter().cloned().collect();
+                        if let Node::List(binding_children) = &children[binder.binding_index] {
+                            for child in binding_children {
+                                if let Node::Leaf(s) = child {
+                                    if params.contains(&token_base_name(s)) {
+                                        continue;
+                                    }
+                                }
+                                walk(child, bound, out);
+                            }
+                        }
+                    }
+                    let mut nested = bound.clone();
+                    for param in binder.params {
+                        nested.insert(param);
+                    }
+                    walk(&children[binder.body_index], &nested, out);
+                    return;
+                }
+                for child in children {
+                    walk(child, bound, out);
+                }
+            }
+        }
+    }
+
+    let mut out = HashSet::new();
+    walk(expr, &HashSet::new(), &mut out);
+    out
+}
+
+fn contains_free(expr: &Node, name: &str) -> bool {
+    free_variables(expr).contains(name)
+}
+
+fn collect_names(expr: &Node, out: &mut HashSet<String>) {
+    match expr {
+        Node::Leaf(s) => {
+            let base = token_base_name(s);
+            if !base.is_empty() && !is_num(&base) && !non_variable_token(&base) {
+                out.insert(base);
+            }
+        }
+        Node::List(children) => {
+            for child in children {
+                collect_names(child, out);
+            }
+        }
+    }
+}
+
+fn fresh_name(base: &str, avoid: &HashSet<String>) -> String {
+    let mut i = 1;
+    loop {
+        let candidate = format!("{}_{}", base, i);
+        if !avoid.contains(&candidate) {
+            return candidate;
+        }
+        i += 1;
+    }
+}
+
+fn rename_binding_param(binding: &Node, old_name: &str, new_name: &str) -> Node {
+    if let Node::List(children) = binding {
+        return Node::List(
+            children
+                .iter()
+                .map(|child| match child {
+                    Node::Leaf(s) if s == old_name => Node::Leaf(new_name.to_string()),
+                    Node::Leaf(s) if s == &format!("{},", old_name) => {
+                        Node::Leaf(format!("{},", new_name))
+                    }
+                    Node::Leaf(s) if s == &format!("{}:", old_name) => {
+                        Node::Leaf(format!("{}:", new_name))
+                    }
+                    _ => child.clone(),
+                })
+                .collect(),
+        );
+    }
+    binding.clone()
+}
+
+fn rename_bound_occurrences(expr: &Node, old_name: &str, new_name: &str) -> Node {
+    match expr {
+        Node::Leaf(s) => {
+            if s == old_name {
+                Node::Leaf(new_name.to_string())
+            } else {
+                expr.clone()
+            }
+        }
+        Node::List(children) => {
+            if let Some(binder) = binder_info(expr) {
+                if binder.params.iter().any(|param| param == old_name) {
+                    return expr.clone();
+                }
+            }
+            Node::List(
+                children
+                    .iter()
+                    .map(|child| rename_bound_occurrences(child, old_name, new_name))
+                    .collect(),
+            )
+        }
+    }
+}
+
+fn rename_binder(expr: &Node, binder: &BinderInfo, old_name: &str, new_name: &str) -> Node {
+    if let Node::List(children) = expr {
+        let mut out = children.clone();
+        if binder.kind == BinderKind::Fresh {
+            out[binder.binding_index] = Node::Leaf(new_name.to_string());
+        } else {
+            out[binder.binding_index] =
+                rename_binding_param(&out[binder.binding_index], old_name, new_name);
+        }
+        out[binder.body_index] =
+            rename_bound_occurrences(&out[binder.body_index], old_name, new_name);
+        Node::List(out)
+    } else {
+        expr.clone()
+    }
+}
+
+/// Substitute all free occurrences of variable `name` with `replacement` in `expr`.
+pub fn subst(expr: &Node, name: &str, replacement: &Node) -> Node {
     match expr {
         Node::Leaf(s) => {
             if s == name {
@@ -1107,26 +1352,48 @@ pub fn substitute(expr: &Node, name: &str, replacement: &Node) -> Node {
             }
         }
         Node::List(children) => {
-            // Don't substitute inside a binding that shadows the variable
-            if children.len() == 3 {
-                if let Node::Leaf(ref head) = children[0] {
-                    if head == "lambda" || head == "Pi" {
-                        if let Some((param, _)) = parse_binding(&children[1]) {
-                            if param == name {
-                                return expr.clone(); // shadowed
-                            }
+            if let Some(binder) = binder_info(expr) {
+                if binder.params.iter().any(|param| param == name) {
+                    return expr.clone(); // shadowed
+                }
+                let mut current = expr.clone();
+                let replacement_free = free_variables(replacement);
+                if contains_free(&children[binder.body_index], name) {
+                    let mut avoid = HashSet::new();
+                    collect_names(&current, &mut avoid);
+                    collect_names(replacement, &mut avoid);
+                    avoid.insert(name.to_string());
+                    for param in &binder.params {
+                        if replacement_free.contains(param) {
+                            let next = fresh_name(param, &avoid);
+                            avoid.insert(next.clone());
+                            let current_binder = binder_info(&current).expect("renamed binder");
+                            current = rename_binder(&current, &current_binder, param, &next);
                         }
                     }
+                }
+                if let Node::List(current_children) = current {
+                    return Node::List(
+                        current_children
+                            .iter()
+                            .map(|child| subst(child, name, replacement))
+                            .collect(),
+                    );
                 }
             }
             Node::List(
                 children
                     .iter()
-                    .map(|child| substitute(child, name, replacement))
+                    .map(|child| subst(child, name, replacement))
                     .collect(),
             )
         }
     }
+}
+
+/// Backwards-compatible alias for [`subst`].
+pub fn substitute(expr: &Node, name: &str, replacement: &Node) -> Node {
+    subst(expr, name, replacement)
 }
 
 // ========== Evaluator ==========
@@ -1138,7 +1405,129 @@ fn eval_arith(node: &Node, env: &mut Env) -> f64 {
             return s.parse::<f64>().unwrap_or(0.0);
         }
     }
-    eval_node(node, env).as_f64()
+    match eval_node(node, env) {
+        EvalResult::Term(term) => eval_arith(&term, env),
+        other => other.as_f64(),
+    }
+}
+
+fn eval_term_node(node: &Node, env: &mut Env) -> Node {
+    if let Node::List(children) = node {
+        if children.len() == 4 {
+            if let (Node::Leaf(head), Node::Leaf(var_name)) = (&children[0], &children[2]) {
+                if head == "subst" {
+                    let term = eval_term_node(&children[1], env);
+                    let replacement = eval_term_node(&children[3], env);
+                    let reduced = subst(&term, var_name, &replacement);
+                    return eval_term_node(&reduced, env);
+                }
+            }
+        }
+
+        if children.len() == 3 {
+            if let Node::Leaf(head) = &children[0] {
+                if head == "apply" {
+                    let fn_node = &children[1];
+                    let arg = eval_term_node(&children[2], env);
+                    if let Node::List(fn_children) = fn_node {
+                        if fn_children.len() == 3 {
+                            if let Node::Leaf(fn_head) = &fn_children[0] {
+                                if fn_head == "lambda" {
+                                    if let Some((param_name, _)) = parse_binding(&fn_children[1]) {
+                                        let reduced = subst(&fn_children[2], &param_name, &arg);
+                                        return eval_term_node(&reduced, env);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if let Node::Leaf(fn_name) = fn_node {
+                        if let Some(lambda) = env.get_lambda(fn_name).cloned() {
+                            let reduced = subst(&lambda.body, &lambda.param, &arg);
+                            return eval_term_node(&reduced, env);
+                        }
+                    }
+                }
+            }
+        }
+
+        if children.len() >= 2 {
+            if let Node::List(head_children) = &children[0] {
+                if head_children.len() == 3 {
+                    if let Node::Leaf(fn_head) = &head_children[0] {
+                        if fn_head == "lambda" {
+                            if let Some((param_name, _)) = parse_binding(&head_children[1]) {
+                                let arg = eval_term_node(&children[1], env);
+                                let reduced = subst(&head_children[2], &param_name, &arg);
+                                if children.len() == 2 {
+                                    return eval_term_node(&reduced, env);
+                                }
+                                let mut next = vec![reduced];
+                                next.extend_from_slice(&children[2..]);
+                                return eval_term_node(&Node::List(next), env);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    node.clone()
+}
+
+fn context_has_name(env: &Env, name: &str) -> bool {
+    if env.terms.contains(name)
+        || env.types.contains_key(name)
+        || env.lambdas.contains_key(name)
+        || env.symbol_prob.contains_key(name)
+        || env.ops.contains_key(name)
+    {
+        return true;
+    }
+    let resolved = env.resolve_qualified(name);
+    resolved != name
+        && (env.terms.contains(&resolved)
+            || env.types.contains_key(&resolved)
+            || env.lambdas.contains_key(&resolved)
+            || env.symbol_prob.contains_key(&resolved)
+            || env.ops.contains_key(&resolved))
+}
+
+fn eval_fresh(var_name: &str, body: &Node, env: &mut Env) -> EvalResult {
+    if context_has_name(env, var_name) {
+        panic!(
+            "Freshness error: fresh variable \"{}\" already appears in context",
+            var_name
+        );
+    }
+    let had_term = env.terms.contains(var_name);
+    let previous_type = env.types.get(var_name).cloned();
+    let previous_lambda = env.lambdas.get(var_name).cloned();
+    let previous_symbol = env.symbol_prob.get(var_name).copied();
+    env.terms.insert(var_name.to_string());
+    let result = catch_unwind(AssertUnwindSafe(|| eval_node(body, env)));
+    if !had_term {
+        env.terms.remove(var_name);
+    }
+    if let Some(value) = previous_type {
+        env.types.insert(var_name.to_string(), value);
+    } else {
+        env.types.remove(var_name);
+    }
+    if let Some(value) = previous_lambda {
+        env.lambdas.insert(var_name.to_string(), value);
+    } else {
+        env.lambdas.remove(var_name);
+    }
+    if let Some(value) = previous_symbol {
+        env.symbol_prob.insert(var_name.to_string(), value);
+    } else {
+        env.symbol_prob.remove(var_name);
+    }
+    match result {
+        Ok(value) => value,
+        Err(payload) => std::panic::resume_unwind(payload),
+    }
 }
 
 // ========== Proof derivations (issue #35) ==========
@@ -1418,6 +1807,30 @@ pub fn build_proof(node: &Node, env: &Env) -> Node {
                     }
                 }
             }
+            if children.len() == 4 {
+                if let Node::Leaf(h) = &children[0] {
+                    if h == "subst" {
+                        return wrap_proof(
+                            "substitution",
+                            vec![
+                                children[1].clone(),
+                                children[2].clone(),
+                                children[3].clone(),
+                            ],
+                        );
+                    }
+                    if h == "fresh" {
+                        if let Node::Leaf(in_kw) = &children[2] {
+                            if in_kw == "in" {
+                                return wrap_proof(
+                                    "fresh",
+                                    vec![children[1].clone(), children[3].clone()],
+                                );
+                            }
+                        }
+                    }
+                }
+            }
             if children.len() == 3 {
                 if let (Node::Leaf(h), Node::Leaf(m)) = (&children[0], &children[1]) {
                     if h == "type" && m == "of" {
@@ -1549,8 +1962,35 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                     if result.is_type_query() {
                         return result;
                     }
+                    if let EvalResult::Term(term) = result {
+                        return EvalResult::TypeQuery(key_of(&term));
+                    }
                     let v = result.as_f64();
                     return EvalResult::Query(env.clamp(v));
+                }
+            }
+
+            // Kernel substitution primitive: (subst term x replacement)
+            if children.len() == 4 {
+                if let (Node::Leaf(ref head), Node::Leaf(ref var_name)) =
+                    (&children[0], &children[2])
+                {
+                    if head == "subst" {
+                        let term = eval_term_node(node, env);
+                        let _ = var_name;
+                        return EvalResult::Term(term);
+                    }
+                }
+            }
+
+            // Freshness binder: (fresh x in body)
+            if children.len() == 4 {
+                if let (Node::Leaf(ref head), Node::Leaf(ref var_name), Node::Leaf(ref in_kw)) =
+                    (&children[0], &children[1], &children[2])
+                {
+                    if head == "fresh" && in_kw == "in" {
+                        return eval_fresh(var_name, &children[3], env);
+                    }
                 }
             }
 
@@ -1614,39 +2054,41 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
             if children.len() == 3 {
                 if let Node::Leaf(ref op_name) = children[1] {
                     if op_name == "=" {
+                        let left_term = eval_term_node(&children[0], env);
+                        let right_term = eval_term_node(&children[2], env);
                         match env.ops.get("=").cloned() {
                             Some(Op::Compose { outer, inner }) => {
                                 let inner_val = apply_named_op_on_nodes(
                                     env,
                                     &inner,
-                                    &children[0],
-                                    &children[2],
+                                    &left_term,
+                                    &right_term,
                                 );
                                 let outer_val = env.apply_op(&outer, &[inner_val]);
                                 return EvalResult::Value(env.clamp(outer_val));
                             }
                             _ => {
-                                let raw = env.apply_eq(&children[0], &children[2]);
+                                let raw = env.apply_eq(&left_term, &right_term);
                                 // If there's an explicit assignment or structural match, trust it
                                 let k_prefix = key_of(&Node::List(vec![
                                     Node::Leaf("=".to_string()),
-                                    children[0].clone(),
-                                    children[2].clone(),
+                                    left_term.clone(),
+                                    right_term.clone(),
                                 ]));
                                 let k_infix = key_of(&Node::List(vec![
-                                    children[0].clone(),
+                                    left_term.clone(),
                                     Node::Leaf("=".to_string()),
-                                    children[2].clone(),
+                                    right_term.clone(),
                                 ]));
                                 if env.assign.contains_key(&k_prefix)
                                     || env.assign.contains_key(&k_infix)
-                                    || is_structurally_same(&children[0], &children[2])
+                                    || is_structurally_same(&left_term, &right_term)
                                 {
                                     return EvalResult::Value(env.clamp(raw));
                                 }
                                 // No explicit assignment — try numeric comparison (decimal-precision)
-                                let l = eval_arith(&children[0], env);
-                                let r = eval_arith(&children[2], env);
+                                let l = eval_arith(&left_term, env);
+                                let r = eval_arith(&right_term, env);
                                 let num_eq = if dec_round(l) == dec_round(r) {
                                     env.hi
                                 } else {
@@ -1657,13 +2099,15 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                         }
                     }
                     if op_name == "!=" {
+                        let left_term = eval_term_node(&children[0], env);
+                        let right_term = eval_term_node(&children[2], env);
                         match env.ops.get("!=").cloned() {
                             Some(Op::Compose { outer, inner }) => {
                                 let inner_val = apply_named_op_on_nodes(
                                     env,
                                     &inner,
-                                    &children[0],
-                                    &children[2],
+                                    &left_term,
+                                    &right_term,
                                 );
                                 let outer_val = env.apply_op(&outer, &[inner_val]);
                                 return EvalResult::Value(env.clamp(outer_val));
@@ -1672,24 +2116,24 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                                 // Check explicit assignment or structural match first
                                 let k_prefix = key_of(&Node::List(vec![
                                     Node::Leaf("=".to_string()),
-                                    children[0].clone(),
-                                    children[2].clone(),
+                                    left_term.clone(),
+                                    right_term.clone(),
                                 ]));
                                 let k_infix = key_of(&Node::List(vec![
-                                    children[0].clone(),
+                                    left_term.clone(),
                                     Node::Leaf("=".to_string()),
-                                    children[2].clone(),
+                                    right_term.clone(),
                                 ]));
                                 if env.assign.contains_key(&k_prefix)
                                     || env.assign.contains_key(&k_infix)
-                                    || is_structurally_same(&children[0], &children[2])
+                                    || is_structurally_same(&left_term, &right_term)
                                 {
-                                    let neq = env.apply_neq(&children[0], &children[2]);
+                                    let neq = env.apply_neq(&left_term, &right_term);
                                     return EvalResult::Value(env.clamp(neq));
                                 }
                                 // No explicit assignment — try numeric comparison
-                                let l = eval_arith(&children[0], env);
-                                let r = eval_arith(&children[2], env);
+                                let l = eval_arith(&left_term, env);
+                                let r = eval_arith(&right_term, env);
                                 let num_eq = if dec_round(l) == dec_round(r) {
                                     env.hi
                                 } else {
@@ -1792,7 +2236,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                                             parse_binding(&fn_children[1])
                                         {
                                             let body = &fn_children[2];
-                                            let result = substitute(body, &param_name, arg);
+                                            let result = subst(body, &param_name, arg);
                                             return eval_node(&result, env);
                                         }
                                     }
@@ -1803,7 +2247,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                         // Check if fn is a named lambda
                         if let Node::Leaf(ref fn_name) = fn_node {
                             if let Some(lambda) = env.get_lambda(fn_name).cloned() {
-                                let result = substitute(&lambda.body, &lambda.param, arg);
+                                let result = subst(&lambda.body, &lambda.param, arg);
                                 return eval_node(&result, env);
                             }
                         }
@@ -1872,12 +2316,34 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                 // Named lambda application: (name arg ...)
                 if children.len() >= 2 {
                     if let Some(lambda) = env.get_lambda(&head_str).cloned() {
-                        let result = substitute(&lambda.body, &lambda.param, &children[1]);
+                        let result = subst(&lambda.body, &lambda.param, &children[1]);
                         if children.len() == 2 {
                             return eval_node(&result, env);
                         }
                         // For now, just apply first argument
                         return eval_node(&result, env);
+                    }
+                }
+            }
+
+            // Prefix application with an inline lambda head: ((lambda (A x) body) arg)
+            if children.len() >= 2 {
+                if let Node::List(head_children) = &children[0] {
+                    if head_children.len() == 3 {
+                        if let Node::Leaf(fn_head) = &head_children[0] {
+                            if fn_head == "lambda" {
+                                if let Some((param_name, _)) = parse_binding(&head_children[1]) {
+                                    let result =
+                                        subst(&head_children[2], &param_name, &children[1]);
+                                    if children.len() == 2 {
+                                        return eval_node(&result, env);
+                                    }
+                                    let mut next = vec![result];
+                                    next.extend_from_slice(&children[2..]);
+                                    return eval_node(&Node::List(next), env);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2976,6 +3442,9 @@ fn evaluate_inner(text: &str, file: Option<&str>, env: &mut Env, options: &Evalu
                             EvalResult::Value(v) => {
                                 format!("{} → {}", form_key, format_trace_value(*v))
                             }
+                            EvalResult::Term(term) => {
+                                format!("{} → term {}", form_key, key_of(term))
+                            }
                         };
                         env.trace_events
                             .push(TraceEvent::new("eval", summary, span.clone()));
@@ -3079,6 +3548,11 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         ("E001".to_string(), raw_msg)
     } else if raw_msg.starts_with("Unknown aggregator") {
         ("E004".to_string(), raw_msg)
+    } else if raw_msg.starts_with("Freshness error:") {
+        (
+            "E010".to_string(),
+            raw_msg.replacen("Freshness error: ", "", 1),
+        )
     } else {
         ("E000".to_string(), raw_msg)
     }

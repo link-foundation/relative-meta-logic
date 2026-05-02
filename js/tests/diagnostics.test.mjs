@@ -67,6 +67,30 @@ describe('Diagnostic shape and error codes', () => {
     assert.strictEqual(d.span.line, 1);
   });
 
+  it('E010 — fresh variables must not already appear in context', () => {
+    const out = evaluate(
+      '(Natural: (Type 0) Natural)\n(x: Natural x)\n(? (fresh x in x))',
+      { file: 'fresh.lino' },
+    );
+    assert.strictEqual(out.diagnostics.length, 1);
+    const d = out.diagnostics[0];
+    assert.strictEqual(d.code, 'E010');
+    assert.match(d.message, /fresh variable "x" already appears in context/);
+    assert.strictEqual(d.span.file, 'fresh.lino');
+    assert.strictEqual(d.span.line, 3);
+  });
+
+  it('restores fresh variables when the scoped body reports a diagnostic', () => {
+    const out = evaluate(
+      '(? (fresh z in (=: missing identity)))\n(? (fresh z in z))',
+      { file: 'fresh-error.lino' },
+    );
+    assert.strictEqual(out.diagnostics.length, 1);
+    assert.strictEqual(out.diagnostics[0].code, 'E001');
+    assert.strictEqual(out.diagnostics[0].span.line, 1);
+    assert.strictEqual(out.results.length, 1);
+  });
+
   it('E001 — span tracks line for forms that follow blank lines', () => {
     const src = '(valence: 2)\n\n(=: missing identity)';
     const out = evaluate(src, { file: 'multi.lino' });

@@ -2,9 +2,7 @@
 // Mirrors js/tests/diagnostics.test.mjs so any drift between the two
 // implementations fails both test suites.
 
-use rml::{
-    compute_form_spans, evaluate, format_diagnostic, Diagnostic, RunResult, Span,
-};
+use rml::{compute_form_spans, evaluate, format_diagnostic, Diagnostic, RunResult, Span};
 
 #[test]
 fn evaluate_clean_input_returns_results_and_no_diagnostics() {
@@ -47,6 +45,39 @@ fn unknown_aggregator_surfaces_as_e004() {
         d.message
     );
     assert_eq!(d.span.line, 1);
+}
+
+#[test]
+fn fresh_variable_collision_surfaces_as_e010() {
+    let out = evaluate(
+        "(Natural: (Type 0) Natural)\n(x: Natural x)\n(? (fresh x in x))",
+        Some("fresh.lino"),
+        None,
+    );
+    assert_eq!(out.diagnostics.len(), 1);
+    let d = &out.diagnostics[0];
+    assert_eq!(d.code, "E010");
+    assert!(
+        d.message
+            .contains("fresh variable \"x\" already appears in context"),
+        "msg was: {}",
+        d.message
+    );
+    assert_eq!(d.span.file.as_deref(), Some("fresh.lino"));
+    assert_eq!(d.span.line, 3);
+}
+
+#[test]
+fn fresh_variable_is_restored_when_body_reports_a_diagnostic() {
+    let out = evaluate(
+        "(? (fresh z in (=: missing identity)))\n(? (fresh z in z))",
+        Some("fresh-error.lino"),
+        None,
+    );
+    assert_eq!(out.diagnostics.len(), 1);
+    assert_eq!(out.diagnostics[0].code, "E001");
+    assert_eq!(out.diagnostics[0].span.line, 1);
+    assert_eq!(out.results.len(), 1);
 }
 
 #[test]

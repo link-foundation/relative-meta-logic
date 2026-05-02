@@ -57,12 +57,14 @@ fn matches_proofs_emitted_by_evaluator() {
         "(? (neither 0 nor 0))",
         "(? (1 = 2))",
         "(? (1 != 2))",
+        "(? (subst (x + 0.1) x 0.2))",
+        "(? (fresh z in z))",
     ]
     .join("\n");
     let proofs = proofs_from(&program);
     let r = check_program(&program, &proofs);
     assert!(r.is_ok(), "{:?}", r);
-    assert_eq!(r.ok.len(), 13);
+    assert_eq!(r.ok.len(), 15);
 }
 
 // ===== Mutation: rule names =====

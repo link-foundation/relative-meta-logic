@@ -1,7 +1,8 @@
-// Typed kernel rules for issue #37.
+// Typed kernel rules for issues #37 and #38.
 //
 // These tests keep the documented D1 surface honest: Pi formation, lambda
-// formation, application by beta-reduction, and type membership/query links.
+// formation, application by beta-reduction, capture-avoiding substitution,
+// freshness, and type membership/query links.
 
 use rml::{evaluate, RunResult};
 
@@ -81,6 +82,61 @@ fn applies_lambdas_by_beta_reducing_argument_into_body() {
 "#,
     );
     assert_eq!(results, vec![RunResult::Num(1.0), RunResult::Num(0.3)]);
+}
+
+#[test]
+fn exposes_substitution_as_capture_avoiding_kernel_primitive() {
+    let results = evaluate_clean(
+        r#"
+(? (subst (lambda (Natural y) (x + y)) x y))
+(? ((subst (lambda (Natural y) (x + y)) x y) = (lambda (Natural y_1) (y + y_1))))
+(? ((subst (x + 0.1) x 0.2) = 0.3))
+"#,
+    );
+    assert_eq!(
+        results,
+        vec![
+            RunResult::Type("(lambda (Natural y_1) (y + y_1))".to_string()),
+            RunResult::Num(1.0),
+            RunResult::Num(1.0),
+        ]
+    );
+}
+
+#[test]
+fn scopes_fresh_variables_and_rejects_names_already_in_context() {
+    let ok = evaluate(
+        r#"
+(? (fresh y in ((lambda (Natural x) (x + y)) y)))
+(? (y of Natural))
+"#,
+        None,
+        None,
+    );
+    assert!(
+        ok.diagnostics.is_empty(),
+        "unexpected diagnostics: {:?}",
+        ok.diagnostics
+    );
+    assert_eq!(ok.results, vec![RunResult::Num(1.0), RunResult::Num(0.0)]);
+
+    let bad = evaluate(
+        r#"
+(Natural: (Type 0) Natural)
+(y: Natural y)
+(? (fresh y in y))
+"#,
+        None,
+        None,
+    );
+    assert!(bad.results.is_empty());
+    assert_eq!(bad.diagnostics.len(), 1);
+    assert_eq!(bad.diagnostics[0].code, "E010");
+    assert!(
+        bad.diagnostics[0].message.contains("fresh variable \"y\""),
+        "message: {}",
+        bad.diagnostics[0].message
+    );
 }
 
 #[test]
