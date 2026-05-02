@@ -1,4 +1,4 @@
-// Typed kernel rules for issues #37 and #38.
+// Typed kernel rules for issues #37, #38, and #41.
 //
 // These tests keep the documented D1 surface honest: Pi formation, lambda
 // formation, application by beta-reduction, capture-avoiding substitution,
@@ -194,6 +194,61 @@ fn checks_type_membership_and_returns_stored_types_through_of_links() {
             RunResult::Num(1.0),
             RunResult::Type("Natural".to_string()),
             RunResult::Num(1.0),
+        ]
+    );
+}
+
+#[test]
+fn checks_universe_hierarchy_directly_across_adjacent_levels() {
+    let results = evaluate_clean(
+        r#"
+(? ((Type 0) of (Type 1)))
+(? ((Type 1) of (Type 2)))
+(? ((Type 2) of (Type 3)))
+(? ((Type 1) of (Type 0)))
+(? ((Type 2) of (Type 1)))
+(? ((Type 0) of (Type 2)))
+(? (type of (Type 0)))
+(? (type of (Type 2)))
+"#,
+    );
+    assert_eq!(
+        results,
+        vec![
+            RunResult::Num(1.0),
+            RunResult::Num(1.0),
+            RunResult::Num(1.0),
+            RunResult::Num(0.0),
+            RunResult::Num(0.0),
+            RunResult::Num(0.0),
+            RunResult::Type("(Type 1)".to_string()),
+            RunResult::Type("(Type 3)".to_string()),
+        ]
+    );
+}
+
+#[test]
+fn keeps_self_referential_type_separate_from_stratified_universes() {
+    let results = evaluate_clean(
+        r#"
+(Type: Type Type)
+(Natural: (Type 0) Natural)
+(Boolean: Type Boolean)
+(? (Type of Type))
+(? (Natural of (Type 0)))
+(? (Boolean of Type))
+(? ((Type 0) of (Type 1)))
+(? ((Type 1) of (Type 0)))
+"#,
+    );
+    assert_eq!(
+        results,
+        vec![
+            RunResult::Num(1.0),
+            RunResult::Num(1.0),
+            RunResult::Num(1.0),
+            RunResult::Num(1.0),
+            RunResult::Num(0.0),
         ]
     );
 }

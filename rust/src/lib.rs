@@ -471,6 +471,48 @@ pub fn key_of(node: &Node) -> String {
     }
 }
 
+fn parse_universe_level_token(token: &str) -> Option<u64> {
+    if token.is_empty() || !token.chars().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    if token.len() > 1 && token.starts_with('0') {
+        return None;
+    }
+    token.parse::<u64>().ok()
+}
+
+fn universe_type_key(node: &Node) -> Option<String> {
+    let Node::List(children) = node else {
+        return None;
+    };
+    if children.len() != 2 {
+        return None;
+    }
+    let (Node::Leaf(head), Node::Leaf(level_s)) = (&children[0], &children[1]) else {
+        return None;
+    };
+    if head != "Type" {
+        return None;
+    }
+    let level = parse_universe_level_token(level_s)?;
+    Some(format!("(Type {})", level.checked_add(1)?))
+}
+
+fn infer_type_key(node: &Node, env: &mut Env) -> Option<String> {
+    let key = match node {
+        Node::Leaf(s) => s.clone(),
+        other => key_of(other),
+    };
+    if let Some(recorded) = env.get_type(&key) {
+        return Some(recorded.clone());
+    }
+    if let Some(type_key) = universe_type_key(node) {
+        env.set_type(&key, &type_key);
+        return Some(type_key);
+    }
+    None
+}
+
 /// Check structural equality of two nodes.
 pub fn is_structurally_same(a: &Node, b: &Node) -> bool {
     match (a, b) {
@@ -2187,10 +2229,13 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                 if let Node::Leaf(ref first) = children[0] {
                     if first == "Type" {
                         if let Node::Leaf(ref level_s) = children[1] {
-                            let level: i64 = level_s.parse().unwrap_or(0);
-                            let key = key_of(&Node::List(children.clone()));
-                            env.set_type(&key, &format!("(Type {})", level + 1));
-                            return EvalResult::Value(1.0);
+                            if let Some(level) = parse_universe_level_token(level_s) {
+                                if let Some(next_level) = level.checked_add(1) {
+                                    let key = key_of(&Node::List(children.clone()));
+                                    env.set_type(&key, &format!("(Type {})", next_level));
+                                    return EvalResult::Value(1.0);
+                                }
+                            }
                         }
                     }
                 }
@@ -2297,13 +2342,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
             if children.len() == 3 {
                 if let (Node::Leaf(ref first), Node::Leaf(ref mid)) = (&children[0], &children[1]) {
                     if first == "type" && mid == "of" {
-                        let expr_key = match &children[2] {
-                            Node::Leaf(s) => s.clone(),
-                            other => key_of(other),
-                        };
-                        let type_str = env
-                            .get_type(&expr_key)
-                            .cloned()
+                        let type_str = infer_type_key(&children[2], env)
                             .unwrap_or_else(|| "unknown".to_string());
                         return EvalResult::TypeQuery(type_str);
                     }
@@ -2315,16 +2354,12 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
             if children.len() == 3 {
                 if let Node::Leaf(ref mid) = children[1] {
                     if mid == "of" {
-                        let expr_key = match &children[0] {
-                            Node::Leaf(s) => s.clone(),
-                            other => key_of(other),
-                        };
                         let expected_key = match &children[2] {
                             Node::Leaf(s) => s.clone(),
                             other => key_of(other),
                         };
-                        if let Some(actual) = env.get_type(&expr_key) {
-                            return EvalResult::Value(if *actual == expected_key {
+                        if let Some(actual) = infer_type_key(&children[0], env) {
+                            return EvalResult::Value(if actual == expected_key {
                                 env.hi
                             } else {
                                 env.lo

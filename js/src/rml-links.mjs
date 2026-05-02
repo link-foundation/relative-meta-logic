@@ -153,6 +153,31 @@ function isStructurallySame(a,b){
   return String(a) === String(b);
 }
 
+function parseUniverseLevelToken(token) {
+  if (typeof token !== 'string' || !/^(0|[1-9]\d*)$/.test(token)) return null;
+  const level = Number(token);
+  return Number.isSafeInteger(level) ? level : null;
+}
+
+function universeTypeKey(node) {
+  if (!Array.isArray(node) || node.length !== 2 || node[0] !== 'Type') return null;
+  const level = parseUniverseLevelToken(node[1]);
+  return level === null ? null : `(Type ${level + 1})`;
+}
+
+function inferTypeKey(node, env) {
+  const recorded = env.getType(node);
+  if (recorded) return recorded;
+
+  const universeType = universeTypeKey(node);
+  if (universeType) {
+    env.setType(node, universeType);
+    return universeType;
+  }
+
+  return null;
+}
+
 // ---------- Quantization for N-valued logics ----------
 // Given N discrete levels and a range [lo, hi], quantize a value to the nearest level.
 // For N=2 (Boolean): levels are {lo, hi} (e.g. {0, 1} or {-1, 1})
@@ -1029,7 +1054,8 @@ function evalNode(node, env){
 
   // Type universe: (Type N) — the sort at universe level N
   if (node.length === 2 && node[0] === 'Type') {
-    const level = isNum(node[1]) ? parseInt(node[1], 10) : 0;
+    const level = parseUniverseLevelToken(node[1]);
+    if (level === null) return 0;
     // (Type N) has type (Type N+1)
     env.setType(node, ['Type', String(level + 1)]);
     return 1; // valid expression
@@ -1112,7 +1138,7 @@ function evalNode(node, env){
   // e.g. (? (type of x)) → returns the type string
   if (node.length === 3 && node[0] === 'type' && node[1] === 'of') {
     const expr = node[2];
-    const typeStr = env.getType(expr);
+    const typeStr = inferTypeKey(expr, env);
     if (typeStr) {
       return { query: true, value: typeStr, typeQuery: true };
     }
@@ -1124,7 +1150,7 @@ function evalNode(node, env){
   if (node.length === 3 && node[1] === 'of') {
     const expr = node[0];
     const expectedType = node[2];
-    const actualType = env.getType(expr);
+    const actualType = inferTypeKey(expr, env);
     if (actualType) {
       const expectedKey = typeof expectedType === 'string' ? expectedType : keyOf(expectedType);
       return actualType === expectedKey ? env.hi : env.lo;

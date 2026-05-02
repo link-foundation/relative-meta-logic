@@ -1,4 +1,4 @@
-// Typed kernel rules for issues #37 and #38.
+// Typed kernel rules for issues #37, #38, and #41.
 //
 // These tests keep the documented D1 surface honest: Pi formation, lambda
 // formation, application by beta-reduction, capture-avoiding substitution,
@@ -117,5 +117,33 @@ describe('kernel typing rules', () => {
 (? ((Type 0) of (Type 1)))
 `);
     assert.deepStrictEqual(results, [1, 1, 'Natural', 1]);
+  });
+
+  it('checks the universe hierarchy directly across adjacent levels', () => {
+    const results = evaluateClean(`
+(? ((Type 0) of (Type 1)))
+(? ((Type 1) of (Type 2)))
+(? ((Type 2) of (Type 3)))
+(? ((Type 1) of (Type 0)))
+(? ((Type 2) of (Type 1)))
+(? ((Type 0) of (Type 2)))
+(? (type of (Type 0)))
+(? (type of (Type 2)))
+`);
+    assert.deepStrictEqual(results, [1, 1, 1, 0, 0, 0, '(Type 1)', '(Type 3)']);
+  });
+
+  it('keeps self-referential Type separate from stratified universes', () => {
+    const results = evaluateClean(`
+(Type: Type Type)
+(Natural: (Type 0) Natural)
+(Boolean: Type Boolean)
+(? (Type of Type))
+(? (Natural of (Type 0)))
+(? (Boolean of Type))
+(? ((Type 0) of (Type 1)))
+(? ((Type 1) of (Type 0)))
+`);
+    assert.deepStrictEqual(results, [1, 1, 1, 1, 0]);
   });
 });

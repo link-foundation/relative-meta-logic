@@ -1,9 +1,10 @@
 # Typed Kernel
 
 This document specifies the typed-kernel surface implemented by the
-JavaScript and Rust evaluators. It is the D1 contract from issue #37:
-the rules for `Pi`, `lambda`, `apply`, capture-avoiding substitution,
-freshness, type membership with `of`, and type queries with `(type of ...)`.
+JavaScript and Rust evaluators. It covers the D1 contract from issue #37
+and the D5 universe hierarchy from issue #41: the rules for `Pi`, `lambda`,
+`apply`, capture-avoiding substitution, freshness, checked universe levels,
+type membership with `of`, and type queries with `(type of ...)`.
 
 RML remains a dynamic axiomatic system. These rules install and query type
 facts in the evaluator environment; they are not yet a full bidirectional
@@ -52,6 +53,7 @@ The stratified universe form is also supported:
 (Type 0)
 (Type 1)
 (? ((Type 0) of (Type 1)))  # -> hi
+(? ((Type 1) of (Type 0)))  # -> lo
 ```
 
 Universe rule:
@@ -59,6 +61,35 @@ Universe rule:
 ```text
 -------------------------------
 Gamma |- (Type N) : (Type N+1)
+```
+
+Universe membership and type queries infer this rule directly, so callers do
+not need to evaluate `(Type N)` before asking about it:
+
+| Query | Result |
+|-------|--------|
+| `(? ((Type 0) of (Type 1)))` | `hi` |
+| `(? ((Type 1) of (Type 2)))` | `hi` |
+| `(? ((Type 2) of (Type 3)))` | `hi` |
+| `(? ((Type 1) of (Type 0)))` | `lo` |
+| `(? ((Type 2) of (Type 1)))` | `lo` |
+| `(? ((Type 0) of (Type 2)))` | `lo` |
+| `(? (type of (Type 0)))` | `(Type 1)` |
+| `(? (type of (Type 2)))` | `(Type 3)` |
+
+This checked hierarchy is separate from the self-referential root declaration.
+Both modes can coexist in one environment:
+
+```lino
+(Type: Type Type)
+(Natural: (Type 0) Natural)
+(Boolean: Type Boolean)
+
+(? (Type of Type))           # -> hi
+(? (Natural of (Type 0)))    # -> hi
+(? (Boolean of Type))        # -> hi
+(? ((Type 0) of (Type 1)))   # -> hi
+(? ((Type 1) of (Type 0)))   # -> lo
 ```
 
 ## Pi Formation
