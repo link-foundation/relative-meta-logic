@@ -1251,6 +1251,30 @@ fn contains_free(expr: &Node, name: &str) -> bool {
     free_variables(expr).contains(name)
 }
 
+fn env_can_evaluate_name(env: &Env, name: &str) -> bool {
+    if env.symbol_prob.contains_key(name)
+        || env.terms.contains(name)
+        || env.types.contains_key(name)
+        || env.lambdas.contains_key(name)
+        || env.ops.contains_key(name)
+    {
+        return true;
+    }
+    let resolved = env.resolve_qualified(name);
+    resolved != name
+        && (env.symbol_prob.contains_key(&resolved)
+            || env.terms.contains(&resolved)
+            || env.types.contains_key(&resolved)
+            || env.lambdas.contains_key(&resolved)
+            || env.ops.contains_key(&resolved))
+}
+
+fn has_unresolved_free_variables(expr: &Node, env: &Env) -> bool {
+    free_variables(expr)
+        .iter()
+        .any(|name| !env_can_evaluate_name(env, name))
+}
+
 fn collect_names(expr: &Node, out: &mut HashSet<String>) {
     match expr {
         Node::Leaf(s) => {
@@ -1473,6 +1497,15 @@ fn eval_term_node(node: &Node, env: &mut Env) -> Node {
         }
     }
     node.clone()
+}
+
+fn eval_reduced_term(reduced: &Node, env: &mut Env) -> EvalResult {
+    let term = eval_term_node(reduced, env);
+    if has_unresolved_free_variables(&term, env) {
+        EvalResult::Term(term)
+    } else {
+        eval_node(&term, env)
+    }
 }
 
 fn context_has_name(env: &Env, name: &str) -> bool {
@@ -2237,7 +2270,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                                         {
                                             let body = &fn_children[2];
                                             let result = subst(body, &param_name, arg);
-                                            return eval_node(&result, env);
+                                            return eval_reduced_term(&result, env);
                                         }
                                     }
                                 }
@@ -2248,7 +2281,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                         if let Node::Leaf(ref fn_name) = fn_node {
                             if let Some(lambda) = env.get_lambda(fn_name).cloned() {
                                 let result = subst(&lambda.body, &lambda.param, arg);
-                                return eval_node(&result, env);
+                                return eval_reduced_term(&result, env);
                             }
                         }
 
@@ -2318,10 +2351,11 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                     if let Some(lambda) = env.get_lambda(&head_str).cloned() {
                         let result = subst(&lambda.body, &lambda.param, &children[1]);
                         if children.len() == 2 {
-                            return eval_node(&result, env);
+                            return eval_reduced_term(&result, env);
                         }
-                        // For now, just apply first argument
-                        return eval_node(&result, env);
+                        let mut next = vec![result];
+                        next.extend_from_slice(&children[2..]);
+                        return eval_reduced_term(&Node::List(next), env);
                     }
                 }
             }
@@ -2336,11 +2370,11 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                                     let result =
                                         subst(&head_children[2], &param_name, &children[1]);
                                     if children.len() == 2 {
-                                        return eval_node(&result, env);
+                                        return eval_reduced_term(&result, env);
                                     }
                                     let mut next = vec![result];
                                     next.extend_from_slice(&children[2..]);
-                                    return eval_node(&Node::List(next), env);
+                                    return eval_reduced_term(&Node::List(next), env);
                                 }
                             }
                         }

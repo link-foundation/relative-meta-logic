@@ -78,10 +78,43 @@ fn applies_lambdas_by_beta_reducing_argument_into_body() {
 (zero: Natural zero)
 (identity: lambda (Natural x) x)
 (? ((apply identity zero) = zero))
+(? (apply (lambda (Natural x) (x + 1)) 0))
 (? (apply (lambda (Natural x) (x + 0.1)) 0.2))
 "#,
     );
-    assert_eq!(results, vec![RunResult::Num(1.0), RunResult::Num(0.3)]);
+    assert_eq!(
+        results,
+        vec![
+            RunResult::Num(1.0),
+            RunResult::Num(1.0),
+            RunResult::Num(0.3)
+        ]
+    );
+}
+
+#[test]
+fn beta_reduces_open_terms_without_evaluating_free_variables_as_probabilities() {
+    let results = evaluate_clean(
+        r#"
+(? (apply (lambda (Natural x) (x + y)) z))
+"#,
+    );
+    assert_eq!(results, vec![RunResult::Type("(z + y)".to_string())]);
+}
+
+#[test]
+fn beta_reduction_is_capture_avoiding_for_open_replacements() {
+    let results = evaluate_clean(
+        r#"
+(? (apply (lambda (Natural x) (lambda (Natural y) (x + y))) y))
+"#,
+    );
+    assert_eq!(
+        results,
+        vec![RunResult::Type(
+            "(lambda (Natural y_1) (y + y_1))".to_string()
+        )]
+    );
 }
 
 #[test]

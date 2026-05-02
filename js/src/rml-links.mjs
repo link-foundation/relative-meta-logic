@@ -511,6 +511,33 @@ function containsFree(expr, name) {
   return freeVariables(expr).has(name);
 }
 
+function envCanEvaluateName(env, name) {
+  if (
+    env.symbolProb.has(name) ||
+    env.terms.has(name) ||
+    env.types.has(name) ||
+    env.lambdas.has(name) ||
+    env.ops.has(name)
+  ) {
+    return true;
+  }
+  const resolved = env._resolveQualified(name);
+  return resolved !== name && (
+    env.symbolProb.has(resolved) ||
+    env.terms.has(resolved) ||
+    env.types.has(resolved) ||
+    env.lambdas.has(resolved) ||
+    env.ops.has(resolved)
+  );
+}
+
+function hasUnresolvedFreeVariables(expr, env) {
+  for (const name of freeVariables(expr)) {
+    if (!envCanEvaluateName(env, name)) return true;
+  }
+  return false;
+}
+
 function collectNames(expr, out = new Set()) {
   if (typeof expr === 'string') {
     const base = tokenBaseName(expr);
@@ -824,6 +851,12 @@ function evalTermNode(node, env) {
   return node;
 }
 
+function evalReducedTerm(reduced, env) {
+  const term = evalTermNode(reduced, env);
+  if (hasUnresolvedFreeVariables(term, env)) return { term };
+  return evalNode(term, env);
+}
+
 function contextHasName(env, name) {
   if (env.terms.has(name) || env.types.has(name) || env.lambdas.has(name) || env.symbolProb.has(name) || env.ops.has(name)) {
     return true;
@@ -1056,7 +1089,7 @@ function evalNode(node, env){
       if (parsed) {
         const body = fn[2];
         const result = subst(body, parsed.paramName, arg);
-        return evalNode(result, env);
+        return evalReducedTerm(result, env);
       }
     }
 
@@ -1065,7 +1098,7 @@ function evalNode(node, env){
       const lambda = env.getLambda(fn);
       if (lambda) {
         const result = subst(lambda.body, lambda.param, arg);
-        return evalNode(result, env);
+        return evalReducedTerm(result, env);
       }
     }
 
@@ -1114,15 +1147,9 @@ function evalNode(node, env){
       // Apply first argument, then recursively apply rest
       let result = subst(lambda.body, lambda.param, args[0]);
       if (args.length === 1) {
-        return evalNode(result, env);
+        return evalReducedTerm(result, env);
       }
-      // Curry: apply remaining args
-      let current = evalNode(result, env);
-      for (let i = 1; i < args.length; i++) {
-        // If current result is a lambda, apply next arg
-        current = evalNode(args[i], env);
-      }
-      return current;
+      return evalReducedTerm([result, ...args.slice(1)], env);
     }
   }
 
@@ -1131,8 +1158,8 @@ function evalNode(node, env){
     const parsed = parseBinding(head[1]);
     if (parsed) {
       const result = subst(head[2], parsed.paramName, args[0]);
-      if (args.length === 1) return evalNode(result, env);
-      return evalNode([result, ...args.slice(1)], env);
+      if (args.length === 1) return evalReducedTerm(result, env);
+      return evalReducedTerm([result, ...args.slice(1)], env);
     }
   }
 

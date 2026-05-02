@@ -137,9 +137,31 @@ Gamma |- a : A
 Gamma |- (apply f a) => body[x := a]
 ```
 
-The implemented reduction substitutes the argument into the lambda body and
-evaluates the result. Named lambdas and inline lambdas both use the same
-capture-avoiding substitution helper.
+The implemented reduction substitutes the argument into the lambda body with
+the same capture-avoiding helper used by `subst`. If the reduct is closed and
+numeric, evaluation continues to a value:
+
+```lino
+(? (apply (lambda (Natural x) (x + 1)) 0))  # -> 1
+```
+
+If the reduct still contains names that are not available in the evaluator
+context, the query reports the reduced open term instead of treating those
+names as default-probability symbols:
+
+```lino
+(? (apply (lambda (Natural x) (x + y)) z))  # -> (z + y)
+```
+
+Nested binders are alpha-renamed when needed so beta-reduction does not
+capture free variables from the argument:
+
+```lino
+(? (apply (lambda (Natural x) (lambda (Natural y) (x + y))) y))
+# -> (lambda (Natural y_1) (y + y_1))
+```
+
+Named lambdas and inline lambdas both use this reduction path.
 
 The intended typing rule is the standard dependent application rule:
 

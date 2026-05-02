@@ -52,9 +52,24 @@ describe('kernel typing rules', () => {
 (zero: Natural zero)
 (identity: lambda (Natural x) x)
 (? ((apply identity zero) = zero))
+(? (apply (lambda (Natural x) (x + 1)) 0))
 (? (apply (lambda (Natural x) (x + 0.1)) 0.2))
 `);
-    assert.deepStrictEqual(results, [1, 0.3]);
+    assert.deepStrictEqual(results, [1, 1, 0.3]);
+  });
+
+  it('beta-reduces open terms without evaluating free variables as probabilities', () => {
+    const results = evaluateClean(`
+(? (apply (lambda (Natural x) (x + y)) z))
+`);
+    assert.deepStrictEqual(results, ['(z + y)']);
+  });
+
+  it('keeps beta-reduction capture-avoiding for open replacements', () => {
+    const results = evaluateClean(`
+(? (apply (lambda (Natural x) (lambda (Natural y) (x + y))) y))
+`);
+    assert.deepStrictEqual(results, ['(lambda (Natural y_1) (y + y_1))']);
   });
 
   it('exposes substitution as a capture-avoiding kernel primitive', () => {
