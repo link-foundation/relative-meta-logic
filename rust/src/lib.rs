@@ -695,6 +695,12 @@ pub struct Env {
     /// map records the per-argument flag list used by the call-site checker
     /// to reject mode mismatches.
     pub modes: HashMap<String, Vec<ModeFlag>>,
+    /// Relation declarations (issue #44, D12): the clause list for each
+    /// declared relation, keyed by relation name. Each clause is the
+    /// original AST list `(name arg1 arg2 ... result)`. The totality
+    /// checker reads these clauses to verify structural decrease on
+    /// recursive calls.
+    pub relations: HashMap<String, Vec<Node>>,
 }
 
 /// Per-argument mode flag for a relation declared via `(mode …)`.
@@ -759,6 +765,7 @@ impl Env {
             shadow_diagnostics: Vec::new(),
             file_namespaces: HashMap::new(),
             modes: HashMap::new(),
+            relations: HashMap::new(),
         };
 
         // Initialize truth constants: true, false, unknown, undefined
@@ -2821,6 +2828,247 @@ fn check_mode_at_call(name: &str, args: &[Node], env: &Env) {
     }
 }
 
+// ---------- Relation declarations & totality (issue #44, D12) ----------
+// Mirrors the JavaScript helpers in `js/src/rml-links.mjs`. The
+// `(relation <name> <clause>...)` form stores the clause list per
+// relation, `(total <name>)` triggers `is_total`, and the same
+// `is_total` helper is exported for programmatic callers.
+
+fn parse_relation_form(children: &[Node]) -> (String, Vec<Node>) {
+    // Caller already verified `children[0]` is the leaf `relation`.
+    if children.len() < 2 {
+        panic!("Relation declaration error: relation name must be a bare symbol");
+    }
+    let name = match &children[1] {
+        Node::Leaf(s) => s.clone(),
+        _ => panic!("Relation declaration error: relation name must be a bare symbol"),
+    };
+    if children.len() < 3 {
+        panic!(
+            "Relation declaration error: declaration for \"{}\" must list at least one clause",
+            name
+        );
+    }
+    let mut clauses = Vec::with_capacity(children.len() - 2);
+    for (idx, clause) in children[2..].iter().enumerate() {
+        match clause {
+            Node::List(items) if items.len() >= 2 => match &items[0] {
+                Node::Leaf(head) if *head == name => {
+                    clauses.push(clause.clone());
+                }
+                _ => panic!(
+                    "Relation declaration error: declaration for \"{}\": clause {} must be a list whose head is \"{}\"",
+                    name,
+                    idx + 1,
+                    name
+                ),
+            },
+            _ => panic!(
+                "Relation declaration error: declaration for \"{}\": clause {} must be a list whose head is \"{}\"",
+                name,
+                idx + 1,
+                name
+            ),
+        }
+    }
+    (name, clauses)
+}
+
+fn is_strict_subterm(inner: &Node, outer: &Node) -> bool {
+    if let Node::List(children) = outer {
+        for child in children {
+            if inner == child {
+                return true;
+            }
+            if is_strict_subterm(inner, child) {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+fn collect_recursive_calls(node: &Node, rel_name: &str, is_head: bool, out: &mut Vec<Node>) {
+    if let Node::List(children) = node {
+        if !is_head {
+            if let Some(Node::Leaf(head)) = children.first() {
+                if head == rel_name {
+                    out.push(node.clone());
+                }
+            }
+        }
+        for (i, child) in children.iter().enumerate() {
+            // Skip the head leaf — only descend into argument positions.
+            if i == 0 {
+                if let Node::Leaf(_) = child {
+                    continue;
+                }
+            }
+            collect_recursive_calls(child, rel_name, false, out);
+        }
+    }
+}
+
+/// Per-clause / per-call totality diagnostic returned by [`is_total`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TotalityDiagnostic {
+    pub code: String,
+    pub message: String,
+}
+
+/// Outcome of a totality check.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TotalityResult {
+    pub ok: bool,
+    pub diagnostics: Vec<TotalityDiagnostic>,
+}
+
+fn check_recursive_decrease(
+    call: &Node,
+    head_args: &[Node],
+    flags: &[ModeFlag],
+    rel_name: &str,
+) -> Option<String> {
+    let call_args: Vec<Node> = match call {
+        Node::List(items) if !items.is_empty() => items[1..].to_vec(),
+        _ => return Some(format!("recursive call `{}` has no arguments", key_of(call))),
+    };
+    let input_indices: Vec<usize> = flags
+        .iter()
+        .enumerate()
+        .filter(|(_, f)| **f == ModeFlag::In)
+        .map(|(i, _)| i)
+        .collect();
+
+    let pairs: Vec<(&Node, &Node)> = if call_args.len() == flags.len() {
+        input_indices
+            .iter()
+            .map(|&i| (&call_args[i], &head_args[i]))
+            .collect()
+    } else if call_args.len() == input_indices.len() {
+        input_indices
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| (&call_args[j], &head_args[i]))
+            .collect()
+    } else {
+        return Some(format!(
+            "recursive call `{}` has {} argument{}, expected {} (or {} input{})",
+            key_of(call),
+            call_args.len(),
+            if call_args.len() == 1 { "" } else { "s" },
+            flags.len(),
+            input_indices.len(),
+            if input_indices.len() == 1 { "" } else { "s" },
+        ));
+    };
+
+    if input_indices.is_empty() {
+        return Some(format!(
+            "relation \"{}\" has no `+input` slot, so structural decrease is unverifiable",
+            rel_name
+        ));
+    }
+    for (call_arg, head_arg) in &pairs {
+        if is_strict_subterm(call_arg, head_arg) {
+            return None;
+        }
+    }
+    let head_with_args = {
+        let mut items = Vec::with_capacity(head_args.len() + 1);
+        items.push(Node::Leaf(rel_name.to_string()));
+        items.extend(head_args.iter().cloned());
+        Node::List(items)
+    };
+    Some(format!(
+        "recursive call `{}` does not structurally decrease any `+input` slot of `{}`",
+        key_of(call),
+        key_of(&head_with_args)
+    ))
+}
+
+/// Public totality checker. Returns a [`TotalityResult`] with structured
+/// diagnostics; callers can either propagate them as-is or convert each
+/// entry into a [`Diagnostic`] for the existing pipeline. The mirrored JS
+/// helper is exported under the same name (`isTotal`) and produces an
+/// equivalent shape so downstream tools see consistent output.
+pub fn is_total(env: &Env, rel_name: &str) -> TotalityResult {
+    let mut diagnostics: Vec<TotalityDiagnostic> = Vec::new();
+    let flags = match env.modes.get(rel_name) {
+        Some(f) => f.clone(),
+        None => {
+            diagnostics.push(TotalityDiagnostic {
+                code: "E032".to_string(),
+                message: format!(
+                    "Totality check for \"{}\": no `(mode {} ...)` declaration found",
+                    rel_name, rel_name
+                ),
+            });
+            return TotalityResult {
+                ok: false,
+                diagnostics,
+            };
+        }
+    };
+    let clauses: Vec<Node> = match env.relations.get(rel_name) {
+        Some(c) if !c.is_empty() => c.clone(),
+        _ => {
+            diagnostics.push(TotalityDiagnostic {
+                code: "E032".to_string(),
+                message: format!(
+                    "Totality check for \"{}\": no `(relation {} ...)` clauses found",
+                    rel_name, rel_name
+                ),
+            });
+            return TotalityResult {
+                ok: false,
+                diagnostics,
+            };
+        }
+    };
+    for (ci, clause) in clauses.iter().enumerate() {
+        let head_args: Vec<Node> = match clause {
+            Node::List(items) if !items.is_empty() => items[1..].to_vec(),
+            _ => continue,
+        };
+        if head_args.len() != flags.len() {
+            diagnostics.push(TotalityDiagnostic {
+                code: "E032".to_string(),
+                message: format!(
+                    "Totality check for \"{}\": clause {} `{}` has {} argument{}, mode declares {}",
+                    rel_name,
+                    ci + 1,
+                    key_of(clause),
+                    head_args.len(),
+                    if head_args.len() == 1 { "" } else { "s" },
+                    flags.len(),
+                ),
+            });
+            continue;
+        }
+        let mut calls: Vec<Node> = Vec::new();
+        collect_recursive_calls(clause, rel_name, true, &mut calls);
+        for call in &calls {
+            if let Some(reason) = check_recursive_decrease(call, &head_args, &flags, rel_name) {
+                diagnostics.push(TotalityDiagnostic {
+                    code: "E032".to_string(),
+                    message: format!(
+                        "Totality check for \"{}\": clause {} `{}` — {}",
+                        rel_name,
+                        ci + 1,
+                        key_of(clause),
+                        reason
+                    ),
+                });
+            }
+        }
+    }
+    TotalityResult {
+        ok: diagnostics.is_empty(),
+        diagnostics,
+    }
+}
+
 /// Evaluate an AST node in the given environment.
 pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
     match node {
@@ -2858,6 +3106,40 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                         env.modes.insert(name, flags);
                         return EvalResult::Value(1.0);
                     }
+                }
+            }
+
+            // Relation declaration (issue #44, D12): (relation <name> <clause>...)
+            // Stores the clause list keyed by relation name. `parse_relation_form`
+            // panics with `Relation declaration error:` on a malformed
+            // declaration so `decode_panic_payload` surfaces it as E032.
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "relation" {
+                    let (name, clauses) = parse_relation_form(children);
+                    env.relations.insert(name, clauses);
+                    return EvalResult::Value(1.0);
+                }
+            }
+
+            // Totality declaration (issue #44, D12): (total <name>) runs
+            // `is_total` and surfaces the first diagnostic via the existing
+            // panic-based dispatch (`Totality check error:` -> E032).
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "total" {
+                    if children.len() == 2 {
+                        if let Node::Leaf(ref rel_name) = children[1] {
+                            let result = is_total(env, rel_name);
+                            if !result.ok {
+                                if let Some(first) = result.diagnostics.first() {
+                                    panic!("Totality check error: {}", first.message);
+                                }
+                            }
+                            return EvalResult::Value(1.0);
+                        }
+                    }
+                    panic!(
+                        "Totality check error: Totality declaration must be `(total <relation-name>)`"
+                    );
                 }
             }
 
@@ -4444,6 +4726,16 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E031".to_string(),
             raw_msg.replacen("Mode mismatch: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Relation declaration error:") {
+        (
+            "E032".to_string(),
+            raw_msg.replacen("Relation declaration error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Totality check error:") {
+        (
+            "E032".to_string(),
+            raw_msg.replacen("Totality check error: ", "", 1),
         )
     } else {
         ("E000".to_string(), raw_msg)

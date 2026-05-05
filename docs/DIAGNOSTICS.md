@@ -91,6 +91,7 @@ The exit code is `1` whenever any diagnostic is emitted, `0` otherwise.
 | `E024` | Bidirectional checker: malformed binder in a `Pi` or `lambda` form. Triggered when the second child is not a recognisable `(Type x)` or `(x: Type)` pair. |
 | `E030` | Malformed `(mode …)` declaration. Triggered when the relation name is missing or non-symbolic, no mode flags follow it, or a flag other than `+input`, `-output`, or `*either` is supplied. |
 | `E031` | Mode mismatch at a call site. Triggered when a relation with a recorded `(mode …)` declaration is called with the wrong number of arguments, or when an `+input` slot receives a non-ground argument (e.g. an unbound or fresh variable). |
+| `E032` | Totality / relation-declaration error. Triggered by a malformed `(relation …)` declaration (no clauses, or a clause whose head differs from the relation name); a malformed `(total …)` driver form; or a `(total <name>)` whose recursive calls fail to structurally decrease at least one `+input` argument. The message names the failing clause and quotes the offending recursive call. |
 
 Codes are stable identifiers — they do not change between releases unless we
 explicitly note a breaking change in the changelog. The accompanying

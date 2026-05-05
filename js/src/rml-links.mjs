@@ -205,6 +205,12 @@ class Env {
     // map records the per-argument flag list (`'in'`, `'out'`, `'either'`)
     // used by the call-site checker to reject mode mismatches.
     this.modes = new Map();                     // name -> [flag, flag, ...]
+    // Relation declarations (issue #44, D12): a relation is a list of
+    // clauses, each shaped `(<name> arg1 arg2 ... result)`. The totality
+    // checker reads the clauses to verify structural decrease on recursive
+    // calls. Stored as `name -> [clauseNode, clauseNode, ...]`, where each
+    // clauseNode is the original AST list including the head symbol.
+    this.relations = new Map();                 // name -> [clause, clause, ...]
     // Namespace state (issue #34): a file can declare `(namespace foo)`, which
     // prefixes every name it subsequently introduces with `foo.`. Imports can
     // be aliased via `(import "x.lino" as a)`, which records `a` -> the
@@ -469,7 +475,7 @@ function parseBindings(binding) {
 const NON_VARIABLE_TOKENS = new Set([
   'lambda', 'Pi', 'fresh', 'in', 'subst', 'apply', 'type', 'of',
   'has', 'probability', 'with', 'proof', 'range', 'valence',
-  'namespace', 'import', 'as', 'is', '?', 'mode',
+  'namespace', 'import', 'as', 'is', '?', 'mode', 'relation', 'total',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
 
@@ -1145,6 +1151,157 @@ function isGroundForMode(arg, env) {
   return !hasUnresolvedFreeVariables(arg, env);
 }
 
+// ---------- Relation declarations & totality (issue #44, D12) ----------
+// `(relation <name> <clause>...)` records the clause list of a Twelf-style
+// relation. Each clause is shaped `(<name> arg1 arg2 ... result)`, where
+// `result` is the right-most argument (typically populated for relations
+// whose mode declaration ends with `-output`). The body may contain
+// recursive references to `<name>` whose `+input` slots must be strictly
+// smaller than the head's; the totality checker enforces that decrease.
+//
+// `(total <name>)` triggers `isTotal(env, name)` and lifts the diagnostics
+// it returns into the active diagnostic list. The same `isTotal` helper is
+// also exported for programmatic use.
+function parseRelationForm(node) {
+  if (!Array.isArray(node) || node[0] !== 'relation') return null;
+  if (node.length < 2 || typeof node[1] !== 'string') {
+    throw new RmlError('E032', 'Relation declaration: relation name must be a bare symbol');
+  }
+  const name = node[1];
+  if (node.length < 3) {
+    throw new RmlError('E032', `Relation declaration for "${name}" must list at least one clause`);
+  }
+  const clauses = [];
+  for (let i = 2; i < node.length; i++) {
+    const clause = node[i];
+    if (!Array.isArray(clause) || clause.length < 2 || clause[0] !== name) {
+      throw new RmlError(
+        'E032',
+        `Relation declaration for "${name}": clause ${i - 1} must be a list whose head is "${name}"`,
+      );
+    }
+    clauses.push(clause);
+  }
+  return { name, clauses };
+}
+
+// True when `inner` is a strict subterm of `outer` — i.e. `outer` contains a
+// proper sub-expression structurally identical to `inner`. The relation is
+// strict: identical terms are not subterms of themselves. Used as the
+// structural-decrease witness on recursive calls.
+function isStrictSubterm(inner, outer) {
+  if (!Array.isArray(outer)) return false;
+  for (const child of outer) {
+    if (isStructurallySame(inner, child)) return true;
+    if (isStrictSubterm(inner, child)) return true;
+  }
+  return false;
+}
+
+// Walk `node` and collect every recursive call to `relName` (i.e. every
+// list whose head is `relName`). The clause head itself is excluded so the
+// caller compares recursive calls against the head, not against itself.
+function collectRecursiveCalls(node, relName, isHead) {
+  const out = [];
+  if (!Array.isArray(node)) return out;
+  if (!isHead && node[0] === relName) out.push(node);
+  for (let i = 0; i < node.length; i++) {
+    if (i === 0 && typeof node[i] === 'string') continue;
+    out.push(...collectRecursiveCalls(node[i], relName, false));
+  }
+  return out;
+}
+
+// Check a single recursive call against the clause head. Returns null when
+// at least one `+input` slot is a strict subterm of the head's; otherwise
+// returns a counter-witness description suitable for a diagnostic.
+//
+// Recursive calls inside a clause's output expression (functional style)
+// commonly carry only the `+input` arguments — the output is the sub-tree
+// itself. To accommodate that, the call may either:
+//   - supply every declared slot (`flags.length` arguments), in which case
+//     we compare the corresponding input positions, or
+//   - supply just the input slots (`numInputs` arguments), in which case
+//     we line them up with the head's input positions in order.
+function checkRecursiveDecrease(call, headArgs, flags, relName) {
+  const callArgs = call.slice(1);
+  const inputIndices = [];
+  for (let i = 0; i < flags.length; i++) if (flags[i] === 'in') inputIndices.push(i);
+
+  let inputPairs = null;
+  if (callArgs.length === flags.length) {
+    inputPairs = inputIndices.map(i => [callArgs[i], headArgs[i]]);
+  } else if (callArgs.length === inputIndices.length) {
+    inputPairs = inputIndices.map((i, j) => [callArgs[j], headArgs[i]]);
+  } else {
+    return {
+      reason: `recursive call \`${keyOf(call)}\` has ${callArgs.length} argument${callArgs.length === 1 ? '' : 's'}, expected ${flags.length} (or ${inputIndices.length} input${inputIndices.length === 1 ? '' : 's'})`,
+      call,
+    };
+  }
+
+  if (inputIndices.length === 0) {
+    return {
+      reason: `relation "${relName}" has no \`+input\` slot, so structural decrease is unverifiable`,
+      call,
+    };
+  }
+  for (const [callArg, headArg] of inputPairs) {
+    if (isStrictSubterm(callArg, headArg)) {
+      return null; // decrease witnessed at this input slot
+    }
+  }
+  return {
+    reason: `recursive call \`${keyOf(call)}\` does not structurally decrease any \`+input\` slot of \`${keyOf([relName, ...headArgs])}\``,
+    call,
+  };
+}
+
+// Public-facing totality checker: returns `{ ok, diagnostics }`. When the
+// relation has no declared modes the check is skipped and a single
+// diagnostic is returned so callers can surface the missing prerequisite.
+function isTotal(env, relName) {
+  const diagnostics = [];
+  const clauses = env.relations.get(relName);
+  const flags = env.modes.get(relName);
+  if (!flags) {
+    diagnostics.push({
+      code: 'E032',
+      message: `Totality check for "${relName}": no \`(mode ${relName} ...)\` declaration found`,
+    });
+    return { ok: false, diagnostics };
+  }
+  if (!clauses || clauses.length === 0) {
+    diagnostics.push({
+      code: 'E032',
+      message: `Totality check for "${relName}": no \`(relation ${relName} ...)\` clauses found`,
+    });
+    return { ok: false, diagnostics };
+  }
+  for (let ci = 0; ci < clauses.length; ci++) {
+    const clause = clauses[ci];
+    const headArgs = clause.slice(1);
+    if (headArgs.length !== flags.length) {
+      diagnostics.push({
+        code: 'E032',
+        message: `Totality check for "${relName}": clause ${ci + 1} \`${keyOf(clause)}\` has ${headArgs.length} argument${headArgs.length === 1 ? '' : 's'}, mode declares ${flags.length}`,
+      });
+      continue;
+    }
+    const calls = collectRecursiveCalls(clause, relName, true);
+    for (const call of calls) {
+      const witness = checkRecursiveDecrease(call, headArgs, flags, relName);
+      if (witness) {
+        diagnostics.push({
+          code: 'E032',
+          message: `Totality check for "${relName}": clause ${ci + 1} \`${keyOf(clause)}\` — ${witness.reason}`,
+        });
+      }
+    }
+  }
+  return { ok: diagnostics.length === 0, diagnostics };
+}
+
 // Check a call site `(name args...)` against any registered mode declaration
 // for `name`. Returns the offending RmlError on mismatch, or `null` when the
 // call is consistent (or no declaration exists).
@@ -1231,6 +1388,34 @@ function evalNode(node, env){
       env.modes.set(decl.name, decl.flags);
       return 1;
     }
+  }
+
+  // Relation declaration (issue #44, D12): (relation <name> <clause>...)
+  // Stores the clause list keyed by relation name. `parseRelationForm`
+  // throws E032 on a malformed declaration so the call sites do not have
+  // to handle absent or shape-broken clauses defensively.
+  if (node[0] === 'relation') {
+    const decl = parseRelationForm(node);
+    if (decl) {
+      env.relations.set(decl.name, decl.clauses);
+      return 1;
+    }
+  }
+
+  // Totality check (issue #44, D12): (total <name>) runs `isTotal` over
+  // the recorded relation and turns each returned diagnostic into an
+  // E032 RmlError. The first error short-circuits, mirroring how the
+  // mode checker surfaces a single failure per evaluator step.
+  if (node[0] === 'total' && node.length === 2 && typeof node[1] === 'string') {
+    const result = isTotal(env, node[1]);
+    if (!result.ok && result.diagnostics.length > 0) {
+      const first = result.diagnostics[0];
+      throw new RmlError(first.code || 'E032', first.message);
+    }
+    return 1;
+  }
+  if (node[0] === 'total') {
+    throw new RmlError('E032', 'Totality declaration must be `(total <relation-name>)`');
   }
 
   // Mode-mismatch check (issue #43, D15): a call `(name args...)` whose
@@ -2795,6 +2980,7 @@ export {
   substitute,
   synth,
   check,
+  isTotal,
   formalizeSelectedInterpretation,
   evaluateFormalization,
 };
