@@ -690,6 +690,33 @@ pub struct Env {
     pub imported: HashSet<String>,
     pub shadow_diagnostics: Vec<Diagnostic>,
     pub file_namespaces: HashMap<PathBuf, String>,
+    /// Mode declarations (issue #43, D15): each relation may declare an
+    /// argument mode pattern via `(mode <name> +input -output ...)`. The
+    /// map records the per-argument flag list used by the call-site checker
+    /// to reject mode mismatches.
+    pub modes: HashMap<String, Vec<ModeFlag>>,
+}
+
+/// Per-argument mode flag for a relation declared via `(mode …)`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ModeFlag {
+    /// `+input`: caller must supply a ground argument here.
+    In,
+    /// `-output`: the relation is expected to produce a value here.
+    Out,
+    /// `*either`: no directionality constraint.
+    Either,
+}
+
+impl ModeFlag {
+    pub fn from_token(token: &str) -> Option<Self> {
+        match token {
+            "+input" => Some(ModeFlag::In),
+            "-output" => Some(ModeFlag::Out),
+            "*either" => Some(ModeFlag::Either),
+            _ => None,
+        }
+    }
 }
 
 impl Env {
@@ -731,6 +758,7 @@ impl Env {
             imported: HashSet::new(),
             shadow_diagnostics: Vec::new(),
             file_namespaces: HashMap::new(),
+            modes: HashMap::new(),
         };
 
         // Initialize truth constants: true, false, unknown, undefined
@@ -1161,6 +1189,7 @@ fn non_variable_token(s: &str) -> bool {
             | "as"
             | "is"
             | "?"
+            | "mode"
             | "+"
             | "-"
             | "*"
@@ -2713,6 +2742,85 @@ pub fn build_proof(node: &Node, env: &Env) -> Node {
     }
 }
 
+// ---------- Mode declarations (issue #43, D15) ----------
+// `(mode plus +input +input -output)` records the per-argument mode
+// pattern for relation `plus`. `parse_mode_form` validates the shape and
+// returns the normalised `(name, flags)` pair; `check_mode_at_call`
+// inspects every call against any registered declaration. Both surface
+// errors as panics with a recognisable prefix so the existing diagnostic
+// dispatch in `decode_panic_payload` can map them to E030 / E031.
+
+fn parse_mode_form(children: &[Node]) -> Option<(String, Vec<ModeFlag>)> {
+    // Caller already verified `children[0]` is the leaf `mode`.
+    if children.len() < 2 {
+        return None;
+    }
+    let name = match &children[1] {
+        Node::Leaf(s) => s.clone(),
+        _ => panic!("Mode declaration error: relation name must be a bare symbol"),
+    };
+    if children.len() < 3 {
+        panic!(
+            "Mode declaration error: declaration for \"{}\" must list at least one mode flag",
+            name
+        );
+    }
+    let mut flags = Vec::with_capacity(children.len() - 2);
+    for child in &children[2..] {
+        match child {
+            Node::Leaf(token) => match ModeFlag::from_token(token) {
+                Some(flag) => flags.push(flag),
+                None => panic!(
+                    "Mode declaration error: declaration for \"{}\": unknown flag \"{}\" (expected +input, -output, or *either)",
+                    name, token
+                ),
+            },
+            _ => panic!(
+                "Mode declaration error: declaration for \"{}\" contains a non-token flag",
+                name
+            ),
+        }
+    }
+    Some((name, flags))
+}
+
+fn is_ground_for_mode(arg: &Node, env: &Env) -> bool {
+    match arg {
+        Node::Leaf(s) => {
+            if is_num(s) {
+                return true;
+            }
+            env_can_evaluate_name(env, s)
+        }
+        Node::List(_) => !has_unresolved_free_variables(arg, env),
+    }
+}
+
+fn check_mode_at_call(name: &str, args: &[Node], env: &Env) {
+    let flags = match env.modes.get(name) {
+        Some(f) => f.clone(),
+        None => return,
+    };
+    if args.len() != flags.len() {
+        panic!(
+            "Mode mismatch: \"{}\" expected {} argument{}, got {}",
+            name,
+            flags.len(),
+            if flags.len() == 1 { "" } else { "s" },
+            args.len()
+        );
+    }
+    for (i, flag) in flags.iter().enumerate() {
+        if *flag == ModeFlag::In && !is_ground_for_mode(&args[i], env) {
+            panic!(
+                "Mode mismatch: \"{}\" argument {} (+input) is not ground",
+                name,
+                i + 1
+            );
+        }
+    }
+}
+
 /// Evaluate an AST node in the given environment.
 pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
     match node {
@@ -2738,6 +2846,32 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
 
             // Note: (x : A) with spaces as a standalone colon separator is NOT supported.
             // Use (x: A) instead — the colon must be part of the link name.
+
+            // Mode declaration (issue #43, D15): (mode <name> +input -output ...)
+            // Records the per-argument mode pattern for a relation. Validation
+            // lives in `parse_mode_form`, which panics with `Mode declaration
+            // error:` on a malformed declaration so `decode_panic_payload`
+            // surfaces it as E030.
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "mode" {
+                    if let Some((name, flags)) = parse_mode_form(children) {
+                        env.modes.insert(name, flags);
+                        return EvalResult::Value(1.0);
+                    }
+                }
+            }
+
+            // Mode-mismatch check (issue #43, D15): a call `(name args...)`
+            // whose head has a registered mode declaration must agree with the
+            // declared flags. Run before head evaluation so the diagnostic
+            // points at the call site rather than at a downstream reduction.
+            if let Node::Leaf(ref head) = children[0] {
+                if env.modes.contains_key(head) {
+                    let head_owned = head.clone();
+                    let args: Vec<Node> = children[1..].to_vec();
+                    check_mode_at_call(&head_owned, &args, env);
+                }
+            }
 
             // Assignment: ((expr) has probability p)
             if children.len() == 4 {
@@ -4300,6 +4434,16 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E010".to_string(),
             raw_msg.replacen("Freshness error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Mode declaration error:") {
+        (
+            "E030".to_string(),
+            raw_msg.replacen("Mode declaration error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Mode mismatch:") {
+        (
+            "E031".to_string(),
+            raw_msg.replacen("Mode mismatch: ", "", 1),
         )
     } else {
         ("E000".to_string(), raw_msg)

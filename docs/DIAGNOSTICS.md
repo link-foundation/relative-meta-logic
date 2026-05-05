@@ -89,6 +89,8 @@ The exit code is `1` whenever any diagnostic is emitted, `0` otherwise.
 | `E022` | Bidirectional checker: application head does not synthesise to a Pi-type. Triggered by `(apply f a)` where `f` lacks a Pi annotation. |
 | `E023` | Bidirectional checker: lambda checked against a non-Pi expected type. Triggered by `check((lambda (A x) body), T)` where `T` is not of the form `(Pi (...) ...)`. |
 | `E024` | Bidirectional checker: malformed binder in a `Pi` or `lambda` form. Triggered when the second child is not a recognisable `(Type x)` or `(x: Type)` pair. |
+| `E030` | Malformed `(mode …)` declaration. Triggered when the relation name is missing or non-symbolic, no mode flags follow it, or a flag other than `+input`, `-output`, or `*either` is supplied. |
+| `E031` | Mode mismatch at a call site. Triggered when a relation with a recorded `(mode …)` declaration is called with the wrong number of arguments, or when an `+input` slot receives a non-ground argument (e.g. an unbound or fresh variable). |
 
 Codes are stable identifiers — they do not change between releases unless we
 explicitly note a breaking change in the changelog. The accompanying

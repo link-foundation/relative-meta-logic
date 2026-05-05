@@ -200,6 +200,11 @@ class Env {
     this.symbolProb = new Map();                // optional symbol priors if you want (x: 0.7)
     this.types = new Map();                     // key(expr) -> type expression (as string)
     this.lambdas = new Map();                   // name -> { param, paramType, body } for named lambdas
+    // Mode declarations (issue #43, D15): each relation may declare an
+    // argument mode pattern via `(mode <name> +input -output ...)`. The
+    // map records the per-argument flag list (`'in'`, `'out'`, `'either'`)
+    // used by the call-site checker to reject mode mismatches.
+    this.modes = new Map();                     // name -> [flag, flag, ...]
     // Namespace state (issue #34): a file can declare `(namespace foo)`, which
     // prefixes every name it subsequently introduces with `foo.`. Imports can
     // be aliased via `(import "x.lino" as a)`, which records `a` -> the
@@ -464,7 +469,7 @@ function parseBindings(binding) {
 const NON_VARIABLE_TOKENS = new Set([
   'lambda', 'Pi', 'fresh', 'in', 'subst', 'apply', 'type', 'of',
   'has', 'probability', 'with', 'proof', 'range', 'valence',
-  'namespace', 'import', 'as', 'is', '?',
+  'namespace', 'import', 'as', 'is', '?', 'mode',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
 
@@ -1085,6 +1090,84 @@ function evalReducedTerm(reduced, env) {
   return evalNode(term, env);
 }
 
+// ---------- Mode declarations (issue #43, D15) ----------
+// `(mode plus +input +input -output)` records the per-argument mode pattern
+// for relation `plus`. Each flag is normalised to one of:
+//   'in'     — `+input`  : caller must supply a ground argument here
+//   'out'    — `-output` : the relation is expected to produce a value here
+//   'either' — `*either` : no directionality constraint
+// Any other token is rejected with a structured `E030` diagnostic at the
+// declaration site so the parser does not silently accept typos.
+const MODE_FLAG_TOKENS = {
+  '+input': 'in',
+  '-output': 'out',
+  '*either': 'either',
+};
+
+function parseModeFlag(token) {
+  if (typeof token !== 'string') return null;
+  return Object.prototype.hasOwnProperty.call(MODE_FLAG_TOKENS, token)
+    ? MODE_FLAG_TOKENS[token]
+    : null;
+}
+
+function parseModeForm(node) {
+  if (!Array.isArray(node) || node.length < 2) return null;
+  if (node[0] !== 'mode') return null;
+  if (typeof node[1] !== 'string') {
+    throw new RmlError('E030', 'Mode declaration: relation name must be a bare symbol');
+  }
+  const name = node[1];
+  if (node.length < 3) {
+    throw new RmlError('E030', `Mode declaration for "${name}" must list at least one mode flag`);
+  }
+  const flags = [];
+  for (let i = 2; i < node.length; i++) {
+    const flag = parseModeFlag(node[i]);
+    if (flag === null) {
+      throw new RmlError('E030', `Mode declaration for "${name}": unknown flag "${node[i]}" (expected +input, -output, or *either)`);
+    }
+    flags.push(flag);
+  }
+  return { name, flags };
+}
+
+// Decide whether an argument occupying a `+input` slot is "ground" enough.
+// A ground argument has no free variables that the env cannot evaluate —
+// numeric literals, declared terms, and known symbols are all fine; a fresh
+// or otherwise unbound name is not.
+function isGroundForMode(arg, env) {
+  if (typeof arg === 'string') {
+    if (isNum(arg)) return true;
+    return contextHasName(env, arg);
+  }
+  if (!Array.isArray(arg)) return true;
+  return !hasUnresolvedFreeVariables(arg, env);
+}
+
+// Check a call site `(name args...)` against any registered mode declaration
+// for `name`. Returns the offending RmlError on mismatch, or `null` when the
+// call is consistent (or no declaration exists).
+function checkModeAtCall(name, args, env) {
+  const flags = env.modes.get(name);
+  if (!flags) return null;
+  if (args.length !== flags.length) {
+    return new RmlError(
+      'E031',
+      `Mode mismatch for "${name}": expected ${flags.length} argument${flags.length === 1 ? '' : 's'}, got ${args.length}`,
+    );
+  }
+  for (let i = 0; i < flags.length; i++) {
+    if (flags[i] === 'in' && !isGroundForMode(args[i], env)) {
+      return new RmlError(
+        'E031',
+        `Mode mismatch for "${name}": argument ${i + 1} (+input) is not ground`,
+      );
+    }
+  }
+  return null;
+}
+
 function contextHasName(env, name) {
   if (env.terms.has(name) || env.types.has(name) || env.lambdas.has(name) || env.symbolProb.has(name) || env.ops.has(name)) {
     return true;
@@ -1138,6 +1221,26 @@ function evalNode(node, env){
   }
   // Note: (x : A) with spaces as a standalone colon separator is NOT supported.
   // Use (x: A) instead — the colon must be part of the link name.
+
+  // Mode declaration (issue #43, D15): (mode <name> +input -output ...)
+  // Records the per-argument mode pattern for a relation. Validation lives
+  // in `parseModeForm`, which throws `E030` on a malformed declaration.
+  if (node[0] === 'mode') {
+    const decl = parseModeForm(node);
+    if (decl) {
+      env.modes.set(decl.name, decl.flags);
+      return 1;
+    }
+  }
+
+  // Mode-mismatch check (issue #43, D15): a call `(name args...)` whose
+  // head has a registered mode declaration must agree with the declared
+  // flags. The check runs before the head's evaluation so the diagnostic
+  // points at the call rather than at a downstream beta-reduction.
+  if (typeof node[0] === 'string' && env.modes.has(node[0])) {
+    const err = checkModeAtCall(node[0], node.slice(1), env);
+    if (err) throw err;
+  }
 
   // Assignment: ((expr) has probability p)
   if (node.length === 4 && node[1] === 'has' && node[2] === 'probability' && isNum(node[3])) {
