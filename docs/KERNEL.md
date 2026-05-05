@@ -451,6 +451,49 @@ record number sorts, and equality with the expected type collapses through
 | `E023` | Lambda checked against a non-Pi expected type. |
 | `E024` | Malformed binder in `Pi` or `lambda`. |
 
+## Inductive Types
+
+The `(inductive Name (constructor …) …)` form (issue #45, D10) declares a
+new inductive type with a list of constructors. Each constructor is either
+a bare symbol — a constant inhabitant — or a name paired with an explicit
+`Pi` type that returns the inductive type. The kernel registers the type
+itself, every constructor under its declared signature, and a generated
+`Name-rec` eliminator with the standard dependent induction principle.
+
+Surface form:
+
+```
+(inductive Natural
+  (constructor zero)
+  (constructor (succ (Pi (Natural n) Natural))))
+```
+
+After this form is evaluated the env contains: `Natural` typed as
+`(Type 0)`, `zero` typed as `Natural`, `succ` typed as
+`(Pi (Natural n) Natural)`, and `Natural-rec` typed as a dependent Pi that
+takes a motive `(Pi (Natural _) (Type 0))`, one case per constructor (with
+inductive-hypothesis premises on each recursive parameter), and a target
+of type `Natural`, returning the motive applied to the target. The
+eliminator participates in the bidirectional checker just like any other
+typed term: `(? (type of Natural-rec))` returns the synthesised Pi-type,
+and `synth(Natural-rec)` returns the same node.
+
+Acceptance datatypes from the issue — `List`, `Vector` (length-indexed), and
+propositional `Eq` — are all definable through the same form. The kernel
+performs a syntactic positivity check on the constructor return type but
+does not currently enforce strict positivity beyond it; that work is
+tracked separately.
+
+Diagnostic codes (E033) cover declarations with: a missing or
+lowercase type name, an empty constructor list, a malformed constructor
+clause, a duplicate constructor name, or a `Pi` whose return type is not
+the inductive type itself.
+
+The dedicated tests are:
+
+- JavaScript: `js/tests/inductive.test.mjs`
+- Rust: `rust/tests/inductive_tests.rs`
+
 ## Example Contract
 
 The shared example
