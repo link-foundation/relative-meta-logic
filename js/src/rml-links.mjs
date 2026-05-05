@@ -224,6 +224,13 @@ class Env {
     // eliminator into the standard term/type/lambda maps so existing kernel
     // forms (`type of`, `of`, `apply`) work without further plumbing.
     this.inductives = new Map();                // name -> { name, constructors, elimName, elimType }
+    // Definition declarations (issue #49, D13): `(define <name> [(measure ...)] (case <pat> <body>) ...)`
+    // records a recursive definition with case-clause-based pattern matching.
+    // The termination checker (`isTerminating`) reads each entry to verify
+    // that recursive calls structurally decrease either the implicit
+    // first-argument structural order or, when supplied, an explicit
+    // lexicographic measure.
+    this.definitions = new Map();               // name -> { name, measure, clauses }
     // Namespace state (issue #34): a file can declare `(namespace foo)`, which
     // prefixes every name it subsequently introduces with `foo.`. Imports can
     // be aliased via `(import "x.lino" as a)`, which records `a` -> the
@@ -520,6 +527,7 @@ const NON_VARIABLE_TOKENS = new Set([
   'has', 'probability', 'with', 'proof', 'range', 'valence',
   'namespace', 'import', 'as', 'is', '?', 'mode', 'relation', 'total', 'world',
   'inductive', 'constructor',
+  'define', 'case', 'measure', 'lex', 'terminating',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
 
@@ -1346,6 +1354,180 @@ function isTotal(env, relName) {
   return { ok: diagnostics.length === 0, diagnostics };
 }
 
+// ---------- Definitions & termination checking (issue #49, D13) ----------
+// `(define <name> [(measure (lex <slot>...))] (case <pat-args> <body>) ...)`
+// records a recursive definition keyed by `<name>`. Each `case` clause holds
+// the pattern argument list (the head's arguments at this clause) and a body
+// expression that may reference `<name>` recursively.
+//
+// `isTerminating(env, name)` returns `{ ok, diagnostics }`. The default
+// (measure-less) check requires every recursive call to structurally
+// decrease the first argument relative to the matching clause's first
+// pattern. The explicit `(measure (lex k1 k2 ...))` form switches to a
+// lexicographic measure: a recursive call is accepted when there is some
+// position k where slots before k are structurally identical to the head's
+// and slot k is a strict subterm. Slots are 1-based argument indices.
+function parseDefineForm(node) {
+  if (!Array.isArray(node) || node[0] !== 'define') return null;
+  if (node.length < 2 || typeof node[1] !== 'string') {
+    throw new RmlError('E035', 'Define declaration: name must be a bare symbol');
+  }
+  const name = node[1];
+  if (node.length < 3) {
+    throw new RmlError(
+      'E035',
+      `Define declaration for "${name}" must list at least one \`(case ...)\` clause`,
+    );
+  }
+  let measure = null;
+  const clauses = [];
+  for (let i = 2; i < node.length; i++) {
+    const child = node[i];
+    if (Array.isArray(child) && child[0] === 'measure') {
+      if (measure !== null) {
+        throw new RmlError(
+          'E035',
+          `Define declaration for "${name}": only one \`(measure ...)\` clause is allowed`,
+        );
+      }
+      if (child.length !== 2 || !Array.isArray(child[1]) || child[1][0] !== 'lex' || child[1].length < 2) {
+        throw new RmlError(
+          'E035',
+          `Define declaration for "${name}": \`(measure ...)\` body must be \`(lex <slot>...)\``,
+        );
+      }
+      const slots = [];
+      for (let j = 1; j < child[1].length; j++) {
+        const tok = child[1][j];
+        if (typeof tok !== 'string' || !/^[0-9]+$/.test(tok)) {
+          throw new RmlError(
+            'E035',
+            `Define declaration for "${name}": measure slot must be a positive integer`,
+          );
+        }
+        const slot = parseInt(tok, 10);
+        if (slot < 1) {
+          throw new RmlError(
+            'E035',
+            `Define declaration for "${name}": measure slot must be a positive integer (got ${slot})`,
+          );
+        }
+        slots.push(slot - 1); // store 0-based for direct array indexing
+      }
+      measure = { kind: 'lex', slots };
+      continue;
+    }
+    if (Array.isArray(child) && child[0] === 'case') {
+      if (child.length !== 3) {
+        throw new RmlError(
+          'E035',
+          `Define declaration for "${name}": \`(case <pattern-args> <body>)\` clause must have exactly two children`,
+        );
+      }
+      const patternArgs = child[1];
+      if (!Array.isArray(patternArgs)) {
+        throw new RmlError(
+          'E035',
+          `Define declaration for "${name}": \`(case ...)\` pattern must be a parenthesised argument list`,
+        );
+      }
+      clauses.push({ pattern: patternArgs, body: child[2] });
+      continue;
+    }
+    throw new RmlError(
+      'E035',
+      `Define declaration for "${name}": unexpected clause \`${keyOf(child)}\` (expected \`(measure ...)\` or \`(case ...)\`)`,
+    );
+  }
+  if (clauses.length === 0) {
+    throw new RmlError(
+      'E035',
+      `Define declaration for "${name}" must list at least one \`(case ...)\` clause`,
+    );
+  }
+  return { name, measure, clauses };
+}
+
+// Verify a single recursive call's arguments against the matching clause's
+// pattern arguments. Returns null on success, or an object describing why
+// the call cannot be accepted as decreasing.
+function checkDefineDecrease(call, patternArgs, measure, defName) {
+  const callArgs = call.slice(1);
+  if (callArgs.length !== patternArgs.length) {
+    return {
+      reason: `recursive call \`${keyOf(call)}\` has ${callArgs.length} argument${callArgs.length === 1 ? '' : 's'}, clause pattern declares ${patternArgs.length}`,
+    };
+  }
+  if (measure && measure.kind === 'lex') {
+    for (const slot of measure.slots) {
+      if (slot >= patternArgs.length) {
+        return {
+          reason: `measure slot ${slot + 1} is out of range for ${patternArgs.length}-argument clause`,
+        };
+      }
+    }
+    // Lexicographic check: find the first slot where call < pattern; earlier
+    // slots must be structurally identical to the corresponding pattern.
+    for (const slot of measure.slots) {
+      const callArg = callArgs[slot];
+      const patArg = patternArgs[slot];
+      if (isStrictSubterm(callArg, patArg)) {
+        return null; // strict decrease at this slot — earlier slots already equal
+      }
+      if (!isStructurallySame(callArg, patArg)) {
+        // Neither equal nor strictly smaller → no further slot can rescue it.
+        return {
+          reason: `recursive call \`${keyOf(call)}\` does not lexicographically decrease the declared measure`,
+        };
+      }
+    }
+    return {
+      reason: `recursive call \`${keyOf(call)}\` does not lexicographically decrease the declared measure`,
+    };
+  }
+  // Default: structural decrease on the first argument.
+  if (patternArgs.length === 0) {
+    return {
+      reason: `definition "${defName}" has no arguments, so structural decrease is unverifiable`,
+    };
+  }
+  if (isStrictSubterm(callArgs[0], patternArgs[0])) {
+    return null;
+  }
+  return {
+    reason: `recursive call \`${keyOf(call)}\` does not structurally decrease the first argument of \`${keyOf([defName, ...patternArgs])}\``,
+  };
+}
+
+// Public-facing termination checker for `(define ...)` declarations.
+// Mirrors the shape of `isTotal`. Returns `{ ok, diagnostics }`. Each
+// diagnostic uses code `E035`.
+function isTerminating(env, defName) {
+  const diagnostics = [];
+  const decl = env.definitions.get(defName);
+  if (!decl) {
+    diagnostics.push({
+      code: 'E035',
+      message: `Termination check for "${defName}": no \`(define ${defName} ...)\` declaration found`,
+    });
+    return { ok: false, diagnostics };
+  }
+  for (let ci = 0; ci < decl.clauses.length; ci++) {
+    const clause = decl.clauses[ci];
+    const calls = collectRecursiveCalls(clause.body, defName, false);
+    for (const call of calls) {
+      const witness = checkDefineDecrease(call, clause.pattern, decl.measure, defName);
+      if (witness) {
+        diagnostics.push({
+          code: 'E035',
+          message: `Termination check for "${defName}": clause ${ci + 1} \`${keyOf(['case', clause.pattern, clause.body])}\` — ${witness.reason}`,
+        });
+      }
+    }
+  }
+  return { ok: diagnostics.length === 0, diagnostics };
+}
+
 // ---------- World declarations (issue #54, D16) ----------
 // `(world plus (Natural))` records the allow-list of constants permitted
 // to appear free in arguments to relation `plus`. The world checker
@@ -1805,6 +1987,33 @@ function evalNode(node, env){
   }
   if (node[0] === 'total') {
     throw new RmlError('E032', 'Totality declaration must be `(total <relation-name>)`');
+  }
+
+  // Definition declaration (issue #49, D13): (define <name> [(measure ...)] (case ...) ...)
+  // Records the definition on `env.definitions` so termination can be
+  // queried later via `isTerminating` or via the `(terminating <name>)`
+  // driver form. Malformed declarations raise E035 from the parser.
+  if (node[0] === 'define') {
+    const decl = parseDefineForm(node);
+    if (decl) {
+      env.definitions.set(decl.name, decl);
+      return 1;
+    }
+  }
+
+  // Termination check (issue #49, D13): (terminating <name>) runs
+  // `isTerminating` and surfaces the first diagnostic via the existing
+  // diagnostic pipeline.
+  if (node[0] === 'terminating' && node.length === 2 && typeof node[1] === 'string') {
+    const result = isTerminating(env, node[1]);
+    if (!result.ok && result.diagnostics.length > 0) {
+      const first = result.diagnostics[0];
+      throw new RmlError(first.code || 'E035', first.message);
+    }
+    return 1;
+  }
+  if (node[0] === 'terminating') {
+    throw new RmlError('E035', 'Termination declaration must be `(terminating <definition-name>)`');
   }
 
   // Mode-mismatch check (issue #43, D15): a call `(name args...)` whose
@@ -3416,6 +3625,8 @@ export {
   synth,
   check,
   isTotal,
+  isTerminating,
+  parseDefineForm,
   parseInductiveForm,
   buildEliminatorType,
   formalizeSelectedInterpretation,

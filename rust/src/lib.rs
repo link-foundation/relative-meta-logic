@@ -746,6 +746,12 @@ pub struct Env {
     /// datatype encoded as link signatures plus a generated eliminator.
     /// Stored by type name; see [`InductiveDecl`] for the full layout.
     pub inductives: HashMap<String, InductiveDecl>,
+    /// Recursive definition declarations (issue #49, D13): each
+    /// `(define <name> [(measure ...)] (case ...) ...)` form is recorded
+    /// here so the termination checker (`is_terminating`) can verify
+    /// structural decrease across recursive calls. Stored by definition
+    /// name; see [`DefineDecl`] for the full layout.
+    pub definitions: HashMap<String, DefineDecl>,
 }
 
 /// One constructor of an inductive datatype.
@@ -772,6 +778,38 @@ pub struct InductiveDecl {
     pub elim_name: String,
     /// Generated eliminator's dependent Pi-type.
     pub elim_type: Node,
+}
+
+/// One `(case <pattern-args> <body>)` clause of a `(define …)` declaration.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DefineClause {
+    /// The clause's pattern arguments — the children of the parenthesised
+    /// pattern list, in left-to-right order.
+    pub pattern: Vec<Node>,
+    /// The clause body, which may contain recursive references to the
+    /// declared name.
+    pub body: Node,
+}
+
+/// Optional measure attached to a `(define …)` declaration.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DefineMeasure {
+    /// Lexicographic measure: the listed argument indices (0-based) must
+    /// strictly decrease in the standard left-to-right lexicographic order
+    /// on every recursive call.
+    Lex(Vec<usize>),
+}
+
+/// A parsed `(define <name> [(measure …)] (case …) …)` declaration.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DefineDecl {
+    /// Definition name.
+    pub name: String,
+    /// Optional explicit measure. When `None`, the termination checker
+    /// uses the default rule: structural decrease on the first argument.
+    pub measure: Option<DefineMeasure>,
+    /// Ordered list of `(case …)` clauses.
+    pub clauses: Vec<DefineClause>,
 }
 
 /// Per-argument mode flag for a relation declared via `(mode …)`.
@@ -839,6 +877,7 @@ impl Env {
             relations: HashMap::new(),
             worlds: HashMap::new(),
             inductives: HashMap::new(),
+            definitions: HashMap::new(),
         };
 
         // Initialize truth constants: true, false, unknown, undefined
@@ -3216,6 +3255,268 @@ pub fn is_total(env: &Env, rel_name: &str) -> TotalityResult {
     }
 }
 
+// ---------- Definitions & termination checking (issue #49, D13) ----------
+// `(define <name> [(measure (lex <slot>...))] (case <pattern-args> <body>) ...)`
+// records a recursive definition keyed by `<name>`. `is_terminating(env, name)`
+// then verifies that every recursive call structurally decreases either the
+// first argument (default) or the explicit lexicographic measure. Mirrors
+// the JS export `isTerminating` and uses error code E035.
+
+/// Per-clause / per-call termination diagnostic returned by [`is_terminating`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TerminationDiagnostic {
+    pub code: String,
+    pub message: String,
+}
+
+/// Outcome of a termination check.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TerminationResult {
+    pub ok: bool,
+    pub diagnostics: Vec<TerminationDiagnostic>,
+}
+
+fn parse_define_form(children: &[Node]) -> DefineDecl {
+    // Caller already verified `children[0]` is the leaf `define`.
+    if children.len() < 2 {
+        panic!("Termination check error: Define declaration: name must be a bare symbol");
+    }
+    let name = match &children[1] {
+        Node::Leaf(s) => s.clone(),
+        _ => panic!("Termination check error: Define declaration: name must be a bare symbol"),
+    };
+    if children.len() < 3 {
+        panic!(
+            "Termination check error: Define declaration for \"{}\" must list at least one `(case ...)` clause",
+            name
+        );
+    }
+    let mut measure: Option<DefineMeasure> = None;
+    let mut clauses: Vec<DefineClause> = Vec::new();
+    for child in &children[2..] {
+        match child {
+            Node::List(items) if !items.is_empty() => match &items[0] {
+                Node::Leaf(head) if head == "measure" => {
+                    if measure.is_some() {
+                        panic!(
+                            "Termination check error: Define declaration for \"{}\": only one `(measure ...)` clause is allowed",
+                            name
+                        );
+                    }
+                    if items.len() != 2 {
+                        panic!(
+                            "Termination check error: Define declaration for \"{}\": `(measure ...)` body must be `(lex <slot>...)`",
+                            name
+                        );
+                    }
+                    let body = &items[1];
+                    let lex_items = match body {
+                        Node::List(b) if b.len() >= 2 => match &b[0] {
+                            Node::Leaf(h) if h == "lex" => &b[1..],
+                            _ => panic!(
+                                "Termination check error: Define declaration for \"{}\": `(measure ...)` body must be `(lex <slot>...)`",
+                                name
+                            ),
+                        },
+                        _ => panic!(
+                            "Termination check error: Define declaration for \"{}\": `(measure ...)` body must be `(lex <slot>...)`",
+                            name
+                        ),
+                    };
+                    let mut slots: Vec<usize> = Vec::with_capacity(lex_items.len());
+                    for item in lex_items {
+                        let raw = match item {
+                            Node::Leaf(s) => s.clone(),
+                            _ => panic!(
+                                "Termination check error: Define declaration for \"{}\": measure slot must be a positive integer",
+                                name
+                            ),
+                        };
+                        let parsed: Result<usize, _> = raw.parse();
+                        match parsed {
+                            Ok(n) if n >= 1 => slots.push(n - 1),
+                            _ => panic!(
+                                "Termination check error: Define declaration for \"{}\": measure slot must be a positive integer",
+                                name
+                            ),
+                        }
+                    }
+                    measure = Some(DefineMeasure::Lex(slots));
+                }
+                Node::Leaf(head) if head == "case" => {
+                    if items.len() != 3 {
+                        panic!(
+                            "Termination check error: Define declaration for \"{}\": `(case <pattern-args> <body>)` clause must have exactly two children",
+                            name
+                        );
+                    }
+                    let pattern = match &items[1] {
+                        Node::List(p) => p.clone(),
+                        // The upstream `links-notation` parser collapses
+                        // single-element parens (`(zero)` → `zero`), so a
+                        // surface pattern with one argument arrives here as a
+                        // `Leaf`. Treat it as the equivalent one-element list
+                        // so `(case (zero) zero)` parses the same way it does
+                        // in the JS implementation.
+                        Node::Leaf(_) => vec![items[1].clone()],
+                    };
+                    clauses.push(DefineClause {
+                        pattern,
+                        body: items[2].clone(),
+                    });
+                }
+                _ => panic!(
+                    "Termination check error: Define declaration for \"{}\": unexpected clause `{}` (expected `(measure ...)` or `(case ...)`)",
+                    name,
+                    key_of(child)
+                ),
+            },
+            _ => panic!(
+                "Termination check error: Define declaration for \"{}\": unexpected clause `{}` (expected `(measure ...)` or `(case ...)`)",
+                name,
+                key_of(child)
+            ),
+        }
+    }
+    if clauses.is_empty() {
+        panic!(
+            "Termination check error: Define declaration for \"{}\" must list at least one `(case ...)` clause",
+            name
+        );
+    }
+    DefineDecl {
+        name,
+        measure,
+        clauses,
+    }
+}
+
+fn check_define_decrease(
+    call: &Node,
+    pattern: &[Node],
+    measure: &Option<DefineMeasure>,
+    def_name: &str,
+) -> Option<String> {
+    let call_args: Vec<Node> = match call {
+        Node::List(items) if !items.is_empty() => items[1..].to_vec(),
+        _ => return Some(format!("recursive call `{}` has no arguments", key_of(call))),
+    };
+    if call_args.len() != pattern.len() {
+        return Some(format!(
+            "recursive call `{}` has {} argument{}, clause pattern declares {}",
+            key_of(call),
+            call_args.len(),
+            if call_args.len() == 1 { "" } else { "s" },
+            pattern.len(),
+        ));
+    }
+    if let Some(DefineMeasure::Lex(slots)) = measure {
+        for &slot in slots {
+            if slot >= pattern.len() {
+                return Some(format!(
+                    "measure slot {} is out of range for {}-argument clause",
+                    slot + 1,
+                    pattern.len(),
+                ));
+            }
+        }
+        for &slot in slots {
+            let call_arg = &call_args[slot];
+            let pat_arg = &pattern[slot];
+            if is_strict_subterm(call_arg, pat_arg) {
+                return None;
+            }
+            if !is_node_equal(call_arg, pat_arg) {
+                return Some(format!(
+                    "recursive call `{}` does not lexicographically decrease the declared measure",
+                    key_of(call),
+                ));
+            }
+        }
+        return Some(format!(
+            "recursive call `{}` does not lexicographically decrease the declared measure",
+            key_of(call),
+        ));
+    }
+    if pattern.is_empty() {
+        return Some(format!(
+            "definition \"{}\" has no arguments, so structural decrease is unverifiable",
+            def_name
+        ));
+    }
+    if is_strict_subterm(&call_args[0], &pattern[0]) {
+        return None;
+    }
+    let head_with_pattern = {
+        let mut items = Vec::with_capacity(pattern.len() + 1);
+        items.push(Node::Leaf(def_name.to_string()));
+        items.extend(pattern.iter().cloned());
+        Node::List(items)
+    };
+    Some(format!(
+        "recursive call `{}` does not structurally decrease the first argument of `{}`",
+        key_of(call),
+        key_of(&head_with_pattern)
+    ))
+}
+
+fn is_node_equal(a: &Node, b: &Node) -> bool {
+    a == b
+}
+
+/// Public termination checker. Returns a [`TerminationResult`] with
+/// structured diagnostics; callers can either propagate them as-is or
+/// convert each entry into a [`Diagnostic`] for the existing pipeline. The
+/// mirrored JS helper is exported under the same name (`isTerminating`).
+pub fn is_terminating(env: &Env, def_name: &str) -> TerminationResult {
+    let mut diagnostics: Vec<TerminationDiagnostic> = Vec::new();
+    let decl = match env.definitions.get(def_name) {
+        Some(d) => d.clone(),
+        None => {
+            diagnostics.push(TerminationDiagnostic {
+                code: "E035".to_string(),
+                message: format!(
+                    "Termination check for \"{}\": no `(define {} ...)` declaration found",
+                    def_name, def_name
+                ),
+            });
+            return TerminationResult {
+                ok: false,
+                diagnostics,
+            };
+        }
+    };
+    for (ci, clause) in decl.clauses.iter().enumerate() {
+        let mut calls: Vec<Node> = Vec::new();
+        collect_recursive_calls(&clause.body, def_name, false, &mut calls);
+        for call in &calls {
+            if let Some(reason) =
+                check_define_decrease(call, &clause.pattern, &decl.measure, def_name)
+            {
+                let case_node = Node::List(vec![
+                    Node::Leaf("case".to_string()),
+                    Node::List(clause.pattern.clone()),
+                    clause.body.clone(),
+                ]);
+                diagnostics.push(TerminationDiagnostic {
+                    code: "E035".to_string(),
+                    message: format!(
+                        "Termination check for \"{}\": clause {} `{}` — {}",
+                        def_name,
+                        ci + 1,
+                        key_of(&case_node),
+                        reason
+                    ),
+                });
+            }
+        }
+    }
+    TerminationResult {
+        ok: diagnostics.is_empty(),
+        diagnostics,
+    }
+}
+
 // ---------- World declarations (issue #54, D16) ----------
 // `(world plus (Natural))` records that the relation `plus` may have
 // arguments containing only the listed constants free (in addition to
@@ -3752,6 +4053,43 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                     }
                     panic!(
                         "Totality check error: Totality declaration must be `(total <relation-name>)`"
+                    );
+                }
+            }
+
+            // Definition declaration (issue #49, D13):
+            //   (define <name> [(measure (lex <slot>...))] (case <pat> <body>) ...)
+            // Records the recursive definition on the env so termination can
+            // be queried later. `parse_define_form` panics with
+            // `Termination check error:` on a malformed declaration so
+            // `decode_panic_payload` surfaces it as E035.
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "define" {
+                    let decl = parse_define_form(children);
+                    env.definitions.insert(decl.name.clone(), decl);
+                    return EvalResult::Value(1.0);
+                }
+            }
+
+            // Termination declaration (issue #49, D13): (terminating <name>)
+            // runs `is_terminating` and surfaces the first diagnostic via
+            // the existing panic-based dispatch (`Termination check error:`
+            // -> E035).
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "terminating" {
+                    if children.len() == 2 {
+                        if let Node::Leaf(ref def_name) = children[1] {
+                            let result = is_terminating(env, def_name);
+                            if !result.ok {
+                                if let Some(first) = result.diagnostics.first() {
+                                    panic!("Termination check error: {}", first.message);
+                                }
+                            }
+                            return EvalResult::Value(1.0);
+                        }
+                    }
+                    panic!(
+                        "Termination check error: Termination declaration must be `(terminating <definition-name>)`"
                     );
                 }
             }
@@ -5407,6 +5745,11 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E033".to_string(),
             raw_msg.replacen("Inductive declaration error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Termination check error:") {
+        (
+            "E035".to_string(),
+            raw_msg.replacen("Termination check error: ", "", 1),
         )
     } else {
         ("E000".to_string(), raw_msg)
