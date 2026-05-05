@@ -407,10 +407,13 @@ class Env {
 }
 
 // ---------- Binding parser ----------
-// Parse a binding form in two supported syntaxes:
+// Parse a binding form in three supported syntaxes:
 // 1. Colon form: (x: A) as ['x:', A] — standard LiNo link definition syntax
 // 2. Prefix type form: (A x) as ['A', 'x'] — type-first notation for lambda/Pi bindings
 //    e.g. (Natural x), used in (lambda (Natural x) body)
+// 3. Prefix complex-type form: ((Pi (A x) B) f) — type-first with a list type expression,
+//    needed for higher-order parameters such as polymorphic apply / compose where a
+//    function parameter is itself function-typed.
 // Returns { paramName, paramType } or null if not a valid binding.
 function parseBinding(binding) {
   if (!Array.isArray(binding)) return null;
@@ -422,6 +425,13 @@ function parseBinding(binding) {
   // Type names must start with uppercase (convention from Lean/Rocq)
   if (binding.length === 2 && typeof binding[0] === 'string' && typeof binding[1] === 'string'
       && /^[A-Z]/.test(binding[0]) && !binding[1].endsWith(':')) {
+    return { paramName: binding[1], paramType: binding[0] };
+  }
+  // [<type-expr>, 'x'] — prefix complex-type form: the type is a list expression
+  // such as (Pi (A x) B), (Type 0), or (forall A T). The variable name must be a
+  // plain identifier (no trailing colon, must not look like a type name itself).
+  if (binding.length === 2 && Array.isArray(binding[0]) && typeof binding[1] === 'string'
+      && !binding[1].endsWith(':')) {
     return { paramName: binding[1], paramType: binding[0] };
   }
   return null;
@@ -1955,12 +1965,32 @@ function _restoreTypeBinding(env, snap) {
 // structural equality when convertibility throws.
 function _typesAgree(a, b, env) {
   if (a === null || b === null) return false;
-  if (isStructurallySame(a, b)) return true;
+  const aN = _expandForall(a);
+  const bN = _expandForall(b);
+  if (isStructurallySame(aN, bN)) return true;
   try {
-    return isConvertible(a, b, env);
+    return isConvertible(aN, bN, env);
   } catch (_) {
     return false;
   }
+}
+
+// Prenex polymorphism (D9): `(forall A T)` is sugar for `(Pi (Type A) T)`.
+// `A` is a bound type variable ranging over the universe `Type`. Expansion
+// happens at the outermost layer only — nested quantifiers desugar lazily as
+// the type checker recurses into the body.
+function _isForallNode(node) {
+  return (
+    Array.isArray(node) &&
+    node.length === 3 &&
+    node[0] === 'forall' &&
+    typeof node[1] === 'string'
+  );
+}
+
+function _expandForall(node) {
+  if (!_isForallNode(node)) return node;
+  return ['Pi', ['Type', node[1]], node[2]];
 }
 
 function _synthLeaf(term, env) {
@@ -1997,7 +2027,10 @@ function _synthApply(node, env, span, diagnostics) {
     ));
     return null;
   }
-  const fnType = fnSynth.type;
+  // Prenex polymorphism (D9): `(forall A T)` desugars to `(Pi (Type A) T)`,
+  // so type-application `(apply f Natural)` reduces by substituting `A := Natural`
+  // in the body just like a regular Pi-type does.
+  const fnType = _expandForall(fnSynth.type);
   if (!Array.isArray(fnType) || fnType.length !== 3 || fnType[0] !== 'Pi') {
     diagnostics.push(_diag(
       'E022',
@@ -2131,6 +2164,13 @@ function synth(term, ctx, options) {
     return { type: ['Type', '0'], diagnostics };
   }
 
+  // (forall A T) : (Type 0) — prenex polymorphism (D9). `A` is bound as a
+  // type variable ranging over `Type`; the body `T` is the polymorphic type.
+  // Synthesised as a Type because the surface form is itself a type.
+  if (_isForallNode(node)) {
+    return synth(_expandForall(node), env, { span, parentDiagnostics: diagnostics });
+  }
+
   // (lambda (A x) body)
   if (node.length === 3 && node[0] === 'lambda') {
     const lambdaType = _synthLambda(node, env, span, diagnostics);
@@ -2189,7 +2229,15 @@ function check(term, expectedType, ctx, options) {
   const span = _spanFromCtx(ctx, options);
   const diagnostics = [];
   const node = parseTermInput(term);
-  const expectedNode = parseTermInput(expectedType);
+  let expectedNode = parseTermInput(expectedType);
+
+  // Prenex polymorphism (D9): `(forall A T)` is sugar for `(Pi (Type A) T)`.
+  // Expand once here so the lambda-vs-Pi rule below applies uniformly. The
+  // term-side stays unchanged because `(lambda (Type A) ...)` already uses
+  // the Pi-friendly binder form.
+  if (_isForallNode(expectedNode)) {
+    expectedNode = _expandForall(expectedNode);
+  }
 
   // Direct rule: (lambda (A x) body) checks against (Pi (A' y) B) when
   // A converts with A' — open the binder, alpha-rename if needed, recurse

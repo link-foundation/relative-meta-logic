@@ -1,6 +1,6 @@
 {
   "name": "relative-meta-logic",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "A prototype for logic framework that can reason about anything relative to given probability of input statements",
   "type": "module",
   "main": "src/rml-links.mjs",

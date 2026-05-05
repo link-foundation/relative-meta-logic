@@ -451,6 +451,41 @@ record number sorts, and equality with the expected type collapses through
 | `E023` | Lambda checked against a non-Pi expected type. |
 | `E024` | Malformed binder in `Pi` or `lambda`. |
 
+## Prenex Polymorphism
+
+`(forall A T)` is surface sugar for the dependent product
+`(Pi (Type A) T)` — a `Pi`-type whose domain is the universe `Type`. The
+type variable `A` is bound at `Type` and is free in the body `T`.
+Higher-rank quantification is out of scope: nested `forall`s desugar
+lazily as the type checker recurses into the body, so a `forall` may sit
+under another `forall` (giving an iterated prenex), but writing one
+underneath an arbitrary `Pi` produces no special treatment beyond what
+the underlying `Pi` rule already does.
+
+The polymorphic identity, apply, and compose all type-check directly:
+
+```lino
+(identity: forall A (Pi (A x) A))
+(identity: lambda (Type A) (lambda (A x) x))
+
+(poly-apply: forall A (forall B (Pi ((Pi (A x) B) f) (Pi (A x) B))))
+(poly-apply: lambda (Type A) (lambda (Type B)
+                (lambda ((Pi (A x) B) f) (lambda (A x) (apply f x)))))
+```
+
+Type-application reuses the `Pi` rule for `apply` — instantiating
+`identity` at `Natural` substitutes `A := Natural` in the body:
+
+```lino
+(? (apply identity Natural))         # -> (Pi (Natural x) Natural)
+(? (apply (apply identity Natural) zero))  # -> Natural
+```
+
+The desugaring is implemented by `_isForallNode` / `_expandForall`
+(JavaScript) and `is_forall_node` / `expand_forall` (Rust); both apply
+the expansion only at the outermost layer of the form being inspected,
+so the cost is `O(1)` per check.
+
 ## Example Contract
 
 The shared example
@@ -462,5 +497,7 @@ rules must update the shared fixtures intentionally.
 
 The dedicated kernel tests are:
 
-- JavaScript: `js/tests/kernel.test.mjs`, `js/tests/bidirectional.test.mjs`
-- Rust: `rust/tests/kernel_tests.rs`, `rust/tests/bidirectional_tests.rs`
+- JavaScript: `js/tests/kernel.test.mjs`, `js/tests/bidirectional.test.mjs`,
+  `js/tests/prenex-polymorphism.test.mjs`
+- Rust: `rust/tests/kernel_tests.rs`, `rust/tests/bidirectional_tests.rs`,
+  `rust/tests/prenex_polymorphism_tests.rs`

@@ -1103,6 +1103,14 @@ pub fn parse_binding(binding: &Node) -> Option<(String, String)> {
                     return Some((var_name.clone(), type_name.clone()));
                 }
             }
+            // Prefix complex-type form: [<list-type>, "x"] — type is a list expression
+            // such as (Pi (A x) B) or (Type 0). Needed for higher-order parameters
+            // (e.g. polymorphic apply / compose) where a parameter is itself function-typed.
+            if let (Node::List(_), Node::Leaf(ref var_name)) = (&children[0], &children[1]) {
+                if !var_name.ends_with(':') {
+                    return Some((var_name.clone(), key_of(&children[0])));
+                }
+            }
         }
     }
     None
@@ -2032,11 +2040,49 @@ fn restore_type_binding(env: &mut Env, snap: TypeBindingSnapshot) {
     }
 }
 
+// Prenex polymorphism (D9): `(forall A T)` is sugar for `(Pi (Type A) T)`.
+// `A` is a bound type variable ranging over the universe `Type`. Expansion
+// happens at the outermost layer only — nested quantifiers desugar lazily as
+// the type checker recurses into the body.
+fn is_forall_node(node: &Node) -> bool {
+    if let Node::List(children) = node {
+        if children.len() == 3 {
+            if let (Node::Leaf(head), Node::Leaf(_)) = (&children[0], &children[1]) {
+                return head == "forall";
+            }
+        }
+    }
+    false
+}
+
+fn expand_forall(node: &Node) -> Node {
+    if !is_forall_node(node) {
+        return node.clone();
+    }
+    if let Node::List(children) = node {
+        let var_name = match &children[1] {
+            Node::Leaf(s) => s.clone(),
+            _ => return node.clone(),
+        };
+        return Node::List(vec![
+            Node::Leaf("Pi".to_string()),
+            Node::List(vec![
+                Node::Leaf("Type".to_string()),
+                Node::Leaf(var_name),
+            ]),
+            children[2].clone(),
+        ]);
+    }
+    node.clone()
+}
+
 fn types_agree(a: &Node, b: &Node, env: &mut Env) -> bool {
-    if is_structurally_same(a, b) {
+    let a_n = expand_forall(a);
+    let b_n = expand_forall(b);
+    if is_structurally_same(&a_n, &b_n) {
         return true;
     }
-    let result = catch_unwind(AssertUnwindSafe(|| is_convertible(a, b, env)));
+    let result = catch_unwind(AssertUnwindSafe(|| is_convertible(&a_n, &b_n, env)));
     matches!(result, Ok(true))
 }
 
@@ -2077,6 +2123,10 @@ fn synth_apply(children: &[Node], env: &mut Env, span: &Span, diagnostics: &mut 
             return None;
         }
     };
+    // Prenex polymorphism (D9): `(forall A T)` desugars to `(Pi (Type A) T)`,
+    // so type-application `(apply f Natural)` reduces by substituting `A := Natural`
+    // in the body just like a regular Pi-type does.
+    let fn_type = expand_forall(&fn_type);
     let pi_children = match &fn_type {
         Node::List(c) if c.len() == 3 && matches!(&c[0], Node::Leaf(s) if s == "Pi") => c.clone(),
         _ => {
@@ -2221,6 +2271,15 @@ pub fn synth(term: &Node, env: &mut Env) -> SynthResult {
             if children.len() == 3 {
                 if let Node::Leaf(head) = &children[0] {
                     match head.as_str() {
+                        "forall" => {
+                            // (forall A T) : (Type 0) — prenex polymorphism (D9). `A` is bound
+                            // as a type variable ranging over `Type`; the body `T` is the
+                            // polymorphic type. Synthesise by recursing on the desugared form.
+                            let expanded = expand_forall(term);
+                            let inner = synth(&expanded, env);
+                            diagnostics.extend(inner.diagnostics);
+                            return SynthResult { typ: inner.typ, diagnostics };
+                        }
                         "Pi" => {
                             if parse_binding(&children[1]).is_none() {
                                 diagnostics.push(Diagnostic::new(
@@ -2322,6 +2381,16 @@ pub fn synth(term: &Node, env: &mut Env) -> SynthResult {
 pub fn check(term: &Node, expected_type: &Node, env: &mut Env) -> CheckResult {
     let span = synth_span(env);
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
+
+    // Prenex polymorphism (D9): `(forall A T)` is sugar for `(Pi (Type A) T)`.
+    // Expand once here so the lambda-vs-Pi rule below applies uniformly.
+    let expanded;
+    let expected_type = if is_forall_node(expected_type) {
+        expanded = expand_forall(expected_type);
+        &expanded
+    } else {
+        expected_type
+    };
 
     // Direct rule: (lambda (A x) body) checked against (Pi (A' y) B).
     if let (Node::List(lc), Node::List(ec)) = (term, expected_type) {
