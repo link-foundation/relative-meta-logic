@@ -518,7 +518,7 @@ function parseBindings(binding) {
 const NON_VARIABLE_TOKENS = new Set([
   'lambda', 'Pi', 'fresh', 'in', 'subst', 'apply', 'type', 'of',
   'has', 'probability', 'with', 'proof', 'range', 'valence',
-  'namespace', 'import', 'as', 'is', '?', 'mode', 'relation', 'total', 'world',
+  'namespace', 'import', 'as', 'is', '?', 'mode', 'relation', 'total', 'coverage', 'world',
   'inductive', 'constructor',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
@@ -1346,6 +1346,114 @@ function isTotal(env, relName) {
   return { ok: diagnostics.length === 0, diagnostics };
 }
 
+// ---------- Coverage checking (issue #46, D14) ----------
+// `(coverage <name>)` verifies that, for every `+input` slot of relation
+// `<name>`, the union of clause patterns at that slot exhausts every
+// constructor of the slot's inductive type. Variables (lowercase names not
+// resolvable in the env) act as wildcards covering all constructors. When
+// a constructor is missing, an `E035` diagnostic is emitted with an example
+// pattern such as `(succ _)`.
+//
+// The same `isCovered(env, name)` helper is exported for programmatic use.
+// Slots whose inductive type cannot be inferred (no concrete constructor
+// appears anywhere in the patterns at that slot) are skipped — coverage
+// is opt-in per slot, just like world checking is opt-in per relation.
+
+// Find the inductive type whose declared constructors include `ctorName`.
+// Returns the type name string, or null when the constructor is unknown.
+function inductiveTypeOfConstructor(env, ctorName) {
+  for (const [typeName, decl] of env.inductives) {
+    for (const ctor of decl.constructors) {
+      if (ctor.name === ctorName) return typeName;
+    }
+  }
+  return null;
+}
+
+// True when `pat` is a wildcard at this slot — i.e. a bare lowercase symbol
+// that is not a registered constructor or other named term in the env.
+function isWildcardPattern(pat, env) {
+  if (typeof pat !== 'string') return false;
+  if (isNum(pat)) return false;
+  if (NON_VARIABLE_TOKENS.has(pat)) return false;
+  if (inductiveTypeOfConstructor(env, pat) !== null) return false;
+  return true;
+}
+
+// Extract the constructor name a pattern matches, or null when the pattern
+// is a wildcard / does not pin a constructor.
+function patternConstructorHead(pat, env) {
+  if (typeof pat === 'string') {
+    if (inductiveTypeOfConstructor(env, pat) !== null) return pat;
+    return null;
+  }
+  if (Array.isArray(pat) && pat.length >= 1 && typeof pat[0] === 'string') {
+    if (inductiveTypeOfConstructor(env, pat[0]) !== null) return pat[0];
+  }
+  return null;
+}
+
+// Infer the inductive type at a single slot by examining every clause's
+// pattern at that position. The first clause whose pattern names a
+// constructor wins. Returns null when no clause pins a concrete type.
+function inferSlotType(env, clauses, slotIndex) {
+  for (const clause of clauses) {
+    const pat = clause[slotIndex + 1];
+    const head = patternConstructorHead(pat, env);
+    if (head !== null) return inductiveTypeOfConstructor(env, head);
+  }
+  return null;
+}
+
+// Render a placeholder pattern for a constructor — `zero` for a constant
+// constructor, `(succ _)` for a constructor with parameters.
+function exampleConstructorPattern(ctor) {
+  if (ctor.params.length === 0) return ctor.name;
+  return `(${ctor.name}${' _'.repeat(ctor.params.length)})`;
+}
+
+function isCovered(env, relName) {
+  const diagnostics = [];
+  const clauses = env.relations.get(relName);
+  const flags = env.modes.get(relName);
+  if (!flags) {
+    diagnostics.push({
+      code: 'E035',
+      message: `Coverage check for "${relName}": no \`(mode ${relName} ...)\` declaration found`,
+    });
+    return { ok: false, diagnostics };
+  }
+  if (!clauses || clauses.length === 0) {
+    diagnostics.push({
+      code: 'E035',
+      message: `Coverage check for "${relName}": no \`(relation ${relName} ...)\` clauses found`,
+    });
+    return { ok: false, diagnostics };
+  }
+  for (let i = 0; i < flags.length; i++) {
+    if (flags[i] !== 'in') continue;
+    const slotPatterns = clauses.map(c => c[i + 1]);
+    if (slotPatterns.some(pat => isWildcardPattern(pat, env))) continue;
+    const typeName = inferSlotType(env, clauses, i);
+    if (typeName === null) continue;
+    const decl = env.inductives.get(typeName);
+    if (!decl) continue;
+    const covered = new Set();
+    for (const pat of slotPatterns) {
+      const head = patternConstructorHead(pat, env);
+      if (head !== null) covered.add(head);
+    }
+    const missing = decl.constructors.filter(c => !covered.has(c.name));
+    if (missing.length === 0) continue;
+    const examples = missing.map(exampleConstructorPattern).join(', ');
+    diagnostics.push({
+      code: 'E035',
+      message: `Coverage check for "${relName}": +input slot ${i + 1} (type "${typeName}") missing case${missing.length === 1 ? '' : 's'} for constructor${missing.length === 1 ? '' : 's'} ${examples}`,
+    });
+  }
+  return { ok: diagnostics.length === 0, diagnostics };
+}
+
 // ---------- World declarations (issue #54, D16) ----------
 // `(world plus (Natural))` records the allow-list of constants permitted
 // to appear free in arguments to relation `plus`. The world checker
@@ -1805,6 +1913,32 @@ function evalNode(node, env){
   }
   if (node[0] === 'total') {
     throw new RmlError('E032', 'Totality declaration must be `(total <relation-name>)`');
+  }
+
+  // Coverage check (issue #46, D14): (coverage <name>) runs `isCovered`
+  // and surfaces every returned diagnostic. The first becomes the thrown
+  // RmlError so the surrounding form gets a diagnostic span; any extras
+  // are appended to `env._shadowDiagnostics` so each missing case (e.g.
+  // for a relation with multiple `+input` slots) reaches the user.
+  if (node[0] === 'coverage' && node.length === 2 && typeof node[1] === 'string') {
+    const result = isCovered(env, node[1]);
+    if (!result.ok && result.diagnostics.length > 0) {
+      const [first, ...rest] = result.diagnostics;
+      if (rest.length > 0 && Array.isArray(env._shadowDiagnostics)) {
+        for (const d of rest) {
+          env._shadowDiagnostics.push(new Diagnostic({
+            code: d.code || 'E035',
+            message: d.message,
+            span: env._currentSpan || null,
+          }));
+        }
+      }
+      throw new RmlError(first.code || 'E035', first.message);
+    }
+    return 1;
+  }
+  if (node[0] === 'coverage') {
+    throw new RmlError('E035', 'Coverage declaration must be `(coverage <relation-name>)`');
   }
 
   // Mode-mismatch check (issue #43, D15): a call `(name args...)` whose
@@ -3416,6 +3550,7 @@ export {
   synth,
   check,
   isTotal,
+  isCovered,
   parseInductiveForm,
   buildEliminatorType,
   formalizeSelectedInterpretation,

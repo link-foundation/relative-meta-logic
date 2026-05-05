@@ -139,7 +139,7 @@ automated prover.
 | Semantic flexibility | Native many-valued, probabilistic, fuzzy, and paradox-tolerant evaluation | No mature proof-producing semantics or independent proof replay |
 | Representation | Links give one low-friction substrate for terms, propositions, probabilities, graph structures, and prototype type constructs | No mature elaborator, module system, or binding discipline comparable to LF/DTT systems |
 | Logic diversity | Operators and truth ranges can be changed at runtime | Encoded object logics lack machine-checked metatheory infrastructure |
-| Type theory | Universe, Pi, lambda, application, and type-query experiments exist | No full normalization, inductive families, totality, termination, or coverage checking |
+| Type theory | Universe, Pi, lambda, application, type-query experiments, totality (`(total ...)`), and coverage (`(coverage ...)`) checks exist | No full normalization, inductive families, or termination checking |
 | Automation | Query evaluation is small and easy to inspect | No tactic language, simplifier, SMT/ATP bridge, or complete domain decision procedure |
 | Ecosystem | JS/Rust parity and concise implementation surface | No large library corpus comparable to AFP, mathlib, Rocq libraries, or Foundation |
 

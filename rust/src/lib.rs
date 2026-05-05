@@ -1280,6 +1280,7 @@ fn non_variable_token(s: &str) -> bool {
             | "mode"
             | "relation"
             | "total"
+            | "coverage"
             | "world"
             | "inductive"
             | "constructor"
@@ -3216,6 +3217,195 @@ pub fn is_total(env: &Env, rel_name: &str) -> TotalityResult {
     }
 }
 
+// ---------- Coverage checking (issue #46, D14) ----------
+// Mirrors the JavaScript `isCovered` helper. For every `+input` slot of the
+// named relation, the union of clause patterns at that slot must exhaust
+// every constructor of the slot's inductive type. Wildcard variables
+// (lowercase symbols not registered in the env) cover all constructors;
+// slots whose inductive type cannot be inferred are skipped. A missing
+// constructor produces an `E035` diagnostic with an example pattern.
+
+/// Structured coverage diagnostic mirroring [`TotalityDiagnostic`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CoverageDiagnostic {
+    pub code: String,
+    pub message: String,
+}
+
+/// Outcome of a coverage check.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CoverageResult {
+    pub ok: bool,
+    pub diagnostics: Vec<CoverageDiagnostic>,
+}
+
+fn inductive_type_of_constructor(env: &Env, ctor_name: &str) -> Option<String> {
+    for (type_name, decl) in &env.inductives {
+        for ctor in &decl.constructors {
+            if ctor.name == ctor_name {
+                return Some(type_name.clone());
+            }
+        }
+    }
+    None
+}
+
+fn is_wildcard_pattern(pat: &Node, env: &Env) -> bool {
+    match pat {
+        Node::Leaf(s) => {
+            if is_num(s) {
+                return false;
+            }
+            if non_variable_token(s) {
+                return false;
+            }
+            inductive_type_of_constructor(env, s).is_none()
+        }
+        _ => false,
+    }
+}
+
+fn pattern_constructor_head(pat: &Node, env: &Env) -> Option<String> {
+    match pat {
+        Node::Leaf(s) => {
+            if inductive_type_of_constructor(env, s).is_some() {
+                Some(s.clone())
+            } else {
+                None
+            }
+        }
+        Node::List(items) => {
+            if let Some(Node::Leaf(head)) = items.first() {
+                if inductive_type_of_constructor(env, head).is_some() {
+                    return Some(head.clone());
+                }
+            }
+            None
+        }
+    }
+}
+
+fn infer_slot_type(env: &Env, clauses: &[Node], slot_index: usize) -> Option<String> {
+    for clause in clauses {
+        if let Node::List(items) = clause {
+            if let Some(pat) = items.get(slot_index + 1) {
+                if let Some(head) = pattern_constructor_head(pat, env) {
+                    return inductive_type_of_constructor(env, &head);
+                }
+            }
+        }
+    }
+    None
+}
+
+fn example_constructor_pattern(ctor: &ConstructorDecl) -> String {
+    if ctor.params.is_empty() {
+        ctor.name.clone()
+    } else {
+        let placeholders = " _".repeat(ctor.params.len());
+        format!("({}{})", ctor.name, placeholders)
+    }
+}
+
+/// Public coverage checker. Mirrors `isCovered` in the JavaScript
+/// implementation and returns identical diagnostic shapes so external
+/// tooling sees consistent output across runtimes.
+pub fn is_covered(env: &Env, rel_name: &str) -> CoverageResult {
+    let mut diagnostics: Vec<CoverageDiagnostic> = Vec::new();
+    let flags = match env.modes.get(rel_name) {
+        Some(f) => f.clone(),
+        None => {
+            diagnostics.push(CoverageDiagnostic {
+                code: "E035".to_string(),
+                message: format!(
+                    "Coverage check for \"{}\": no `(mode {} ...)` declaration found",
+                    rel_name, rel_name
+                ),
+            });
+            return CoverageResult {
+                ok: false,
+                diagnostics,
+            };
+        }
+    };
+    let clauses: Vec<Node> = match env.relations.get(rel_name) {
+        Some(c) if !c.is_empty() => c.clone(),
+        _ => {
+            diagnostics.push(CoverageDiagnostic {
+                code: "E035".to_string(),
+                message: format!(
+                    "Coverage check for \"{}\": no `(relation {} ...)` clauses found",
+                    rel_name, rel_name
+                ),
+            });
+            return CoverageResult {
+                ok: false,
+                diagnostics,
+            };
+        }
+    };
+    for (i, flag) in flags.iter().enumerate() {
+        if *flag != ModeFlag::In {
+            continue;
+        }
+        let slot_patterns: Vec<Node> = clauses
+            .iter()
+            .filter_map(|c| match c {
+                Node::List(items) => items.get(i + 1).cloned(),
+                _ => None,
+            })
+            .collect();
+        if slot_patterns.iter().any(|p| is_wildcard_pattern(p, env)) {
+            continue;
+        }
+        let type_name = match infer_slot_type(env, &clauses, i) {
+            Some(t) => t,
+            None => continue,
+        };
+        let decl = match env.inductives.get(&type_name) {
+            Some(d) => d.clone(),
+            None => continue,
+        };
+        let mut covered: Vec<String> = Vec::new();
+        for pat in &slot_patterns {
+            if let Some(head) = pattern_constructor_head(pat, env) {
+                if !covered.contains(&head) {
+                    covered.push(head);
+                }
+            }
+        }
+        let missing: Vec<&ConstructorDecl> = decl
+            .constructors
+            .iter()
+            .filter(|c| !covered.contains(&c.name))
+            .collect();
+        if missing.is_empty() {
+            continue;
+        }
+        let examples: Vec<String> = missing
+            .iter()
+            .map(|c| example_constructor_pattern(c))
+            .collect();
+        let plural = if missing.len() == 1 { "" } else { "s" };
+        diagnostics.push(CoverageDiagnostic {
+            code: "E035".to_string(),
+            message: format!(
+                "Coverage check for \"{}\": +input slot {} (type \"{}\") missing case{} for constructor{} {}",
+                rel_name,
+                i + 1,
+                type_name,
+                plural,
+                plural,
+                examples.join(", ")
+            ),
+        });
+    }
+    CoverageResult {
+        ok: diagnostics.is_empty(),
+        diagnostics,
+    }
+}
+
 // ---------- World declarations (issue #54, D16) ----------
 // `(world plus (Natural))` records that the relation `plus` may have
 // arguments containing only the listed constants free (in addition to
@@ -3752,6 +3942,42 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                     }
                     panic!(
                         "Totality check error: Totality declaration must be `(total <relation-name>)`"
+                    );
+                }
+            }
+
+            // Coverage declaration (issue #46, D14): (coverage <name>) runs
+            // `is_covered`. The first diagnostic becomes the panic so the
+            // surrounding form gets a span; any extras land in
+            // `shadow_diagnostics` so each missing slot reaches the user.
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "coverage" {
+                    if children.len() == 2 {
+                        if let Node::Leaf(ref rel_name) = children[1] {
+                            let result = is_covered(env, rel_name);
+                            if !result.ok {
+                                let span = env
+                                    .current_span
+                                    .clone()
+                                    .unwrap_or_else(|| env.default_span.clone());
+                                if result.diagnostics.len() > 1 {
+                                    for d in result.diagnostics.iter().skip(1) {
+                                        env.shadow_diagnostics.push(Diagnostic::new(
+                                            &d.code,
+                                            d.message.clone(),
+                                            span.clone(),
+                                        ));
+                                    }
+                                }
+                                if let Some(first) = result.diagnostics.first() {
+                                    panic!("Coverage check error: {}", first.message);
+                                }
+                            }
+                            return EvalResult::Value(1.0);
+                        }
+                    }
+                    panic!(
+                        "Coverage check error: Coverage declaration must be `(coverage <relation-name>)`"
                     );
                 }
             }
@@ -5392,6 +5618,11 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E032".to_string(),
             raw_msg.replacen("Totality check error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Coverage check error:") {
+        (
+            "E035".to_string(),
+            raw_msg.replacen("Coverage check error: ", "", 1),
         )
     } else if raw_msg.starts_with("World declaration error:") {
         (

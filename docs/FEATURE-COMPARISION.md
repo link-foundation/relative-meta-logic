@@ -51,7 +51,7 @@ Core logical concepts are compared separately in
 | Model/counterexample finding | No | No | N/A | No | Yes: Nitpick/Quickcheck | Plugins/tools | Ecosystem/tools | Host | Host | No | No | Automata emptiness/domain feedback |
 | Totality automation | No | Yes | N/A | No | Yes for recursive definitions | Yes | Yes | Host | Host | Part | No | N/A |
 | Termination automation | No | Yes | N/A | No | Yes | Yes | Yes | Host | Host | Part | No | N/A |
-| Coverage/productivity checks | No | Yes | N/A | No | Yes for datatypes/functions | Yes | Yes | Host | Host | Part | No | N/A |
+| Coverage/productivity checks | Part: `(coverage <name>)` checks every `+input` slot against the slot's inductive constructors | Yes | N/A | No | Yes for datatypes/functions | Yes | Yes | Host | Host | Part | No | N/A |
 | Program extraction | No | No | N/A | No | Yes: code generator | Yes: extraction | Yes: compiler/code generation | Host | Host | No | Logic programs execute | No general extraction |
 | Native executable programs | Yes: evaluator executes `.lino` queries | Logic programs | N/A | No | Generated code | Gallina extraction | Lean compiler | Host | Host | Specification logic execution | Yes | Yes |
 | Reflection/metaprogramming | Part: links can encode rules | Part | N/A | No | Isabelle/ML | Ltac/ML/plugins | Lean metaprogramming/macros | Host | Host | Part | Program-level | No |
