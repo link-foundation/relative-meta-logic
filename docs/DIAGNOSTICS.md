@@ -92,6 +92,7 @@ The exit code is `1` whenever any diagnostic is emitted, `0` otherwise.
 | `E030` | Malformed `(mode …)` declaration. Triggered when the relation name is missing or non-symbolic, no mode flags follow it, or a flag other than `+input`, `-output`, or `*either` is supplied. |
 | `E031` | Mode mismatch at a call site. Triggered when a relation with a recorded `(mode …)` declaration is called with the wrong number of arguments, or when an `+input` slot receives a non-ground argument (e.g. an unbound or fresh variable). |
 | `E032` | Totality / relation-declaration error. Triggered by a malformed `(relation …)` declaration (no clauses, or a clause whose head differs from the relation name); a malformed `(total …)` driver form; or a `(total <name>)` whose recursive calls fail to structurally decrease at least one `+input` argument. The message names the failing clause and quotes the offending recursive call. |
+| `E033` | Inductive-declaration error. Triggered by a malformed `(inductive Name …)` form: a type name that is missing or does not start with an uppercase letter; an empty constructor list; a constructor clause that is not `(constructor <name>)` or `(constructor (<name> (Pi …)))`; the same constructor declared more than once; or a constructor whose `Pi` type does not return the inductive type. |
 
 Codes are stable identifiers — they do not change between releases unless we
 explicitly note a breaking change in the changelog. The accompanying

@@ -701,6 +701,36 @@ pub struct Env {
     /// checker reads these clauses to verify structural decrease on
     /// recursive calls.
     pub relations: HashMap<String, Vec<Node>>,
+    /// Inductive declarations (issue #45, D10): a first-class inductive
+    /// datatype encoded as link signatures plus a generated eliminator.
+    /// Stored by type name; see [`InductiveDecl`] for the full layout.
+    pub inductives: HashMap<String, InductiveDecl>,
+}
+
+/// One constructor of an inductive datatype.
+#[derive(Debug, Clone)]
+pub struct ConstructorDecl {
+    /// Constructor name (e.g. `zero`, `succ`).
+    pub name: String,
+    /// Ordered binder list of the constructor's Pi-type, each `(name, type)`.
+    /// A constant constructor (`(constructor zero)`) has an empty list.
+    pub params: Vec<(String, Node)>,
+    /// The constructor's recorded type — either a bare leaf naming the
+    /// inductive type (constant constructor) or the original `(Pi …)` chain.
+    pub typ: Node,
+}
+
+/// A parsed `(inductive Name (constructor …) …)` declaration.
+#[derive(Debug, Clone)]
+pub struct InductiveDecl {
+    /// Inductive type name (must start with an uppercase letter).
+    pub name: String,
+    /// Ordered list of declared constructors.
+    pub constructors: Vec<ConstructorDecl>,
+    /// Generated eliminator name (`Name-rec`).
+    pub elim_name: String,
+    /// Generated eliminator's dependent Pi-type.
+    pub elim_type: Node,
 }
 
 /// Per-argument mode flag for a relation declared via `(mode …)`.
@@ -766,6 +796,7 @@ impl Env {
             file_namespaces: HashMap::new(),
             modes: HashMap::new(),
             relations: HashMap::new(),
+            inductives: HashMap::new(),
         };
 
         // Initialize truth constants: true, false, unknown, undefined
@@ -1197,6 +1228,10 @@ fn non_variable_token(s: &str) -> bool {
             | "is"
             | "?"
             | "mode"
+            | "relation"
+            | "total"
+            | "inductive"
+            | "constructor"
             | "+"
             | "-"
             | "*"
@@ -3069,6 +3104,300 @@ pub fn is_total(env: &Env, rel_name: &str) -> TotalityResult {
     }
 }
 
+// ---------- Inductive declarations (issue #45, D10) ----------
+// Mirrors the JavaScript helpers in `js/src/rml-links.mjs`. The
+// `(inductive Name (constructor …) …)` form records an inductive
+// datatype, installs every constructor, and synthesises the
+// eliminator `Name-rec` with a dependent Pi-type. Errors panic with
+// `Inductive declaration error:` so `decode_panic_payload` maps them
+// to E033.
+
+fn is_pi_sig(node: &Node) -> bool {
+    matches!(node, Node::List(items)
+        if items.len() == 3
+            && matches!(&items[0], Node::Leaf(h) if h == "Pi"))
+}
+
+// Walk a `(Pi (A x) (Pi (B y) … R))` chain into binder pairs and the result.
+fn flatten_pi(type_node: &Node) -> Option<(Vec<(String, Node)>, Node)> {
+    let mut params: Vec<(String, Node)> = Vec::new();
+    let mut current = type_node.clone();
+    while is_pi_sig(&current) {
+        let items = match &current {
+            Node::List(items) => items.clone(),
+            _ => return None,
+        };
+        let bindings = parse_bindings(&items[1])?;
+        if bindings.is_empty() {
+            return None;
+        }
+        for (name, type_str) in bindings {
+            // parse_bindings returns the type as a string key — recover the
+            // original type node from the binding form so a bare leaf stays
+            // a leaf and a complex Pi-type round-trips structurally.
+            let binding_node = &items[1];
+            let type_node = recover_binding_type(binding_node, &name).unwrap_or(Node::Leaf(type_str));
+            params.push((name, type_node));
+        }
+        current = items[2].clone();
+    }
+    Some((params, current))
+}
+
+// Pull the type-side of a `(A x)` (or its parsed equivalents) back as a Node.
+// `parse_bindings` flattens to a String type key, but for Pi-construction
+// we need to preserve list shapes such as `(Pi (Natural _) (Type 0))`.
+fn recover_binding_type(binding: &Node, param_name: &str) -> Option<Node> {
+    match binding {
+        Node::List(items) if items.len() == 2 => {
+            if let Node::Leaf(name) = &items[1] {
+                if name == param_name {
+                    return Some(items[0].clone());
+                }
+            }
+            if let Node::Leaf(name) = &items[0] {
+                if name == param_name {
+                    return Some(items[1].clone());
+                }
+            }
+            None
+        }
+        _ => None,
+    }
+}
+
+// Build a chain of nested Pi nodes from a binder list and a final result.
+fn build_pi(params: &[(String, Node)], result: Node) -> Node {
+    let mut out = result;
+    for (name, ty) in params.iter().rev() {
+        out = Node::List(vec![
+            Node::Leaf("Pi".to_string()),
+            Node::List(vec![ty.clone(), Node::Leaf(name.clone())]),
+            out,
+        ]);
+    }
+    out
+}
+
+fn parse_constructor_clause(clause: &Node, type_name: &str) -> ConstructorDecl {
+    let items = match clause {
+        Node::List(items) if items.len() == 2 => items,
+        _ => panic!(
+            "Inductive declaration error: each clause must be `(constructor <name>)` or `(constructor (<name> <pi-type>))`"
+        ),
+    };
+    match &items[0] {
+        Node::Leaf(h) if h == "constructor" => {}
+        _ => panic!(
+            "Inductive declaration error: each clause must be `(constructor <name>)` or `(constructor (<name> <pi-type>))`"
+        ),
+    }
+    match &items[1] {
+        Node::Leaf(name) => ConstructorDecl {
+            name: name.clone(),
+            params: Vec::new(),
+            typ: Node::Leaf(type_name.to_string()),
+        },
+        Node::List(inner) if inner.len() == 2 => {
+            let name = match &inner[0] {
+                Node::Leaf(s) => s.clone(),
+                _ => panic!(
+                    "Inductive declaration error: malformed constructor clause `{}`",
+                    key_of(clause)
+                ),
+            };
+            if !is_pi_sig(&inner[1]) {
+                panic!(
+                    "Inductive declaration error: malformed constructor clause `{}`",
+                    key_of(clause)
+                );
+            }
+            let (params, result) = match flatten_pi(&inner[1]) {
+                Some(parts) => parts,
+                None => panic!(
+                    "Inductive declaration error: constructor \"{}\" has malformed Pi-type `{}`",
+                    name,
+                    key_of(&inner[1])
+                ),
+            };
+            match &result {
+                Node::Leaf(r) if r == type_name => {}
+                other => panic!(
+                    "Inductive declaration error: constructor \"{}\" must return \"{}\" (got \"{}\")",
+                    name,
+                    type_name,
+                    key_of(other)
+                ),
+            }
+            ConstructorDecl {
+                name,
+                params,
+                typ: inner[1].clone(),
+            }
+        }
+        _ => panic!(
+            "Inductive declaration error: malformed constructor clause `{}`",
+            key_of(clause)
+        ),
+    }
+}
+
+/// Parse an `(inductive Name (constructor …) …)` form into an
+/// [`InductiveDecl`]. Panics with `Inductive declaration error:` on a
+/// malformed declaration so the existing diagnostic dispatch maps it to
+/// `E033`.
+pub fn parse_inductive_form(node: &Node) -> Option<InductiveDecl> {
+    let children = match node {
+        Node::List(items) => items,
+        _ => return None,
+    };
+    if children.is_empty() {
+        return None;
+    }
+    match &children[0] {
+        Node::Leaf(h) if h == "inductive" => {}
+        _ => return None,
+    }
+    let name = match children.get(1) {
+        Some(Node::Leaf(s)) => s.clone(),
+        _ => panic!("Inductive declaration error: type name must be a bare symbol"),
+    };
+    if !name.chars().next().map_or(false, |c| c.is_ascii_uppercase()) {
+        panic!(
+            "Inductive declaration error: declaration for \"{}\": type name must start with an uppercase letter",
+            name
+        );
+    }
+    if children.len() < 3 {
+        panic!(
+            "Inductive declaration error: declaration for \"{}\" must list at least one constructor",
+            name
+        );
+    }
+    let mut constructors: Vec<ConstructorDecl> = Vec::new();
+    let mut seen: HashSet<String> = HashSet::new();
+    for clause in &children[2..] {
+        let ctor = parse_constructor_clause(clause, &name);
+        if seen.contains(&ctor.name) {
+            panic!(
+                "Inductive declaration error: declaration for \"{}\": constructor \"{}\" is declared more than once",
+                name, ctor.name
+            );
+        }
+        seen.insert(ctor.name.clone());
+        constructors.push(ctor);
+    }
+    let elim_name = format!("{}-rec", name);
+    let elim_type = build_eliminator_type(&name, &constructors);
+    Some(InductiveDecl {
+        name,
+        constructors,
+        elim_name,
+        elim_type,
+    })
+}
+
+fn build_case_type(ctor: &ConstructorDecl, type_name: &str, motive_var: &str) -> Node {
+    let mut rec_binders: Vec<(String, Node)> = Vec::new();
+    for (pname, ptype) in &ctor.params {
+        if let Node::Leaf(s) = ptype {
+            if s == type_name {
+                rec_binders.push((
+                    format!("ih_{}", pname),
+                    Node::List(vec![
+                        Node::Leaf("apply".to_string()),
+                        Node::Leaf(motive_var.to_string()),
+                        Node::Leaf(pname.clone()),
+                    ]),
+                ));
+            }
+        }
+    }
+    let ctor_applied = if ctor.params.is_empty() {
+        Node::Leaf(ctor.name.clone())
+    } else {
+        let mut items = vec![Node::Leaf(ctor.name.clone())];
+        for (pname, _) in &ctor.params {
+            items.push(Node::Leaf(pname.clone()));
+        }
+        Node::List(items)
+    };
+    let motive_on_target = Node::List(vec![
+        Node::Leaf("apply".to_string()),
+        Node::Leaf(motive_var.to_string()),
+        ctor_applied,
+    ]);
+    let inner = build_pi(&rec_binders, motive_on_target);
+    build_pi(&ctor.params, inner)
+}
+
+/// Compose the dependent eliminator type for `Name-rec`, given the parsed
+/// constructor list. The motive parameter binds the symbol `_motive`
+/// throughout, and each constructor case parameter binds `case_<ctorName>`.
+pub fn build_eliminator_type(type_name: &str, constructors: &[ConstructorDecl]) -> Node {
+    let motive_var = "_motive";
+    let motive_type = Node::List(vec![
+        Node::Leaf("Pi".to_string()),
+        Node::List(vec![
+            Node::Leaf(type_name.to_string()),
+            Node::Leaf("_".to_string()),
+        ]),
+        Node::List(vec![
+            Node::Leaf("Type".to_string()),
+            Node::Leaf("0".to_string()),
+        ]),
+    ]);
+    let case_params: Vec<(String, Node)> = constructors
+        .iter()
+        .map(|c| (format!("case_{}", c.name), build_case_type(c, type_name, motive_var)))
+        .collect();
+    let target_var = "_target";
+    let final_node = Node::List(vec![
+        Node::Leaf("apply".to_string()),
+        Node::Leaf(motive_var.to_string()),
+        Node::Leaf(target_var.to_string()),
+    ]);
+    let inner = build_pi(
+        &[(target_var.to_string(), Node::Leaf(type_name.to_string()))],
+        final_node,
+    );
+    let with_cases = build_pi(&case_params, inner);
+    build_pi(
+        &[(motive_var.to_string(), motive_type)],
+        with_cases,
+    )
+}
+
+/// Install an inductive declaration on the environment: register the type,
+/// every constructor, and the generated eliminator together with its
+/// dependent Pi-type. Mirrors `registerInductive` in the JavaScript kernel.
+pub fn register_inductive(env: &mut Env, decl: InductiveDecl) {
+    let store_type = env.qualify_name(&decl.name);
+    env.terms.insert(store_type.clone());
+    let type0 = Node::List(vec![
+        Node::Leaf("Type".to_string()),
+        Node::Leaf("0".to_string()),
+    ]);
+    env.set_type(&store_type, &key_of(&type0));
+    eval_node(&type0, env);
+
+    for ctor in &decl.constructors {
+        let store_name = env.qualify_name(&ctor.name);
+        env.terms.insert(store_name.clone());
+        env.set_type(&store_name, &key_of(&ctor.typ));
+        if matches!(ctor.typ, Node::List(_)) {
+            eval_node(&ctor.typ, env);
+        }
+    }
+
+    let store_elim = env.qualify_name(&decl.elim_name);
+    env.terms.insert(store_elim.clone());
+    env.set_type(&store_elim, &key_of(&decl.elim_type));
+    eval_node(&decl.elim_type, env);
+
+    env.inductives.insert(decl.name.clone(), decl);
+}
+
 /// Evaluate an AST node in the given environment.
 pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
     match node {
@@ -3140,6 +3469,23 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                     panic!(
                         "Totality check error: Totality declaration must be `(total <relation-name>)`"
                     );
+                }
+            }
+
+            // Inductive declaration (issue #45, D10):
+            //   (inductive Name (constructor c1) (constructor (c2 (Pi ...))) ...)
+            // Stores the type, every constructor, and a generated `Name-rec`
+            // eliminator on the env so they participate in `(of)`,
+            // `(type of …)`, and the bidirectional checker.
+            // `parse_inductive_form` panics with `Inductive declaration error:`
+            // on a malformed declaration, which `decode_panic_payload` maps
+            // to E033.
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "inductive" {
+                    if let Some(decl) = parse_inductive_form(node) {
+                        register_inductive(env, decl);
+                        return EvalResult::Value(1.0);
+                    }
                 }
             }
 
@@ -4736,6 +5082,11 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E032".to_string(),
             raw_msg.replacen("Totality check error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Inductive declaration error:") {
+        (
+            "E033".to_string(),
+            raw_msg.replacen("Inductive declaration error: ", "", 1),
         )
     } else {
         ("E000".to_string(), raw_msg)

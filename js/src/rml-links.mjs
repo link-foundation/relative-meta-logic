@@ -211,6 +211,14 @@ class Env {
     // calls. Stored as `name -> [clauseNode, clauseNode, ...]`, where each
     // clauseNode is the original AST list including the head symbol.
     this.relations = new Map();                 // name -> [clause, clause, ...]
+    // Inductive declarations (issue #45, D10): `(inductive Name (constructor ...) ...)`
+    // records a first-class inductive datatype. Each entry stores the type
+    // name, the ordered list of constructors (each `{ name, type }`), and
+    // the name and Pi-type of the generated eliminator (`Name-rec`). The
+    // declaration form also installs the type, every constructor, and the
+    // eliminator into the standard term/type/lambda maps so existing kernel
+    // forms (`type of`, `of`, `apply`) work without further plumbing.
+    this.inductives = new Map();                // name -> { name, constructors, elimName, elimType }
     // Namespace state (issue #34): a file can declare `(namespace foo)`, which
     // prefixes every name it subsequently introduces with `foo.`. Imports can
     // be aliased via `(import "x.lino" as a)`, which records `a` -> the
@@ -476,6 +484,7 @@ const NON_VARIABLE_TOKENS = new Set([
   'lambda', 'Pi', 'fresh', 'in', 'subst', 'apply', 'type', 'of',
   'has', 'probability', 'with', 'proof', 'range', 'valence',
   'namespace', 'import', 'as', 'is', '?', 'mode', 'relation', 'total',
+  'inductive', 'constructor',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
 
@@ -1302,6 +1311,216 @@ function isTotal(env, relName) {
   return { ok: diagnostics.length === 0, diagnostics };
 }
 
+// ---------- Inductive declarations (issue #45, D10) ----------
+// `(inductive Name (constructor c1) (constructor (c2 (Pi (A x) ... Name))) ...)`
+// declares a first-class inductive datatype encoded as link signatures plus
+// a generated eliminator `Name-rec`. The declaration:
+//
+//   1. registers `Name : (Type 0)` as a typed term;
+//   2. installs every constructor — bare constants get type `Name`, while
+//      constructors written as `(c (Pi (A x) ... Name))` keep their Pi-type
+//      so existing `(type of c)` and `(c of (Pi ...))` queries succeed;
+//   3. synthesises the eliminator `Name-rec` and its dependent Pi-type from
+//      the declared constructors, mirroring the standard induction principle:
+//        Name-rec : (Pi (motive (Pi (Name _) (Type 0)))
+//                    (Pi (case_c1 (apply motive c1))
+//                      ...
+//                       (Pi (case_cN (... step type ...))
+//                          (Pi (target Name) (apply motive target)))))
+//      Each step type for a constructor with one or more recursive `Name`
+//      arguments includes one inductive-hypothesis premise `(apply motive arg)`
+//      per recursive position.
+//   4. records the inductive declaration on `env.inductives` for tooling.
+//
+// The declaration intentionally only requires a Pi-typed signature where
+// every parameter type is either a previously declared type (acceptable as
+// a non-recursive constructor argument) or `Name` itself (a recursive
+// position used to synthesise the inductive hypothesis). Strict positivity
+// beyond this syntactic check is out of scope (see Out of Scope in #45).
+
+function _isPiSig(node) {
+  return Array.isArray(node) && node.length === 3 && node[0] === 'Pi';
+}
+
+// Walk a (Pi (A x) (Pi (B y) ... R)) chain into an array of binder pairs and
+// the final result. Returns `null` when the shape is malformed.
+function _flattenPi(typeNode) {
+  const params = [];
+  let current = typeNode;
+  while (_isPiSig(current)) {
+    const binding = parseBinding(current[1]);
+    if (!binding) return null;
+    params.push({ name: binding.paramName, type: binding.paramType });
+    current = current[2];
+  }
+  return { params, result: current };
+}
+
+// Build a chain of nested Pi nodes from a list of `{ name, type }` parameters
+// and a final result node. With an empty parameter list returns the result
+// untouched, so callers can fold a single parameter list into a Pi-type
+// without special-casing.
+function _buildPi(params, result) {
+  let out = result;
+  for (let i = params.length - 1; i >= 0; i--) {
+    const p = params[i];
+    out = ['Pi', [p.type, p.name], out];
+  }
+  return out;
+}
+
+// Parse a single (constructor ...) clause into `{ name, params, type }`.
+// Accepts the two surface shapes:
+//   - `(constructor c)` — bare constant constructor of type `Name`.
+//   - `(constructor (c (Pi ...)))` — constructor with a Pi-typed signature.
+function parseConstructorClause(clause, typeName) {
+  if (!Array.isArray(clause) || clause[0] !== 'constructor' || clause.length !== 2) {
+    throw new RmlError(
+      'E033',
+      `Inductive declaration for "${typeName}": each clause must be \`(constructor <name>)\` or \`(constructor (<name> <pi-type>))\``,
+    );
+  }
+  const body = clause[1];
+  if (typeof body === 'string') {
+    return { name: body, params: [], type: typeName };
+  }
+  if (Array.isArray(body) && body.length === 2 && typeof body[0] === 'string' && _isPiSig(body[1])) {
+    const flat = _flattenPi(body[1]);
+    if (!flat) {
+      throw new RmlError(
+        'E033',
+        `Inductive declaration for "${typeName}": constructor "${body[0]}" has malformed Pi-type \`${keyOf(body[1])}\``,
+      );
+    }
+    if (typeof flat.result !== 'string' || flat.result !== typeName) {
+      throw new RmlError(
+        'E033',
+        `Inductive declaration for "${typeName}": constructor "${body[0]}" must return "${typeName}" (got "${typeof flat.result === 'string' ? flat.result : keyOf(flat.result)}")`,
+      );
+    }
+    return { name: body[0], params: flat.params, type: body[1] };
+  }
+  throw new RmlError(
+    'E033',
+    `Inductive declaration for "${typeName}": malformed constructor clause \`${keyOf(clause)}\``,
+  );
+}
+
+function parseInductiveForm(node) {
+  if (!Array.isArray(node) || node[0] !== 'inductive') return null;
+  if (node.length < 2 || typeof node[1] !== 'string') {
+    throw new RmlError('E033', 'Inductive declaration: type name must be a bare symbol');
+  }
+  const name = node[1];
+  if (!/^[A-Z]/.test(name)) {
+    throw new RmlError(
+      'E033',
+      `Inductive declaration for "${name}": type name must start with an uppercase letter`,
+    );
+  }
+  if (node.length < 3) {
+    throw new RmlError(
+      'E033',
+      `Inductive declaration for "${name}" must list at least one constructor`,
+    );
+  }
+  const constructors = [];
+  const seen = new Set();
+  for (let i = 2; i < node.length; i++) {
+    const ctor = parseConstructorClause(node[i], name);
+    if (seen.has(ctor.name)) {
+      throw new RmlError(
+        'E033',
+        `Inductive declaration for "${name}": constructor "${ctor.name}" is declared more than once`,
+      );
+    }
+    seen.add(ctor.name);
+    constructors.push(ctor);
+  }
+  return { name, constructors };
+}
+
+// Build the case (step) type for one constructor under the eliminator's
+// motive `m`. For a constructor `c : (Pi (A1 x1) ... (Pi (Ak xk) Name))`
+// the case type is:
+//
+//   (Pi (A1 x1) ... (Pi (Ak xk)
+//      (Pi (ih_j1 (apply m xj1)) ... (Pi (ih_jr (apply m xjr))
+//          (apply m (c x1 ... xk)))))
+//
+// where `xj1..xjr` are the parameters whose declared type is `Name` (i.e.
+// the recursive arguments). Constant constructors degenerate to
+// `(apply m c)`.
+function _buildCaseType(ctor, typeName, motiveVar) {
+  const recBinders = [];
+  for (let i = 0; i < ctor.params.length; i++) {
+    const p = ctor.params[i];
+    if (typeof p.type === 'string' && p.type === typeName) {
+      recBinders.push({
+        name: `ih_${p.name}`,
+        type: ['apply', motiveVar, p.name],
+      });
+    }
+  }
+  let ctorApplied;
+  if (ctor.params.length === 0) {
+    ctorApplied = ctor.name;
+  } else {
+    ctorApplied = [ctor.name, ...ctor.params.map(p => p.name)];
+  }
+  const motiveOnTarget = ['apply', motiveVar, ctorApplied];
+  const inner = _buildPi(recBinders, motiveOnTarget);
+  return _buildPi(ctor.params, inner);
+}
+
+// Compose the dependent eliminator type for `Name-rec`, given the parsed
+// inductive declaration. The motive parameter binds the symbol `_motive`
+// throughout, and each constructor case parameter binds `case_<ctorName>`.
+function buildEliminatorType(decl) {
+  const motiveVar = '_motive';
+  const motiveType = ['Pi', [decl.name, '_'], ['Type', '0']];
+  const caseParams = decl.constructors.map(c => ({
+    name: `case_${c.name}`,
+    type: _buildCaseType(c, decl.name, motiveVar),
+  }));
+  const targetVar = '_target';
+  const final = ['apply', motiveVar, targetVar];
+  const inner = _buildPi([{ name: targetVar, type: decl.name }], final);
+  const withCases = _buildPi(caseParams, inner);
+  return _buildPi([{ name: motiveVar, type: motiveType }], withCases);
+}
+
+// Record an inductive declaration on the environment: install the type, all
+// constructors, the eliminator name, and the eliminator's Pi-type.
+function registerInductive(env, decl) {
+  const storeType = env.qualifyName(decl.name);
+  env.terms.add(storeType);
+  env.setType(storeType, ['Type', '0']);
+  evalNode(['Type', '0'], env);
+
+  for (const ctor of decl.constructors) {
+    const storeName = env.qualifyName(ctor.name);
+    env.terms.add(storeName);
+    env.setType(storeName, ctor.type);
+    if (Array.isArray(ctor.type)) evalNode(ctor.type, env);
+  }
+
+  const elimName = `${decl.name}-rec`;
+  const elimType = buildEliminatorType(decl);
+  const storeElim = env.qualifyName(elimName);
+  env.terms.add(storeElim);
+  env.setType(storeElim, elimType);
+  evalNode(elimType, env);
+
+  env.inductives.set(decl.name, {
+    name: decl.name,
+    constructors: decl.constructors,
+    elimName,
+    elimType,
+  });
+  return 1;
+}
+
 // Check a call site `(name args...)` against any registered mode declaration
 // for `name`. Returns the offending RmlError on mismatch, or `null` when the
 // call is consistent (or no declaration exists).
@@ -1399,6 +1618,17 @@ function evalNode(node, env){
     if (decl) {
       env.relations.set(decl.name, decl.clauses);
       return 1;
+    }
+  }
+
+  // Inductive declaration (issue #45, D10): (inductive Name (constructor ...) ...)
+  // Records the inductive datatype, installs every constructor, and
+  // generates the eliminator `Name-rec` with a dependent Pi-type.
+  // `parseInductiveForm` throws E033 on a malformed declaration.
+  if (node[0] === 'inductive') {
+    const decl = parseInductiveForm(node);
+    if (decl) {
+      return registerInductive(env, decl);
     }
   }
 
@@ -2981,6 +3211,8 @@ export {
   synth,
   check,
   isTotal,
+  parseInductiveForm,
+  buildEliminatorType,
   formalizeSelectedInterpretation,
   evaluateFormalization,
 };
