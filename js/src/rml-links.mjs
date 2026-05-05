@@ -211,6 +211,11 @@ class Env {
     // calls. Stored as `name -> [clauseNode, clauseNode, ...]`, where each
     // clauseNode is the original AST list including the head symbol.
     this.relations = new Map();                 // name -> [clause, clause, ...]
+    // World declarations (issue #54, D16): each relation may declare an
+    // allow-list of constants permitted to appear free in its arguments
+    // via `(world <name> (<const>...))`. Relations without a recorded
+    // world are unconstrained (the feature is opt-in per relation).
+    this.worlds = new Map();                    // name -> [const, const, ...]
     // Namespace state (issue #34): a file can declare `(namespace foo)`, which
     // prefixes every name it subsequently introduces with `foo.`. Imports can
     // be aliased via `(import "x.lino" as a)`, which records `a` -> the
@@ -475,7 +480,7 @@ function parseBindings(binding) {
 const NON_VARIABLE_TOKENS = new Set([
   'lambda', 'Pi', 'fresh', 'in', 'subst', 'apply', 'type', 'of',
   'has', 'probability', 'with', 'proof', 'range', 'valence',
-  'namespace', 'import', 'as', 'is', '?', 'mode', 'relation', 'total',
+  'namespace', 'import', 'as', 'is', '?', 'mode', 'relation', 'total', 'world',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
 
@@ -1302,6 +1307,108 @@ function isTotal(env, relName) {
   return { ok: diagnostics.length === 0, diagnostics };
 }
 
+// ---------- World declarations (issue #54, D16) ----------
+// `(world plus (Natural))` records the allow-list of constants permitted
+// to appear free in arguments to relation `plus`. The world checker
+// rejects relation calls whose arguments contain any other free constant
+// with a structured `E033` diagnostic. Relations without a recorded
+// world are unconstrained — the feature is opt-in per relation.
+function parseWorldForm(node) {
+  if (!Array.isArray(node) || node[0] !== 'world') return null;
+  if (node.length < 2 || typeof node[1] !== 'string') {
+    throw new RmlError('E033', 'World declaration: relation name must be a bare symbol');
+  }
+  const name = node[1];
+  if (node.length !== 3 || !Array.isArray(node[2])) {
+    throw new RmlError(
+      'E033',
+      `World declaration for "${name}" must have shape \`(world ${name} (<const>...))\``,
+    );
+  }
+  const allowed = [];
+  for (const item of node[2]) {
+    if (typeof item !== 'string') {
+      throw new RmlError(
+        'E033',
+        `World declaration for "${name}": each allowed constant must be a bare symbol`,
+      );
+    }
+    allowed.push(item);
+  }
+  return { name, allowed };
+}
+
+// Walk an argument expression and collect every free constant — i.e.
+// every leaf symbol that is not numeric, not a reserved keyword, and is
+// not bound by an enclosing `lambda`/`Pi`/`fresh` binder appearing
+// inside the same argument. The collected names are matched against the
+// world's `allowed` list to surface E033 violations.
+function collectFreeConstants(node, bound, out) {
+  if (typeof node === 'string') {
+    if (isNum(node)) return;
+    if (NON_VARIABLE_TOKENS.has(node)) return;
+    if (bound.has(node)) return;
+    if (!out.includes(node)) out.push(node);
+    return;
+  }
+  if (!Array.isArray(node)) return;
+  if (node.length >= 3 && (node[0] === 'lambda' || node[0] === 'Pi')
+      && Array.isArray(node[1]) && node[1].length === 2 && typeof node[1][1] === 'string') {
+    const ty = node[1][0];
+    if (typeof ty === 'string') {
+      if (!isNum(ty) && !NON_VARIABLE_TOKENS.has(ty) && !bound.has(ty) && !out.includes(ty)) {
+        out.push(ty);
+      }
+    } else {
+      collectFreeConstants(ty, bound, out);
+    }
+    const variable = node[1][1];
+    const wasBound = bound.has(variable);
+    bound.add(variable);
+    for (let i = 2; i < node.length; i++) {
+      collectFreeConstants(node[i], bound, out);
+    }
+    if (!wasBound) bound.delete(variable);
+    return;
+  }
+  if (node.length === 4 && node[0] === 'fresh' && node[2] === 'in' && typeof node[1] === 'string') {
+    const variable = node[1];
+    const wasBound = bound.has(variable);
+    bound.add(variable);
+    collectFreeConstants(node[3], bound, out);
+    if (!wasBound) bound.delete(variable);
+    return;
+  }
+  for (const child of node) {
+    collectFreeConstants(child, bound, out);
+  }
+}
+
+// Validate a relation call's arguments against its world declaration.
+// Returns the offending RmlError, or `null` when the call is consistent
+// (or no declaration exists).
+function checkWorldAtCall(name, args, env) {
+  const allowed = env.worlds.get(name);
+  if (!allowed) return null;
+  const violations = [];
+  for (const arg of args) {
+    const bound = new Set();
+    const found = [];
+    collectFreeConstants(arg, bound, found);
+    for (const sym of found) {
+      if (sym === name) continue;
+      if (allowed.includes(sym)) continue;
+      if (!violations.includes(sym)) violations.push(sym);
+    }
+  }
+  if (violations.length === 0) return null;
+  const listed = violations.map(s => `"${s}"`).join(', ');
+  return new RmlError(
+    'E033',
+    `World violation: "${name}" argument contains free constant${violations.length === 1 ? '' : 's'} ${listed} not in declared world`,
+  );
+}
+
 // Check a call site `(name args...)` against any registered mode declaration
 // for `name`. Returns the offending RmlError on mismatch, or `null` when the
 // call is consistent (or no declaration exists).
@@ -1402,6 +1509,19 @@ function evalNode(node, env){
     }
   }
 
+  // World declaration (issue #54, D16): (world <name> (<const>...))
+  // Records the allow-list of constants permitted to appear free in
+  // arguments of a relation. `parseWorldForm` throws E033 on a
+  // malformed declaration so the call sites do not have to handle
+  // shape-broken declarations defensively.
+  if (node[0] === 'world') {
+    const decl = parseWorldForm(node);
+    if (decl) {
+      env.worlds.set(decl.name, decl.allowed);
+      return 1;
+    }
+  }
+
   // Totality check (issue #44, D12): (total <name>) runs `isTotal` over
   // the recorded relation and turns each returned diagnostic into an
   // E032 RmlError. The first error short-circuits, mirroring how the
@@ -1424,6 +1544,14 @@ function evalNode(node, env){
   // points at the call rather than at a downstream beta-reduction.
   if (typeof node[0] === 'string' && env.modes.has(node[0])) {
     const err = checkModeAtCall(node[0], node.slice(1), env);
+    if (err) throw err;
+  }
+
+  // World-violation check (issue #54, D16): a call `(name args...)`
+  // whose head has a registered world declaration must only contain
+  // declared constants free in its arguments.
+  if (typeof node[0] === 'string' && env.worlds.has(node[0])) {
+    const err = checkWorldAtCall(node[0], node.slice(1), env);
     if (err) throw err;
   }
 

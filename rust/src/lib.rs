@@ -701,6 +701,13 @@ pub struct Env {
     /// checker reads these clauses to verify structural decrease on
     /// recursive calls.
     pub relations: HashMap<String, Vec<Node>>,
+    /// World declarations (issue #54, D16): each relation may declare a
+    /// list of constants permitted to appear free in its arguments via
+    /// `(world <name> (<const1> <const2> ...))`. The world checker
+    /// rejects relation calls and clauses whose arguments contain any
+    /// other free constant. Relations without a recorded world are
+    /// unconstrained (the feature is opt-in per relation).
+    pub worlds: HashMap<String, Vec<String>>,
 }
 
 /// Per-argument mode flag for a relation declared via `(mode …)`.
@@ -766,6 +773,7 @@ impl Env {
             file_namespaces: HashMap::new(),
             modes: HashMap::new(),
             relations: HashMap::new(),
+            worlds: HashMap::new(),
         };
 
         // Initialize truth constants: true, false, unknown, undefined
@@ -1197,6 +1205,9 @@ fn non_variable_token(s: &str) -> bool {
             | "is"
             | "?"
             | "mode"
+            | "relation"
+            | "total"
+            | "world"
             | "+"
             | "-"
             | "*"
@@ -3069,6 +3080,166 @@ pub fn is_total(env: &Env, rel_name: &str) -> TotalityResult {
     }
 }
 
+// ---------- World declarations (issue #54, D16) ----------
+// `(world plus (Natural))` records that the relation `plus` may have
+// arguments containing only the listed constants free (in addition to
+// the relation's own argument variables and any locally-bound names).
+// `parse_world_form` validates the shape and returns the normalised
+// `(name, allowed_constants)` pair; `check_world_at_call` inspects every
+// call against any registered declaration. Both surface errors as panics
+// with a recognisable prefix so the existing diagnostic dispatch in
+// `decode_panic_payload` can map them to E033.
+
+fn parse_world_form(children: &[Node]) -> Option<(String, Vec<String>)> {
+    // Caller already verified `children[0]` is the leaf `world`.
+    if children.len() < 2 {
+        return None;
+    }
+    let name = match &children[1] {
+        Node::Leaf(s) => s.clone(),
+        _ => panic!("World declaration error: relation name must be a bare symbol"),
+    };
+    if children.len() != 3 {
+        panic!(
+            "World declaration error: declaration for \"{}\" must have shape `(world {} (<const>...))`",
+            name, name
+        );
+    }
+    let allowed: Vec<String> = match &children[2] {
+        Node::List(items) => {
+            let mut consts = Vec::with_capacity(items.len());
+            for item in items {
+                match item {
+                    Node::Leaf(s) => consts.push(s.clone()),
+                    _ => panic!(
+                        "World declaration error: declaration for \"{}\": each allowed constant must be a bare symbol",
+                        name
+                    ),
+                }
+            }
+            consts
+        }
+        // The LiNo parser collapses a single-element paren group such as
+        // `(Natural)` into the bare leaf `Natural`, so accept a lone leaf
+        // here as a one-constant allow-list.
+        Node::Leaf(s) => vec![s.clone()],
+    };
+    Some((name, allowed))
+}
+
+// Walk an argument expression and collect every free constant — i.e.
+// every leaf symbol that is not numeric, not a reserved keyword, and is
+// not bound by an enclosing `lambda`/`Pi`/`fresh` binder appearing
+// inside the same argument. The collected names are matched against the
+// world's `allowed` list to surface E033 violations.
+fn collect_free_constants(node: &Node, bound: &mut HashSet<String>, out: &mut Vec<String>) {
+    match node {
+        Node::Leaf(s) => {
+            if is_num(s) || non_variable_token(s) {
+                return;
+            }
+            if bound.contains(s) {
+                return;
+            }
+            if !out.contains(s) {
+                out.push(s.clone());
+            }
+        }
+        Node::List(items) => {
+            // Recognise local binders so their bound name does not count
+            // as a free constant inside the body.
+            if items.len() >= 3 {
+                if let Node::Leaf(head) = &items[0] {
+                    if head == "lambda" || head == "Pi" {
+                        if let Node::List(binder) = &items[1] {
+                            if binder.len() == 2 {
+                                if let Node::Leaf(var) = &binder[1] {
+                                    let was_bound = bound.contains(var);
+                                    if let Node::Leaf(ty) = &binder[0] {
+                                        if !is_num(ty) && !non_variable_token(ty) && !bound.contains(ty) && !out.contains(ty) {
+                                            out.push(ty.clone());
+                                        }
+                                    } else {
+                                        collect_free_constants(&binder[0], bound, out);
+                                    }
+                                    bound.insert(var.clone());
+                                    for child in &items[2..] {
+                                        collect_free_constants(child, bound, out);
+                                    }
+                                    if !was_bound {
+                                        bound.remove(var);
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    if head == "fresh" && items.len() == 4 {
+                        if let (Node::Leaf(var), Node::Leaf(in_kw)) = (&items[1], &items[2]) {
+                            if in_kw == "in" {
+                                let was_bound = bound.contains(var);
+                                bound.insert(var.clone());
+                                collect_free_constants(&items[3], bound, out);
+                                if !was_bound {
+                                    bound.remove(var);
+                                }
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            for child in items {
+                collect_free_constants(child, bound, out);
+            }
+        }
+    }
+}
+
+fn check_world_at_call(name: &str, args: &[Node], env: &Env) {
+    let allowed = match env.worlds.get(name) {
+        Some(a) => a.clone(),
+        None => return,
+    };
+    // Treat the relation's own name and the declared allowed constants
+    // as the world's vocabulary. Other free constants raise E033.
+    let mut violations: Vec<String> = Vec::new();
+    for arg in args {
+        let mut bound: HashSet<String> = HashSet::new();
+        let mut found: Vec<String> = Vec::new();
+        collect_free_constants(arg, &mut bound, &mut found);
+        for sym in found {
+            if sym == name {
+                continue;
+            }
+            if allowed.iter().any(|a| a == &sym) {
+                continue;
+            }
+            // Names that are themselves declared in the world list of
+            // any other relation are also treated as part of the
+            // ambient vocabulary — only truly unknown free constants
+            // should fail. We keep the check strict for now: only the
+            // explicit allow-list and the relation's own name are OK.
+            if !violations.contains(&sym) {
+                violations.push(sym);
+            }
+        }
+    }
+    if !violations.is_empty() {
+        let listed = violations
+            .iter()
+            .map(|s| format!("\"{}\"", s))
+            .collect::<Vec<_>>()
+            .join(", ");
+        panic!(
+            "World violation: \"{}\" argument contains free constant{} {} not in declared world",
+            name,
+            if violations.len() == 1 { "" } else { "s" },
+            listed
+        );
+    }
+}
+
 /// Evaluate an AST node in the given environment.
 pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
     match node {
@@ -3143,6 +3314,20 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                 }
             }
 
+            // World declaration (issue #54, D16): (world <name> (<const>...))
+            // Records the allow-list of free constants permitted in arguments
+            // of a relation. `parse_world_form` panics with `World declaration
+            // error:` on a malformed declaration so `decode_panic_payload`
+            // surfaces it as E033.
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "world" {
+                    if let Some((name, allowed)) = parse_world_form(children) {
+                        env.worlds.insert(name, allowed);
+                        return EvalResult::Value(1.0);
+                    }
+                }
+            }
+
             // Mode-mismatch check (issue #43, D15): a call `(name args...)`
             // whose head has a registered mode declaration must agree with the
             // declared flags. Run before head evaluation so the diagnostic
@@ -3152,6 +3337,18 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                     let head_owned = head.clone();
                     let args: Vec<Node> = children[1..].to_vec();
                     check_mode_at_call(&head_owned, &args, env);
+                }
+            }
+
+            // World-violation check (issue #54, D16): a call `(name args...)`
+            // whose head has a registered world declaration must only contain
+            // declared constants free in its arguments. Surface the first
+            // offending free constant as E033.
+            if let Node::Leaf(ref head) = children[0] {
+                if env.worlds.contains_key(head) {
+                    let head_owned = head.clone();
+                    let args: Vec<Node> = children[1..].to_vec();
+                    check_world_at_call(&head_owned, &args, env);
                 }
             }
 
@@ -4736,6 +4933,16 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E032".to_string(),
             raw_msg.replacen("Totality check error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("World declaration error:") {
+        (
+            "E033".to_string(),
+            raw_msg.replacen("World declaration error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("World violation:") {
+        (
+            "E033".to_string(),
+            raw_msg.replacen("World violation: ", "", 1),
         )
     } else {
         ("E000".to_string(), raw_msg)
