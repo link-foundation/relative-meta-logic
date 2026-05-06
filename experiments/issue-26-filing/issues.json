@@ -1,0 +1,1155 @@
+[
+  {
+    "id": "A1",
+    "title": "[A1] Structured diagnostics with source spans",
+    "labels": ["enhancement", "area:diagnostics", "phase:A"],
+    "phase": "A",
+    "motivation": "Today, parser/evaluator errors are plain strings without spans. This makes IDE integration impossible. The CONCEPTS-COMPARISION and FEATURE-COMPARISION docs flag diagnostics as a parity gap against Lean/Rocq/Isabelle.",
+    "goal": "Every error returned by parser, evaluator, and (later) type checker is a structured `Diagnostic { code, message, span: { file, line, col } }`.",
+    "lino": "n/a (host-language refactor).",
+    "api": "- JS: `evaluate(code: string): { results: number[]; diagnostics: Diagnostic[] }`.\n- Rust: `pub fn evaluate(src: &str) -> EvaluateResult { results: Vec<f64>, diagnostics: Vec<Diagnostic> }`.",
+    "criteria": [
+      "Every existing error path returns a `Diagnostic` instead of throwing.",
+      "Each `Diagnostic` carries an error code (e.g. `E001` for unknown symbol) listed in `docs/DIAGNOSTICS.md`.",
+      "CLI prints diagnostics with file:line:col and a caret (`^`) under the offending token.",
+      "Tests added in both JS and Rust (or split tracked in a parity issue).",
+      "README/ARCHITECTURE updated as needed."
+    ],
+    "depends": [],
+    "blocks": ["A2", "A3", "H1", "H2", "B1"],
+    "outOfScope": "Quick-fix code actions; multi-file diagnostic aggregation (those belong with the LSP issue)."
+  },
+  {
+    "id": "A2",
+    "title": "[A2] Interactive REPL",
+    "labels": ["enhancement", "area:diagnostics", "phase:A"],
+    "phase": "A",
+    "motivation": "Comparison doc lists REPL as `Part` for RML. Lean/Rocq/Isabelle have first-class REPLs; users expect one for any modern proving system.",
+    "goal": "A REPL that maintains a persistent `Env` between user inputs and prints diagnostics inline.",
+    "lino": "```\nrml> (a: a is a)\nrml> ((a = a) has probability 1)\nrml> (? (a = a))\n1\n```",
+    "api": "`rml repl` subcommand in both implementations.",
+    "criteria": [
+      "REPL preserves env across commands.",
+      "`:reset`, `:env`, `:load <file>`, `:save <file>` meta-commands.",
+      "Tab-completion of declared symbols (best-effort).",
+      "Tests cover state preservation and meta-commands."
+    ],
+    "depends": ["A1"],
+    "blocks": ["H1"],
+    "outOfScope": "Multi-line input editing/macros beyond `:load`."
+  },
+  {
+    "id": "A3",
+    "title": "[A3] Trace mode for evaluation",
+    "labels": ["enhancement", "area:diagnostics", "phase:A"],
+    "phase": "A",
+    "motivation": "Without a step-by-step trace it is impossible to teach the engine, debug operator-redefinition pitfalls, or build a derivation tree later.",
+    "goal": "`--trace` flag prints every reduction step, operator resolution, and assignment lookup with span info.",
+    "lino": "```\n$ rml --trace demo.lino\n[span demo.lino:3:1] resolve (and: avg)\n[span demo.lino:5:1] eval (a = a) → assigned 1\n```",
+    "api": "CLI flag `--trace` in both `js/` and `rust/` runners; library-level option `trace: true`.",
+    "criteria": [
+      "Trace output is reproducible (no nondeterminism).",
+      "Tests verify trace lines for representative programs.",
+      "Documented in `docs/DIAGNOSTICS.md`."
+    ],
+    "depends": ["A1"],
+    "blocks": ["C1"],
+    "outOfScope": "Time-travel debugging or step-back; trace-driven proof export (planned for phase C)."
+  },
+  {
+    "id": "A4",
+    "title": "[A4] Document operator-redefinition design rationale",
+    "labels": ["documentation", "area:diagnostics", "phase:A", "good first issue"],
+    "phase": "A",
+    "motivation": "Newcomers often expect classical fixed semantics. Without a written rationale for runtime operator redefinition, users will file bugs about behaviour that is by design.",
+    "goal": "Add `docs/CONFIGURABILITY.md` capturing why every operator is redefinable, the precedence rules at runtime, and how this differs from Lean/Rocq fixed semantics.",
+    "lino": "n/a (documentation issue).",
+    "api": "n/a.",
+    "criteria": [
+      "`docs/CONFIGURABILITY.md` is linked from the README.",
+      "Explains range, valence, operator, aggregator, and truth-constant configuration.",
+      "Cross-links examples that demonstrate each."
+    ],
+    "depends": [],
+    "blocks": [],
+    "outOfScope": "Full philosophy of paradox tolerance (covered by H4 / a separate `docs/PHILOSOPHY.md`)."
+  },
+  {
+    "id": "A5",
+    "title": "[A5] English-readability lint for `lib/` and `examples/`",
+    "labels": ["enhancement", "area:diagnostics", "phase:A", "good first issue"],
+    "phase": "A",
+    "motivation": "The plan's design promise is that every link reads as an English sentence. Without a lint, drift creeps back in.",
+    "goal": "A small lint script that flags links violating the naming conventions: operator-only links without word-form alternatives, identifiers without hyphens, etc.",
+    "lino": "n/a.",
+    "api": "`scripts/lint-english.mjs <files...>`.",
+    "criteria": [
+      "CI fails if `examples/` or `lib/` (when introduced) contain violations.",
+      "Lint script documented in README.",
+      "Allow-list mechanism for legitimate exceptions."
+    ],
+    "depends": [],
+    "blocks": ["G1", "J1", "J7"],
+    "outOfScope": "A full English NLP analysis; the lint is heuristic-based."
+  },
+
+  {
+    "id": "B1",
+    "title": "[B1] File imports with cycle detection",
+    "labels": ["enhancement", "area:modules", "phase:B"],
+    "phase": "B",
+    "motivation": "Comparison doc rows \"Module/import system\" and \"Namespaces\" are `Part`/`No` for RML. Required to scale beyond single-file demos and to support libraries (phase G) and self-bootstrap (phase J).",
+    "goal": "Add `(import \"<relative-path>.lino\")` that loads another file's declarations into the current env. Cycles produce a structured diagnostic.",
+    "lino": "```\n(import \"lib/classical-logic.lino\")\n```",
+    "api": "Both implementations expose `evaluateFile(path)` honouring imports.",
+    "criteria": [
+      "Cycle detection with span-aware error.",
+      "Caching: each file is loaded once.",
+      "Tests cover linear chains, diamonds, and cycles.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": ["A1"],
+    "blocks": ["B2", "G1", "H5", "J1", "E5", "F4"],
+    "outOfScope": "Package registry, version resolution (deferred)."
+  },
+  {
+    "id": "B2",
+    "title": "[B2] Namespaces and qualified references",
+    "labels": ["enhancement", "area:modules", "phase:B"],
+    "phase": "B",
+    "motivation": "Without namespaces, library names collide. Lean, Rocq, Isabelle all qualify with `Module.symbol` or analogue.",
+    "goal": "A file can declare `(namespace classical)` and exported names become `classical.true`, `classical.and`, etc. Imports can be aliased via `(import \"lib/classical.lino\" as cl)`.",
+    "lino": "```\n(namespace classical)\n(and: min)\n(or: max)\n```\nimported as:\n```\n(import \"classical.lino\" as cl)\n(? (cl.and 1 0))\n```",
+    "api": "Resolver consults active namespace + alias table.",
+    "criteria": [
+      "Qualified references resolve correctly.",
+      "Re-binding a name in the importing file shadows the imported one with a warning diagnostic.",
+      "Tests for shadowing, qualified lookup, alias collisions."
+    ],
+    "depends": ["B1"],
+    "blocks": ["G1"],
+    "outOfScope": "Open/close namespace blocks within a single file (deferred)."
+  },
+
+  {
+    "id": "C1",
+    "title": "[C1] Proof-producing evaluator",
+    "labels": ["enhancement", "area:kernel", "phase:C"],
+    "phase": "C",
+    "motivation": "Concept rows \"Machine-checked proof terms\" and \"Proof-producing evaluator\" are `No`/`Part`. The trusted-kernel story starts here: every truth value should come with an auditable derivation.",
+    "goal": "Each query optionally returns a derivation tree consisting of links: `(by <rule> <subderivations>)`.",
+    "lino": "```\n(? (a = a) with proof) →\n  1\n  (by structural-equality (a a))\n```",
+    "api": "- JS: `evaluate(src, { withProofs: true })` returns `{ results, proofs }`.\n- Rust: `Evaluator::with_proofs(true)`.",
+    "criteria": [
+      "All built-in operators produce derivations.",
+      "Derivations are themselves links and can be printed as `.lino`.",
+      "Round-trip test: parse(print(derivation)) == derivation.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": ["A3"],
+    "blocks": ["C2", "C3", "E1", "J2", "D1"],
+    "outOfScope": "Proof compression; proof terms for probabilistic operators beyond a single sample (deferred)."
+  },
+  {
+    "id": "C2",
+    "title": "[C2] Independent proof-replay checker",
+    "labels": ["enhancement", "area:kernel", "phase:C"],
+    "phase": "C",
+    "motivation": "A proof-producing evaluator is only valuable if a small, separately auditable program can replay the proof. This is the trusted-kernel cornerstone.",
+    "goal": "A separate executable `rml-check` consumes a `.lino` file containing both the program and its derivation tree and verifies that the derivation produces the claimed truth value.",
+    "lino": "```\n$ rml-check program.lino proofs.lino\nOK: 7 derivations replayed.\n```",
+    "api": "`rml-check <program> <proofs>` CLI in both implementations.",
+    "criteria": [
+      "Checker depends only on the kernel (no evaluator).",
+      "Tests verify that mutated proof trees fail.",
+      "Checker's source is small (target: ≤ 500 LOC) so it can be audited."
+    ],
+    "depends": ["C1"],
+    "blocks": ["C3", "C5", "J5"],
+    "outOfScope": "GUI; proof-format compatibility with Lean/Rocq."
+  },
+  {
+    "id": "C3",
+    "title": "[C3] Metatheorem checker over encoded systems",
+    "labels": ["enhancement", "area:kernel", "phase:C"],
+    "phase": "C",
+    "motivation": "A universal formal-system constructor must be able to check metatheorems about user-defined systems (e.g. `plus is total on Natural`). This is the Twelf-style guarantee.",
+    "goal": "Given a relation defined as a family of links plus a totality declaration (D12) and modes (D15), check that the relation is a total function on its declared domain.",
+    "lino": "```\n(relation plus\n  (plus zero (Natural n) n)\n  (plus (succ m) (Natural n) (succ (plus m n))))\n(mode plus +input +input -output)\n(total plus)\n```",
+    "api": "CLI: `rml-meta program.lino`.",
+    "criteria": [
+      "Pass/fail diagnostic with counter-witness on failure.",
+      "Tests cover plus, less-than-or-equal, append on lists.",
+      "Documented in `docs/METATHEOREMS.md`."
+    ],
+    "depends": ["C1", "C2", "D12", "D14", "D15"],
+    "blocks": ["J5"],
+    "outOfScope": "Proof of totality for non-structurally-decreasing definitions; that is delegated to D13."
+  },
+  {
+    "id": "C5",
+    "title": "[C5] Soundness statement",
+    "labels": ["documentation", "area:kernel", "phase:C"],
+    "phase": "C",
+    "motivation": "Users need a written statement of what the trusted kernel guarantees and the chosen aggregator family for which soundness is claimed.",
+    "goal": "Add `docs/SOUNDNESS.md` explaining what the trusted kernel guarantees and which operators are part of the trusted base. (Note: in a paradox-tolerant logic, soundness is stated relative to a chosen aggregator family.)",
+    "lino": "n/a (documentation issue).",
+    "api": "n/a.",
+    "criteria": [
+      "Doc reviewed by maintainer; linked from README.",
+      "Cross-links the proof-replay checker (C2)."
+    ],
+    "depends": ["C2"],
+    "blocks": [],
+    "outOfScope": "Mechanised proof of soundness (long-term deferred)."
+  },
+
+  {
+    "id": "D1",
+    "title": "[D1] Promote dependent types and Pi to a documented kernel",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "The dependent-type prototype is undocumented. Without typing rules in writing, no one can audit or extend the typed kernel.",
+    "goal": "Specify the typing rules for `(Pi …)`, `(lambda …)`, `apply`, type membership `(of)` in `docs/KERNEL.md`.",
+    "lino": "```\n(succ: (Pi (Natural n) Natural))\n(identity: lambda (Natural x) x)\n(apply identity zero)\n```",
+    "api": "Typing rules realised in evaluator/type-checker code paths.",
+    "criteria": [
+      "`docs/KERNEL.md` exists with a rule per construct.",
+      "Tests for each rule.",
+      "Existing examples checked against the spec."
+    ],
+    "depends": ["A1", "C1"],
+    "blocks": ["D2", "D5", "D6", "D7", "D8"],
+    "outOfScope": "Inductive families (D10), polymorphism (D9), universes beyond two levels (D5)."
+  },
+  {
+    "id": "D2",
+    "title": "[D2] Beta reduction in the evaluator",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Without β-reduction, the type kernel cannot evaluate applied lambdas, blocking everything downstream.",
+    "goal": "`(apply (lambda (Natural x) (x + 1)) 0)` reduces to `1` via β.",
+    "lino": "```\n(apply (lambda (Natural x) (x + 1)) 0) → 1\n```",
+    "api": "`reduce(term)` step in evaluator.",
+    "criteria": [
+      "β-reduction tests for closed and open terms.",
+      "Capture-avoidance respected (uses D8).",
+      "Documented in `docs/KERNEL.md`."
+    ],
+    "depends": ["D1", "D8"],
+    "blocks": ["D3"],
+    "outOfScope": "η, ζ, ι reductions (covered separately in D3/D4 as appropriate)."
+  },
+  {
+    "id": "D3",
+    "title": "[D3] Definitional equality / convertibility",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Type checking requires deciding when two terms are equal up to reduction. Without it, we cannot match a user's term against a declared type.",
+    "goal": "An equality decision procedure that handles β, η (optional), and assignment lookup.",
+    "lino": "```\n((apply (lambda (Natural x) x) 0) = 0)\n```",
+    "api": "`isConvertible(t1, t2, ctx): boolean`.",
+    "criteria": [
+      "Test cases from the comparison-doc \"Definitional equality\" row pass.",
+      "η-conversion behind a feature flag if it complicates the kernel."
+    ],
+    "depends": ["D2"],
+    "blocks": ["D4", "E2"],
+    "outOfScope": "Higher-order unification (deferred)."
+  },
+  {
+    "id": "D4",
+    "title": "[D4] Full normalization for typed fragment",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Some queries demand a normal form (e.g. comparing canonical proofs).",
+    "goal": "Implement weak-head normal form and full normal form for typed link terms.",
+    "lino": "```\n(normal-form (apply (compose succ succ) zero)) → (succ (succ zero))\n```",
+    "api": "`whnf(term)`, `nf(term)`.",
+    "criteria": [
+      "Termination proven for the typed fragment by D13.",
+      "Tests cover Church numerals normalisation."
+    ],
+    "depends": ["D2", "D13"],
+    "blocks": [],
+    "outOfScope": "NbE for non-typed fragment."
+  },
+  {
+    "id": "D5",
+    "title": "[D5] Universe hierarchy as a checked layer",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Avoiding paradoxes in a typed core requires universe stratification (or controlled circularity). RML chooses configurable strictness.",
+    "goal": "`(Type 0)`, `(Type 1)`, … become checked levels; `((Type 0) of (Type 1))` returns 1, `((Type 1) of (Type 0))` returns 0.",
+    "lino": "```\n((Type 0) of (Type 1)) → 1\n((Type 1) of (Type 0)) → 0\n```",
+    "api": "Type checker tracks universe levels.",
+    "criteria": [
+      "Test matrix across levels.",
+      "Coexistence with self-referential `(Type: Type Type)` documented and tested.",
+      "Documented in `docs/KERNEL.md`."
+    ],
+    "depends": ["D1"],
+    "blocks": ["D6"],
+    "outOfScope": "Universe polymorphism (deferred to a future issue)."
+  },
+  {
+    "id": "D6",
+    "title": "[D6] Bidirectional type checker",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "A bidirectional checker gives clear, local error messages and is the standard for dependent types.",
+    "goal": "A type checker with check/synthesize modes; produces structured diagnostics on failure.",
+    "lino": "```\n((zero: Natural zero) check)\n((apply succ zero) synth) → Natural\n```",
+    "api": "`check(term, type, ctx)`, `synth(term, ctx) → type`.",
+    "criteria": [
+      "Pass on every `examples/dependent-types.lino` declaration.",
+      "Failure cases checked.",
+      "Diagnostics include source spans (A1)."
+    ],
+    "depends": ["D1", "D2", "D3", "D5"],
+    "blocks": ["D9", "D10", "D12", "D14", "F1", "F2", "F3"],
+    "outOfScope": "Constraint-based unification (deferred)."
+  },
+  {
+    "id": "D7",
+    "title": "[D7] Higher-order abstract syntax (HOAS) helpers",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Encoding object-language binders without a HOAS pattern leads to fragile substitution code.",
+    "goal": "Provide a documented HOAS encoding pattern (binders represented as `lambda` of the host) plus convenience helpers for common cases (e.g. `(forall (Natural x) body)` desugaring to `(Pi (Natural x) body)`).",
+    "lino": "```\n(forall (Natural x) ((x + 0) = x))\n; desugars to\n(Pi (Natural x) ((x + 0) = x))\n```",
+    "api": "Desugarer in parser; documented in `docs/KERNEL.md`.",
+    "criteria": [
+      "Lambda-calculus example uses HOAS and round-trips.",
+      "Documented HOAS pattern."
+    ],
+    "depends": ["D1", "D2"],
+    "blocks": [],
+    "outOfScope": "PHOAS or weak HOAS variants."
+  },
+  {
+    "id": "D8",
+    "title": "[D8] Capture-avoiding substitution and freshness",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "β reduction, induction principles, and self-encoded evaluators all need correct substitution.",
+    "goal": "Kernel primitive for substitution; `nabla`-style freshness quantifier `(fresh x in body)`.",
+    "lino": "```\n(fresh y in ((lambda (Natural x) (x + y)) y))\n```",
+    "api": "`subst(term, var, replacement)`; `(fresh x in …)` form.",
+    "criteria": [
+      "Substitution tests for all binder forms.",
+      "`(fresh x in body)` rejected when `x` already appears in the context."
+    ],
+    "depends": ["D1"],
+    "blocks": ["D2", "D7", "D10", "J3"],
+    "outOfScope": "Nominal sets / atom-permutation-based substitution (deferred)."
+  },
+  {
+    "id": "D9",
+    "title": "[D9] Prenex polymorphism",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Many basic library functions (identity, compose, apply) require polymorphism.",
+    "goal": "Allow `(forall A (Pi (A x) A))` style polymorphic types in declarations.",
+    "lino": "```\n(identity: forall A (Pi (A x) A))\n(identity: lambda (Type A) (lambda (A x) x))\n```",
+    "api": "Type checker handles forall in prenex position.",
+    "criteria": [
+      "Polymorphic identity, polymorphic apply, polymorphic compose all type-check.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": ["D6"],
+    "blocks": [],
+    "outOfScope": "Higher-rank polymorphism."
+  },
+  {
+    "id": "D10",
+    "title": "[D10] Inductive families with eliminators",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Lean/Rocq/Agda all rely on inductive types for libraries. RML must offer this without losing operator-redefinition semantics.",
+    "goal": "First-class inductive declarations encoded as link signatures plus a generated eliminator.",
+    "lino": "```\n(inductive Natural\n  (constructor zero)\n  (constructor (succ (Pi (Natural n) Natural))))\n```\ngenerates:\n```\n(Natural-rec\n  (lambda (Type C)\n    (lambda (C base)\n      (lambda (Pi (Natural n) (Pi (C ih) C)) step)\n      (lambda (Natural target) ...))))\n```",
+    "api": "`inductive` parser form + eliminator generator.",
+    "criteria": [
+      "Lists, vectors, and propositional equality definable.",
+      "Eliminator type-checks.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": ["D6", "D8"],
+    "blocks": ["D11", "D13", "G7", "J3", "F1", "F2", "F3", "F7"],
+    "outOfScope": "Strict positivity beyond syntactic check (deferred)."
+  },
+  {
+    "id": "D11",
+    "title": "[D11] Coinductive families and productivity",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Streams, infinite trees, and many fixed-point examples need coinduction.",
+    "goal": "`coinductive` declarations plus a productivity check based on guarded corecursion.",
+    "lino": "```\n(coinductive Stream\n  (constructor (cons (Pi (Natural head) (Pi (Stream tail) Stream)))))\n```",
+    "api": "Productivity checker invoked alongside type checker.",
+    "criteria": [
+      "Streams definable; non-productive defs rejected."
+    ],
+    "depends": ["D10"],
+    "blocks": [],
+    "outOfScope": "Mixed inductive/coinductive types (deferred)."
+  },
+  {
+    "id": "D12",
+    "title": "[D12] Totality checking (Twelf-style)",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "A metatheorem checker (C3) needs to verify totality. Twelf demonstrates how to do this via modes and structural decrease.",
+    "goal": "Given a relation with declared modes, decide whether it is total.",
+    "lino": "```\n(total plus)\n```",
+    "api": "`isTotal(relation, modes)` returns diagnostics.",
+    "criteria": [
+      "Plus, less-than-or-equal, append on lists checked total.",
+      "Counter-witness on failure."
+    ],
+    "depends": ["D6", "D15"],
+    "blocks": ["C3"],
+    "outOfScope": "Totality for higher-order relations (deferred)."
+  },
+  {
+    "id": "D13",
+    "title": "[D13] Termination checking",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Productive non-termination is allowed in RML's evaluator, but the typed fragment needs decidable termination.",
+    "goal": "Recursive definitions must reduce a structural-order argument; decreasing-order checks.",
+    "lino": "```\n(define plus\n  (case (zero n) n)\n  (case ((succ m) n) (succ (plus m n))))\n; structural decrease on first argument\n```",
+    "api": "`isTerminating(definition)` returns diagnostics.",
+    "criteria": [
+      "Ackermann rejected without explicit measure; with a measure, accepted.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": ["D10"],
+    "blocks": ["D4", "D12"],
+    "outOfScope": "Lexicographic / size-change termination (deferred)."
+  },
+  {
+    "id": "D14",
+    "title": "[D14] Coverage checking for case-style relations",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Missing cases in pattern definitions cause silent failures. Coverage checks turn these into diagnostics.",
+    "goal": "Every input pattern that the relation can match must be covered.",
+    "lino": "```\n(define f\n  (case zero 0)\n  ; missing: case (succ n)\n  )\n```",
+    "api": "Coverage checker integrated into type checker.",
+    "criteria": [
+      "Missing case produces a structured diagnostic with example."
+    ],
+    "depends": ["D10", "D15"],
+    "blocks": ["C3"],
+    "outOfScope": "Exhaustiveness over open polymorphic types (deferred)."
+  },
+  {
+    "id": "D15",
+    "title": "[D15] Mode declarations",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Totality and coverage need to know which arguments are inputs vs outputs.",
+    "goal": "Each relation argument is `+input`, `-output`, or `*either`; checked by D12 and D14.",
+    "lino": "```\n(mode plus +input +input -output)\n```",
+    "api": "Parser recognises `mode`; checker enforces.",
+    "criteria": [
+      "Mode mismatches rejected.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": ["D6"],
+    "blocks": ["D12", "D14", "C3"],
+    "outOfScope": "Mode polymorphism (deferred)."
+  },
+  {
+    "id": "D16",
+    "title": "[D16] World declarations",
+    "labels": ["enhancement", "area:kernel", "phase:D"],
+    "phase": "D",
+    "motivation": "Twelf's `%worlds` declaration constrains which constants may appear free in arguments — useful for mechanised metatheory.",
+    "goal": "Twelf `%worlds` analogue for declaring which constants may appear free in a relation's arguments.",
+    "lino": "```\n(world plus (Natural))\n```",
+    "api": "Optional — gated behind a feature flag if it complicates the kernel.",
+    "criteria": [
+      "World violations produce a diagnostic.",
+      "Optional — gated behind a feature flag."
+    ],
+    "depends": ["D8", "D15"],
+    "blocks": [],
+    "outOfScope": "Cross-module worlds (deferred)."
+  },
+
+  {
+    "id": "E1",
+    "title": "[E1] Tactic language as links",
+    "labels": ["enhancement", "area:tactics", "phase:E"],
+    "phase": "E",
+    "motivation": "Lean/Rocq/Isabelle have rich tactic languages. RML must offer composable proof steps without breaking the \"everything is a link\" invariant.",
+    "goal": "Tactics are links interpreted by a tactic engine; they transform a proof state. Examples: `(by reflexivity)`, `(by symmetry)`, `(by transitivity <intermediate>)`, `(suppose <hypothesis>)`, `(introduce <variable>)`.",
+    "lino": "```\n(theorem plus-zero (Pi (Natural n) ((plus n zero) = n))\n  (proof\n    (induction n\n      (case zero (by reflexivity))\n      (case (succ m) (rewrite (induction-hypothesis m) in goal)))))\n```",
+    "api": "`runTactics(state, tactics)` returns updated state and diagnostics.",
+    "criteria": [
+      "Built-in tactics: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, exact.",
+      "Failed tactic produces structured diagnostic with current goal printed.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": ["C1"],
+    "blocks": ["E2", "E3", "E4", "F5", "F6", "J5"],
+    "outOfScope": "Custom user tactics (deferred to a follow-up)."
+  },
+  {
+    "id": "E2",
+    "title": "[E2] Simplifier and rewriting",
+    "labels": ["enhancement", "area:tactics", "phase:E"],
+    "phase": "E",
+    "motivation": "Simplification is the most-used tactic in real proofs. RML needs a configurable rewrite engine.",
+    "goal": "`(simplify in <goal>)` applies a configured rewrite set; `(rewrite <eq> in <goal>)` uses a single equation; congruence handled by walking the link tree.",
+    "lino": "```\n(rewrite (plus-zero n) in goal)\n```",
+    "api": "`simplify(goal, rules)`, `rewrite(goal, eq)`.",
+    "criteria": [
+      "Tests cover direction of rewriting, occurrence selection, and termination guard."
+    ],
+    "depends": ["E1", "D3"],
+    "blocks": [],
+    "outOfScope": "AC-rewriting (deferred)."
+  },
+  {
+    "id": "E3",
+    "title": "[E3] Bounded proof search",
+    "labels": ["enhancement", "area:tactics", "phase:E"],
+    "phase": "E",
+    "motivation": "Many proofs are mostly mechanical. A bounded backwards searcher closes goals automatically.",
+    "goal": "`(by search depth N)` performs depth-bounded backwards search using available lemmas.",
+    "lino": "```\n(by search depth 3)\n```",
+    "api": "`search(goal, depth, lemmas)`.",
+    "criteria": [
+      "Depth budget honoured.",
+      "Search returns a derivation tree, not just a yes/no."
+    ],
+    "depends": ["E1"],
+    "blocks": [],
+    "outOfScope": "Iterative deepening with heuristics (deferred)."
+  },
+  {
+    "id": "E4",
+    "title": "[E4] Counter-model finder for finite valences",
+    "labels": ["enhancement", "area:tactics", "phase:E"],
+    "phase": "E",
+    "motivation": "Showing a formula is non-tautological is as valuable as proving it. For finite valences (3-valued, Belnap), brute force suffices.",
+    "goal": "For finite-valence configurations, exhaustively search valuations to find a falsifying witness.",
+    "lino": "```\n(counter-model (or p (not p)))\n```",
+    "api": "`counterModel(formula, valence)`.",
+    "criteria": [
+      "Demonstrates that excluded middle is non-tautological in 3-valued Kleene."
+    ],
+    "depends": ["E1"],
+    "blocks": [],
+    "outOfScope": "Continuous-valence falsifier (use SMT bridge instead)."
+  },
+  {
+    "id": "E5",
+    "title": "[E5] Macro / template mechanism for reusable link shapes",
+    "labels": ["enhancement", "area:tactics", "phase:E"],
+    "phase": "E",
+    "motivation": "Library authors want named patterns: `(commutative-and a b)` should expand into a known theorem template.",
+    "goal": "A `template` declaration that names a link shape with placeholders; uses are expanded before evaluation.",
+    "lino": "```\n(template (commutative-and a b)\n  (theorem (and a b) = (and b a)))\n```",
+    "api": "Pre-evaluation expander invoked by the parser/evaluator pipeline.",
+    "criteria": [
+      "Hygienic expansion.",
+      "Tests for nested templates."
+    ],
+    "depends": ["B1"],
+    "blocks": [],
+    "outOfScope": "Quasiquotation, splicing (deferred)."
+  },
+
+  {
+    "id": "F1",
+    "title": "[F1] Lean 4 export of RML fragments",
+    "labels": ["enhancement", "area:bridges", "phase:F", "help wanted"],
+    "phase": "F",
+    "motivation": "External certification: a Lean-checkable artefact strengthens trust and connects RML to mathlib.",
+    "goal": "Translate a typed link fragment (no probabilistic operators) into Lean 4 source.",
+    "lino": "n/a (the export is the artefact).",
+    "api": "`rml export lean <file.lino> -o <file.lean>`.",
+    "criteria": [
+      "Round-trip test on a set of examples.",
+      "Documentation for the supported subset."
+    ],
+    "depends": ["D6", "D10"],
+    "blocks": [],
+    "outOfScope": "Lean 4 import."
+  },
+  {
+    "id": "F2",
+    "title": "[F2] Rocq export",
+    "labels": ["enhancement", "area:bridges", "phase:F", "help wanted"],
+    "phase": "F",
+    "motivation": "Same as F1 for Rocq — interoperability with the largest classical-logic ecosystem.",
+    "goal": "Translate a typed link fragment (no probabilistic operators) into Rocq source.",
+    "lino": "n/a.",
+    "api": "`rml export rocq <file.lino> -o <file.v>`.",
+    "criteria": [
+      "Round-trip test on a set of examples.",
+      "Documentation for the supported subset."
+    ],
+    "depends": ["D6", "D10"],
+    "blocks": [],
+    "outOfScope": "Rocq import."
+  },
+  {
+    "id": "F3",
+    "title": "[F3] Isabelle export",
+    "labels": ["enhancement", "area:bridges", "phase:F", "help wanted"],
+    "phase": "F",
+    "motivation": "Same as F1 for Isabelle/Pure or Isabelle/HOL — proof-pearl exchange.",
+    "goal": "Translate a typed link fragment (no probabilistic operators) into Isabelle source.",
+    "lino": "n/a.",
+    "api": "`rml export isabelle <file.lino> -o <file.thy>`.",
+    "criteria": [
+      "Round-trip test on a set of examples.",
+      "Documentation for the supported subset."
+    ],
+    "depends": ["D6", "D10"],
+    "blocks": [],
+    "outOfScope": "Isabelle import."
+  },
+  {
+    "id": "F4",
+    "title": "[F4] Pecan-style automatic-sequence backend (optional)",
+    "labels": ["enhancement", "area:bridges", "phase:F"],
+    "phase": "F",
+    "motivation": "Demonstrates that domain-specific decision procedures plug into RML cleanly.",
+    "goal": "A plugin that ships decisions about Buchi automata when the user declares the problem inside a `(domain automatic-sequences)` block.",
+    "lino": "```\n(domain automatic-sequences\n  (theorem thue-morse-cube-free))\n```",
+    "api": "Plug-in registered with the evaluator.",
+    "criteria": [
+      "At least one classic example (e.g. Thue-Morse word) decided."
+    ],
+    "depends": ["B1"],
+    "blocks": [],
+    "outOfScope": "Beyond Buchi automata (deferred)."
+  },
+  {
+    "id": "F5",
+    "title": "[F5] SMT-LIB bridge",
+    "labels": ["enhancement", "area:bridges", "phase:F"],
+    "phase": "F",
+    "motivation": "Real proofs benefit from SMT solvers (Z3, CVC5). The trusted-kernel design accepts external decisions as `(by smt-trusted <solver>)` nodes.",
+    "goal": "`(by smt)` tactic dispatches to a configured SMT solver; the result is wrapped as a derivation node `(by smt-trusted <solver>)`.",
+    "lino": "```\n(by smt)\n```",
+    "api": "Configurable solver path; tactic invokes solver via SMT-LIB.",
+    "criteria": [
+      "Solver path configurable.",
+      "Failure modes tested (timeout, unknown)."
+    ],
+    "depends": ["E1"],
+    "blocks": [],
+    "outOfScope": "Replaying solver proofs (use proof-format-specific bridges instead)."
+  },
+  {
+    "id": "F6",
+    "title": "[F6] TPTP bridge for first-order ATPs",
+    "labels": ["enhancement", "area:bridges", "phase:F"],
+    "phase": "F",
+    "motivation": "First-order ATPs (E, Vampire, SPASS) use TPTP. The bridge enables `(by atp)`.",
+    "goal": "Same idea as F5 for TPTP-format ATPs.",
+    "lino": "```\n(by atp)\n```",
+    "api": "Configurable ATP path; tactic emits TPTP and parses results.",
+    "criteria": [
+      "ATP path configurable.",
+      "Failure modes tested."
+    ],
+    "depends": ["E1"],
+    "blocks": [],
+    "outOfScope": "Replaying ATP proofs (deferred)."
+  },
+  {
+    "id": "F7",
+    "title": "[F7] Program extraction to JS / Rust",
+    "labels": ["enhancement", "area:bridges", "phase:F"],
+    "phase": "F",
+    "motivation": "Verified algorithms become more useful when extracted to mainstream languages.",
+    "goal": "Typed link programs without probabilistic operators extract to clean JS or Rust source.",
+    "lino": "n/a.",
+    "api": "`rml extract js <file.lino>`, `rml extract rust <file.lino>`.",
+    "criteria": [
+      "Extracted code passes its own tests."
+    ],
+    "depends": ["D10"],
+    "blocks": [],
+    "outOfScope": "Extraction to other targets (Haskell, OCaml) — deferred."
+  },
+
+  {
+    "id": "G1",
+    "title": "[G1] Standard library: classical logic (`lib/classical/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "A traditional starting point. Demonstrates that RML can host vanilla classical logic alongside its probabilistic and Belnap defaults.",
+    "goal": "Boolean operators, classical ND rules, excluded middle, double negation, De Morgan packaged under `lib/classical/` with a `(namespace classical)` line.",
+    "lino": "```\n(import \"lib/classical/core.lino\" as cl)\n(? (cl.or p (cl.not p)))\n```",
+    "api": "Standard `.lino` files under `lib/classical/`.",
+    "criteria": [
+      "Library file has a header comment with English summary.",
+      "Test file in `js/test/lib-classical.test.mjs` and Rust equivalent.",
+      "Referenced from the README."
+    ],
+    "depends": ["A5", "B1", "B2"],
+    "blocks": ["H7"],
+    "outOfScope": "Linear logic, intuitionistic logic (consider follow-up libraries)."
+  },
+  {
+    "id": "G2",
+    "title": "[G2] Standard library: first-order logic (`lib/first-order/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "Quantifiers are the bread and butter of mathematics; RML must offer English-readable forms.",
+    "goal": "Quantifiers using `(forall (Type X) body)` / `(exists …)` packaged under `lib/first-order/`.",
+    "lino": "```\n(forall (Natural n) ((plus n zero) = n))\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": [],
+    "outOfScope": "Sorted FOL (deferred)."
+  },
+  {
+    "id": "G3",
+    "title": "[G3] Standard library: higher-order logic (`lib/higher-order/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "HOL-style quantification over predicates is required by many libraries.",
+    "goal": "HOL-style quantification over predicates packaged under `lib/higher-order/`.",
+    "lino": "```\n(forall ((Pi (Natural n) Boolean) P) ((P zero) implies (forall (Natural n) (P (succ n)))))\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": [],
+    "outOfScope": ""
+  },
+  {
+    "id": "G4",
+    "title": "[G4] Standard library: modal logic (`lib/modal/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "K, T, S4, S5 with Kripke-frame interpretations are foundational and demonstrate RML's configurability.",
+    "goal": "K, T, S4, S5 axioms; Kripke-frame interpretation packaged under `lib/modal/`.",
+    "lino": "```\n(necessarily p)\n(possibly p)\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": [],
+    "outOfScope": "Hybrid logic (deferred)."
+  },
+  {
+    "id": "G5",
+    "title": "[G5] Standard library: provability logic (`lib/provability/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "GL and interpretability fragments showcase RML's metatheoretic muscle.",
+    "goal": "GL axioms; interpretability fragment packaged under `lib/provability/`.",
+    "lino": "```\n(provability-of p)\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": [],
+    "outOfScope": ""
+  },
+  {
+    "id": "G6",
+    "title": "[G6] Standard library: set theory (`lib/set-theory/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "Extensionality, pairing, union, separation, replacement, infinity — the classical foundation.",
+    "goal": "Extensionality, pairing, union, separation, replacement, infinity packaged under `lib/set-theory/`.",
+    "lino": "```\n(member-of x (set-of-naturals))\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": [],
+    "outOfScope": "Choice (separately tracked)."
+  },
+  {
+    "id": "G7",
+    "title": "[G7] Standard library: arithmetic (`lib/arithmetic/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "Peano + decimal-precision lemmas anchor every other library.",
+    "goal": "Peano axioms, decimal-precision lemmas, `<`, `≤` packaged under `lib/arithmetic/`.",
+    "lino": "```\n(plus zero zero) = zero\n(less-than zero (succ zero))\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": ["H7"],
+    "outOfScope": "Integer/rational/real numbers (consider follow-up libraries)."
+  },
+  {
+    "id": "G8",
+    "title": "[G8] Standard library: algebra (`lib/algebra/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "Magma → group → ring is the canonical algebra path; long-term, may be deferred.",
+    "goal": "Magma, monoid, group, ring packaged under `lib/algebra/` (long-term, may be deferred).",
+    "lino": "```\n(group (carrier G) (op times) (identity e) (inverse inv))\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": [],
+    "outOfScope": "Category theory (deferred)."
+  },
+  {
+    "id": "G9",
+    "title": "[G9] Standard library: programming-language theory (`lib/programming-language/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "Untyped λ-calculus, STLC, type safety — the textbook syllabus, demonstrating RML's expressive power.",
+    "goal": "Untyped λ-calculus, STLC, type-safety theorem packaged under `lib/programming-language/`.",
+    "lino": "```\n(theorem progress …)\n(theorem preservation …)\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": [],
+    "outOfScope": ""
+  },
+  {
+    "id": "G10",
+    "title": "[G10] Standard library: probabilistic / Belnap (`lib/probabilistic/`)",
+    "labels": ["enhancement", "area:libraries", "phase:G"],
+    "phase": "G",
+    "motivation": "RML's most distinctive territory. A library of probabilistic and Belnap-bilattice helpers makes this superpower easy to use.",
+    "goal": "Bayesian-network helpers, fuzzy-control example, Belnap-bilattice helpers, paradox catalogue packaged under `lib/probabilistic/`.",
+    "lino": "```\n(import \"lib/probabilistic/bayesian.lino\" as bn)\n(bn.network … )\n```",
+    "api": "Standard `.lino` files.",
+    "criteria": [
+      "Header summary, tests, README link."
+    ],
+    "depends": ["A5", "B1", "B2", "D6", "D10", "E1"],
+    "blocks": [],
+    "outOfScope": ""
+  },
+
+  {
+    "id": "H1",
+    "title": "[H1] Language Server Protocol implementation",
+    "labels": ["enhancement", "area:tooling", "phase:H"],
+    "phase": "H",
+    "motivation": "Modern provers ship LSPs. Without one, RML cannot meet user expectations for editor integration.",
+    "goal": "An LSP server that wraps the JS or Rust evaluator and exposes diagnostics, hover documentation, go-to-definition, and (optional) completion.",
+    "lino": "n/a (LSP).",
+    "api": "Stdio-based LSP server invoked from editors.",
+    "criteria": [
+      "LSP server passes a smoke-test suite.",
+      "Documented setup for Neovim/Helix."
+    ],
+    "depends": ["A1", "A2", "A3"],
+    "blocks": ["H2"],
+    "outOfScope": "Editor-specific UI (delegated to H2 for VS Code)."
+  },
+  {
+    "id": "H2",
+    "title": "[H2] VS Code extension",
+    "labels": ["enhancement", "area:tooling", "phase:H"],
+    "phase": "H",
+    "motivation": "VS Code is the most widely used editor in the formal-methods community.",
+    "goal": "A VS Code extension that consumes the LSP from H1 and adds syntax highlighting plus a `.lino` language config.",
+    "lino": "n/a.",
+    "api": "VS Code extension package.",
+    "criteria": [
+      "Published or installable from VSIX.",
+      "Syntax highlighting for `.lino` files.",
+      "LSP integration verified end-to-end."
+    ],
+    "depends": ["H1"],
+    "blocks": [],
+    "outOfScope": ""
+  },
+  {
+    "id": "H3",
+    "title": "[H3] Generated API/reference docs",
+    "labels": ["documentation", "area:tooling", "phase:H"],
+    "phase": "H",
+    "motivation": "Reference documentation is mandatory for adoption.",
+    "goal": "JSDoc and rustdoc generation; published to GitHub Pages on release.",
+    "lino": "n/a.",
+    "api": "CI job builds and publishes docs.",
+    "criteria": [
+      "Docs published on GitHub Pages.",
+      "Linked from README."
+    ],
+    "depends": [],
+    "blocks": ["H6"],
+    "outOfScope": ""
+  },
+  {
+    "id": "H4",
+    "title": "[H4] Backward-compatibility policy + release process",
+    "labels": ["documentation", "area:tooling", "phase:H"],
+    "phase": "H",
+    "motivation": "A stable evolution policy lowers the cost of adoption for downstream users.",
+    "goal": "`docs/COMPATIBILITY.md` describing semver application to JS and Rust crates, deprecation procedure, and release cadence.",
+    "lino": "n/a.",
+    "api": "n/a.",
+    "criteria": [
+      "Doc reviewed by maintainer; linked from README."
+    ],
+    "depends": [],
+    "blocks": [],
+    "outOfScope": ""
+  },
+  {
+    "id": "H5",
+    "title": "[H5] Literate `.lino` format",
+    "labels": ["enhancement", "area:tooling", "phase:H"],
+    "phase": "H",
+    "motivation": "Literate proofs/exposition are the lingua franca of mathematical software.",
+    "goal": "Allow `.lino.md` files where prose and code blocks alternate; tooling extracts code blocks for evaluation.",
+    "lino": "```\n# Theorem\n\n```lino\n(theorem foo …)\n```\n```",
+    "api": "Extractor invoked by the evaluator.",
+    "criteria": [
+      "Extractor works on a representative sample of literate files.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": ["B1"],
+    "blocks": [],
+    "outOfScope": "Org-mode parity (deferred)."
+  },
+  {
+    "id": "H6",
+    "title": "[H6] Online wasm playground",
+    "labels": ["enhancement", "area:tooling", "phase:H"],
+    "phase": "H",
+    "motivation": "Frictionless online experimentation drives adoption.",
+    "goal": "A small static site that runs the JS or wasm-compiled Rust evaluator in the browser; supports examples and shareable URLs.",
+    "lino": "n/a.",
+    "api": "Static site (e.g. GitHub Pages).",
+    "criteria": [
+      "Examples load.",
+      "URL state shareable."
+    ],
+    "depends": ["H3"],
+    "blocks": [],
+    "outOfScope": ""
+  },
+  {
+    "id": "H7",
+    "title": "[H7] Tutorials and walkthroughs",
+    "labels": ["documentation", "area:tooling", "phase:H"],
+    "phase": "H",
+    "motivation": "Newcomer onboarding requires progressively richer tutorials.",
+    "goal": "`docs/tutorials/` with progressively richer walkthroughs: classical → fuzzy → probabilistic → typed → metatheory → self-bootstrap.",
+    "lino": "n/a.",
+    "api": "n/a.",
+    "criteria": [
+      "At least four tutorials (classical, probabilistic, typed, self-bootstrap).",
+      "Linked from README."
+    ],
+    "depends": ["G1", "G7", "J7"],
+    "blocks": [],
+    "outOfScope": ""
+  },
+  {
+    "id": "H8",
+    "title": "[H8] Docker support",
+    "labels": ["enhancement", "area:tooling", "phase:H"],
+    "phase": "H",
+    "motivation": "Reproducible environments — useful for CI and contributors.",
+    "goal": "`Dockerfile` and `docker-compose.yml` for both implementations.",
+    "lino": "n/a.",
+    "api": "Containers under `docker/`.",
+    "criteria": [
+      "Image builds in CI.",
+      "Documented in README."
+    ],
+    "depends": [],
+    "blocks": [],
+    "outOfScope": ""
+  },
+
+  {
+    "id": "I1",
+    "title": "[I1] Shared test corpus",
+    "labels": ["enhancement", "area:parity", "phase:I"],
+    "phase": "I",
+    "motivation": "Without a shared corpus, JS and Rust drift apart.",
+    "goal": "Move the test corpus into a shared `test-corpus/` folder consumed by both JS and Rust suites.",
+    "lino": "n/a.",
+    "api": "Both runners read from `test-corpus/*.lino`.",
+    "criteria": [
+      "Suites in both implementations consume the same corpus.",
+      "Tests added in both JS and Rust."
+    ],
+    "depends": [],
+    "blocks": ["I2"],
+    "outOfScope": ""
+  },
+  {
+    "id": "I2",
+    "title": "[I2] Parity CI job",
+    "labels": ["enhancement", "area:parity", "phase:I"],
+    "phase": "I",
+    "motivation": "A CI gate prevents regressions across implementations.",
+    "goal": "A CI job that runs every `test-corpus/*.lino` through both JS and Rust and asserts identical output.",
+    "lino": "n/a.",
+    "api": "GitHub Actions workflow.",
+    "criteria": [
+      "Job fails when outputs diverge.",
+      "Documented in README."
+    ],
+    "depends": ["I1"],
+    "blocks": ["J6"],
+    "outOfScope": ""
+  },
+
+  {
+    "id": "J1",
+    "title": "[J1] Encode the LiNo grammar as links",
+    "labels": ["enhancement", "capstone", "phase:J"],
+    "phase": "J",
+    "motivation": "Self-bootstrap requires that the grammar of the language is itself describable in the language.",
+    "goal": "A `lib/self/grammar.lino` describing the LiNo grammar as link rules. The grammar is interpretable by an in-RML parser.",
+    "lino": "```\n(rule expression (link …))\n```",
+    "api": "Library file under `lib/self/`.",
+    "criteria": [
+      "Grammar parses every example in `examples/`.",
+      "Produces the same AST as the host parser (modulo presentation)."
+    ],
+    "depends": ["B1", "B2", "A5"],
+    "blocks": ["J2"],
+    "outOfScope": ""
+  },
+  {
+    "id": "J2",
+    "title": "[J2] Encode the evaluator as links",
+    "labels": ["enhancement", "capstone", "phase:J"],
+    "phase": "J",
+    "motivation": "An encoded evaluator demonstrates that RML is meta-logic capable of reasoning about itself.",
+    "goal": "`lib/self/evaluator.lino` describing the evaluation rules of every built-in operator. Reads as a list of `(rule …)` links.",
+    "lino": "```\n(rule (eval (and a b)) (avg a b))\n```",
+    "api": "Library file under `lib/self/`.",
+    "criteria": [
+      "Encoded evaluator reproduces host outputs on the example corpus.",
+      "Tests in `test-corpus/self/` cross-check."
+    ],
+    "depends": ["J1", "C1"],
+    "blocks": ["J3", "J4"],
+    "outOfScope": ""
+  },
+  {
+    "id": "J3",
+    "title": "[J3] Encode the type layer as links",
+    "labels": ["enhancement", "capstone", "phase:J"],
+    "phase": "J",
+    "motivation": "The encoded RML must include the typing rules to be a faithful reflection.",
+    "goal": "`lib/self/types.lino` describing the typing rules.",
+    "lino": "```\n(rule (check (lambda (T x) body) (Pi (T x) U)) …)\n```",
+    "api": "Library file under `lib/self/`.",
+    "criteria": [
+      "Encoded type checker accepts/rejects the same programs as the host."
+    ],
+    "depends": ["J2", "D6", "D8", "D10"],
+    "blocks": ["J5"],
+    "outOfScope": ""
+  },
+  {
+    "id": "J4",
+    "title": "[J4] Encode operators and aggregators as links",
+    "labels": ["enhancement", "capstone", "phase:J"],
+    "phase": "J",
+    "motivation": "Operators are the most-used part of RML; encoding them as links proves operator semantics are first-class data.",
+    "goal": "`lib/self/operators.lino` containing a relation per operator (avg, min, max, product, probabilistic_sum, decimal arithmetic).",
+    "lino": "```\n(relation avg (avg a b) ((a + b) / 2))\n```",
+    "api": "Library file under `lib/self/`.",
+    "criteria": [
+      "Encoded operator outputs match host outputs to 12 decimal places."
+    ],
+    "depends": ["J2"],
+    "blocks": ["J6"],
+    "outOfScope": ""
+  },
+  {
+    "id": "J5",
+    "title": "[J5] Encode the metatheorem checker as links",
+    "labels": ["enhancement", "capstone", "phase:J"],
+    "phase": "J",
+    "motivation": "Encoding the metatheorem checker closes the loop: the system can describe how it itself is checked.",
+    "goal": "`lib/self/metatheorem.lino` describing the totality, termination, coverage, mode, and world checks (subject to availability — D12–D16).",
+    "lino": "```\n(rule (totality plus) …)\n```",
+    "api": "Library file under `lib/self/`.",
+    "criteria": [
+      "Encoded checker passes on the host's metatheorem test set."
+    ],
+    "depends": ["J3", "C2", "C3", "D12", "D13", "D14", "D15", "E1"],
+    "blocks": ["J6"],
+    "outOfScope": ""
+  },
+  {
+    "id": "J6",
+    "title": "[J6] Bootstrap test: encoded RML evaluates the example corpus",
+    "labels": ["enhancement", "capstone", "phase:J"],
+    "phase": "J",
+    "motivation": "The bootstrap test is the moment of truth — RML evaluating itself on real examples.",
+    "goal": "A CI job runs every `test-corpus/*.lino` through the encoded RML (driven by the host RML) and asserts identical output to the host RML.",
+    "lino": "n/a.",
+    "api": "GitHub Actions workflow.",
+    "criteria": [
+      "Job fails on any divergence.",
+      "Documented in README."
+    ],
+    "depends": ["J2", "J3", "J4", "J5", "I2"],
+    "blocks": ["J7"],
+    "outOfScope": ""
+  },
+  {
+    "id": "J7",
+    "title": "[J7] Tutorial: \"RML in RML\"",
+    "labels": ["documentation", "capstone", "phase:J"],
+    "phase": "J",
+    "motivation": "The capstone is meaningless without a narrative readers can follow.",
+    "goal": "`docs/tutorials/self-bootstrap.md` walking through the encoded files in narrative order, suitable for a beginner.",
+    "lino": "n/a.",
+    "api": "n/a.",
+    "criteria": [
+      "Reviewed by maintainer.",
+      "Linked from README."
+    ],
+    "depends": ["J1", "J2", "J3", "J4", "J5", "J6", "A5"],
+    "blocks": ["J-EPIC", "H7"],
+    "outOfScope": ""
+  },
+  {
+    "id": "J-EPIC",
+    "title": "[J-EPIC] Universal formal-system constructor: feature-parity audit",
+    "labels": ["enhancement", "capstone", "phase:J"],
+    "phase": "J",
+    "motivation": "The original issue (#26) calls for a universal formal-system constructor that surpasses traditional provers in configurability while reaching parity in feature richness, capped by self-reimplementation. This epic tracks completion against the comparison-doc rows and links every other planned issue.",
+    "goal": "A tracking issue that references every other phase issue and tracks completion against the comparison-doc rows.",
+    "lino": "n/a.",
+    "api": "n/a.",
+    "criteria": [
+      "All phase-A through phase-J issues linked from this epic.",
+      "Comparison-doc rows mapped to filed issues.",
+      "Closed when J6 and J7 are complete."
+    ],
+    "depends": ["J7"],
+    "blocks": [],
+    "outOfScope": ""
+  }
+]
