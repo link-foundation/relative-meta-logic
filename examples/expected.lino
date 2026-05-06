@@ -31,7 +31,7 @@
 
 (fuzzy-logic.lino: 0.8 0.3 0.3 0.8 0.19999999999999996 0.6)
 
-(lambda-calculus.lino: 1 1 1 0.7 1)
+(lambda-calculus.lino: 1 1 1 0.7 1 (type (apply identity zero)) (type (succ (succ zero))))
 
 (liar-paradox-balanced.lino: 0 0)
 

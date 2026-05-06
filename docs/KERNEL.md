@@ -307,6 +307,52 @@ unknown probability:
 Eta-conversion is available only through the convertibility API option
 (`{ eta: true }` in JavaScript, `ConvertOptions { eta: true }` in Rust).
 
+## Normalization (D4)
+
+The kernel exposes two complementary normalization functions for typed
+terms: weak-head normal form (`whnf`) and full normal form (`nf`). Both
+mirror the convertibility checker's reduction rules, so they agree with
+`isConvertible` on beta(-eta) equal terms.
+
+* **`whnf(term, env)`** reduces only the term's *spine* — it unfolds the
+  outermost head as long as there are arguments to apply to it, then
+  stops. It does not descend under lambda binders or into argument
+  positions. Useful for taking one productive step without committing to
+  the cost of a full normalization.
+* **`nf(term, env)`** reduces every redex, including those nested under
+  binders and in argument positions, until the term is in beta-normal
+  form. Output is post-processed to drop the explicit `apply` keyword on
+  neutral applications, so a stack of free constructors prints as
+  `(succ (succ zero))` rather than `(apply succ (apply succ zero))`.
+
+Both APIs are available as plain functions (`whnf` / `nf` in JavaScript,
+`whnf` / `nf` in Rust) and as surface-form drivers inside knowledge
+bases:
+
+```lino
+(Term: (Type 0) Term)
+(zero: Term zero)
+(succ: (Pi (Term n) Term))
+(compose: lambda (Term f) (lambda (Term g) (lambda (Term x) (apply f (apply g x)))))
+
+(? (whnf (apply identity (apply identity zero))))
+# -> (apply identity zero)        # outer redex peeled, inner left intact
+
+(? (normal-form (apply (apply (apply compose succ) succ) zero)))
+# -> (succ (succ zero))           # full beta-normal form, as in issue #50
+```
+
+`(normal-form ...)` is an alias for `(nf ...)`. Malformed driver shapes
+report E038. Termination of `nf` on the typed fragment is justified by
+the structural-recursion checker described under "Termination Checking"
+— any user definition admitted by `(terminating ...)` reduces in finite
+time, and the kernel's bidirectional checker rejects ill-typed lambdas
+(self-application, untyped binders) that would otherwise loop.
+
+When proofs are requested (`with proof` or the global `with_proofs`
+option), `(whnf ...)` and `(nf ...)` queries are tagged with the rule
+names `whnf-reduction` and `nf-reduction`, respectively.
+
 ## Substitution
 
 `subst` is the kernel primitive for capture-avoiding substitution:
@@ -415,6 +461,8 @@ links with these rule names:
 | `(fresh x in body)` | `fresh` |
 | `(type of expr)` | `type-query` |
 | `(expr of Type)` | `type-check` |
+| `(whnf expr)` | `whnf-reduction` |
+| `(nf expr)` / `(normal-form expr)` | `nf-reduction` |
 
 ## Bidirectional Type Checker
 

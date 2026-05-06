@@ -368,6 +368,29 @@ Both systems can coexist — use `(Type: Type Type)` for the self-referential ap
 (? (identity 0.7))               # -> 0.7
 ```
 
+#### Normalization
+
+Two surface-form drivers expose the typed-fragment normalizer. `whnf`
+reduces only the outer spine; `nf` (alias `normal-form`) reduces every
+redex, including those nested under binders.
+
+```lino
+(Term: (Type 0) Term)
+(zero: Term zero)
+(succ: (Pi (Term n) Term))
+(compose: lambda (Term f) (lambda (Term g) (lambda (Term x) (apply f (apply g x)))))
+
+(? (whnf (apply (apply (apply compose succ) succ) zero)))
+# -> (apply succ (apply succ zero))   # outer spine reduced, inner redex left
+
+(? (normal-form (apply (apply (apply compose succ) succ) zero)))
+# -> (succ (succ zero))               # full beta-normal form
+```
+
+Both are also available as library functions: `whnf(term, ctx)` and
+`nf(term, ctx)` in JavaScript, `whnf(&term, &mut env)` and
+`nf(&term, &mut env)` in Rust.
+
 #### Type Queries
 
 ```lino

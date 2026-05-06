@@ -10,7 +10,7 @@ import assert from 'node:assert';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-import { run, parseLino, tokenizeOne, parseOne } from '../src/rml-links.mjs';
+import { run, parseLino, tokenizeOne, parseOne, keyOf } from '../src/rml-links.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const examplesDir = resolve(here, '..', '..', 'examples');
@@ -28,8 +28,12 @@ function loadExpected() {
     }
     const filename = ast[0].slice(0, -1);
     const values = ast.slice(1).map((node) => {
-      if (Array.isArray(node) && node.length === 2 && node[0] === 'type' && typeof node[1] === 'string') {
-        return { type: node[1] };
+      // Type results are stored as `(type <link>)`. The `<link>` may be a
+      // bare name (e.g. `Natural`) or a structured term (e.g.
+      // `(succ (succ zero))` from `(? (normal-form ...))`); both serialize
+      // back through `keyOf` so the test compares against the printed form.
+      if (Array.isArray(node) && node.length === 2 && node[0] === 'type') {
+        return { type: typeof node[1] === 'string' ? node[1] : keyOf(node[1]) };
       }
       if (typeof node === 'string' && /^-?(\d+(\.\d+)?|\.\d+)$/.test(node)) {
         return { num: parseFloat(node) };

@@ -5,7 +5,7 @@
 // The JavaScript test suite asserts against the same fixtures file, so any
 // drift between the two implementations fails both test suites.
 
-use rml::{is_num, parse_lino, parse_one, run_typed, tokenize_one, Node, RunResult};
+use rml::{is_num, key_of, parse_lino, parse_one, run_typed, tokenize_one, Node, RunResult};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -71,9 +71,19 @@ fn load_expected() -> Vec<(String, Vec<ExpectedValue>)> {
                     })));
                 }
                 Node::List(ref children) if children.len() == 2 => {
-                    if let (Node::Leaf(k), Node::Leaf(v)) = (&children[0], &children[1]) {
+                    if let Node::Leaf(k) = &children[0] {
                         if k == "type" {
-                            values.push(ExpectedValue::Type(v.clone()));
+                            // Type results are stored as `(type <link>)`. The
+                            // `<link>` may be a bare name (e.g. `Natural`) or
+                            // a structured term (e.g. `(succ (succ zero))`
+                            // from `(? (normal-form ...))`); both round-trip
+                            // through `key_of` so the test compares against
+                            // the printed form.
+                            let printed = match &children[1] {
+                                Node::Leaf(v) => v.clone(),
+                                inner => key_of(inner),
+                            };
+                            values.push(ExpectedValue::Type(printed));
                             continue;
                         }
                     }

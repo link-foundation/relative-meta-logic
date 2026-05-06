@@ -35,3 +35,13 @@
 # captured by the inner binder. Substitution-then-application yields the
 # argument back, demonstrating the rename happened correctly.
 (? (apply (apply (lambda (Term x) (lambda (Term y) x)) 0.31) 0.99))
+
+# === Normalization for the typed fragment (issue #50, D4) ===
+# `whnf` reduces only the spine — outer redex peels, inner argument is left
+# as a redex. `nf` (alias `normal-form`) reduces every redex. Both APIs
+# also exist as library functions: `whnf(term, ctx)` and `nf(term, ctx)`.
+(zero: Term zero)
+(succ: (Pi (Term n) Term))
+(compose: lambda (Term f) (lambda (Term g) (lambda (Term x) (apply f (apply g x)))))
+(? (whnf (apply identity (apply identity zero))))
+(? (normal-form (apply (apply (apply compose succ) succ) zero)))

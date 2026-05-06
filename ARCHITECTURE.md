@@ -101,6 +101,8 @@ Each AST node is evaluated recursively by `eval_node` / `evalNode`. The evaluati
 | `(apply f x)` | Lambda application by beta-reduction | `(apply identity zero)` |
 | `(subst term x replacement)` | Capture-avoiding substitution | `(subst (x + 0.1) x 0.2)` |
 | `(fresh x in body)` | Temporarily introduce a fresh scoped variable | `(fresh x in (x of Natural))` |
+| `(whnf expr)` | Weak-head normal form (spine reduction only) | `(whnf (apply identity zero))` |
+| `(nf expr)`, `(normal-form expr)` | Full beta-normal form | `(normal-form (apply (compose succ succ) zero))` |
 | `(expr of Type)` | Type membership check | `(zero of Natural)` |
 | `(type of expr)` | Type query | `(type of zero)` |
 

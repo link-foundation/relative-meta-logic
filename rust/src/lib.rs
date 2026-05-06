@@ -1354,6 +1354,9 @@ fn non_variable_token(s: &str) -> bool {
             | "measure"
             | "lex"
             | "terminating"
+            | "whnf"
+            | "nf"
+            | "normal-form"
             | "+"
             | "-"
             | "*"
@@ -1737,9 +1740,13 @@ fn normalize_term(node: &Node, env: &mut Env, options: ConvertOptions) -> Node {
         if children.len() == 3 {
             if let Node::Leaf(head) = &children[0] {
                 if head == "apply" {
-                    let fn_node = &children[1];
+                    // Normalize the head (fn) position first so beta-redexes
+                    // exposed by inner reductions are caught here. Without
+                    // this, terms like `(apply (apply (apply compose succ)
+                    // succ) zero)` would print as nested `apply` calls.
+                    let fn_node = normalize_term(&children[1], env, options);
                     let arg = normalize_term(&children[2], env, options);
-                    if let Node::List(fn_children) = fn_node {
+                    if let Node::List(fn_children) = &fn_node {
                         if fn_children.len() == 3 {
                             if let Node::Leaf(fn_head) = &fn_children[0] {
                                 if fn_head == "lambda" {
@@ -1751,7 +1758,7 @@ fn normalize_term(node: &Node, env: &mut Env, options: ConvertOptions) -> Node {
                             }
                         }
                     }
-                    if let Node::Leaf(fn_name) = fn_node {
+                    if let Node::Leaf(fn_name) = &fn_node {
                         let resolved = env.resolve_qualified(fn_name);
                         let lambda = env
                             .get_lambda(fn_name)
@@ -1762,11 +1769,7 @@ fn normalize_term(node: &Node, env: &mut Env, options: ConvertOptions) -> Node {
                             return normalize_term(&reduced, env, options);
                         }
                     }
-                    return Node::List(vec![
-                        Node::Leaf("apply".into()),
-                        normalize_term(fn_node, env, options),
-                        arg,
-                    ]);
+                    return Node::List(vec![Node::Leaf("apply".into()), fn_node, arg]);
                 }
 
                 if head == "lambda" {
@@ -1829,6 +1832,210 @@ fn normalize_term(node: &Node, env: &mut Env, options: ConvertOptions) -> Node {
         );
     }
     node.clone()
+}
+
+/// Weak-head normal form (D4): reduce the spine of `node` — i.e. unfold the
+/// head as long as there are arguments to apply to it — without descending
+/// into binders or argument positions. Mirrors `whnfTerm` in the JS runtime
+/// and `nf`/`is_convertible` already use [`normalize_term`] for the full
+/// version. Substitution may expose a redex inside the residual body, but
+/// that is no longer on the original spine, so this routine returns it
+/// unevaluated; full normalization is the place that descends into those
+/// positions.
+pub fn whnf_term(node: &Node, env: &mut Env, options: ConvertOptions) -> Node {
+    if let Node::List(children) = node {
+        if children.is_empty() {
+            return Node::List(vec![]);
+        }
+        if children.len() == 4 {
+            if let (Node::Leaf(head), Node::Leaf(var_name)) = (&children[0], &children[2]) {
+                if head == "subst" {
+                    let term = whnf_term(&children[1], env, options);
+                    let replacement = children[3].clone();
+                    let reduced = subst(&term, var_name, &replacement);
+                    return whnf_term(&reduced, env, options);
+                }
+            }
+        }
+    }
+
+    // Collect the leftmost-outermost `apply` spine into [head, arg1, arg2, ...]
+    // so the loop below can β-reduce against any number of arguments without
+    // re-entering whnf_term (which would descend into the substituted body's
+    // spine and over-reduce — see the test "leaves arguments unevaluated").
+    let mut spine_args: Vec<Node> = Vec::new();
+    let mut head_node = node.clone();
+    loop {
+        if let Node::List(children) = &head_node {
+            if children.len() == 3 {
+                if let Node::Leaf(h) = &children[0] {
+                    if h == "apply" {
+                        spine_args.insert(0, children[2].clone());
+                        head_node = children[1].clone();
+                        continue;
+                    }
+                }
+            }
+        }
+        break;
+    }
+
+    // Prefix-call shape: `(f arg1 arg2 ...)` where `f` is a lambda value or a
+    // bound name. Drain that into the spine before reducing.
+    if spine_args.is_empty() {
+        if let Node::List(children) = head_node.clone() {
+            if children.len() > 1 {
+                let head_is_lambda = matches!(
+                    &children[0],
+                    Node::List(lc)
+                        if lc.len() == 3
+                            && matches!(&lc[0], Node::Leaf(h) if h == "lambda")
+                );
+                let head_is_name = matches!(
+                    &children[0],
+                    Node::Leaf(name)
+                        if name != "apply"
+                            && name != "lambda"
+                            && name != "Pi"
+                            && name != "fresh"
+                            && name != "subst"
+                );
+                if head_is_lambda || head_is_name {
+                    head_node = children[0].clone();
+                    spine_args.extend(children[1..].iter().cloned());
+                }
+            }
+        }
+    }
+
+    // Drain the spine by β-reducing against the head. Stop as soon as the
+    // head can no longer reduce (not a lambda, not a bound name) or there
+    // are no remaining args.
+    while !spine_args.is_empty() {
+        let lambda_match = if let Node::List(hc) = &head_node {
+            if hc.len() == 3 {
+                if let Node::Leaf(h) = &hc[0] {
+                    if h == "lambda" {
+                        parse_binding(&hc[1]).map(|(p, _)| (p, hc[2].clone()))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        if let Some((param, body)) = lambda_match {
+            let arg = spine_args.remove(0);
+            head_node = subst(&body, &param, &arg);
+            continue;
+        }
+        if let Node::Leaf(name) = &head_node {
+            let resolved = env.resolve_qualified(name);
+            let lambda = env
+                .get_lambda(name)
+                .cloned()
+                .or_else(|| env.get_lambda(&resolved).cloned());
+            if let Some(lambda) = lambda {
+                let arg = spine_args.remove(0);
+                head_node = subst(&lambda.body, &lambda.param, &arg);
+                continue;
+            }
+        }
+        break;
+    }
+
+    if spine_args.is_empty() {
+        return head_node;
+    }
+    // Stuck spine: rebuild the unreduced applies around the residual head.
+    let mut stuck = head_node;
+    for arg in spine_args {
+        stuck = Node::List(vec![Node::Leaf("apply".into()), stuck, arg]);
+    }
+    stuck
+}
+
+/// True for an `(apply head arg)` whose head is a free symbol the env
+/// cannot reduce further — i.e. an applied constructor or other neutral.
+/// The printed normal form drops the explicit `apply` keyword for these
+/// neutrals so `(apply succ zero)` shows as `(succ zero)`, matching the
+/// surface example in issue #50.
+fn is_neutral_apply(node: &Node, env: &Env) -> bool {
+    if let Node::List(children) = node {
+        if children.len() == 3 {
+            if let Node::Leaf(head) = &children[0] {
+                if head == "apply" {
+                    if let Node::Leaf(name) = &children[1] {
+                        if env.lambdas.contains_key(name) {
+                            return false;
+                        }
+                        return is_variable_token(name);
+                    }
+                }
+            }
+        }
+    }
+    false
+}
+
+/// Drop the explicit `apply` keyword on neutral applications, recursively.
+/// `(apply f a)` whose head is a free constructor-like symbol becomes
+/// `(f a)` so the printed normal form matches the LiNo surface example
+/// from issue #50: `(succ (succ zero))` rather than the explicit
+/// `(apply succ (apply succ zero))`.
+pub fn flatten_neutral_applies(node: &Node, env: &Env) -> Node {
+    if let Node::List(children) = node {
+        if children.is_empty() {
+            return node.clone();
+        }
+        if let Some(binder) = binder_info(node) {
+            let mut out = children.clone();
+            out[binder.body_index] =
+                flatten_neutral_applies(&children[binder.body_index], env);
+            return Node::List(out);
+        }
+        let flattened: Vec<Node> = children
+            .iter()
+            .map(|child| flatten_neutral_applies(child, env))
+            .collect();
+        let candidate = Node::List(flattened.clone());
+        if is_neutral_apply(&candidate, env) {
+            return Node::List(vec![flattened[1].clone(), flattened[2].clone()]);
+        }
+        return candidate;
+    }
+    node.clone()
+}
+
+/// Public weak-head normal form API (issue #50, D4).
+/// Reduces only the spine of `term` — leaves binders and arguments untouched.
+pub fn whnf(term: &Node, env: &mut Env) -> Node {
+    whnf_with_options(term, env, ConvertOptions::default())
+}
+
+/// Variant of [`whnf`] that takes an explicit [`ConvertOptions`].
+pub fn whnf_with_options(term: &Node, env: &mut Env, options: ConvertOptions) -> Node {
+    whnf_term(term, env, options)
+}
+
+/// Public full normal form API (issue #50, D4).
+/// Reduces every redex in `term`, including those nested under binders and
+/// in argument positions, until the term is in beta-(eta-)normal form. The
+/// result is post-processed by [`flatten_neutral_applies`] so it prints in
+/// the surface shape `(succ (succ zero))` from the issue.
+pub fn nf(term: &Node, env: &mut Env) -> Node {
+    nf_with_options(term, env, ConvertOptions::default())
+}
+
+/// Variant of [`nf`] that takes an explicit [`ConvertOptions`].
+pub fn nf_with_options(term: &Node, env: &mut Env, options: ConvertOptions) -> Node {
+    let normalized = normalize_term(term, env, options);
+    flatten_neutral_applies(&normalized, env)
 }
 
 fn eta_contract(term: &Node, env: &mut Env, options: ConvertOptions) -> Node {
@@ -2904,6 +3111,19 @@ pub fn build_proof(node: &Node, env: &Env) -> Node {
                             "beta-reduction",
                             vec![build_proof(&children[1], env), build_proof(&children[2], env)],
                         );
+                    }
+                }
+            }
+            // Normalization witnesses (issue #50, D4):
+            //   `(whnf <expr>)` → `whnf-reduction`
+            //   `(nf <expr>)` and `(normal-form <expr>)` → `nf-reduction`
+            if children.len() == 2 {
+                if let Node::Leaf(h) = &children[0] {
+                    if h == "whnf" {
+                        return wrap_proof("whnf-reduction", vec![children[1].clone()]);
+                    }
+                    if h == "nf" || h == "normal-form" {
+                        return wrap_proof("nf-reduction", vec![children[1].clone()]);
                     }
                 }
             }
@@ -4902,6 +5122,43 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                 }
             }
 
+            // Normalization drivers (issue #50, D4):
+            //   (whnf <expr>)         — weak-head normal form
+            //   (nf <expr>)           — full normal form
+            //   (normal-form <expr>)  — alias for `nf`
+            // Each driver returns an `EvalResult::Term` whose printed form
+            // is the reduct. Malformed driver shapes panic with
+            // `Normalization error:` so `decode_panic_payload` maps them
+            // to E038.
+            if let Node::Leaf(ref first) = children[0] {
+                if first == "whnf" {
+                    if children.len() == 2 {
+                        let opts = ConvertOptions::default();
+                        let reduced = whnf_term(&children[1], env, opts);
+                        return EvalResult::Term(reduced);
+                    }
+                    panic!("Normalization error: Normalization form must be `(whnf <expr>)`");
+                }
+                if first == "nf" {
+                    if children.len() == 2 {
+                        let opts = ConvertOptions::default();
+                        let normalized = normalize_term(&children[1], env, opts);
+                        let flat = flatten_neutral_applies(&normalized, env);
+                        return EvalResult::Term(flat);
+                    }
+                    panic!("Normalization error: Normalization form must be `(nf <expr>)`");
+                }
+                if first == "normal-form" {
+                    if children.len() == 2 {
+                        let opts = ConvertOptions::default();
+                        let normalized = normalize_term(&children[1], env, opts);
+                        let flat = flatten_neutral_applies(&normalized, env);
+                        return EvalResult::Term(flat);
+                    }
+                    panic!("Normalization error: Normalization form must be `(normal-form <expr>)`");
+                }
+            }
+
             // Application: (apply f x) — explicit application with beta-reduction
             if children.len() == 3 {
                 if let Node::Leaf(ref first) = children[0] {
@@ -5953,7 +6210,20 @@ fn evaluate_inner(text: &str, file: Option<&str>, env: &mut Env, options: &Evalu
             !(s.starts_with("(#") && s.chars().nth(2).map_or(false, |c| c.is_whitespace()))
         })
         .filter_map(|link_str| {
+            // The LiNo parser collapses single-token links like `(whnf)` to
+            // the bare token `whnf` — no parens. Re-wrap as a single-element
+            // list so downstream evaluators see the head as the form keyword
+            // (mirrors the JS evaluator's `['whnf']` shape and lets the
+            // normalization driver E038 fall-through fire).
             let toks = tokenize_one(link_str);
+            let toks = if toks.len() == 1
+                && toks[0] != "("
+                && toks[0] != ")"
+            {
+                vec!["(".to_string(), toks[0].clone(), ")".to_string()]
+            } else {
+                toks
+            };
             match parse_one(&toks) {
                 Ok(node) => Some(desugar_hoas(node)),
                 Err(msg) => {
@@ -6268,6 +6538,11 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E036".to_string(),
             raw_msg.replacen("Coinductive declaration error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Normalization error:") {
+        (
+            "E038".to_string(),
+            raw_msg.replacen("Normalization error: ", "", 1),
         )
     } else {
         ("E000".to_string(), raw_msg)
