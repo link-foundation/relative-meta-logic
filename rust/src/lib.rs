@@ -746,6 +746,15 @@ pub struct Env {
     /// datatype encoded as link signatures plus a generated eliminator.
     /// Stored by type name; see [`InductiveDecl`] for the full layout.
     pub inductives: HashMap<String, InductiveDecl>,
+    /// Coinductive declarations (issue #53, D11): a first-class coinductive
+    /// datatype dual to the inductive form, encoded as link signatures plus
+    /// a generated corecursor `Name-corec`. Each entry stores the type name,
+    /// the ordered constructors, and the name and Pi-type of the
+    /// corecursor. The kernel additionally enforces a syntactic productivity
+    /// check at declaration time: at least one constructor must take a
+    /// recursive argument so non-productive types (which cannot generate
+    /// any infinite values) are rejected up front.
+    pub coinductives: HashMap<String, CoinductiveDecl>,
 }
 
 /// One constructor of an inductive datatype.
@@ -772,6 +781,21 @@ pub struct InductiveDecl {
     pub elim_name: String,
     /// Generated eliminator's dependent Pi-type.
     pub elim_type: Node,
+}
+
+/// A parsed `(coinductive Name (constructor …) …)` declaration. Mirrors
+/// [`InductiveDecl`] but additionally guarantees the productivity check
+/// (at least one recursive constructor) has succeeded.
+#[derive(Debug, Clone)]
+pub struct CoinductiveDecl {
+    /// Coinductive type name (must start with an uppercase letter).
+    pub name: String,
+    /// Ordered list of declared constructors.
+    pub constructors: Vec<ConstructorDecl>,
+    /// Generated corecursor name (`Name-corec`).
+    pub corec_name: String,
+    /// Generated corecursor's dependent Pi-type.
+    pub corec_type: Node,
 }
 
 /// Per-argument mode flag for a relation declared via `(mode …)`.
@@ -839,6 +863,7 @@ impl Env {
             relations: HashMap::new(),
             worlds: HashMap::new(),
             inductives: HashMap::new(),
+            coinductives: HashMap::new(),
         };
 
         // Initialize truth constants: true, false, unknown, undefined
@@ -1282,6 +1307,7 @@ fn non_variable_token(s: &str) -> bool {
             | "total"
             | "world"
             | "inductive"
+            | "coinductive"
             | "constructor"
             | "+"
             | "-"
@@ -3670,6 +3696,237 @@ pub fn register_inductive(env: &mut Env, decl: InductiveDecl) {
     env.inductives.insert(decl.name.clone(), decl);
 }
 
+// ---------- Coinductive declarations (issue #53, D11) ----------
+// Mirrors the JavaScript helpers in `js/src/rml-links.mjs`. The
+// `(coinductive Name (constructor …) …)` form records a coinductive
+// datatype, installs every constructor, and synthesises a corecursor
+// `Name-corec` with a dependent Pi-type following the standard
+// coiteration principle. The declaration also enforces a syntactic
+// productivity check: at least one constructor must take a recursive
+// `Name` argument (otherwise no infinite value can ever be generated).
+// Errors panic with `Coinductive declaration error:` so
+// `decode_panic_payload` maps them to E035.
+
+fn parse_coinductive_constructor_clause(clause: &Node, type_name: &str) -> ConstructorDecl {
+    let items = match clause {
+        Node::List(items) if items.len() == 2 => items,
+        _ => panic!(
+            "Coinductive declaration error: each clause must be `(constructor <name>)` or `(constructor (<name> <pi-type>))`"
+        ),
+    };
+    match &items[0] {
+        Node::Leaf(h) if h == "constructor" => {}
+        _ => panic!(
+            "Coinductive declaration error: each clause must be `(constructor <name>)` or `(constructor (<name> <pi-type>))`"
+        ),
+    }
+    match &items[1] {
+        Node::Leaf(name) => ConstructorDecl {
+            name: name.clone(),
+            params: Vec::new(),
+            typ: Node::Leaf(type_name.to_string()),
+        },
+        Node::List(inner) if inner.len() == 2 => {
+            let name = match &inner[0] {
+                Node::Leaf(s) => s.clone(),
+                _ => panic!(
+                    "Coinductive declaration error: malformed constructor clause `{}`",
+                    key_of(clause)
+                ),
+            };
+            if !is_pi_sig(&inner[1]) {
+                panic!(
+                    "Coinductive declaration error: malformed constructor clause `{}`",
+                    key_of(clause)
+                );
+            }
+            let (params, result) = match flatten_pi(&inner[1]) {
+                Some(parts) => parts,
+                None => panic!(
+                    "Coinductive declaration error: constructor \"{}\" has malformed Pi-type `{}`",
+                    name,
+                    key_of(&inner[1])
+                ),
+            };
+            match &result {
+                Node::Leaf(r) if r == type_name => {}
+                other => panic!(
+                    "Coinductive declaration error: constructor \"{}\" must return \"{}\" (got \"{}\")",
+                    name,
+                    type_name,
+                    key_of(other)
+                ),
+            }
+            ConstructorDecl {
+                name,
+                params,
+                typ: inner[1].clone(),
+            }
+        }
+        _ => panic!(
+            "Coinductive declaration error: malformed constructor clause `{}`",
+            key_of(clause)
+        ),
+    }
+}
+
+/// Walk a constructor's parameter list and return whether it has at least
+/// one recursive `type_name` argument. Used by the productivity check.
+fn ctor_has_recursive_param(ctor: &ConstructorDecl, type_name: &str) -> bool {
+    ctor.params.iter().any(|(_, ty)| {
+        if let Node::Leaf(s) = ty {
+            s == type_name
+        } else {
+            false
+        }
+    })
+}
+
+/// Parse a `(coinductive Name (constructor …) …)` form into a
+/// [`CoinductiveDecl`]. Panics with `Coinductive declaration error:` on
+/// a malformed or non-productive declaration so the existing diagnostic
+/// dispatch maps it to `E035`.
+pub fn parse_coinductive_form(node: &Node) -> Option<CoinductiveDecl> {
+    let children = match node {
+        Node::List(items) => items,
+        _ => return None,
+    };
+    if children.is_empty() {
+        return None;
+    }
+    match &children[0] {
+        Node::Leaf(h) if h == "coinductive" => {}
+        _ => return None,
+    }
+    let name = match children.get(1) {
+        Some(Node::Leaf(s)) => s.clone(),
+        _ => panic!("Coinductive declaration error: type name must be a bare symbol"),
+    };
+    if !name.chars().next().map_or(false, |c| c.is_ascii_uppercase()) {
+        panic!(
+            "Coinductive declaration error: declaration for \"{}\": type name must start with an uppercase letter",
+            name
+        );
+    }
+    if children.len() < 3 {
+        panic!(
+            "Coinductive declaration error: declaration for \"{}\" must list at least one constructor",
+            name
+        );
+    }
+    let mut constructors: Vec<ConstructorDecl> = Vec::new();
+    let mut seen: HashSet<String> = HashSet::new();
+    for clause in &children[2..] {
+        let ctor = parse_coinductive_constructor_clause(clause, &name);
+        if seen.contains(&ctor.name) {
+            panic!(
+                "Coinductive declaration error: declaration for \"{}\": constructor \"{}\" is declared more than once",
+                name, ctor.name
+            );
+        }
+        seen.insert(ctor.name.clone());
+        constructors.push(ctor);
+    }
+    let any_recursive = constructors.iter().any(|c| ctor_has_recursive_param(c, &name));
+    if !any_recursive {
+        panic!(
+            "Coinductive declaration error: declaration for \"{}\" is non-productive: at least one constructor must take a recursive \"{}\" argument",
+            name, name
+        );
+    }
+    let corec_name = format!("{}-corec", name);
+    let corec_type = build_corecursor_type(&name, &constructors);
+    Some(CoinductiveDecl {
+        name,
+        constructors,
+        corec_name,
+        corec_type,
+    })
+}
+
+fn build_corec_case_type(ctor: &ConstructorDecl, type_name: &str, state_var: &str) -> Node {
+    let dual_params: Vec<(String, Node)> = ctor
+        .params
+        .iter()
+        .map(|(pname, ptype)| {
+            let new_type = match ptype {
+                Node::Leaf(s) if s == type_name => Node::Leaf(state_var.to_string()),
+                other => other.clone(),
+            };
+            (pname.clone(), new_type)
+        })
+        .collect();
+    let inner = build_pi(&dual_params, Node::Leaf(type_name.to_string()));
+    build_pi(
+        &[(
+            "_state".to_string(),
+            Node::Leaf(state_var.to_string()),
+        )],
+        inner,
+    )
+}
+
+/// Compose the dependent corecursor type for `Name-corec`, given the parsed
+/// constructor list. The state parameter binds the symbol `_state_type`
+/// throughout, and each constructor case parameter binds `case_<ctorName>`.
+pub fn build_corecursor_type(type_name: &str, constructors: &[ConstructorDecl]) -> Node {
+    let state_var = "_state_type";
+    let state_type = Node::List(vec![
+        Node::Leaf("Type".to_string()),
+        Node::Leaf("0".to_string()),
+    ]);
+    let case_params: Vec<(String, Node)> = constructors
+        .iter()
+        .map(|c| {
+            (
+                format!("case_{}", c.name),
+                build_corec_case_type(c, type_name, state_var),
+            )
+        })
+        .collect();
+    let seed_var = "_seed";
+    let final_node = Node::Leaf(type_name.to_string());
+    let inner = build_pi(
+        &[(seed_var.to_string(), Node::Leaf(state_var.to_string()))],
+        final_node,
+    );
+    let with_cases = build_pi(&case_params, inner);
+    build_pi(
+        &[(state_var.to_string(), state_type)],
+        with_cases,
+    )
+}
+
+/// Install a coinductive declaration on the environment: register the type,
+/// every constructor, and the generated corecursor together with its
+/// dependent Pi-type. Mirrors `registerCoinductive` in the JavaScript kernel.
+pub fn register_coinductive(env: &mut Env, decl: CoinductiveDecl) {
+    let store_type = env.qualify_name(&decl.name);
+    env.terms.insert(store_type.clone());
+    let type0 = Node::List(vec![
+        Node::Leaf("Type".to_string()),
+        Node::Leaf("0".to_string()),
+    ]);
+    env.set_type(&store_type, &key_of(&type0));
+    eval_node(&type0, env);
+
+    for ctor in &decl.constructors {
+        let store_name = env.qualify_name(&ctor.name);
+        env.terms.insert(store_name.clone());
+        env.set_type(&store_name, &key_of(&ctor.typ));
+        if matches!(ctor.typ, Node::List(_)) {
+            eval_node(&ctor.typ, env);
+        }
+    }
+
+    let store_corec = env.qualify_name(&decl.corec_name);
+    env.terms.insert(store_corec.clone());
+    env.set_type(&store_corec, &key_of(&decl.corec_type));
+    eval_node(&decl.corec_type, env);
+
+    env.coinductives.insert(decl.name.clone(), decl);
+}
+
 /// Evaluate an AST node in the given environment.
 pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
     // HOAS desugaring (issue #51, D7): rewrite `(forall (A x) body)` to
@@ -3782,6 +4039,26 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                 if head == "inductive" {
                     if let Some(decl) = parse_inductive_form(node) {
                         register_inductive(env, decl);
+                        return EvalResult::Value(1.0);
+                    }
+                }
+            }
+
+            // Coinductive declaration (issue #53, D11):
+            //   (coinductive Name (constructor c1) (constructor (c2 (Pi ...))) ...)
+            // Stores the type, every constructor, and a generated
+            // `Name-corec` corecursor on the env. The form additionally
+            // enforces a syntactic productivity check: at least one
+            // constructor must take a recursive argument so non-productive
+            // types (which cannot generate any infinite values) are
+            // rejected up front. `parse_coinductive_form` panics with
+            // `Coinductive declaration error:` on a malformed or
+            // non-productive declaration, which `decode_panic_payload`
+            // maps to E035.
+            if let Node::Leaf(ref head) = children[0] {
+                if head == "coinductive" {
+                    if let Some(decl) = parse_coinductive_form(node) {
+                        register_coinductive(env, decl);
                         return EvalResult::Value(1.0);
                     }
                 }
@@ -5407,6 +5684,11 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E033".to_string(),
             raw_msg.replacen("Inductive declaration error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Coinductive declaration error:") {
+        (
+            "E035".to_string(),
+            raw_msg.replacen("Coinductive declaration error: ", "", 1),
         )
     } else {
         ("E000".to_string(), raw_msg)

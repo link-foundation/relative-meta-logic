@@ -595,6 +595,51 @@ The dedicated tests are:
 - JavaScript: `js/tests/inductive.test.mjs`
 - Rust: `rust/tests/inductive_tests.rs`
 
+## Coinductive Types
+
+The `(coinductive Name (constructor …) …)` form (issue #53, D11) is the
+dual of `(inductive …)`: it declares a coinductive datatype whose values
+may be infinite (streams, infinite trees, lazy fixed-point structures).
+The same constructor surface is reused — each clause is either a bare
+symbol or a name paired with an explicit `Pi` type that returns the
+coinductive type — and the kernel generates a corecursor `Name-corec`
+following the standard coiteration principle.
+
+Surface form:
+
+```
+(coinductive Stream
+  (constructor (cons (Pi (Natural head) (Pi (Stream tail) Stream)))))
+```
+
+After this form is evaluated the env contains: `Stream` typed as
+`(Type 0)`, `cons` typed as `(Pi (Natural head) (Pi (Stream tail) Stream))`,
+and `Stream-corec` typed as a dependent Pi that takes a state type
+`(Type 0)`, one case per constructor (each binding the seed and
+substituting `Stream` with the state type in every recursive parameter
+position), and a seed of the state type, returning a `Stream`. The
+corecursor participates in the bidirectional checker exactly like the
+inductive eliminator: `(? (type of Stream-corec))` returns the
+synthesised Pi-type, and `synth(Stream-corec)` returns the same node.
+
+Beyond the syntactic checks shared with `(inductive …)`, coinductive
+declarations are subject to a *productivity* check (guarded
+corecursion): at least one constructor must take a recursive `Name`
+argument. A declaration where every constructor is constant cannot
+generate any infinite value, so corecursive definitions over it can
+never make progress. The check rejects such declarations at declaration
+time with `E035` rather than letting the failure surface later.
+
+Diagnostic codes (E035) cover declarations with: a missing or
+lowercase type name, an empty constructor list, a malformed constructor
+clause, a duplicate constructor name, a `Pi` whose return type is not
+the coinductive type itself, or a non-productive set of constructors.
+
+The dedicated tests are:
+
+- JavaScript: `js/tests/coinductive.test.mjs`
+- Rust: `rust/tests/coinductive_tests.rs`
+
 ## Example Contract
 
 The shared example

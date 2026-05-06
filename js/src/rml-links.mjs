@@ -224,6 +224,18 @@ class Env {
     // eliminator into the standard term/type/lambda maps so existing kernel
     // forms (`type of`, `of`, `apply`) work without further plumbing.
     this.inductives = new Map();                // name -> { name, constructors, elimName, elimType }
+    // Coinductive declarations (issue #53, D11): `(coinductive Name (constructor ...) ...)`
+    // records a first-class coinductive datatype dual to the inductive form.
+    // Each entry stores the type name, the ordered list of constructors, and
+    // the name and Pi-type of the generated corecursor (`Name-corec`). The
+    // declaration also installs the type, every constructor, and the
+    // corecursor into the standard term/type maps so existing kernel forms
+    // (`type of`, `of`, `apply`) work without further plumbing. The kernel
+    // additionally enforces a syntactic productivity check: at least one
+    // constructor must take a recursive argument so non-productive types
+    // (which cannot generate any infinite values) are rejected at declaration
+    // time.
+    this.coinductives = new Map();              // name -> { name, constructors, corecName, corecType }
     // Namespace state (issue #34): a file can declare `(namespace foo)`, which
     // prefixes every name it subsequently introduces with `foo.`. Imports can
     // be aliased via `(import "x.lino" as a)`, which records `a` -> the
@@ -519,7 +531,7 @@ const NON_VARIABLE_TOKENS = new Set([
   'lambda', 'Pi', 'fresh', 'in', 'subst', 'apply', 'type', 'of',
   'has', 'probability', 'with', 'proof', 'range', 'valence',
   'namespace', 'import', 'as', 'is', '?', 'mode', 'relation', 'total', 'world',
-  'inductive', 'constructor',
+  'inductive', 'coinductive', 'constructor',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
 
@@ -1658,6 +1670,193 @@ function registerInductive(env, decl) {
   return 1;
 }
 
+// ---------- Coinductive declarations (issue #53, D11) ----------
+// `(coinductive Name (constructor c1) (constructor (c2 (Pi (A x) ... Name))) ...)`
+// declares a first-class coinductive datatype encoded as link signatures plus
+// a generated corecursor `Name-corec`. The declaration mirrors `inductive`
+// but additionally enforces a syntactic *productivity* check:
+//
+//   - At least one constructor must take a recursive `Name` argument.
+//
+// The check captures the essential dual of the inductive case: an inductive
+// type with no recursive constructors is just a finite enumeration and works
+// fine; a coinductive type with no recursive constructors cannot generate
+// any infinite value, so corecursive definitions over it can never make
+// progress (i.e. they are non-productive). Declarations failing this check
+// raise `E035`.
+//
+// The generated corecursor `Name-corec` follows the standard coiteration
+// principle. For a state type `X`, each constructor case takes the seed
+// state and produces the constructor's argument list with recursive `Name`
+// positions replaced by `X` (the next-state slot):
+//
+//   Name-corec : (Pi (X (Type 0))
+//                 (Pi (case_c1 (Pi (X _state) <c1 sig with Name → X in args, Name in result>))
+//                   ...
+//                   (Pi (case_cN ...)
+//                     (Pi (_seed X) Name))))
+//
+// For a constant constructor (no parameters) the case degenerates to
+// `(Pi (X _state) Name)`. The corecursor type participates in the
+// bidirectional checker just like any other typed term.
+
+// Walk a constructor's parameter list and return the indices whose declared
+// type is exactly the inductive type name (the recursive positions). Used
+// both by the productivity check and by corecursor-type generation.
+function _recursiveParamIndices(ctor, typeName) {
+  const indices = [];
+  for (let i = 0; i < ctor.params.length; i++) {
+    const p = ctor.params[i];
+    if (typeof p.type === 'string' && p.type === typeName) indices.push(i);
+  }
+  return indices;
+}
+
+// Build the case (step) type for one constructor under the corecursor's
+// state variable `X`. For `c : (Pi (A1 x1) ... (Pi (Ak xk) Name))` the case
+// type is:
+//
+//   (Pi (X _state) (Pi (A1' x1) ... (Pi (Ak' xk) Name)))
+//
+// where each `Ai' = X` if the original `Ai = Name` (recursive position) and
+// otherwise `Ai' = Ai`. A constant constructor degenerates to
+// `(Pi (X _state) Name)`.
+function _buildCorecCaseType(ctor, typeName, stateVar) {
+  const dualParams = ctor.params.map(p => ({
+    name: p.name,
+    type: (typeof p.type === 'string' && p.type === typeName) ? stateVar : p.type,
+  }));
+  const inner = _buildPi(dualParams, typeName);
+  return _buildPi([{ name: '_state', type: stateVar }], inner);
+}
+
+// Compose the dependent corecursor type for `Name-corec`, given the parsed
+// coinductive declaration. The state parameter binds the symbol `_state`
+// throughout, and each constructor case parameter binds `case_<ctorName>`.
+function buildCorecursorType(decl) {
+  const stateVar = '_state_type';
+  const stateType = ['Type', '0'];
+  const caseParams = decl.constructors.map(c => ({
+    name: `case_${c.name}`,
+    type: _buildCorecCaseType(c, decl.name, stateVar),
+  }));
+  const seedVar = '_seed';
+  const final = decl.name;
+  const inner = _buildPi([{ name: seedVar, type: stateVar }], final);
+  const withCases = _buildPi(caseParams, inner);
+  return _buildPi([{ name: stateVar, type: stateType }], withCases);
+}
+
+function parseCoinductiveForm(node) {
+  if (!Array.isArray(node) || node[0] !== 'coinductive') return null;
+  if (node.length < 2 || typeof node[1] !== 'string') {
+    throw new RmlError('E035', 'Coinductive declaration: type name must be a bare symbol');
+  }
+  const name = node[1];
+  if (!/^[A-Z]/.test(name)) {
+    throw new RmlError(
+      'E035',
+      `Coinductive declaration for "${name}": type name must start with an uppercase letter`,
+    );
+  }
+  if (node.length < 3) {
+    throw new RmlError(
+      'E035',
+      `Coinductive declaration for "${name}" must list at least one constructor`,
+    );
+  }
+  const constructors = [];
+  const seen = new Set();
+  for (let i = 2; i < node.length; i++) {
+    const ctor = parseConstructorClauseCo(node[i], name);
+    if (seen.has(ctor.name)) {
+      throw new RmlError(
+        'E035',
+        `Coinductive declaration for "${name}": constructor "${ctor.name}" is declared more than once`,
+      );
+    }
+    seen.add(ctor.name);
+    constructors.push(ctor);
+  }
+  // Productivity check (guarded corecursion): at least one constructor must
+  // take a recursive `Name` argument so the type can generate progress.
+  const anyRecursive = constructors.some(c => _recursiveParamIndices(c, name).length > 0);
+  if (!anyRecursive) {
+    throw new RmlError(
+      'E035',
+      `Coinductive declaration for "${name}" is non-productive: at least one constructor must take a recursive "${name}" argument`,
+    );
+  }
+  return { name, constructors };
+}
+
+// Parse a single (constructor ...) clause for a coinductive declaration.
+// Identical shape rules as the inductive form, but errors are reported with
+// E035 so coinductive-specific failures stay distinguishable from E033.
+function parseConstructorClauseCo(clause, typeName) {
+  if (!Array.isArray(clause) || clause[0] !== 'constructor' || clause.length !== 2) {
+    throw new RmlError(
+      'E035',
+      `Coinductive declaration for "${typeName}": each clause must be \`(constructor <name>)\` or \`(constructor (<name> <pi-type>))\``,
+    );
+  }
+  const body = clause[1];
+  if (typeof body === 'string') {
+    return { name: body, params: [], type: typeName };
+  }
+  if (Array.isArray(body) && body.length === 2 && typeof body[0] === 'string' && _isPiSig(body[1])) {
+    const flat = _flattenPi(body[1]);
+    if (!flat) {
+      throw new RmlError(
+        'E035',
+        `Coinductive declaration for "${typeName}": constructor "${body[0]}" has malformed Pi-type \`${keyOf(body[1])}\``,
+      );
+    }
+    if (typeof flat.result !== 'string' || flat.result !== typeName) {
+      throw new RmlError(
+        'E035',
+        `Coinductive declaration for "${typeName}": constructor "${body[0]}" must return "${typeName}" (got "${typeof flat.result === 'string' ? flat.result : keyOf(flat.result)}")`,
+      );
+    }
+    return { name: body[0], params: flat.params, type: body[1] };
+  }
+  throw new RmlError(
+    'E035',
+    `Coinductive declaration for "${typeName}": malformed constructor clause \`${keyOf(clause)}\``,
+  );
+}
+
+// Record a coinductive declaration on the environment: install the type,
+// all constructors, the corecursor name, and the corecursor's Pi-type.
+function registerCoinductive(env, decl) {
+  const storeType = env.qualifyName(decl.name);
+  env.terms.add(storeType);
+  env.setType(storeType, ['Type', '0']);
+  evalNode(['Type', '0'], env);
+
+  for (const ctor of decl.constructors) {
+    const storeName = env.qualifyName(ctor.name);
+    env.terms.add(storeName);
+    env.setType(storeName, ctor.type);
+    if (Array.isArray(ctor.type)) evalNode(ctor.type, env);
+  }
+
+  const corecName = `${decl.name}-corec`;
+  const corecType = buildCorecursorType(decl);
+  const storeCorec = env.qualifyName(corecName);
+  env.terms.add(storeCorec);
+  env.setType(storeCorec, corecType);
+  evalNode(corecType, env);
+
+  env.coinductives.set(decl.name, {
+    name: decl.name,
+    constructors: decl.constructors,
+    corecName,
+    corecType,
+  });
+  return 1;
+}
+
 // Check a call site `(name args...)` against any registered mode declaration
 // for `name`. Returns the offending RmlError on mismatch, or `null` when the
 // call is consistent (or no declaration exists).
@@ -1788,6 +1987,19 @@ function evalNode(node, env){
     const decl = parseInductiveForm(node);
     if (decl) {
       return registerInductive(env, decl);
+    }
+  }
+
+  // Coinductive declaration (issue #53, D11): (coinductive Name (constructor ...) ...)
+  // Records the coinductive datatype, installs every constructor, and
+  // generates the corecursor `Name-corec` with a dependent Pi-type. The
+  // declaration also enforces a syntactic productivity check (at least one
+  // constructor must take a recursive argument). `parseCoinductiveForm`
+  // throws E035 on a malformed or non-productive declaration.
+  if (node[0] === 'coinductive') {
+    const decl = parseCoinductiveForm(node);
+    if (decl) {
+      return registerCoinductive(env, decl);
     }
   }
 
@@ -3418,6 +3630,8 @@ export {
   isTotal,
   parseInductiveForm,
   buildEliminatorType,
+  parseCoinductiveForm,
+  buildCorecursorType,
   formalizeSelectedInterpretation,
   evaluateFormalization,
 };
