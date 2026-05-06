@@ -1,0 +1,9 @@
+; Sample program for the C3 metatheorem checker.
+(inductive Natural
+  (constructor zero)
+  (constructor (succ (Pi (Natural n) Natural))))
+(mode plus +input +input -output)
+(relation plus
+  (plus zero n n)
+  (plus (succ m) n (succ (plus m n))))
+(total plus)

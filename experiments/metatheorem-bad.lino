@@ -1,0 +1,6 @@
+(inductive Natural
+  (constructor zero)
+  (constructor (succ (Pi (Natural n) Natural))))
+(mode bad +input -output)
+(relation bad
+  (bad zero zero))

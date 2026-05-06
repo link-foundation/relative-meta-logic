@@ -1,17 +1,19 @@
 {
   "name": "relative-meta-logic",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "A prototype for logic framework that can reason about anything relative to given probability of input statements",
   "type": "module",
   "main": "src/rml-links.mjs",
   "bin": {
     "rml": "src/rml-links.mjs",
-    "rml-check": "src/rml-check.mjs"
+    "rml-check": "src/rml-check.mjs",
+    "rml-meta": "src/rml-meta.mjs"
   },
   "scripts": {
     "test": "node --test tests/ ../scripts/",
     "demo": "node src/rml-links.mjs ../examples/demo.lino",
     "check": "node src/rml-check.mjs",
+    "meta": "node src/rml-meta.mjs",
     "lint:english": "node ../scripts/lint-english.mjs --allowlist ../scripts/lint-english.allowlist.json ../examples/*.lino"
   },
   "keywords": [
