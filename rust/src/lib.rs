@@ -3377,7 +3377,7 @@ pub fn build_proof(node: &Node, env: &Env) -> Node {
     }
 }
 
-// ========== Tactic engine (issue #55) ==========
+// ========== Tactic engine (issues #55 and #56) ==========
 // Tactics are ordinary links that transform an explicit proof state. Keeping
 // goals, local assumptions, and tactic history as `Node` values preserves the
 // project invariant that proof steps are links.
@@ -3419,6 +3419,84 @@ impl ProofState {
 pub struct TacticRunResult {
     pub state: ProofState,
     pub diagnostics: Vec<Diagnostic>,
+}
+
+const DEFAULT_SIMPLIFY_MAX_STEPS: usize = 100;
+
+/// Direction for applying an equality rewrite rule.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RewriteDirection {
+    Forward,
+    Backward,
+}
+
+/// Which occurrence of the left-hand side to rewrite.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RewriteOccurrence {
+    All,
+    Index(usize),
+}
+
+/// Options for a single rewrite pass.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RewriteOptions {
+    pub direction: RewriteDirection,
+    pub occurrence: RewriteOccurrence,
+}
+
+impl Default for RewriteOptions {
+    fn default() -> Self {
+        Self {
+            direction: RewriteDirection::Forward,
+            occurrence: RewriteOccurrence::All,
+        }
+    }
+}
+
+/// Result of a single rewrite pass.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RewriteResult {
+    pub node: Node,
+    pub changed: bool,
+    pub count: usize,
+}
+
+/// Options for repeated simplification with a rewrite set.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SimplifyOptions {
+    pub max_steps: usize,
+}
+
+impl Default for SimplifyOptions {
+    fn default() -> Self {
+        Self {
+            max_steps: DEFAULT_SIMPLIFY_MAX_STEPS,
+        }
+    }
+}
+
+/// Result of simplification by repeated rewrite passes.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SimplifyResult {
+    pub node: Node,
+    pub changed: bool,
+    pub steps: usize,
+}
+
+/// Options supplied to tactic execution.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TacticOptions {
+    pub rewrite_rules: Vec<Node>,
+    pub simplify_max_steps: usize,
+}
+
+impl Default for TacticOptions {
+    fn default() -> Self {
+        Self {
+            rewrite_rules: Vec::new(),
+            simplify_max_steps: DEFAULT_SIMPLIFY_MAX_STEPS,
+        }
+    }
 }
 
 fn tactic_name(tactic: &Node) -> Option<&str> {
@@ -3490,27 +3568,123 @@ fn replace_current_goal(
     ProofState { goals, proof }
 }
 
-fn rewrite_all(node: &Node, from: &Node, to: &Node) -> (Node, bool) {
+fn rewrite_diagnostic(message: impl Into<String>) -> Diagnostic {
+    Diagnostic::new("E039", message, Span::unknown())
+}
+
+fn rewrite_sides(
+    eq: &Node,
+    direction: RewriteDirection,
+) -> Result<(&Node, &Node), Diagnostic> {
+    let Some((left, right)) = as_equality(eq) else {
+        return Err(rewrite_diagnostic("rewrite expects an equality link"));
+    };
+    Ok(match direction {
+        RewriteDirection::Forward => (left, right),
+        RewriteDirection::Backward => (right, left),
+    })
+}
+
+fn rewrite_node(
+    node: &Node,
+    from: &Node,
+    to: &Node,
+    occurrence: RewriteOccurrence,
+    seen: &mut usize,
+    count: &mut usize,
+) -> Node {
     if is_structurally_same(node, from) {
-        return (to.clone(), true);
-    }
-    match node {
-        Node::Leaf(_) => (node.clone(), false),
-        Node::List(children) => {
-            let mut changed = false;
-            let rewritten: Vec<Node> = children
-                .iter()
-                .map(|child| {
-                    let (next, child_changed) = rewrite_all(child, from, to);
-                    if child_changed {
-                        changed = true;
-                    }
-                    next
-                })
-                .collect();
-            (Node::List(rewritten), changed)
+        *seen += 1;
+        let selected = match occurrence {
+            RewriteOccurrence::All => true,
+            RewriteOccurrence::Index(index) => *seen == index,
+        };
+        if selected {
+            *count += 1;
+            return to.clone();
         }
     }
+    match node {
+        Node::Leaf(_) => node.clone(),
+        Node::List(children) => Node::List(
+            children
+                .iter()
+                .map(|child| rewrite_node(child, from, to, occurrence, seen, count))
+                .collect(),
+        ),
+    }
+}
+
+/// Rewrite `goal` once using equality `eq` and explicit options.
+pub fn rewrite_with_options(
+    goal: &Node,
+    eq: &Node,
+    options: RewriteOptions,
+) -> Result<RewriteResult, Diagnostic> {
+    let (from, to) = rewrite_sides(eq, options.direction)?;
+    let mut seen = 0;
+    let mut count = 0;
+    let node = rewrite_node(
+        goal,
+        from,
+        to,
+        options.occurrence,
+        &mut seen,
+        &mut count,
+    );
+    Ok(RewriteResult {
+        node,
+        changed: count > 0,
+        count,
+    })
+}
+
+/// Rewrite `goal` once using equality `eq` from left to right.
+pub fn rewrite(goal: &Node, eq: &Node) -> Result<Node, Diagnostic> {
+    rewrite_with_options(goal, eq, RewriteOptions::default()).map(|result| result.node)
+}
+
+/// Repeatedly apply `rules` until no rule changes the term or the guard fires.
+pub fn simplify_with_options(
+    goal: &Node,
+    rules: &[Node],
+    options: SimplifyOptions,
+) -> Result<SimplifyResult, Diagnostic> {
+    let mut node = goal.clone();
+    let mut changed = false;
+    let mut steps = 0;
+    loop {
+        let mut applied = false;
+        for rule in rules {
+            let rewritten = rewrite_with_options(&node, rule, RewriteOptions::default())?;
+            if !rewritten.changed {
+                continue;
+            }
+            if steps >= options.max_steps {
+                return Err(rewrite_diagnostic(format!(
+                    "simplify termination guard reached after {} rewrite steps",
+                    options.max_steps
+                )));
+            }
+            node = rewritten.node;
+            steps += 1;
+            changed = true;
+            applied = true;
+            break;
+        }
+        if !applied {
+            return Ok(SimplifyResult {
+                node,
+                changed,
+                steps,
+            });
+        }
+    }
+}
+
+/// Repeatedly apply `rules` until no rule changes the term.
+pub fn simplify(goal: &Node, rules: &[Node]) -> Result<Node, Diagnostic> {
+    simplify_with_options(goal, rules, SimplifyOptions::default()).map(|result| result.node)
 }
 
 fn type_ascription(node: &Node) -> Option<(&Node, &Node)> {
@@ -3549,20 +3723,155 @@ fn exact_closes_goal(arg: &Node, goal: &ProofGoal) -> bool {
     })
 }
 
+fn is_leaf(node: &Node, value: &str) -> bool {
+    matches!(node, Node::Leaf(s) if s == value)
+}
+
+fn parse_rewrite_direction(node: &Node) -> Option<RewriteDirection> {
+    match node {
+        Node::Leaf(s) if s == "->" => Some(RewriteDirection::Forward),
+        Node::Leaf(s) if s == "<-" => Some(RewriteDirection::Backward),
+        _ => None,
+    }
+}
+
+fn parse_rewrite_occurrence(node: &Node) -> Result<RewriteOccurrence, String> {
+    let Node::Leaf(raw) = node else {
+        return Err(format!(
+            "rewrite occurrence must be \"all\", \"first\", or a positive integer (got {})",
+            key_of(node)
+        ));
+    };
+    if raw == "all" {
+        return Ok(RewriteOccurrence::All);
+    }
+    if raw == "first" {
+        return Ok(RewriteOccurrence::Index(1));
+    }
+    let Ok(index) = raw.parse::<usize>() else {
+        return Err(format!(
+            "rewrite occurrence must be \"all\", \"first\", or a positive integer (got {})",
+            key_of(node)
+        ));
+    };
+    if index == 0 {
+        return Err(format!(
+            "rewrite occurrence must be \"all\", \"first\", or a positive integer (got {})",
+            key_of(node)
+        ));
+    }
+    Ok(RewriteOccurrence::Index(index))
+}
+
+struct ParsedRewriteTactic<'a> {
+    eq: &'a Node,
+    direction: RewriteDirection,
+    occurrence: RewriteOccurrence,
+}
+
+fn parse_rewrite_tactic(args: &[Node]) -> Result<ParsedRewriteTactic<'_>, String> {
+    let mut index = 0;
+    let mut direction = RewriteDirection::Forward;
+    if let Some(next_direction) = args.first().and_then(parse_rewrite_direction) {
+        direction = next_direction;
+        index += 1;
+    }
+    if args.len() < index + 3
+        || !is_leaf(&args[index + 1], "in")
+        || !is_leaf(&args[index + 2], "goal")
+    {
+        return Err("rewrite expects `(rewrite [->|<-] (L = R) in goal [at N])`".to_string());
+    }
+    let eq = &args[index];
+    index += 3;
+    let mut occurrence = RewriteOccurrence::All;
+    if index < args.len() {
+        if !is_leaf(&args[index], "at") || index + 2 != args.len() {
+            return Err("rewrite expects optional occurrence selector `at N`".to_string());
+        }
+        occurrence = parse_rewrite_occurrence(&args[index + 1])?;
+    }
+    Ok(ParsedRewriteTactic {
+        eq,
+        direction,
+        occurrence,
+    })
+}
+
+fn rewrite_rules_from_node(node: &Node) -> Result<Vec<Node>, String> {
+    if as_equality(node).is_some() {
+        return Ok(vec![node.clone()]);
+    }
+    let Node::List(children) = node else {
+        return Err(format!(
+            "simplify expects equality rewrite rules (got {})",
+            key_of(node)
+        ));
+    };
+    let mut rules = Vec::with_capacity(children.len());
+    for child in children {
+        if as_equality(child).is_none() {
+            return Err(format!(
+                "simplify expects equality rewrite rules (got {})",
+                key_of(child)
+            ));
+        }
+        rules.push(child.clone());
+    }
+    Ok(rules)
+}
+
+struct ParsedSimplifyTactic {
+    rules: Option<Vec<Node>>,
+    max_steps: Option<usize>,
+}
+
+fn parse_simplify_tactic(args: &[Node]) -> Result<ParsedSimplifyTactic, String> {
+    if args.len() < 2 || !is_leaf(&args[0], "in") || !is_leaf(&args[1], "goal") {
+        return Err("simplify expects `(simplify in goal)`".to_string());
+    }
+    let mut index = 2;
+    let mut rules = None;
+    let mut max_steps = None;
+    while index < args.len() {
+        if is_leaf(&args[index], "using") && index + 1 < args.len() {
+            rules = Some(rewrite_rules_from_node(&args[index + 1])?);
+            index += 2;
+            continue;
+        }
+        if (is_leaf(&args[index], "max") || is_leaf(&args[index], "limit"))
+            && index + 1 < args.len()
+        {
+            let Node::Leaf(raw) = &args[index + 1] else {
+                return Err("simplify max step count must be a non-negative integer".to_string());
+            };
+            let Ok(parsed) = raw.parse::<usize>() else {
+                return Err("simplify max step count must be a non-negative integer".to_string());
+            };
+            max_steps = Some(parsed);
+            index += 2;
+            continue;
+        }
+        return Err("simplify expects optional `using <rules>` and `max <steps>` clauses".to_string());
+    }
+    Ok(ParsedSimplifyTactic { rules, max_steps })
+}
+
 fn apply_tactic(
     state: &ProofState,
     tactic: &Node,
     record_tactic: &Node,
+    tactic_options: &TacticOptions,
 ) -> Result<ProofState, Diagnostic> {
     let name = tactic_name(tactic);
     let args = tactic_args(tactic);
 
     if name == Some("by") {
         if args.len() == 1 {
-            return apply_tactic(state, &args[0], record_tactic);
+            return apply_tactic(state, &args[0], record_tactic, tactic_options);
         }
         if args.len() > 1 {
-            return apply_tactic(state, &Node::List(args.to_vec()), record_tactic);
+            return apply_tactic(state, &Node::List(args.to_vec()), record_tactic, tactic_options);
         }
         return Err(tactic_diagnostic(
             record_tactic,
@@ -3704,34 +4013,58 @@ fn apply_tactic(
             ))
         }
         Some("rewrite") => {
-            if args.len() != 3
-                || !matches!(&args[1], Node::Leaf(s) if s == "in")
-                || !matches!(&args[2], Node::Leaf(s) if s == "goal")
-            {
+            let parsed = parse_rewrite_tactic(args)
+                .map_err(|reason| tactic_diagnostic(record_tactic, Some(current), reason))?;
+            let rewritten = rewrite_with_options(
+                &current.goal,
+                parsed.eq,
+                RewriteOptions {
+                    direction: parsed.direction,
+                    occurrence: parsed.occurrence,
+                },
+            )
+            .map_err(|diag| tactic_diagnostic(record_tactic, Some(current), diag.message))?;
+            if !rewritten.changed {
+                let (from, _) = rewrite_sides(parsed.eq, parsed.direction)
+                    .map_err(|diag| tactic_diagnostic(record_tactic, Some(current), diag.message))?;
                 return Err(tactic_diagnostic(
                     record_tactic,
                     Some(current),
-                    "rewrite expects `(rewrite (L = R) in goal)`",
-                ));
-            }
-            let Some((left, right)) = as_equality(&args[0]) else {
-                return Err(tactic_diagnostic(
-                    record_tactic,
-                    Some(current),
-                    "rewrite expects an equality link",
-                ));
-            };
-            let (rewritten, changed) = rewrite_all(&current.goal, left, right);
-            if !changed {
-                return Err(tactic_diagnostic(
-                    record_tactic,
-                    Some(current),
-                    format!("rewrite did not find {} in the current goal", key_of(left)),
+                    format!("rewrite did not find {} in the current goal", key_of(from)),
                 ));
             }
             Ok(replace_current_goal(
                 state,
-                vec![goal_with_context(current, rewritten)],
+                vec![goal_with_context(current, rewritten.node)],
+                record_tactic,
+            ))
+        }
+        Some("simplify") => {
+            let parsed = parse_simplify_tactic(args)
+                .map_err(|reason| tactic_diagnostic(record_tactic, Some(current), reason))?;
+            let rules = parsed
+                .rules
+                .as_deref()
+                .unwrap_or_else(|| tactic_options.rewrite_rules.as_slice());
+            if rules.is_empty() {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "simplify expects at least one configured rewrite rule",
+                ));
+            }
+            let max_steps = parsed
+                .max_steps
+                .unwrap_or(tactic_options.simplify_max_steps);
+            let simplified = simplify_with_options(
+                &current.goal,
+                rules,
+                SimplifyOptions { max_steps },
+            )
+            .map_err(|diag| tactic_diagnostic(record_tactic, Some(current), diag.message))?;
+            Ok(replace_current_goal(
+                state,
+                vec![goal_with_context(current, simplified.node)],
                 record_tactic,
             ))
         }
@@ -3794,12 +4127,13 @@ fn apply_tactic(
                     open_goals.push(case_goal);
                     continue;
                 }
-                let nested = run_tactics(
+                let nested = run_tactics_with_options(
                     ProofState {
                         goals: vec![case_goal],
                         proof: Vec::new(),
                     },
                     case_tactics,
+                    tactic_options.clone(),
                 );
                 if let Some(diag) = nested.diagnostics.first() {
                     return Err(diag.clone());
@@ -3847,12 +4181,16 @@ pub fn parse_tactic_links(text: &str) -> Vec<Node> {
         .collect()
 }
 
-/// Apply link tactics to a proof state, stopping at the first failing tactic.
-pub fn run_tactics(state: ProofState, tactics: &[Node]) -> TacticRunResult {
+/// Apply link tactics with configured rewrite rules, stopping at the first failing tactic.
+pub fn run_tactics_with_options(
+    state: ProofState,
+    tactics: &[Node],
+    options: TacticOptions,
+) -> TacticRunResult {
     let mut next = state;
     let mut diagnostics = Vec::new();
     for tactic in tactics {
-        match apply_tactic(&next, tactic, tactic) {
+        match apply_tactic(&next, tactic, tactic, &options) {
             Ok(applied) => next = applied,
             Err(diag) => {
                 diagnostics.push(diag);
@@ -3864,6 +4202,11 @@ pub fn run_tactics(state: ProofState, tactics: &[Node]) -> TacticRunResult {
         state: next,
         diagnostics,
     }
+}
+
+/// Apply link tactics to a proof state, stopping at the first failing tactic.
+pub fn run_tactics(state: ProofState, tactics: &[Node]) -> TacticRunResult {
+    run_tactics_with_options(state, tactics, TacticOptions::default())
 }
 
 // ---------- Mode declarations (issue #43, D15) ----------

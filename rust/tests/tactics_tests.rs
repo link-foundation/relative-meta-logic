@@ -2,7 +2,10 @@
 // Mirrors js/tests/tactics.test.mjs so drift between runtimes fails CI.
 
 use rml::{
-    key_of, parse_one, parse_tactic_links, run_tactics, tokenize_one, Node, ProofGoal, ProofState,
+    key_of, parse_one, parse_tactic_links, rewrite_with_options, run_tactics,
+    run_tactics_with_options, simplify, simplify_with_options, tokenize_one, Node, ProofGoal,
+    ProofState, RewriteDirection, RewriteOccurrence, RewriteOptions, SimplifyOptions,
+    TacticOptions,
 };
 
 fn link(src: &str) -> Node {
@@ -126,6 +129,71 @@ fn rewrites_current_goal_with_equality_link() {
         out.state.proof.iter().map(key_of).collect::<Vec<_>>(),
         vec!["(rewrite (a = b) in goal)", "(by reflexivity)"]
     );
+}
+
+#[test]
+fn rewrites_in_requested_direction() {
+    let rewritten = rewrite_with_options(
+        &link("(b = b)"),
+        &link("(a = b)"),
+        RewriteOptions {
+            direction: RewriteDirection::Backward,
+            occurrence: RewriteOccurrence::All,
+        },
+    )
+    .expect("rewrite should succeed");
+    assert_eq!(key_of(&rewritten.node), "(a = a)");
+
+    let out = run_tactics(
+        state(&["(b = b)"]),
+        &[link("(rewrite <- (a = b) in goal)"), link("(by reflexivity)")],
+    );
+
+    assert!(out.diagnostics.is_empty());
+    assert!(out.state.goals.is_empty());
+}
+
+#[test]
+fn rewrites_only_selected_occurrence() {
+    let out = run_tactics(
+        state(&["((pair a a) = (pair b a))"]),
+        &[link("(rewrite (a = b) in goal at 2)")],
+    );
+
+    assert!(out.diagnostics.is_empty());
+    assert_eq!(goal_keys(&out.state), vec!["((pair a b) = (pair b a))"]);
+}
+
+#[test]
+fn simplifies_current_goal_with_configured_rewrite_rules() {
+    let simplified = simplify(&link("((f a) = (f a))"), &[link("(a = b)")])
+        .expect("simplify should succeed");
+    assert_eq!(key_of(&simplified), "((f b) = (f b))");
+
+    let out = run_tactics_with_options(
+        state(&["((f a) = (f a))"]),
+        &[link("(simplify in goal)"), link("(by reflexivity)")],
+        TacticOptions {
+            rewrite_rules: vec![link("(a = b)")],
+            simplify_max_steps: 10,
+        },
+    );
+
+    assert!(out.diagnostics.is_empty());
+    assert!(out.state.goals.is_empty());
+}
+
+#[test]
+fn stops_simplification_when_termination_guard_is_reached() {
+    let err = simplify_with_options(
+        &link("(a = a)"),
+        &[link("(a = b)"), link("(b = a)")],
+        SimplifyOptions { max_steps: 3 },
+    )
+    .expect_err("cyclic rules should hit the guard");
+
+    assert_eq!(err.code, "E039");
+    assert!(err.message.contains("termination guard"));
 }
 
 #[test]
