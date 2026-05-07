@@ -544,6 +544,7 @@ const NON_VARIABLE_TOKENS = new Set([
   'define', 'case', 'measure', 'lex', 'terminating',
   'whnf', 'nf', 'normal-form',
   'template',
+  'counter-model',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
 
@@ -642,6 +643,135 @@ function hasUnresolvedFreeVariables(expr, env) {
     if (!envCanEvaluateName(env, name)) return true;
   }
   return false;
+}
+
+const COUNTER_MODEL_CONSTANTS = new Set(['true', 'false', 'unknown', 'undefined']);
+
+function normaliseCounterModelFormula(formula) {
+  if (typeof formula === 'string') {
+    const text = formula.trim();
+    if (text.startsWith('(')) return parseOne(tokenizeOne(text));
+    return text;
+  }
+  return cloneTerm(formula);
+}
+
+function finiteTruthValues(valence, lo, hi) {
+  const n = Number(valence);
+  if (!Number.isInteger(n) || n < 2) {
+    throw new RmlError('E041', 'Counter-model search requires finite valence >= 2');
+  }
+  const step = (hi - lo) / (n - 1);
+  return Array.from({ length: n }, (_, i) => decRound(lo + step * i));
+}
+
+function counterModelVariables(formula, env) {
+  return [...freeVariables(formula)]
+    .filter(name => !COUNTER_MODEL_CONSTANTS.has(name))
+    .filter(name => !env.hasOp(name))
+    .sort();
+}
+
+function sameTruthValue(a, b) {
+  return Math.abs(a - b) < 1e-9;
+}
+
+function counterModel(formula, valence, options) {
+  const opts = options || {};
+  const formulaNode = normaliseCounterModelFormula(formula);
+  const n = Number(valence);
+  if (!Number.isInteger(n) || n < 2) {
+    throw new RmlError('E041', 'Counter-model search requires finite valence >= 2');
+  }
+  const env = opts.env instanceof Env ? opts.env : new Env({ ...opts, valence: n });
+  return counterModelInEnv(formulaNode, n, env);
+}
+
+function counterModelInEnv(formula, valence, env) {
+  const formulaNode = cloneTerm(formula);
+  const n = Number(valence);
+  if (!Number.isInteger(n) || n < 2) {
+    throw new RmlError('E041', 'Counter-model search requires finite valence >= 2');
+  }
+
+  const previousValence = env.valence;
+  const values = finiteTruthValues(n, env.lo, env.hi);
+  const variables = counterModelVariables(formulaNode, env);
+  const savedSymbols = variables.map(name => ({
+    name,
+    had: env.symbolProb.has(name),
+    value: env.symbolProb.get(name),
+  }));
+  const assignment = new Map();
+
+  function buildWitness(value) {
+    const valuation = {};
+    for (const name of variables) valuation[name] = assignment.get(name);
+    return {
+      formula: cloneTerm(formulaNode),
+      valence: n,
+      values: [...values],
+      variables: [...variables],
+      valuation,
+      value,
+    };
+  }
+
+  function evaluateCurrentAssignment() {
+    const raw = evalNode(formulaNode, env);
+    const value = raw && raw.query ? raw.value : isTermResult(raw) ? env.lo : raw;
+    const numeric = typeof value === 'number' ? value : env.lo;
+    return env.clamp(numeric);
+  }
+
+  function search(index) {
+    if (index === variables.length) {
+      const value = evaluateCurrentAssignment();
+      return sameTruthValue(value, env.hi) ? null : buildWitness(value);
+    }
+
+    const name = variables[index];
+    for (const value of values) {
+      assignment.set(name, value);
+      env.setSymbolProb(name, value);
+      const found = search(index + 1);
+      if (found) return found;
+    }
+    assignment.delete(name);
+    return null;
+  }
+
+  try {
+    env.valence = n;
+    return search(0);
+  } finally {
+    env.valence = previousValence;
+    for (const saved of savedSymbols) {
+      if (saved.had) env.symbolProb.set(saved.name, saved.value);
+      else env.symbolProb.delete(saved.name);
+    }
+  }
+}
+
+function formatCounterModel(witness) {
+  const valuation = [
+    'valuation',
+    ...witness.variables.map(name => [name, formatTraceValue(witness.valuation[name])]),
+  ];
+  return keyOf([
+    'counter-model',
+    witness.formula,
+    valuation,
+    ['value', formatTraceValue(witness.value)],
+  ]);
+}
+
+function formatNoCounterModel(formula, valence) {
+  return keyOf([
+    'no-counter-model',
+    cloneTerm(formula),
+    ['valence', String(valence)],
+  ]);
 }
 
 function collectNames(expr, out = new Set()) {
@@ -3030,6 +3160,21 @@ function evalNode(node, env){
     return 1;
   }
 
+  // Counter-model search: (counter-model formula)
+  // Uses the current finite valence and returns a printable witness link when
+  // some valuation makes the formula evaluate below the top truth value.
+  if (node[0] === 'counter-model') {
+    if (node.length !== 2) {
+      throw new RmlError('E041', 'Counter-model form must be `(counter-model <formula>)`');
+    }
+    const witness = counterModel(node[1], env.valence, { env });
+    return {
+      query: true,
+      value: witness ? formatCounterModel(witness) : formatNoCounterModel(node[1], env.valence),
+      typeQuery: true,
+    };
+  }
+
   // Query: (? expr) with optional `with proof` suffix (issue #35).
   // The suffix is a per-query opt-in for derivation output; the actual proof
   // is built by `buildProof` in `evaluate()`. Stripping it here keeps the
@@ -4612,6 +4757,8 @@ export {
   evalNode,
   buildProof,
   runTactics,
+  counterModel,
+  formatCounterModel,
   quantize,
   decRound,
   keyOf,

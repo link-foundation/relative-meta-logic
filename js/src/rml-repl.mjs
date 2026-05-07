@@ -23,7 +23,7 @@ const META_COMMANDS = [
 
 const BUILTIN_KEYWORDS = [
   'and', 'or', 'not', 'both', 'neither', 'is', 'has', 'probability',
-  'range', 'valence', 'true', 'false', 'unknown', 'undefined',
+  'range', 'valence', 'counter-model', 'true', 'false', 'unknown', 'undefined',
   'lambda', 'apply', 'subst', 'fresh', 'in', 'Pi', 'Type', 'Prop', 'of', 'type',
 ];
 

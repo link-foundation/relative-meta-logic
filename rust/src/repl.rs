@@ -34,7 +34,8 @@ pub struct ReplStep {
 /// Built-in keywords always offered by the completer.
 const BUILTIN_KEYWORDS: &[&str] = &[
     "and", "or", "not", "both", "neither", "is", "has", "probability", "range", "valence", "true",
-    "false", "unknown", "undefined", "lambda", "apply", "Pi", "Type", "Prop", "of", "type",
+    "counter-model", "false", "unknown", "undefined", "lambda", "apply", "Pi", "Type", "Prop",
+    "of", "type",
 ];
 
 /// Meta-commands offered by the completer.

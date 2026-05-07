@@ -57,6 +57,7 @@ use rml::{
     run, evaluate, format_diagnostic, Diagnostic, EvaluateResult, RunResult, Span,
     tokenize_one, parse_one, Env, EnvOptions, eval_node, quantize, dec_round, subst,
     run_tactics, ProofState,
+    counter_model,
     formalize_selected_interpretation, evaluate_formalization,
     FormalizationRequest, Interpretation,
 };
@@ -85,6 +86,11 @@ let tactic = parse_one(&tokenize_one("(by reflexivity)")).unwrap();
 let goal = parse_one(&tokenize_one("(a = a)")).unwrap();
 let tactic_result = run_tactics(ProofState::from_goals(vec![goal]), &[tactic]);
 // -> tactic_result.state.goals is empty, diagnostics is empty
+
+// Exhaustively find a finite-valence counter-model, or None for a tautology
+let formula = parse_one(&tokenize_one("(or p (not p))")).unwrap();
+let witness = counter_model(&formula, 3);
+// -> Some(CounterModel { valuation: [("p", 0.5)], value: 0.5, ... })
 
 // Quantize a value to N discrete levels
 let q = quantize(0.4, 3, 0.0, 1.0); // -> 0.5 (nearest ternary level)
