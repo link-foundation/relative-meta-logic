@@ -464,6 +464,32 @@ links with these rule names:
 | `(whnf expr)` | `whnf-reduction` |
 | `(nf expr)` / `(normal-form expr)` | `nf-reduction` |
 
+## Tactic Links
+
+The tactic engine is a library layer over proof states rather than a new
+kernel form. A proof state contains open goals, each goal's local context,
+and a history of successful tactic links. The public APIs are
+`runTactics(state, tactics)` in JavaScript and `run_tactics(state, tactics)`
+in Rust.
+
+Built-in tactics:
+
+| Tactic | Effect |
+|--------|--------|
+| `(by <tactic>)` | Delegates to an inner tactic while recording the outer link. |
+| `(reflexivity)` | Closes an equality goal whose sides are structurally equal. |
+| `(symmetry)` | Replaces `A = B` with `B = A`. |
+| `(transitivity M)` | Replaces `A = C` with `A = M` and `M = C`. |
+| `(suppose H)` | Adds hypothesis `H` to the current goal context. |
+| `(introduce x)` | Opens a `Pi` goal and records `(x of A)` in context. |
+| `(rewrite (L = R) in goal)` | Rewrites occurrences of `L` to `R` in the current goal. |
+| `(exact term)` | Closes the goal when `term` or its context ascription proves it. |
+| `(induction x (case p tactics...) ...)` | Creates one substituted case goal per case and runs its tactic links. |
+
+Failed tactics return `E039` diagnostics with the current goal printed in the
+message. Successful tactic history remains a list of links, preserving the
+"everything is a link" invariant.
+
 ## Bidirectional Type Checker
 
 Issue #42 layers a mode-switching checker on top of the query rules above.

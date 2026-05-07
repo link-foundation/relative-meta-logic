@@ -64,6 +64,7 @@ import {
   parseOne,
   Env,
   evalNode,
+  runTactics,
   quantize,
   decRound,
   keyOf,
@@ -93,6 +94,13 @@ for (const d of diagnostics) {
 const env = new Env({ lo: 0, hi: 1, valence: 3 });
 const ast = parseOne(tokenizeOne('(a = a)'));
 const truthValue = evalNode(ast, env);
+
+// Apply link tactics to a proof state
+const tacticResult = runTactics(
+  { goals: [parseOne(tokenizeOne('(a = a)'))] },
+  [parseOne(tokenizeOne('(by reflexivity)'))],
+);
+// -> { state: { goals: [], proof: [['by', 'reflexivity']] }, diagnostics: [] }
 
 // Quantize a value to N discrete levels
 const q = quantize(0.4, 3, 0, 1); // -> 0.5 (nearest ternary level)
@@ -126,6 +134,7 @@ The test suite covers:
 - Liar paradox resolution across logic types
 - Decimal-precision arithmetic and numeric equality
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
+- Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, exact
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Dependencies

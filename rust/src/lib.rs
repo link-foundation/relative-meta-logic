@@ -3377,6 +3377,495 @@ pub fn build_proof(node: &Node, env: &Env) -> Node {
     }
 }
 
+// ========== Tactic engine (issue #55) ==========
+// Tactics are ordinary links that transform an explicit proof state. Keeping
+// goals, local assumptions, and tactic history as `Node` values preserves the
+// project invariant that proof steps are links.
+
+/// A single open proof goal plus its local hypothesis context.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ProofGoal {
+    pub goal: Node,
+    pub context: Vec<Node>,
+}
+
+impl ProofGoal {
+    pub fn new(goal: Node) -> Self {
+        Self {
+            goal,
+            context: Vec::new(),
+        }
+    }
+}
+
+/// A tactic proof state: open goals and the successful tactic links applied so far.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct ProofState {
+    pub goals: Vec<ProofGoal>,
+    pub proof: Vec<Node>,
+}
+
+impl ProofState {
+    pub fn from_goals(goals: Vec<Node>) -> Self {
+        Self {
+            goals: goals.into_iter().map(ProofGoal::new).collect(),
+            proof: Vec::new(),
+        }
+    }
+}
+
+/// Result of running tactics over a proof state.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TacticRunResult {
+    pub state: ProofState,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+fn tactic_name(tactic: &Node) -> Option<&str> {
+    match tactic {
+        Node::Leaf(s) => Some(s.as_str()),
+        Node::List(children) => match children.first() {
+            Some(Node::Leaf(s)) => Some(s.as_str()),
+            _ => None,
+        },
+    }
+}
+
+fn tactic_args(tactic: &Node) -> &[Node] {
+    match tactic {
+        Node::List(children) if !children.is_empty() => &children[1..],
+        _ => &[],
+    }
+}
+
+fn as_equality(node: &Node) -> Option<(&Node, &Node)> {
+    if let Node::List(children) = node {
+        if children.len() == 3 {
+            if let Node::Leaf(op) = &children[1] {
+                if op == "=" {
+                    return Some((&children[0], &children[2]));
+                }
+            }
+        }
+    }
+    None
+}
+
+fn tactic_diagnostic(
+    tactic: &Node,
+    goal: Option<&ProofGoal>,
+    reason: impl AsRef<str>,
+) -> Diagnostic {
+    let goal_text = goal
+        .map(|g| key_of(&g.goal))
+        .unwrap_or_else(|| "<none>".to_string());
+    Diagnostic::new(
+        "E039",
+        format!(
+            "Tactic {} failed: {}; current goal: {}",
+            key_of(tactic),
+            reason.as_ref(),
+            goal_text
+        ),
+        Span::unknown(),
+    )
+}
+
+fn goal_with_context(current: &ProofGoal, goal: Node) -> ProofGoal {
+    ProofGoal {
+        goal,
+        context: current.context.clone(),
+    }
+}
+
+fn replace_current_goal(
+    state: &ProofState,
+    replacement_goals: Vec<ProofGoal>,
+    record_tactic: &Node,
+) -> ProofState {
+    let mut goals = replacement_goals;
+    goals.extend(state.goals.iter().skip(1).cloned());
+    let mut proof = state.proof.clone();
+    proof.push(record_tactic.clone());
+    ProofState { goals, proof }
+}
+
+fn rewrite_all(node: &Node, from: &Node, to: &Node) -> (Node, bool) {
+    if is_structurally_same(node, from) {
+        return (to.clone(), true);
+    }
+    match node {
+        Node::Leaf(_) => (node.clone(), false),
+        Node::List(children) => {
+            let mut changed = false;
+            let rewritten: Vec<Node> = children
+                .iter()
+                .map(|child| {
+                    let (next, child_changed) = rewrite_all(child, from, to);
+                    if child_changed {
+                        changed = true;
+                    }
+                    next
+                })
+                .collect();
+            (Node::List(rewritten), changed)
+        }
+    }
+}
+
+fn type_ascription(node: &Node) -> Option<(&Node, &Node)> {
+    if let Node::List(children) = node {
+        if children.len() == 3 {
+            if let Node::Leaf(mid) = &children[1] {
+                if mid == "of" {
+                    return Some((&children[0], &children[2]));
+                }
+            }
+        }
+    }
+    None
+}
+
+fn exact_closes_goal(arg: &Node, goal: &ProofGoal) -> bool {
+    if is_structurally_same(arg, &goal.goal) {
+        return true;
+    }
+    if let Some((_, typ)) = type_ascription(arg) {
+        if is_structurally_same(typ, &goal.goal) {
+            return true;
+        }
+    }
+    goal.context.iter().any(|ctx| {
+        if is_structurally_same(ctx, arg) && is_structurally_same(arg, &goal.goal) {
+            return true;
+        }
+        if is_structurally_same(ctx, &goal.goal) && is_structurally_same(arg, &goal.goal) {
+            return true;
+        }
+        if let Some((term, typ)) = type_ascription(ctx) {
+            return is_structurally_same(term, arg) && is_structurally_same(typ, &goal.goal);
+        }
+        false
+    })
+}
+
+fn apply_tactic(
+    state: &ProofState,
+    tactic: &Node,
+    record_tactic: &Node,
+) -> Result<ProofState, Diagnostic> {
+    let name = tactic_name(tactic);
+    let args = tactic_args(tactic);
+
+    if name == Some("by") {
+        if args.len() == 1 {
+            return apply_tactic(state, &args[0], record_tactic);
+        }
+        if args.len() > 1 {
+            return apply_tactic(state, &Node::List(args.to_vec()), record_tactic);
+        }
+        return Err(tactic_diagnostic(
+            record_tactic,
+            state.goals.first(),
+            "`by` requires an inner tactic",
+        ));
+    }
+
+    let Some(current) = state.goals.first() else {
+        return Err(tactic_diagnostic(record_tactic, None, "no open goals"));
+    };
+
+    match name {
+        Some("reflexivity") => {
+            let Some((left, right)) = as_equality(&current.goal) else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "reflexivity expects an equality goal",
+                ));
+            };
+            if !is_structurally_same(left, right) {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "both sides are not structurally equal",
+                ));
+            }
+            Ok(replace_current_goal(state, Vec::new(), record_tactic))
+        }
+        Some("symmetry") => {
+            let Some((left, right)) = as_equality(&current.goal) else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "symmetry expects an equality goal",
+                ));
+            };
+            Ok(replace_current_goal(
+                state,
+                vec![goal_with_context(
+                    current,
+                    Node::List(vec![right.clone(), leaf("="), left.clone()]),
+                )],
+                record_tactic,
+            ))
+        }
+        Some("transitivity") => {
+            let Some((left, right)) = as_equality(&current.goal) else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "transitivity expects an equality goal and one intermediate term",
+                ));
+            };
+            if args.len() != 1 {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "transitivity expects an equality goal and one intermediate term",
+                ));
+            }
+            let mid = args[0].clone();
+            Ok(replace_current_goal(
+                state,
+                vec![
+                    goal_with_context(
+                        current,
+                        Node::List(vec![left.clone(), leaf("="), mid.clone()]),
+                    ),
+                    goal_with_context(
+                        current,
+                        Node::List(vec![mid, leaf("="), right.clone()]),
+                    ),
+                ],
+                record_tactic,
+            ))
+        }
+        Some("suppose") => {
+            if args.len() != 1 {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "suppose expects one hypothesis link",
+                ));
+            }
+            let mut next = state.clone();
+            next.goals[0].context.push(args[0].clone());
+            next.proof.push(record_tactic.clone());
+            Ok(next)
+        }
+        Some("introduce") => {
+            if args.len() != 1 {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "introduce expects one variable name",
+                ));
+            }
+            let Node::Leaf(variable) = &args[0] else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "introduce expects one variable name",
+                ));
+            };
+            let Node::List(goal_children) = &current.goal else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "introduce expects a Pi goal",
+                ));
+            };
+            if goal_children.len() != 3 || !matches!(&goal_children[0], Node::Leaf(h) if h == "Pi") {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "introduce expects a Pi goal",
+                ));
+            }
+            let Some((param, param_type_key)) = parse_binding(&goal_children[1]) else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "introduce could not parse the Pi binder",
+                ));
+            };
+            let body = subst(&goal_children[2], &param, &Node::Leaf(variable.clone()));
+            let mut introduced = goal_with_context(current, body);
+            introduced.context.push(Node::List(vec![
+                Node::Leaf(variable.clone()),
+                leaf("of"),
+                type_key_to_node(&param_type_key),
+            ]));
+            Ok(replace_current_goal(
+                state,
+                vec![introduced],
+                record_tactic,
+            ))
+        }
+        Some("rewrite") => {
+            if args.len() != 3
+                || !matches!(&args[1], Node::Leaf(s) if s == "in")
+                || !matches!(&args[2], Node::Leaf(s) if s == "goal")
+            {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "rewrite expects `(rewrite (L = R) in goal)`",
+                ));
+            }
+            let Some((left, right)) = as_equality(&args[0]) else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "rewrite expects an equality link",
+                ));
+            };
+            let (rewritten, changed) = rewrite_all(&current.goal, left, right);
+            if !changed {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    format!("rewrite did not find {} in the current goal", key_of(left)),
+                ));
+            }
+            Ok(replace_current_goal(
+                state,
+                vec![goal_with_context(current, rewritten)],
+                record_tactic,
+            ))
+        }
+        Some("exact") => {
+            if args.len() != 1 {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "exact expects one term or hypothesis",
+                ));
+            }
+            if !exact_closes_goal(&args[0], current) {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    format!("{} does not prove the current goal", key_of(&args[0])),
+                ));
+            }
+            Ok(replace_current_goal(state, Vec::new(), record_tactic))
+        }
+        Some("induction") => {
+            if args.len() < 2 {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "induction expects a variable and at least one case",
+                ));
+            }
+            let Node::Leaf(variable) = &args[0] else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "induction expects a variable and at least one case",
+                ));
+            };
+            let mut open_goals = Vec::new();
+            let mut nested_proofs = Vec::new();
+            for case_node in &args[1..] {
+                let Node::List(case_children) = case_node else {
+                    return Err(tactic_diagnostic(
+                        record_tactic,
+                        Some(current),
+                        "induction cases must be `(case <pattern> <tactic>...)` links",
+                    ));
+                };
+                if case_children.len() < 2
+                    || !matches!(&case_children[0], Node::Leaf(h) if h == "case")
+                {
+                    return Err(tactic_diagnostic(
+                        record_tactic,
+                        Some(current),
+                        "induction cases must be `(case <pattern> <tactic>...)` links",
+                    ));
+                }
+                let pattern = &case_children[1];
+                let case_goal =
+                    goal_with_context(current, subst(&current.goal, variable, pattern));
+                let case_tactics = &case_children[2..];
+                if case_tactics.is_empty() {
+                    open_goals.push(case_goal);
+                    continue;
+                }
+                let nested = run_tactics(
+                    ProofState {
+                        goals: vec![case_goal],
+                        proof: Vec::new(),
+                    },
+                    case_tactics,
+                );
+                if let Some(diag) = nested.diagnostics.first() {
+                    return Err(diag.clone());
+                }
+                open_goals.extend(nested.state.goals);
+                nested_proofs.extend(nested.state.proof);
+            }
+            let mut goals = open_goals;
+            goals.extend(state.goals.iter().skip(1).cloned());
+            let mut proof = state.proof.clone();
+            proof.push(record_tactic.clone());
+            proof.extend(nested_proofs);
+            Ok(ProofState { goals, proof })
+        }
+        Some(other) => Err(tactic_diagnostic(
+            record_tactic,
+            Some(current),
+            format!("unknown tactic \"{}\"", other),
+        )),
+        None => Err(tactic_diagnostic(
+            record_tactic,
+            Some(current),
+            "tactic head must be a symbol",
+        )),
+    }
+}
+
+/// Parse a LiNo snippet into tactic links.
+pub fn parse_tactic_links(text: &str) -> Vec<Node> {
+    parse_lino(text)
+        .iter()
+        .filter(|link_str| {
+            let s = link_str.trim();
+            !(s.starts_with("(#") && s.chars().nth(2).map_or(false, |c| c.is_whitespace()))
+        })
+        .filter_map(|link_str| {
+            let toks = tokenize_one(link_str);
+            let toks = if toks.len() == 1 && toks[0] != "(" && toks[0] != ")" {
+                vec!["(".to_string(), toks[0].clone(), ")".to_string()]
+            } else {
+                toks
+            };
+            parse_one(&toks).ok().map(desugar_hoas)
+        })
+        .collect()
+}
+
+/// Apply link tactics to a proof state, stopping at the first failing tactic.
+pub fn run_tactics(state: ProofState, tactics: &[Node]) -> TacticRunResult {
+    let mut next = state;
+    let mut diagnostics = Vec::new();
+    for tactic in tactics {
+        match apply_tactic(&next, tactic, tactic) {
+            Ok(applied) => next = applied,
+            Err(diag) => {
+                diagnostics.push(diag);
+                break;
+            }
+        }
+    }
+    TacticRunResult {
+        state: next,
+        diagnostics,
+    }
+}
+
 // ---------- Mode declarations (issue #43, D15) ----------
 // `(mode plus +input +input -output)` records the per-argument mode
 // pattern for relation `plus`. `parse_mode_form` validates the shape and
@@ -6566,7 +7055,7 @@ fn evaluate_inner(text: &str, file: Option<&str>, env: &mut Env, options: &Evalu
                             }
                         }
                         Err(message) => {
-                            diagnostics.push(Diagnostic::new("E039", message, span.clone()));
+                            diagnostics.push(Diagnostic::new("E040", message, span.clone()));
                         }
                     }
                     continue;
@@ -6758,7 +7247,7 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         )
     } else if raw_msg.starts_with("Template expansion error:") {
         (
-            "E039".to_string(),
+            "E040".to_string(),
             raw_msg.replacen("Template expansion error: ", "", 1),
         )
     } else {

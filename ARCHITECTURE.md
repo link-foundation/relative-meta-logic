@@ -117,7 +117,18 @@ queries return the substituted link string.
 
 ## Public Library API
 
-Both implementations expose the reusable parser, AST, evaluator, quantization, decimal rounding, binding, substitution, and runner helpers as library APIs. The JavaScript module exports camelCase names, while the Rust crate exposes snake_case equivalents where applicable.
+Both implementations expose the reusable parser, AST, evaluator, quantization, decimal rounding, binding, substitution, tactic engine, and runner helpers as library APIs. The JavaScript module exports camelCase names, while the Rust crate exposes snake_case equivalents where applicable.
+
+The tactic engine keeps proof steps as links:
+
+| JavaScript | Rust | Purpose |
+|------------|------|---------|
+| `runTactics(state, tactics)` | `run_tactics(state, tactics)` | Apply link tactics to a proof state and return the updated state plus diagnostics. |
+| Goal state | `ProofState` / `ProofGoal` | Open goals, local context, and successful tactic links. |
+
+Built-in tactics are `reflexivity`, `symmetry`, `transitivity`, `induction`,
+`suppose`, `introduce`, `by`, `rewrite`, and `exact`. A failed tactic emits
+`E039` and includes the current goal in the diagnostic message.
 
 For consumers that start from a selected natural-language interpretation rather than a complete `.lino` file, the library also exposes a meta-expression adapter:
 
