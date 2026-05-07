@@ -915,6 +915,389 @@ function _queryRequestsProof(node) {
   return parts.length >= 3 && parts[parts.length - 2] === 'with' && parts[parts.length - 1] === 'proof';
 }
 
+// ---------- Tactic engine (issue #55) ----------
+// Tactics are represented as ordinary links and operate on an explicit proof
+// state. The state shape is intentionally small and serialisable:
+//   { goals: [{ goal: Node, context: Node[] }], proof: Node[] }
+// Callers may pass bare goal nodes in `goals`; `runTactics` normalises them
+// into goal objects before applying tactics.
+function _normaliseProofGoal(rawGoal, inheritedContext = []) {
+  if (
+    rawGoal &&
+    typeof rawGoal === 'object' &&
+    !Array.isArray(rawGoal) &&
+    Object.prototype.hasOwnProperty.call(rawGoal, 'goal')
+  ) {
+    return {
+      goal: cloneTerm(rawGoal.goal),
+      context: Array.isArray(rawGoal.context)
+        ? rawGoal.context.map(cloneTerm)
+        : inheritedContext.map(cloneTerm),
+    };
+  }
+  return {
+    goal: cloneTerm(rawGoal),
+    context: inheritedContext.map(cloneTerm),
+  };
+}
+
+function _normaliseProofState(state = {}) {
+  const inheritedContext = Array.isArray(state.context)
+    ? state.context.map(cloneTerm)
+    : [];
+  const goals = Array.isArray(state.goals)
+    ? state.goals.map(goal => _normaliseProofGoal(goal, inheritedContext))
+    : [];
+  const proof = Array.isArray(state.proof) ? state.proof.map(cloneTerm) : [];
+  return { goals, proof };
+}
+
+function _cloneProofState(state) {
+  return {
+    goals: state.goals.map(goal => ({
+      goal: cloneTerm(goal.goal),
+      context: goal.context.map(cloneTerm),
+    })),
+    proof: state.proof.map(cloneTerm),
+  };
+}
+
+function _isTacticNode(value) {
+  return Array.isArray(value) && value.length > 0 && typeof value[0] === 'string';
+}
+
+function _normaliseTacticList(tactics) {
+  if (typeof tactics === 'string') return parseLinoForms(tactics);
+  if (tactics === undefined || tactics === null) return [];
+  if (_isTacticNode(tactics) || typeof tactics === 'string') return [tactics];
+  return Array.isArray(tactics) ? tactics : [tactics];
+}
+
+function _tacticName(tactic) {
+  if (typeof tactic === 'string') return tactic;
+  if (Array.isArray(tactic) && typeof tactic[0] === 'string') return tactic[0];
+  return null;
+}
+
+function _tacticArgs(tactic) {
+  return Array.isArray(tactic) ? tactic.slice(1) : [];
+}
+
+function _asEquality(node) {
+  if (Array.isArray(node) && node.length === 3 && node[1] === '=') {
+    return { left: node[0], right: node[2] };
+  }
+  return null;
+}
+
+function _goalKey(goal) {
+  return goal ? keyOf(goal.goal) : '<none>';
+}
+
+function _tacticDiagnostic(tactic, goal, reason) {
+  return new Diagnostic({
+    code: 'E039',
+    message: `Tactic ${keyOf(tactic)} failed: ${reason}; current goal: ${_goalKey(goal)}`,
+    span: { file: null, line: 1, col: 1, length: 0 },
+  });
+}
+
+function _replaceCurrentGoal(state, replacementGoals, recordTactic) {
+  return {
+    goals: [...replacementGoals, ...state.goals.slice(1)],
+    proof: [...state.proof, cloneTerm(recordTactic)],
+  };
+}
+
+function _goalWithContext(current, goal) {
+  return {
+    goal: cloneTerm(goal),
+    context: current.context.map(cloneTerm),
+  };
+}
+
+function _rewriteAll(node, from, to) {
+  if (isStructurallySame(node, from)) {
+    return { node: cloneTerm(to), changed: true };
+  }
+  if (!Array.isArray(node)) return { node: cloneTerm(node), changed: false };
+  let changed = false;
+  const rewritten = node.map(child => {
+    const r = _rewriteAll(child, from, to);
+    if (r.changed) changed = true;
+    return r.node;
+  });
+  return { node: rewritten, changed };
+}
+
+function _typeAscription(node) {
+  if (Array.isArray(node) && node.length === 3 && node[1] === 'of') {
+    return { term: node[0], type: node[2] };
+  }
+  return null;
+}
+
+function _exactClosesGoal(arg, goal) {
+  if (isStructurallySame(arg, goal.goal)) return true;
+  const ascription = _typeAscription(arg);
+  if (ascription && isStructurallySame(ascription.type, goal.goal)) return true;
+  return goal.context.some(ctx => {
+    if (isStructurallySame(ctx, arg) && isStructurallySame(arg, goal.goal)) return true;
+    if (isStructurallySame(ctx, goal.goal) && isStructurallySame(arg, goal.goal)) return true;
+    const ctxAscription = _typeAscription(ctx);
+    return !!ctxAscription &&
+      isStructurallySame(ctxAscription.term, arg) &&
+      isStructurallySame(ctxAscription.type, goal.goal);
+  });
+}
+
+function _applyTactic(state, tactic, recordTactic = tactic) {
+  const name = _tacticName(tactic);
+  const args = _tacticArgs(tactic);
+
+  if (name === 'by') {
+    if (args.length === 1) return _applyTactic(state, args[0], recordTactic);
+    if (args.length > 1) return _applyTactic(state, args, recordTactic);
+    return {
+      ok: false,
+      state,
+      diagnostic: _tacticDiagnostic(recordTactic, state.goals[0] || null, '`by` requires an inner tactic'),
+    };
+  }
+
+  const current = state.goals[0] || null;
+  if (!current) {
+    return {
+      ok: false,
+      state,
+      diagnostic: _tacticDiagnostic(recordTactic, null, 'no open goals'),
+    };
+  }
+
+  if (name === 'reflexivity') {
+    const eq = _asEquality(current.goal);
+    if (!eq) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'reflexivity expects an equality goal'),
+      };
+    }
+    if (!isStructurallySame(eq.left, eq.right)) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'both sides are not structurally equal'),
+      };
+    }
+    return { ok: true, state: _replaceCurrentGoal(state, [], recordTactic) };
+  }
+
+  if (name === 'symmetry') {
+    const eq = _asEquality(current.goal);
+    if (!eq) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'symmetry expects an equality goal'),
+      };
+    }
+    return {
+      ok: true,
+      state: _replaceCurrentGoal(
+        state,
+        [_goalWithContext(current, [eq.right, '=', eq.left])],
+        recordTactic,
+      ),
+    };
+  }
+
+  if (name === 'transitivity') {
+    const eq = _asEquality(current.goal);
+    if (!eq || args.length !== 1) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'transitivity expects an equality goal and one intermediate term'),
+      };
+    }
+    const mid = args[0];
+    return {
+      ok: true,
+      state: _replaceCurrentGoal(
+        state,
+        [
+          _goalWithContext(current, [eq.left, '=', mid]),
+          _goalWithContext(current, [mid, '=', eq.right]),
+        ],
+        recordTactic,
+      ),
+    };
+  }
+
+  if (name === 'suppose') {
+    if (args.length !== 1) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'suppose expects one hypothesis link'),
+      };
+    }
+    const next = _cloneProofState(state);
+    next.goals[0].context.push(cloneTerm(args[0]));
+    next.proof.push(cloneTerm(recordTactic));
+    return { ok: true, state: next };
+  }
+
+  if (name === 'introduce') {
+    if (args.length !== 1 || typeof args[0] !== 'string') {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'introduce expects one variable name'),
+      };
+    }
+    if (!Array.isArray(current.goal) || current.goal.length !== 3 || current.goal[0] !== 'Pi') {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'introduce expects a Pi goal'),
+      };
+    }
+    const binding = parseBinding(current.goal[1]);
+    if (!binding) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'introduce could not parse the Pi binder'),
+      };
+    }
+    const variable = args[0];
+    const body = subst(current.goal[2], binding.paramName, variable);
+    const introduced = _goalWithContext(current, body);
+    introduced.context.push([variable, 'of', cloneTerm(binding.paramType)]);
+    return {
+      ok: true,
+      state: _replaceCurrentGoal(state, [introduced], recordTactic),
+    };
+  }
+
+  if (name === 'rewrite') {
+    if (args.length !== 3 || args[1] !== 'in' || args[2] !== 'goal') {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'rewrite expects `(rewrite (L = R) in goal)`'),
+      };
+    }
+    const eq = _asEquality(args[0]);
+    if (!eq) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'rewrite expects an equality link'),
+      };
+    }
+    const rewritten = _rewriteAll(current.goal, eq.left, eq.right);
+    if (!rewritten.changed) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, `rewrite did not find ${keyOf(eq.left)} in the current goal`),
+      };
+    }
+    return {
+      ok: true,
+      state: _replaceCurrentGoal(state, [_goalWithContext(current, rewritten.node)], recordTactic),
+    };
+  }
+
+  if (name === 'exact') {
+    if (args.length !== 1) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'exact expects one term or hypothesis'),
+      };
+    }
+    if (!_exactClosesGoal(args[0], current)) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, `${keyOf(args[0])} does not prove the current goal`),
+      };
+    }
+    return { ok: true, state: _replaceCurrentGoal(state, [], recordTactic) };
+  }
+
+  if (name === 'induction') {
+    if (args.length < 2 || typeof args[0] !== 'string') {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'induction expects a variable and at least one case'),
+      };
+    }
+    const variable = args[0];
+    const cases = args.slice(1);
+    const openGoals = [];
+    const nestedProofs = [];
+    for (const caseNode of cases) {
+      if (!Array.isArray(caseNode) || caseNode.length < 2 || caseNode[0] !== 'case') {
+        return {
+          ok: false,
+          state,
+          diagnostic: _tacticDiagnostic(recordTactic, current, 'induction cases must be `(case <pattern> <tactic>...)` links'),
+        };
+      }
+      const pattern = caseNode[1];
+      const caseGoal = _goalWithContext(current, subst(current.goal, variable, pattern));
+      const caseTactics = caseNode.slice(2);
+      if (caseTactics.length === 0) {
+        openGoals.push(caseGoal);
+        continue;
+      }
+      const nested = _runTacticsInternal({ goals: [caseGoal], proof: [] }, caseTactics);
+      if (nested.diagnostics.length > 0) {
+        return { ok: false, state, diagnostic: nested.diagnostics[0] };
+      }
+      openGoals.push(...nested.state.goals);
+      nestedProofs.push(...nested.state.proof);
+    }
+    return {
+      ok: true,
+      state: {
+        goals: [...openGoals, ...state.goals.slice(1)],
+        proof: [...state.proof, cloneTerm(recordTactic), ...nestedProofs.map(cloneTerm)],
+      },
+    };
+  }
+
+  return {
+    ok: false,
+    state,
+    diagnostic: _tacticDiagnostic(recordTactic, current, `unknown tactic "${String(name || keyOf(tactic))}"`),
+  };
+}
+
+function _runTacticsInternal(state, tactics) {
+  let next = _cloneProofState(state);
+  const diagnostics = [];
+  for (const tactic of _normaliseTacticList(tactics)) {
+    const applied = _applyTactic(next, tactic, tactic);
+    if (!applied.ok) {
+      diagnostics.push(applied.diagnostic);
+      break;
+    }
+    next = applied.state;
+  }
+  return { state: next, diagnostics };
+}
+
+function runTactics(state, tactics) {
+  return _runTacticsInternal(_normaliseProofState(state), tactics);
+}
+
 // Evaluate a node in arithmetic context — numeric literals are NOT clamped to the logic range.
 function evalArith(node, env){
   if (typeof node === 'string' && isNum(node)) return parseFloat(node);
@@ -4116,6 +4499,7 @@ export {
   Env,
   evalNode,
   buildProof,
+  runTactics,
   quantize,
   decRound,
   keyOf,
