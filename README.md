@@ -126,6 +126,23 @@ Example: `(a: a is a)` declares `a` as a term.
 
 Example: `((a = a) has probability 1)` assigns probability 1 to the expression `a = a`.
 
+### Templates
+
+```lino
+(template (<name> <param>...)
+  <body>)
+```
+
+Templates name reusable link shapes. A later use `(<name> arg...)` is expanded before evaluation, and template placeholders are substituted hygienically so binders introduced by the template do not capture free variables from the arguments.
+
+```lino
+(template (known expr value)
+  (expr has probability value))
+
+(known (a = b) 1)
+(? (a = b))  # -> 1
+```
+
 ### Range Configuration
 
 ```lino

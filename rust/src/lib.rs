@@ -691,6 +691,16 @@ pub struct Lambda {
     pub body: Node,
 }
 
+/// A pre-evaluation template declaration (issue #59).
+/// `(template (<name> <param>...) <body>)` records a reusable link shape;
+/// later `(<name> arg...)` uses are expanded before they reach `eval_node`.
+#[derive(Debug, Clone)]
+pub struct TemplateDecl {
+    pub name: String,
+    pub params: Vec<String>,
+    pub body: Node,
+}
+
 /// The evaluation environment: holds terms, assignments, operators, and range/valence config.
 pub struct Env {
     pub terms: HashSet<String>,
@@ -702,6 +712,7 @@ pub struct Env {
     pub ops: HashMap<String, Op>,
     pub types: HashMap<String, String>,
     pub lambdas: HashMap<String, Lambda>,
+    pub templates: HashMap<String, TemplateDecl>,
     /// Tracing state. When `trace_enabled` is true, key evaluation events
     /// (operator resolutions, assignment lookups, top-level reductions) are
     /// appended to `trace_events`. The current top-level form span is stashed
@@ -888,6 +899,7 @@ impl Env {
             ops,
             types: HashMap::new(),
             lambdas: HashMap::new(),
+            templates: HashMap::new(),
             trace_enabled: false,
             trace_events: Vec::new(),
             current_span: None,
@@ -1008,6 +1020,7 @@ impl Env {
                 || self.symbol_prob.contains_key(&qualified)
                 || self.terms.contains(&qualified)
                 || self.lambdas.contains_key(&qualified)
+                || self.templates.contains_key(&qualified)
             {
                 return qualified;
             }
@@ -1357,6 +1370,7 @@ fn non_variable_token(s: &str) -> bool {
             | "whnf"
             | "nf"
             | "normal-form"
+            | "template"
             | "+"
             | "-"
             | "*"
@@ -1478,6 +1492,7 @@ fn env_can_evaluate_name(env: &Env, name: &str) -> bool {
         || env.types.contains_key(name)
         || env.lambdas.contains_key(name)
         || env.ops.contains_key(name)
+        || env.templates.contains_key(name)
     {
         return true;
     }
@@ -1487,7 +1502,8 @@ fn env_can_evaluate_name(env: &Env, name: &str) -> bool {
             || env.terms.contains(&resolved)
             || env.types.contains_key(&resolved)
             || env.lambdas.contains_key(&resolved)
-            || env.ops.contains_key(&resolved))
+            || env.ops.contains_key(&resolved)
+            || env.templates.contains_key(&resolved))
 }
 
 fn has_unresolved_free_variables(expr: &Node, env: &Env) -> bool {
@@ -1639,6 +1655,178 @@ pub fn subst(expr: &Node, name: &str, replacement: &Node) -> Node {
 /// Backwards-compatible alias for [`subst`].
 pub fn substitute(expr: &Node, name: &str, replacement: &Node) -> Node {
     subst(expr, name, replacement)
+}
+
+// ========== Template expansion (issue #59) ==========
+
+fn template_key_for(env: &Env, name: &str) -> Option<String> {
+    if env.templates.contains_key(name) {
+        return Some(name.to_string());
+    }
+    let resolved = env.resolve_qualified(name);
+    if resolved != name && env.templates.contains_key(&resolved) {
+        return Some(resolved);
+    }
+    None
+}
+
+fn validate_template_pattern(pattern: &Node) -> Result<(String, Vec<String>), String> {
+    let children = match pattern {
+        Node::List(items) if !items.is_empty() => items,
+        _ => {
+            return Err(
+                "Template declaration must be `(template (<name> <param>...) <body>)`".to_string(),
+            );
+        }
+    };
+    let name = match &children[0] {
+        Node::Leaf(s) if is_variable_token(s) => s.clone(),
+        Node::Leaf(s) => {
+            return Err(format!(
+                "Template name must be a bare identifier (got \"{}\")",
+                s
+            ));
+        }
+        other => {
+            return Err(format!(
+                "Template name must be a bare identifier (got \"{}\")",
+                key_of(other)
+            ));
+        }
+    };
+
+    let mut params = Vec::new();
+    let mut seen = HashSet::new();
+    for param in &children[1..] {
+        let p = match param {
+            Node::Leaf(s) if is_variable_token(s) => s.clone(),
+            Node::Leaf(s) => {
+                return Err(format!(
+                    "Template parameter must be a bare identifier (got \"{}\")",
+                    s
+                ));
+            }
+            other => {
+                return Err(format!(
+                    "Template parameter must be a bare identifier (got \"{}\")",
+                    key_of(other)
+                ));
+            }
+        };
+        if !seen.insert(p.clone()) {
+            return Err(format!(
+                "Template parameter \"{}\" is declared more than once",
+                p
+            ));
+        }
+        params.push(p);
+    }
+    Ok((name, params))
+}
+
+fn register_template_form(form: &Node, env: &mut Env) -> Result<String, String> {
+    let children = match form {
+        Node::List(items) => items,
+        _ => {
+            return Err(
+                "Template declaration must be `(template (<name> <param>...) <body>)`".to_string(),
+            );
+        }
+    };
+    if children.len() != 3 || !matches!(children.first(), Some(Node::Leaf(h)) if h == "template") {
+        return Err(
+            "Template declaration must be `(template (<name> <param>...) <body>)`".to_string(),
+        );
+    }
+    let (name, params) = validate_template_pattern(&children[1])?;
+    let store_name = env.qualify_name(&name);
+    maybe_warn_shadow(env, &store_name);
+    env.templates.insert(
+        store_name.clone(),
+        TemplateDecl {
+            name: store_name.clone(),
+            params,
+            body: children[2].clone(),
+        },
+    );
+    Ok(store_name)
+}
+
+fn substitute_template_placeholders(body: &Node, params: &[String], args: &[Node]) -> Node {
+    let mut current = body.clone();
+    let mut avoid = HashSet::new();
+    collect_names(&current, &mut avoid);
+    for arg in args {
+        collect_names(arg, &mut avoid);
+    }
+    let mut sentinels = Vec::new();
+    for param in params {
+        let sentinel = fresh_name(&format!("__template_{}", param), &avoid);
+        avoid.insert(sentinel.clone());
+        sentinels.push(sentinel);
+    }
+    for (param, sentinel) in params.iter().zip(sentinels.iter()) {
+        current = subst(&current, param, &Node::Leaf(sentinel.clone()));
+    }
+    for (sentinel, arg) in sentinels.iter().zip(args.iter()) {
+        current = subst(&current, sentinel, arg);
+    }
+    current
+}
+
+fn expand_templates(node: &Node, env: &Env, stack: &mut Vec<String>) -> Node {
+    match node {
+        Node::Leaf(_) => node.clone(),
+        Node::List(children) => {
+            if children.is_empty() {
+                return node.clone();
+            }
+            if let Some(Node::Leaf(head)) = children.first() {
+                if let Some(key) = template_key_for(env, head) {
+                    let decl = env
+                        .templates
+                        .get(&key)
+                        .cloned()
+                        .expect("template key resolved to declaration");
+                    let arg_count = children.len().saturating_sub(1);
+                    if arg_count != decl.params.len() {
+                        panic!(
+                            "Template expansion error: Template \"{}\" expects {} argument{}, got {}",
+                            head,
+                            decl.params.len(),
+                            if decl.params.len() == 1 { "" } else { "s" },
+                            arg_count
+                        );
+                    }
+                    if let Some(pos) = stack.iter().position(|item| item == &key) {
+                        let mut cycle = stack[pos..].to_vec();
+                        cycle.push(key.clone());
+                        panic!(
+                            "Template expansion error: Template expansion cycle detected: {}",
+                            cycle.join(" -> ")
+                        );
+                    }
+
+                    let expanded_args: Vec<Node> = children[1..]
+                        .iter()
+                        .map(|arg| expand_templates(arg, env, stack))
+                        .collect();
+                    stack.push(key.clone());
+                    let instantiated =
+                        substitute_template_placeholders(&decl.body, &decl.params, &expanded_args);
+                    let expanded = expand_templates(&instantiated, env, stack);
+                    stack.pop();
+                    return expanded;
+                }
+            }
+            Node::List(
+                children
+                    .iter()
+                    .map(|child| expand_templates(child, env, stack))
+                    .collect(),
+            )
+        }
+    }
 }
 
 // ========== Evaluator ==========
@@ -2254,6 +2442,7 @@ fn context_has_name(env: &Env, name: &str) -> bool {
         || env.lambdas.contains_key(name)
         || env.symbol_prob.contains_key(name)
         || env.ops.contains_key(name)
+        || env.templates.contains_key(name)
     {
         return true;
     }
@@ -2263,7 +2452,8 @@ fn context_has_name(env: &Env, name: &str) -> bool {
             || env.types.contains_key(&resolved)
             || env.lambdas.contains_key(&resolved)
             || env.symbol_prob.contains_key(&resolved)
-            || env.ops.contains_key(&resolved))
+            || env.ops.contains_key(&resolved)
+            || env.templates.contains_key(&resolved))
 }
 
 fn eval_fresh(var_name: &str, body: &Node, env: &mut Env) -> EvalResult {
@@ -6630,6 +6820,7 @@ fn handle_import(
     let before_syms: HashSet<String> = env.symbol_prob.keys().cloned().collect();
     let before_terms: HashSet<String> = env.terms.iter().cloned().collect();
     let before_lambdas: HashSet<String> = env.lambdas.keys().cloned().collect();
+    let before_templates: HashSet<String> = env.templates.keys().cloned().collect();
     let before_namespace = env.namespace.clone();
 
     let resolved_str = resolved.to_string_lossy().into_owned();
@@ -6664,6 +6855,11 @@ fn handle_import(
     }
     for k in env.lambdas.keys() {
         if !before_lambdas.contains(k) {
+            env.imported.insert(k.clone());
+        }
+    }
+    for k in env.templates.keys() {
+        if !before_templates.contains(k) {
             env.imported.insert(k.clone());
         }
     }
@@ -6842,50 +7038,66 @@ fn evaluate_inner(text: &str, file: Option<&str>, env: &mut Env, options: &Evalu
             }
         }
 
-        // We need to capture the form so the eval-trace event can reference it
-        // by canonical key. Cloning is cheap: AST nodes are small strings.
-        let form_for_trace = if options.trace {
-            Some(form.clone())
-        } else {
-            None
-        };
-        let result = catch_unwind(AssertUnwindSafe(|| eval_node(&form, env)));
-        match result {
-            Ok(eval_res) => {
-                if options.trace {
-                    if let Some(ref form_node) = form_for_trace {
-                        let form_key = key_of(form_node);
-                        let summary = match &eval_res {
-                            EvalResult::Query(v) => format!(
-                                "{} → query {}",
-                                form_key,
-                                format_trace_value(*v)
-                            ),
-                            EvalResult::TypeQuery(s) => {
-                                format!("{} → type {}", form_key, s)
+        // Top-level `(template (<name> <param>...) <body>)` declarations are
+        // recorded on the environment and produce no result. Later regular
+        // forms are expanded through this registry before evaluation.
+        if let Node::List(children) = &form {
+            if let Some(Node::Leaf(head)) = children.first() {
+                if head == "template" {
+                    match register_template_form(&form, env) {
+                        Ok(name) => {
+                            if options.trace {
+                                env.trace_events.push(TraceEvent::new(
+                                    "template",
+                                    name,
+                                    span.clone(),
+                                ));
                             }
-                            EvalResult::Value(v) => {
-                                format!("{} → {}", form_key, format_trace_value(*v))
-                            }
-                            EvalResult::Term(term) => {
-                                format!("{} → term {}", form_key, key_of(term))
-                            }
-                        };
-                        env.trace_events
-                            .push(TraceEvent::new("eval", summary, span.clone()));
+                        }
+                        Err(message) => {
+                            diagnostics.push(Diagnostic::new("E040", message, span.clone()));
+                        }
                     }
+                    continue;
                 }
-                let was_query = matches!(
-                    eval_res,
-                    EvalResult::Query(_) | EvalResult::TypeQuery(_)
-                );
+            }
+        }
+
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            let mut stack = Vec::new();
+            let expanded_form = expand_templates(&form, env, &mut stack);
+            let eval_res = eval_node(&expanded_form, env);
+            (expanded_form, eval_res)
+        }));
+        match result {
+            Ok((expanded_form, eval_res)) => {
+                if options.trace {
+                    let form_key = key_of(&expanded_form);
+                    let summary = match &eval_res {
+                        EvalResult::Query(v) => {
+                            format!("{} → query {}", form_key, format_trace_value(*v))
+                        }
+                        EvalResult::TypeQuery(s) => {
+                            format!("{} → type {}", form_key, s)
+                        }
+                        EvalResult::Value(v) => {
+                            format!("{} → {}", form_key, format_trace_value(*v))
+                        }
+                        EvalResult::Term(term) => {
+                            format!("{} → term {}", form_key, key_of(term))
+                        }
+                    };
+                    env.trace_events
+                        .push(TraceEvent::new("eval", summary, span.clone()));
+                }
+                let was_query = matches!(eval_res, EvalResult::Query(_) | EvalResult::TypeQuery(_));
                 match eval_res {
                     EvalResult::Query(v) => results.push(RunResult::Num(v)),
                     EvalResult::TypeQuery(s) => results.push(RunResult::Type(s)),
                     _ => {}
                 }
                 if was_query {
-                    let wants_proof = proofs_enabled || query_requests_proof(&form);
+                    let wants_proof = proofs_enabled || query_requests_proof(&expanded_form);
                     if wants_proof {
                         // Lazily allocate the proofs vec on first per-query
                         // opt-in so callers that never ask for proofs get
@@ -6899,7 +7111,7 @@ fn evaluate_inner(text: &str, file: Option<&str>, env: &mut Env, options: &Evalu
                         // to the queried expression directly; this matches
                         // the issue example `(by structural-equality (a a))`
                         // rather than nesting under `(by query ...)`.
-                        let proof_node = match &form {
+                        let proof_node = match &expanded_form {
                             Node::List(form_children)
                                 if matches!(
                                     form_children.first(),
@@ -6915,7 +7127,7 @@ fn evaluate_inner(text: &str, file: Option<&str>, env: &mut Env, options: &Evalu
                                 };
                                 build_proof(&target, env)
                             }
-                            _ => build_proof(&form, env),
+                            _ => build_proof(&expanded_form, env),
                         };
                         proofs.as_mut().unwrap().push(Some(proof_node));
                     } else if let Some(p) = proofs.as_mut() {
@@ -7033,6 +7245,11 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
             "E038".to_string(),
             raw_msg.replacen("Normalization error: ", "", 1),
         )
+    } else if raw_msg.starts_with("Template expansion error:") {
+        (
+            "E040".to_string(),
+            raw_msg.replacen("Template expansion error: ", "", 1),
+        )
     } else {
         ("E000".to_string(), raw_msg)
     }
@@ -7040,88 +7257,18 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
 
 /// Run a complete LiNo knowledge base and return query results (including type queries).
 pub fn run_typed(text: &str, options: Option<EnvOptions>) -> Vec<RunResult> {
-    let links = parse_lino(text);
-    let forms: Vec<Node> = links
-        .iter()
-        .filter(|link_str| {
-            let s = link_str.trim();
-            !(s.starts_with("(#") && s.chars().nth(2).map_or(false, |c| c.is_whitespace()))
-        })
-        .filter_map(|link_str| {
-            let toks = tokenize_one(link_str);
-            parse_one(&toks).ok()
-        })
-        .collect();
-
-    let mut env = Env::new(options);
-    let mut outs = Vec::new();
-
-    for form in forms {
-        let mut form = form;
-        loop {
-            match form {
-                Node::List(ref children) if children.len() == 1 => {
-                    if let Node::List(_) = &children[0] {
-                        form = children[0].clone();
-                    } else {
-                        break;
-                    }
-                }
-                _ => break,
-            }
-        }
-        let res = eval_node(&form, &mut env);
-        match res {
-            EvalResult::Query(v) => outs.push(RunResult::Num(v)),
-            EvalResult::TypeQuery(s) => outs.push(RunResult::Type(s)),
-            _ => {}
-        }
-    }
-    outs
+    evaluate(text, None, options).results
 }
 
 /// Run a complete LiNo knowledge base and return query results.
 pub fn run(text: &str, options: Option<EnvOptions>) -> Vec<f64> {
-    let links = parse_lino(text);
-
-    // Filter out comment-only links and parse each link
-    let forms: Vec<Node> = links
-        .iter()
-        .filter(|link_str| {
-            let s = link_str.trim();
-            // Skip if it's just a comment link like "(# ...)"
-            !(s.starts_with("(#") && s.chars().nth(2).map_or(false, |c| c.is_whitespace()))
+    run_typed(text, options)
+        .into_iter()
+        .filter_map(|result| match result {
+            RunResult::Num(v) => Some(v),
+            RunResult::Type(_) => None,
         })
-        .filter_map(|link_str| {
-            let toks = tokenize_one(link_str);
-            parse_one(&toks).ok()
-        })
-        .collect();
-
-    let mut env = Env::new(options);
-    let mut outs = Vec::new();
-
-    for form in forms {
-        // Unwrap single-element arrays (LiNo wraps everything in outer parens)
-        let mut form = form;
-        loop {
-            match form {
-                Node::List(ref children) if children.len() == 1 => {
-                    if let Node::List(_) = &children[0] {
-                        form = children[0].clone();
-                    } else {
-                        break;
-                    }
-                }
-                _ => break,
-            }
-        }
-        let res = eval_node(&form, &mut env);
-        if let EvalResult::Query(v) = res {
-            outs.push(v);
-        }
-    }
-    outs
+        .collect()
 }
 
 // Tests are in the tests/ directory (integration tests).

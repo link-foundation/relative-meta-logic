@@ -99,6 +99,7 @@ The exit code is `1` whenever any diagnostic is emitted, `0` otherwise.
 | `E037` | Coverage error. Triggered by a malformed `(coverage <relation-name>)` driver form; a `(coverage <name>)` for a relation that lacks a `(mode ...)` declaration or has no `(relation ...)` clauses; or a `(coverage <name>)` whose `+input` slots do not exhaust every constructor of the slot's inductive type. The message names the relation, the offending slot, the inferred inductive type, and an example of every missing constructor pattern (e.g. `(succ _)`). Slots whose patterns include a wildcard variable, or whose inductive type cannot be inferred from any clause, are skipped — coverage is opt-in per slot. |
 | `E038` | Normalization driver error. Triggered by a malformed `(whnf …)`, `(nf …)`, or `(normal-form …)` form — typically a missing argument or extra arguments. The driver expects exactly one expression to normalize. |
 | `E039` | Tactic engine error. Triggered when a link tactic is malformed, unknown, applied to an incompatible goal, or cannot close/transform the current goal. The message includes the current goal printed as a link. |
+| `E040` | Template expansion error. Triggered by a malformed `(template (<name> <param>...) <body>)` declaration, a template use with the wrong number of arguments, or a recursive template expansion cycle. |
 
 Codes are stable identifiers — they do not change between releases unless we
 explicitly note a breaking change in the changelog. The accompanying

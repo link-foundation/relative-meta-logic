@@ -200,6 +200,7 @@ class Env {
     this.symbolProb = new Map();                // optional symbol priors if you want (x: 0.7)
     this.types = new Map();                     // key(expr) -> type expression (as string)
     this.lambdas = new Map();                   // name -> { param, paramType, body } for named lambdas
+    this.templates = new Map();                 // name -> { name, params, body } for pre-evaluation templates
     // Mode declarations (issue #43, D15): each relation may declare an
     // argument mode pattern via `(mode <name> +input -output ...)`. The
     // map records the per-argument flag list (`'in'`, `'out'`, `'either'`)
@@ -429,7 +430,8 @@ class Env {
         this.ops.has(qualified) ||
         this.symbolProb.has(qualified) ||
         this.terms.has(qualified) ||
-        this.lambdas.has(qualified)
+        this.lambdas.has(qualified) ||
+        this.templates.has(qualified)
       ) {
         return qualified;
       }
@@ -541,6 +543,7 @@ const NON_VARIABLE_TOKENS = new Set([
   'inductive', 'coinductive', 'constructor',
   'define', 'case', 'measure', 'lex', 'terminating',
   'whnf', 'nf', 'normal-form',
+  'template',
   '+', '-', '*', '/', '=', '!=', 'and', 'or', 'not', 'both', 'neither', 'nor',
 ]);
 
@@ -618,7 +621,8 @@ function envCanEvaluateName(env, name) {
     env.terms.has(name) ||
     env.types.has(name) ||
     env.lambdas.has(name) ||
-    env.ops.has(name)
+    env.ops.has(name) ||
+    env.templates.has(name)
   ) {
     return true;
   }
@@ -628,7 +632,8 @@ function envCanEvaluateName(env, name) {
     env.terms.has(resolved) ||
     env.types.has(resolved) ||
     env.lambdas.has(resolved) ||
-    env.ops.has(resolved)
+    env.ops.has(resolved) ||
+    env.templates.has(resolved)
   );
 }
 
@@ -726,6 +731,110 @@ function subst(expr, name, replacement) {
 
 function substitute(expr, name, replacement) {
   return subst(expr, name, replacement);
+}
+
+// ---------- Template expansion (issue #59) ----------
+// `(template (<name> <param>...) <body>)` registers a reusable link shape.
+// Uses like `(<name> arg...)` are expanded before evaluation, recursively, so
+// template bodies can call other templates. Placeholder substitution is
+// simultaneous and capture-avoiding: first replace free placeholders with
+// fresh sentinels, then use the existing hygienic `subst` primitive to insert
+// arguments without letting template-introduced binders capture them.
+function _templateKeyFor(env, name) {
+  if (env.templates.has(name)) return name;
+  const resolved = env._resolveQualified(name);
+  if (resolved !== name && env.templates.has(resolved)) return resolved;
+  return null;
+}
+
+function _validateTemplatePattern(pattern) {
+  if (!Array.isArray(pattern) || pattern.length < 1 || typeof pattern[0] !== 'string') {
+    throw new RmlError('E040', 'Template declaration must be `(template (<name> <param>...) <body>)`');
+  }
+  const name = pattern[0];
+  if (!isVariableToken(name)) {
+    throw new RmlError('E040', `Template name must be a bare identifier (got "${name}")`);
+  }
+  const params = pattern.slice(1);
+  const seen = new Set();
+  for (const param of params) {
+    if (typeof param !== 'string' || !isVariableToken(param)) {
+      throw new RmlError('E040', `Template parameter must be a bare identifier (got "${keyOf(param)}")`);
+    }
+    if (seen.has(param)) {
+      throw new RmlError('E040', `Template parameter "${param}" is declared more than once`);
+    }
+    seen.add(param);
+  }
+  return { name, params };
+}
+
+function registerTemplateForm(form, env) {
+  if (!Array.isArray(form) || form.length !== 3 || form[0] !== 'template') {
+    throw new RmlError('E040', 'Template declaration must be `(template (<name> <param>...) <body>)`');
+  }
+  const { name, params } = _validateTemplatePattern(form[1]);
+  const storeName = env.qualifyName(name);
+  _maybeWarnShadow(env, storeName);
+  env.templates.set(storeName, {
+    name: storeName,
+    params,
+    body: cloneTerm(form[2]),
+  });
+  return storeName;
+}
+
+function substituteTemplatePlaceholders(body, params, args) {
+  let current = cloneTerm(body);
+  const avoid = collectNames(current);
+  for (const arg of args) collectNames(arg, avoid);
+  const sentinels = params.map(param => {
+    const next = freshName(`__template_${param}`, avoid);
+    avoid.add(next);
+    return next;
+  });
+  for (let i = 0; i < params.length; i++) {
+    current = subst(current, params[i], sentinels[i]);
+  }
+  for (let i = 0; i < sentinels.length; i++) {
+    current = subst(current, sentinels[i], args[i]);
+  }
+  return current;
+}
+
+function expandTemplates(node, env, stack = []) {
+  if (!Array.isArray(node)) return cloneTerm(node);
+  if (node.length === 0) return [];
+
+  const head = node[0];
+  if (typeof head === 'string') {
+    const key = _templateKeyFor(env, head);
+    if (key) {
+      const decl = env.templates.get(key);
+      const argCount = node.length - 1;
+      if (argCount !== decl.params.length) {
+        throw new RmlError(
+          'E040',
+          `Template "${head}" expects ${decl.params.length} argument${decl.params.length === 1 ? '' : 's'}, got ${argCount}`,
+        );
+      }
+      const cycleStart = stack.indexOf(key);
+      if (cycleStart !== -1) {
+        const cycle = stack.slice(cycleStart).concat([key]).join(' -> ');
+        throw new RmlError('E040', `Template expansion cycle detected: ${cycle}`);
+      }
+      const expandedArgs = node.slice(1).map(arg => expandTemplates(arg, env, stack));
+      stack.push(key);
+      try {
+        const instantiated = substituteTemplatePlaceholders(decl.body, decl.params, expandedArgs);
+        return expandTemplates(instantiated, env, stack);
+      } finally {
+        stack.pop();
+      }
+    }
+  }
+
+  return node.map(child => expandTemplates(child, env, stack));
 }
 
 // ---------- Eval ----------
@@ -4000,10 +4109,30 @@ function evaluate(code, options) {
       continue;
     }
 
+    // Handle `(template (<name> <param>...) <body>)` at the top level. The
+    // declaration itself produces no result; later forms are expanded before
+    // regular evaluation.
+    if (Array.isArray(form) && form[0] === 'template') {
+      try {
+        const registered = registerTemplateForm(form, env);
+        if (traceEnabled && trace) {
+          trace.push(new TraceEvent({ kind: 'template', detail: registered, span }));
+        }
+      } catch (err) {
+        diagnostics.push(new Diagnostic({
+          code: (err && err.code) || 'E040',
+          message: err && err.message ? err.message : String(err),
+          span: (err && err.span) || span,
+        }));
+      }
+      continue;
+    }
+
     try {
-      const res = evalNode(form, env);
+      const expandedForm = expandTemplates(form, env);
+      const res = evalNode(expandedForm, env);
       if (traceEnabled) {
-        const formKey = keyOf(form);
+        const formKey = keyOf(expandedForm);
         let summary;
         if (res && res.query) {
           const tag = res.typeQuery ? 'type' : 'query';
@@ -4022,7 +4151,7 @@ function evaluate(code, options) {
         // query in without the global flag. Lazily allocate the proofs
         // array on first per-query opt-in so callers that never use
         // proofs still get the original `{results, diagnostics}` shape.
-        const wantsProof = proofsEnabled || _queryRequestsProof(form);
+        const wantsProof = proofsEnabled || _queryRequestsProof(expandedForm);
         if (wantsProof) {
           if (proofs === null) {
             // Backfill nulls for any prior bare queries so indexes align.
@@ -4032,7 +4161,7 @@ function evaluate(code, options) {
           // queried expression directly; this matches the issue example
           // `(by structural-equality (a a))` rather than nesting under
           // `(by query ...)`.
-          const inner = _stripWithProof(form.slice(1));
+          const inner = _stripWithProof(expandedForm.slice(1));
           const target = inner.length === 1 ? inner[0] : inner;
           proofs.push(buildProof(target, env));
         } else if (proofs !== null) {
@@ -4163,6 +4292,7 @@ function handleImport(rawTarget, alias, span, importingFile, env, importStack, i
   const beforeSyms = new Set(env.symbolProb.keys());
   const beforeTerms = new Set(env.terms);
   const beforeLambdas = new Set(env.lambdas.keys());
+  const beforeTemplates = new Set(env.templates.keys());
   const beforeNamespace = env.namespace;
 
   const inner = evaluate(text, {
@@ -4193,6 +4323,7 @@ function handleImport(rawTarget, alias, span, importingFile, env, importStack, i
     for (const k of env.symbolProb.keys()) if (!beforeSyms.has(k)) env.imported.add(k);
     for (const k of env.terms) if (!beforeTerms.has(k)) env.imported.add(k);
     for (const k of env.lambdas.keys()) if (!beforeLambdas.has(k)) env.imported.add(k);
+    for (const k of env.templates.keys()) if (!beforeTemplates.has(k)) env.imported.add(k);
   }
 
   // Wire up the alias once the imported file has finished evaluating. If the
@@ -4412,26 +4543,7 @@ function evaluateFormalization(formalization, options = {}) {
 
 // ---------- Runner ----------
 function run(text, options){
-  const forms = parseLinoForms(text);
-
-  const env = new Env(options);
-  const outs = [];
-  for (let form of forms) {
-    // Unwrap single-element arrays (LiNo wraps everything in outer parens)
-    while (Array.isArray(form) && form.length === 1 && Array.isArray(form[0])) {
-      form = form[0];
-    }
-    const res = evalNode(form, env);
-    if (res && res.query) {
-      if (res.typeQuery) {
-        // Type queries return string results
-        outs.push(res.value);
-      } else {
-        outs.push(res.value);
-      }
-    }
-  }
-  return outs;
+  return evaluate(text, options).results;
 }
 
 // CLI (runs only when invoked directly, not when imported as a library).
