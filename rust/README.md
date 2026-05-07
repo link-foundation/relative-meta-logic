@@ -56,7 +56,7 @@ Or after building:
 use rml::{
     run, evaluate, format_diagnostic, Diagnostic, EvaluateResult, RunResult, Span,
     tokenize_one, parse_one, Env, EnvOptions, eval_node, quantize, dec_round, subst,
-    run_tactics, ProofState,
+    run_tactics, search, ProofState,
     formalize_selected_interpretation, evaluate_formalization,
     FormalizationRequest, Interpretation,
 };
@@ -85,6 +85,16 @@ let tactic = parse_one(&tokenize_one("(by reflexivity)")).unwrap();
 let goal = parse_one(&tokenize_one("(a = a)")).unwrap();
 let tactic_result = run_tactics(ProofState::from_goals(vec![goal]), &[tactic]);
 // -> tactic_result.state.goals is empty, diagnostics is empty
+
+// Run bounded backwards search over available lemmas
+let search_goal = parse_one(&tokenize_one("(a = c)")).unwrap();
+let lemmas = vec![
+    parse_one(&tokenize_one("(ab of (a = b))")).unwrap(),
+    parse_one(&tokenize_one("(bc of (b = c))")).unwrap(),
+    parse_one(&tokenize_one("(trans of (Pi ((a = b) ab) (Pi ((b = c) bc) (a = c))))")).unwrap(),
+];
+let search_proof = search(&search_goal, 1, &lemmas).unwrap();
+// -> (by apply trans (by exact ab) (by exact bc))
 
 // Quantize a value to N discrete levels
 let q = quantize(0.4, 3, 0.0, 1.0); // -> 0.5 (nearest ternary level)
@@ -116,7 +126,7 @@ The test suite covers:
 - Liar paradox resolution across logic types
 - Decimal-precision arithmetic and numeric equality
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
-- Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, exact
+- Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, exact, bounded search
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Implementation Notes

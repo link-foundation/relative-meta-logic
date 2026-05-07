@@ -1160,6 +1160,110 @@ function _exactClosesGoal(arg, goal) {
   });
 }
 
+function _searchLemma(lemma) {
+  const ascription = _typeAscription(lemma);
+  if (ascription) {
+    return {
+      term: cloneTerm(ascription.term),
+      statement: cloneTerm(ascription.type),
+    };
+  }
+  if (
+    Array.isArray(lemma) &&
+    lemma.length === 2 &&
+    typeof lemma[0] === 'string' &&
+    lemma[0].endsWith(':')
+  ) {
+    return {
+      term: lemma[0].slice(0, -1),
+      statement: cloneTerm(lemma[1]),
+    };
+  }
+  return {
+    term: cloneTerm(lemma),
+    statement: cloneTerm(lemma),
+  };
+}
+
+function _piPremisesAndConclusion(statement) {
+  const premises = [];
+  let current = statement;
+  while (Array.isArray(current) && current.length === 3 && current[0] === 'Pi') {
+    const binding = parseBinding(current[1]);
+    if (!binding) return null;
+    premises.push(cloneTerm(binding.paramType));
+    current = current[2];
+  }
+  return {
+    premises,
+    conclusion: cloneTerm(current),
+  };
+}
+
+function _reflexivityProof(goal) {
+  const eq = _asEquality(goal);
+  if (eq && isStructurallySame(eq.left, eq.right)) {
+    return _wrap('reflexivity');
+  }
+  return null;
+}
+
+function _searchWithLemmas(goal, depth, lemmas) {
+  const reflexive = _reflexivityProof(goal);
+  if (reflexive) return reflexive;
+
+  for (const lemma of lemmas) {
+    if (isStructurallySame(lemma.statement, goal)) {
+      return _wrap('exact', lemma.term);
+    }
+  }
+
+  if (depth <= 0) return null;
+
+  for (const lemma of lemmas) {
+    const rule = _piPremisesAndConclusion(lemma.statement);
+    if (!rule || rule.premises.length === 0 || !isStructurallySame(rule.conclusion, goal)) {
+      continue;
+    }
+    const subProofs = [];
+    let solved = true;
+    for (const premise of rule.premises) {
+      const subProof = _searchWithLemmas(premise, depth - 1, lemmas);
+      if (!subProof) {
+        solved = false;
+        break;
+      }
+      subProofs.push(subProof);
+    }
+    if (solved) return _wrap('apply', lemma.term, ...subProofs);
+  }
+
+  return null;
+}
+
+function _parseSearchDepth(value) {
+  if (Number.isInteger(value) && value >= 0) return value;
+  if (typeof value === 'string' && /^\d+$/.test(value)) return Number(value);
+  return null;
+}
+
+function _recordSearchProof(recordTactic, proof) {
+  const recorded = cloneTerm(recordTactic);
+  if (Array.isArray(recorded)) return [...recorded, cloneTerm(proof)];
+  return [recorded, cloneTerm(proof)];
+}
+
+function search(goal, depth, lemmas = []) {
+  const parsedDepth = _parseSearchDepth(depth);
+  if (parsedDepth === null) return null;
+  const lemmaList = Array.isArray(lemmas) ? lemmas : [lemmas];
+  return _searchWithLemmas(
+    cloneTerm(goal),
+    parsedDepth,
+    lemmaList.map(_searchLemma),
+  );
+}
+
 function _applyTactic(state, tactic, recordTactic = tactic) {
   const name = _tacticName(tactic);
   const args = _tacticArgs(tactic);
@@ -1180,6 +1284,36 @@ function _applyTactic(state, tactic, recordTactic = tactic) {
       ok: false,
       state,
       diagnostic: _tacticDiagnostic(recordTactic, null, 'no open goals'),
+    };
+  }
+
+  if (name === 'search') {
+    if (args.length !== 2 || args[0] !== 'depth') {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'search expects `(search depth N)`'),
+      };
+    }
+    const depth = _parseSearchDepth(args[1]);
+    if (depth === null) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, 'search depth must be a non-negative integer'),
+      };
+    }
+    const proof = search(current.goal, depth, current.context);
+    if (!proof) {
+      return {
+        ok: false,
+        state,
+        diagnostic: _tacticDiagnostic(recordTactic, current, `search found no derivation within depth ${depth}`),
+      };
+    }
+    return {
+      ok: true,
+      state: _replaceCurrentGoal(state, [], _recordSearchProof(recordTactic, proof)),
     };
   }
 
@@ -4612,6 +4746,7 @@ export {
   evalNode,
   buildProof,
   runTactics,
+  search,
   quantize,
   decRound,
   keyOf,

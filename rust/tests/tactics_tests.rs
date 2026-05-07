@@ -2,7 +2,8 @@
 // Mirrors js/tests/tactics.test.mjs so drift between runtimes fails CI.
 
 use rml::{
-    key_of, parse_one, parse_tactic_links, run_tactics, tokenize_one, Node, ProofGoal, ProofState,
+    key_of, parse_one, parse_tactic_links, run_tactics, search, tokenize_one, Node, ProofGoal,
+    ProofState,
 };
 
 fn link(src: &str) -> Node {
@@ -18,6 +19,16 @@ fn state(goals: &[&str]) -> ProofState {
                 context: Vec::new(),
             })
             .collect(),
+        proof: Vec::new(),
+    }
+}
+
+fn state_with_context(goal: &str, context: &[&str]) -> ProofState {
+    ProofState {
+        goals: vec![ProofGoal {
+            goal: link(goal),
+            context: context.iter().map(|lemma| link(lemma)).collect(),
+        }],
         proof: Vec::new(),
     }
 }
@@ -153,4 +164,43 @@ fn failed_tactic_reports_current_goal() {
     assert_eq!(out.diagnostics[0].code, "E039");
     assert!(out.diagnostics[0].message.contains("current goal: (a = b)"));
     assert_eq!(goal_keys(&out.state), vec!["(a = b)"]);
+}
+
+#[test]
+fn search_returns_bounded_derivation_tree_from_available_lemmas() {
+    let lemmas = vec![
+        link("(ab of (a = b))"),
+        link("(bc of (b = c))"),
+        link("(trans of (Pi ((a = b) ab) (Pi ((b = c) bc) (a = c))))"),
+    ];
+
+    assert!(search(&link("(a = c)"), 0, &lemmas).is_none());
+
+    let proof = search(&link("(a = c)"), 1, &lemmas).expect("search proof missing");
+    assert_eq!(
+        key_of(&proof),
+        "(by apply trans (by exact ab) (by exact bc))"
+    );
+}
+
+#[test]
+fn closes_goal_with_by_search_depth() {
+    let out = run_tactics(
+        state_with_context(
+            "(a = c)",
+            &[
+                "(ab of (a = b))",
+                "(bc of (b = c))",
+                "(trans of (Pi ((a = b) ab) (Pi ((b = c) bc) (a = c))))",
+            ],
+        ),
+        &[link("(by search depth 1)")],
+    );
+
+    assert!(out.diagnostics.is_empty());
+    assert!(out.state.goals.is_empty());
+    assert_eq!(
+        out.state.proof.iter().map(key_of).collect::<Vec<_>>(),
+        vec!["(by search depth 1 (by apply trans (by exact ab) (by exact bc)))"]
+    );
 }
