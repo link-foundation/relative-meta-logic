@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "relative-meta-logic"
-version = "0.18.0"
+version = "0.19.0"
 dependencies = [
  "links-notation",
 ]

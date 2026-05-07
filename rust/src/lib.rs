@@ -3549,6 +3549,133 @@ fn exact_closes_goal(arg: &Node, goal: &ProofGoal) -> bool {
     })
 }
 
+#[derive(Clone)]
+struct SearchLemma {
+    term: Node,
+    statement: Node,
+}
+
+fn search_lemma(lemma: &Node) -> SearchLemma {
+    if let Some((term, typ)) = type_ascription(lemma) {
+        return SearchLemma {
+            term: term.clone(),
+            statement: typ.clone(),
+        };
+    }
+    if let Node::List(children) = lemma {
+        if children.len() == 2 {
+            if let Node::Leaf(name) = &children[0] {
+                if name.ends_with(':') {
+                    return SearchLemma {
+                        term: Node::Leaf(name[..name.len() - 1].to_string()),
+                        statement: children[1].clone(),
+                    };
+                }
+            }
+        }
+    }
+    SearchLemma {
+        term: lemma.clone(),
+        statement: lemma.clone(),
+    }
+}
+
+fn pi_premises_and_conclusion(statement: &Node) -> Option<(Vec<Node>, Node)> {
+    let mut premises = Vec::new();
+    let mut current = statement.clone();
+    loop {
+        let Node::List(children) = &current else {
+            return Some((premises, current));
+        };
+        if children.len() != 3 || !matches!(&children[0], Node::Leaf(head) if head == "Pi") {
+            return Some((premises, current));
+        }
+        let (_, param_type_key) = parse_binding(&children[1])?;
+        premises.push(type_key_to_node(&param_type_key));
+        current = children[2].clone();
+    }
+}
+
+fn reflexivity_proof(goal: &Node) -> Option<Node> {
+    let (left, right) = as_equality(goal)?;
+    if is_structurally_same(left, right) {
+        return Some(wrap_proof("reflexivity", Vec::new()));
+    }
+    None
+}
+
+fn search_with_lemmas(goal: &Node, depth: usize, lemmas: &[SearchLemma]) -> Option<Node> {
+    if let Some(proof) = reflexivity_proof(goal) {
+        return Some(proof);
+    }
+
+    for lemma in lemmas {
+        if is_structurally_same(&lemma.statement, goal) {
+            return Some(wrap_proof("exact", vec![lemma.term.clone()]));
+        }
+    }
+
+    if depth == 0 {
+        return None;
+    }
+
+    for lemma in lemmas {
+        let Some((premises, conclusion)) = pi_premises_and_conclusion(&lemma.statement) else {
+            continue;
+        };
+        if premises.is_empty() || !is_structurally_same(&conclusion, goal) {
+            continue;
+        }
+        let mut subproofs = Vec::new();
+        let mut solved = true;
+        for premise in premises {
+            if let Some(subproof) = search_with_lemmas(&premise, depth - 1, lemmas) {
+                subproofs.push(subproof);
+            } else {
+                solved = false;
+                break;
+            }
+        }
+        if solved {
+            let mut subs = vec![lemma.term.clone()];
+            subs.extend(subproofs);
+            return Some(wrap_proof("apply", subs));
+        }
+    }
+
+    None
+}
+
+/// Depth-bounded backwards search over a goal and the available lemma links.
+///
+/// Direct lemmas and reflexive equality close at depth 0. Applying a `Pi`
+/// lemma consumes one unit of depth and recursively solves its premises.
+pub fn search(goal: &Node, depth: usize, lemmas: &[Node]) -> Option<Node> {
+    let search_lemmas: Vec<SearchLemma> = lemmas.iter().map(search_lemma).collect();
+    search_with_lemmas(goal, depth, &search_lemmas)
+}
+
+fn parse_search_depth(args: &[Node]) -> Option<usize> {
+    if args.len() != 2 || !matches!(&args[0], Node::Leaf(s) if s == "depth") {
+        return None;
+    }
+    let Node::Leaf(depth) = &args[1] else {
+        return None;
+    };
+    depth.parse::<usize>().ok()
+}
+
+fn record_search_proof(record_tactic: &Node, proof: &Node) -> Node {
+    match record_tactic {
+        Node::List(children) => {
+            let mut recorded = children.clone();
+            recorded.push(proof.clone());
+            Node::List(recorded)
+        }
+        _ => Node::List(vec![record_tactic.clone(), proof.clone()]),
+    }
+}
+
 fn apply_tactic(
     state: &ProofState,
     tactic: &Node,
@@ -3576,6 +3703,27 @@ fn apply_tactic(
     };
 
     match name {
+        Some("search") => {
+            let Some(depth) = parse_search_depth(args) else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    "search expects `(search depth N)`",
+                ));
+            };
+            let Some(proof) = search(&current.goal, depth, &current.context) else {
+                return Err(tactic_diagnostic(
+                    record_tactic,
+                    Some(current),
+                    format!("search found no derivation within depth {}", depth),
+                ));
+            };
+            Ok(replace_current_goal(
+                state,
+                Vec::new(),
+                &record_search_proof(record_tactic, &proof),
+            ))
+        }
         Some("reflexivity") => {
             let Some((left, right)) = as_equality(&current.goal) else {
                 return Err(tactic_diagnostic(

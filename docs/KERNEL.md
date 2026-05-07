@@ -470,7 +470,9 @@ The tactic engine is a library layer over proof states rather than a new
 kernel form. A proof state contains open goals, each goal's local context,
 and a history of successful tactic links. The public APIs are
 `runTactics(state, tactics)` in JavaScript and `run_tactics(state, tactics)`
-in Rust.
+in Rust. Both runtimes also expose `search(goal, depth, lemmas)`, which
+returns a derivation-tree link or `null` / `None` when the bounded search
+cannot close the goal.
 
 Built-in tactics:
 
@@ -484,11 +486,22 @@ Built-in tactics:
 | `(introduce x)` | Opens a `Pi` goal and records `(x of A)` in context. |
 | `(rewrite (L = R) in goal)` | Rewrites occurrences of `L` to `R` in the current goal. |
 | `(exact term)` | Closes the goal when `term` or its context ascription proves it. |
+| `(by search depth N)` | Runs depth-bounded backwards search using the current goal context as lemmas. |
 | `(induction x (case p tactics...) ...)` | Creates one substituted case goal per case and runs its tactic links. |
 
 Failed tactics return `E039` diagnostics with the current goal printed in the
 message. Successful tactic history remains a list of links, preserving the
 "everything is a link" invariant.
+
+Search closes reflexive equality and exact lemma matches at depth `0`.
+Applying a `Pi` lemma consumes one depth unit and recursively searches for
+the lemma premises. Lemmas may be raw propositions, typed links such as
+`(h of P)`, or named declarations such as `(h: P)`. A successful search
+records a concrete derivation tree, for example:
+
+```lino
+(by apply trans (by exact ab) (by exact bc))
+```
 
 ## Bidirectional Type Checker
 

@@ -65,6 +65,7 @@ import {
   Env,
   evalNode,
   runTactics,
+  search,
   quantize,
   decRound,
   keyOf,
@@ -102,6 +103,18 @@ const tacticResult = runTactics(
 );
 // -> { state: { goals: [], proof: [['by', 'reflexivity']] }, diagnostics: [] }
 
+// Run bounded backwards search over available lemmas
+const searchProof = search(
+  parseOne(tokenizeOne('(a = c)')),
+  1,
+  [
+    parseOne(tokenizeOne('(ab of (a = b))')),
+    parseOne(tokenizeOne('(bc of (b = c))')),
+    parseOne(tokenizeOne('(trans of (Pi ((a = b) ab) (Pi ((b = c) bc) (a = c))))')),
+  ],
+);
+// -> (by apply trans (by exact ab) (by exact bc))
+
 // Quantize a value to N discrete levels
 const q = quantize(0.4, 3, 0, 1); // -> 0.5 (nearest ternary level)
 
@@ -134,7 +147,7 @@ The test suite covers:
 - Liar paradox resolution across logic types
 - Decimal-precision arithmetic and numeric equality
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
-- Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, exact
+- Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, exact, bounded search
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Dependencies

@@ -8,6 +8,7 @@ import {
   keyOf,
   parseOne,
   runTactics,
+  search,
   tokenizeOne,
 } from '../src/rml-links.mjs';
 
@@ -17,6 +18,15 @@ function link(src) {
 
 function state(...goals) {
   return { goals: goals.map(goal => link(goal)) };
+}
+
+function stateWithContext(goal, ...context) {
+  return {
+    goals: [{
+      goal: link(goal),
+      context: context.map(link),
+    }],
+  };
 }
 
 function goalKeys(proofState) {
@@ -124,5 +134,39 @@ describe('runTactics applies link tactics to proof states', () => {
     assert.strictEqual(out.diagnostics[0].code, 'E039');
     assert.match(out.diagnostics[0].message, /current goal: \(a = b\)/);
     assert.deepStrictEqual(goalKeys(out.state), ['(a = b)']);
+  });
+
+  it('search returns a bounded derivation tree from available lemmas', () => {
+    const lemmas = [
+      link('(ab of (a = b))'),
+      link('(bc of (b = c))'),
+      link('(trans of (Pi ((a = b) ab) (Pi ((b = c) bc) (a = c))))'),
+    ];
+
+    assert.strictEqual(search(link('(a = c)'), 0, lemmas), null);
+
+    const proof = search(link('(a = c)'), 1, lemmas);
+    assert.strictEqual(
+      keyOf(proof),
+      '(by apply trans (by exact ab) (by exact bc))',
+    );
+  });
+
+  it('closes a goal with (by search depth N)', () => {
+    const out = runTactics(
+      stateWithContext(
+        '(a = c)',
+        '(ab of (a = b))',
+        '(bc of (b = c))',
+        '(trans of (Pi ((a = b) ab) (Pi ((b = c) bc) (a = c))))',
+      ),
+      [link('(by search depth 1)')],
+    );
+
+    assert.deepStrictEqual(out.diagnostics, []);
+    assert.deepStrictEqual(out.state.goals, []);
+    assert.deepStrictEqual(out.state.proof.map(keyOf), [
+      '(by search depth 1 (by apply trans (by exact ab) (by exact bc)))',
+    ]);
   });
 });
