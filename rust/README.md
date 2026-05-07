@@ -56,7 +56,7 @@ Or after building:
 use rml::{
     run, evaluate, format_diagnostic, Diagnostic, EvaluateResult, RunResult, Span,
     tokenize_one, parse_one, Env, EnvOptions, eval_node, quantize, dec_round, subst,
-    run_tactics, ProofState,
+    run_tactics, rewrite, simplify, ProofState,
     formalize_selected_interpretation, evaluate_formalization,
     FormalizationRequest, Interpretation,
 };
@@ -85,6 +85,10 @@ let tactic = parse_one(&tokenize_one("(by reflexivity)")).unwrap();
 let goal = parse_one(&tokenize_one("(a = a)")).unwrap();
 let tactic_result = run_tactics(ProofState::from_goals(vec![goal]), &[tactic]);
 // -> tactic_result.state.goals is empty, diagnostics is empty
+
+let eq = parse_one(&tokenize_one("(a = b)")).unwrap();
+let rewritten = rewrite(&parse_one(&tokenize_one("(a = a)")).unwrap(), &eq).unwrap();
+let simplified = simplify(&parse_one(&tokenize_one("((f a) = (f a))")).unwrap(), &[eq]).unwrap();
 
 // Quantize a value to N discrete levels
 let q = quantize(0.4, 3, 0.0, 1.0); // -> 0.5 (nearest ternary level)
@@ -116,7 +120,7 @@ The test suite covers:
 - Liar paradox resolution across logic types
 - Decimal-precision arithmetic and numeric equality
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
-- Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, exact
+- Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, simplify, exact
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Implementation Notes
