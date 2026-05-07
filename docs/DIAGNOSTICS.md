@@ -100,6 +100,7 @@ The exit code is `1` whenever any diagnostic is emitted, `0` otherwise.
 | `E038` | Normalization driver error. Triggered by a malformed `(whnf …)`, `(nf …)`, or `(normal-form …)` form — typically a missing argument or extra arguments. The driver expects exactly one expression to normalize. |
 | `E039` | Tactic engine error. Triggered when a link tactic is malformed, unknown, applied to an incompatible goal, or cannot close/transform the current goal. The message includes the current goal printed as a link. |
 | `E040` | Template expansion error. Triggered by a malformed `(template (<name> <param>...) <body>)` declaration, a template use with the wrong number of arguments, or a recursive template expansion cycle. |
+| `E041` | Counter-model search error. Triggered by a malformed `(counter-model …)` form or by running it without a finite valence of at least 2. |
 
 Codes are stable identifiers — they do not change between releases unless we
 explicitly note a breaking change in the changelog. The accompanying

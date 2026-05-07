@@ -65,6 +65,7 @@ import {
   Env,
   evalNode,
   runTactics,
+  counterModel,
   quantize,
   decRound,
   keyOf,
@@ -101,6 +102,10 @@ const tacticResult = runTactics(
   [parseOne(tokenizeOne('(by reflexivity)'))],
 );
 // -> { state: { goals: [], proof: [['by', 'reflexivity']] }, diagnostics: [] }
+
+// Exhaustively find a finite-valence counter-model, or null for a tautology
+const witness = counterModel(parseOne(tokenizeOne('(or p (not p))')), 3);
+// -> { valuation: { p: 0.5 }, value: 0.5, ... }
 
 // Quantize a value to N discrete levels
 const q = quantize(0.4, 3, 0, 1); // -> 0.5 (nearest ternary level)

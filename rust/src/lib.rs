@@ -702,6 +702,7 @@ pub struct TemplateDecl {
 }
 
 /// The evaluation environment: holds terms, assignments, operators, and range/valence config.
+#[derive(Clone)]
 pub struct Env {
     pub terms: HashSet<String>,
     pub assign: HashMap<String, f64>,
@@ -1371,6 +1372,7 @@ fn non_variable_token(s: &str) -> bool {
             | "nf"
             | "normal-form"
             | "template"
+            | "counter-model"
             | "+"
             | "-"
             | "*"
@@ -1510,6 +1512,163 @@ fn has_unresolved_free_variables(expr: &Node, env: &Env) -> bool {
     free_variables(expr)
         .iter()
         .any(|name| !env_can_evaluate_name(env, name))
+}
+
+/// A falsifying finite-valence valuation for a formula.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CounterModel {
+    pub formula: Node,
+    pub valence: u32,
+    pub values: Vec<f64>,
+    pub variables: Vec<String>,
+    pub valuation: Vec<(String, f64)>,
+    pub value: f64,
+}
+
+fn finite_truth_values(valence: u32, lo: f64, hi: f64) -> Vec<f64> {
+    if valence < 2 {
+        return Vec::new();
+    }
+    let step = (hi - lo) / (valence as f64 - 1.0);
+    (0..valence)
+        .map(|i| dec_round(lo + step * i as f64))
+        .collect()
+}
+
+fn counter_model_variables(formula: &Node, env: &Env) -> Vec<String> {
+    let constants: HashSet<&str> = ["true", "false", "unknown", "undefined"]
+        .iter()
+        .copied()
+        .collect();
+    let mut variables: Vec<String> = free_variables(formula)
+        .into_iter()
+        .filter(|name| !constants.contains(name.as_str()))
+        .filter(|name| !env.has_op(name))
+        .collect();
+    variables.sort();
+    variables
+}
+
+fn same_truth_value(a: f64, b: f64) -> bool {
+    (a - b).abs() < 1e-9
+}
+
+/// Search all finite valuations for a formula and return the first one whose
+/// result is below the top truth value. Returns `None` when no counter-model
+/// exists or when `valence < 2`.
+pub fn counter_model(formula: &Node, valence: u32) -> Option<CounterModel> {
+    if valence < 2 {
+        return None;
+    }
+    let options = EnvOptions {
+        valence,
+        ..EnvOptions::default()
+    };
+    let mut env = Env::new(Some(options));
+    counter_model_in_env(formula, valence, &mut env)
+}
+
+fn counter_model_in_env(formula: &Node, valence: u32, env: &mut Env) -> Option<CounterModel> {
+    if valence < 2 {
+        return None;
+    }
+
+    let formula = formula.clone();
+    let values = finite_truth_values(valence, env.lo, env.hi);
+    let variables = counter_model_variables(&formula, env);
+    let mut assignment = vec![env.lo; variables.len()];
+
+    fn search(
+        index: usize,
+        formula: &Node,
+        valence: u32,
+        values: &[f64],
+        variables: &[String],
+        assignment: &mut [f64],
+        env: &mut Env,
+    ) -> Option<CounterModel> {
+        if index == variables.len() {
+            let raw = eval_node(formula, env).as_f64();
+            let value = env.clamp(raw);
+            if same_truth_value(value, env.hi) {
+                return None;
+            }
+            let valuation = variables
+                .iter()
+                .cloned()
+                .zip(assignment.iter().copied())
+                .collect();
+            return Some(CounterModel {
+                formula: formula.clone(),
+                valence,
+                values: values.to_vec(),
+                variables: variables.to_vec(),
+                valuation,
+                value,
+            });
+        }
+
+        let name = &variables[index];
+        for value in values {
+            assignment[index] = *value;
+            env.set_symbol_prob(name, *value);
+            if let Some(found) = search(
+                index + 1,
+                formula,
+                valence,
+                values,
+                variables,
+                assignment,
+                env,
+            ) {
+                return Some(found);
+            }
+        }
+        None
+    }
+
+    let mut search_env = env.clone();
+    search_env.valence = valence;
+    search(
+        0,
+        &formula,
+        valence,
+        &values,
+        &variables,
+        &mut assignment,
+        &mut search_env,
+    )
+}
+
+/// Format a counter-model as a printable LiNo witness link.
+pub fn format_counter_model(witness: &CounterModel) -> String {
+    let mut valuation_children = vec![Node::Leaf("valuation".to_string())];
+    for (name, value) in &witness.valuation {
+        valuation_children.push(Node::List(vec![
+            Node::Leaf(name.clone()),
+            Node::Leaf(format_trace_value(*value)),
+        ]));
+    }
+    key_of(&Node::List(vec![
+        Node::Leaf("counter-model".to_string()),
+        witness.formula.clone(),
+        Node::List(valuation_children),
+        Node::List(vec![
+            Node::Leaf("value".to_string()),
+            Node::Leaf(format_trace_value(witness.value)),
+        ]),
+    ]))
+}
+
+fn format_no_counter_model(formula: &Node, valence: u32) -> String {
+    key_of(&Node::List(vec![
+        Node::Leaf("no-counter-model".to_string()),
+        formula.clone(),
+        Node::List(vec![
+            Node::Leaf("valence".to_string()),
+            Node::Leaf(valence.to_string()),
+        ]),
+    ]))
 }
 
 fn collect_names(expr: &Node, out: &mut HashSet<String>) {
@@ -5607,6 +5766,29 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                 }
             }
 
+            // Counter-model search: (counter-model formula)
+            // Uses the current finite valence and returns a printable witness
+            // link when a valuation makes the formula evaluate below top.
+            if let Node::Leaf(ref first) = children[0] {
+                if first == "counter-model" {
+                    if children.len() != 2 {
+                        panic!(
+                            "Counter-model error: Counter-model form must be `(counter-model <formula>)`"
+                        );
+                    }
+                    if env.valence < 2 {
+                        panic!(
+                            "Counter-model error: Counter-model search requires finite valence >= 2"
+                        );
+                    }
+                    let value = match counter_model_in_env(&children[1], env.valence, env) {
+                        Some(witness) => format_counter_model(&witness),
+                        None => format_no_counter_model(&children[1], env.valence),
+                    };
+                    return EvalResult::TypeQuery(value);
+                }
+            }
+
             // Query: (? expr) or (? expr with proof)
             // The trailing `with proof` keyword pair is consumed here so it
             // does not interfere with evaluation; `evaluate_inner` looks at
@@ -7249,6 +7431,11 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         (
             "E040".to_string(),
             raw_msg.replacen("Template expansion error: ", "", 1),
+        )
+    } else if raw_msg.starts_with("Counter-model error:") {
+        (
+            "E041".to_string(),
+            raw_msg.replacen("Counter-model error: ", "", 1),
         )
     } else {
         ("E000".to_string(), raw_msg)
