@@ -24,14 +24,21 @@ An arrow means “the theory on the left has a definition using the theory on
 the right.” Path queries keep a visited set, so self-definition and longer
 cycles cannot make a query diverge.
 
-## Source vocabulary and witnesses
+## Source vocabulary and executable contracts
 
-The network reader recognizes four generic LiNo forms:
+The network reader recognizes five generic LiNo forms:
 
 ```lino
 (theory theory-name (address stable.theory.address))
 
 (term theory-name local-term shared.concept.address)
+
+(implementation implementation-name
+  (adapter host-adapter-name)
+  (kind witness-kind)
+  (subject theory-being-defined)
+  (using defining-theory)
+  (obligation executable-operation))
 
 (witness stable.definition.address
   (kind witness-kind)
@@ -48,21 +55,28 @@ Theory names are data, not an enum. A consumer can append its own forms and
 immediately use the same chain, witness, and address queries. Validation rejects
 duplicate theory or witness addresses, ambiguous local-term mappings,
 undeclared theories, definition links whose witness is undeclared, unsupported
-implementation names, and proofs that do not establish the exact link.
+implementation names or contract clauses, incomplete obligation sets,
+implementations rebound to another subject/foundation pair, and proofs that do
+not establish the exact link.
 
-A definition is admitted only when three independent checks agree:
+A definition is admitted only when four independent checks agree:
 
-1. its implementation name and kind match the host's supported capability
-   registry, and a deterministic runtime probe for that implementation passes;
-2. its proof object replays successfully through RML's existing proof checker;
-3. the checked conclusion names the exact definition, subject, foundation,
+1. its manifest matches the proposed subject/foundation pair and the host
+   adapter's exact kind and complete obligation set;
+2. the adapter executes every declared operation, including relevant negative
+   cases such as ill-typed endpoints;
+3. its proof object replays successfully through RML's proof checker;
+4. the checked conclusion names the exact definition, subject, foundation,
    implementation, and kind on the proposed definition link.
 
 For example, `links-by-sets` is backed by the executable addressed-doublet
 mapping `address -> (source, target)` and by a checked proof conclusion naming
-that implementation as a set-theoretic function. Capability axioms state the
-small trusted boundary between an implementation and its interpretation; they
-are not a proof that two complete mathematical theories are equivalent.
+that implementation as a set-theoretic function. The implementation manifest
+requires both address-function and ordered-pair behavior. Capability axioms
+state the small trusted boundary between an implementation and its
+interpretation; each shipped adapter completely implements its declared finite
+contract, but this is not a proof that two unrestricted mathematical theories
+are equivalent.
 
 Every source is first parsed and reconstructed by `meta-language`. The theory
 reader consumes only reconstructed LiNo and reports whether the round trip was
@@ -109,7 +123,8 @@ network.definitionWitness('rml.definition.links.set-function');
 network.definitionVerification('links-by-sets');
 // { definition: 'links-by-sets', witness: ..., proof: ...,
 //   implementation: 'addressed-doublet-network',
-//   kind: 'set-theoretic-function', verified: true }
+//   kind: 'set-theoretic-function',
+//   obligations: ['address-function', 'ordered-pair'], verified: true }
 ```
 
 Rust exposes the matching `translate_term`, `definition_chain`, and
@@ -172,6 +187,22 @@ Because references and links occupy one space, a reference that is defined as
 a doublet in the same store is recursively interpreted as a branch. Callers
 choose the network context in which a reference is a leaf or an expanded link.
 
+## Typed links and the executable type-theory fragment
+
+`TypedLinkNetwork` adds reference declarations to the same addressed-doublet
+model. A reference may inhabit more than one declared type. Creating a doublet
+checks both endpoint types and records the result as `(Pair SourceType
+TargetType)`; missing or mismatched declarations are rejected before the link
+is stored.
+
+The `typed-kernel-links` implementation is a compact executable fragment, not
+only a foundation label. `core.lino` declares rules and checked proof objects
+for Pi formation, lambda introduction, application elimination, and beta
+conversion. Every type-backed implementation replays those four derivations,
+and typed graph edges and relation pairs additionally expose their concrete
+pair types. These operations are the exact scope of the declared type-theory
+contract.
+
 ## Sets: canonical and order-preserving views
 
 The bundled network records two definitions of set theory through links:
@@ -184,6 +215,7 @@ The two definitions have independent executable representations:
 - `MembershipSetStore` represents membership by addressed `(element, set)`
   doublets. `has` queries membership, `members` returns the extension in
   stable reference order, and `equals` implements finite extensional equality.
+  It also executes subset, pairing, finite union, separation, and replacement.
 - `DoubletSequenceStore.encodeSet` / `encode_set` sorts references, removes
   duplicates, and writes a balanced tree. `decodeSet` / `decode_set` verifies
   strict canonical order.
@@ -207,15 +239,18 @@ meta-logic or meta-theory APIs.
 `LinkGraph` is an explicitly narrower interpretation. Its vertices are stored
 as membership links in a finite set, and every edge is an addressed doublet
 whose source and target must inhabit that vertex set. It supplies successor
-and cycle-safe reachability operations. The checked `graphs-by-finite-sets`
-and `graphs-by-types` definitions bind this implementation to set-theoretic
-and vertex-typed presentations.
+and cycle-safe reachability operations. The doublet is stored in a
+`TypedLinkNetwork` and has type `(Pair graph.vertex graph.vertex)`. The checked
+`graphs-by-finite-sets` and `graphs-by-types` definitions bind the complete
+finite graph contract to set-theoretic and vertex-typed presentations.
 
 `FiniteRelation` represents a relation `A -> B` as a finite set of addressed
 ordered-pair links. Construction enforces membership in the declared domain
 and codomain. It executes converse, union, intersection, and typed relational
-composition. The checked `relations-by-finite-sets` and `relations-by-types`
-definitions bind those semantics into the theory network.
+composition. Every stored pair exposes `(Pair relation.domain
+relation.codomain)`. The checked `relations-by-finite-sets` and
+`relations-by-types` definitions bind that complete finite algebra contract
+into the theory network.
 
 ```js
 const graph = new LinkGraph('example.graph');
@@ -257,10 +292,12 @@ walk emits the source and follows only the target.
 | Parse theory network | `TheoryNetwork.fromRml` | `TheoryNetwork::from_rml` |
 | Resolve local term | `resolveTerm` | `resolve_term` |
 | Translate term | `translateTerm` | `translate_term` |
+| Query implementation contract | `implementation` | `implementation` |
 | Query definition witness | `definitionWitness` | `definition_witness` |
 | Query checked definition evidence | `definitionVerification` | `definition_verification` |
 | Find shortest definition chain | `definitionChain` | `definition_chain` |
 | Store unrestricted links | `LinkNetwork` | `LinkNetwork` |
+| Store and check typed links | `TypedLinkNetwork` | `TypedLinkNetwork` |
 | Execute finite directed graphs | `LinkGraph` | `LinkGraph` |
 | Execute finite relational algebra | `FiniteRelation` | `FiniteRelation` |
 | Extensional membership sets | `MembershipSetStore` | `MembershipSetStore` |
@@ -277,24 +314,28 @@ Mirrored tests in `js/tests/theory-network.test.mjs` and
 
 - lossless loading through `meta-language`;
 - RML's Links Theory dependency and the set/type/self definition cycle;
-- checked implementation/proof witnesses, including rejection of a missing
-  proof, a proof for the wrong definition, a corrupted premise, or an
-  unsupported implementation;
+- exact implementation manifests and checked proof witnesses, including
+  rejection of an unknown clause, incomplete obligations, a rebound subject,
+  a missing proof, a proof for the wrong definition, a corrupted premise, or
+  an unsupported implementation;
 - shared-address lookup and address-mediated translation;
 - arbitrary caller-defined theories and cycle-safe shortest definition chains;
 - exact balanced, left-staircase, and right-staircase doublets;
-- independent membership-set equality, canonical set normalization, and
-  ordered-set uniqueness;
-- graphs as vertex-constrained link-network subsets, including reachability
-  and rejection of ill-typed endpoints;
-- typed relation converse, union, intersection, and composition;
+- independent membership, subset, extensional equality, pairing, union,
+  separation, replacement, canonical set normalization, and ordered-set
+  uniqueness;
+- replayed Pi/lambda/application/beta derivations and typed-doublet rejection;
+- graphs as vertex-constrained link-network subsets, including reachability,
+  concrete edge types, and rejection of ill-typed endpoints;
+- typed relation converse, union, intersection, composition, and pair types;
 - rejection of finite-tree cycles; and
 - bounded direct and indirect right-spine cycles.
 
-These tests verify the runtime representations, theory-network algorithms,
-and explicitly derived graph/relation algorithms shipped by RML. They do not
-assert that all theories are equivalent, mechanize every
-meta-theory theorem, or treat a finite prefix as proof about an entire infinite
-sequence. See the case study's
+These tests verify every obligation in the finite implementation contracts,
+the theory-network algorithms, and the explicitly derived graph/relation
+algorithms shipped by RML. The boundary is intentionally precise: they do not
+assert unrestricted theory equivalence, mechanize every meta-theory theorem,
+or treat a finite prefix as proof about an entire infinite sequence. See the
+case study's
 [`baseline-audit.md`](./case-studies/issue-183/baseline-audit.md) for the exact
 upstream snapshot and formal-development boundary.

@@ -9,6 +9,7 @@ import {
   LinkGraph,
   MembershipSetStore,
   TheoryNetwork,
+  TypedLinkNetwork,
 } from '../js/src/rml-theory-network.mjs';
 
 const network = TheoryNetwork.fromRml(
@@ -30,6 +31,16 @@ links.define('alternating.b', 'concept.beta', 'alternating.a');
 const membershipSets = new MembershipSetStore();
 membershipSets.define('membership.alpha', 'concept.alpha', 'example.members');
 membershipSets.define('membership.beta', 'concept.beta', 'example.members');
+const typedLinks = new TypedLinkNetwork();
+typedLinks.declare('concept.alpha', 'Example');
+typedLinks.declare('concept.beta', 'Example');
+typedLinks.define(
+  'example.typed-link',
+  'concept.alpha',
+  'concept.beta',
+  'Example',
+  'Example',
+);
 const graph = new LinkGraph('example.graph');
 graph.addVertex('concept.alpha');
 graph.addVertex('concept.beta');
@@ -46,9 +57,18 @@ console.log(JSON.stringify({
   setReferenceAsLink: network.translateTerm('set-theory', 'reference', 'links-theory'),
   setFunctionWitness: network.definitionWitness('rml.definition.links.set-function'),
   setFunctionVerification: network.definitionVerification('links-by-sets'),
+  typedLinksContract: network.implementation('typed-doublet-network'),
   membershipSet: membershipSets.members('example.members'),
+  membershipPair: membershipSets.pair('concept.alpha', 'concept.beta'),
+  membershipReplacement: membershipSets.replacement(
+    'example.members',
+    member => `${member}.image`,
+  ),
+  typedDoubletType: typedLinks.typeOf('example.typed-link'),
   graphReachability: graph.reachable('concept.alpha', 'concept.beta'),
+  graphEdgeType: graph.edgeType('example.edge'),
   relationConverse: relation.converse('example.converse').pairs(),
+  relationPairType: relation.pairType('example.pair'),
   finiteSequence: links.decodeSequence(finiteRoot),
   canonicalSet: links.decodeSet(setRoot),
   cyclicObservation: links.walk('alternating.a', 5),
