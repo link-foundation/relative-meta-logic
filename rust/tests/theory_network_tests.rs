@@ -264,6 +264,36 @@ fn rejects_definition_links_without_a_declared_implementation_witness() {
 }
 
 #[test]
+fn rejects_bundled_network_when_every_definition_witness_reference_is_missing() {
+    let witnesses = [
+        "rml.definition.relative-meta-logic.links",
+        "rml.definition.links.set-function",
+        "rml.definition.links.dependent-function",
+        "rml.definition.links.self",
+        "rml.definition.set.extensional-membership",
+        "rml.definition.set.ordered-unique-sequence",
+        "rml.definition.type.links",
+        "rml.definition.graph.finite-sets",
+        "rml.definition.graph.types",
+        "rml.definition.relation.finite-sets",
+        "rml.definition.relation.types",
+    ];
+    let source = witnesses
+        .into_iter()
+        .fold(CORE.to_string(), |source, witness| {
+            source.replace(
+                &format!("(witness {witness}))"),
+                "(witness DOES_NOT_EXIST))",
+            )
+        });
+    let error = TheoryNetwork::from_rml(&source).expect_err("missing witnesses must fail");
+    assert_eq!(
+        error,
+        "definition rml-by-links has unknown witness DOES_NOT_EXIST"
+    );
+}
+
+#[test]
 fn rejects_network_when_all_declared_implementations_are_non_executable() {
     let source = [
         "theory-network",

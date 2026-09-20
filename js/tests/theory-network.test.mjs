@@ -210,6 +210,17 @@ describe('meta-theory network', () => {
     );
   });
 
+  it('rejects the bundled network when every definition witness reference is missing', () => {
+    const source = readFileSync(corePath, 'utf8').replaceAll(
+      /\(witness rml\.definition\.[^)]+\)\)/g,
+      '(witness DOES_NOT_EXIST))',
+    );
+    assert.throws(
+      () => TheoryNetwork.fromRml(source),
+      /definition rml-by-links has unknown witness DOES_NOT_EXIST/,
+    );
+  });
+
   it('rejects the network when all declared implementations are non-executable', () => {
     const source = readFileSync(corePath, 'utf8').replaceAll(
       /\(implementation [^)]+\)/g,
