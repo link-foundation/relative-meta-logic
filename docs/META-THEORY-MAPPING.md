@@ -132,8 +132,8 @@ primitives the trust report enumerates.
 This makes **rule application** a doublet between a proof-object
 reference and a rule reference; **dependencies** are doublets between a
 proof-object reference and one or more witness references; the
-**proof-object itself** is a small associative network whose nodes are
-references and whose edges are doublets/triplets. The
+**proof-object itself** is a small associative network whose references are
+connected by doublets/triplets. The
 `(proof-report <name>)` view added in this PR (commit `c6f5a14`)
 prints exactly that network.
 
@@ -168,9 +168,11 @@ the closure on demand. In the meta-theory, "closure under a rule" is
 **not** a primitive; it is the result of replaying a rule application
 zero or more times.
 
-## 5. The trust report as a meta-theory graph
+## 5. The trust report as a derived graph view of the links network
 
-`(foundation-report)` exposes the registry as a labelled graph:
+`(foundation-report)` exposes a labelled-graph projection of the registry.
+This graph is a constrained view derived from the surrounding links network,
+not the ambient representation of the meta-logic or meta-theory:
 
 | Graph element | Report field | Meta-theory shape |
 |---------------|--------------|-------------------|
@@ -251,22 +253,33 @@ mechanically.
   `rust/tests/proof_substrate_tests.rs`).
 
 Together those four documents describe a complete instance of the
-meta-theory at work: an associative network whose nodes are
-references, whose edges are doublets and triplets, whose semantics is
+meta-theory at work: an associative network of references connected by
+doublets and triplets, whose semantics is
 a small bounded set of host primitives, and whose audit trail is the
 foundation report.
 
-## 8. Executable cross-theory graph
+## 8. Executable cross-theory network
 
 Issue #183 turns this mapping into executable data in
 [`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino). The matching
-JavaScript and Rust `TheoryGraph` APIs load the source through `meta-language`,
-resolve theory-local terms to shared concept addresses, and search the cyclic
-definition graph safely. Links Theory now has explicit definitions through set
-theory, type theory, and itself; set theory and type theory have reverse links
-definitions; and Relative Meta-Logic has an explicit Links Theory foundation.
+JavaScript and Rust `TheoryNetwork` APIs load the source through `meta-language`,
+resolve and translate theory-local terms through shared concept addresses, and
+search the cyclic definition network safely. Every definition link names a
+supported implementation and a proof object. Network construction executes the
+implementation's capability probe, replays the proof through the existing
+proof substrate, and requires the checked conclusion to match that exact link.
+Links Theory has explicit definitions through set theory, type theory, and
+itself; set theory and type theory have reverse links definitions; and Relative
+Meta-Logic has an explicit Links Theory foundation.
 
-Addressed doublet-sequence stores implement the ordered-unique set projection
-and bounded observation of direct or indirect self-reference. See
+Addressed doublet stores implement meta-theory 0.0.3 balanced/left/right finite
+sequence trees, canonical ordered-unique set trees, and an independent
+membership-link interpretation with finite extensional equality. A separate
+bounded right-spine traversal observes direct or indirect self-reference
+without assuming termination. The ambient API is deliberately a `LinkNetwork`;
+`LinkGraph` is introduced only as a vertex-constrained subset, while
+`FiniteRelation` implements typed ordered-pair sets with converse, union,
+intersection, and composition. Checked set/type definition witnesses connect
+both derived theories back into the same links network. See
 [`META_THEORY.md`](./META_THEORY.md) for the source forms, APIs, guarantees, and
 verification boundary.

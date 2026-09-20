@@ -134,11 +134,16 @@ let evaluation = evaluate_formalization(&formalization);
 
 The meta-expression adapter deliberately keeps unsupported real-world claims partial. A selected interpretation such as `moon orbits the Sun` is returned as non-computable with explicit unknowns until a consumer supplies a formal shape and reproducible dependencies.
 
-The `rml::theory_graph` module loads the shared
-`lib/meta-theory/core.lino` network through `meta-language`. `TheoryGraph`
-provides unified-address lookup and cycle-safe definition paths;
-`DoubletSequenceStore` provides finite ordered-set encoding and bounded
-observation of self-referential sequences. See
+The `rml::theory_network` module loads the shared
+`lib/meta-theory/core.lino` network through `meta-language`. `TheoryNetwork`
+provides proof-checked executable definition links, unified-address lookup and
+translation, and cycle-safe definition chains. `MembershipSetStore` provides
+addressed membership links and finite extensional equality;
+`DoubletSequenceStore` provides finite balanced/left/right sequence trees,
+canonical and order-preserving sets, and bounded observation of
+self-referential right spines. `LinkNetwork` is the unconstrained substrate;
+`LinkGraph` is its vertex-constrained graph subset, and `FiniteRelation`
+executes typed converse, union, intersection, and composition. See
 [`docs/META_THEORY.md`](../docs/META_THEORY.md) for the complete contract.
 
 ## Testing
@@ -157,7 +162,7 @@ The test suite covers:
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
 - Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, simplify, exact
 - Domain plugins: Pecan-style automatic-sequence theorem decisions
-- Cross-theory definition paths, unified concept addresses, and addressed doublet sequences
+- Checked cross-theory definitions, unified concept translation, two finite-set interpretations, nested doublet trees, and bounded cyclic sequences
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Implementation Notes

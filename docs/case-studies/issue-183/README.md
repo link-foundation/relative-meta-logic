@@ -1,78 +1,127 @@
 # Case study: make Relative Meta-Logic genuinely meta
 
 Issue [#183](https://github.com/link-foundation/relative-meta-logic/issues/183)
-asks RML to connect its existing Links Theory, set theory, type theory, and
+asks RML to connect its Links Theory, set theory, type theory, and
 self-bootstrap work into one functional, tested meta-theory.
 
 ## Research baseline
 
-The latest `link-foundation/meta-theory` default-branch draft reviewed for this
-work was commit `087f451` and article version 0.0.2, published April 1, 2025 and
-updated August 10, 2025. Its executable mathematical contribution is the
-family of associative networks
-`lambda: L -> L^n`, including doublets, triplets, arbitrary sequences, and
-sequence-to-nested-pair conversion. It provides definitions of Links Theory
-inside set theory and a Coq/type-theory projection through set theory.
+The baseline was re-audited on 2026-09-20 after review feedback. The latest
+`link-foundation/meta-theory` default-branch revision was
+[`087f451`](https://github.com/link-foundation/meta-theory/commit/087f4515d0652925eecc54bcade724445c3978f1),
+which contains article and executable source version **0.0.3**, not 0.0.2.
+Version 0.0.3 adds the work developed in upstream PRs
+[#40](https://github.com/link-foundation/meta-theory/pull/40) and
+[#44](https://github.com/link-foundation/meta-theory/pull/44):
 
-The draft explicitly lists the reverse projections—Links Theory in itself,
-set theory in Links Theory, and type theory in Links Theory—as future work.
-RML already had the ingredients in separate places:
+- sequences are references to recursively nested doublet trees;
+- balanced, left-staircase, and right-staircase layouts preserve the same
+  leaf sequence;
+- finite sets are canonical balanced trees of sorted unique references;
+- references, links, sequences, and sets share one reference space; and
+- Links Theory closes its definition cycle in itself.
+
+The upstream source includes parallel Lean and Rocq developments. This project
+does not copy those proof-assistant sources or claim a new formal proof. It
+implements their runtime representation contract in RML's JavaScript and Rust
+APIs and tests observable parity. The detailed audit, including the correction
+from the first implementation draft, is in
+[`baseline-audit.md`](./baseline-audit.md).
+
+RML already had related components:
 
 - [`docs/META-THEORY-MAPPING.md`](../../META-THEORY-MAPPING.md) maps RML links,
-  proofs, and foundations to references/doublets/triplets;
+  proofs, and foundations to references, doublets, and triplets;
 - [`lib/set-theory/core.lino`](../../../lib/set-theory/core.lino) provides
   reusable set schemas;
 - [`lib/self/`](../../../lib/self/) encodes the grammar, evaluator, types,
-  operators, metatheorem checker, and foundation catalogue as links;
+  operators, metatheorem checker, and foundation catalogue as links; and
 - PR [#182](https://github.com/link-foundation/relative-meta-logic/pull/182)
   added tested JavaScript and Rust `meta-language` bridges.
 
-The missing element was an executable relation between those parts.
+The missing element was an executable, inspectable relation between those
+parts.
 
 ## Requirements and evidence
 
 | ID | Requirement | Implementation evidence | Automated evidence |
 |----|-------------|-------------------------|--------------------|
-| R1 | Base RML on Links Theory/meta-theory. | `rml-by-links` in `lib/meta-theory/core.lino`. | Both suites require the RML → Links Theory edge and derived paths. |
-| R2 | Define Links Theory through set theory and type theory. | `links-by-sets`, `links-by-types`. | Both suites query paths from RML to each defining theory. |
-| R3 | Give the simplest direct definition of Links Theory in itself. | `links-by-links` plus the `doublet` template. | Both suites require the self edge and check template expansion through an import. |
-| R4 | Introduce set theory in more than one way. | Extensional-membership and ordered-unique-sequence definition edges. | Both suites require exactly two link-based set definitions. |
-| R5 | Represent strict sets as ordered sequences without duplicates. | `DoubletSequenceStore` finite chain encoding. | Round-trip and duplicate-rejection tests in JS and Rust. |
-| R6 | Support directly and indirectly self-referential, potentially infinite sequences. | Addressed doublets plus bounded `walk`. | Direct-cycle and two-node-cycle tests in JS and Rust. |
-| R7 | Unify concepts/terms in one address space. | `(term theory local-name shared-address)` links. | Four-theory resolution and reverse lookup tests. |
-| R8 | Reason algorithmically about user-selected theories. | Generic `TheoryGraph`, validation, and cycle-safe shortest-path search. | Tests append an unknown user theory and query through the bundled cycle. |
-| R9 | Use `meta-language` for representation. | Both readers parse/reconstruct through the existing bridge first. | Both suites require a byte-lossless round trip. |
-| R10 | Keep JS/Rust behavior consistent and documented. | Mirrored modules, tests, shared LiNo source, executable example, and `docs/META_THEORY.md`. | Full language suites, focused parity tests, corpus parity, and CI. |
+| R1 | Base RML on Links Theory/meta-theory. | `rml-by-links` in `lib/meta-theory/core.lino`. | Both suites require the RML → Links Theory definition link and derived chains. |
+| R2 | Define Links Theory through set theory and type theory. | `links-by-sets` and `links-by-types`, each backed by a supported runtime implementation and an exact checked proof conclusion. | Both suites query chains, inspect positive verification evidence, and reject an unknown implementation or a proof for another definition. |
+| R3 | Give the simplest direct definition of Links Theory in itself. | `links-by-links` plus the addressed `doublet` template. | Both suites require the self-definition and check template expansion through an import. |
+| R4 | Introduce set theory in more than one way. | `MembershipSetStore` implements addressed membership links and finite extensional equality; the sequence store implements canonical ordered-unique sets. | Both suites execute membership/equality and canonical-tree behavior, and require both checked definition links. |
+| R5 | Represent strict sets as ordered sequences without duplicates. | `encodeSet` / `encode_set` sort and deduplicate references, then create a balanced doublet tree; the ordered-set API rejects duplicates. | Canonicalization, exact doublets, round trips, strict-order checks, and duplicate rejection in JS and Rust. |
+| R6 | Implement sequences through doublet links. | `encodeSequence` / `encode_sequence` create balanced, left, or right nested trees whose root and branches are link addresses. | Both suites assert exact four-element trees and decode all layouts to the same leaves. |
+| R7 | Support directly and indirectly self-referential, potentially infinite sequences. | Addressed doublets plus bounded right-spine `walk`. | Direct-cycle and two-node-cycle tests in JS and Rust. |
+| R8 | Unify concepts/terms/addresses. | `(term theory local-name shared-address)` links and address-mediated translation. | Six-theory resolution, reverse lookup, and cross-theory translation tests. |
+| R9 | Reason algorithmically about selected theories. | Generic `TheoryNetwork`, executable implementation validation, proof replay, exact-conclusion checking, shared-address translation, and cycle-safe shortest definition-chain search. | Tests append an unknown user theory with its own proof, reject unwitnessed, unsupported, or misproved definitions, corrupt a proof premise, and query through the bundled cycle. |
+| R10 | Use `meta-language` for representation. | Both readers parse and reconstruct through the existing bridge first. | Both suites require a byte-lossless round trip. |
+| R11 | Keep JS/Rust behavior consistent, documented, and logged. | Mirrored modules/tests, shared LiNo source, executable example, this case study, and `docs/META_THEORY.md`. | Full language suites, focused parity tests, corpus parity, and CI. |
+| R12 | Treat graphs as a subset of links networks, not as the ambient meta-theory. | The public surface is `TheoryNetwork` over `LinkNetwork`; `LinkGraph` separately constrains edges to a membership-link vertex set. | Naming scan plus mirrored raw-link, endpoint validation, successor, and reachability tests. |
+| R13 | Implement graph theory and relational algebra over set/type/link foundations. | Checked set/type definitions for graph theory and relational algebra; executable finite graph and typed binary-relation APIs. | Both suites execute graph reachability and relation converse, union, intersection, composition, and invalid-domain rejection. |
 
-## Design decisions
+## Architecture
 
-### The graph is data-driven
+### The theory network is data-driven and witnessed
 
-The API does not enumerate known theories. It recognizes only the generic
-`theory`, `term`, and `definition` shapes. That is what lets a caller add a
-domain theory without recompiling RML and then ask the same path and address
-questions.
+The API does not enumerate known theories. It recognizes the generic
+`theory`, `term`, `witness`, and `definition` shapes. A domain theory can be
+added without recompiling RML and queried with the same algorithms. A
+definition link is invalid unless its witness names a supported
+implementation-kind pair, that implementation passes its runtime probe, its
+proof object passes RML's proof checker, and the proof conclusion exactly
+matches the link. Replacing even a declared implementation with
+`DOES_NOT_EXIST`, or reusing a proof whose subject differs, therefore makes
+network construction fail.
 
-### Local names are not collapsed
+The implementation-capability axioms are an explicit trust boundary. The
+checks establish that the shipped executable representation backs the stated
+definition; they do not claim equivalence of complete mathematical theories.
+
+### Local names share addresses without being collapsed
 
 A set-theoretic `reference`, a type-theoretic `term`, and a Links Theory
 `link` retain their native names. Their shared address records an explicit
-correspondence. This avoids silently claiming more equivalence than the
-network states.
+correspondence. `translateTerm` / `translate_term` follows that address into a
+selected target theory rather than relying on hard-coded vocabulary.
 
-### Infinite structures are observed productively
+### Finite trees and productive cycles are separate contracts
 
-Direct and indirect cycles are valid sequence structures. All traversal is
-bounded by the caller, which prevents nontermination. Materializing an
-ordered set rejects cycles because a completed finite set and a potentially
-infinite sequence have different contracts.
+Finite sequences follow meta-theory 0.0.3: the sequence is the root reference
+of a nested binary tree, internal nodes are addressed doublets, and leaves are
+the sequence values. The balanced, left, and right layouts differ only in
+shape. A canonical finite set sorts and deduplicates values before using the
+balanced layout.
 
-## Result compared with the draft
+Potentially infinite sequences instead use a designated right-spine
+interpretation `(current-value, next-reference)`. They may cycle directly or
+indirectly and can only be observed through a caller-supplied bound. Keeping
+this API distinct avoids treating a finite tree traversal as an unbounded
+stream traversal.
 
-RML keeps the draft's set and type projections and adds working reverse and
-self projections. It also adds executable cross-theory address lookup,
-cycle-safe reasoning, two set interpretations, and mirrored runtime tests.
-That completes the definition cycle described in the draft's future-work
-section while stating the verification boundary precisely: the implementation
-proves its data and algorithms behave as specified, not that all external
-theories are mathematically equivalent.
+### Graphs and relations are explicit derived interpretations
+
+The meta-logic and meta-theory use links networks as their ambient term. A
+graph is introduced only by adding a finite vertex set and requiring every
+edge's two endpoints to inhabit it. A binary relation similarly declares
+domain and codomain sets and admits only typed ordered-pair links. This makes
+graph theory and relational algebra executable specializations rather than
+names applied to the whole links network.
+
+## Result compared with the latest draft
+
+RML now executes the 0.0.3 finite sequence/set representation, exposes all
+three tree layouts, supplies a second extensional-membership set
+representation, admits definition links only after implementation and proof
+checks, translates terms through one address space, adds bounded cyclic
+observation, and includes verified graph-theory and relational-algebra layers.
+The general theory network accepts caller-selected theories without
+hard-coding the six bundled names.
+
+The verification boundary is deliberately narrow: tests prove that the
+shipped parsers, proof-witness binding, implementation probes,
+theory-network traversal, derived graph/relation algorithms, doublet layouts,
+finite extensional equality, canonicalization, and bounded observations behave
+as documented. Upstream Lean/Rocq files
+supply the formal-development baseline; this PR does not imply that RML has
+mechanically proved equivalence of all theories.

@@ -23,7 +23,7 @@ For versioning, deprecations, and release expectations, see
 - [Product feature comparison](./docs/FEATURE-COMPARISON.md) - RML vs the same systems by authoring workflow, automation, libraries, tooling, and distribution.
 - [Configurability and operator redefinition](./docs/CONFIGURABILITY.md) - Why every operator, truth constant, range, and valence is redefinable at runtime, with the precedence rules and a comparison to Lean/Rocq fixed semantics.
 - [Foundations and root-construct registry](./docs/FOUNDATIONS.md) - The trust catalogue of every primitive the kernel depends on, the `(foundation …)` / `(with-foundation …)` / `(foundation-report)` surface, the bundled Boolean and Kleene foundations, and the backward-compatibility guarantee.
-- [Executable meta-theory](./docs/META_THEORY.md) - A shared Links/Set/Type/RML theory graph, unified concept addresses, multiple set projections, and bounded self-referential doublet sequences.
+- [Executable meta-theory](./docs/META_THEORY.md) - A proof-checked Links/Set/Type/RML network with derived graph theory and relational algebra, unified concept translation, finite sets, nested doublets, and bounded self-reference.
 - [Typed kernel rules](./docs/KERNEL.md) - The implemented D1 rules for `Pi`, `lambda`, `apply`, `(expr of Type)`, and `(type of expr)`.
 - [Soundness statement](./docs/SOUNDNESS.md) - The trusted-kernel guarantee, proof-replay checker, trusted operator base, and aggregator-relative scope of soundness.
 - [Metatheorem checker](./docs/METATHEOREMS.md) - The C3 Twelf-style guarantee that composes D12 totality, D14 coverage, D15 modes, and D13 termination, plus the `rml-meta` CLI.
@@ -66,7 +66,8 @@ RML (Relative Meta-Logic, formerly Associative-Dependent Logic / ADL) is a minim
 - Query the truth value of complex expressions
 - Define dependent types as links — universe hierarchy, Pi-types, lambdas, type queries
 - Combine types with probabilistic logic in a unified framework
-- Relate user-defined theories in a cycle-safe meta-theory graph with shared concept addresses
+- Relate user-defined theories in a cycle-safe links network with shared concept addresses
+- Execute graph theory as a constrained links-network subset and finite typed relational algebra
 - Delegate domain-specific decision blocks through evaluator plugins, including
   `(domain automatic-sequences (theorem thue-morse-cube-free))`
 - Reuse the evaluator as a library, including a meta-expression adapter that accepts selected interpretations and explicit dependencies while keeping underspecified claims partial

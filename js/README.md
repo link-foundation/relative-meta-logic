@@ -192,24 +192,48 @@ const evaluation = evaluateFormalization(formalization);
 
 The meta-expression adapter deliberately keeps unsupported real-world claims partial. A selected interpretation such as `moon orbits the Sun` is returned as non-computable with explicit unknowns until a consumer supplies a formal shape and reproducible dependencies.
 
-The meta-theory graph is available as a separate module so it can consume the
+The meta-theory network is available as a separate module so it can consume the
 main parser and the `meta-language` bridge without changing evaluator state:
 
 ```javascript
 import { readFileSync } from 'node:fs';
-import { TheoryGraph, DoubletSequenceStore } from './src/rml-theory-graph.mjs';
+import {
+  DoubletSequenceStore,
+  FiniteRelation,
+  LinkGraph,
+  LinkNetwork,
+  MembershipSetStore,
+  TheoryNetwork,
+} from './src/rml-theory-network.mjs';
 
 const source = readFileSync('../lib/meta-theory/core.lino', 'utf8');
-const graph = TheoryGraph.fromRml(source);
-const path = graph.definitionPath('relative-meta-logic', 'type-theory');
+const network = TheoryNetwork.fromRml(source);
+const path = network.definitionChain('relative-meta-logic', 'type-theory');
+const translated = network.translateTerm('set-theory', 'reference', 'links-theory');
+const verification = network.definitionVerification('links-by-sets');
 
+const rawLinks = new LinkNetwork();
+rawLinks.define('link-ab', 'a', 'b');
 const sequences = new DoubletSequenceStore();
+const finite = sequences.encodeSequence(['a', 'b', 'c', 'd'], 'finite', 'balanced');
+const values = sequences.decodeSequence(finite);
+const set = sequences.encodeSet(['b', 'a', 'b'], 'canonical-set');
+const membershipSets = new MembershipSetStore();
+membershipSets.define('a-in-example', 'a', 'example-set');
+const graph = new LinkGraph('example-graph');
+graph.addVertex('a');
+graph.addVertex('b');
+graph.defineEdge('edge-ab', 'a', 'b');
+const relation = new FiniteRelation('example-relation', ['a'], ['b']);
+relation.define('pair-ab', 'a', 'b');
 sequences.define('loop', 'value', 'loop');
 const prefix = sequences.walk('loop', 3);
 ```
 
 See [`docs/META_THEORY.md`](../docs/META_THEORY.md) for the shared source
-format, unified addresses, set encodings, and cycle semantics.
+format, checked implementation/proof witnesses, unified addresses, both
+finite-set interpretations, derived graph/relation semantics, nested
+sequence/set encodings, and cycle semantics.
 
 ## Testing
 
@@ -227,7 +251,7 @@ The test suite covers:
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
 - Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, simplify, exact
 - Domain plugins: Pecan-style automatic-sequence theorem decisions
-- Cross-theory definition paths, unified concept addresses, and addressed doublet sequences
+- Checked cross-theory definitions, unified concept addresses, two finite-set interpretations, and addressed doublet sequences
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Dependencies

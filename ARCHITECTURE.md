@@ -156,20 +156,26 @@ For consumers that start from a selected natural-language interpretation rather 
 
 The adapter currently supports explicit arithmetic equality and arithmetic value questions, plus direct LiNo/RML expressions. Real-world claims such as `moon orbits the Sun` remain non-computable until a caller provides selected entities, relations, evidence sources, and a formal shape.
 
-### Executable Theory Graph
+### Executable Theory Network
 
-Both runtimes expose a `TheoryGraph` reader for the shared
+Both runtimes expose a `TheoryNetwork` reader for the shared
 [`lib/meta-theory/core.lino`](./lib/meta-theory/core.lino) network. The reader
 round-trips source through `meta-language`, validates generic `theory`, `term`,
-and `definition` forms, resolves theory-local terms to shared concept
-addresses, and performs cycle-safe shortest-path searches over definition
-edges.
+`witness`, and `definition` forms. A definition link is admitted only when its
+named implementation passes a runtime capability probe, its proof object
+replays, and the checked conclusion exactly matches that link. The network then
+resolves or translates theory-local terms through shared concept addresses and
+performs cycle-safe shortest definition-chain searches.
 
-`DoubletSequenceStore` is the corresponding addressed-link data structure for
-ordered unique sets and potentially infinite sequences. Finite set decoding
-rejects duplicate values and cycles; sequence observation requires an explicit
-item bound and reports observed direct or indirect cycles. The format and
-verification boundary are documented in
+`MembershipSetStore` supplies addressed membership links and finite
+extensional equality. `DoubletSequenceStore` supplies finite nested sequences,
+canonical or order-preserving sets, and potentially infinite right-spine
+sequences. Finite encoders support balanced, left, and right doublet trees.
+Cyclic sequence observation requires an explicit item bound and reports
+observed direct or indirect cycles. The unconstrained substrate is
+`LinkNetwork`; `LinkGraph` is a vertex-set-constrained subset with reachability,
+and `FiniteRelation` supplies typed converse, union, intersection, and
+composition. The format, upstream 0.0.3 mapping, and verification boundary are documented in
 [`docs/META_THEORY.md`](./docs/META_THEORY.md).
 
 ### Program Extraction
