@@ -1,0 +1,119 @@
+# Executable theory network for Relative Meta-Logic.
+#
+# The forms in this file are ordinary links. The host TheoryGraph adapters read
+# them through meta-language, so theories supplied by users participate in the
+# same graph without requiring hard-coded names. The templates at the end also
+# make the primitive doublet and triplet encodings available to LiNo programs.
+
+(namespace meta-theory)
+
+# Theories have stable addresses in the shared RML address space.
+
+(theory links-theory
+  (address rml.theory.links))
+
+(theory set-theory
+  (address rml.theory.set))
+
+(theory type-theory
+  (address rml.theory.type))
+
+(theory relative-meta-logic
+  (address rml.theory.relative-meta-logic))
+
+# A term is local to a theory, while its concept address is global. These four
+# local terms therefore identify the same addressable unit without requiring
+# their surface vocabulary to be identical.
+
+(term links-theory link rml.concept.addressable-link)
+(term relative-meta-logic expression rml.concept.addressable-link)
+(term set-theory reference rml.concept.addressable-link)
+(term type-theory term rml.concept.addressable-link)
+
+(term links-theory vector rml.concept.ordered-sequence)
+(term set-theory ordered-set rml.concept.ordered-sequence)
+(term type-theory vector-type rml.concept.ordered-sequence)
+(term relative-meta-logic link-list rml.concept.ordered-sequence)
+
+(term links-theory source rml.concept.source-position)
+(term set-theory first rml.concept.source-position)
+(term type-theory product-left rml.concept.source-position)
+
+(term links-theory target rml.concept.target-position)
+(term set-theory rest rml.concept.target-position)
+(term type-theory product-right rml.concept.target-position)
+
+# Definition edges point from a subject theory to the theory used to define
+# it. They deliberately form cycles: graph traversal is cycle-safe, and the
+# explicit self edge is the smallest direct definition of Links Theory in
+# Links Theory.
+
+(definition rml-by-links
+  (subject relative-meta-logic)
+  (using links-theory)
+  (witness rml.definition.relative-meta-logic.links))
+
+(definition links-by-sets
+  (subject links-theory)
+  (using set-theory)
+  (witness rml.definition.links.set-function))
+
+(definition links-by-types
+  (subject links-theory)
+  (using type-theory)
+  (witness rml.definition.links.dependent-function))
+
+(definition links-by-links
+  (subject links-theory)
+  (using links-theory)
+  (witness rml.definition.links.self))
+
+# Set theory has two independent link interpretations. The first treats a set
+# extensionally as membership links. The second treats a set as a finite,
+# ordered sequence whose concept addresses occur at most once.
+
+(definition sets-by-membership-links
+  (subject set-theory)
+  (using links-theory)
+  (witness rml.definition.set.extensional-membership))
+
+(definition sets-by-ordered-unique-links
+  (subject set-theory)
+  (using links-theory)
+  (witness rml.definition.set.ordered-unique-sequence))
+
+(definition types-by-links
+  (subject type-theory)
+  (using links-theory)
+  (witness rml.definition.type.links))
+
+# Sequence models document the executable DoubletSequenceStore contract. A
+# finite ordered set rejects repeated values. A corecursive sequence may point
+# directly or indirectly back to an earlier doublet and is observed only
+# through an explicit finite unfolding bound.
+
+(sequence-model ordered-unique-set
+  (address rml.sequence-model.ordered-unique-set)
+  (representation nested-doublets)
+  (order significant)
+  (duplicates forbidden)
+  (termination finite))
+
+(sequence-model corecursive-links
+  (address rml.sequence-model.corecursive-links)
+  (representation addressed-doublets)
+  (references direct-or-indirect-self)
+  (termination potentially-infinite)
+  (observation finite-prefix))
+
+# Minimal Links Theory within itself: a link address maps to an ordered pair of
+# link addresses. Higher arities are nested from the same doublet primitive.
+
+(template (doublet address source target)
+  (address maps-to (source target)))
+
+(template (triplet address source predicate target)
+  (meta-theory.doublet address source (predicate target)))
+
+(template (same-address left right)
+  (= left right))

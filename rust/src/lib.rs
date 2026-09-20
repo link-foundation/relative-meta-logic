@@ -14194,6 +14194,7 @@ pub mod repl;
 pub mod check;
 pub mod meta;
 pub mod meta_language_support;
+pub mod theory_graph;
 pub mod rocq;
 
 // Universal CST converters (issue #138).
