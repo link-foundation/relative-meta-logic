@@ -1,8 +1,8 @@
 # Executable theory network for Relative Meta-Logic.
 #
-# The forms in this file are ordinary links. The host TheoryGraph adapters read
+# The forms in this file are ordinary links. The host TheoryNetwork adapters read
 # them through meta-language, so theories supplied by users participate in the
-# same graph without requiring hard-coded names. The templates at the end also
+# same network without requiring hard-coded names. The templates at the end also
 # make the primitive doublet and triplet encodings available to LiNo programs.
 
 (namespace meta-theory)
@@ -21,31 +21,237 @@
 (theory relative-meta-logic
   (address rml.theory.relative-meta-logic))
 
-# A term is local to a theory, while its concept address is global. These four
-# local terms therefore identify the same addressable unit without requiring
+(theory graph-theory
+  (address rml.theory.graph))
+
+(theory relational-algebra
+  (address rml.theory.relational-algebra))
+
+# A term is local to a theory, while its concept address is global. These local
+# terms therefore identify the same addressable unit without requiring
 # their surface vocabulary to be identical.
 
 (term links-theory link rml.concept.addressable-link)
 (term relative-meta-logic expression rml.concept.addressable-link)
 (term set-theory reference rml.concept.addressable-link)
 (term type-theory term rml.concept.addressable-link)
+(term graph-theory vertex rml.concept.addressable-link)
+(term relational-algebra element rml.concept.addressable-link)
 
-(term links-theory vector rml.concept.ordered-sequence)
+(term links-theory tuple rml.concept.ordered-sequence)
 (term set-theory ordered-set rml.concept.ordered-sequence)
-(term type-theory vector-type rml.concept.ordered-sequence)
-(term relative-meta-logic link-list rml.concept.ordered-sequence)
+(term type-theory tuple-type rml.concept.ordered-sequence)
+(term relative-meta-logic sequence rml.concept.ordered-sequence)
 
 (term links-theory source rml.concept.source-position)
-(term set-theory first rml.concept.source-position)
+(term set-theory ordered-pair-left rml.concept.source-position)
 (term type-theory product-left rml.concept.source-position)
+(term relative-meta-logic left-operand rml.concept.source-position)
 
 (term links-theory target rml.concept.target-position)
-(term set-theory rest rml.concept.target-position)
+(term set-theory ordered-pair-right rml.concept.target-position)
 (term type-theory product-right rml.concept.target-position)
+(term relative-meta-logic right-operand rml.concept.target-position)
 
-# Definition edges point from a subject theory to the theory used to define
-# it. They deliberately form cycles: graph traversal is cycle-safe, and the
-# explicit self edge is the smallest direct definition of Links Theory in
+# Graphs and binary relations are constrained subsets of the surrounding links
+# network. Primitive references and pairs share addresses across presentations;
+# whole graphs, relations, sets, types, and unrestricted networks remain distinct.
+
+(term links-theory doublet rml.concept.binary-relation)
+(term set-theory ordered-pair-set rml.concept.binary-relation)
+(term type-theory dependent-pair rml.concept.binary-relation)
+(term graph-theory directed-edge rml.concept.binary-relation)
+(term relational-algebra ordered-pair rml.concept.binary-relation)
+
+(term links-theory network rml.concept.link-network)
+(term set-theory finite-carrier rml.concept.finite-set)
+(term type-theory typed-carrier rml.concept.typed-carrier)
+(term graph-theory directed-graph rml.concept.directed-graph)
+(term relational-algebra relation-network rml.concept.finite-binary-relation)
+
+# A definition link is accepted only when its witness is declared. These
+# records make the implementation boundary algorithmically inspectable instead
+# of treating an arbitrary address as evidence for a theory projection.
+
+(witness rml.definition.relative-meta-logic.links
+  (kind link-network-composition)
+  (implementation theory-network)
+  (proof rml.proof.relative-meta-logic.links))
+
+(witness rml.definition.links.set-function
+  (kind set-theoretic-function)
+  (implementation addressed-doublet-network)
+  (proof rml.proof.links.set-function))
+
+(witness rml.definition.links.dependent-function
+  (kind dependent-function)
+  (implementation typed-doublet-network)
+  (proof rml.proof.links.dependent-function))
+
+(witness rml.definition.links.self
+  (kind recursive-doublet)
+  (implementation doublet-template)
+  (proof rml.proof.links.self))
+
+(witness rml.definition.set.extensional-membership
+  (kind extensional-set)
+  (implementation membership-doublet-network)
+  (proof rml.proof.set.extensional-membership))
+
+(witness rml.definition.set.ordered-unique-sequence
+  (kind finite-set)
+  (implementation canonical-doublet-tree)
+  (proof rml.proof.set.ordered-unique-sequence))
+
+(witness rml.definition.type.links
+  (kind link-typed-foundation)
+  (implementation typed-kernel-links)
+  (proof rml.proof.type.links))
+
+(witness rml.definition.graph.finite-sets
+  (kind set-theoretic-graph)
+  (implementation finite-directed-link-graph)
+  (proof rml.proof.graph.finite-sets))
+
+(witness rml.definition.graph.types
+  (kind typed-graph)
+  (implementation vertex-typed-link-graph)
+  (proof rml.proof.graph.types))
+
+(witness rml.definition.relation.finite-sets
+  (kind set-theoretic-relation)
+  (implementation finite-binary-link-relation)
+  (proof rml.proof.relation.finite-sets))
+
+(witness rml.definition.relation.types
+  (kind typed-relation)
+  (implementation typed-binary-link-relation)
+  (proof rml.proof.relation.types))
+
+# Definition witnesses are ordinary checked proof objects. Their premise is an
+# explicit implementation capability; TheoryNetwork independently executes a
+# deterministic probe for every supported capability before admitting a link.
+
+(rule verified-theory-definition
+  (premise (?implementation implements ?kind))
+  (conclusion
+    (?definition defines ?subject using ?foundation
+      via ?implementation as ?kind)))
+
+(axiom rml.capability.theory-network
+  (judgement (theory-network implements link-network-composition)))
+
+(axiom rml.capability.addressed-doublet-network
+  (judgement (addressed-doublet-network implements set-theoretic-function)))
+
+(axiom rml.capability.typed-doublet-network
+  (judgement (typed-doublet-network implements dependent-function)))
+
+(axiom rml.capability.doublet-template
+  (judgement (doublet-template implements recursive-doublet)))
+
+(axiom rml.capability.membership-doublet-network
+  (judgement (membership-doublet-network implements extensional-set)))
+
+(axiom rml.capability.canonical-doublet-tree
+  (judgement (canonical-doublet-tree implements finite-set)))
+
+(axiom rml.capability.typed-kernel-links
+  (judgement (typed-kernel-links implements link-typed-foundation)))
+
+(axiom rml.capability.finite-directed-link-graph
+  (judgement (finite-directed-link-graph implements set-theoretic-graph)))
+
+(axiom rml.capability.vertex-typed-link-graph
+  (judgement (vertex-typed-link-graph implements typed-graph)))
+
+(axiom rml.capability.finite-binary-link-relation
+  (judgement
+    (finite-binary-link-relation implements set-theoretic-relation)))
+
+(axiom rml.capability.typed-binary-link-relation
+  (judgement (typed-binary-link-relation implements typed-relation)))
+
+(proof-object rml.proof.relative-meta-logic.links
+  (applies verified-theory-definition)
+  (premise-by rml.capability.theory-network)
+  (conclusion
+    (rml-by-links defines relative-meta-logic using links-theory
+      via theory-network as link-network-composition)))
+
+(proof-object rml.proof.links.set-function
+  (applies verified-theory-definition)
+  (premise-by rml.capability.addressed-doublet-network)
+  (conclusion
+    (links-by-sets defines links-theory using set-theory
+      via addressed-doublet-network as set-theoretic-function)))
+
+(proof-object rml.proof.links.dependent-function
+  (applies verified-theory-definition)
+  (premise-by rml.capability.typed-doublet-network)
+  (conclusion
+    (links-by-types defines links-theory using type-theory
+      via typed-doublet-network as dependent-function)))
+
+(proof-object rml.proof.links.self
+  (applies verified-theory-definition)
+  (premise-by rml.capability.doublet-template)
+  (conclusion
+    (links-by-links defines links-theory using links-theory
+      via doublet-template as recursive-doublet)))
+
+(proof-object rml.proof.set.extensional-membership
+  (applies verified-theory-definition)
+  (premise-by rml.capability.membership-doublet-network)
+  (conclusion
+    (sets-by-membership-links defines set-theory using links-theory
+      via membership-doublet-network as extensional-set)))
+
+(proof-object rml.proof.set.ordered-unique-sequence
+  (applies verified-theory-definition)
+  (premise-by rml.capability.canonical-doublet-tree)
+  (conclusion
+    (sets-by-ordered-unique-links defines set-theory using links-theory
+      via canonical-doublet-tree as finite-set)))
+
+(proof-object rml.proof.type.links
+  (applies verified-theory-definition)
+  (premise-by rml.capability.typed-kernel-links)
+  (conclusion
+    (types-by-links defines type-theory using links-theory
+      via typed-kernel-links as link-typed-foundation)))
+
+(proof-object rml.proof.graph.finite-sets
+  (applies verified-theory-definition)
+  (premise-by rml.capability.finite-directed-link-graph)
+  (conclusion
+    (graphs-by-finite-sets defines graph-theory using set-theory
+      via finite-directed-link-graph as set-theoretic-graph)))
+
+(proof-object rml.proof.graph.types
+  (applies verified-theory-definition)
+  (premise-by rml.capability.vertex-typed-link-graph)
+  (conclusion
+    (graphs-by-types defines graph-theory using type-theory
+      via vertex-typed-link-graph as typed-graph)))
+
+(proof-object rml.proof.relation.finite-sets
+  (applies verified-theory-definition)
+  (premise-by rml.capability.finite-binary-link-relation)
+  (conclusion
+    (relations-by-finite-sets defines relational-algebra using set-theory
+      via finite-binary-link-relation as set-theoretic-relation)))
+
+(proof-object rml.proof.relation.types
+  (applies verified-theory-definition)
+  (premise-by rml.capability.typed-binary-link-relation)
+  (conclusion
+    (relations-by-types defines relational-algebra using type-theory
+      via typed-binary-link-relation as typed-relation)))
+
+# Definition links point from a subject theory to the theory used to define
+# it. They deliberately form cycles: network traversal is cycle-safe, and the
+# explicit self link is the smallest direct definition of Links Theory in
 # Links Theory.
 
 (definition rml-by-links
@@ -69,8 +275,8 @@
   (witness rml.definition.links.self))
 
 # Set theory has two independent link interpretations. The first treats a set
-# extensionally as membership links. The second treats a set as a finite,
-# ordered sequence whose concept addresses occur at most once.
+# extensionally as membership links. The second normalizes a finite set into a
+# canonically ordered sequence whose concept addresses occur exactly once.
 
 (definition sets-by-membership-links
   (subject set-theory)
@@ -87,16 +293,48 @@
   (using links-theory)
   (witness rml.definition.type.links))
 
+# A graph is not the ambient meta-theory representation. It is the subset of a
+# links network whose edge sources and targets inhabit an explicit vertex set.
+
+(definition graphs-by-finite-sets
+  (subject graph-theory)
+  (using set-theory)
+  (witness rml.definition.graph.finite-sets))
+
+(definition graphs-by-types
+  (subject graph-theory)
+  (using type-theory)
+  (witness rml.definition.graph.types))
+
+# A finite binary relation is a set of typed ordered-pair links. Its executable
+# algebra supplies converse, union, intersection, and relational composition.
+
+(definition relations-by-finite-sets
+  (subject relational-algebra)
+  (using set-theory)
+  (witness rml.definition.relation.finite-sets))
+
+(definition relations-by-types
+  (subject relational-algebra)
+  (using type-theory)
+  (witness rml.definition.relation.types))
+
 # Sequence models document the executable DoubletSequenceStore contract. A
 # finite ordered set rejects repeated values. A corecursive sequence may point
 # directly or indirectly back to an earlier doublet and is observed only
 # through an explicit finite unfolding bound.
 
+(sequence-model finite-nested-sequence
+  (address rml.sequence-model.finite-nested-sequence)
+  (representation nested-doublet-tree)
+  (layouts balanced-left-right)
+  (termination finite))
+
 (sequence-model ordered-unique-set
   (address rml.sequence-model.ordered-unique-set)
-  (representation nested-doublets)
-  (order significant)
-  (duplicates forbidden)
+  (representation balanced-doublet-tree)
+  (order canonical-by-address)
+  (duplicates normalized)
   (termination finite))
 
 (sequence-model corecursive-links
