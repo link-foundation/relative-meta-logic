@@ -264,22 +264,25 @@ Issue #183 turns this mapping into executable data in
 [`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino). The matching
 JavaScript and Rust `TheoryNetwork` APIs load the source through `meta-language`,
 resolve and translate theory-local terms through shared concept addresses, and
-search the cyclic definition network safely. Every definition link names a
-supported implementation and a proof object. Network construction executes the
-implementation's capability probe, replays the proof through the existing
-proof substrate, and requires the checked conclusion to match that exact link.
+search the cyclic definition network safely. Every definition link names an
+implementation manifest and a proof object. Network construction requires the
+manifest's proposed subject/foundation pair and the adapter's exact kind and
+obligation set; executes all finite conformance operations; replays the proof
+through the existing proof substrate; and requires the checked conclusion to
+match that exact link.
 Links Theory has explicit definitions through set theory, type theory, and
 itself; set theory and type theory have reverse links definitions; and Relative
 Meta-Logic has an explicit Links Theory foundation.
 
 Addressed doublet stores implement meta-theory 0.0.3 balanced/left/right finite
 sequence trees, canonical ordered-unique set trees, and an independent
-membership-link interpretation with finite extensional equality. A separate
-bounded right-spine traversal observes direct or indirect self-reference
-without assuming termination. The ambient API is deliberately a `LinkNetwork`;
-`LinkGraph` is introduced only as a vertex-constrained subset, while
-`FiniteRelation` implements typed ordered-pair sets with converse, union,
-intersection, and composition. Checked set/type definition witnesses connect
-both derived theories back into the same links network. See
+membership-link interpretation with finite set algebra. A separate bounded
+right-spine traversal observes direct or indirect self-reference without
+assuming termination. The ambient API is deliberately a `LinkNetwork`;
+`TypedLinkNetwork` enforces declared endpoint types, `LinkGraph` is introduced
+only as a vertex-constrained subset with typed edges, and `FiniteRelation`
+implements typed ordered-pair sets with converse, union, intersection, and
+composition. Checked set/type definition witnesses connect both derived
+theories back into the same links network. See
 [`META_THEORY.md`](./META_THEORY.md) for the source forms, APIs, guarantees, and
 verification boundary.

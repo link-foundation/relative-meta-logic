@@ -76,7 +76,7 @@
 # Each host adapter has an explicit contract.  A witness may use an
 # implementation only for the declared subject/foundation pair, and the loader
 # requires the complete obligation set below before it executes the adapter.
-# This prevents a passing smoke probe from being rebound to an unrelated
+# This prevents a passing conformance case from being rebound to an unrelated
 # theory definition.
 
 (implementation theory-network

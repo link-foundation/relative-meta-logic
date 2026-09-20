@@ -79,12 +79,12 @@ Lean proof obligations in the reviewed snapshot remain admitted with `sorry`;
 the corresponding status must not be summarized as a blanket machine-checked
 proof of every 0.0.3 claim. RML's acceptance evidence is instead mirrored
 runtime tests for exact doublets, tree round trips, two independent finite-set
-representations, canonical ordering, graph traversal, and bounded cycles.
-Definition witnesses additionally reuse RML's proof checker: each link must
-name a supported executable implementation, pass its implementation probe,
-and carry a checked proof whose conclusion binds that exact link. The explicit
-implementation-capability axioms remain the host trust boundary; this is not a
-proof of full theory equivalence.
+representations, canonical ordering, typed graph/relation operations, and
+bounded cycles. Definition witnesses additionally reuse RML's proof checker:
+each link must name an exact implementation manifest, pass every declared
+finite conformance operation, and carry a checked proof whose conclusion binds
+that exact link. The explicit implementation-capability axioms remain the host
+trust boundary; this is not a proof of unrestricted theory equivalence.
 
 The ambient representation is a **links network**, not a graph. Graph theory
 is implemented only as a derived interpretation that adds a finite vertex set

@@ -161,21 +161,25 @@ The adapter currently supports explicit arithmetic equality and arithmetic value
 Both runtimes expose a `TheoryNetwork` reader for the shared
 [`lib/meta-theory/core.lino`](./lib/meta-theory/core.lino) network. The reader
 round-trips source through `meta-language`, validates generic `theory`, `term`,
-`witness`, and `definition` forms. A definition link is admitted only when its
-named implementation passes a runtime capability probe, its proof object
-replays, and the checked conclusion exactly matches that link. The network then
-resolves or translates theory-local terms through shared concept addresses and
-performs cycle-safe shortest definition-chain searches.
+`implementation`, `witness`, and `definition` forms. A definition link is
+admitted only when its implementation manifest matches the proposed
+subject/foundation pair and the adapter's exact kind and obligation set; all
+operations pass runtime conformance checks; its proof object replays; and the
+checked conclusion exactly matches that link. The network then resolves or
+translates theory-local terms through shared concept addresses and performs
+cycle-safe shortest definition-chain searches.
 
 `MembershipSetStore` supplies addressed membership links and finite
-extensional equality. `DoubletSequenceStore` supplies finite nested sequences,
-canonical or order-preserving sets, and potentially infinite right-spine
-sequences. Finite encoders support balanced, left, and right doublet trees.
-Cyclic sequence observation requires an explicit item bound and reports
-observed direct or indirect cycles. The unconstrained substrate is
-`LinkNetwork`; `LinkGraph` is a vertex-set-constrained subset with reachability,
-and `FiniteRelation` supplies typed converse, union, intersection, and
-composition. The format, upstream 0.0.3 mapping, and verification boundary are documented in
+extensional equality plus finite subset, pairing, union, separation, and
+replacement. `DoubletSequenceStore` supplies finite nested sequences, canonical
+or order-preserving sets, and potentially infinite right-spine sequences.
+Finite encoders support balanced, left, and right doublet trees. Cyclic sequence
+observation requires an explicit item bound and reports observed direct or
+indirect cycles. The unconstrained substrate is `LinkNetwork`;
+`TypedLinkNetwork` checks endpoint types; `LinkGraph` is a
+vertex-set-constrained subset with typed edges and reachability; and
+`FiniteRelation` supplies typed converse, union, intersection, and composition.
+The format, upstream 0.0.3 mapping, and verification boundary are documented in
 [`docs/META_THEORY.md`](./docs/META_THEORY.md).
 
 ### Program Extraction

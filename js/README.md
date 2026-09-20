@@ -204,6 +204,7 @@ import {
   LinkNetwork,
   MembershipSetStore,
   TheoryNetwork,
+  TypedLinkNetwork,
 } from './src/rml-theory-network.mjs';
 
 const source = readFileSync('../lib/meta-theory/core.lino', 'utf8');
@@ -214,6 +215,10 @@ const verification = network.definitionVerification('links-by-sets');
 
 const rawLinks = new LinkNetwork();
 rawLinks.define('link-ab', 'a', 'b');
+const typedLinks = new TypedLinkNetwork();
+typedLinks.declare('a', 'Example');
+typedLinks.declare('b', 'Example');
+typedLinks.define('typed-link-ab', 'a', 'b', 'Example', 'Example');
 const sequences = new DoubletSequenceStore();
 const finite = sequences.encodeSequence(['a', 'b', 'c', 'd'], 'finite', 'balanced');
 const values = sequences.decodeSequence(finite);
@@ -231,9 +236,9 @@ const prefix = sequences.walk('loop', 3);
 ```
 
 See [`docs/META_THEORY.md`](../docs/META_THEORY.md) for the shared source
-format, checked implementation/proof witnesses, unified addresses, both
-finite-set interpretations, derived graph/relation semantics, nested
-sequence/set encodings, and cycle semantics.
+format, exact implementation contracts, checked proof witnesses, unified
+addresses, both finite-set interpretations, derived graph/relation semantics,
+nested sequence/set encodings, and cycle semantics.
 
 ## Testing
 

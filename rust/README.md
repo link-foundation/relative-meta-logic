@@ -137,13 +137,15 @@ The meta-expression adapter deliberately keeps unsupported real-world claims par
 The `rml::theory_network` module loads the shared
 `lib/meta-theory/core.lino` network through `meta-language`. `TheoryNetwork`
 provides proof-checked executable definition links, unified-address lookup and
-translation, and cycle-safe definition chains. `MembershipSetStore` provides
-addressed membership links and finite extensional equality;
+translation, inspectable implementation contracts, and cycle-safe definition
+chains. `MembershipSetStore` provides addressed membership links and finite set
+algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,
 canonical and order-preserving sets, and bounded observation of
 self-referential right spines. `LinkNetwork` is the unconstrained substrate;
-`LinkGraph` is its vertex-constrained graph subset, and `FiniteRelation`
-executes typed converse, union, intersection, and composition. See
+`TypedLinkNetwork` enforces endpoint types, `LinkGraph` is its
+vertex-constrained graph subset with typed edges, and `FiniteRelation` executes
+typed converse, union, intersection, and composition. See
 [`docs/META_THEORY.md`](../docs/META_THEORY.md) for the complete contract.
 
 ## Testing
