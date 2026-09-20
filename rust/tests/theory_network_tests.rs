@@ -4,7 +4,7 @@
 
 use rml::theory_network::{
     DoubletSequenceStore, FiniteRelation, LinkGraph, LinkNetwork, MembershipSetStore,
-    SequenceLayout, TheoryNetwork,
+    SequenceLayout, TheoryNetwork, TypedLinkNetwork,
 };
 use rml::{evaluate, RunResult};
 use std::collections::BTreeSet;
@@ -109,7 +109,28 @@ fn makes_rml_depend_on_links_theory_and_closes_set_type_self_cycle() {
     assert_eq!(verification.witness, "rml.definition.links.set-function");
     assert_eq!(verification.proof, "rml.proof.links.set-function");
     assert_eq!(verification.implementation, "addressed-doublet-network");
+    assert_eq!(
+        verification.obligations,
+        ["address-function", "ordered-pair"].map(str::to_string)
+    );
     assert!(verification.verified);
+    let implementation = network
+        .implementation("typed-doublet-network")
+        .expect("typed doublet implementation contract must be inspectable");
+    assert_eq!(implementation.adapter, "typed-doublet-network");
+    assert_eq!(implementation.kind, "dependent-function");
+    assert_eq!(implementation.subject, "links-theory");
+    assert_eq!(implementation.using, "type-theory");
+    assert_eq!(
+        implementation.obligations,
+        [
+            "reference-typing",
+            "dependent-pair",
+            "ill-typed-rejection",
+            "typed-proof-replay",
+        ]
+        .map(str::to_string)
+    );
     assert_eq!(
         network
             .definitions_for("graph-theory")
@@ -192,16 +213,25 @@ fn accepts_user_theories_without_hard_coded_theory_names() {
         r#"
 (theory user-theory (address user.theory))
 (term user-theory entity rml.concept.addressable-link)
+(implementation user-theory-network
+  (adapter theory-network)
+  (kind link-network-composition)
+  (subject user-theory)
+  (using relative-meta-logic)
+  (obligation meta-language-round-trip)
+  (obligation definition-link))
 (witness user.definition.rml
   (kind link-network-composition)
-  (implementation theory-network)
+  (implementation user-theory-network)
   (proof user.proof.rml))
+(axiom user.capability.theory-network
+  (judgement (user-theory-network implements link-network-composition)))
 (proof-object user.proof.rml
   (applies verified-theory-definition)
-  (premise-by rml.capability.theory-network)
+  (premise-by user.capability.theory-network)
   (conclusion
     (user-by-rml defines user-theory using relative-meta-logic
-      via theory-network as link-network-composition)))
+      via user-theory-network as link-network-composition)))
 (definition user-by-rml
   (subject user-theory)
   (using relative-meta-logic)
@@ -323,6 +353,58 @@ fn rejects_network_when_all_declared_implementations_are_non_executable() {
 }
 
 #[test]
+fn rejects_implementation_rebound_to_a_different_theory_definition() {
+    let source = CORE.replacen(
+        "(implementation addressed-doublet-network\n  (adapter addressed-doublet-network)\n  (kind set-theoretic-function)\n  (subject links-theory)",
+        "(implementation addressed-doublet-network\n  (adapter addressed-doublet-network)\n  (kind set-theoretic-function)\n  (subject graph-theory)",
+        1,
+    );
+    let error = TheoryNetwork::from_rml(&source).expect_err("rebound implementation must fail");
+    assert_eq!(
+        error,
+        "implementation addressed-doublet-network is declared for graph-theory using set-theory, not links-theory using set-theory"
+    );
+}
+
+#[test]
+fn rejects_implementation_with_incomplete_declared_obligations() {
+    let source = CORE.replacen("  (obligation ordered-pair))", ")", 1);
+    let error = TheoryNetwork::from_rml(&source).expect_err("incomplete implementation must fail");
+    assert_eq!(
+        error,
+        "implementation addressed-doublet-network obligations do not match adapter addressed-doublet-network"
+    );
+}
+
+#[test]
+fn rejects_undeclared_implementation_contract_clauses() {
+    let source = CORE.replacen(
+        "  (adapter addressed-doublet-network)",
+        "  (adapter addressed-doublet-network)\n  (unchecked true)",
+        1,
+    );
+    let error = TheoryNetwork::from_rml(&source).expect_err("unknown contract clause must fail");
+    assert_eq!(
+        error,
+        "implementation addressed-doublet-network has unsupported clause unchecked"
+    );
+}
+
+#[test]
+fn rejects_typed_implementation_when_kernel_derivation_no_longer_replays() {
+    let source = CORE.replacen(
+        "(premise-by rml.type.beta-id-zero)",
+        "(premise-by DOES_NOT_EXIST)",
+        1,
+    );
+    let error = TheoryNetwork::from_rml(&source).expect_err("invalid typed proof must fail");
+    assert_eq!(
+        error,
+        "implementation typed-doublet-network failed typed enforcement or proof replay"
+    );
+}
+
+#[test]
 fn rejects_missing_or_mismatched_witness_proof() {
     let missing = CORE.replacen(
         "(proof rml.proof.links.set-function)",
@@ -362,6 +444,47 @@ fn rejects_definition_proof_after_one_capability_premise_is_corrupted() {
 }
 
 #[test]
+fn enforces_typed_doublet_endpoints_and_records_dependent_pair_type() {
+    let mut links = TypedLinkNetwork::new();
+    links.declare("source.reference", "Reference").unwrap();
+    links.declare("source.reference", "Entity").unwrap();
+    links.declare("target.reference", "Reference").unwrap();
+    links.declare("wrong.reference", "Natural").unwrap();
+    links
+        .define(
+            "typed.link",
+            "source.reference",
+            "target.reference",
+            "Reference",
+            "Reference",
+        )
+        .unwrap();
+
+    assert_eq!(
+        links.doublet("typed.link"),
+        Some(("source.reference", "target.reference"))
+    );
+    assert_eq!(
+        links.type_of("typed.link"),
+        Some("(Pair Reference Reference)")
+    );
+    assert_eq!(
+        links.types_of("source.reference"),
+        vec!["Entity", "Reference"]
+    );
+    assert_eq!(
+        links.define(
+            "invalid.typed.link",
+            "wrong.reference",
+            "target.reference",
+            "Reference",
+            "Reference",
+        ),
+        Err("typed link source wrong.reference has type Natural; expected Reference".to_string())
+    );
+}
+
+#[test]
 fn stores_directed_graphs_as_vertex_membership_and_typed_edge_links() {
     let mut links = LinkNetwork::new();
     links.define("raw.link", "vertex.a", "vertex.b").unwrap();
@@ -380,6 +503,10 @@ fn stores_directed_graphs_as_vertex_membership_and_typed_edge_links() {
 
     assert_eq!(graph.vertices(), vec!["vertex.a", "vertex.b", "vertex.c"]);
     assert_eq!(graph.edge("edge.ab"), Some(("vertex.a", "vertex.b")));
+    assert_eq!(
+        graph.edge_type("edge.ab"),
+        Some("(Pair example.graph.vertex example.graph.vertex)")
+    );
     assert_eq!(graph.successors("vertex.a"), vec!["vertex.b"]);
     assert!(graph.reachable("vertex.a", "vertex.c"));
     assert!(!graph.reachable("vertex.c", "vertex.a"));
@@ -399,6 +526,10 @@ fn executes_finite_relational_algebra_as_typed_links() {
     .unwrap();
     relation.define("pair.ax", "domain.a", "middle.x").unwrap();
     relation.define("pair.by", "domain.b", "middle.y").unwrap();
+    assert_eq!(
+        relation.pair_type("pair.ax"),
+        Some("(Pair relation.r.domain relation.r.codomain)")
+    );
 
     let mut extra = FiniteRelation::new(
         "relation.extra",
@@ -470,6 +601,29 @@ fn executes_independent_extensional_membership_set_interpretation() {
         vec!["concept.alpha", "concept.beta"]
     );
     assert!(sets.equals("set.left", "set.right"));
+    assert!(sets.is_subset_of("set.left", "set.right"));
+    assert_eq!(
+        sets.pair("concept.beta", "concept.alpha").unwrap(),
+        ["concept.alpha", "concept.beta"].map(str::to_string)
+    );
+
+    sets.define("membership.5", "set.left", "set.collection")
+        .unwrap();
+    sets.define("membership.6", "set.right", "set.collection")
+        .unwrap();
+    assert_eq!(
+        sets.union("set.collection"),
+        vec!["concept.alpha", "concept.beta"]
+    );
+    assert_eq!(
+        sets.separation("set.left", |member| member.ends_with("beta")),
+        vec!["concept.beta"]
+    );
+    assert_eq!(
+        sets.replacement("set.left", |member| format!("{member}.image"))
+            .unwrap(),
+        ["concept.alpha.image", "concept.beta.image"].map(str::to_string)
+    );
 }
 
 #[test]

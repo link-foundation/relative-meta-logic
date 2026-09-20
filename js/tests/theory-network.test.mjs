@@ -14,6 +14,7 @@ import {
   LinkNetwork,
   MembershipSetStore,
   TheoryNetwork,
+  TypedLinkNetwork,
 } from '../src/rml-theory-network.mjs';
 import { evaluate } from '../src/rml-links.mjs';
 
@@ -99,7 +100,24 @@ describe('meta-theory network', () => {
         proof: 'rml.proof.links.set-function',
         implementation: 'addressed-doublet-network',
         kind: 'set-theoretic-function',
+        obligations: ['address-function', 'ordered-pair'],
         verified: true,
+      },
+    );
+    assert.deepStrictEqual(
+      network.implementation('typed-doublet-network'),
+      {
+        name: 'typed-doublet-network',
+        adapter: 'typed-doublet-network',
+        kind: 'dependent-function',
+        subject: 'links-theory',
+        using: 'type-theory',
+        obligations: [
+          'reference-typing',
+          'dependent-pair',
+          'ill-typed-rejection',
+          'typed-proof-replay',
+        ],
       },
     );
     assert.deepStrictEqual(
@@ -158,16 +176,25 @@ describe('meta-theory network', () => {
     const source = `${readFileSync(corePath, 'utf8')}
 (theory user-theory (address user.theory))
 (term user-theory entity rml.concept.addressable-link)
+(implementation user-theory-network
+  (adapter theory-network)
+  (kind link-network-composition)
+  (subject user-theory)
+  (using relative-meta-logic)
+  (obligation meta-language-round-trip)
+  (obligation definition-link))
 (witness user.definition.rml
   (kind link-network-composition)
-  (implementation theory-network)
+  (implementation user-theory-network)
   (proof user.proof.rml))
+(axiom user.capability.theory-network
+  (judgement (user-theory-network implements link-network-composition)))
 (proof-object user.proof.rml
   (applies verified-theory-definition)
-  (premise-by rml.capability.theory-network)
+  (premise-by user.capability.theory-network)
   (conclusion
     (user-by-rml defines user-theory using relative-meta-logic
-      via theory-network as link-network-composition)))
+      via user-theory-network as link-network-composition)))
 (definition user-by-rml
   (subject user-theory)
   (using relative-meta-logic)
@@ -223,12 +250,63 @@ describe('meta-theory network', () => {
 
   it('rejects the network when all declared implementations are non-executable', () => {
     const source = readFileSync(corePath, 'utf8').replaceAll(
-      /\(implementation [^)]+\)/g,
-      '(implementation DOES_NOT_EXIST)',
+      /  \(implementation [^\s()]+\)/g,
+      '  (implementation DOES_NOT_EXIST)',
     );
     assert.throws(
       () => TheoryNetwork.fromRml(source),
       /witness rml\.definition\.relative-meta-logic\.links uses unknown implementation DOES_NOT_EXIST/,
+    );
+  });
+
+  it('rejects an implementation rebound to a different theory definition', () => {
+    const source = readFileSync(corePath, 'utf8').replace(
+      `(implementation addressed-doublet-network
+  (adapter addressed-doublet-network)
+  (kind set-theoretic-function)
+  (subject links-theory)`,
+      `(implementation addressed-doublet-network
+  (adapter addressed-doublet-network)
+  (kind set-theoretic-function)
+  (subject graph-theory)`,
+    );
+    assert.throws(
+      () => TheoryNetwork.fromRml(source),
+      /implementation addressed-doublet-network is declared for graph-theory using set-theory, not links-theory using set-theory/,
+    );
+  });
+
+  it('rejects an implementation whose declared obligations are incomplete', () => {
+    const source = readFileSync(corePath, 'utf8').replace(
+      '  (obligation ordered-pair))',
+      ')',
+    );
+    assert.throws(
+      () => TheoryNetwork.fromRml(source),
+      /implementation addressed-doublet-network obligations do not match adapter addressed-doublet-network/,
+    );
+  });
+
+  it('rejects undeclared implementation contract clauses', () => {
+    const source = readFileSync(corePath, 'utf8').replace(
+      '  (adapter addressed-doublet-network)',
+      `  (adapter addressed-doublet-network)
+  (unchecked true)`,
+    );
+    assert.throws(
+      () => TheoryNetwork.fromRml(source),
+      /implementation addressed-doublet-network has unsupported clause unchecked/,
+    );
+  });
+
+  it('rejects typed implementations when a kernel derivation no longer replays', () => {
+    const source = readFileSync(corePath, 'utf8').replace(
+      '(premise-by rml.type.beta-id-zero)',
+      '(premise-by DOES_NOT_EXIST)',
+    );
+    assert.throws(
+      () => TheoryNetwork.fromRml(source),
+      /implementation typed-doublet-network failed typed enforcement or proof replay/,
     );
   });
 
@@ -263,6 +341,38 @@ describe('meta-theory network', () => {
 });
 
 describe('graph theory as a constrained links-network subset', () => {
+  it('enforces typed doublet endpoints and records the dependent pair type', () => {
+    const links = new TypedLinkNetwork();
+    links.declare('source.reference', 'Reference');
+    links.declare('source.reference', 'Entity');
+    links.declare('target.reference', 'Reference');
+    links.declare('wrong.reference', 'Natural');
+    links.define(
+      'typed.link',
+      'source.reference',
+      'target.reference',
+      'Reference',
+      'Reference',
+    );
+
+    assert.deepStrictEqual(links.doublet('typed.link'), {
+      source: 'source.reference',
+      target: 'target.reference',
+    });
+    assert.strictEqual(links.typeOf('typed.link'), '(Pair Reference Reference)');
+    assert.deepStrictEqual(links.typesOf('source.reference'), ['Entity', 'Reference']);
+    assert.throws(
+      () => links.define(
+        'invalid.typed.link',
+        'wrong.reference',
+        'target.reference',
+        'Reference',
+        'Reference',
+      ),
+      /typed link source wrong\.reference has type Natural; expected Reference/,
+    );
+  });
+
   it('stores directed graphs as vertex-membership and typed edge links', () => {
     const links = new LinkNetwork();
     links.define('raw.link', 'vertex.a', 'vertex.b');
@@ -283,6 +393,10 @@ describe('graph theory as a constrained links-network subset', () => {
       source: 'vertex.a',
       target: 'vertex.b',
     });
+    assert.strictEqual(
+      graph.edgeType('edge.ab'),
+      '(Pair example.graph.vertex example.graph.vertex)',
+    );
     assert.deepStrictEqual(graph.successors('vertex.a'), ['vertex.b']);
     assert.strictEqual(graph.reachable('vertex.a', 'vertex.c'), true);
     assert.strictEqual(graph.reachable('vertex.c', 'vertex.a'), false);
@@ -302,6 +416,10 @@ describe('finite relational algebra represented by links', () => {
     );
     relation.define('pair.ax', 'domain.a', 'middle.x');
     relation.define('pair.by', 'domain.b', 'middle.y');
+    assert.strictEqual(
+      relation.pairType('pair.ax'),
+      '(Pair relation.r.domain relation.r.codomain)',
+    );
 
     const extra = new FiniteRelation(
       'relation.extra',
@@ -363,6 +481,26 @@ describe('doublet sequence representation', () => {
     assert.strictEqual(sets.has('set.left', 'concept.alpha'), true);
     assert.deepStrictEqual(sets.members('set.left'), ['concept.alpha', 'concept.beta']);
     assert.strictEqual(sets.equals('set.left', 'set.right'), true);
+    assert.strictEqual(sets.isSubsetOf('set.left', 'set.right'), true);
+    assert.deepStrictEqual(sets.pair('concept.beta', 'concept.alpha'), [
+      'concept.alpha',
+      'concept.beta',
+    ]);
+
+    sets.define('membership.5', 'set.left', 'set.collection');
+    sets.define('membership.6', 'set.right', 'set.collection');
+    assert.deepStrictEqual(sets.union('set.collection'), [
+      'concept.alpha',
+      'concept.beta',
+    ]);
+    assert.deepStrictEqual(
+      sets.separation('set.left', member => member.endsWith('beta')),
+      ['concept.beta'],
+    );
+    assert.deepStrictEqual(
+      sets.replacement('set.left', member => `${member}.image`),
+      ['concept.alpha.image', 'concept.beta.image'],
+    );
   });
 
   it('encodes balanced, left-staircase, and right-staircase trees as links', () => {

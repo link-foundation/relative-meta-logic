@@ -37,6 +37,27 @@ function clauses(form, context) {
   return result;
 }
 
+function implementationClauses(form, context) {
+  const data = new Map();
+  const obligations = [];
+  for (const clause of form.slice(2)) {
+    if (!Array.isArray(clause) || clause.length !== 2 || typeof clause[0] !== 'string') {
+      throw new Error(`${context} clauses must have the form (name value)`);
+    }
+    const value = requireLeaf(clause[1], `${context} ${clause[0]}`);
+    if (clause[0] === 'obligation') {
+      if (obligations.includes(value)) {
+        throw new Error(`${context} repeats obligation ${value}`);
+      }
+      obligations.push(value);
+    } else {
+      if (data.has(clause[0])) throw new Error(`${context} repeats clause ${clause[0]}`);
+      data.set(clause[0], value);
+    }
+  }
+  return { data, obligations };
+}
+
 function isProofRuleShape(form) {
   return Array.isArray(form) &&
     form[0] === 'rule' &&
@@ -47,18 +68,91 @@ function isProofRuleShape(form) {
     form.slice(2).some(clause => clause[0] === 'conclusion');
 }
 
-const IMPLEMENTATION_KINDS = new Map([
-  ['theory-network', 'link-network-composition'],
-  ['addressed-doublet-network', 'set-theoretic-function'],
-  ['typed-doublet-network', 'dependent-function'],
-  ['doublet-template', 'recursive-doublet'],
-  ['membership-doublet-network', 'extensional-set'],
-  ['canonical-doublet-tree', 'finite-set'],
-  ['typed-kernel-links', 'link-typed-foundation'],
-  ['finite-directed-link-graph', 'set-theoretic-graph'],
-  ['vertex-typed-link-graph', 'typed-graph'],
-  ['finite-binary-link-relation', 'set-theoretic-relation'],
-  ['typed-binary-link-relation', 'typed-relation'],
+const IMPLEMENTATION_CONTRACTS = new Map([
+  ['theory-network', {
+    kind: 'link-network-composition',
+    obligations: ['meta-language-round-trip', 'definition-link'],
+  }],
+  ['addressed-doublet-network', {
+    kind: 'set-theoretic-function',
+    obligations: ['address-function', 'ordered-pair'],
+  }],
+  ['typed-doublet-network', {
+    kind: 'dependent-function',
+    obligations: [
+      'reference-typing',
+      'dependent-pair',
+      'ill-typed-rejection',
+      'typed-proof-replay',
+    ],
+  }],
+  ['doublet-template', {
+    kind: 'recursive-doublet',
+    obligations: ['template-expansion', 'recursive-reference'],
+  }],
+  ['membership-doublet-network', {
+    kind: 'extensional-set',
+    obligations: [
+      'membership',
+      'subset',
+      'extensional-equality',
+      'pairing',
+      'union',
+      'separation',
+      'replacement',
+    ],
+  }],
+  ['canonical-doublet-tree', {
+    kind: 'finite-set',
+    obligations: ['nested-doublets', 'canonical-order', 'unique-members'],
+  }],
+  ['typed-kernel-links', {
+    kind: 'link-typed-foundation',
+    obligations: [
+      'pi-formation',
+      'lambda-introduction',
+      'application-elimination',
+      'beta-conversion',
+    ],
+  }],
+  ['finite-directed-link-graph', {
+    kind: 'set-theoretic-graph',
+    obligations: ['finite-vertex-set', 'endpoint-closure', 'reachability'],
+  }],
+  ['vertex-typed-link-graph', {
+    kind: 'typed-graph',
+    obligations: [
+      'finite-vertex-set',
+      'endpoint-closure',
+      'reachability',
+      'edge-typing',
+      'typed-proof-replay',
+    ],
+  }],
+  ['finite-binary-link-relation', {
+    kind: 'set-theoretic-relation',
+    obligations: [
+      'domain-closure',
+      'codomain-closure',
+      'converse',
+      'union',
+      'intersection',
+      'composition',
+    ],
+  }],
+  ['typed-binary-link-relation', {
+    kind: 'typed-relation',
+    obligations: [
+      'domain-closure',
+      'codomain-closure',
+      'converse',
+      'union',
+      'intersection',
+      'composition',
+      'pair-typing',
+      'typed-proof-replay',
+    ],
+  }],
 ]);
 
 /**
@@ -71,6 +165,7 @@ class TheoryNetwork {
     this.theories = new Map();
     this.definitions = [];
     this.terms = new Map();
+    this.implementations = new Map();
     this.witnesses = new Map();
     this.verifications = new Map();
     this.forms = [];
@@ -89,6 +184,7 @@ class TheoryNetwork {
       network.forms.push(form);
       if (form[0] === 'theory') network.#addTheory(form);
       if (form[0] === 'term') network.#addTerm(form);
+      if (form[0] === 'implementation') network.#addImplementation(form);
       if (form[0] === 'witness') network.#addWitness(form);
       if (form[0] === 'definition') network.#addDefinition(form);
       network.#addProofForm(form);
@@ -143,6 +239,36 @@ class TheoryNetwork {
     });
   }
 
+  #addImplementation(form) {
+    if (form.length < 3) throw new Error('implementation must have a name and clauses');
+    const name = requireLeaf(form[1], 'implementation name');
+    if (this.implementations.has(name)) throw new Error(`duplicate implementation ${name}`);
+    const { data, obligations } = implementationClauses(
+      form,
+      `implementation ${name}`,
+    );
+    const fields = new Set(['adapter', 'kind', 'subject', 'using']);
+    for (const field of data.keys()) {
+      if (!fields.has(field)) {
+        throw new Error(`implementation ${name} has unsupported clause ${field}`);
+      }
+    }
+    for (const field of ['adapter', 'kind', 'subject', 'using']) {
+      if (!data.has(field)) throw new Error(`implementation ${name} is missing ${field}`);
+    }
+    if (obligations.length === 0) {
+      throw new Error(`implementation ${name} is missing obligations`);
+    }
+    this.implementations.set(name, {
+      name,
+      adapter: data.get('adapter'),
+      kind: data.get('kind'),
+      subject: data.get('subject'),
+      using: data.get('using'),
+      obligations,
+    });
+  }
+
   #addWitness(form) {
     if (form.length < 3) throw new Error('witness must have an address and clauses');
     const address = requireLeaf(form[1], 'witness address');
@@ -188,7 +314,13 @@ class TheoryNetwork {
         );
       }
       const witness = this.witnesses.get(definition.witness);
-      this.#verifyImplementation(definition, witness);
+      const implementation = this.implementations.get(witness.implementation);
+      if (!implementation) {
+        throw new Error(
+          `witness ${witness.address} uses unknown implementation ${witness.implementation}`,
+        );
+      }
+      const obligations = this.#verifyImplementation(definition, witness, implementation);
       const verdict = checkProofObject(this.proofEnv, witness.proof);
       if (!verdict.ok) {
         throw new Error(
@@ -218,21 +350,45 @@ class TheoryNetwork {
         proof: witness.proof,
         implementation: witness.implementation,
         kind: witness.kind,
+        obligations,
         verified: true,
       });
     }
   }
 
-  #verifyImplementation(definition, witness) {
-    const expectedKind = IMPLEMENTATION_KINDS.get(witness.implementation);
-    if (expectedKind === undefined) {
+  #verifyImplementation(definition, witness, implementation) {
+    const contract = IMPLEMENTATION_CONTRACTS.get(implementation.adapter);
+    if (contract === undefined) {
       throw new Error(
-        `witness ${witness.address} uses unknown implementation ${witness.implementation}`,
+        `implementation ${implementation.name} uses unknown adapter ${implementation.adapter}`,
       );
     }
-    if (expectedKind !== witness.kind) {
+    if (implementation.kind !== contract.kind) {
       throw new Error(
-        `implementation ${witness.implementation} requires kind ${expectedKind}, not ${witness.kind}`,
+        `implementation ${implementation.name} adapter ${implementation.adapter} requires ` +
+        `kind ${contract.kind}, not ${implementation.kind}`,
+      );
+    }
+    if (implementation.kind !== witness.kind) {
+      throw new Error(
+        `implementation ${implementation.name} requires kind ${implementation.kind}, not ` +
+        witness.kind,
+      );
+    }
+    if (implementation.subject !== definition.subject ||
+        implementation.using !== definition.using) {
+      throw new Error(
+        `implementation ${implementation.name} is declared for ` +
+        `${implementation.subject} using ${implementation.using}, not ` +
+        `${definition.subject} using ${definition.using}`,
+      );
+    }
+    const declaredObligations = [...implementation.obligations].sort(compareReferences);
+    const expectedObligations = [...contract.obligations].sort(compareReferences);
+    if (!isStructurallySame(declaredObligations, expectedObligations)) {
+      throw new Error(
+        `implementation ${implementation.name} obligations do not match adapter ` +
+        implementation.adapter,
       );
     }
 
@@ -252,33 +408,73 @@ class TheoryNetwork {
       }
     }
 
-    if (witness.implementation === 'theory-network') {
+    if (implementation.adapter === 'theory-network') {
+      if (!this.metaLanguageRoundTripOk) {
+        throw new Error('implementation theory-network failed its meta-language round trip');
+      }
       const chain = this.definitionChain(definition.subject, definition.using);
       if (chain?.length !== 2 || chain[0] !== definition.subject ||
           chain[1] !== definition.using) {
         throw new Error('implementation theory-network failed its definition-link probe');
       }
-      return;
+      return [...contract.obligations];
     }
 
-    if (witness.implementation === 'addressed-doublet-network' ||
-        witness.implementation === 'typed-doublet-network') {
+    if (implementation.adapter === 'addressed-doublet-network') {
       const links = new LinkNetwork();
       links.define('probe.doublet', 'probe.source', 'probe.target');
       const probe = links.doublet('probe.doublet');
       if (probe?.source !== 'probe.source' || probe?.target !== 'probe.target') {
-        throw new Error(`implementation ${witness.implementation} failed its doublet probe`);
+        throw new Error(`implementation ${implementation.name} failed its doublet probe`);
       }
-      if (witness.implementation === 'typed-doublet-network' &&
-          !this.#hasTypedFoundation()) {
-        throw new Error(
-          'implementation typed-doublet-network is missing its typed foundation',
-        );
+      let duplicateRejected = false;
+      try {
+        links.define('probe.doublet', 'probe.other', 'probe.value');
+      } catch (error) {
+        duplicateRejected = /already defined/.test(error.message);
       }
-      return;
+      if (!duplicateRejected) {
+        throw new Error('implementation addressed-doublet-network is not an address function');
+      }
+      return [...contract.obligations];
     }
 
-    if (witness.implementation === 'doublet-template') {
+    if (implementation.adapter === 'typed-doublet-network') {
+      const links = new TypedLinkNetwork();
+      links.declare('probe.source', 'Reference');
+      links.declare('probe.target', 'Reference');
+      links.declare('probe.wrong', 'NotReference');
+      links.define(
+        'probe.typed-doublet',
+        'probe.source',
+        'probe.target',
+        'Reference',
+        'Reference',
+      );
+      if (links.typeOf('probe.typed-doublet') !== '(Pair Reference Reference)') {
+        throw new Error('implementation typed-doublet-network failed its pair typing probe');
+      }
+      let mismatchRejected = false;
+      try {
+        links.define(
+          'probe.invalid-doublet',
+          'probe.wrong',
+          'probe.target',
+          'Reference',
+          'Reference',
+        );
+      } catch (error) {
+        mismatchRejected = /expected Reference/.test(error.message);
+      }
+      if (!mismatchRejected || !this.#hasTypedFoundation()) {
+        throw new Error(
+          'implementation typed-doublet-network failed typed enforcement or proof replay',
+        );
+      }
+      return [...contract.obligations];
+    }
+
+    if (implementation.adapter === 'doublet-template') {
       const expected = [
         'template',
         ['doublet', 'address', 'source', 'target'],
@@ -287,32 +483,60 @@ class TheoryNetwork {
       if (!this.forms.some(form => isStructurallySame(form, expected))) {
         throw new Error('implementation doublet-template is missing its executable template');
       }
-      return;
+      const recursive = new LinkNetwork();
+      recursive.define('probe.self', 'probe.self', 'probe.self');
+      const probe = recursive.doublet('probe.self');
+      if (probe?.source !== 'probe.self' || probe?.target !== 'probe.self') {
+        throw new Error('implementation doublet-template failed its recursive-reference probe');
+      }
+      return [...contract.obligations];
     }
 
-    if (witness.implementation === 'membership-doublet-network') {
+    if (implementation.adapter === 'membership-doublet-network') {
       const sets = new MembershipSetStore();
       sets.define('probe.membership.1', 'probe.alpha', 'probe.left');
       sets.define('probe.membership.2', 'probe.beta', 'probe.left');
       sets.define('probe.membership.3', 'probe.beta', 'probe.right');
       sets.define('probe.membership.4', 'probe.alpha', 'probe.right');
-      if (!sets.has('probe.left', 'probe.alpha') || !sets.equals('probe.left', 'probe.right')) {
+      if (!sets.has('probe.left', 'probe.alpha') ||
+          !sets.isSubsetOf('probe.left', 'probe.right') ||
+          !sets.equals('probe.left', 'probe.right')) {
         throw new Error(
           'implementation membership-doublet-network failed its membership probe',
         );
       }
-      return;
+      sets.define('probe.collection.1', 'probe.left', 'probe.collection');
+      sets.define('probe.collection.2', 'probe.right', 'probe.collection');
+      if (!isStructurallySame(sets.pair('probe.alpha', 'probe.beta'), [
+        'probe.alpha',
+        'probe.beta',
+      ]) ||
+          !isStructurallySame(sets.union('probe.collection'), [
+            'probe.alpha',
+            'probe.beta',
+          ]) ||
+          !isStructurallySame(
+            sets.separation('probe.left', value => value === 'probe.beta'),
+            ['probe.beta'],
+          ) ||
+          !isStructurallySame(
+            sets.replacement('probe.left', value => `${value}.image`),
+            ['probe.alpha.image', 'probe.beta.image'],
+          )) {
+        throw new Error('implementation membership-doublet-network failed its set algebra probe');
+      }
+      return [...contract.obligations];
     }
 
-    if (witness.implementation === 'typed-kernel-links') {
+    if (implementation.adapter === 'typed-kernel-links') {
       if (!this.#hasTypedFoundation()) {
         throw new Error('implementation typed-kernel-links is missing its typed foundation');
       }
-      return;
+      return [...contract.obligations];
     }
 
-    if (witness.implementation === 'finite-directed-link-graph' ||
-        witness.implementation === 'vertex-typed-link-graph') {
+    if (implementation.adapter === 'finite-directed-link-graph' ||
+        implementation.adapter === 'vertex-typed-link-graph') {
       const graph = new LinkGraph('probe.graph');
       graph.addVertex('probe.alpha');
       graph.addVertex('probe.beta');
@@ -322,17 +546,28 @@ class TheoryNetwork {
       if (!graph.reachable('probe.alpha', 'probe.gamma')) {
         throw new Error(`implementation ${witness.implementation} failed its graph probe`);
       }
-      if (witness.implementation === 'vertex-typed-link-graph' &&
-          !this.#hasTypedFoundation()) {
+      let endpointRejected = false;
+      try {
+        graph.defineEdge('probe.edge.invalid', 'probe.alpha', 'probe.missing');
+      } catch (error) {
+        endpointRejected = /not a vertex/.test(error.message);
+      }
+      if (!endpointRejected) {
+        throw new Error(`implementation ${implementation.name} failed endpoint closure`);
+      }
+      if (implementation.adapter === 'vertex-typed-link-graph' &&
+          (graph.edgeType('probe.edge.1') !==
+            '(Pair probe.graph.vertex probe.graph.vertex)' ||
+            !this.#hasTypedFoundation())) {
         throw new Error(
-          'implementation vertex-typed-link-graph is missing its typed foundation',
+          'implementation vertex-typed-link-graph failed edge typing or proof replay',
         );
       }
-      return;
+      return [...contract.obligations];
     }
 
-    if (witness.implementation === 'finite-binary-link-relation' ||
-        witness.implementation === 'typed-binary-link-relation') {
+    if (implementation.adapter === 'finite-binary-link-relation' ||
+        implementation.adapter === 'typed-binary-link-relation') {
       const first = new FiniteRelation(
         'probe.relation.first',
         ['probe.alpha'],
@@ -345,27 +580,55 @@ class TheoryNetwork {
         ['probe.omega'],
       );
       next.define('probe.pair.next', 'probe.middle', 'probe.omega');
-      if (!first.compose(next, 'probe.relation.composed').has('probe.alpha', 'probe.omega')) {
+      const extra = new FiniteRelation(
+        'probe.relation.extra',
+        ['probe.alpha'],
+        ['probe.middle'],
+      );
+      extra.define('probe.pair.extra', 'probe.alpha', 'probe.middle');
+      let domainRejected = false;
+      let codomainRejected = false;
+      try {
+        first.define('probe.pair.invalid-left', 'probe.outside', 'probe.middle');
+      } catch (error) {
+        domainRejected = /outside the declared domain/.test(error.message);
+      }
+      try {
+        first.define('probe.pair.invalid-right', 'probe.alpha', 'probe.outside');
+      } catch (error) {
+        codomainRejected = /outside the declared codomain/.test(error.message);
+      }
+      if (!first.compose(next, 'probe.relation.composed').has('probe.alpha', 'probe.omega') ||
+          !first.converse('probe.relation.converse').has('probe.middle', 'probe.alpha') ||
+          !first.union(extra, 'probe.relation.union').has('probe.alpha', 'probe.middle') ||
+          !first.intersection(extra, 'probe.relation.intersection')
+            .has('probe.alpha', 'probe.middle') ||
+          !domainRejected || !codomainRejected) {
         throw new Error(`implementation ${witness.implementation} failed its relation probe`);
       }
-      if (witness.implementation === 'typed-binary-link-relation' &&
-          !this.#hasTypedFoundation()) {
+      if (implementation.adapter === 'typed-binary-link-relation' &&
+          (first.pairType('probe.pair.first') !==
+            '(Pair probe.relation.first.domain probe.relation.first.codomain)' ||
+            !this.#hasTypedFoundation())) {
         throw new Error(
-          'implementation typed-binary-link-relation is missing its typed foundation',
+          'implementation typed-binary-link-relation failed pair typing or proof replay',
         );
       }
-      return;
+      return [...contract.obligations];
     }
 
-    if (witness.implementation === 'canonical-doublet-tree') {
+    if (implementation.adapter === 'canonical-doublet-tree') {
       const doublets = new DoubletSequenceStore();
       const root = doublets.encodeSet(['probe.beta', 'probe.alpha', 'probe.beta'], 'probe.set');
       if (!isStructurallySame(doublets.decodeSet(root), ['probe.alpha', 'probe.beta'])) {
         throw new Error('implementation canonical-doublet-tree failed its set probe');
       }
-      return;
+      if (!doublets.doublet(root)) {
+        throw new Error('implementation canonical-doublet-tree did not create nested doublets');
+      }
+      return [...contract.obligations];
     }
-    throw new Error(`implementation ${witness.implementation} has no executable probe`);
+    throw new Error(`implementation ${implementation.name} has no executable probe`);
   }
 
   #hasTypedFoundation() {
@@ -377,8 +640,15 @@ class TheoryNetwork {
     ]);
     const foundation = this.proofEnv.foundationReport().foundations
       .find(candidate => candidate.name === 'typed-kernel-links');
+    const proofs = [
+      'rml.type.proof.pi-formation',
+      'rml.type.proof.lambda-introduction',
+      'rml.type.proof.application-elimination',
+      'rml.type.proof.beta-conversion',
+    ];
     return foundation !== undefined &&
-      [...expected].every(construct => foundation.uses.includes(construct));
+      [...expected].every(construct => foundation.uses.includes(construct)) &&
+      proofs.every(proof => checkProofObject(this.proofEnv, proof).ok);
   }
 
   theoryNames() {
@@ -392,6 +662,14 @@ class TheoryNetwork {
   definitionWitness(address) {
     const witness = this.witnesses.get(address);
     return witness ? { ...witness } : null;
+  }
+
+  implementation(name) {
+    const implementation = this.implementations.get(name);
+    return implementation ? {
+      ...implementation,
+      obligations: [...implementation.obligations],
+    } : null;
   }
 
   definitionVerification(name) {
@@ -461,6 +739,59 @@ class LinkNetwork {
   doublet(address) {
     const node = this.nodes.get(address);
     return node ? { ...node } : null;
+  }
+}
+
+/** A link network whose references and ordered-pair endpoints are type checked. */
+class TypedLinkNetwork {
+  constructor() {
+    this.links = new LinkNetwork();
+    this.types = new Map();
+  }
+
+  declare(address, type) {
+    requireLeaf(address, 'typed reference address');
+    requireLeaf(type, 'typed reference type');
+    const declared = this.types.get(address) ?? new Set();
+    declared.add(type);
+    this.types.set(address, declared);
+    return address;
+  }
+
+  define(address, source, target, sourceType, targetType) {
+    requireLeaf(sourceType, 'link source type');
+    requireLeaf(targetType, 'link target type');
+    this.#requireType(source, sourceType, 'source');
+    this.#requireType(target, targetType, 'target');
+    this.links.define(address, source, target);
+    this.types.set(address, new Set([`(Pair ${sourceType} ${targetType})`]));
+    return address;
+  }
+
+  doublet(address) {
+    return this.links.doublet(address);
+  }
+
+  typeOf(address) {
+    const types = this.typesOf(address);
+    return types.length === 1 ? types[0] : null;
+  }
+
+  typesOf(address) {
+    return [...(this.types.get(address) ?? [])].sort(compareReferences);
+  }
+
+  #requireType(address, expected, role) {
+    const declared = this.types.get(address);
+    if (declared === undefined) {
+      throw new Error(`typed link ${role} ${address} has no declared type`);
+    }
+    if (!declared.has(expected)) {
+      const actual = [...declared].sort(compareReferences).join(', ');
+      throw new Error(
+        `typed link ${role} ${address} has type ${actual}; expected ${expected}`,
+      );
+    }
   }
 }
 
@@ -672,6 +1003,36 @@ class MembershipSetStore {
   equals(left, right) {
     return isStructurallySame(this.members(left), this.members(right));
   }
+
+  isSubsetOf(left, right) {
+    return this.members(left).every(element => this.has(right, element));
+  }
+
+  pair(left, right) {
+    requireLeaf(left, 'pair left value');
+    requireLeaf(right, 'pair right value');
+    return [...new Set([left, right])].sort(compareReferences);
+  }
+
+  /** Flatten a finite set whose members are addresses of finite sets. */
+  union(collection) {
+    return [...new Set(
+      this.members(collection).flatMap(set => this.members(set)),
+    )].sort(compareReferences);
+  }
+
+  separation(set, predicate) {
+    if (typeof predicate !== 'function') throw new Error('set predicate must be a function');
+    return this.members(set).filter(element => predicate(element));
+  }
+
+  replacement(set, mapping) {
+    if (typeof mapping !== 'function') throw new Error('set mapping must be a function');
+    return [...new Set(
+      this.members(set).map(element =>
+        requireLeaf(mapping(element), 'replacement output')),
+    )].sort(compareReferences);
+  }
 }
 
 /** A finite directed graph, constrained to a vertex set, represented by links. */
@@ -679,7 +1040,8 @@ class LinkGraph {
   constructor(address) {
     this.address = requireLeaf(address, 'graph address');
     this.vertexMemberships = new MembershipSetStore();
-    this.edges = new LinkNetwork();
+    this.vertexType = `${this.address}.vertex`;
+    this.edges = new TypedLinkNetwork();
     this.edgeAddresses = new Set();
     this.nextVertexMembership = 0;
   }
@@ -691,6 +1053,7 @@ class LinkGraph {
     }
     const membership = `${this.address}.vertex-membership.${this.nextVertexMembership++}`;
     this.vertexMemberships.define(membership, vertex, this.address);
+    this.edges.declare(vertex, this.vertexType);
     return vertex;
   }
 
@@ -707,13 +1070,17 @@ class LinkGraph {
     if (!this.vertexMemberships.has(this.address, target)) {
       throw new Error(`edge target ${target} is not a vertex of ${this.address}`);
     }
-    this.edges.define(address, source, target);
+    this.edges.define(address, source, target, this.vertexType, this.vertexType);
     this.edgeAddresses.add(address);
     return address;
   }
 
   edge(address) {
     return this.edgeAddresses.has(address) ? this.edges.doublet(address) : null;
+  }
+
+  edgeType(address) {
+    return this.edgeAddresses.has(address) ? this.edges.typeOf(address) : null;
   }
 
   successors(vertex) {
@@ -757,13 +1124,15 @@ class FiniteRelation {
     this.domainSet = new Set(this.domain);
     this.codomainSet = new Set(this.codomain);
     this.typeMemberships = new MembershipSetStore();
-    this.links = new LinkNetwork();
+    this.links = new TypedLinkNetwork();
     this.relationPairs = new Map();
     this.domain.forEach((value, index) => {
       this.typeMemberships.define(`${address}.domain.${index}`, value, `${address}.domain`);
+      this.links.declare(value, `${address}.domain`);
     });
     this.codomain.forEach((value, index) => {
       this.typeMemberships.define(`${address}.codomain.${index}`, value, `${address}.codomain`);
+      this.links.declare(value, `${address}.codomain`);
     });
   }
 
@@ -779,13 +1148,23 @@ class FiniteRelation {
     if (this.pairs().some(pair => pair[0] === left && pair[1] === right)) {
       throw new Error(`relation ${this.address} already contains (${left}, ${right})`);
     }
-    this.links.define(address, left, right);
+    this.links.define(
+      address,
+      left,
+      right,
+      `${this.address}.domain`,
+      `${this.address}.codomain`,
+    );
     this.relationPairs.set(address, [left, right]);
     return address;
   }
 
   has(left, right) {
     return this.pairs().some(pair => pair[0] === left && pair[1] === right);
+  }
+
+  pairType(address) {
+    return this.relationPairs.has(address) ? this.links.typeOf(address) : null;
   }
 
   pairs() {
@@ -874,4 +1253,5 @@ export {
   LinkNetwork,
   MembershipSetStore,
   TheoryNetwork,
+  TypedLinkNetwork,
 };
