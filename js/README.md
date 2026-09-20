@@ -192,6 +192,25 @@ const evaluation = evaluateFormalization(formalization);
 
 The meta-expression adapter deliberately keeps unsupported real-world claims partial. A selected interpretation such as `moon orbits the Sun` is returned as non-computable with explicit unknowns until a consumer supplies a formal shape and reproducible dependencies.
 
+The meta-theory graph is available as a separate module so it can consume the
+main parser and the `meta-language` bridge without changing evaluator state:
+
+```javascript
+import { readFileSync } from 'node:fs';
+import { TheoryGraph, DoubletSequenceStore } from './src/rml-theory-graph.mjs';
+
+const source = readFileSync('../lib/meta-theory/core.lino', 'utf8');
+const graph = TheoryGraph.fromRml(source);
+const path = graph.definitionPath('relative-meta-logic', 'type-theory');
+
+const sequences = new DoubletSequenceStore();
+sequences.define('loop', 'value', 'loop');
+const prefix = sequences.walk('loop', 3);
+```
+
+See [`docs/META_THEORY.md`](../docs/META_THEORY.md) for the shared source
+format, unified addresses, set encodings, and cycle semantics.
+
 ## Testing
 
 ```bash
@@ -208,6 +227,7 @@ The test suite covers:
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
 - Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, simplify, exact
 - Domain plugins: Pecan-style automatic-sequence theorem decisions
+- Cross-theory definition paths, unified concept addresses, and addressed doublet sequences
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Dependencies

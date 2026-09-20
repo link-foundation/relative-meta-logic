@@ -134,6 +134,13 @@ let evaluation = evaluate_formalization(&formalization);
 
 The meta-expression adapter deliberately keeps unsupported real-world claims partial. A selected interpretation such as `moon orbits the Sun` is returned as non-computable with explicit unknowns until a consumer supplies a formal shape and reproducible dependencies.
 
+The `rml::theory_graph` module loads the shared
+`lib/meta-theory/core.lino` network through `meta-language`. `TheoryGraph`
+provides unified-address lookup and cycle-safe definition paths;
+`DoubletSequenceStore` provides finite ordered-set encoding and bounded
+observation of self-referential sequences. See
+[`docs/META_THEORY.md`](../docs/META_THEORY.md) for the complete contract.
+
 ## Testing
 
 ```bash
@@ -150,6 +157,7 @@ The test suite covers:
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
 - Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, simplify, exact
 - Domain plugins: Pecan-style automatic-sequence theorem decisions
+- Cross-theory definition paths, unified concept addresses, and addressed doublet sequences
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Implementation Notes

@@ -156,6 +156,22 @@ For consumers that start from a selected natural-language interpretation rather 
 
 The adapter currently supports explicit arithmetic equality and arithmetic value questions, plus direct LiNo/RML expressions. Real-world claims such as `moon orbits the Sun` remain non-computable until a caller provides selected entities, relations, evidence sources, and a formal shape.
 
+### Executable Theory Graph
+
+Both runtimes expose a `TheoryGraph` reader for the shared
+[`lib/meta-theory/core.lino`](./lib/meta-theory/core.lino) network. The reader
+round-trips source through `meta-language`, validates generic `theory`, `term`,
+and `definition` forms, resolves theory-local terms to shared concept
+addresses, and performs cycle-safe shortest-path searches over definition
+edges.
+
+`DoubletSequenceStore` is the corresponding addressed-link data structure for
+ordered unique sets and potentially infinite sequences. Finite set decoding
+rejects duplicate values and cycles; sequence observation requires an explicit
+item bound and reports observed direct or indirect cycles. The format and
+verification boundary are documented in
+[`docs/META_THEORY.md`](./docs/META_THEORY.md).
+
 ### Program Extraction
 
 Both implementations expose program extraction for the typed, non-probabilistic

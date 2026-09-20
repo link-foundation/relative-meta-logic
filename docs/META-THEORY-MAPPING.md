@@ -255,3 +255,18 @@ meta-theory at work: an associative network whose nodes are
 references, whose edges are doublets and triplets, whose semantics is
 a small bounded set of host primitives, and whose audit trail is the
 foundation report.
+
+## 8. Executable cross-theory graph
+
+Issue #183 turns this mapping into executable data in
+[`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino). The matching
+JavaScript and Rust `TheoryGraph` APIs load the source through `meta-language`,
+resolve theory-local terms to shared concept addresses, and search the cyclic
+definition graph safely. Links Theory now has explicit definitions through set
+theory, type theory, and itself; set theory and type theory have reverse links
+definitions; and Relative Meta-Logic has an explicit Links Theory foundation.
+
+Addressed doublet-sequence stores implement the ordered-unique set projection
+and bounded observation of direct or indirect self-reference. See
+[`META_THEORY.md`](./META_THEORY.md) for the source forms, APIs, guarantees, and
+verification boundary.
