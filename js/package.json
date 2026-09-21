@@ -33,6 +33,7 @@
   "author": "",
   "license": "Unlicense",
   "dependencies": {
+    "events": "^3.3.0",
     "links-notation": "^0.20.0",
     "meta-language": "^0.46.0"
   },
