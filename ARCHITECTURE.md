@@ -159,13 +159,18 @@ The adapter currently supports explicit arithmetic equality and arithmetic value
 ### Executable Theory Network
 
 Both runtimes expose a `TheoryNetwork` reader for the shared
-[`lib/meta-theory/core.lino`](./lib/meta-theory/core.lino) network. The reader
-round-trips source through `meta-language`, validates generic `theory`, `term`,
-`implementation`, `witness`, and `definition` forms. A definition link is
+[`lib/meta-theory/core.lino`](./lib/meta-theory/core.lino) network and
+independently selected
+[`lib/meta-theory/foundation.lino`](./lib/meta-theory/foundation.lino) trust
+profile. The reader round-trips both through `meta-language` and validates
+generic `theory`, `term`, `implementation`, `witness`, and `definition` forms.
+A definition link is
 admitted only when its implementation manifest matches the proposed
 subject/foundation pair and the adapter's exact kind and obligation set; all
 operations pass runtime conformance checks; its proof object replays; and the
-checked conclusion exactly matches that link. The network then resolves or
+checked conclusion exactly matches that link. Rules, axioms, adapter contracts,
+and expected judgements come only from the trust profile; a candidate theory
+cannot authorize itself. The network then resolves or
 translates theory-local terms through shared concept addresses and performs
 cycle-safe shortest definition-chain searches.
 

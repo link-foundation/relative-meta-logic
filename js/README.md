@@ -208,7 +208,8 @@ import {
 } from './src/rml-theory-network.mjs';
 
 const source = readFileSync('../lib/meta-theory/core.lino', 'utf8');
-const network = TheoryNetwork.fromRml(source);
+const trustedFoundation = readFileSync('../lib/meta-theory/foundation.lino', 'utf8');
+const network = TheoryNetwork.fromRml(source, trustedFoundation);
 const path = network.definitionChain('relative-meta-logic', 'type-theory');
 const translated = network.translateTerm('set-theory', 'reference', 'links-theory');
 const verification = network.definitionVerification('links-by-sets');

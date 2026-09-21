@@ -11,9 +11,14 @@ use std::collections::BTreeSet;
 use std::path::PathBuf;
 
 const CORE: &str = include_str!("../../lib/meta-theory/core.lino");
+const FOUNDATION: &str = include_str!("../../lib/meta-theory/foundation.lino");
+
+fn network_from(source: &str) -> Result<TheoryNetwork, String> {
+    TheoryNetwork::from_rml(source, FOUNDATION)
+}
 
 fn bundled_network() -> TheoryNetwork {
-    TheoryNetwork::from_rml(CORE).expect("bundled meta-theory must be valid")
+    network_from(CORE).expect("bundled meta-theory must be valid")
 }
 
 #[test]
@@ -52,6 +57,7 @@ fn loads_bundled_theory_network_losslessly_through_meta_language() {
     let network = bundled_network();
 
     assert!(network.meta_language_round_trip_ok());
+    assert!(network.trusted_foundation_round_trip_ok());
     assert_eq!(
         network.theory_names(),
         vec![
@@ -224,8 +230,6 @@ fn accepts_user_theories_without_hard_coded_theory_names() {
   (kind link-network-composition)
   (implementation user-theory-network)
   (proof user.proof.rml))
-(axiom user.capability.theory-network
-  (judgement (user-theory-network implements link-network-composition)))
 (proof-object user.proof.rml
   (applies verified-theory-definition)
   (premise-by user.capability.theory-network)
@@ -238,7 +242,11 @@ fn accepts_user_theories_without_hard_coded_theory_names() {
   (witness user.definition.rml))
 "#
     );
-    let network = TheoryNetwork::from_rml(&source).expect("user theory must be valid");
+    let trusted_foundation = format!(
+        "{FOUNDATION}\n(axiom user.capability.theory-network\n  (judgement (user-theory-network implements link-network-composition)))\n"
+    );
+    let network =
+        TheoryNetwork::from_rml(&source, &trusted_foundation).expect("user theory must be valid");
 
     assert_eq!(
         network.resolve_term("user-theory", "entity"),
@@ -261,7 +269,7 @@ fn accepts_user_theories_without_hard_coded_theory_names() {
 
 #[test]
 fn rejects_ambiguous_term_addresses() {
-    let error = TheoryNetwork::from_rml(
+    let error = network_from(
         r#"
 (theory t (address theory.t))
 (term t x concept.one)
@@ -275,7 +283,7 @@ fn rejects_ambiguous_term_addresses() {
 
 #[test]
 fn rejects_definition_links_without_a_declared_implementation_witness() {
-    let error = TheoryNetwork::from_rml(
+    let error = network_from(
         r#"
 (theory base (address theory.base))
 (theory derived (address theory.derived))
@@ -316,7 +324,7 @@ fn rejects_bundled_network_when_every_definition_witness_reference_is_missing() 
                 "(witness DOES_NOT_EXIST))",
             )
         });
-    let error = TheoryNetwork::from_rml(&source).expect_err("missing witnesses must fail");
+    let error = network_from(&source).expect_err("missing witnesses must fail");
     assert_eq!(
         error,
         "definition rml-by-links has unknown witness DOES_NOT_EXIST"
@@ -345,7 +353,7 @@ fn rejects_network_when_all_declared_implementations_are_non_executable() {
             "(implementation DOES_NOT_EXIST)",
         )
     });
-    let error = TheoryNetwork::from_rml(&source).expect_err("unknown implementation must fail");
+    let error = network_from(&source).expect_err("unknown implementation must fail");
     assert_eq!(
         error,
         "witness rml.definition.relative-meta-logic.links uses unknown implementation DOES_NOT_EXIST"
@@ -359,7 +367,7 @@ fn rejects_implementation_rebound_to_a_different_theory_definition() {
         "(implementation addressed-doublet-network\n  (adapter addressed-doublet-network)\n  (kind set-theoretic-function)\n  (subject graph-theory)",
         1,
     );
-    let error = TheoryNetwork::from_rml(&source).expect_err("rebound implementation must fail");
+    let error = network_from(&source).expect_err("rebound implementation must fail");
     assert_eq!(
         error,
         "implementation addressed-doublet-network is declared for graph-theory using set-theory, not links-theory using set-theory"
@@ -369,7 +377,7 @@ fn rejects_implementation_rebound_to_a_different_theory_definition() {
 #[test]
 fn rejects_implementation_with_incomplete_declared_obligations() {
     let source = CORE.replacen("  (obligation ordered-pair))", ")", 1);
-    let error = TheoryNetwork::from_rml(&source).expect_err("incomplete implementation must fail");
+    let error = network_from(&source).expect_err("incomplete implementation must fail");
     assert_eq!(
         error,
         "implementation addressed-doublet-network obligations do not match adapter addressed-doublet-network"
@@ -383,7 +391,7 @@ fn rejects_undeclared_implementation_contract_clauses() {
         "  (adapter addressed-doublet-network)\n  (unchecked true)",
         1,
     );
-    let error = TheoryNetwork::from_rml(&source).expect_err("unknown contract clause must fail");
+    let error = network_from(&source).expect_err("unknown contract clause must fail");
     assert_eq!(
         error,
         "implementation addressed-doublet-network has unsupported clause unchecked"
@@ -397,7 +405,7 @@ fn rejects_typed_implementation_when_kernel_derivation_no_longer_replays() {
         "(premise-by DOES_NOT_EXIST)",
         1,
     );
-    let error = TheoryNetwork::from_rml(&source).expect_err("invalid typed proof must fail");
+    let error = network_from(&source).expect_err("invalid typed proof must fail");
     assert_eq!(
         error,
         "implementation typed-doublet-network failed typed enforcement or proof replay"
@@ -429,8 +437,8 @@ fn rejects_valid_typed_witnesses_that_establish_unrelated_judgements() {
         );
     }
 
-    let error = TheoryNetwork::from_rml(&source)
-        .expect_err("typed witnesses for unrelated judgements must fail");
+    let error =
+        network_from(&source).expect_err("typed witnesses for unrelated judgements must fail");
     assert_eq!(
         error,
         "implementation typed-doublet-network failed typed enforcement or proof replay"
@@ -444,7 +452,7 @@ fn rejects_missing_or_mismatched_witness_proof() {
         "(proof DOES_NOT_EXIST)",
         1,
     );
-    let error = TheoryNetwork::from_rml(&missing).expect_err("missing proof must fail");
+    let error = network_from(&missing).expect_err("missing proof must fail");
     assert_eq!(
         error,
         "witness rml.definition.links.set-function has invalid proof DOES_NOT_EXIST: unknown proof-object DOES_NOT_EXIST"
@@ -455,7 +463,7 @@ fn rejects_missing_or_mismatched_witness_proof() {
         "(links-by-sets defines type-theory using set-theory",
         1,
     );
-    let error = TheoryNetwork::from_rml(&mismatched).expect_err("mismatched proof must fail");
+    let error = network_from(&mismatched).expect_err("mismatched proof must fail");
     assert_eq!(
         error,
         "proof rml.proof.links.set-function does not establish definition links-by-sets"
@@ -464,15 +472,37 @@ fn rejects_missing_or_mismatched_witness_proof() {
 
 #[test]
 fn rejects_definition_proof_after_one_capability_premise_is_corrupted() {
-    let corrupted = CORE.replacen(
+    let corrupted_foundation = FOUNDATION.replacen(
         "(addressed-doublet-network implements set-theoretic-function)",
         "(addressed-doublet-network implements WRONG-KIND)",
         1,
     );
-    let error = TheoryNetwork::from_rml(&corrupted).expect_err("corrupted premise must fail");
+    let error = TheoryNetwork::from_rml(CORE, &corrupted_foundation)
+        .expect_err("corrupted premise must fail");
     assert_eq!(
         error,
         "witness rml.definition.links.set-function has invalid proof rml.proof.links.set-function: proof-object rml.proof.links.set-function: conclusion does not match rule verified-theory-definition"
+    );
+}
+
+#[test]
+fn rejects_candidates_that_attempt_to_authorize_their_own_proofs() {
+    let source = format!(
+        "{CORE}\n{}",
+        r#"
+(rule candidate-accepts-anything
+  (conclusion
+    (forged defines links-theory using set-theory
+      via addressed-doublet-network as set-theoretic-function)))
+(axiom candidate-capability
+  (judgement (addressed-doublet-network implements set-theoretic-function)))
+"#
+    );
+
+    let error = network_from(&source).expect_err("candidate-authored trust must fail");
+    assert_eq!(
+        error,
+        "candidate theory source cannot declare trusted rule forms"
     );
 }
 

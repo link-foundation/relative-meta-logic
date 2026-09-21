@@ -66,31 +66,75 @@ struct TheoryTerm {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+struct AdapterContract {
+    kind: String,
+    obligations: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ProofObligation {
+    proof: String,
+    judgement: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TheoryNetwork {
     meta_language_round_trip_ok: bool,
+    trusted_foundation_round_trip_ok: bool,
     theories: BTreeMap<String, Theory>,
     definitions: Vec<TheoryDefinition>,
     terms: BTreeMap<(String, String), TheoryTerm>,
     implementations: BTreeMap<String, TheoryImplementation>,
     witnesses: BTreeMap<String, TheoryWitness>,
     verifications: BTreeMap<String, TheoryDefinitionVerification>,
+    adapter_contracts: BTreeMap<String, AdapterContract>,
+    proof_obligations: BTreeMap<(String, String), ProofObligation>,
 }
 
 impl TheoryNetwork {
-    pub fn from_rml(source: &str) -> Result<Self, String> {
+    pub fn from_rml(source: &str, trusted_foundation: &str) -> Result<Self, String> {
         let meta_language_network = parse_rml_to_meta_language(source);
         let reconstructed = reconstruct_rml_from_meta_language(&meta_language_network);
+        let trusted_meta_language_network = parse_rml_to_meta_language(trusted_foundation);
+        let trusted_reconstructed =
+            reconstruct_rml_from_meta_language(&trusted_meta_language_network);
         let mut network = Self {
             meta_language_round_trip_ok: reconstructed == source,
+            trusted_foundation_round_trip_ok: trusted_reconstructed == trusted_foundation,
             theories: BTreeMap::new(),
             definitions: Vec::new(),
             terms: BTreeMap::new(),
             implementations: BTreeMap::new(),
             witnesses: BTreeMap::new(),
             verifications: BTreeMap::new(),
+            adapter_contracts: BTreeMap::new(),
+            proof_obligations: BTreeMap::new(),
         };
         let mut proof_env = Env::new(None);
         let mut forms = Vec::new();
+
+        for link in parse_lino(&trusted_reconstructed) {
+            let form = parse_one(&tokenize_one(&link))
+                .map_err(|error| format!("invalid trusted foundation link {link}: {error}"))?;
+            let Some(head) = form_head(&form) else {
+                continue;
+            };
+            let Node::List(children) = &form else {
+                continue;
+            };
+            match head {
+                "adapter-contract" => network.add_adapter_contract(children)?,
+                "proof-obligation" => network.add_proof_obligation(children)?,
+                "rule" if is_proof_rule_shape(&form) => {
+                    proof_env.register_proof_rule(parse_rule_form(&form)?)
+                }
+                "axiom" | "assumption" => {
+                    proof_env.register_proof_assumption(parse_proof_assumption_form(&form)?)
+                }
+                _ => return Err(format!("trusted foundation has unsupported form {head}")),
+            }
+        }
+        network.validate_trusted_foundation()?;
 
         for link in parse_lino(&reconstructed) {
             let form = parse_one(&tokenize_one(&link))
@@ -101,19 +145,137 @@ impl TheoryNetwork {
             let Some(Node::Leaf(head)) = children.first() else {
                 continue;
             };
+            if matches!(
+                head.as_str(),
+                "adapter-contract" | "proof-obligation" | "rule" | "axiom" | "assumption"
+            ) {
+                return Err(format!(
+                    "candidate theory source cannot declare trusted {head} forms"
+                ));
+            }
             match head.as_str() {
                 "theory" => network.add_theory(children)?,
                 "term" => network.add_term(children)?,
                 "implementation" => network.add_implementation(children)?,
                 "witness" => network.add_witness(children)?,
                 "definition" => network.add_definition(children)?,
+                "proof-object" => proof_env.register_proof_object(parse_proof_object_form(&form)?),
                 _ => {}
             }
-            register_proof_form(&mut proof_env, &form)?;
             forms.push(form);
         }
         network.validate(&proof_env, &forms)?;
         Ok(network)
+    }
+
+    fn add_adapter_contract(&mut self, form: &[Node]) -> Result<(), String> {
+        if form.len() < 3 {
+            return Err("adapter-contract must have a name and clauses".to_string());
+        }
+        let adapter = leaf(&form[1], "adapter-contract name")?.to_string();
+        if self.adapter_contracts.contains_key(&adapter) {
+            return Err(format!("duplicate adapter-contract {adapter}"));
+        }
+        let (data, obligations) =
+            implementation_clauses(&form[2..], &format!("adapter-contract {adapter}"))?;
+        for key in data.keys() {
+            if key != "kind" {
+                return Err(format!(
+                    "adapter-contract {adapter} has unsupported clause {key}"
+                ));
+            }
+        }
+        let kind = data
+            .get("kind")
+            .cloned()
+            .ok_or_else(|| format!("adapter-contract {adapter} is missing kind"))?;
+        if obligations.is_empty() {
+            return Err(format!("adapter-contract {adapter} is missing obligations"));
+        }
+        self.adapter_contracts
+            .insert(adapter, AdapterContract { kind, obligations });
+        Ok(())
+    }
+
+    fn add_proof_obligation(&mut self, form: &[Node]) -> Result<(), String> {
+        if form.len() < 3 {
+            return Err("proof-obligation must have an adapter and clauses".to_string());
+        }
+        let adapter = leaf(&form[1], "proof-obligation adapter")?.to_string();
+        let mut data = BTreeMap::new();
+        for node in &form[2..] {
+            let Node::List(clause) = node else {
+                return Err(format!(
+                    "proof-obligation {adapter} clauses must have the form (name value)"
+                ));
+            };
+            if clause.len() != 2 {
+                return Err(format!(
+                    "proof-obligation {adapter} clauses must have the form (name value)"
+                ));
+            }
+            let name = leaf(
+                &clause[0],
+                &format!("proof-obligation {adapter} clause name"),
+            )?;
+            if !matches!(name, "obligation" | "proof" | "judgement") {
+                return Err(format!(
+                    "proof-obligation {adapter} has unsupported clause {name}"
+                ));
+            }
+            if data.insert(name.to_string(), clause[1].clone()).is_some() {
+                return Err(format!("proof-obligation {adapter} repeats clause {name}"));
+            }
+        }
+        let obligation = leaf(
+            data.get("obligation")
+                .ok_or_else(|| format!("proof-obligation {adapter} is missing obligation"))?,
+            &format!("proof-obligation {adapter} name"),
+        )?
+        .to_string();
+        let proof = leaf(
+            data.get("proof")
+                .ok_or_else(|| format!("proof-obligation {adapter} is missing proof"))?,
+            &format!("proof-obligation {adapter} proof"),
+        )?
+        .to_string();
+        let judgement = data
+            .get("judgement")
+            .ok_or_else(|| format!("proof-obligation {adapter} is missing judgement"))?;
+        if !matches!(judgement, Node::List(_)) {
+            return Err(format!(
+                "proof-obligation {adapter}.{obligation} judgement must be a link"
+            ));
+        }
+        let key = (adapter.clone(), obligation.clone());
+        if self.proof_obligations.contains_key(&key) {
+            return Err(format!("duplicate proof-obligation {adapter}.{obligation}"));
+        }
+        self.proof_obligations.insert(
+            key,
+            ProofObligation {
+                proof,
+                judgement: key_of(judgement),
+            },
+        );
+        Ok(())
+    }
+
+    fn validate_trusted_foundation(&self) -> Result<(), String> {
+        if self.adapter_contracts.is_empty() {
+            return Err("trusted foundation does not declare any adapter contracts".to_string());
+        }
+        for ((adapter, obligation), _) in &self.proof_obligations {
+            let contract = self.adapter_contracts.get(adapter).ok_or_else(|| {
+                format!("proof-obligation {adapter}.{obligation} has unknown adapter")
+            })?;
+            if !contract.obligations.contains(obligation) {
+                return Err(format!(
+                    "proof-obligation {adapter}.{obligation} is not in its contract"
+                ));
+            }
+        }
+        Ok(())
     }
 
     fn add_theory(&mut self, form: &[Node]) -> Result<(), String> {
@@ -369,7 +531,7 @@ impl TheoryNetwork {
         forms: &[Node],
         proof_env: &Env,
     ) -> Result<Vec<String>, String> {
-        let Some(contract) = implementation_contract(&implementation.adapter) else {
+        let Some(contract) = self.adapter_contracts.get(&implementation.adapter) else {
             return Err(format!(
                 "implementation {} uses unknown adapter {}",
                 implementation.name, implementation.adapter
@@ -400,11 +562,7 @@ impl TheoryNetwork {
         }
         let declared_obligations: BTreeSet<_> =
             implementation.obligations.iter().cloned().collect();
-        let expected_obligations: BTreeSet<_> = contract
-            .obligations
-            .iter()
-            .map(|item| item.to_string())
-            .collect();
+        let expected_obligations: BTreeSet<_> = contract.obligations.iter().cloned().collect();
         if declared_obligations != expected_obligations {
             return Err(format!(
                 "implementation {} obligations do not match adapter {}",
@@ -412,13 +570,7 @@ impl TheoryNetwork {
             ));
         }
 
-        let verified = || {
-            contract
-                .obligations
-                .iter()
-                .map(|item| item.to_string())
-                .collect()
-        };
+        let verified = || contract.obligations.clone();
 
         if definition.subject != definition.using {
             let subject_addresses: BTreeSet<&str> = self
@@ -498,7 +650,7 @@ impl TheoryNetwork {
                             "Reference",
                         )
                         .is_ok()
-                    || !has_typed_foundation(proof_env)
+                    || !self.has_typed_foundation(proof_env)
                 {
                     return Err(
                         "implementation typed-doublet-network failed typed enforcement or proof replay"
@@ -575,7 +727,7 @@ impl TheoryNetwork {
                 return Ok(verified());
             }
             "typed-kernel-links" => {
-                if !has_typed_foundation(proof_env) {
+                if !self.has_typed_foundation(proof_env) {
                     return Err(
                         "implementation typed-kernel-links is missing its typed foundation"
                             .to_string(),
@@ -608,7 +760,7 @@ impl TheoryNetwork {
                 if implementation.adapter == "vertex-typed-link-graph"
                     && (graph.edge_type("probe.edge.1")
                         != Some("(Pair probe.graph.vertex probe.graph.vertex)")
-                        || !has_typed_foundation(proof_env))
+                        || !self.has_typed_foundation(proof_env))
                 {
                     return Err(
                         "implementation vertex-typed-link-graph failed edge typing or proof replay"
@@ -665,7 +817,7 @@ impl TheoryNetwork {
                 if implementation.adapter == "typed-binary-link-relation"
                     && (first.pair_type("probe.pair.first")
                         != Some("(Pair probe.relation.first.domain probe.relation.first.codomain)")
-                        || !has_typed_foundation(proof_env))
+                        || !self.has_typed_foundation(proof_env))
                 {
                     return Err(
                         "implementation typed-binary-link-relation failed pair typing or proof replay"
@@ -682,8 +834,34 @@ impl TheoryNetwork {
         ))
     }
 
+    fn has_typed_foundation(&self, env: &Env) -> bool {
+        let Some(contract) = self.adapter_contracts.get("typed-kernel-links") else {
+            return false;
+        };
+        contract.obligations.iter().all(|obligation| {
+            let Some(expected) = self
+                .proof_obligations
+                .get(&("typed-kernel-links".to_string(), obligation.clone()))
+            else {
+                return false;
+            };
+            if !matches!(
+                check_proof_object(env, &expected.proof),
+                CheckProofVerdict::Ok(_)
+            ) {
+                return false;
+            }
+            env.get_proof_object(&expected.proof)
+                .is_some_and(|proof| key_of(&proof.conclusion) == expected.judgement)
+        })
+    }
+
     pub fn meta_language_round_trip_ok(&self) -> bool {
         self.meta_language_round_trip_ok
+    }
+
+    pub fn trusted_foundation_round_trip_ok(&self) -> bool {
+        self.trusted_foundation_round_trip_ok
     }
 
     pub fn theory_names(&self) -> Vec<&str> {
@@ -769,155 +947,6 @@ impl TheoryNetwork {
     }
 }
 
-struct ImplementationContract {
-    kind: &'static str,
-    obligations: &'static [&'static str],
-}
-
-fn implementation_contract(adapter: &str) -> Option<ImplementationContract> {
-    let contract = match adapter {
-        "theory-network" => ImplementationContract {
-            kind: "link-network-composition",
-            obligations: &["meta-language-round-trip", "definition-link"],
-        },
-        "addressed-doublet-network" => ImplementationContract {
-            kind: "set-theoretic-function",
-            obligations: &["address-function", "ordered-pair"],
-        },
-        "typed-doublet-network" => ImplementationContract {
-            kind: "dependent-function",
-            obligations: &[
-                "reference-typing",
-                "dependent-pair",
-                "ill-typed-rejection",
-                "typed-proof-replay",
-            ],
-        },
-        "doublet-template" => ImplementationContract {
-            kind: "recursive-doublet",
-            obligations: &["template-expansion", "recursive-reference"],
-        },
-        "membership-doublet-network" => ImplementationContract {
-            kind: "extensional-set",
-            obligations: &[
-                "membership",
-                "subset",
-                "extensional-equality",
-                "pairing",
-                "union",
-                "separation",
-                "replacement",
-            ],
-        },
-        "canonical-doublet-tree" => ImplementationContract {
-            kind: "finite-set",
-            obligations: &["nested-doublets", "canonical-order", "unique-members"],
-        },
-        "typed-kernel-links" => ImplementationContract {
-            kind: "link-typed-foundation",
-            obligations: &[
-                "pi-formation",
-                "lambda-introduction",
-                "application-elimination",
-                "beta-conversion",
-            ],
-        },
-        "finite-directed-link-graph" => ImplementationContract {
-            kind: "set-theoretic-graph",
-            obligations: &["finite-vertex-set", "endpoint-closure", "reachability"],
-        },
-        "vertex-typed-link-graph" => ImplementationContract {
-            kind: "typed-graph",
-            obligations: &[
-                "finite-vertex-set",
-                "endpoint-closure",
-                "reachability",
-                "edge-typing",
-                "typed-proof-replay",
-            ],
-        },
-        "finite-binary-link-relation" => ImplementationContract {
-            kind: "set-theoretic-relation",
-            obligations: &[
-                "domain-closure",
-                "codomain-closure",
-                "converse",
-                "union",
-                "intersection",
-                "composition",
-            ],
-        },
-        "typed-binary-link-relation" => ImplementationContract {
-            kind: "typed-relation",
-            obligations: &[
-                "domain-closure",
-                "codomain-closure",
-                "converse",
-                "union",
-                "intersection",
-                "composition",
-                "pair-typing",
-                "typed-proof-replay",
-            ],
-        },
-        _ => return None,
-    };
-    Some(contract)
-}
-
-fn has_typed_foundation(env: &Env) -> bool {
-    let expected = [
-        "pi-formation",
-        "lambda-introduction",
-        "application-elimination",
-        "beta-conversion",
-    ];
-    let foundation_present = env
-        .foundation_report()
-        .foundations
-        .iter()
-        .any(|foundation| {
-            foundation.name == "typed-kernel-links"
-                && expected
-                    .iter()
-                    .all(|construct| foundation.uses.iter().any(|item| item == construct))
-        });
-    let witnesses = [
-        (
-            "rml.type.proof.pi-formation",
-            "(empty turnstile ((Pi (x has-type Nat) Nat) has-type Type0))",
-        ),
-        (
-            "rml.type.proof.lambda-introduction",
-            "(empty turnstile ((lambda (x has-type Nat) x) has-type (Pi (x has-type Nat) Nat)))",
-        ),
-        (
-            "rml.type.proof.application-elimination",
-            "(empty turnstile ((apply (lambda (x has-type Nat) x) zero) has-type (subst Nat x zero)))",
-        ),
-        (
-            "rml.type.proof.beta-conversion",
-            "(empty turnstile (zero has-type (subst Nat x zero)))",
-        ),
-    ];
-    foundation_present
-        && witnesses.iter().all(|(proof_name, expected_conclusion)| {
-            if !matches!(
-                check_proof_object(env, proof_name),
-                CheckProofVerdict::Ok(_)
-            ) {
-                return false;
-            }
-            let Some(proof) = env.get_proof_object(proof_name) else {
-                return false;
-            };
-            let Ok(expected) = parse_one(&tokenize_one(expected_conclusion)) else {
-                return false;
-            };
-            proof.conclusion == expected
-        })
-}
-
 fn is_proof_rule_shape(form: &Node) -> bool {
     let Node::List(children) = form else {
         return false;
@@ -935,22 +964,14 @@ fn is_proof_rule_shape(form: &Node) -> bool {
     })
 }
 
-fn register_proof_form(env: &mut Env, form: &Node) -> Result<(), String> {
-    let head = match form {
+fn form_head(form: &Node) -> Option<&str> {
+    match form {
         Node::List(children) => match children.first() {
-            Some(Node::Leaf(head)) => head.as_str(),
-            _ => return Ok(()),
+            Some(Node::Leaf(head)) => Some(head),
+            _ => None,
         },
-        _ => return Ok(()),
-    };
-    if is_proof_rule_shape(form) {
-        env.register_proof_rule(parse_rule_form(form)?);
-    } else if head == "axiom" || head == "assumption" {
-        env.register_proof_assumption(parse_proof_assumption_form(form)?);
-    } else if head == "proof-object" {
-        env.register_proof_object(parse_proof_object_form(form)?);
+        _ => None,
     }
-    Ok(())
 }
 
 fn leaf<'a>(node: &'a Node, context: &str) -> Result<&'a str, String> {

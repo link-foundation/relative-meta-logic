@@ -1,0 +1,199 @@
+# Trusted verification profile for the executable theory network.
+#
+# This file is selected independently from a candidate theory document.  It
+# fixes the admissible host adapters, their complete finite contracts, the
+# inference rules and axioms used by proof replay, and the exact judgements
+# required from the typed-kernel witnesses.  Candidate documents may provide
+# proof objects, but they cannot add rules, axioms, contracts, or expected
+# judgements to this profile.
+
+(adapter-contract theory-network
+  (kind link-network-composition)
+  (obligation meta-language-round-trip)
+  (obligation definition-link))
+
+(adapter-contract addressed-doublet-network
+  (kind set-theoretic-function)
+  (obligation address-function)
+  (obligation ordered-pair))
+
+(adapter-contract typed-doublet-network
+  (kind dependent-function)
+  (obligation reference-typing)
+  (obligation dependent-pair)
+  (obligation ill-typed-rejection)
+  (obligation typed-proof-replay))
+
+(adapter-contract doublet-template
+  (kind recursive-doublet)
+  (obligation template-expansion)
+  (obligation recursive-reference))
+
+(adapter-contract membership-doublet-network
+  (kind extensional-set)
+  (obligation membership)
+  (obligation subset)
+  (obligation extensional-equality)
+  (obligation pairing)
+  (obligation union)
+  (obligation separation)
+  (obligation replacement))
+
+(adapter-contract canonical-doublet-tree
+  (kind finite-set)
+  (obligation nested-doublets)
+  (obligation canonical-order)
+  (obligation unique-members))
+
+(adapter-contract typed-kernel-links
+  (kind link-typed-foundation)
+  (obligation pi-formation)
+  (obligation lambda-introduction)
+  (obligation application-elimination)
+  (obligation beta-conversion))
+
+(adapter-contract finite-directed-link-graph
+  (kind set-theoretic-graph)
+  (obligation finite-vertex-set)
+  (obligation endpoint-closure)
+  (obligation reachability))
+
+(adapter-contract vertex-typed-link-graph
+  (kind typed-graph)
+  (obligation finite-vertex-set)
+  (obligation endpoint-closure)
+  (obligation reachability)
+  (obligation edge-typing)
+  (obligation typed-proof-replay))
+
+(adapter-contract finite-binary-link-relation
+  (kind set-theoretic-relation)
+  (obligation domain-closure)
+  (obligation codomain-closure)
+  (obligation converse)
+  (obligation union)
+  (obligation intersection)
+  (obligation composition))
+
+(adapter-contract typed-binary-link-relation
+  (kind typed-relation)
+  (obligation domain-closure)
+  (obligation codomain-closure)
+  (obligation converse)
+  (obligation union)
+  (obligation intersection)
+  (obligation composition)
+  (obligation pair-typing)
+  (obligation typed-proof-replay))
+
+(rule verified-theory-definition
+  (premise (?implementation implements ?kind))
+  (conclusion
+    (?definition defines ?subject using ?foundation
+      via ?implementation as ?kind)))
+
+(rule pi-formation
+  (premise (?Gamma turnstile (?A has-type Type0)))
+  (premise ((?Gamma comma (?x has-type ?A)) turnstile (?B has-type Type0)))
+  (conclusion
+    (?Gamma turnstile ((Pi (?x has-type ?A) ?B) has-type Type0))))
+
+(rule lambda-introduction
+  (premise
+    ((?Gamma comma (?x has-type ?A)) turnstile (?body has-type ?B)))
+  (conclusion
+    (?Gamma turnstile
+      ((lambda (?x has-type ?A) ?body)
+        has-type (Pi (?x has-type ?A) ?B)))))
+
+(rule application-elimination
+  (premise
+    (?Gamma turnstile (?function has-type (Pi (?x has-type ?A) ?B))))
+  (premise (?Gamma turnstile (?argument has-type ?A)))
+  (conclusion
+    (?Gamma turnstile
+      ((apply ?function ?argument) has-type (subst ?B ?x ?argument)))))
+
+(rule beta-conversion
+  (premise (?Gamma turnstile (?redex has-type ?B)))
+  (premise (?redex beta-reduces-to ?reduct))
+  (conclusion (?Gamma turnstile (?reduct has-type ?B))))
+
+(axiom rml.type.nat-is-type
+  (judgement (empty turnstile (Nat has-type Type0))))
+
+(axiom rml.type.nat-is-type-under-x
+  (judgement
+    ((empty comma (x has-type Nat)) turnstile (Nat has-type Type0))))
+
+(axiom rml.type.x-is-nat
+  (judgement ((empty comma (x has-type Nat)) turnstile (x has-type Nat))))
+
+(axiom rml.type.zero-is-nat
+  (judgement (empty turnstile (zero has-type Nat))))
+
+(axiom rml.type.beta-id-zero
+  (judgement
+    ((apply (lambda (x has-type Nat) x) zero) beta-reduces-to zero)))
+
+(axiom rml.capability.theory-network
+  (judgement (theory-network implements link-network-composition)))
+
+(axiom rml.capability.addressed-doublet-network
+  (judgement (addressed-doublet-network implements set-theoretic-function)))
+
+(axiom rml.capability.typed-doublet-network
+  (judgement (typed-doublet-network implements dependent-function)))
+
+(axiom rml.capability.doublet-template
+  (judgement (doublet-template implements recursive-doublet)))
+
+(axiom rml.capability.membership-doublet-network
+  (judgement (membership-doublet-network implements extensional-set)))
+
+(axiom rml.capability.canonical-doublet-tree
+  (judgement (canonical-doublet-tree implements finite-set)))
+
+(axiom rml.capability.typed-kernel-links
+  (judgement (typed-kernel-links implements link-typed-foundation)))
+
+(axiom rml.capability.finite-directed-link-graph
+  (judgement (finite-directed-link-graph implements set-theoretic-graph)))
+
+(axiom rml.capability.vertex-typed-link-graph
+  (judgement (vertex-typed-link-graph implements typed-graph)))
+
+(axiom rml.capability.finite-binary-link-relation
+  (judgement
+    (finite-binary-link-relation implements set-theoretic-relation)))
+
+(axiom rml.capability.typed-binary-link-relation
+  (judgement (typed-binary-link-relation implements typed-relation)))
+
+(proof-obligation typed-kernel-links
+  (obligation pi-formation)
+  (proof rml.type.proof.pi-formation)
+  (judgement
+    (empty turnstile ((Pi (x has-type Nat) Nat) has-type Type0))))
+
+(proof-obligation typed-kernel-links
+  (obligation lambda-introduction)
+  (proof rml.type.proof.lambda-introduction)
+  (judgement
+    (empty turnstile
+      ((lambda (x has-type Nat) x)
+        has-type (Pi (x has-type Nat) Nat)))))
+
+(proof-obligation typed-kernel-links
+  (obligation application-elimination)
+  (proof rml.type.proof.application-elimination)
+  (judgement
+    (empty turnstile
+      ((apply (lambda (x has-type Nat) x) zero)
+        has-type (subst Nat x zero)))))
+
+(proof-obligation typed-kernel-links
+  (obligation beta-conversion)
+  (proof rml.type.proof.beta-conversion)
+  (judgement
+    (empty turnstile (zero has-type (subst Nat x zero)))))

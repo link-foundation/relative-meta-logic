@@ -1,10 +1,12 @@
 # Executable Meta-Theory
 
 RML represents theories, their definitions, and their vocabulary as one
-addressed network. The bundled network is
-[`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino); JavaScript and Rust
-load the same file through the `meta-language` bridge and expose matching query
-and doublet-store APIs.
+addressed network. The bundled candidate is
+[`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino), and its independent
+trust profile is
+[`lib/meta-theory/foundation.lino`](../lib/meta-theory/foundation.lino).
+JavaScript and Rust load both through the `meta-language` bridge and expose
+matching query and doublet-store APIs.
 
 This links network is cyclic by design:
 
@@ -26,7 +28,8 @@ cycles cannot make a query diverge.
 
 ## Source vocabulary and executable contracts
 
-The network reader recognizes five generic LiNo forms:
+The candidate network reader recognizes six generic LiNo forms (including
+`proof-object`):
 
 ```lino
 (theory theory-name (address stable.theory.address))
@@ -49,6 +52,11 @@ The network reader recognizes five generic LiNo forms:
   (subject theory-being-defined)
   (using defining-theory)
   (witness stable.definition.address))
+
+(proof-object proof-object-name
+  (applies trusted-rule-name)
+  (premise-by trusted-axiom-or-proof)
+  (conclusion exact-judgement))
 ```
 
 Theory names are data, not an enum. A consumer can append its own forms and
@@ -76,7 +84,9 @@ requires both address-function and ordered-pair behavior. Capability axioms
 state the small trusted boundary between an implementation and its
 interpretation; each shipped adapter completely implements its declared finite
 contract, but this is not a proof that two unrestricted mathematical theories
-are equivalent.
+are equivalent. Those axioms, the inference rules, the adapter contracts, and
+the exact expected typed judgements live in `foundation.lino`, selected
+separately by the caller. They cannot be declared by the candidate document.
 
 Every source is first parsed and reconstructed by `meta-language`. The theory
 reader consumes only reconstructed LiNo and reports whether the round trip was
@@ -108,7 +118,7 @@ source term to its address, then returns terms at that address in the selected
 target theory.
 
 ```js
-const network = TheoryNetwork.fromRml(source);
+const network = TheoryNetwork.fromRml(source, trustedFoundationSource);
 
 network.translateTerm('set-theory', 'reference', 'links-theory');
 // ['link']
@@ -196,12 +206,14 @@ TargetType)`; missing or mismatched declarations are rejected before the link
 is stored.
 
 The `typed-kernel-links` implementation is a compact executable fragment, not
-only a foundation label. `core.lino` declares rules and checked proof objects
-for Pi formation, lambda introduction, application elimination, and beta
-conversion. Every type-backed implementation replays those four derivations,
-and typed graph edges and relation pairs additionally expose their concrete
-pair types. These operations are the exact scope of the declared type-theory
-contract.
+only a foundation label. The independently selected `foundation.lino` trust
+profile declares rules, axioms, adapter contracts, and the exact judgements
+required for Pi formation, lambda introduction, application elimination, and
+beta conversion. `core.lino` contains only the candidate proof objects. Every
+type-backed implementation replays those four derivations, and typed graph
+edges and relation pairs additionally expose their concrete pair types. A
+candidate is rejected if it attempts to add a rule, axiom, contract, or
+expected judgement to its own trust profile.
 
 ## Sets: canonical and order-preserving views
 
@@ -318,13 +330,16 @@ Mirrored tests in `js/tests/theory-network.test.mjs` and
   rejection of an unknown clause, incomplete obligations, a rebound subject,
   a missing proof, a proof for the wrong definition, a corrupted premise, or
   an unsupported implementation;
+- rejection of candidate-authored rules, axioms, contracts, and expected
+  judgements, so a candidate cannot authorize its own proofs;
 - shared-address lookup and address-mediated translation;
 - arbitrary caller-defined theories and cycle-safe shortest definition chains;
 - exact balanced, left-staircase, and right-staircase doublets;
 - independent membership, subset, extensional equality, pairing, union,
   separation, replacement, canonical set normalization, and ordered-set
   uniqueness;
-- replayed Pi/lambda/application/beta derivations and typed-doublet rejection;
+- replayed Pi/lambda/application/beta derivations, exact expected judgements,
+  unrelated-proof substitution rejection, and typed-doublet rejection;
 - graphs as vertex-constrained link-network subsets, including reachability,
   concrete edge types, and rejection of ill-typed endpoints;
 - typed relation converse, union, intersection, composition, and pair types;

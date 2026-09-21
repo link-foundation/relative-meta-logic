@@ -261,15 +261,18 @@ foundation report.
 ## 8. Executable cross-theory network
 
 Issue #183 turns this mapping into executable data in
-[`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino). The matching
-JavaScript and Rust `TheoryNetwork` APIs load the source through `meta-language`,
-resolve and translate theory-local terms through shared concept addresses, and
-search the cyclic definition network safely. Every definition link names an
+[`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino), checked against the
+independently selected
+[`lib/meta-theory/foundation.lino`](../lib/meta-theory/foundation.lino) trust
+profile. The matching JavaScript and Rust `TheoryNetwork` APIs load both through
+`meta-language`, resolve and translate theory-local terms through shared concept
+addresses, and search the cyclic definition network safely. Every definition link names an
 implementation manifest and a proof object. Network construction requires the
 manifest's proposed subject/foundation pair and the adapter's exact kind and
 obligation set; executes all finite conformance operations; replays the proof
 through the existing proof substrate; and requires the checked conclusion to
-match that exact link.
+match that exact link. Candidate theory documents cannot declare the rules,
+axioms, adapter contracts, or expected judgements used to verify themselves.
 Links Theory has explicit definitions through set theory, type theory, and
 itself; set theory and type theory have reverse links definitions; and Relative
 Meta-Logic has an explicit Links Theory foundation.

@@ -246,63 +246,8 @@
   (implementation typed-binary-link-relation)
   (proof rml.proof.relation.types))
 
-# Definition witnesses are ordinary checked proof objects. Their premise is an
-# explicit implementation capability; TheoryNetwork independently executes a
-# deterministic probe for every supported capability before admitting a link.
-
-(rule verified-theory-definition
-  (premise (?implementation implements ?kind))
-  (conclusion
-    (?definition defines ?subject using ?foundation
-      via ?implementation as ?kind)))
-
-# The type-theoretic adapter is backed by replayable derivations, not only by
-# the pre-registered foundation catalogue.  These are the same four rules used
-# by the public typed-kernel example, with a compact closed conformance case.
-
-(rule pi-formation
-  (premise (?Gamma turnstile (?A has-type Type0)))
-  (premise ((?Gamma comma (?x has-type ?A)) turnstile (?B has-type Type0)))
-  (conclusion
-    (?Gamma turnstile ((Pi (?x has-type ?A) ?B) has-type Type0))))
-
-(rule lambda-introduction
-  (premise
-    ((?Gamma comma (?x has-type ?A)) turnstile (?body has-type ?B)))
-  (conclusion
-    (?Gamma turnstile
-      ((lambda (?x has-type ?A) ?body)
-        has-type (Pi (?x has-type ?A) ?B)))))
-
-(rule application-elimination
-  (premise
-    (?Gamma turnstile (?function has-type (Pi (?x has-type ?A) ?B))))
-  (premise (?Gamma turnstile (?argument has-type ?A)))
-  (conclusion
-    (?Gamma turnstile
-      ((apply ?function ?argument) has-type (subst ?B ?x ?argument)))))
-
-(rule beta-conversion
-  (premise (?Gamma turnstile (?redex has-type ?B)))
-  (premise (?redex beta-reduces-to ?reduct))
-  (conclusion (?Gamma turnstile (?reduct has-type ?B))))
-
-(axiom rml.type.nat-is-type
-  (judgement (empty turnstile (Nat has-type Type0))))
-
-(axiom rml.type.nat-is-type-under-x
-  (judgement
-    ((empty comma (x has-type Nat)) turnstile (Nat has-type Type0))))
-
-(axiom rml.type.x-is-nat
-  (judgement ((empty comma (x has-type Nat)) turnstile (x has-type Nat))))
-
-(axiom rml.type.zero-is-nat
-  (judgement (empty turnstile (zero has-type Nat))))
-
-(axiom rml.type.beta-id-zero
-  (judgement
-    ((apply (lambda (x has-type Nat) x) zero) beta-reduces-to zero)))
+# Candidate proof objects are checked against the independently selected rules,
+# assumptions, contracts, and expected judgements in foundation.lino.
 
 (proof-object rml.type.proof.pi-formation
   (applies pi-formation)
@@ -334,40 +279,6 @@
   (premise-by rml.type.beta-id-zero)
   (conclusion
     (empty turnstile (zero has-type (subst Nat x zero)))))
-
-(axiom rml.capability.theory-network
-  (judgement (theory-network implements link-network-composition)))
-
-(axiom rml.capability.addressed-doublet-network
-  (judgement (addressed-doublet-network implements set-theoretic-function)))
-
-(axiom rml.capability.typed-doublet-network
-  (judgement (typed-doublet-network implements dependent-function)))
-
-(axiom rml.capability.doublet-template
-  (judgement (doublet-template implements recursive-doublet)))
-
-(axiom rml.capability.membership-doublet-network
-  (judgement (membership-doublet-network implements extensional-set)))
-
-(axiom rml.capability.canonical-doublet-tree
-  (judgement (canonical-doublet-tree implements finite-set)))
-
-(axiom rml.capability.typed-kernel-links
-  (judgement (typed-kernel-links implements link-typed-foundation)))
-
-(axiom rml.capability.finite-directed-link-graph
-  (judgement (finite-directed-link-graph implements set-theoretic-graph)))
-
-(axiom rml.capability.vertex-typed-link-graph
-  (judgement (vertex-typed-link-graph implements typed-graph)))
-
-(axiom rml.capability.finite-binary-link-relation
-  (judgement
-    (finite-binary-link-relation implements set-theoretic-relation)))
-
-(axiom rml.capability.typed-binary-link-relation
-  (judgement (typed-binary-link-relation implements typed-relation)))
 
 (proof-object rml.proof.relative-meta-logic.links
   (applies verified-theory-definition)

@@ -47,7 +47,7 @@ parts.
 | ID | Requirement | Implementation evidence | Automated evidence |
 |----|-------------|-------------------------|--------------------|
 | R1 | Base RML on Links Theory/meta-theory. | `rml-by-links` in `lib/meta-theory/core.lino`. | Both suites require the RML → Links Theory definition link and derived chains. |
-| R2 | Define Links Theory through set theory and type theory. | `links-by-sets` and `links-by-types`, each backed by an exact implementation manifest; typed doublets enforce endpoint types and replay Pi/lambda/application/beta derivations. | Both suites query contracts and proof evidence, execute positive and negative conformance cases, and reject unknown, incomplete, or rebound implementations. |
+| R2 | Define Links Theory through set theory and type theory. | `links-by-sets` and `links-by-types`, each backed by an exact implementation manifest; typed doublets enforce endpoint types and replay Pi/lambda/application/beta derivations. Contracts, proof rules, axioms, and exact expected judgements come from the independently selected `foundation.lino` trust profile. | Both suites query contracts and proof evidence, execute positive and negative conformance cases, reject unknown, incomplete, or rebound implementations, reject unrelated typed judgements, and reject candidate-authored trust declarations. |
 | R3 | Give the simplest direct definition of Links Theory in itself. | `links-by-links` plus the addressed `doublet` template. | Both suites require the self-definition and check template expansion through an import. |
 | R4 | Introduce set theory in more than one way. | `MembershipSetStore` implements addressed membership links, subset, extensional equality, pairing, union, separation, and replacement; the sequence store implements canonical ordered-unique sets. | Both suites execute the set operations and canonical-tree behavior, and require both checked definition links. |
 | R5 | Represent strict sets as ordered sequences without duplicates. | `encodeSet` / `encode_set` sort and deduplicate references, then create a balanced doublet tree; the ordered-set API rejects duplicates. | Canonicalization, exact doublets, round trips, strict-order checks, and duplicate rejection in JS and Rust. |
@@ -75,10 +75,14 @@ obligations, rebinding a
 passing adapter to another theory, or reusing a proof whose subject differs
 therefore makes network construction fail.
 
-The implementation-capability axioms are an explicit trust boundary. The
-checks establish that the shipped executable representation completely backs
-the exact finite contract stated by its manifest. They do not claim
-equivalence of unrestricted mathematical theories.
+The implementation-capability axioms are an explicit trust boundary in
+`lib/meta-theory/foundation.lino`, selected independently from the candidate
+`core.lino`. The same profile supplies adapter contracts, inference rules, and
+the exact judgement required for every typed obligation. Candidate documents
+may supply proof objects but cannot add any of those trusted forms. The checks
+establish that the shipped executable representation completely backs the
+exact finite contract stated by its manifest. They do not claim equivalence of
+unrestricted mathematical theories.
 
 ### Local names share addresses without being collapsed
 

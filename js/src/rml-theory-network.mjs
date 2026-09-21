@@ -16,25 +16,6 @@ import {
 
 const EMPTY_SEQUENCE = 'rml.sequence.empty';
 
-const TYPED_FOUNDATION_WITNESSES = new Map([
-  [
-    'rml.type.proof.pi-formation',
-    '(empty turnstile ((Pi (x has-type Nat) Nat) has-type Type0))',
-  ],
-  [
-    'rml.type.proof.lambda-introduction',
-    '(empty turnstile ((lambda (x has-type Nat) x) has-type (Pi (x has-type Nat) Nat)))',
-  ],
-  [
-    'rml.type.proof.application-elimination',
-    '(empty turnstile ((apply (lambda (x has-type Nat) x) zero) has-type (subst Nat x zero)))',
-  ],
-  [
-    'rml.type.proof.beta-conversion',
-    '(empty turnstile (zero has-type (subst Nat x zero)))',
-  ],
-].map(([proof, conclusion]) => [proof, parseOne(tokenizeOne(conclusion))]));
-
 function requireLeaf(value, context) {
   if (typeof value !== 'string' || value.length === 0) {
     throw new Error(`${context} must be a non-empty reference`);
@@ -87,100 +68,14 @@ function isProofRuleShape(form) {
     form.slice(2).some(clause => clause[0] === 'conclusion');
 }
 
-const IMPLEMENTATION_CONTRACTS = new Map([
-  ['theory-network', {
-    kind: 'link-network-composition',
-    obligations: ['meta-language-round-trip', 'definition-link'],
-  }],
-  ['addressed-doublet-network', {
-    kind: 'set-theoretic-function',
-    obligations: ['address-function', 'ordered-pair'],
-  }],
-  ['typed-doublet-network', {
-    kind: 'dependent-function',
-    obligations: [
-      'reference-typing',
-      'dependent-pair',
-      'ill-typed-rejection',
-      'typed-proof-replay',
-    ],
-  }],
-  ['doublet-template', {
-    kind: 'recursive-doublet',
-    obligations: ['template-expansion', 'recursive-reference'],
-  }],
-  ['membership-doublet-network', {
-    kind: 'extensional-set',
-    obligations: [
-      'membership',
-      'subset',
-      'extensional-equality',
-      'pairing',
-      'union',
-      'separation',
-      'replacement',
-    ],
-  }],
-  ['canonical-doublet-tree', {
-    kind: 'finite-set',
-    obligations: ['nested-doublets', 'canonical-order', 'unique-members'],
-  }],
-  ['typed-kernel-links', {
-    kind: 'link-typed-foundation',
-    obligations: [
-      'pi-formation',
-      'lambda-introduction',
-      'application-elimination',
-      'beta-conversion',
-    ],
-  }],
-  ['finite-directed-link-graph', {
-    kind: 'set-theoretic-graph',
-    obligations: ['finite-vertex-set', 'endpoint-closure', 'reachability'],
-  }],
-  ['vertex-typed-link-graph', {
-    kind: 'typed-graph',
-    obligations: [
-      'finite-vertex-set',
-      'endpoint-closure',
-      'reachability',
-      'edge-typing',
-      'typed-proof-replay',
-    ],
-  }],
-  ['finite-binary-link-relation', {
-    kind: 'set-theoretic-relation',
-    obligations: [
-      'domain-closure',
-      'codomain-closure',
-      'converse',
-      'union',
-      'intersection',
-      'composition',
-    ],
-  }],
-  ['typed-binary-link-relation', {
-    kind: 'typed-relation',
-    obligations: [
-      'domain-closure',
-      'codomain-closure',
-      'converse',
-      'union',
-      'intersection',
-      'composition',
-      'pair-typing',
-      'typed-proof-replay',
-    ],
-  }],
-]);
-
 /**
  * An addressable network of theories, definition relations, and local terms.
  * Source is round-tripped through meta-language before its LiNo forms are read.
  */
 class TheoryNetwork {
-  constructor(metaLanguageRoundTripOk) {
+  constructor(metaLanguageRoundTripOk, trustedFoundationRoundTripOk) {
     this.metaLanguageRoundTripOk = metaLanguageRoundTripOk;
+    this.trustedFoundationRoundTripOk = trustedFoundationRoundTripOk;
     this.theories = new Map();
     this.definitions = [];
     this.terms = new Map();
@@ -189,27 +84,144 @@ class TheoryNetwork {
     this.verifications = new Map();
     this.forms = [];
     this.proofEnv = new Env();
+    this.adapterContracts = new Map();
+    this.proofObligations = new Map();
   }
 
-  static fromRml(source) {
+  static fromRml(source, trustedFoundationSource) {
+    if (trustedFoundationSource === undefined) {
+      throw new Error('trusted foundation source is required');
+    }
     const text = String(source);
     const metaLanguageNetwork = parseRmlToMetaLanguage(text);
     const reconstructed = reconstructRmlFromMetaLanguage(metaLanguageNetwork);
-    const network = new TheoryNetwork(reconstructed === text);
+    const trustedText = String(trustedFoundationSource);
+    const trustedMetaLanguageNetwork = parseRmlToMetaLanguage(trustedText);
+    const trustedReconstructed = reconstructRmlFromMetaLanguage(trustedMetaLanguageNetwork);
+    const network = new TheoryNetwork(
+      reconstructed === text,
+      trustedReconstructed === trustedText,
+    );
+    const trustedForms = parseLino(trustedReconstructed)
+      .map(link => parseOne(tokenizeOne(link)));
     const forms = parseLino(reconstructed).map(link => parseOne(tokenizeOne(link)));
+
+    for (const form of trustedForms) {
+      if (!Array.isArray(form) || typeof form[0] !== 'string') continue;
+      if (form[0] === 'adapter-contract') {
+        network.#addAdapterContract(form);
+      } else if (form[0] === 'proof-obligation') {
+        network.#addProofObligation(form);
+      } else if (isProofRuleShape(form)) {
+        network.proofEnv.registerProofRule(parseRuleForm(form));
+      } else if (form[0] === 'axiom' || form[0] === 'assumption') {
+        network.proofEnv.registerProofAssumption(parseProofAssumptionForm(form));
+      } else {
+        throw new Error(`trusted foundation has unsupported form ${form[0]}`);
+      }
+    }
+    network.#validateTrustedFoundation();
 
     for (const form of forms) {
       if (!Array.isArray(form) || typeof form[0] !== 'string') continue;
       network.forms.push(form);
+      if (['adapter-contract', 'proof-obligation', 'rule', 'axiom', 'assumption']
+        .includes(form[0])) {
+        throw new Error(`candidate theory source cannot declare trusted ${form[0]} forms`);
+      }
       if (form[0] === 'theory') network.#addTheory(form);
       if (form[0] === 'term') network.#addTerm(form);
       if (form[0] === 'implementation') network.#addImplementation(form);
       if (form[0] === 'witness') network.#addWitness(form);
       if (form[0] === 'definition') network.#addDefinition(form);
-      network.#addProofForm(form);
+      if (form[0] === 'proof-object') {
+        network.proofEnv.registerProofObject(parseProofObjectForm(form));
+      }
     }
     network.#validate();
     return network;
+  }
+
+  #addAdapterContract(form) {
+    if (form.length < 3) throw new Error('adapter-contract must have a name and clauses');
+    const adapter = requireLeaf(form[1], 'adapter-contract name');
+    if (this.adapterContracts.has(adapter)) {
+      throw new Error(`duplicate adapter-contract ${adapter}`);
+    }
+    const { data, obligations } = implementationClauses(
+      form,
+      `adapter-contract ${adapter}`,
+    );
+    for (const field of data.keys()) {
+      if (field !== 'kind') {
+        throw new Error(`adapter-contract ${adapter} has unsupported clause ${field}`);
+      }
+    }
+    if (!data.has('kind')) throw new Error(`adapter-contract ${adapter} is missing kind`);
+    if (obligations.length === 0) {
+      throw new Error(`adapter-contract ${adapter} is missing obligations`);
+    }
+    this.adapterContracts.set(adapter, {
+      kind: data.get('kind'),
+      obligations,
+    });
+  }
+
+  #addProofObligation(form) {
+    if (form.length < 3) throw new Error('proof-obligation must have an adapter and clauses');
+    const adapter = requireLeaf(form[1], 'proof-obligation adapter');
+    const data = new Map();
+    for (const clause of form.slice(2)) {
+      if (!Array.isArray(clause) || clause.length !== 2 || typeof clause[0] !== 'string') {
+        throw new Error(`proof-obligation ${adapter} clauses must have the form (name value)`);
+      }
+      if (data.has(clause[0])) {
+        throw new Error(`proof-obligation ${adapter} repeats clause ${clause[0]}`);
+      }
+      data.set(clause[0], clause[1]);
+    }
+    for (const field of data.keys()) {
+      if (!['obligation', 'proof', 'judgement'].includes(field)) {
+        throw new Error(`proof-obligation ${adapter} has unsupported clause ${field}`);
+      }
+    }
+    for (const field of ['obligation', 'proof', 'judgement']) {
+      if (!data.has(field)) throw new Error(`proof-obligation ${adapter} is missing ${field}`);
+    }
+    const obligation = requireLeaf(data.get('obligation'), `proof-obligation ${adapter} name`);
+    const proof = requireLeaf(data.get('proof'), `proof-obligation ${adapter} proof`);
+    if (!Array.isArray(data.get('judgement'))) {
+      throw new Error(`proof-obligation ${adapter}.${obligation} judgement must be a link`);
+    }
+    const key = JSON.stringify([adapter, obligation]);
+    if (this.proofObligations.has(key)) {
+      throw new Error(`duplicate proof-obligation ${adapter}.${obligation}`);
+    }
+    this.proofObligations.set(key, {
+      adapter,
+      obligation,
+      proof,
+      judgement: data.get('judgement'),
+    });
+  }
+
+  #validateTrustedFoundation() {
+    if (this.adapterContracts.size === 0) {
+      throw new Error('trusted foundation does not declare any adapter contracts');
+    }
+    for (const obligation of this.proofObligations.values()) {
+      const contract = this.adapterContracts.get(obligation.adapter);
+      if (!contract) {
+        throw new Error(
+          `proof-obligation ${obligation.adapter}.${obligation.obligation} has unknown adapter`,
+        );
+      }
+      if (!contract.obligations.includes(obligation.obligation)) {
+        throw new Error(
+          `proof-obligation ${obligation.adapter}.${obligation.obligation} is not in its contract`,
+        );
+      }
+    }
   }
 
   #addTheory(form) {
@@ -304,16 +316,6 @@ class TheoryNetwork {
     });
   }
 
-  #addProofForm(form) {
-    if (isProofRuleShape(form)) {
-      this.proofEnv.registerProofRule(parseRuleForm(form));
-    } else if (form[0] === 'axiom' || form[0] === 'assumption') {
-      this.proofEnv.registerProofAssumption(parseProofAssumptionForm(form));
-    } else if (form[0] === 'proof-object') {
-      this.proofEnv.registerProofObject(parseProofObjectForm(form));
-    }
-  }
-
   #validate() {
     for (const { theory, term } of this.terms.values()) {
       if (!this.theories.has(theory)) {
@@ -376,7 +378,7 @@ class TheoryNetwork {
   }
 
   #verifyImplementation(definition, witness, implementation) {
-    const contract = IMPLEMENTATION_CONTRACTS.get(implementation.adapter);
+    const contract = this.adapterContracts.get(implementation.adapter);
     if (contract === undefined) {
       throw new Error(
         `implementation ${implementation.name} uses unknown adapter ${implementation.adapter}`,
@@ -651,22 +653,17 @@ class TheoryNetwork {
   }
 
   #hasTypedFoundation() {
-    const expected = new Set([
-      'pi-formation',
-      'lambda-introduction',
-      'application-elimination',
-      'beta-conversion',
-    ]);
-    const foundation = this.proofEnv.foundationReport().foundations
-      .find(candidate => candidate.name === 'typed-kernel-links');
-    return foundation !== undefined &&
-      [...expected].every(construct => foundation.uses.includes(construct)) &&
-      [...TYPED_FOUNDATION_WITNESSES].every(([proofName, expectedConclusion]) => {
-        const verdict = checkProofObject(this.proofEnv, proofName);
-        const proof = this.proofEnv.getProofObject(proofName);
-        return verdict.ok && proof !== null &&
-          isStructurallySame(proof.conclusion, expectedConclusion);
-      });
+    const contract = this.adapterContracts.get('typed-kernel-links');
+    return contract !== undefined && contract.obligations.every(obligation => {
+      const expected = this.proofObligations.get(
+        JSON.stringify(['typed-kernel-links', obligation]),
+      );
+      if (!expected) return false;
+      const verdict = checkProofObject(this.proofEnv, expected.proof);
+      const proof = this.proofEnv.getProofObject(expected.proof);
+      return verdict.ok && proof !== null &&
+        isStructurallySame(proof.conclusion, expected.judgement);
+    });
   }
 
   theoryNames() {

@@ -135,11 +135,12 @@ let evaluation = evaluate_formalization(&formalization);
 The meta-expression adapter deliberately keeps unsupported real-world claims partial. A selected interpretation such as `moon orbits the Sun` is returned as non-computable with explicit unknowns until a consumer supplies a formal shape and reproducible dependencies.
 
 The `rml::theory_network` module loads the shared
-`lib/meta-theory/core.lino` network through `meta-language`. `TheoryNetwork`
-provides proof-checked executable definition links, unified-address lookup and
-translation, inspectable implementation contracts, and cycle-safe definition
-chains. `MembershipSetStore` provides addressed membership links and finite set
-algebra;
+`lib/meta-theory/core.lino` network and the independently selected
+`lib/meta-theory/foundation.lino` trust profile through `meta-language`.
+`TheoryNetwork` provides proof-checked executable definition links,
+unified-address lookup and translation, inspectable implementation contracts,
+and cycle-safe definition chains. `MembershipSetStore` provides addressed
+membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,
 canonical and order-preserving sets, and bounded observation of
 self-referential right spines. `LinkNetwork` is the unconstrained substrate;

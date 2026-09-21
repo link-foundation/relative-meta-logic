@@ -14,6 +14,7 @@ import {
 
 const network = TheoryNetwork.fromRml(
   readFileSync(new URL('../lib/meta-theory/core.lino', import.meta.url), 'utf8'),
+  readFileSync(new URL('../lib/meta-theory/foundation.lino', import.meta.url), 'utf8'),
 );
 
 const links = new DoubletSequenceStore();

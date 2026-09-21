@@ -21,10 +21,16 @@ import { evaluate } from '../src/rml-links.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 const corePath = join(repoRoot, 'lib', 'meta-theory', 'core.lino');
+const foundationPath = join(repoRoot, 'lib', 'meta-theory', 'foundation.lino');
 const virtualRootFile = join(repoRoot, 'inline-meta-theory-test.lino');
+const foundationSource = readFileSync(foundationPath, 'utf8');
+
+function networkFrom(source, trustedFoundation = foundationSource) {
+  return TheoryNetwork.fromRml(source, trustedFoundation);
+}
 
 function bundledNetwork() {
-  return TheoryNetwork.fromRml(readFileSync(corePath, 'utf8'));
+  return networkFrom(readFileSync(corePath, 'utf8'));
 }
 
 describe('meta-theory network', () => {
@@ -48,6 +54,7 @@ describe('meta-theory network', () => {
     const network = bundledNetwork();
 
     assert.strictEqual(network.metaLanguageRoundTripOk, true);
+    assert.strictEqual(network.trustedFoundationRoundTripOk, true);
     assert.deepStrictEqual(
       network.theoryNames(),
       [
@@ -187,8 +194,6 @@ describe('meta-theory network', () => {
   (kind link-network-composition)
   (implementation user-theory-network)
   (proof user.proof.rml))
-(axiom user.capability.theory-network
-  (judgement (user-theory-network implements link-network-composition)))
 (proof-object user.proof.rml
   (applies verified-theory-definition)
   (premise-by user.capability.theory-network)
@@ -200,7 +205,11 @@ describe('meta-theory network', () => {
   (using relative-meta-logic)
   (witness user.definition.rml))
 `;
-    const network = TheoryNetwork.fromRml(source);
+    const trustedFoundation = `${foundationSource}
+(axiom user.capability.theory-network
+  (judgement (user-theory-network implements link-network-composition)))
+`;
+    const network = networkFrom(source, trustedFoundation);
 
     assert.strictEqual(
       network.resolveTerm('user-theory', 'entity'),
@@ -214,7 +223,7 @@ describe('meta-theory network', () => {
 
   it('rejects ambiguous term addresses', () => {
     assert.throws(
-      () => TheoryNetwork.fromRml(`
+      () => networkFrom(`
 (theory t (address theory.t))
 (term t x concept.one)
 (term t x concept.two)
@@ -225,7 +234,7 @@ describe('meta-theory network', () => {
 
   it('rejects definition links without a declared implementation witness', () => {
     assert.throws(
-      () => TheoryNetwork.fromRml(`
+      () => networkFrom(`
 (theory base (address theory.base))
 (theory derived (address theory.derived))
 (definition derived-by-base
@@ -243,7 +252,7 @@ describe('meta-theory network', () => {
       '(witness DOES_NOT_EXIST))',
     );
     assert.throws(
-      () => TheoryNetwork.fromRml(source),
+      () => networkFrom(source),
       /definition rml-by-links has unknown witness DOES_NOT_EXIST/,
     );
   });
@@ -254,7 +263,7 @@ describe('meta-theory network', () => {
       '  (implementation DOES_NOT_EXIST)',
     );
     assert.throws(
-      () => TheoryNetwork.fromRml(source),
+      () => networkFrom(source),
       /witness rml\.definition\.relative-meta-logic\.links uses unknown implementation DOES_NOT_EXIST/,
     );
   });
@@ -271,7 +280,7 @@ describe('meta-theory network', () => {
   (subject graph-theory)`,
     );
     assert.throws(
-      () => TheoryNetwork.fromRml(source),
+      () => networkFrom(source),
       /implementation addressed-doublet-network is declared for graph-theory using set-theory, not links-theory using set-theory/,
     );
   });
@@ -282,7 +291,7 @@ describe('meta-theory network', () => {
       ')',
     );
     assert.throws(
-      () => TheoryNetwork.fromRml(source),
+      () => networkFrom(source),
       /implementation addressed-doublet-network obligations do not match adapter addressed-doublet-network/,
     );
   });
@@ -294,7 +303,7 @@ describe('meta-theory network', () => {
   (unchecked true)`,
     );
     assert.throws(
-      () => TheoryNetwork.fromRml(source),
+      () => networkFrom(source),
       /implementation addressed-doublet-network has unsupported clause unchecked/,
     );
   });
@@ -305,7 +314,7 @@ describe('meta-theory network', () => {
       '(premise-by DOES_NOT_EXIST)',
     );
     assert.throws(
-      () => TheoryNetwork.fromRml(source),
+      () => networkFrom(source),
       /implementation typed-doublet-network failed typed enforcement or proof replay/,
     );
   });
@@ -333,7 +342,7 @@ describe('meta-theory network', () => {
     }
 
     assert.throws(
-      () => TheoryNetwork.fromRml(source),
+      () => networkFrom(source),
       /implementation typed-doublet-network failed typed enforcement or proof replay/,
     );
   });
@@ -341,14 +350,14 @@ describe('meta-theory network', () => {
   it('rejects a witness whose proof object is missing or proves another definition', () => {
     const source = readFileSync(corePath, 'utf8');
     assert.throws(
-      () => TheoryNetwork.fromRml(source.replace(
+      () => networkFrom(source.replace(
         '(proof rml.proof.links.set-function)',
         '(proof DOES_NOT_EXIST)',
       )),
       /witness rml\.definition\.links\.set-function has invalid proof DOES_NOT_EXIST: unknown proof-object DOES_NOT_EXIST/,
     );
     assert.throws(
-      () => TheoryNetwork.fromRml(source.replace(
+      () => networkFrom(source.replace(
         '(links-by-sets defines links-theory using set-theory',
         '(links-by-sets defines type-theory using set-theory',
       )),
@@ -357,13 +366,30 @@ describe('meta-theory network', () => {
   });
 
   it('rejects a definition proof after one capability premise is corrupted', () => {
-    const source = readFileSync(corePath, 'utf8').replace(
+    const source = readFileSync(corePath, 'utf8');
+    const trustedFoundation = foundationSource.replace(
       '(addressed-doublet-network implements set-theoretic-function)',
       '(addressed-doublet-network implements WRONG-KIND)',
     );
     assert.throws(
-      () => TheoryNetwork.fromRml(source),
+      () => networkFrom(source, trustedFoundation),
       /witness rml\.definition\.links\.set-function has invalid proof .* conclusion does not match rule verified-theory-definition/,
+    );
+  });
+
+  it('rejects candidates that attempt to authorize their own proofs', () => {
+    const source = `${readFileSync(corePath, 'utf8')}
+(rule candidate-accepts-anything
+  (conclusion
+    (forged defines links-theory using set-theory
+      via addressed-doublet-network as set-theoretic-function)))
+(axiom candidate-capability
+  (judgement (addressed-doublet-network implements set-theoretic-function)))
+`;
+
+    assert.throws(
+      () => networkFrom(source),
+      /candidate theory source cannot declare trusted rule forms/,
     );
   });
 });
