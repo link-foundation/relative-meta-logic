@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import {
   run,
+  parseLino,
   tokenizeOne,
   parseOne,
   Env,
@@ -57,6 +58,33 @@ describe('parseOne', () => {
     const tokens = ['(', '?', '(', '(', 'a', '=', 'a', ')', 'and', '(', 'a', '!=', 'a', ')', ')', ')'];
     const ast = parseOne(tokens);
     assert.deepStrictEqual(ast, ['?', [['a', '=', 'a'], 'and', ['a', '!=', 'a']]]);
+  });
+});
+
+describe('parseLino', () => {
+  it('keeps multiline parenthesized RML forms flat with links-notation 0.20', () => {
+    const links = parseLino(`(implementation-contract theory-network
+      (kind link-network-composition)
+      (obligation definition-link))`);
+    assert.deepStrictEqual(links, [
+      '(implementation-contract theory-network (kind link-network-composition) (obligation definition-link))',
+    ]);
+  });
+
+  it('preserves newlines in quoted references while flattening layout', () => {
+    assert.deepStrictEqual(parseLino(`(label "first
+second")`), [
+      `(label 'first
+second')`,
+    ]);
+  });
+
+  it('preserves multiline N-quote references while flattening layout', () => {
+    assert.deepStrictEqual(parseLino(`(label ""first
+second"")`), [
+      `(label 'first
+second')`,
+    ]);
   });
 });
 

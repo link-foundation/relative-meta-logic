@@ -68,7 +68,7 @@ main "RML in RML" file because it records the host evaluator surface as rule
 data:
 
 ```lino
-(evaluator rml-evaluator matches relative-meta-logic version-0-19-0)
+(evaluator rml-evaluator matches relative-meta-logic version-0-21-0)
 
 (rule (eval (? expression))
   (query (clamp (eval expression))))

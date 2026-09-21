@@ -300,6 +300,52 @@ pub fn parse_lino(text: &str) -> Vec<String> {
     parse_lino_with_errors(text).0
 }
 
+// RML's parenthesized forms predate links-notation 0.20's nested-context
+// interpretation of line breaks. Keep their established flat-list meaning by
+// treating layout inside parentheses as whitespace, while retaining root-level
+// newlines for indentation syntax and preserving multiline quoted references.
+fn flatten_parenthesized_layout(text: &str) -> String {
+    let mut output = String::with_capacity(text.len());
+    let mut depth = 0usize;
+    let mut index = 0usize;
+    while index < text.len() {
+        let character = text[index..]
+            .chars()
+            .next()
+            .expect("valid character boundary");
+        if matches!(character, '"' | '\'' | '`') {
+            if let Some(end) = links_notation::parser::quoted_reference_end(text, index) {
+                output.push_str(&text[index..end]);
+                index = end;
+                continue;
+            }
+        }
+        match character {
+            '(' => depth += 1,
+            ')' => depth = depth.saturating_sub(1),
+            '\n' if depth > 0 => {
+                output.push(' ');
+                index += character.len_utf8();
+                while index < text.len() {
+                    let next = text[index..]
+                        .chars()
+                        .next()
+                        .expect("valid character boundary");
+                    if !matches!(next, ' ' | '\t') {
+                        break;
+                    }
+                    index += next.len_utf8();
+                }
+                continue;
+            }
+            _ => {}
+        }
+        output.push(character);
+        index += character.len_utf8();
+    }
+    output
+}
+
 /// Parse LiNo text and return both the parsed links and any error messages from
 /// the underlying parser. Used by `evaluate_inner` to surface E006 diagnostics
 /// for unbalanced/invalid input — mirrors `parseLinoForms` in
@@ -323,6 +369,8 @@ fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
         .collect::<Vec<String>>()
         .join("\n");
 
+    let stripped = flatten_parenthesized_layout(&stripped);
+
     // The links-notation crate treats blank lines as group separators,
     // so we split the input by blank lines and parse each segment separately.
     let mut all_links = Vec::new();
@@ -332,7 +380,10 @@ fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
         if trimmed.is_empty() {
             continue;
         }
-        match links_notation::parse_lino_to_links(trimmed) {
+        match links_notation::parse_lino_to_links_with_config(
+            trimmed,
+            &links_notation::ParserConfig::without_comments(),
+        ) {
             Ok(links) => {
                 for link in links {
                     all_links.push(link.to_string());

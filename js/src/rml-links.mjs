@@ -6968,6 +6968,76 @@ function stripLinoComments(text) {
     .replace(/\n{3,}/g, '\n\n');
 }
 
+// RML's parenthesized forms predate links-notation 0.20's nested-context
+// interpretation of line breaks. Keep their established flat-list meaning by
+// treating layout inside parentheses as whitespace, while retaining root-level
+// newlines for indentation syntax and preserving multiline quoted references.
+function hasSubstantiveQuotedBody(text) {
+  let depth = 0;
+  let visible = false;
+  for (const character of text) {
+    if (character === '(') depth += 1;
+    if (character === ')') {
+      depth -= 1;
+      if (depth < 0) return false;
+    }
+    if (!/\s/.test(character)) visible = true;
+  }
+  return visible && depth === 0;
+}
+
+// Return the position after a delimited reference using links-notation 0.20's
+// N-quote rules. This keeps layout normalization from changing quoted data.
+function quotedReferenceEnd(text, start) {
+  const quote = text[start];
+  if (quote !== '"' && quote !== "'" && quote !== '`') return null;
+  let width = 1;
+  while (text[start + width] === quote) width += 1;
+  const delimiter = quote.repeat(width);
+  const escape = delimiter.repeat(2);
+  const emptyEnd = width % 2 === 0 ? start + width : null;
+  let position = start + width;
+  while (position < text.length) {
+    if (text.startsWith(escape, position)) {
+      position += escape.length;
+      continue;
+    }
+    if (text.startsWith(delimiter, position) && text[position + width] !== quote) {
+      const end = position + width;
+      const body = text.slice(start + width, position);
+      return width % 2 !== 0 || hasSubstantiveQuotedBody(body) ? end : emptyEnd;
+    }
+    position += 1;
+  }
+  return emptyEnd;
+}
+
+function flattenParenthesizedLayout(text) {
+  let depth = 0;
+  let output = '';
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (character === '"' || character === "'" || character === '`') {
+      const end = quotedReferenceEnd(text, index);
+      if (end !== null) {
+        output += text.slice(index, end);
+        index = end - 1;
+        continue;
+      }
+    }
+    if (character === '(') depth += 1;
+    if (character === ')') depth = Math.max(0, depth - 1);
+    if (character === '\n' && depth > 0) {
+      output += ' ';
+      while (text[index + 1] === ' ' || text[index + 1] === '\t') index += 1;
+      continue;
+    }
+    output += character;
+  }
+  return output;
+}
+
 function isLiterateLinoPath(file) {
   return typeof file === 'string' && /\.lino\.md$/i.test(file);
 }
@@ -7036,8 +7106,9 @@ function sourceForEvaluation(code, file) {
  * Parse LiNo source text with the official links-notation parser.
  */
 function parseLino(text) {
-  const parser = new Parser();
-  return parser.parse(stripLinoComments(text)).map(link => String(link));
+  const parser = new Parser({ comments: false });
+  const source = flattenParenthesizedLayout(stripLinoComments(text));
+  return parser.parse(source).map(link => String(link));
 }
 
 function parseLinoForms(text) {

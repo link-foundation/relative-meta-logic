@@ -329,7 +329,10 @@ fn semantic_lines(modules: &[FormalModule], declarations: &[FormalDeclaration]) 
 fn sha256(lines: &[String]) -> String {
     let mut hash = Sha256::new();
     hash.update(format!("{}\n", lines.join("\n")).as_bytes());
-    format!("{:x}", hash.finalize())
+    hash.finalize()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
 
 fn parse_declaration(

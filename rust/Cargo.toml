@@ -1,6 +1,6 @@
 [package]
 name = "relative-meta-logic"
-version = "0.20.0"
+version = "0.21.0"
 edition = "2021"
 description = "A prototype for logic framework that can reason about anything relative to given probability of input statements"
 license = "Unlicense"
@@ -22,6 +22,6 @@ name = "rml"
 path = "src/lib.rs"
 
 [dependencies]
-links-notation = "0.13.0"
-meta-language = "0.49.0"
-sha2 = "0.10.9"
+links-notation = "0.20.0"
+meta-language = "0.58.2"
+sha2 = "0.11.0"
