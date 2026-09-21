@@ -11,7 +11,7 @@
     "rml-lsp": "src/rml-lsp.mjs"
   },
   "scripts": {
-    "test": "node --test tests/ ../scripts/",
+    "test": "node --test tests/*.test.mjs ../scripts/*.test.mjs",
     "test:bootstrap": "node --test --test-name-pattern \"replays self corpus\" tests/self-evaluator.test.mjs",
     "docs": "jsdoc -c ../docs/api/jsdoc.json",
     "build:playground": "node ../scripts/build-playground.mjs",
