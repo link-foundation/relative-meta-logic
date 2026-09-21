@@ -48,7 +48,7 @@ node examples/meta-theory-network.mjs
 | [`bayesian-network.lino`](./bayesian-network.lino) | Directed acyclic Bayesian network |
 | [`markov-chain.lino`](./markov-chain.lino) | Weather-state Markov chain |
 | [`markov-network.lino`](./markov-network.lino) | Cyclic Markov network with three-way cliques |
-| [`meta-theory-network.mjs`](./meta-theory-network.mjs) | Checked cross-theory chains, shared addresses, derived graph/relation operations, and a bounded cyclic sequence |
+| [`meta-theory-network.mjs`](./meta-theory-network.mjs) | Explicit K0 report, replaceable set foundations, checked cross-theory chains, graph/relation operations, and a bounded cyclic sequence |
 | [`self-reasoning.lino`](./self-reasoning.lino) | Meta-logic reasoning about its own logic system |
 | [`dependent-types.lino`](./dependent-types.lino) | Dependent type system with universes, Π-types, λ |
 | [`lambda-calculus.lino`](./lambda-calculus.lino) | Lambda calculus via HOAS, with `forall` desugaring to `Pi` |

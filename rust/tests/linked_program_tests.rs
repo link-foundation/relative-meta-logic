@@ -132,6 +132,16 @@ fn rejects_unbound_replacements_and_rewrite_cycles() {
         .reduce("looping", &Node::Leaf("left".to_string()), 10_000)
         .expect_err("cycle must fail")
         .contains("rewrite cycle"));
+
+    let invalid_import = format!(
+        "{}\n(linked-program parent)\n\
+         (linked-program invalid-import\n\
+           (uses parent (rebind ?pattern-variable concrete)))",
+        source()
+    );
+    assert!(LinkedProgramRegistry::from_rml(&invalid_import)
+        .expect_err("pattern variable rebind must fail")
+        .contains("cannot rebind pattern variables"));
 }
 
 #[test]
@@ -155,4 +165,131 @@ fn applies_proof_fact_bound_to_declared_and_input_facts() {
             1,
         )
         .is_none());
+}
+
+#[test]
+fn instantiates_one_unchanged_theory_over_replaceable_foundations() {
+    let programs = registry(
+        "(linked-program portable-classifier)\n\
+         (linked-rewrite portable-classifier classify\n\
+           (from (classify ?value))\n\
+           (to (foundation-decision ?value)))\n\
+         (linked-program strict-foundation)\n\
+         (linked-rewrite strict-foundation decide-unknown\n\
+           (from (strict-decision unknown))\n\
+           (to reject))\n\
+         (linked-program permissive-foundation)\n\
+         (linked-rewrite permissive-foundation decide-unknown\n\
+           (from (permissive-decision unknown))\n\
+           (to accept))\n\
+         (linked-program classifier-interface\n\
+           (uses portable-classifier\n\
+             (rebind foundation-decision selected-decision)))\n\
+         (linked-program classifier-over-strict\n\
+           (uses classifier-interface\n\
+             (rebind selected-decision strict-decision))\n\
+           (uses strict-foundation))\n\
+         (linked-program classifier-over-permissive\n\
+           (uses portable-classifier\n\
+             (rebind foundation-decision permissive-decision))\n\
+           (uses permissive-foundation))\n\
+         (linked-program portable-entailment)\n\
+         (linked-fact portable-entailment premise\n\
+           (judgement (abstract-holds p)))\n\
+         (linked-fact portable-entailment implication\n\
+           (judgement (abstract-implies p q)))\n\
+         (linked-inference portable-entailment modus-ponens\n\
+           (premise (abstract-holds ?antecedent))\n\
+           (premise (abstract-implies ?antecedent ?consequent))\n\
+           (conclusion (abstract-holds ?consequent)))\n\
+         (linked-program selected-entailment\n\
+           (uses portable-entailment\n\
+             (rebind abstract-holds holds)\n\
+             (rebind abstract-implies implies)))",
+    );
+
+    let strict = programs
+        .reduce(
+            "classifier-over-strict",
+            &node("(classify unknown)"),
+            10_000,
+        )
+        .expect("strict instance reduces");
+    assert_eq!(strict.term, Node::Leaf("reject".to_string()));
+
+    let permissive = programs
+        .reduce(
+            "classifier-over-permissive",
+            &node("(classify unknown)"),
+            10_000,
+        )
+        .expect("permissive instance reduces");
+    assert_eq!(permissive.term, Node::Leaf("accept".to_string()));
+
+    assert!(programs
+        .prove("selected-entailment", &node("(holds q)"), &[], 128, 10_000,)
+        .is_some());
+
+    let traditional = programs
+        .reduce(
+            "set-theory-over-traditional-sequences",
+            &node("(member b (sequence-cons a (sequence-cons b (sequence-empty))))"),
+            10_000,
+        )
+        .expect("traditional set instance reduces");
+    assert_eq!(traditional.term, Node::Leaf("true".to_string()));
+
+    let associative = programs
+        .reduce(
+            "set-theory-over-associative-links",
+            &node("(member b (link-cons a (link-cons b (link-empty))))"),
+            10_000,
+        )
+        .expect("associative set instance reduces");
+    assert_eq!(associative.term, Node::Leaf("true".to_string()));
+}
+
+#[test]
+fn executes_a_links_defined_meta_interpreter_above_an_explicit_k0_boundary() {
+    let programs = registry("");
+    let request = node(
+        "(meta-verify\n\
+           (atom a)\n\
+           (meta-rewrite\n\
+             (rules\n\
+               (rewrite\n\
+                 (pair (atom identity) (meta-variable argument))\n\
+                 (meta-variable argument))\n\
+               (no-rules))\n\
+             (pair (atom identity) (atom a))))",
+    );
+    let result = programs
+        .reduce("links-meta-foundation", &request, 10_000)
+        .expect("meta-interpreter reduces");
+    assert_eq!(result.term, Node::Leaf("verified".to_string()));
+    assert!(result
+        .trace
+        .iter()
+        .any(|step| step.rule == "match-unbound-variable"));
+    assert!(result
+        .trace
+        .iter()
+        .any(|step| step.rule == "substitute-bound-variable"));
+
+    let report = LinkedProgramRegistry::bootstrap_kernel_report();
+    assert_eq!(report.name, "K0");
+    assert_eq!(
+        report.operations,
+        [
+            "parse-linked-forms",
+            "compare-link-structure",
+            "bind-pattern-variables",
+            "substitute-bound-structures",
+            "select-and-traverse-rewrite-rules",
+            "saturate-inference-rules",
+            "resolve-and-rebind-program-imports",
+            "enforce-cycle-and-resource-bounds",
+        ]
+    );
+    assert!(report.object_semantics.is_empty());
 }

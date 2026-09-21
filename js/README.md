@@ -195,6 +195,12 @@ The meta-expression adapter deliberately keeps unsupported real-world claims par
 The meta-theory network is available as a separate module so it can consume the
 main parser and the `meta-language` bridge without changing evaluator state:
 
+Linked-program imports support
+`(rebind abstract-concept selected-concept)` for foundation polymorphism.
+`LinkedProgramRegistry.bootstrapKernelReport()` exposes the complete
+theory-independent K0 host boundary and reports an empty object-semantics
+list.
+
 ```javascript
 import { readFileSync } from 'node:fs';
 import {

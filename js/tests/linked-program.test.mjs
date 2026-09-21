@@ -123,6 +123,15 @@ describe('links-defined universal program evaluator', () => {
       (linked-rewrite looping right (from right) (to left))
     `);
     assert.throws(() => programs.reduce('looping', 'left'), /rewrite cycle/);
+
+    assert.throws(
+      () => registry(`
+        (linked-program parent)
+        (linked-program invalid-import
+          (uses parent (rebind ?pattern-variable concrete)))
+      `),
+      /cannot rebind pattern variables/,
+    );
   });
 
   it('applies the proof fact bound to declared and input facts', () => {
@@ -145,5 +154,116 @@ describe('links-defined universal program evaluator', () => {
       }),
       /proof fact limit 1 exceeded/,
     );
+  });
+
+  it('instantiates one unchanged theory over replaceable foundations', () => {
+    const programs = registry(`
+      (linked-program portable-classifier)
+      (linked-rewrite portable-classifier classify
+        (from (classify ?value))
+        (to (foundation-decision ?value)))
+
+      (linked-program strict-foundation)
+      (linked-rewrite strict-foundation decide-unknown
+        (from (strict-decision unknown))
+        (to reject))
+
+      (linked-program permissive-foundation)
+      (linked-rewrite permissive-foundation decide-unknown
+        (from (permissive-decision unknown))
+        (to accept))
+
+      (linked-program classifier-interface
+        (uses portable-classifier
+          (rebind foundation-decision selected-decision)))
+
+      (linked-program classifier-over-strict
+        (uses classifier-interface
+          (rebind selected-decision strict-decision))
+        (uses strict-foundation))
+
+      (linked-program classifier-over-permissive
+        (uses portable-classifier
+          (rebind foundation-decision permissive-decision))
+        (uses permissive-foundation))
+
+      (linked-program portable-entailment)
+      (linked-fact portable-entailment premise
+        (judgement (abstract-holds p)))
+      (linked-fact portable-entailment implication
+        (judgement (abstract-implies p q)))
+      (linked-inference portable-entailment modus-ponens
+        (premise (abstract-holds ?antecedent))
+        (premise (abstract-implies ?antecedent ?consequent))
+        (conclusion (abstract-holds ?consequent)))
+      (linked-program selected-entailment
+        (uses portable-entailment
+          (rebind abstract-holds holds)
+          (rebind abstract-implies implies)))
+    `);
+
+    assert.equal(
+      programs.reduce('classifier-over-strict', ['classify', 'unknown']).term,
+      'reject',
+    );
+    assert.equal(
+      programs.reduce('classifier-over-permissive', ['classify', 'unknown']).term,
+      'accept',
+    );
+    assert.equal(programs.prove('selected-entailment', ['holds', 'q']).ok, true);
+
+    const traditionalSet = [
+      'sequence-cons',
+      'a',
+      ['sequence-cons', 'b', ['sequence-empty']],
+    ];
+    const associativeSet = [
+      'link-cons',
+      'a',
+      ['link-cons', 'b', ['link-empty']],
+    ];
+    assert.equal(programs.reduce(
+      'set-theory-over-traditional-sequences',
+      ['member', 'b', traditionalSet],
+    ).term, 'true');
+    assert.equal(programs.reduce(
+      'set-theory-over-associative-links',
+      ['member', 'b', associativeSet],
+    ).term, 'true');
+  });
+
+  it('executes a links-defined meta-interpreter above an explicit K0 boundary', () => {
+    const programs = registry();
+    const objectRule = [
+      'rewrite',
+      ['pair', ['atom', 'identity'], ['meta-variable', 'argument']],
+      ['meta-variable', 'argument'],
+    ];
+    const candidate = ['pair', ['atom', 'identity'], ['atom', 'a']];
+    const request = [
+      'meta-verify',
+      ['atom', 'a'],
+      ['meta-rewrite', ['rules', objectRule, ['no-rules']], candidate],
+    ];
+
+    const result = programs.reduce('links-meta-foundation', request);
+    assert.equal(result.term, 'verified');
+    assert.ok(result.trace.some(step => step.rule === 'match-unbound-variable'));
+    assert.ok(result.trace.some(step => step.rule === 'substitute-bound-variable'));
+
+    assert.deepEqual(LinkedProgramRegistry.bootstrapKernelReport(), {
+      name: 'K0',
+      operations: [
+        'parse-linked-forms',
+        'compare-link-structure',
+        'bind-pattern-variables',
+        'substitute-bound-structures',
+        'select-and-traverse-rewrite-rules',
+        'saturate-inference-rules',
+        'resolve-and-rebind-program-imports',
+        'enforce-cycle-and-resource-bounds',
+      ],
+      objectSemantics: [],
+    });
   });
 });

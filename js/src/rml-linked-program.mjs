@@ -63,6 +63,17 @@ function instantiate(term, substitution) {
     : term;
 }
 
+function rebindTerm(term, rebindings) {
+  if (Array.isArray(term)) return term.map(child => rebindTerm(child, rebindings));
+  return rebindings.get(term) ?? term;
+}
+
+function applyRebindings(term, rebindings) {
+  let result = cloneTerm(term);
+  for (const bindings of rebindings) result = rebindTerm(result, bindings);
+  return result;
+}
+
 function singleClause(form, name, context) {
   const clauses = form.slice(3).filter(clause => Array.isArray(clause) && clause[0] === name);
   if (clauses.length !== 1 || clauses[0].length !== 2) {
@@ -126,20 +137,60 @@ class LinkedProgramRegistry {
     return registry;
   }
 
+  /**
+   * Report the complete theory-independent host boundary used to bootstrap
+   * links-defined meta-semantics.
+   */
+  static bootstrapKernelReport() {
+    return {
+      name: 'K0',
+      operations: [
+        'parse-linked-forms',
+        'compare-link-structure',
+        'bind-pattern-variables',
+        'substitute-bound-structures',
+        'select-and-traverse-rewrite-rules',
+        'saturate-inference-rules',
+        'resolve-and-rebind-program-imports',
+        'enforce-cycle-and-resource-bounds',
+      ],
+      objectSemantics: [],
+    };
+  }
+
   #addProgram(form) {
     if (form.length < 2) throw new Error('linked-program requires a name');
     const name = leaf(form[1], 'linked-program name');
     if (this.programs.has(name)) throw new Error(`duplicate linked-program ${name}`);
     const uses = [];
     for (const clause of form.slice(2)) {
-      if (!Array.isArray(clause) || clause.length !== 2 || clause[0] !== 'uses') {
-        throw new Error(`linked-program ${name} only supports (uses program) clauses`);
+      if (!Array.isArray(clause) || clause.length < 2 || clause[0] !== 'uses') {
+        throw new Error(
+          `linked-program ${name} only supports (uses program (rebind from to) ...) clauses`,
+        );
       }
       const dependency = leaf(clause[1], `linked-program ${name} dependency`);
-      if (uses.includes(dependency)) {
+      if (uses.some(item => item.program === dependency)) {
         throw new Error(`linked-program ${name} repeats dependency ${dependency}`);
       }
-      uses.push(dependency);
+      const rebindings = new Map();
+      for (const binding of clause.slice(2)) {
+        if (!Array.isArray(binding) || binding.length !== 3 || binding[0] !== 'rebind') {
+          throw new Error(
+            `linked-program ${name} import ${dependency} only supports (rebind from to)`,
+          );
+        }
+        const from = leaf(binding[1], `linked-program ${name} rebind source`);
+        const to = leaf(binding[2], `linked-program ${name} rebind target`);
+        if (from.startsWith('?') || to.startsWith('?')) {
+          throw new Error(`linked-program ${name} cannot rebind pattern variables`);
+        }
+        if (rebindings.has(from)) {
+          throw new Error(`linked-program ${name} repeats rebind source ${from}`);
+        }
+        rebindings.set(from, to);
+      }
+      uses.push({ program: dependency, rebindings });
     }
     this.programs.set(name, { name, uses, rewrites: [], facts: [], inferences: [] });
   }
@@ -222,8 +273,10 @@ class LinkedProgramRegistry {
   #validate() {
     for (const program of this.programs.values()) {
       for (const dependency of program.uses) {
-        if (!this.programs.has(dependency)) {
-          throw new Error(`linked-program ${program.name} uses unknown program ${dependency}`);
+        if (!this.programs.has(dependency.program)) {
+          throw new Error(
+            `linked-program ${program.name} uses unknown program ${dependency.program}`,
+          );
         }
       }
     }
@@ -233,7 +286,7 @@ class LinkedProgramRegistry {
       if (visiting.has(name)) throw new Error(`linked-program import cycle at ${name}`);
       if (visited.has(name)) return;
       visiting.add(name);
-      for (const dependency of this.programs.get(name).uses) visit(dependency);
+      for (const dependency of this.programs.get(name).uses) visit(dependency.program);
       visiting.delete(name);
       visited.add(name);
     };
@@ -248,13 +301,41 @@ class LinkedProgramRegistry {
     return [...this.programs.keys()].sort();
   }
 
-  #effective(name, field, seen = new Set()) {
+  #effective(name, field, seen = new Set(), rebindings = []) {
     const program = this.#program(name, 'execution');
-    if (seen.has(name)) return [];
-    seen.add(name);
-    const result = [...program[field]];
+    const context = JSON.stringify([
+      name,
+      ...rebindings.map(bindings => [...bindings.entries()]),
+    ]);
+    if (seen.has(context)) return [];
+    seen.add(context);
+    const result = program[field].map(item => {
+      if (field === 'rewrites') {
+        return {
+          ...item,
+          pattern: applyRebindings(item.pattern, rebindings),
+          replacement: applyRebindings(item.replacement, rebindings),
+        };
+      }
+      if (field === 'facts') {
+        return { ...item, judgement: applyRebindings(item.judgement, rebindings) };
+      }
+      return {
+        ...item,
+        premises: item.premises.map(premise => applyRebindings(premise, rebindings)),
+        conclusion: applyRebindings(item.conclusion, rebindings),
+      };
+    });
     for (const dependency of program.uses) {
-      result.push(...this.#effective(dependency, field, seen));
+      const nestedRebindings = dependency.rebindings.size === 0
+        ? rebindings
+        : [dependency.rebindings, ...rebindings];
+      result.push(...this.#effective(
+        dependency.program,
+        field,
+        seen,
+        nestedRebindings,
+      ));
     }
     return result;
   }

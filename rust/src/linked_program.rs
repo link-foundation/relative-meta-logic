@@ -32,9 +32,15 @@ struct InferenceRule {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+struct ProgramImport {
+    program: String,
+    rebindings: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 struct LinkedProgram {
     name: String,
-    uses: Vec<String>,
+    uses: Vec<ProgramImport>,
     rewrites: Vec<RewriteRule>,
     facts: Vec<LinkedFact>,
     inferences: Vec<InferenceRule>,
@@ -60,6 +66,14 @@ pub struct LinkedProof {
     pub program: String,
     pub rule: String,
     pub premises: Vec<LinkedProof>,
+}
+
+/// Complete theory-independent host boundary for linked-program execution.
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapKernelReport {
+    pub name: &'static str,
+    pub operations: Vec<&'static str>,
+    pub object_semantics: Vec<&'static str>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -127,6 +141,29 @@ fn instantiate(node: &Node, substitution: &BTreeMap<String, Node>) -> Result<Nod
     }
 }
 
+fn rebind_node(node: &Node, rebindings: &BTreeMap<String, String>) -> Node {
+    match node {
+        Node::Leaf(value) => Node::Leaf(
+            rebindings
+                .get(value)
+                .cloned()
+                .unwrap_or_else(|| value.clone()),
+        ),
+        Node::List(children) => Node::List(
+            children
+                .iter()
+                .map(|child| rebind_node(child, rebindings))
+                .collect(),
+        ),
+    }
+}
+
+fn apply_rebindings(node: &Node, rebindings: &[BTreeMap<String, String>]) -> Node {
+    rebindings.iter().fold(node.clone(), |current, bindings| {
+        rebind_node(&current, bindings)
+    })
+}
+
 fn form_children(form: &Node) -> Option<&[Node]> {
     match form {
         Node::List(children) => Some(children),
@@ -176,6 +213,24 @@ fn assert_replacement_bound(
 }
 
 impl LinkedProgramRegistry {
+    /// Reports the complete K0 host boundary and its empty object-semantics set.
+    pub fn bootstrap_kernel_report() -> BootstrapKernelReport {
+        BootstrapKernelReport {
+            name: "K0",
+            operations: vec![
+                "parse-linked-forms",
+                "compare-link-structure",
+                "bind-pattern-variables",
+                "substitute-bound-structures",
+                "select-and-traverse-rewrite-rules",
+                "saturate-inference-rules",
+                "resolve-and-rebind-program-imports",
+                "enforce-cycle-and-resource-bounds",
+            ],
+            object_semantics: Vec::new(),
+        }
+    }
+
     pub fn from_rml(source: &str) -> Result<Self, String> {
         let forms = parse_lino(source)
             .iter()
@@ -215,20 +270,59 @@ impl LinkedProgramRegistry {
         let mut uses = Vec::new();
         for clause in &children[2..] {
             let values = form_children(clause).ok_or_else(|| {
-                format!("linked-program {name} only supports (uses program) clauses")
+                format!(
+                    "linked-program {name} only supports \
+                     (uses program (rebind from to) ...) clauses"
+                )
             })?;
-            if values.len() != 2 || !matches!(&values[0], Node::Leaf(head) if head == "uses") {
+            if values.len() < 2 || !matches!(&values[0], Node::Leaf(head) if head == "uses") {
                 return Err(format!(
-                    "linked-program {name} only supports (uses program) clauses"
+                    "linked-program {name} only supports \
+                     (uses program (rebind from to) ...) clauses"
                 ));
             }
             let dependency = leaf(&values[1], "linked-program dependency")?.to_string();
-            if uses.contains(&dependency) {
+            if uses
+                .iter()
+                .any(|item: &ProgramImport| item.program == dependency)
+            {
                 return Err(format!(
                     "linked-program {name} repeats dependency {dependency}"
                 ));
             }
-            uses.push(dependency);
+            let mut rebindings = BTreeMap::new();
+            for binding in &values[2..] {
+                let binding_values = form_children(binding).ok_or_else(|| {
+                    format!(
+                        "linked-program {name} import {dependency} only supports \
+                         (rebind from to)"
+                    )
+                })?;
+                if binding_values.len() != 3
+                    || !matches!(&binding_values[0], Node::Leaf(head) if head == "rebind")
+                {
+                    return Err(format!(
+                        "linked-program {name} import {dependency} only supports \
+                         (rebind from to)"
+                    ));
+                }
+                let from = leaf(&binding_values[1], "linked-program rebind source")?.to_string();
+                let to = leaf(&binding_values[2], "linked-program rebind target")?.to_string();
+                if from.starts_with('?') || to.starts_with('?') {
+                    return Err(format!(
+                        "linked-program {name} cannot rebind pattern variables"
+                    ));
+                }
+                if rebindings.insert(from.clone(), to).is_some() {
+                    return Err(format!(
+                        "linked-program {name} repeats rebind source {from}"
+                    ));
+                }
+            }
+            uses.push(ProgramImport {
+                program: dependency,
+                rebindings,
+            });
         }
         self.programs.insert(
             name.clone(),
@@ -373,10 +467,10 @@ impl LinkedProgramRegistry {
     fn validate(&self) -> Result<(), String> {
         for program in self.programs.values() {
             for dependency in &program.uses {
-                if !self.programs.contains_key(dependency) {
+                if !self.programs.contains_key(&dependency.program) {
                     return Err(format!(
-                        "linked-program {} uses unknown program {dependency}",
-                        program.name
+                        "linked-program {} uses unknown program {}",
+                        program.name, dependency.program
                     ));
                 }
             }
@@ -395,7 +489,7 @@ impl LinkedProgramRegistry {
             }
             visiting.insert(name.to_string());
             for dependency in &programs[name].uses {
-                visit(dependency, programs, visiting, visited)?;
+                visit(&dependency.program, programs, visiting, visited)?;
             }
             visiting.remove(name);
             visited.insert(name.to_string());
@@ -420,26 +514,40 @@ impl LinkedProgramRegistry {
     fn effective_rewrites(&self, name: &str) -> Result<Vec<RewriteRule>, String> {
         let mut output = Vec::new();
         let mut seen = BTreeSet::new();
-        self.collect_rewrites(name, &mut seen, &mut output)?;
+        self.collect_rewrites(name, &[], &mut seen, &mut output)?;
         Ok(output)
     }
 
     fn collect_rewrites(
         &self,
         name: &str,
+        rebindings: &[BTreeMap<String, String>],
         seen: &mut BTreeSet<String>,
         output: &mut Vec<RewriteRule>,
     ) -> Result<(), String> {
-        if !seen.insert(name.to_string()) {
+        let context = format!("{name}\0{rebindings:?}");
+        if !seen.insert(context) {
             return Ok(());
         }
         let program = self
             .programs
             .get(name)
             .ok_or_else(|| format!("execution references unknown linked-program {name}"))?;
-        output.extend(program.rewrites.clone());
+        output.extend(program.rewrites.iter().map(|rule| RewriteRule {
+            program: rule.program.clone(),
+            name: rule.name.clone(),
+            pattern: apply_rebindings(&rule.pattern, rebindings),
+            replacement: apply_rebindings(&rule.replacement, rebindings),
+        }));
         for dependency in &program.uses {
-            self.collect_rewrites(dependency, seen, output)?;
+            let nested_rebindings = if dependency.rebindings.is_empty() {
+                rebindings.to_vec()
+            } else {
+                let mut nested = vec![dependency.rebindings.clone()];
+                nested.extend_from_slice(rebindings);
+                nested
+            };
+            self.collect_rewrites(&dependency.program, &nested_rebindings, seen, output)?;
         }
         Ok(())
     }
@@ -447,26 +555,39 @@ impl LinkedProgramRegistry {
     fn effective_facts(&self, name: &str) -> Result<Vec<LinkedFact>, String> {
         let mut output = Vec::new();
         let mut seen = BTreeSet::new();
-        self.collect_facts(name, &mut seen, &mut output)?;
+        self.collect_facts(name, &[], &mut seen, &mut output)?;
         Ok(output)
     }
 
     fn collect_facts(
         &self,
         name: &str,
+        rebindings: &[BTreeMap<String, String>],
         seen: &mut BTreeSet<String>,
         output: &mut Vec<LinkedFact>,
     ) -> Result<(), String> {
-        if !seen.insert(name.to_string()) {
+        let context = format!("{name}\0{rebindings:?}");
+        if !seen.insert(context) {
             return Ok(());
         }
         let program = self
             .programs
             .get(name)
             .ok_or_else(|| format!("execution references unknown linked-program {name}"))?;
-        output.extend(program.facts.clone());
+        output.extend(program.facts.iter().map(|fact| LinkedFact {
+            program: fact.program.clone(),
+            name: fact.name.clone(),
+            judgement: apply_rebindings(&fact.judgement, rebindings),
+        }));
         for dependency in &program.uses {
-            self.collect_facts(dependency, seen, output)?;
+            let nested_rebindings = if dependency.rebindings.is_empty() {
+                rebindings.to_vec()
+            } else {
+                let mut nested = vec![dependency.rebindings.clone()];
+                nested.extend_from_slice(rebindings);
+                nested
+            };
+            self.collect_facts(&dependency.program, &nested_rebindings, seen, output)?;
         }
         Ok(())
     }
@@ -474,26 +595,46 @@ impl LinkedProgramRegistry {
     fn effective_inferences(&self, name: &str) -> Result<Vec<InferenceRule>, String> {
         let mut output = Vec::new();
         let mut seen = BTreeSet::new();
-        self.collect_inferences(name, &mut seen, &mut output)?;
+        self.collect_inferences(name, &[], &mut seen, &mut output)?;
         Ok(output)
     }
 
     fn collect_inferences(
         &self,
         name: &str,
+        rebindings: &[BTreeMap<String, String>],
         seen: &mut BTreeSet<String>,
         output: &mut Vec<InferenceRule>,
     ) -> Result<(), String> {
-        if !seen.insert(name.to_string()) {
+        let context = format!("{name}\0{rebindings:?}");
+        if !seen.insert(context) {
             return Ok(());
         }
         let program = self
             .programs
             .get(name)
             .ok_or_else(|| format!("execution references unknown linked-program {name}"))?;
-        output.extend(program.inferences.clone());
+        output.extend(program.inferences.iter().map(|rule| {
+            InferenceRule {
+                program: rule.program.clone(),
+                name: rule.name.clone(),
+                premises: rule
+                    .premises
+                    .iter()
+                    .map(|premise| apply_rebindings(premise, rebindings))
+                    .collect(),
+                conclusion: apply_rebindings(&rule.conclusion, rebindings),
+            }
+        }));
         for dependency in &program.uses {
-            self.collect_inferences(dependency, seen, output)?;
+            let nested_rebindings = if dependency.rebindings.is_empty() {
+                rebindings.to_vec()
+            } else {
+                let mut nested = vec![dependency.rebindings.clone()];
+                nested.extend_from_slice(rebindings);
+                nested
+            };
+            self.collect_inferences(&dependency.program, &nested_rebindings, seen, output)?;
         }
         Ok(())
     }

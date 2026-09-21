@@ -166,13 +166,23 @@ profile. The reader round-trips both through `meta-language` and validates
 generic `theory`, `term`, `implementation`, `witness`, and `definition` forms.
 A definition link is
 admitted only when its implementation manifest matches the proposed
-subject/foundation pair and the adapter's exact kind and obligation set; all
+subject/foundation pair and its contract's exact kind and obligation set; all
 operations pass runtime conformance checks; its proof object replays; and the
-checked conclusion exactly matches that link. Rules, axioms, adapter contracts,
+checked conclusion exactly matches that link. Rules, axioms, implementation contracts,
 and expected judgements come only from the trust profile; a candidate theory
 cannot authorize itself. The network then resolves or
 translates theory-local terms through shared concept addresses and performs
 cycle-safe shortest definition-chain searches.
+
+The executable meta-theory has an explicit `K0 -> K1 -> F -> T` structure.
+`K0` is one generic structural rewrite/inference machine; its mirrored public
+kernel report lists parsing, structural identity, pattern binding,
+substitution, rewrite traversal, finite saturation, rebound import resolution,
+and resource/cycle enforcement, with no object semantics. The
+`links-meta-foundation` program is the links-defined `K1` interpreter for
+object-encoded matching, substitution, rule application, and verification.
+Import-level `rebind` clauses instantiate one unchanged theory over different
+foundation vocabularies and compose through transitive imports.
 
 `MembershipSetStore` supplies addressed membership links and finite
 extensional equality plus finite subset, pairing, union, separation, and

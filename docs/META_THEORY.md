@@ -20,11 +20,14 @@ Both runtimes round-trip candidate and foundation text through
 
 ## One machine, user-defined logics
 
-An executable program consists of four generic forms:
+An executable program consists of four generic forms. Imports may rebind any
+non-variable reference in the imported program, including its transitive
+imports:
 
 ```lino
 (linked-program program-name
-  (uses optional-parent-program))
+  (uses optional-parent-program
+    (rebind abstract-concept selected-concept)))
 
 (linked-rewrite program-name rule-name
   (from pattern-with-?variables)
@@ -43,6 +46,79 @@ that replacements and conclusions cannot introduce unbound variables,
 resolves program imports without cycles, detects rewrite cycles, and applies
 explicit step/fact bounds. A new program can introduce new constructors and
 rules without changing JavaScript or Rust.
+
+## Explicit meta-foundation
+
+The system distinguishes an initial bootstrap machine from the semantics it
+executes:
+
+```text
+K0: structural linked-program machine in JavaScript/Rust
+  -> K1: links-meta-foundation in universal.lino
+    -> F: selected user foundation
+      -> T: unchanged user theory
+```
+
+`K0` is explicit and theory-independent. Both APIs expose the same
+`bootstrapKernelReport` / `bootstrap_kernel_report` inventory:
+
+| Host operation | Purpose |
+|----------------|---------|
+| parse linked forms | Construct leaf/list link structure. |
+| compare link structure | Decide exact leaf/list identity. |
+| bind pattern variables | Associate `?variables` with sublinks. |
+| substitute bound structures | Instantiate a linked rule result. |
+| select/traverse rewrite rules | Perform deterministic outermost rewriting. |
+| saturate inference rules | Enumerate finite forward derivations. |
+| resolve/rebind imports | Compose programs and rename imported concepts. |
+| enforce bounds/cycles | Make partial or recursive systems observable safely. |
+
+The report's `objectSemantics` list is empty. `K0` has no built-in `lambda`,
+set, graph, relation, type, truth, or confidence operation. A bootstrap cannot
+be literally empty: executing a links-defined interpreter requires an initial
+interpreter. This boundary is therefore the small structural operational
+contract, not an implicit collection of theory adapters.
+
+`links-meta-foundation` is the inspectable `K1` layer. It represents object
+atoms, pairs, variables, bindings, and rewrite rules as links and defines
+environment lookup, repeated-variable matching, substitution, rule
+selection/application, and result verification with `linked-rewrite` forms.
+Mirrored tests pass an object-encoded rule through this meta-interpreter and
+assert its rule trace. The same `K0` that runs other user programs runs `K1`;
+there is no privileged meta-interpreter callback.
+
+## Foundation-polymorphic imports
+
+`rebind` gives an imported theory a contextual vocabulary without modifying
+or copying its source. For example, a portable theory can emit the abstract
+term `foundation-decision`, while two instances bind that term to distinct
+foundations:
+
+```lino
+(linked-program classifier-over-strict
+  (uses portable-classifier
+    (rebind foundation-decision strict-decision))
+  (uses strict-foundation))
+
+(linked-program classifier-over-permissive
+  (uses portable-classifier
+    (rebind foundation-decision permissive-decision))
+  (uses permissive-foundation))
+```
+
+The mirrored acceptance test evaluates the unchanged `portable-classifier`
+through both user-defined foundations. The same input derives `reject` under
+the strict instance and `accept` under the permissive instance. Thus changing
+the foundation changes semantics without changing object-theory source.
+
+The bundled set rules are likewise written once and instantiated as
+`set-theory-over-traditional-sequences` and
+`set-theory-over-associative-links`. Rebinding `cons`/`empty` to
+`sequence-cons`/`sequence-empty` or `link-cons`/`link-empty` changes their
+representation while membership, insertion, union, subset, equality,
+intersection, pairing, and replacement remain the same imported definitions.
+The instances select `traditional-sequence-foundation` and
+`associative-links-foundation`, respectively.
 
 This is the minimal acceptance example from the review. Binding is encoded
 with de Bruijn indices, and environments and closures are ordinary link
@@ -208,7 +284,7 @@ A user can define double-negation elimination entirely in candidate links:
 After the selected foundation supplies a contract and reduction case, an
 ordinary implementation/witness/definition triple verifies it. Mirrored tests
 do this with previously unknown names and no callback. More complex programs
-can mix rewrites, facts, inference rules, and imports.
+can mix rewrites, facts, inference rules, and rebound imports.
 
 ### Migrating from 0.20
 
@@ -245,6 +321,7 @@ through linked conformance cases.
 | Purpose | JavaScript | Rust |
 |---------|------------|------|
 | Parse linked programs | `LinkedProgramRegistry.fromRml` | `LinkedProgramRegistry::from_rml` |
+| Inspect K0 boundary | `LinkedProgramRegistry.bootstrapKernelReport` | `LinkedProgramRegistry::bootstrap_kernel_report` |
 | Reduce with a program | `reduce` | `reduce` |
 | Prove a linked judgement | `prove` | `prove` |
 | Parse theory network | `TheoryNetwork.fromRml` | `TheoryNetwork::from_rml` |
@@ -282,7 +359,8 @@ external corpus. See the issue-specific
 [`requirements.md`](./case-studies/issue-183/requirements.md) for the complete
 requirement-to-evidence matrix.
 
-The generic machine is intentionally small. It provides a universal
-computation substrate and lets users encode proof systems, but it is not a
-drop-in parser/elaborator for arbitrary Lean or Rocq source, and bounded
-saturation is not a decision procedure for every logic.
+The generic machine is intentionally small. S/K supplies a universal
+computation substrate, while the explicit K0/K1 split lets users encode and
+self-interpret proof systems. This does not make bounded saturation a decision
+procedure for every logic, and it does not silently treat arbitrary Lean or
+Rocq syntax as native RML semantics.

@@ -6,6 +6,13 @@ The two together let users replace the meaning of operators such as `and`,
 `or`, `both`, `neither` without touching the evaluator, and inspect what the
 prover is actually trusting at any point in time.
 
+This is the compatibility surface for the original general-purpose evaluator.
+It is distinct from the native linked-program meta-theory in
+[`META_THEORY.md`](./META_THEORY.md). That newer path publishes its exact K0
+host report, executes a links-defined K1 meta-interpreter, and supports
+foundation-polymorphic imports. Legacy host primitives and external tactics
+listed here cannot authorize a linked-program theory definition.
+
 The headline guarantee is backward compatibility:
 
 > Every `.lino` source file that ran before this surface existed runs
@@ -84,7 +91,7 @@ Semantic statuses make the "built from links/references" claim more precise:
 | `links-described` | The construct is represented as links/LiNo data, but host code still interprets that description. |
 | `links-checked` | Links-level rows, rules, or proof objects are checked by the host replay/matching machinery. |
 | `links-evaluated` | Behaviour is obtained by evaluator rules expressed at links level. This is reserved for future milestones unless a construct explicitly opts in. |
-| `self-hosted` | The checker/evaluator for the construct is itself represented and justified in the links substrate. No bundled default construct currently claims this status. |
+| `self-hosted` | The checker/evaluator for the construct is itself represented and justified in the links substrate. No bundled default construct in this legacy registry claims this status; `links-meta-foundation` provides the corresponding K1 experiment in the linked-program engine. |
 
 The default derivation is deliberately conservative: host and configurable
 trust statuses become `host-trusted`, `links-encoded` becomes

@@ -41,7 +41,7 @@ loads four link forms—program, rewrite, fact, and inference—and supplies:
 - structural substitution with unbound-variable rejection;
 - deterministic nested rewriting with cycle and step bounds;
 - finite forward inference with fact/round bounds and proof trees; and
-- acyclic imports between linked programs.
+- acyclic, contextually rebound imports between linked programs.
 
 It contains no branches for bundled object theories. The shared
 [`universal.lino`](../../../lib/meta-theory/universal.lino) file defines lambda
@@ -53,6 +53,18 @@ independent foundation supplies reduction or inference conformance cases for
 every obligation. One generic verification path executes all 46 bundled
 cases, replays exact proof obligations, and checks the definition witness.
 Users can add an unknown logic without modifying either host runtime.
+
+The later foundation review is covered by an explicit `K0 -> K1 -> F -> T`
+split. `K0` reports every structural host operation and reports no
+object-theory semantics. `links-meta-foundation` is an executable,
+links-defined `K1` meta-interpreter for object-encoded binding, matching,
+substitution, rule selection/application, and result verification.
+
+Program imports accept `(rebind abstract-concept selected-concept)` clauses.
+One unchanged classifier is tested over strict and permissive user
+foundations, producing different results. The bundled set theory is also
+instantiated unchanged over traditional sequence constructors and associative
+link constructors.
 
 ## Acceptance evidence
 
@@ -80,8 +92,11 @@ sequence observation.
 
 ## Verification boundary
 
-The host trusts only generic structural operations and explicit resource
-bounds. Object-theory semantics are linked rules. Candidate sources cannot add
+The host trusts only the operations enumerated by `bootstrapKernelReport` /
+`bootstrap_kernel_report`: parsing, structural identity, pattern binding,
+substitution, rewrite traversal, bounded saturation, rebound import
+resolution, and resource/cycle enforcement. Object-theory semantics are
+linked rules. Candidate sources cannot add
 their own contracts, conformance cases, proof rules, axioms, assumptions, or
 expected proof obligations.
 

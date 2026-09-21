@@ -23,6 +23,165 @@
   (from (address (at ?address (link ?source ?target))))
   (to ?address))
 
+# K1 is a links-defined meta-interpreter above the irreducible structural K0.
+# Object patterns use (meta-variable name), so their variables are data rather
+# than the ?variables consumed by K0. The rules below define environment
+# lookup, repeated-variable matching, substitution, rule selection,
+# application, and positive result verification as ordinary links.
+
+(linked-program links-meta-foundation
+  (uses links-meta-theory))
+
+(linked-rewrite links-meta-foundation lookup-binding-head
+  (from
+    (lookup-binding ?name (binding ?name ?value ?remaining-bindings)))
+  (to (binding-found ?value)))
+
+(linked-rewrite links-meta-foundation lookup-binding-tail
+  (from
+    (lookup-binding ?name (binding ?other-name ?value ?remaining-bindings)))
+  (to (lookup-binding ?name ?remaining-bindings)))
+
+(linked-rewrite links-meta-foundation lookup-binding-empty
+  (from (lookup-binding ?name (no-bindings)))
+  (to binding-not-found))
+
+(linked-rewrite links-meta-foundation match-variable-reference
+  (from (meta-match (meta-variable ?name) ?candidate ?bindings))
+  (to
+    (match-variable
+      (lookup-binding ?name ?bindings)
+      ?name
+      ?candidate
+      ?bindings)))
+
+(linked-rewrite links-meta-foundation match-unbound-variable
+  (from
+    (match-variable binding-not-found ?name ?candidate ?bindings))
+  (to
+    (match-ok (binding ?name ?candidate ?bindings))))
+
+(linked-rewrite links-meta-foundation match-repeated-variable
+  (from
+    (match-variable (binding-found ?candidate) ?name ?candidate ?bindings))
+  (to (match-ok ?bindings)))
+
+(linked-rewrite links-meta-foundation reject-conflicting-variable
+  (from
+    (match-variable (binding-found ?previous) ?name ?candidate ?bindings))
+  (to match-failed))
+
+(linked-rewrite links-meta-foundation match-identical-atoms
+  (from (meta-match (atom ?value) (atom ?value) ?bindings))
+  (to (match-ok ?bindings)))
+
+(linked-rewrite links-meta-foundation reject-distinct-atoms
+  (from (meta-match (atom ?left) (atom ?right) ?bindings))
+  (to match-failed))
+
+(linked-rewrite links-meta-foundation match-pairs
+  (from
+    (meta-match
+      (pair ?left-pattern ?right-pattern)
+      (pair ?left-candidate ?right-candidate)
+      ?bindings))
+  (to
+    (match-pair-right
+      (meta-match ?left-pattern ?left-candidate ?bindings)
+      ?right-pattern
+      ?right-candidate)))
+
+(linked-rewrite links-meta-foundation match-pair-right-success
+  (from
+    (match-pair-right
+      (match-ok ?bindings)
+      ?right-pattern
+      ?right-candidate))
+  (to (meta-match ?right-pattern ?right-candidate ?bindings)))
+
+(linked-rewrite links-meta-foundation match-pair-right-failure
+  (from
+    (match-pair-right match-failed ?right-pattern ?right-candidate))
+  (to match-failed))
+
+(linked-rewrite links-meta-foundation reject-structural-mismatch
+  (from (meta-match ?pattern ?candidate ?bindings))
+  (to match-failed))
+
+(linked-rewrite links-meta-foundation substitute-variable-reference
+  (from (meta-substitute (meta-variable ?name) ?bindings))
+  (to
+    (substitute-variable (lookup-binding ?name ?bindings) ?name)))
+
+(linked-rewrite links-meta-foundation substitute-bound-variable
+  (from (substitute-variable (binding-found ?value) ?name))
+  (to ?value))
+
+(linked-rewrite links-meta-foundation reject-unbound-substitution
+  (from (substitute-variable binding-not-found ?name))
+  (to (unbound-meta-variable ?name)))
+
+(linked-rewrite links-meta-foundation substitute-atom
+  (from (meta-substitute (atom ?value) ?bindings))
+  (to (atom ?value)))
+
+(linked-rewrite links-meta-foundation substitute-pair
+  (from
+    (meta-substitute (pair ?left ?right) ?bindings))
+  (to
+    (pair
+      (meta-substitute ?left ?bindings)
+      (meta-substitute ?right ?bindings))))
+
+(linked-rewrite links-meta-foundation apply-object-rule
+  (from
+    (meta-apply (rewrite ?pattern ?replacement) ?candidate))
+  (to
+    (finish-meta-apply
+      (meta-match ?pattern ?candidate (no-bindings))
+      ?replacement)))
+
+(linked-rewrite links-meta-foundation finish-object-rule-success
+  (from
+    (finish-meta-apply (match-ok ?bindings) ?replacement))
+  (to
+    (rewrite-result (meta-substitute ?replacement ?bindings))))
+
+(linked-rewrite links-meta-foundation finish-object-rule-failure
+  (from
+    (finish-meta-apply match-failed ?replacement))
+  (to rewrite-miss))
+
+(linked-rewrite links-meta-foundation select-first-object-rule
+  (from
+    (meta-rewrite (rules ?rule ?remaining-rules) ?candidate))
+  (to
+    (select-meta-rewrite
+      (meta-apply ?rule ?candidate)
+      ?remaining-rules
+      ?candidate)))
+
+(linked-rewrite links-meta-foundation select-successful-object-rule
+  (from
+    (select-meta-rewrite
+      (rewrite-result ?result)
+      ?remaining-rules
+      ?candidate))
+  (to ?result))
+
+(linked-rewrite links-meta-foundation select-next-object-rule
+  (from
+    (select-meta-rewrite rewrite-miss ?remaining-rules ?candidate))
+  (to (meta-rewrite ?remaining-rules ?candidate)))
+
+(linked-rewrite links-meta-foundation no-object-rule-applies
+  (from (meta-rewrite (no-rules) ?candidate))
+  (to ?candidate))
+
+(linked-rewrite links-meta-foundation verify-object-result
+  (from (meta-verify ?result ?result))
+  (to verified))
+
 # A de Bruijn lambda calculus. Binding, environments, substitution, and beta
 # reduction are rules in this program. The generic evaluator knows none of
 # these constructors. Closures retain lexical environments, so nested binders
@@ -185,6 +344,27 @@
 (linked-rewrite set-theory canonicalize-set
   (from (canonical-set ?set))
   (to (set-union ?set (empty))))
+
+# The set rules above are written once. These two imports instantiate that
+# unchanged theory over distinct constructor vocabularies: a conventional
+# sequence presentation and an associative Links presentation.
+
+(linked-program traditional-sequence-foundation)
+
+(linked-program associative-links-foundation
+  (uses links-meta-theory))
+
+(linked-program set-theory-over-traditional-sequences
+  (uses set-theory
+    (rebind cons sequence-cons)
+    (rebind empty sequence-empty))
+  (uses traditional-sequence-foundation))
+
+(linked-program set-theory-over-associative-links
+  (uses set-theory
+    (rebind cons link-cons)
+    (rebind empty link-empty))
+  (uses associative-links-foundation))
 
 # Graph reachability is the least closure of edges under these two inference
 # links. Saturation is finite under the caller's explicit resource bounds.

@@ -12,6 +12,7 @@ import {
   TypedLinkNetwork,
 } from '../js/src/rml-theory-network.mjs';
 import { FormalCorpus } from '../js/src/rml-formal-corpus.mjs';
+import { LinkedProgramRegistry } from '../js/src/rml-linked-program.mjs';
 
 const universalSource = readFileSync(
   new URL('../lib/meta-theory/universal.lino', import.meta.url),
@@ -25,6 +26,7 @@ const network = TheoryNetwork.fromRml(
   `${universalSource}\n${networkSource}`,
   readFileSync(new URL('../lib/meta-theory/foundation.lino', import.meta.url), 'utf8'),
 );
+const programs = LinkedProgramRegistry.fromRml(universalSource);
 const formalCorpus = FormalCorpus.fromRml(
   readFileSync(new URL('../lib/meta-theory/upstream-0.0.3.lino', import.meta.url), 'utf8'),
   readFileSync(
@@ -70,6 +72,23 @@ const relation = new FiniteRelation(
 relation.define('example.pair', 'concept.alpha', 'concept.beta');
 
 console.log(JSON.stringify({
+  bootstrapKernel: LinkedProgramRegistry.bootstrapKernelReport(),
+  traditionalSetMembership: programs.reduce(
+    'set-theory-over-traditional-sequences',
+    ['member', 'concept.beta', [
+      'sequence-cons',
+      'concept.alpha',
+      ['sequence-cons', 'concept.beta', ['sequence-empty']],
+    ]],
+  ).term,
+  associativeSetMembership: programs.reduce(
+    'set-theory-over-associative-links',
+    ['member', 'concept.beta', [
+      'link-cons',
+      'concept.alpha',
+      ['link-cons', 'concept.beta', ['link-empty']],
+    ]],
+  ).term,
   formalCorpus: {
     revision: formalCorpus.revision,
     declarations: formalCorpus.declarations.length,

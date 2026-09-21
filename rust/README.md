@@ -142,7 +142,11 @@ The `rml::theory_network` module loads the shared linked programs from
 unified-address lookup and translation, inspectable implementation contracts,
 and cycle-safe definition chains. All contract operations run through the
 same structural rewrite/inference machine; object theories are not Rust
-callbacks. `MembershipSetStore` provides addressed
+callbacks. Imports support `(rebind abstract-concept selected-concept)` for
+foundation polymorphism, and
+`LinkedProgramRegistry::bootstrap_kernel_report()` exposes the complete
+theory-independent K0 host boundary with no object semantics.
+`MembershipSetStore` provides addressed
 membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,
 canonical and order-preserving sets, and bounded observation of

@@ -54,6 +54,13 @@ For versioning, deprecations, and release expectations, see
 
 RML (Relative Meta-Logic, formerly Associative-Dependent Logic / ADL) is a minimal probabilistic logic system built on top of [LiNo (Links Notation)](https://github.com/link-foundation/links-notation). It supports [many-valued logics](https://en.wikipedia.org/wiki/Many-valued_logic) from unary (1-valued) through continuous probabilistic ([fuzzy](https://en.wikipedia.org/wiki/Fuzzy_logic)), allowing you to:
 
+Its executable meta-theory makes the bootstrap boundary explicit. A small,
+theory-independent K0 machine executes the links-defined K1 meta-foundation;
+user-selected foundations then instantiate unchanged object theories through
+contextual import rebinding. Lambda, set, type, graph, relation, and RML
+semantics are linked programs rather than host callbacks or external-kernel
+decisions. Lean/Rocq artifacts are parity evidence only.
+
 - Define terms
 - Assign probabilities (truth values) to logical expressions
 - Redefine logical operators with different semantics
@@ -67,6 +74,8 @@ RML (Relative Meta-Logic, formerly Associative-Dependent Logic / ADL) is a minim
 - Define dependent types as links — universe hierarchy, Pi-types, lambdas, type queries
 - Combine types with probabilistic logic in a unified framework
 - Relate user-defined theories in a cycle-safe links network with shared concept addresses
+- Define new executable logics and proof systems entirely as linked programs
+- Reuse one theory over replaceable user foundations through rebound imports
 - Execute graph theory as a constrained links-network subset and finite typed relational algebra
 - Delegate domain-specific decision blocks through evaluator plugins, including
   `(domain automatic-sequences (theorem thue-morse-cube-free))`

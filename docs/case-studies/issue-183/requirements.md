@@ -23,11 +23,15 @@ both implementation and automated evidence.
 | R15 | Eliminate per-theory host adapters and branches. | Complete | `TheoryNetwork` executes every contract with one generic reduction/proof path. Source scans and tests cover previously unknown program names. |
 | R16 | Define binding, substitution, and beta reduction through links. | Complete | De Bruijn lambda program in `universal.lino`; `((λx.x) a) -> a` and nested capture-safety tests in both runtimes. |
 | R17 | Let users define a new logic without changing host source. | Complete | User double-negation and modus-ponens programs plus verifier-level custom-contract tests, with no callbacks. |
-| R18 | Supply a universal constructor/experimenter for formal systems. | Complete for the stated executable scope | Program imports, rewrites, facts, inference rules, proof traces, cycle checks, and resource bounds; lambda calculus and the S/K basis demonstrate universal computation. This is not a Lean/Rocq source elaborator. |
+| R18 | Supply a universal constructor/experimenter for formal systems. | Complete for the stated executable scope | Rebound program imports, rewrites, facts, inference rules, proof traces, cycle checks, and resource bounds; lambda calculus and the S/K basis demonstrate universal computation. This is not a Lean/Rocq source elaborator. |
 | R19 | Present familiar theories and their links-derived constructions. | Complete | The theory table and source walkthrough in `docs/META_THEORY.md`; conformance fixtures cover both reduction and judgement views. |
 | R20 | Minimize and identify axioms. | Complete for this network | Object behavior lives in executable linked rules. Foundation axioms are limited to named implementation capabilities and proof premises, remain separately selected, and cannot be candidate-authored. |
 | R21 | Update documentation and preserve a complete review trail. | Complete | This ledger, the case-study README/audit, executable example, and main meta-theory guide. |
 | R22 | Use current dependency releases and prepare the next release. | Complete | JS/Rust are aligned at 0.21.0; direct packages and GitHub Actions use the latest releases available on 2026-09-21, lockfiles are refreshed, both npm audits report zero vulnerabilities, and all language suites run afterward. |
+| R23 | Make the meta-foundation explicit and inspectable. | Complete | The documented `K0 -> K1 -> F -> T` model and mirrored `bootstrapKernelReport` / `bootstrap_kernel_report` APIs enumerate every host operation and report zero object semantics. |
+| R24 | Define meta-semantics as links above the bootstrap boundary. | Complete | `links-meta-foundation` defines object-encoded environment lookup, matching, substitution, rule selection/application, and result verification; mirrored trace tests execute it through the same generic machine. |
+| R25 | Instantiate one unchanged theory over replaceable foundations. | Complete | Import-level `rebind` works across rewrites, facts, inferences, and transitive imports. One portable classifier returns `reject` or `accept` under strict/permissive user foundations without changing its source. |
+| R26 | Reuse one set-theory definition in traditional and associative contexts. | Complete | `set-theory-over-traditional-sequences` and `set-theory-over-associative-links` rebind constructor concepts while importing the same complete set program; mirrored membership tests execute both. |
 
 ## Reviewer acceptance test
 
@@ -46,10 +50,14 @@ The trace is produced by rules named `beta-reduction`,
 
 ## Trust and scope statement
 
-The irreducible host mechanism is structural: parse links, match patterns,
-substitute matched link values, traverse sublinks, detect cycles, and saturate
-finite rule sets under explicit bounds. It assigns no built-in meaning to
-`lambda`, `set`, `graph`, `relation`, `Pi`, or RML truth constructors.
+The bootstrap host mechanism is structural and exactly listed by the public
+kernel report: parse links, compare structure, bind pattern variables,
+substitute matched link values, traverse/select rewrites, saturate finite rule
+sets, resolve rebound imports, and enforce cycles/resource bounds. It assigns
+no built-in meaning to `lambda`, `set`, `graph`, `relation`, `Pi`, or RML truth
+constructors. `links-meta-foundation` then reconstructs the main interpreter
+relations as link-level data and rules, making the bootstrap boundary
+executable and inspectable rather than implicit.
 
 The pinned Lean/Rocq corpus remains useful evidence that RML can preserve and
 query the upstream development. It is deliberately outside the authorization
