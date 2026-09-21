@@ -310,6 +310,34 @@ describe('meta-theory network', () => {
     );
   });
 
+  it('rejects valid typed witnesses that establish unrelated judgements', () => {
+    let source = readFileSync(corePath, 'utf8');
+    for (const name of [
+      'pi-formation',
+      'lambda-introduction',
+      'application-elimination',
+      'beta-conversion',
+    ]) {
+      const marker = `(proof-object rml.type.proof.${name}\n`;
+      const start = source.indexOf(marker);
+      const end = source.indexOf('\n\n', start);
+      assert.notStrictEqual(start, -1, `bundled proof object ${name} must exist`);
+      assert.notStrictEqual(end, -1, `bundled proof object ${name} must be closed`);
+      const replacement = `(proof-object rml.type.proof.${name}
+  (applies verified-theory-definition)
+  (premise-by rml.capability.addressed-doublet-network)
+  (conclusion
+    (links-by-sets defines links-theory using set-theory
+      via addressed-doublet-network as set-theoretic-function)))`;
+      source = source.slice(0, start) + replacement + source.slice(end);
+    }
+
+    assert.throws(
+      () => TheoryNetwork.fromRml(source),
+      /implementation typed-doublet-network failed typed enforcement or proof replay/,
+    );
+  });
+
   it('rejects a witness whose proof object is missing or proves another definition', () => {
     const source = readFileSync(corePath, 'utf8');
     assert.throws(

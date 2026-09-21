@@ -16,6 +16,25 @@ import {
 
 const EMPTY_SEQUENCE = 'rml.sequence.empty';
 
+const TYPED_FOUNDATION_WITNESSES = new Map([
+  [
+    'rml.type.proof.pi-formation',
+    '(empty turnstile ((Pi (x has-type Nat) Nat) has-type Type0))',
+  ],
+  [
+    'rml.type.proof.lambda-introduction',
+    '(empty turnstile ((lambda (x has-type Nat) x) has-type (Pi (x has-type Nat) Nat)))',
+  ],
+  [
+    'rml.type.proof.application-elimination',
+    '(empty turnstile ((apply (lambda (x has-type Nat) x) zero) has-type (subst Nat x zero)))',
+  ],
+  [
+    'rml.type.proof.beta-conversion',
+    '(empty turnstile (zero has-type (subst Nat x zero)))',
+  ],
+].map(([proof, conclusion]) => [proof, parseOne(tokenizeOne(conclusion))]));
+
 function requireLeaf(value, context) {
   if (typeof value !== 'string' || value.length === 0) {
     throw new Error(`${context} must be a non-empty reference`);
@@ -640,15 +659,14 @@ class TheoryNetwork {
     ]);
     const foundation = this.proofEnv.foundationReport().foundations
       .find(candidate => candidate.name === 'typed-kernel-links');
-    const proofs = [
-      'rml.type.proof.pi-formation',
-      'rml.type.proof.lambda-introduction',
-      'rml.type.proof.application-elimination',
-      'rml.type.proof.beta-conversion',
-    ];
     return foundation !== undefined &&
       [...expected].every(construct => foundation.uses.includes(construct)) &&
-      proofs.every(proof => checkProofObject(this.proofEnv, proof).ok);
+      [...TYPED_FOUNDATION_WITNESSES].every(([proofName, expectedConclusion]) => {
+        const verdict = checkProofObject(this.proofEnv, proofName);
+        const proof = this.proofEnv.getProofObject(proofName);
+        return verdict.ok && proof !== null &&
+          isStructurallySame(proof.conclusion, expectedConclusion);
+      });
   }
 
   theoryNames() {

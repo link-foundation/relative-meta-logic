@@ -882,16 +882,40 @@ fn has_typed_foundation(env: &Env) -> bool {
                     .iter()
                     .all(|construct| foundation.uses.iter().any(|item| item == construct))
         });
-    let proofs = [
-        "rml.type.proof.pi-formation",
-        "rml.type.proof.lambda-introduction",
-        "rml.type.proof.application-elimination",
-        "rml.type.proof.beta-conversion",
+    let witnesses = [
+        (
+            "rml.type.proof.pi-formation",
+            "(empty turnstile ((Pi (x has-type Nat) Nat) has-type Type0))",
+        ),
+        (
+            "rml.type.proof.lambda-introduction",
+            "(empty turnstile ((lambda (x has-type Nat) x) has-type (Pi (x has-type Nat) Nat)))",
+        ),
+        (
+            "rml.type.proof.application-elimination",
+            "(empty turnstile ((apply (lambda (x has-type Nat) x) zero) has-type (subst Nat x zero)))",
+        ),
+        (
+            "rml.type.proof.beta-conversion",
+            "(empty turnstile (zero has-type (subst Nat x zero)))",
+        ),
     ];
     foundation_present
-        && proofs
-            .iter()
-            .all(|proof| matches!(check_proof_object(env, proof), CheckProofVerdict::Ok(_)))
+        && witnesses.iter().all(|(proof_name, expected_conclusion)| {
+            if !matches!(
+                check_proof_object(env, proof_name),
+                CheckProofVerdict::Ok(_)
+            ) {
+                return false;
+            }
+            let Some(proof) = env.get_proof_object(proof_name) else {
+                return false;
+            };
+            let Ok(expected) = parse_one(&tokenize_one(expected_conclusion)) else {
+                return false;
+            };
+            proof.conclusion == expected
+        })
 }
 
 fn is_proof_rule_shape(form: &Node) -> bool {

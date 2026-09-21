@@ -405,6 +405,39 @@ fn rejects_typed_implementation_when_kernel_derivation_no_longer_replays() {
 }
 
 #[test]
+fn rejects_valid_typed_witnesses_that_establish_unrelated_judgements() {
+    let mut source = CORE.to_string();
+    for name in [
+        "pi-formation",
+        "lambda-introduction",
+        "application-elimination",
+        "beta-conversion",
+    ] {
+        let marker = format!("(proof-object rml.type.proof.{name}\n");
+        let start = source
+            .find(&marker)
+            .expect("bundled typed proof object must exist");
+        let end = start
+            + source[start..]
+                .find("\n\n")
+                .expect("bundled typed proof object must be closed");
+        source.replace_range(
+            start..end,
+            &format!(
+                "(proof-object rml.type.proof.{name}\n  (applies verified-theory-definition)\n  (premise-by rml.capability.addressed-doublet-network)\n  (conclusion\n    (links-by-sets defines links-theory using set-theory\n      via addressed-doublet-network as set-theoretic-function)))"
+            ),
+        );
+    }
+
+    let error = TheoryNetwork::from_rml(&source)
+        .expect_err("typed witnesses for unrelated judgements must fail");
+    assert_eq!(
+        error,
+        "implementation typed-doublet-network failed typed enforcement or proof replay"
+    );
+}
+
+#[test]
 fn rejects_missing_or_mismatched_witness_proof() {
     let missing = CORE.replacen(
         "(proof rml.proof.links.set-function)",
