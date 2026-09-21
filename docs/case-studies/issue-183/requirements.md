@@ -36,7 +36,7 @@ both implementation and automated evidence.
 | R28 | Add a stronger self-interpretation witness. | Complete | K1 interprets an encoded copy of its own non-linear `match-identical-atoms` pattern, including repeated-variable equality and substitution; JS/Rust require agreement with direct K0 execution and inspect the K1 trace. |
 | R29 | Publish a machine-readable K0 dependency/trust graph. | Complete | Both reports expose `rml-bootstrap-trust-graph/v1`, including all bootstrap operations, derived services, and public semantic paths with explicit dependencies. |
 | R30 | Fail CI when host semantics are absent from the trust graph. | Complete | Mirrored `auditBootstrapKernel` / `audit_bootstrap_kernel` tests compare an independent implementation manifest with the report and reject a simulated `hidden-object-evaluator`. The audit also requires every dependency branch to terminate in K0. |
-| R31 | Do not call the current K0 irreducible without proof. | Complete | Source and documentation consistently use “smallest current bootstrap boundary,” expose `claimsIrreducible: false`, and state the criterion for any later removal. |
+| R31 | Do not call the current K0 irreducible without proof. | Complete | Source and documentation consistently use “current bootstrap boundary,” expose `claimsIrreducible: false`, and state the criterion for any later removal. |
 | R32 | Give a structural reason for each primitive that remains. | Complete | Every bootstrap node contains a non-empty `primitiveReason` / `primitive_reason`; mirrored tests make missing justifications fail. |
 
 ## Reviewer acceptance test

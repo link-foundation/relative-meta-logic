@@ -285,7 +285,7 @@ class LinkedProgramRegistry {
   static bootstrapKernelReport() {
     return cloneReportValue({
       name: 'K0',
-      status: 'smallest-current-bootstrap-boundary',
+      status: 'current-bootstrap-boundary',
       claimsIrreducible: false,
       fixedPointCriterion: 'Remove an operation only when every public semantic path still executes and the replacement does not presuppose the same operation under another name.',
       operations: BOOTSTRAP_OPERATIONS.map(operation => operation.id),

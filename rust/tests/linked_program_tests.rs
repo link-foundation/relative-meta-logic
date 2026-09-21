@@ -278,7 +278,7 @@ fn executes_a_links_defined_meta_interpreter_above_an_explicit_k0_boundary() {
 
     let report = LinkedProgramRegistry::bootstrap_kernel_report();
     assert_eq!(report.name, "K0");
-    assert_eq!(report.status, "smallest-current-bootstrap-boundary");
+    assert_eq!(report.status, "current-bootstrap-boundary");
     assert!(!report.claims_irreducible);
     assert_eq!(
         report.operations,

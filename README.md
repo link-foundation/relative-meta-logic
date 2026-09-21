@@ -57,8 +57,8 @@ RML (Relative Meta-Logic, formerly Associative-Dependent Logic / ADL) is a minim
 Its executable meta-theory makes the bootstrap boundary explicit. An audited,
 theory-independent K0 machine executes the links-defined K1 meta-foundation;
 user-selected foundations then instantiate unchanged object theories through
-contextual import rebinding. K0 is the smallest boundary reached by the
-current machine-checked minimization loop, not an unsupported claim of
+contextual import rebinding. K0 is the current boundary reached by the
+machine-checked minimization loop, not an unsupported claim of
 mathematical irreducibility. Lambda, set, type, graph, relation, and RML
 semantics are linked programs rather than host callbacks or external-kernel
 decisions. Lean/Rocq artifacts are parity evidence only.

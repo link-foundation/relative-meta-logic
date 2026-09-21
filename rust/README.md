@@ -149,7 +149,7 @@ theory-independent K0 host boundary, derived services, per-operation
 minimization evidence, and a dependency/trust graph with no object semantics.
 `LinkedProgramRegistry::audit_bootstrap_kernel()` rejects an unreported host
 operation or a graph path that does not terminate in K0. The report identifies
-the smallest boundary reached by the current experiments; it does not call
+the current bootstrap boundary reached by the experiments; it does not call
 that boundary irreducible.
 `MembershipSetStore` provides addressed
 membership links and finite set algebra;

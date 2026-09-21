@@ -60,8 +60,8 @@ K0: structural linked-program machine in JavaScript/Rust
 ```
 
 `K0` is explicit and theory-independent. Both APIs expose the same
-`bootstrapKernelReport` / `bootstrap_kernel_report`. It is the smallest
-boundary reached by the current experiments, not a claim that no smaller
+`bootstrapKernelReport` / `bootstrap_kernel_report`. It is the current
+boundary reached by the experiments, not a claim that no smaller
 machine can ever exist. The fixed-point criterion is executable: remove an
 operation only when every public semantic path still works and its replacement
 does not presuppose the same operation under another name.

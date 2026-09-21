@@ -251,7 +251,7 @@ fn assert_replacement_bound(
 }
 
 impl LinkedProgramRegistry {
-    /// Reports the current minimum K0, derived host services, and their trust graph.
+    /// Reports the current K0 boundary, derived host services, and their trust graph.
     pub fn bootstrap_kernel_report() -> BootstrapKernelReport {
         let operations = vec![
             "parse-linked-forms",
@@ -267,7 +267,7 @@ impl LinkedProgramRegistry {
         ];
         BootstrapKernelReport {
             name: "K0",
-            status: "smallest-current-bootstrap-boundary",
+            status: "current-bootstrap-boundary",
             claims_irreducible: false,
             fixed_point_criterion: "Remove an operation only when every public semantic path still executes and the replacement does not presuppose the same operation under another name.",
             operations,

@@ -175,7 +175,7 @@ translates theory-local terms through shared concept addresses and performs
 cycle-safe shortest definition-chain searches.
 
 The executable meta-theory has an explicit `K0 -> K1 -> F -> T` structure.
-`K0` is the smallest bootstrap boundary reached by the current minimization
+`K0` is the current bootstrap boundary reached by the minimization
 loop: parsing, structural identity, pattern binding, substitution, rewrite
 traversal, and resource/cycle enforcement. Generic inference saturation and
 rebound import linking are reported separately as services derived above K0,

@@ -203,7 +203,7 @@ minimization experiment for every host operation, and a dependency/trust
 graph with an empty object-semantics list.
 `LinkedProgramRegistry.auditBootstrapKernel()` fails when the executable host
 operation manifest and that graph differ or when any dependency branch does
-not terminate in K0. The report calls K0 the smallest current boundary and
+not terminate in K0. The report calls K0 the current bootstrap boundary and
 does not claim that it is irreducible.
 
 ```javascript

@@ -253,7 +253,7 @@ describe('links-defined universal program evaluator', () => {
 
     const report = LinkedProgramRegistry.bootstrapKernelReport();
     assert.equal(report.name, 'K0');
-    assert.equal(report.status, 'smallest-current-bootstrap-boundary');
+    assert.equal(report.status, 'current-bootstrap-boundary');
     assert.equal(report.claimsIrreducible, false);
     assert.deepEqual(report.operations, [
       'parse-linked-forms',
