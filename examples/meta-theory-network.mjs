@@ -11,10 +11,18 @@ import {
   TheoryNetwork,
   TypedLinkNetwork,
 } from '../js/src/rml-theory-network.mjs';
+import { FormalCorpus } from '../js/src/rml-formal-corpus.mjs';
 
 const network = TheoryNetwork.fromRml(
   readFileSync(new URL('../lib/meta-theory/core.lino', import.meta.url), 'utf8'),
   readFileSync(new URL('../lib/meta-theory/foundation.lino', import.meta.url), 'utf8'),
+);
+const formalCorpus = FormalCorpus.fromRml(
+  readFileSync(new URL('../lib/meta-theory/upstream-0.0.3.lino', import.meta.url), 'utf8'),
+  readFileSync(
+    new URL('../lib/meta-theory/upstream-0.0.3-foundation.lino', import.meta.url),
+    'utf8',
+  ),
 );
 
 const links = new DoubletSequenceStore();
@@ -54,6 +62,13 @@ const relation = new FiniteRelation(
 relation.define('example.pair', 'concept.alpha', 'concept.beta');
 
 console.log(JSON.stringify({
+  formalCorpus: {
+    revision: formalCorpus.revision,
+    declarations: formalCorpus.declarations.length,
+    admitted: formalCorpus.declarations
+      .filter(declaration => declaration.proofStatus === 'admitted')
+      .map(declaration => `${declaration.language}.${declaration.symbol}`),
+  },
   rmlToTypeTheory: network.definitionChain('relative-meta-logic', 'type-theory'),
   setReferenceAsLink: network.translateTerm('set-theory', 'reference', 'links-theory'),
   setFunctionWitness: network.definitionWitness('rml.definition.links.set-function'),

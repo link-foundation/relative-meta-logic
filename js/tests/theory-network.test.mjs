@@ -16,6 +16,7 @@ import {
   TheoryNetwork,
   TypedLinkNetwork,
 } from '../src/rml-theory-network.mjs';
+import { FormalCorpus } from '../src/rml-formal-corpus.mjs';
 import { evaluate } from '../src/rml-links.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -24,6 +25,13 @@ const corePath = join(repoRoot, 'lib', 'meta-theory', 'core.lino');
 const foundationPath = join(repoRoot, 'lib', 'meta-theory', 'foundation.lino');
 const virtualRootFile = join(repoRoot, 'inline-meta-theory-test.lino');
 const foundationSource = readFileSync(foundationPath, 'utf8');
+const upstreamCorpusPath = join(repoRoot, 'lib', 'meta-theory', 'upstream-0.0.3.lino');
+const upstreamCorpusFoundationPath = join(
+  repoRoot,
+  'lib',
+  'meta-theory',
+  'upstream-0.0.3-foundation.lino',
+);
 
 function networkFrom(source, trustedFoundation = foundationSource) {
   return TheoryNetwork.fromRml(source, trustedFoundation);
@@ -34,6 +42,57 @@ function bundledNetwork() {
 }
 
 describe('meta-theory network', () => {
+  it('accounts for the complete pinned Lean and Rocq declaration corpus', () => {
+    const corpus = FormalCorpus.fromRml(
+      readFileSync(upstreamCorpusPath, 'utf8'),
+      readFileSync(upstreamCorpusFoundationPath, 'utf8'),
+    );
+
+    assert.strictEqual(corpus.metaLanguageRoundTripOk, true);
+    assert.strictEqual(corpus.trustedFoundationRoundTripOk, true);
+    assert.strictEqual(corpus.revision, '087f4515d0652925eecc54bcade724445c3978f1');
+    assert.strictEqual(corpus.declarations.length, 229);
+    assert.deepStrictEqual(corpus.languages(), ['lean', 'rocq']);
+    assert.deepStrictEqual(corpus.modules('lean'), [
+      'MetaDefinitions',
+      'NetworkConversions',
+      'NetworkDefinitions',
+      'NetworkEquivalence',
+      'NetworkExamples',
+      'NetworkLemmas',
+      'SequenceDefinitions',
+      'SetDefinitions',
+      'SetSequenceEquivalence',
+    ]);
+    assert.deepStrictEqual(
+      corpus.declarations.filter(declaration => declaration.proofStatus === 'admitted')
+        .map(declaration => `${declaration.language}.${declaration.symbol}`),
+      [
+        'lean.insertSorted_preserves_ascending',
+        'lean.mem_insertSorted',
+        'lean.mem_toOrderedUnique',
+        'lean.strictly_ascending_implies_no_dup',
+      ],
+    );
+    assert.ok(corpus.declaration('rocq', 'SetSequenceEquivalence', 'mem_toOrderedUnique'));
+  });
+
+  it('rejects an incomplete or self-authorized formal corpus', () => {
+    const source = readFileSync(upstreamCorpusPath, 'utf8');
+    const foundation = readFileSync(upstreamCorpusFoundationPath, 'utf8');
+    assert.throws(
+      () => FormalCorpus.fromRml(
+        source.replace('  (definition ReferenceDefault)\n', ''),
+        foundation,
+      ),
+      /declaration count 228 does not match trusted count 229/,
+    );
+    assert.throws(
+      () => FormalCorpus.fromRml(`${source}\n${foundation}`, foundation),
+      /candidate formal corpus cannot declare trusted formal-corpus-contract forms/,
+    );
+  });
+
   it('expands the doublet and derived triplet definitions through an import', () => {
     const out = evaluate(`
 (import "lib/meta-theory/core.lino" as mt)

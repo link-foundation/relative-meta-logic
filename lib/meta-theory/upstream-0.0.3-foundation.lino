@@ -1,0 +1,9 @@
+# Independent completeness contract for link-foundation/meta-theory draft 0.0.3.
+# The candidate manifest cannot declare this form. Its normalized declaration
+# inventory must match both the count and SHA-256 fingerprint below.
+
+(formal-corpus-contract meta-theory-0.0.3
+  (upstream link-foundation/meta-theory)
+  (revision 087f4515d0652925eecc54bcade724445c3978f1)
+  (declaration-count 229)
+  (sha256 693d76df85b2baff3c64b96d8d962d85139900b5197457e4a1d48a903b2c6631))

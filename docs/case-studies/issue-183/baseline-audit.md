@@ -14,7 +14,7 @@ changes the sequence and set representation.
 | Repository | [`link-foundation/meta-theory`](https://github.com/link-foundation/meta-theory) |
 | Default-branch commit reviewed | [`087f4515d0652925eecc54bcade724445c3978f1`](https://github.com/link-foundation/meta-theory/commit/087f4515d0652925eecc54bcade724445c3978f1) |
 | Commit date | 2026-04-17 |
-| Audit date | 2026-09-20 |
+| Audit date | 2026-09-21 |
 | Latest draft directory | [`drafts/0.0.3`](https://github.com/link-foundation/meta-theory/tree/087f4515d0652925eecc54bcade724445c3978f1/drafts/0.0.3) |
 | Sequence/set development | [PR #40](https://github.com/link-foundation/meta-theory/pull/40) |
 | Unified reference-space development | [PR #44](https://github.com/link-foundation/meta-theory/pull/44) |
@@ -71,14 +71,28 @@ now makes the two interpretations explicit:
 | `encodeOrderedSet` / `encode_ordered_set` | caller order, unique balanced tree | finite decode; duplicates rejected |
 | `walk` | `(value, next-reference)` right spine | caller-bounded; direct/indirect cycles reported |
 
+## Complete source inventory and formal builds
+
+The audit is now machine-enforced rather than only narrative. The candidate
+[`upstream-0.0.3.lino`](../../../lib/meta-theory/upstream-0.0.3.lino) records
+all 229 named declarations across the nine Lean and nine Rocq modules. A
+separately loaded contract pins the repository, revision, count, and normalized
+fingerprint. JavaScript and Rust both reject an incomplete or modified
+candidate, and the candidate cannot supply its own contract.
+
+The `formal-corpus` workflow checks out that exact revision, extracts the
+declarations from the source, compares them with the LiNo inventory, and
+builds both proof-assistant projects. This also covers source-level evaluation
+commands that are not named declarations.
+
 ## Verification boundary
 
-The upstream Lean and Rocq directories are formal developments, but they are
-not part of RML's trusted kernel and are not re-proved by this change. Some
-Lean proof obligations in the reviewed snapshot remain admitted with `sorry`;
-the corresponding status must not be summarized as a blanket machine-checked
-proof of every 0.0.3 claim. RML's acceptance evidence is instead mirrored
-runtime tests for exact doublets, tree round trips, two independent finite-set
+The upstream Lean and Rocq directories are formal developments and are built
+by this change, but they are not part of RML's trusted kernel or translated
+into RML proof terms. Four Lean proof obligations in the reviewed snapshot
+remain admitted with `sorry`; the manifest identifies them individually, and
+the corresponding Rocq declarations are verified. RML's additional acceptance
+evidence is mirrored runtime tests for exact doublets, tree round trips, two independent finite-set
 representations, canonical ordering, typed graph/relation operations, and
 bounded cycles. Definition witnesses additionally reuse RML's proof checker:
 each link must name an exact implementation manifest, pass every declared

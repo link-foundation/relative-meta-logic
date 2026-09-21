@@ -1873,6 +1873,7 @@ version = "0.20.0"
 dependencies = [
  "links-notation",
  "meta-language",
+ "sha2",
 ]
 
 [[package]]

@@ -2,6 +2,7 @@
 // Mirrors js/tests/theory-network.test.mjs so both runtimes expose the same
 // theory network, unified-address, and self-referential sequence semantics.
 
+use rml::formal_corpus::FormalCorpus;
 use rml::theory_network::{
     DoubletSequenceStore, FiniteRelation, LinkGraph, LinkNetwork, MembershipSetStore,
     SequenceLayout, TheoryNetwork, TypedLinkNetwork,
@@ -12,6 +13,9 @@ use std::path::PathBuf;
 
 const CORE: &str = include_str!("../../lib/meta-theory/core.lino");
 const FOUNDATION: &str = include_str!("../../lib/meta-theory/foundation.lino");
+const UPSTREAM_CORPUS: &str = include_str!("../../lib/meta-theory/upstream-0.0.3.lino");
+const UPSTREAM_CORPUS_FOUNDATION: &str =
+    include_str!("../../lib/meta-theory/upstream-0.0.3-foundation.lino");
 
 fn network_from(source: &str) -> Result<TheoryNetwork, String> {
     TheoryNetwork::from_rml(source, FOUNDATION)
@@ -19,6 +23,78 @@ fn network_from(source: &str) -> Result<TheoryNetwork, String> {
 
 fn bundled_network() -> TheoryNetwork {
     network_from(CORE).expect("bundled meta-theory must be valid")
+}
+
+#[test]
+fn accounts_for_complete_pinned_lean_and_rocq_declaration_corpus() {
+    let corpus = FormalCorpus::from_rml(UPSTREAM_CORPUS, UPSTREAM_CORPUS_FOUNDATION)
+        .expect("bundled formal corpus must match its independent contract");
+
+    assert!(corpus.meta_language_round_trip_ok());
+    assert!(corpus.trusted_foundation_round_trip_ok());
+    assert_eq!(
+        corpus.revision(),
+        "087f4515d0652925eecc54bcade724445c3978f1"
+    );
+    assert_eq!(corpus.declarations().len(), 229);
+    assert_eq!(corpus.languages(), vec!["lean", "rocq"]);
+    assert_eq!(
+        corpus.modules("lean"),
+        vec![
+            "MetaDefinitions",
+            "NetworkConversions",
+            "NetworkDefinitions",
+            "NetworkEquivalence",
+            "NetworkExamples",
+            "NetworkLemmas",
+            "SequenceDefinitions",
+            "SetDefinitions",
+            "SetSequenceEquivalence",
+        ]
+    );
+    assert_eq!(
+        corpus
+            .declarations()
+            .iter()
+            .filter(|declaration| declaration.proof_status == "admitted")
+            .map(|declaration| format!("{}.{}", declaration.language, declaration.symbol))
+            .collect::<Vec<_>>(),
+        vec![
+            "lean.insertSorted_preserves_ascending",
+            "lean.mem_insertSorted",
+            "lean.mem_toOrderedUnique",
+            "lean.strictly_ascending_implies_no_dup",
+        ]
+    );
+    assert!(corpus
+        .declaration("rocq", "SetSequenceEquivalence", "mem_toOrderedUnique")
+        .is_some());
+}
+
+#[test]
+fn rejects_incomplete_or_self_authorized_formal_corpus() {
+    let incomplete = UPSTREAM_CORPUS.replacen("  (definition ReferenceDefault)\n", "", 1);
+    let error = FormalCorpus::from_rml(&incomplete, UPSTREAM_CORPUS_FOUNDATION).unwrap_err();
+    assert!(
+        error.contains("declaration count 228 does not match trusted count 229"),
+        "{error}"
+    );
+
+    let self_authorized = format!("{UPSTREAM_CORPUS}\n{UPSTREAM_CORPUS_FOUNDATION}");
+    let error = FormalCorpus::from_rml(&self_authorized, UPSTREAM_CORPUS_FOUNDATION).unwrap_err();
+    assert!(
+        error.contains(
+            "candidate formal corpus cannot declare trusted formal-corpus-contract forms"
+        ),
+        "{error}"
+    );
+
+    let error = FormalCorpus::from_rml("(formal-corpus incomplete)", UPSTREAM_CORPUS_FOUNDATION)
+        .expect_err("malformed headers must be rejected without panicking");
+    assert!(
+        error.contains("formal-corpus must have a name and clauses"),
+        "{error}"
+    );
 }
 
 #[test]

@@ -92,6 +92,27 @@ Every source is first parsed and reconstructed by `meta-language`. The theory
 reader consumes only reconstructed LiNo and reports whether the round trip was
 byte-for-byte lossless.
 
+## Complete upstream formal corpus
+
+The theory network is paired with a complete source inventory for upstream
+meta-theory 0.0.3. The candidate
+[`upstream-0.0.3.lino`](../lib/meta-theory/upstream-0.0.3.lino) contains 229
+named declarations from all nine Lean and nine Rocq modules. Its independent
+[`upstream-0.0.3-foundation.lino`](../lib/meta-theory/upstream-0.0.3-foundation.lino)
+contract fixes the repository, commit, declaration count, and normalized
+fingerprint.
+
+`FormalCorpus.fromRml` / `FormalCorpus::from_rml` load both documents through
+`meta-language` and reject metadata drift, duplicate symbols, missing or
+changed declarations, malformed theorem status, and a candidate that attempts
+to authorize its own contract. The manifest records four upstream Lean
+theorems as `admitted`; all named Rocq theorems are `verified`.
+
+The `formal-corpus` CI workflow independently checks out the pinned revision,
+extracts the inventory from the actual sources, compares it with the LiNo
+manifest, and builds the complete Lean and Rocq projects. The source build also
+checks commands that are not named declarations.
+
 ## Unified concept addresses
 
 Surface terms remain local to their theories. Their shared address supplies
@@ -302,6 +323,7 @@ walk emits the source and follows only the target.
 | Purpose | JavaScript | Rust |
 |---------|------------|------|
 | Parse theory network | `TheoryNetwork.fromRml` | `TheoryNetwork::from_rml` |
+| Parse pinned formal corpus | `FormalCorpus.fromRml` | `FormalCorpus::from_rml` |
 | Resolve local term | `resolveTerm` | `resolve_term` |
 | Translate term | `translateTerm` | `translate_term` |
 | Query implementation contract | `implementation` | `implementation` |
@@ -324,6 +346,9 @@ walk emits the source and follows only the target.
 Mirrored tests in `js/tests/theory-network.test.mjs` and
 `rust/tests/theory_network_tests.rs` verify:
 
+- exact accounting for all 229 pinned Lean/Rocq declarations, including
+  explicit admitted/verified status, independent fingerprints, mutation
+  rejection, and rejection of candidate-authored contracts;
 - lossless loading through `meta-language`;
 - RML's Links Theory dependency and the set/type/self definition cycle;
 - exact implementation manifests and checked proof witnesses, including
@@ -346,11 +371,13 @@ Mirrored tests in `js/tests/theory-network.test.mjs` and
 - rejection of finite-tree cycles; and
 - bounded direct and indirect right-spine cycles.
 
-These tests verify every obligation in the finite implementation contracts,
+These tests, source parity checks, and proof-assistant builds verify every
+named declaration is accounted for and every obligation in the finite implementation contracts,
 the theory-network algorithms, and the explicitly derived graph/relation
 algorithms shipped by RML. The boundary is intentionally precise: they do not
-assert unrestricted theory equivalence, mechanize every meta-theory theorem,
-or treat a finite prefix as proof about an entire infinite sequence. See the
+assert unrestricted theory equivalence, turn upstream proof declarations into
+RML proof terms, treat the four upstream Lean admissions as proofs, or treat a
+finite prefix as proof about an entire infinite sequence. See the
 case study's
 [`baseline-audit.md`](./case-studies/issue-183/baseline-audit.md) for the exact
 upstream snapshot and formal-development boundary.

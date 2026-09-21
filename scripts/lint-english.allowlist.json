@@ -4,5 +4,8 @@
     "decodeAnum",
     "encodeAnum"
   ],
+  "identifierFiles": [
+    "upstream-0.0.3.lino"
+  ],
   "links": []
 }

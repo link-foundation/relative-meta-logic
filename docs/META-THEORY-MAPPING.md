@@ -289,3 +289,10 @@ composition. Checked set/type definition witnesses connect both derived
 theories back into the same links network. See
 [`META_THEORY.md`](./META_THEORY.md) for the source forms, APIs, guarantees, and
 verification boundary.
+
+The separately contracted
+[`upstream-0.0.3.lino`](../lib/meta-theory/upstream-0.0.3.lino) inventory also
+accounts for every named declaration in the pinned Lean and Rocq sources. CI
+compares the inventory directly with that checkout and builds both formal
+projects; four admitted Lean declarations remain explicitly visible rather
+than being counted as completed proofs.
