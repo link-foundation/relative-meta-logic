@@ -6,6 +6,7 @@
 //! callbacks.
 
 use crate::{key_of, parse_lino, parse_one, tokenize_one, Node};
+use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
 
 const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS: &[&str] = &[
@@ -18,6 +19,32 @@ const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS: &[&str] = &[
     "resolve-and-rebind-program-imports",
     "saturate-inference-rules",
 ];
+
+const REMOVAL_CLASSIFICATIONS: &[&str] = &[
+    "INDEPENDENT",
+    "DERIVABLE",
+    "EQUIVALENT_REENCODING",
+    "UNKNOWN",
+];
+
+const BOOTSTRAP_METRIC_PROBE_SOURCE: &str = r#"
+(linked-program bootstrap-metric-rewrite)
+(linked-rewrite bootstrap-metric-rewrite apply
+  (from (metric-input ?value))
+  (to (metric-output ?value)))
+(linked-program bootstrap-metric-import
+  (uses bootstrap-metric-rewrite
+    (rebind metric-input measured-input)))
+
+(linked-program bootstrap-metric-proof)
+(linked-fact bootstrap-metric-proof premise
+  (judgement (metric-holds a)))
+(linked-inference bootstrap-metric-proof infer
+  (premise (metric-holds ?value))
+  (conclusion (metric-derived ?value)))
+"#;
+
+const PREVIOUS_METRIC_REVISION: &str = "e2e9f7b2a87d4b128bb736d693d5512509974860";
 
 #[derive(Debug, Clone, PartialEq)]
 struct RewriteRule {
@@ -96,6 +123,7 @@ pub struct BootstrapKernelReport {
 #[derive(Debug, Clone, PartialEq)]
 pub struct BootstrapMinimizationExperiment {
     pub operation: &'static str,
+    pub classification: &'static str,
     pub outcome: &'static str,
     pub evidence: &'static str,
 }
@@ -114,9 +142,136 @@ pub struct BootstrapTrustGraph {
     pub nodes: Vec<BootstrapTrustNode>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct BootstrapObservedPathSegment {
+    pub path: String,
+    pub operation: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapRuntimeTrace {
+    pub schema: &'static str,
+    pub observed_paths: Vec<String>,
+    pub observed_operations: Vec<String>,
+    pub observed_path_segments: Vec<BootstrapObservedPathSegment>,
+}
+
+#[derive(Debug, Clone, Default)]
+struct BootstrapRuntimeTraceState {
+    observed_paths: BTreeSet<String>,
+    observed_operations: BTreeSet<String>,
+    observed_path_segments: BTreeSet<BootstrapObservedPathSegment>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapPrimitiveMetric {
+    pub confirmed: usize,
+    pub unknown: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapSelfHostingClosure {
+    pub task: &'static str,
+    pub linked_capabilities: usize,
+    pub linked_capability_names: Vec<&'static str>,
+    pub host_capabilities: usize,
+    pub host_capability_names: Vec<String>,
+    pub total_capabilities: usize,
+    pub numerator: usize,
+    pub denominator: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapFoundationCompression {
+    pub basis: &'static str,
+    pub smallest_sufficient_host_operations: usize,
+    pub original_host_operations: usize,
+    pub candidate_operations: Vec<&'static str>,
+    pub sufficient_operations: Vec<&'static str>,
+    pub numerator: usize,
+    pub denominator: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapCurrentMetrics {
+    pub total_host_semantic_operations: usize,
+    pub independent_host_primitives: BootstrapPrimitiveMetric,
+    pub derived_host_semantic_services: usize,
+    pub duplicated_semantic_capabilities: usize,
+    pub object_specific_host_semantics: usize,
+    pub undocumented_semantic_paths: usize,
+    pub self_hosting_closure: BootstrapSelfHostingClosure,
+    pub foundation_compression: BootstrapFoundationCompression,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapHostSemanticLayer {
+    pub layer: &'static str,
+    pub count: usize,
+    pub operations: Vec<&'static str>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapRemovalExperiment {
+    pub operation: &'static str,
+    pub classification: &'static str,
+    pub baseline_preserved: bool,
+    pub observed_failure: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapHostLinkedDuplication {
+    pub capability: &'static str,
+    pub host_operations: Vec<&'static str>,
+    pub linked_evidence_rules: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapLinkedCapability {
+    pub capability: &'static str,
+    pub evidence_rules: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapRuntimeTrustGraphCoverage {
+    pub documented_observed_paths: usize,
+    pub total_observed_paths: usize,
+    pub documented_observed_path_segments: usize,
+    pub total_observed_path_segments: usize,
+    pub undocumented_paths: Vec<String>,
+    pub undocumented_operations: Vec<String>,
+    pub undocumented_path_segments: Vec<BootstrapObservedPathSegment>,
+    pub trace: BootstrapRuntimeTrace,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapMetricComparison {
+    pub metric: &'static str,
+    pub previous: Option<String>,
+    pub current: String,
+    pub delta: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapMetricsReport {
+    pub schema: &'static str,
+    pub previous_revision: &'static str,
+    pub measurement_scope: &'static str,
+    pub removal_classifications: Vec<&'static str>,
+    pub current: BootstrapCurrentMetrics,
+    pub host_semantic_layers: Vec<BootstrapHostSemanticLayer>,
+    pub removal_experiments: Vec<BootstrapRemovalExperiment>,
+    pub host_linked_duplications: Vec<BootstrapHostLinkedDuplication>,
+    pub linked_self_hosting_capabilities: Vec<BootstrapLinkedCapability>,
+    pub runtime_trust_graph_coverage: BootstrapRuntimeTrustGraphCoverage,
+    pub comparison: Vec<BootstrapMetricComparison>,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct LinkedProgramRegistry {
     programs: BTreeMap<String, LinkedProgram>,
+    disabled_operations: BTreeSet<String>,
+    runtime_trace: RefCell<BootstrapRuntimeTraceState>,
 }
 
 fn leaf<'a>(node: &'a Node, context: &str) -> Result<&'a str, String> {
@@ -251,6 +406,41 @@ fn assert_replacement_bound(
 }
 
 impl LinkedProgramRegistry {
+    fn observe_path(&self, path: &str) {
+        self.runtime_trace
+            .borrow_mut()
+            .observed_paths
+            .insert(path.to_string());
+    }
+
+    fn observe(&self, paths: &[&str], operation: &str) -> Result<(), String> {
+        if self.disabled_operations.contains(operation) {
+            return Err(format!("disabled host semantic operation {operation}"));
+        }
+        let mut trace = self.runtime_trace.borrow_mut();
+        trace.observed_operations.insert(operation.to_string());
+        for path in paths {
+            trace.observed_paths.insert((*path).to_string());
+            trace
+                .observed_path_segments
+                .insert(BootstrapObservedPathSegment {
+                    path: (*path).to_string(),
+                    operation: operation.to_string(),
+                });
+        }
+        Ok(())
+    }
+
+    pub fn runtime_semantic_trace(&self) -> BootstrapRuntimeTrace {
+        let trace = self.runtime_trace.borrow();
+        BootstrapRuntimeTrace {
+            schema: "rml-bootstrap-runtime-trace/v1",
+            observed_paths: trace.observed_paths.iter().cloned().collect(),
+            observed_operations: trace.observed_operations.iter().cloned().collect(),
+            observed_path_segments: trace.observed_path_segments.iter().cloned().collect(),
+        }
+    }
+
     /// Reports the current K0 boundary, derived host services, and their trust graph.
     pub fn bootstrap_kernel_report() -> BootstrapKernelReport {
         let operations = vec![
@@ -276,43 +466,51 @@ impl LinkedProgramRegistry {
             minimization_experiments: vec![
                 BootstrapMinimizationExperiment {
                     operation: "parse-linked-forms",
+                    classification: "UNKNOWN",
                     outcome: "retained-at-text-ingress",
                     evidence: "from_forms bypasses parsing for pre-linked input, while from_rml demonstrates that textual LiNo still needs one explicit decoder.",
                 },
                 BootstrapMinimizationExperiment {
                     operation: "compare-link-structure",
+                    classification: "UNKNOWN",
                     outcome: "retained-at-bootstrap-fixed-point",
                     evidence: "K1 defines object equality through repeated variables, but activating that K1 rule still requires K0 structural identity.",
                 },
                 BootstrapMinimizationExperiment {
                     operation: "bind-pattern-variables",
+                    classification: "UNKNOWN",
                     outcome: "retained-at-bootstrap-fixed-point",
                     evidence: "K1 self-interprets its repeated-variable matcher, but the outer K1 rewrite still requires generic K0 binding.",
                 },
                 BootstrapMinimizationExperiment {
                     operation: "substitute-bound-structures",
+                    classification: "UNKNOWN",
                     outcome: "retained-at-bootstrap-fixed-point",
                     evidence: "K1 self-interprets substitution, but producing the next K1 state still requires generic K0 template instantiation.",
                 },
                 BootstrapMinimizationExperiment {
                     operation: "select-and-traverse-rewrite-rules",
+                    classification: "UNKNOWN",
                     outcome: "retained-at-bootstrap-fixed-point",
                     evidence: "K1 defines object-rule selection, while K0 remains the transition clock that makes any linked rule active.",
                 },
                 BootstrapMinimizationExperiment {
                     operation: "enforce-cycle-and-resource-bounds",
+                    classification: "UNKNOWN",
                     outcome: "retained-as-external-observer",
                     evidence: "A user program cannot reliably bound its own divergence; mirrored cycle and step/fact-limit tests require an outside observer.",
                 },
                 BootstrapMinimizationExperiment {
                     operation: "resolve-and-rebind-program-imports",
-                    outcome: "moved-above-bootstrap",
-                    evidence: "The monolithic links-meta-foundation executes without imports; importing and rebinding is an explicit linker service over bootstrap structures.",
+                    classification: "UNKNOWN",
+                    outcome: "retained-host-implementation",
+                    evidence: "The service is composed from structural operations, but disabling its host implementation breaks the import/rebind probe; no links-defined replacement has yet preserved the baseline.",
                 },
                 BootstrapMinimizationExperiment {
                     operation: "saturate-inference-rules",
-                    outcome: "moved-above-bootstrap",
-                    evidence: "K1 and every rewrite-only program bootstrap without inference; saturation is a derived service composed from matching, substitution, reduction, and bounds.",
+                    classification: "UNKNOWN",
+                    outcome: "retained-host-implementation",
+                    evidence: "The service is composed from matching, substitution, reduction, and bounds, but disabling its host implementation breaks the inference probe; no links-defined replacement has yet preserved the baseline.",
                 },
             ],
             trust_graph: BootstrapTrustGraph {
@@ -380,16 +578,14 @@ impl LinkedProgramRegistry {
                     BootstrapTrustNode {
                         id: "load-linked-program",
                         layer: "semantic-path",
-                        depends_on: vec![
-                            "parse-linked-forms",
-                            "resolve-and-rebind-program-imports",
-                        ],
+                        depends_on: vec!["parse-linked-forms"],
                         primitive_reason: "",
                     },
                     BootstrapTrustNode {
                         id: "reduce-linked-program",
                         layer: "semantic-path",
                         depends_on: vec![
+                            "resolve-and-rebind-program-imports",
                             "select-and-traverse-rewrite-rules",
                             "enforce-cycle-and-resource-bounds",
                         ],
@@ -513,16 +709,423 @@ impl LinkedProgramRegistry {
         Ok(())
     }
 
+    fn run_bootstrap_metric_probe(
+        source: &str,
+        disabled_operations: &[&str],
+    ) -> Result<(Self, Vec<RewriteTraceStep>), String> {
+        let combined = format!("{source}\n{BOOTSTRAP_METRIC_PROBE_SOURCE}");
+        let programs = Self::from_rml_with_disabled(&combined, disabled_operations)?;
+        let parse = |value: &str| parse_one(&tokenize_one(value));
+        let imported = programs.reduce(
+            "bootstrap-metric-import",
+            &parse("(measured-input value)")?,
+            10_000,
+        )?;
+        if imported.term != parse("(metric-output value)")? {
+            return Err("import/rebind metric probe changed its baseline result".to_string());
+        }
+        if programs
+            .prove(
+                "bootstrap-metric-proof",
+                &parse("(metric-derived a)")?,
+                &[],
+                128,
+                10_000,
+            )
+            .is_none()
+        {
+            return Err("inference metric probe changed its baseline result".to_string());
+        }
+        let request = parse(
+            "(meta-verify\n\
+               (atom a)\n\
+               (meta-rewrite\n\
+                 (rules\n\
+                   (rewrite\n\
+                     (pair (atom identity) (meta-variable argument))\n\
+                     (meta-variable argument))\n\
+                   (no-rules))\n\
+                 (pair (atom identity) (atom a))))",
+        )?;
+        let self_hosting = programs.reduce("links-meta-foundation", &request, 10_000)?;
+        if self_hosting.term != Node::Leaf("verified".to_string()) {
+            return Err("self-hosting metric probe changed its baseline result".to_string());
+        }
+        Ok((programs, self_hosting.trace))
+    }
+
+    /// Executes the foundation probe and reports the host machinery that still
+    /// exists outside the links-defined interpreter.
+    pub fn bootstrap_metrics_report(source: &str) -> Result<BootstrapMetricsReport, String> {
+        let (programs, self_hosting_trace) = Self::run_bootstrap_metric_probe(source, &[])?;
+        let trace = programs.runtime_semantic_trace();
+        let kernel = Self::bootstrap_kernel_report();
+        let nodes: BTreeMap<&str, &BootstrapTrustNode> = kernel
+            .trust_graph
+            .nodes
+            .iter()
+            .map(|node| (node.id, node))
+            .collect();
+        let reported_operations: BTreeSet<&str> = kernel
+            .operations
+            .iter()
+            .chain(&kernel.derived_host_services)
+            .copied()
+            .collect();
+
+        fn reaches_operation(
+            path: &str,
+            operation: &str,
+            nodes: &BTreeMap<&str, &BootstrapTrustNode>,
+            visiting: &mut BTreeSet<String>,
+        ) -> bool {
+            if path == operation {
+                return true;
+            }
+            if !visiting.insert(path.to_string()) {
+                return false;
+            }
+            let Some(node) = nodes.get(path) else {
+                visiting.remove(path);
+                return false;
+            };
+            let reached = node
+                .depends_on
+                .iter()
+                .any(|dependency| reaches_operation(dependency, operation, nodes, visiting));
+            visiting.remove(path);
+            reached
+        }
+
+        let undocumented_paths: Vec<String> = trace
+            .observed_paths
+            .iter()
+            .filter(|path| !nodes.contains_key(path.as_str()))
+            .cloned()
+            .collect();
+        let undocumented_operations: Vec<String> = trace
+            .observed_operations
+            .iter()
+            .filter(|operation| !reported_operations.contains(operation.as_str()))
+            .cloned()
+            .collect();
+        let undocumented_path_segments: Vec<BootstrapObservedPathSegment> = trace
+            .observed_path_segments
+            .iter()
+            .filter(|segment| {
+                !reaches_operation(
+                    &segment.path,
+                    &segment.operation,
+                    &nodes,
+                    &mut BTreeSet::new(),
+                )
+            })
+            .cloned()
+            .collect();
+        let runtime_trust_graph_coverage = BootstrapRuntimeTrustGraphCoverage {
+            documented_observed_paths: trace.observed_paths.len() - undocumented_paths.len(),
+            total_observed_paths: trace.observed_paths.len(),
+            documented_observed_path_segments: trace.observed_path_segments.len()
+                - undocumented_path_segments.len(),
+            total_observed_path_segments: trace.observed_path_segments.len(),
+            undocumented_paths,
+            undocumented_operations,
+            undocumented_path_segments,
+            trace: trace.clone(),
+        };
+
+        let removal_experiments: Vec<BootstrapRemovalExperiment> =
+            IMPLEMENTED_HOST_SEMANTIC_OPERATIONS
+                .iter()
+                .map(
+                    |operation| match Self::run_bootstrap_metric_probe(source, &[*operation]) {
+                        Ok(_) => BootstrapRemovalExperiment {
+                            operation,
+                            classification: "DERIVABLE",
+                            baseline_preserved: true,
+                            observed_failure: String::new(),
+                        },
+                        Err(error) => BootstrapRemovalExperiment {
+                            operation,
+                            classification: "UNKNOWN",
+                            baseline_preserved: false,
+                            observed_failure: error,
+                        },
+                    },
+                )
+                .collect();
+
+        let rules: Vec<String> = self_hosting_trace
+            .iter()
+            .map(|step| step.rule.clone())
+            .collect();
+        let capability =
+            |name: &'static str, predicate: &dyn Fn(&str) -> bool| BootstrapLinkedCapability {
+                capability: name,
+                evidence_rules: rules
+                    .iter()
+                    .filter(|rule| predicate(rule))
+                    .cloned()
+                    .collect(),
+            };
+        let linked_self_hosting_capabilities: Vec<BootstrapLinkedCapability> = vec![
+            capability("matching", &|rule| rule.starts_with("match-")),
+            capability("substitution", &|rule| rule.starts_with("substitute-")),
+            capability("rule-selection", &|rule| rule.starts_with("select-")),
+            capability("result-verification", &|rule| {
+                rule == "verify-object-result"
+            }),
+        ]
+        .into_iter()
+        .filter(|capability| !capability.evidence_rules.is_empty())
+        .collect();
+        let execute_operations: BTreeSet<String> = trace
+            .observed_path_segments
+            .iter()
+            .filter(|segment| {
+                matches!(
+                    segment.path.as_str(),
+                    "load-linked-program" | "execute-links-meta-foundation"
+                )
+            })
+            .map(|segment| segment.operation.clone())
+            .collect();
+        let duplication_candidates: [(&str, &[&str]); 3] = [
+            (
+                "matching",
+                &["compare-link-structure", "bind-pattern-variables"],
+            ),
+            ("substitution", &["substitute-bound-structures"]),
+            ("rule-selection", &["select-and-traverse-rewrite-rules"]),
+        ];
+        let host_linked_duplications: Vec<BootstrapHostLinkedDuplication> = duplication_candidates
+            .iter()
+            .filter_map(|(name, host_operations)| {
+                let linked = linked_self_hosting_capabilities
+                    .iter()
+                    .find(|capability| capability.capability == *name)?;
+                host_operations
+                    .iter()
+                    .all(|operation| execute_operations.contains(*operation))
+                    .then(|| BootstrapHostLinkedDuplication {
+                        capability: name,
+                        host_operations: host_operations.to_vec(),
+                        linked_evidence_rules: linked.evidence_rules.clone(),
+                    })
+            })
+            .collect();
+
+        let linked_capability_names: Vec<&'static str> = linked_self_hosting_capabilities
+            .iter()
+            .map(|capability| capability.capability)
+            .collect();
+        let host_capability_names: Vec<String> = execute_operations.iter().cloned().collect();
+        let linked_count = linked_capability_names.len();
+        let host_count = host_capability_names.len();
+        let unknown_count = removal_experiments
+            .iter()
+            .filter(|experiment| experiment.classification == "UNKNOWN")
+            .count();
+        let confirmed_independent_count = removal_experiments
+            .iter()
+            .filter(|experiment| experiment.classification == "INDEPENDENT")
+            .count();
+        let removable_count = removal_experiments
+            .iter()
+            .filter(|experiment| experiment.baseline_preserved)
+            .count();
+        let total_operations = IMPLEMENTED_HOST_SEMANTIC_OPERATIONS.len();
+        let smallest_sufficient = total_operations - removable_count;
+        let self_hosting_closure = BootstrapSelfHostingClosure {
+            task: "textual-load-through-links-meta-foundation-verification",
+            linked_capabilities: linked_count,
+            linked_capability_names,
+            host_capabilities: host_count,
+            host_capability_names,
+            total_capabilities: linked_count + host_count,
+            numerator: linked_count,
+            denominator: linked_count + host_count,
+        };
+        let sufficient_operations: Vec<&'static str> = removal_experiments
+            .iter()
+            .filter(|experiment| !experiment.baseline_preserved)
+            .map(|experiment| experiment.operation)
+            .collect();
+        let foundation_compression = BootstrapFoundationCompression {
+            basis: "host-operation fault injection over the declared acceptance probe",
+            smallest_sufficient_host_operations: smallest_sufficient,
+            original_host_operations: total_operations,
+            candidate_operations: IMPLEMENTED_HOST_SEMANTIC_OPERATIONS.to_vec(),
+            sufficient_operations,
+            numerator: smallest_sufficient,
+            denominator: total_operations,
+        };
+        let undocumented_count = runtime_trust_graph_coverage.undocumented_paths.len()
+            + runtime_trust_graph_coverage.undocumented_operations.len()
+            + runtime_trust_graph_coverage
+                .undocumented_path_segments
+                .len();
+        let current = BootstrapCurrentMetrics {
+            total_host_semantic_operations: total_operations,
+            independent_host_primitives: BootstrapPrimitiveMetric {
+                confirmed: confirmed_independent_count,
+                unknown: unknown_count,
+            },
+            derived_host_semantic_services: 2,
+            duplicated_semantic_capabilities: host_linked_duplications.len(),
+            object_specific_host_semantics: 0,
+            undocumented_semantic_paths: undocumented_count,
+            self_hosting_closure,
+            foundation_compression,
+        };
+        let host_semantic_layers = vec![
+            BootstrapHostSemanticLayer {
+                layer: "semantic-bootstrap",
+                count: 4,
+                operations: vec![
+                    "compare-link-structure",
+                    "bind-pattern-variables",
+                    "substitute-bound-structures",
+                    "select-and-traverse-rewrite-rules",
+                ],
+            },
+            BootstrapHostSemanticLayer {
+                layer: "derived-host-semantics",
+                count: 2,
+                operations: vec![
+                    "resolve-and-rebind-program-imports",
+                    "saturate-inference-rules",
+                ],
+            },
+            BootstrapHostSemanticLayer {
+                layer: "representation-parsing",
+                count: 1,
+                operations: vec!["parse-linked-forms"],
+            },
+            BootstrapHostSemanticLayer {
+                layer: "execution-control-resource-bounds",
+                count: 1,
+                operations: vec!["enforce-cycle-and-resource-bounds"],
+            },
+            BootstrapHostSemanticLayer {
+                layer: "debugging-observability",
+                count: 0,
+                operations: vec![],
+            },
+            BootstrapHostSemanticLayer {
+                layer: "object-specific-host-semantics",
+                count: 0,
+                operations: vec![],
+            },
+        ];
+        let comparison = vec![
+            BootstrapMetricComparison {
+                metric: "total-host-semantic-operations",
+                previous: Some("8".to_string()),
+                current: total_operations.to_string(),
+                delta: Some((total_operations as isize - 8).to_string()),
+            },
+            BootstrapMetricComparison {
+                metric: "independent-host-primitives",
+                previous: None,
+                current: format!(
+                    "{confirmed_independent_count} confirmed; {unknown_count} unknown"
+                ),
+                delta: None,
+            },
+            BootstrapMetricComparison {
+                metric: "derived-host-semantic-services",
+                previous: Some("2".to_string()),
+                current: "2".to_string(),
+                delta: Some("0".to_string()),
+            },
+            BootstrapMetricComparison {
+                metric: "host-linked-duplicated-semantics",
+                previous: None,
+                current: host_linked_duplications.len().to_string(),
+                delta: None,
+            },
+            BootstrapMetricComparison {
+                metric: "object-specific-host-semantics",
+                previous: Some("0".to_string()),
+                current: "0".to_string(),
+                delta: Some("0".to_string()),
+            },
+            BootstrapMetricComparison {
+                metric: "undocumented-semantic-paths",
+                previous: None,
+                current: undocumented_count.to_string(),
+                delta: None,
+            },
+            BootstrapMetricComparison {
+                metric: "self-hosting-closure",
+                previous: None,
+                current: format!(
+                    "{}/{}",
+                    current.self_hosting_closure.numerator,
+                    current.self_hosting_closure.denominator
+                ),
+                delta: None,
+            },
+            BootstrapMetricComparison {
+                metric: "foundation-compression-ratio",
+                previous: None,
+                current: format!(
+                    "{}/{}",
+                    current.foundation_compression.numerator,
+                    current.foundation_compression.denominator
+                ),
+                delta: None,
+            },
+        ];
+        Ok(BootstrapMetricsReport {
+            schema: "rml-bootstrap-metrics/v1",
+            previous_revision: PREVIOUS_METRIC_REVISION,
+            measurement_scope: "The executable probe covers textual load, import/rebind reduction, inference saturation, and links-meta-foundation result verification. UNKNOWN means removal failed but no exhaustive proof of independence exists.",
+            removal_classifications: REMOVAL_CLASSIFICATIONS.to_vec(),
+            current,
+            host_semantic_layers,
+            removal_experiments,
+            host_linked_duplications,
+            linked_self_hosting_capabilities,
+            runtime_trust_graph_coverage,
+            comparison,
+        })
+    }
+
     pub fn from_rml(source: &str) -> Result<Self, String> {
+        Self::from_rml_with_disabled(source, &[])
+    }
+
+    fn from_rml_with_disabled(source: &str, disabled_operations: &[&str]) -> Result<Self, String> {
+        if disabled_operations.contains(&"parse-linked-forms") {
+            return Err("disabled host semantic operation parse-linked-forms".to_string());
+        }
         let forms = parse_lino(source)
             .iter()
             .map(|link| parse_one(&tokenize_one(link)))
             .collect::<Result<Vec<_>, _>>()?;
-        Self::from_forms(&forms)
+        let registry = Self::from_forms_with_disabled(&forms, disabled_operations)?;
+        registry.observe(&["load-linked-program"], "parse-linked-forms")?;
+        Ok(registry)
     }
 
     pub fn from_forms(forms: &[Node]) -> Result<Self, String> {
-        let mut registry = Self::default();
+        Self::from_forms_with_disabled(forms, &[])
+    }
+
+    fn from_forms_with_disabled(
+        forms: &[Node],
+        disabled_operations: &[&str],
+    ) -> Result<Self, String> {
+        let mut registry = Self {
+            disabled_operations: disabled_operations
+                .iter()
+                .map(|operation| (*operation).to_string())
+                .collect(),
+            ..Self::default()
+        };
+        registry.observe_path("load-linked-program");
         for form in forms {
             if form_head(form) == Some("linked-program") {
                 registry.add_program(form)?;
@@ -793,7 +1396,12 @@ impl LinkedProgramRegistry {
         self.programs.keys().map(String::as_str).collect()
     }
 
-    fn effective_rewrites(&self, name: &str) -> Result<Vec<RewriteRule>, String> {
+    fn effective_rewrites(
+        &self,
+        name: &str,
+        semantic_paths: &[&str],
+    ) -> Result<Vec<RewriteRule>, String> {
+        self.observe(semantic_paths, "resolve-and-rebind-program-imports")?;
         let mut output = Vec::new();
         let mut seen = BTreeSet::new();
         self.collect_rewrites(name, &[], &mut seen, &mut output)?;
@@ -834,7 +1442,12 @@ impl LinkedProgramRegistry {
         Ok(())
     }
 
-    fn effective_facts(&self, name: &str) -> Result<Vec<LinkedFact>, String> {
+    fn effective_facts(
+        &self,
+        name: &str,
+        semantic_paths: &[&str],
+    ) -> Result<Vec<LinkedFact>, String> {
+        self.observe(semantic_paths, "resolve-and-rebind-program-imports")?;
         let mut output = Vec::new();
         let mut seen = BTreeSet::new();
         self.collect_facts(name, &[], &mut seen, &mut output)?;
@@ -874,7 +1487,12 @@ impl LinkedProgramRegistry {
         Ok(())
     }
 
-    fn effective_inferences(&self, name: &str) -> Result<Vec<InferenceRule>, String> {
+    fn effective_inferences(
+        &self,
+        name: &str,
+        semantic_paths: &[&str],
+    ) -> Result<Vec<InferenceRule>, String> {
+        self.observe(semantic_paths, "resolve-and-rebind-program-imports")?;
         let mut output = Vec::new();
         let mut seen = BTreeSet::new();
         self.collect_inferences(name, &[], &mut seen, &mut output)?;
@@ -922,12 +1540,18 @@ impl LinkedProgramRegistry {
     }
 
     fn rewrite_once(
+        &self,
         term: &Node,
         rules: &[RewriteRule],
+        semantic_paths: &[&str],
     ) -> Result<Option<(Node, RewriteRule)>, String> {
+        self.observe(semantic_paths, "select-and-traverse-rewrite-rules")?;
         for rule in rules {
+            self.observe(semantic_paths, "compare-link-structure")?;
+            self.observe(semantic_paths, "bind-pattern-variables")?;
             let mut substitution = BTreeMap::new();
             if match_term(&rule.pattern, term, &mut substitution) {
+                self.observe(semantic_paths, "substitute-bound-structures")?;
                 return Ok(Some((
                     instantiate(&rule.replacement, &substitution)?,
                     rule.clone(),
@@ -936,7 +1560,7 @@ impl LinkedProgramRegistry {
         }
         if let Node::List(children) = term {
             for (index, child) in children.iter().enumerate() {
-                if let Some((rewritten, rule)) = Self::rewrite_once(child, rules)? {
+                if let Some((rewritten, rule)) = self.rewrite_once(child, rules, semantic_paths)? {
                     let mut result = children.clone();
                     result[index] = rewritten;
                     return Ok(Some((Node::List(result), rule)));
@@ -952,15 +1576,20 @@ impl LinkedProgramRegistry {
         input: &Node,
         max_steps: usize,
     ) -> Result<ReductionResult, String> {
+        let mut semantic_paths = vec!["reduce-linked-program"];
+        if name == "links-meta-foundation" {
+            semantic_paths.push("execute-links-meta-foundation");
+        }
+        self.observe(&semantic_paths, "enforce-cycle-and-resource-bounds")?;
         if max_steps == 0 {
             return Err("max_steps must be positive".to_string());
         }
-        let rules = self.effective_rewrites(name)?;
+        let rules = self.effective_rewrites(name, &semantic_paths)?;
         let mut term = input.clone();
         let mut trace = Vec::new();
         let mut seen = BTreeSet::from([key_of(&term)]);
         while trace.len() < max_steps {
-            let Some((next, rule)) = Self::rewrite_once(&term, &rules)? else {
+            let Some((next, rule)) = self.rewrite_once(&term, &rules, &semantic_paths)? else {
                 return Ok(ReductionResult { term, trace });
             };
             if next == term {
@@ -995,13 +1624,18 @@ impl LinkedProgramRegistry {
         max_rounds: usize,
         max_facts: usize,
     ) -> Option<LinkedProof> {
+        let semantic_paths = ["prove-linked-judgement"];
+        self.observe(&semantic_paths, "saturate-inference-rules")
+            .ok()?;
+        self.observe(&semantic_paths, "enforce-cycle-and-resource-bounds")
+            .ok()?;
         if max_rounds == 0 || max_facts == 0 {
             return None;
         }
         let normalized_goal = self.reduce(name, goal, 10_000).ok()?.term;
         let goal_key = key_of(&normalized_goal);
         let mut known: BTreeMap<String, (Node, LinkedProof)> = BTreeMap::new();
-        for fact in self.effective_facts(name).ok()? {
+        for fact in self.effective_facts(name, &semantic_paths).ok()? {
             let normalized = self.reduce(name, &fact.judgement, 10_000).ok()?.term;
             let key = key_of(&normalized);
             known.entry(key).or_insert_with(|| {
@@ -1040,7 +1674,7 @@ impl LinkedProgramRegistry {
         if let Some((_, proof)) = known.get(&goal_key) {
             return Some(proof.clone());
         }
-        let rules = self.effective_inferences(name).ok()?;
+        let rules = self.effective_inferences(name, &semantic_paths).ok()?;
         for _ in 0..max_rounds {
             let mut changed = false;
             for rule in &rules {
@@ -1049,6 +1683,10 @@ impl LinkedProgramRegistry {
                     let mut next = Vec::new();
                     for (substitution, proofs) in candidates {
                         for (judgement, proof) in known.values() {
+                            self.observe(&semantic_paths, "compare-link-structure")
+                                .ok()?;
+                            self.observe(&semantic_paths, "bind-pattern-variables")
+                                .ok()?;
                             let mut candidate_substitution = substitution.clone();
                             if match_term(premise, judgement, &mut candidate_substitution) {
                                 let mut candidate_proofs = proofs.clone();
@@ -1063,6 +1701,8 @@ impl LinkedProgramRegistry {
                     }
                 }
                 for (substitution, premises) in candidates {
+                    self.observe(&semantic_paths, "substitute-bound-structures")
+                        .ok()?;
                     let judgement = instantiate(&rule.conclusion, &substitution).ok()?;
                     let normalized = self.reduce(name, &judgement, 10_000).ok()?.term;
                     let key = key_of(&normalized);

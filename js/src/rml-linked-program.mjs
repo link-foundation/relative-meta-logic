@@ -32,7 +32,9 @@ function variablesIn(term, output = new Set()) {
   return output;
 }
 
-function matchTerm(pattern, candidate, substitution = new Map()) {
+function matchTerm(pattern, candidate, substitution = new Map(), observe = () => {}) {
+  observe('compare-link-structure');
+  observe('bind-pattern-variables');
   const variable = variableName(pattern);
   if (variable !== null) {
     const previous = substitution.get(variable);
@@ -47,19 +49,20 @@ function matchTerm(pattern, candidate, substitution = new Map()) {
   }
   if (pattern.length !== candidate.length) return null;
   for (let index = 0; index < pattern.length; index += 1) {
-    if (matchTerm(pattern[index], candidate[index], substitution) === null) return null;
+    if (matchTerm(pattern[index], candidate[index], substitution, observe) === null) return null;
   }
   return substitution;
 }
 
-function instantiate(term, substitution) {
+function instantiate(term, substitution, observe = () => {}) {
+  observe('substitute-bound-structures');
   const variable = variableName(term);
   if (variable !== null) {
     if (!substitution.has(variable)) throw new Error(`unbound variable ${variable}`);
     return cloneTerm(substitution.get(variable));
   }
   return Array.isArray(term)
-    ? term.map(child => instantiate(child, substitution))
+    ? term.map(child => instantiate(child, substitution, observe))
     : term;
 }
 
@@ -97,7 +100,8 @@ function assertConclusionBound(premises, conclusion, context) {
   }
 }
 
-function parseForms(source) {
+function parseForms(source, observe = () => {}) {
+  observe('parse-linked-forms');
   // links-notation treats indentation after a blank group boundary as nested
   // notation. Linked program forms are an unordered top-level graph, so
   // normalize only leading horizontal whitespace before parsing them.
@@ -166,12 +170,13 @@ const SEMANTIC_PATHS = Object.freeze([
   Object.freeze({
     id: 'load-linked-program',
     layer: 'semantic-path',
-    dependsOn: ['parse-linked-forms', 'resolve-and-rebind-program-imports'],
+    dependsOn: ['parse-linked-forms'],
   }),
   Object.freeze({
     id: 'reduce-linked-program',
     layer: 'semantic-path',
     dependsOn: [
+      'resolve-and-rebind-program-imports',
       'select-and-traverse-rewrite-rules',
       'enforce-cycle-and-resource-bounds',
     ],
@@ -191,43 +196,51 @@ const SEMANTIC_PATHS = Object.freeze([
 const MINIMIZATION_EXPERIMENTS = Object.freeze([
   Object.freeze({
     operation: 'parse-linked-forms',
+    classification: 'UNKNOWN',
     outcome: 'retained-at-text-ingress',
     evidence: 'fromForms bypasses parsing for pre-linked input, while fromRml demonstrates that textual LiNo still needs one explicit decoder.',
   }),
   Object.freeze({
     operation: 'compare-link-structure',
+    classification: 'UNKNOWN',
     outcome: 'retained-at-bootstrap-fixed-point',
     evidence: 'K1 defines object equality through repeated variables, but activating that K1 rule still requires K0 structural identity.',
   }),
   Object.freeze({
     operation: 'bind-pattern-variables',
+    classification: 'UNKNOWN',
     outcome: 'retained-at-bootstrap-fixed-point',
     evidence: 'K1 self-interprets its repeated-variable matcher, but the outer K1 rewrite still requires generic K0 binding.',
   }),
   Object.freeze({
     operation: 'substitute-bound-structures',
+    classification: 'UNKNOWN',
     outcome: 'retained-at-bootstrap-fixed-point',
     evidence: 'K1 self-interprets substitution, but producing the next K1 state still requires generic K0 template instantiation.',
   }),
   Object.freeze({
     operation: 'select-and-traverse-rewrite-rules',
+    classification: 'UNKNOWN',
     outcome: 'retained-at-bootstrap-fixed-point',
     evidence: 'K1 defines object-rule selection, while K0 remains the transition clock that makes any linked rule active.',
   }),
   Object.freeze({
     operation: 'enforce-cycle-and-resource-bounds',
+    classification: 'UNKNOWN',
     outcome: 'retained-as-external-observer',
     evidence: 'A user program cannot reliably bound its own divergence; mirrored cycle and step/fact-limit tests require an outside observer.',
   }),
   Object.freeze({
     operation: 'resolve-and-rebind-program-imports',
-    outcome: 'moved-above-bootstrap',
-    evidence: 'The monolithic links-meta-foundation executes without imports; importing and rebinding is an explicit linker service over bootstrap structures.',
+    classification: 'UNKNOWN',
+    outcome: 'retained-host-implementation',
+    evidence: 'The service is composed from structural operations, but disabling its host implementation breaks the import/rebind probe; no links-defined replacement has yet preserved the baseline.',
   }),
   Object.freeze({
     operation: 'saturate-inference-rules',
-    outcome: 'moved-above-bootstrap',
-    evidence: 'K1 and every rewrite-only program bootstrap without inference; saturation is a derived service composed from matching, substitution, reduction, and bounds.',
+    classification: 'UNKNOWN',
+    outcome: 'retained-host-implementation',
+    evidence: 'The service is composed from matching, substitution, reduction, and bounds, but disabling its host implementation breaks the inference probe; no links-defined replacement has yet preserved the baseline.',
   }),
 ]);
 
@@ -242,6 +255,61 @@ const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS = Object.freeze([
   'saturate-inference-rules',
 ]);
 
+const REMOVAL_CLASSIFICATIONS = Object.freeze([
+  'INDEPENDENT',
+  'DERIVABLE',
+  'EQUIVALENT_REENCODING',
+  'UNKNOWN',
+]);
+
+const BOOTSTRAP_METRIC_PROBE_SOURCE = `
+  (linked-program bootstrap-metric-rewrite)
+  (linked-rewrite bootstrap-metric-rewrite apply
+    (from (metric-input ?value))
+    (to (metric-output ?value)))
+  (linked-program bootstrap-metric-import
+    (uses bootstrap-metric-rewrite
+      (rebind metric-input measured-input)))
+
+  (linked-program bootstrap-metric-proof)
+  (linked-fact bootstrap-metric-proof premise
+    (judgement (metric-holds a)))
+  (linked-inference bootstrap-metric-proof infer
+    (premise (metric-holds ?value))
+    (conclusion (metric-derived ?value)))
+`;
+
+const HOST_SEMANTIC_LAYERS = Object.freeze([
+  Object.freeze({
+    layer: 'semantic-bootstrap',
+    operations: Object.freeze([
+      'compare-link-structure',
+      'bind-pattern-variables',
+      'substitute-bound-structures',
+      'select-and-traverse-rewrite-rules',
+    ]),
+  }),
+  Object.freeze({
+    layer: 'derived-host-semantics',
+    operations: Object.freeze([
+      'resolve-and-rebind-program-imports',
+      'saturate-inference-rules',
+    ]),
+  }),
+  Object.freeze({
+    layer: 'representation-parsing',
+    operations: Object.freeze(['parse-linked-forms']),
+  }),
+  Object.freeze({
+    layer: 'execution-control-resource-bounds',
+    operations: Object.freeze(['enforce-cycle-and-resource-bounds']),
+  }),
+  Object.freeze({ layer: 'debugging-observability', operations: Object.freeze([]) }),
+  Object.freeze({ layer: 'object-specific-host-semantics', operations: Object.freeze([]) }),
+]);
+
+const PREVIOUS_METRIC_REVISION = 'e2e9f7b2a87d4b128bb736d693d5512509974860';
+
 function cloneReportValue(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -254,16 +322,34 @@ function cloneReportValue(value) {
  * calculus, sets, types, graphs, relations, or any other object theory.
  */
 class LinkedProgramRegistry {
-  constructor() {
+  #disabledOperations;
+  #observedOperations;
+  #observedPaths;
+  #observedPathSegments;
+
+  constructor({ disabledOperations = [] } = {}) {
     this.programs = new Map();
+    this.#disabledOperations = new Set(disabledOperations);
+    this.#observedOperations = new Set();
+    this.#observedPaths = new Set();
+    this.#observedPathSegments = new Set();
   }
 
-  static fromRml(source) {
-    return LinkedProgramRegistry.fromForms(parseForms(source));
+  static fromRml(source, { disabledOperations = [] } = {}) {
+    const disabled = new Set(disabledOperations);
+    const forms = parseForms(source, operation => {
+      if (disabled.has(operation)) {
+        throw new Error(`disabled host semantic operation ${operation}`);
+      }
+    });
+    const registry = LinkedProgramRegistry.fromForms(forms, { disabledOperations });
+    registry.#observe(['load-linked-program'], 'parse-linked-forms');
+    return registry;
   }
 
-  static fromForms(forms) {
-    const registry = new LinkedProgramRegistry();
+  static fromForms(forms, { disabledOperations = [] } = {}) {
+    const registry = new LinkedProgramRegistry({ disabledOperations });
+    registry.#observePath('load-linked-program');
     for (const form of forms) {
       if (!Array.isArray(form) || form[0] !== 'linked-program') continue;
       registry.#addProgram(form);
@@ -276,6 +362,301 @@ class LinkedProgramRegistry {
     }
     registry.#validate();
     return registry;
+  }
+
+  #observePath(path) {
+    this.#observedPaths.add(path);
+  }
+
+  #observe(paths, operation) {
+    if (this.#disabledOperations.has(operation)) {
+      throw new Error(`disabled host semantic operation ${operation}`);
+    }
+    this.#observedOperations.add(operation);
+    for (const path of paths) {
+      this.#observePath(path);
+      this.#observedPathSegments.add(`${path}\0${operation}`);
+    }
+  }
+
+  runtimeSemanticTrace() {
+    return {
+      schema: 'rml-bootstrap-runtime-trace/v1',
+      observedPaths: [...this.#observedPaths].sort(),
+      observedOperations: [...this.#observedOperations].sort(),
+      observedPathSegments: [...this.#observedPathSegments]
+        .sort()
+        .map(segment => {
+          const [path, operation] = segment.split('\0');
+          return { path, operation };
+        }),
+    };
+  }
+
+  static #runBootstrapMetricProbe(source, disabledOperations = []) {
+    const programs = LinkedProgramRegistry.fromRml(
+      `${source}\n${BOOTSTRAP_METRIC_PROBE_SOURCE}`,
+      { disabledOperations },
+    );
+    const imported = programs.reduce(
+      'bootstrap-metric-import',
+      ['measured-input', 'value'],
+    );
+    if (!isStructurallySame(imported.term, ['metric-output', 'value'])) {
+      throw new Error('import/rebind metric probe changed its baseline result');
+    }
+    const proof = programs.prove(
+      'bootstrap-metric-proof',
+      ['metric-derived', 'a'],
+    );
+    if (!proof.ok) throw new Error('inference metric probe changed its baseline result');
+
+    const objectRule = [
+      'rewrite',
+      ['pair', ['atom', 'identity'], ['meta-variable', 'argument']],
+      ['meta-variable', 'argument'],
+    ];
+    const request = [
+      'meta-verify',
+      ['atom', 'a'],
+      [
+        'meta-rewrite',
+        ['rules', objectRule, ['no-rules']],
+        ['pair', ['atom', 'identity'], ['atom', 'a']],
+      ],
+    ];
+    const selfHosting = programs.reduce('links-meta-foundation', request);
+    if (selfHosting.term !== 'verified') {
+      throw new Error('self-hosting metric probe changed its baseline result');
+    }
+    return { programs, selfHosting };
+  }
+
+  /**
+   * Execute the foundation probe and publish conservative, falsifiable
+   * measurements of the host machinery still outside linked semantics.
+   */
+  static bootstrapMetricsReport(source) {
+    const { programs, selfHosting } = LinkedProgramRegistry
+      .#runBootstrapMetricProbe(source);
+    const trace = programs.runtimeSemanticTrace();
+    const kernel = LinkedProgramRegistry.bootstrapKernelReport();
+    const nodes = new Map(kernel.trustGraph.nodes.map(node => [node.id, node]));
+    const reportedOperations = new Set([
+      ...kernel.operations,
+      ...kernel.derivedHostServices,
+    ]);
+    const reachesOperation = (path, operation, visiting = new Set()) => {
+      if (path === operation) return true;
+      if (visiting.has(path)) return false;
+      const node = nodes.get(path);
+      if (node === undefined) return false;
+      const nested = new Set(visiting);
+      nested.add(path);
+      return node.dependsOn.some(dependency =>
+        reachesOperation(dependency, operation, nested));
+    };
+    const undocumentedPaths = trace.observedPaths.filter(path => !nodes.has(path));
+    const undocumentedOperations = trace.observedOperations
+      .filter(operation => !reportedOperations.has(operation));
+    const undocumentedPathSegments = trace.observedPathSegments.filter(({ path, operation }) =>
+      !reachesOperation(path, operation));
+    const runtimeTrustGraphCoverage = {
+      documentedObservedPaths: trace.observedPaths.length - undocumentedPaths.length,
+      totalObservedPaths: trace.observedPaths.length,
+      documentedObservedPathSegments:
+        trace.observedPathSegments.length - undocumentedPathSegments.length,
+      totalObservedPathSegments: trace.observedPathSegments.length,
+      undocumentedPaths,
+      undocumentedOperations,
+      undocumentedPathSegments,
+      trace,
+    };
+
+    const removalExperiments = IMPLEMENTED_HOST_SEMANTIC_OPERATIONS.map(operation => {
+      try {
+        LinkedProgramRegistry.#runBootstrapMetricProbe(source, [operation]);
+        return {
+          operation,
+          classification: 'DERIVABLE',
+          baselinePreserved: true,
+          observedFailure: '',
+        };
+      } catch (error) {
+        return {
+          operation,
+          classification: 'UNKNOWN',
+          baselinePreserved: false,
+          observedFailure: String(error.message),
+        };
+      }
+    });
+
+    const rules = selfHosting.trace.map(step => step.rule);
+    const linkedCapabilities = [
+      {
+        capability: 'matching',
+        evidenceRules: rules.filter(rule => rule.startsWith('match-')),
+      },
+      {
+        capability: 'substitution',
+        evidenceRules: rules.filter(rule => rule.startsWith('substitute-')),
+      },
+      {
+        capability: 'rule-selection',
+        evidenceRules: rules.filter(rule => rule.startsWith('select-')),
+      },
+      {
+        capability: 'result-verification',
+        evidenceRules: rules.filter(rule => rule === 'verify-object-result'),
+      },
+    ].filter(capability => capability.evidenceRules.length > 0);
+    const executeOperations = new Set(trace.observedPathSegments
+      .filter(segment => [
+        'load-linked-program',
+        'execute-links-meta-foundation',
+      ].includes(segment.path))
+      .map(segment => segment.operation));
+    const duplicationCandidates = [
+      {
+        capability: 'matching',
+        hostOperations: ['compare-link-structure', 'bind-pattern-variables'],
+      },
+      {
+        capability: 'substitution',
+        hostOperations: ['substitute-bound-structures'],
+      },
+      {
+        capability: 'rule-selection',
+        hostOperations: ['select-and-traverse-rewrite-rules'],
+      },
+    ];
+    const hostLinkedDuplications = duplicationCandidates
+      .filter(candidate =>
+        candidate.hostOperations.every(operation => executeOperations.has(operation)) &&
+        linkedCapabilities.some(linked => linked.capability === candidate.capability))
+      .map(candidate => ({
+        ...candidate,
+        linkedEvidenceRules: linkedCapabilities
+          .find(linked => linked.capability === candidate.capability).evidenceRules,
+      }));
+    const linkedCapabilityNames = linkedCapabilities
+      .map(capability => capability.capability);
+    const hostCapabilityNames = [...executeOperations].sort();
+    const linkedCount = linkedCapabilityNames.length;
+    const hostCount = hostCapabilityNames.length;
+    const unknownCount = removalExperiments
+      .filter(experiment => experiment.classification === 'UNKNOWN').length;
+    const confirmedIndependentCount = removalExperiments
+      .filter(experiment => experiment.classification === 'INDEPENDENT').length;
+    const removableCount = removalExperiments
+      .filter(experiment => experiment.baselinePreserved).length;
+    const totalOperations = IMPLEMENTED_HOST_SEMANTIC_OPERATIONS.length;
+    const smallestSufficient = totalOperations - removableCount;
+    const selfHostingClosure = {
+      task: 'textual-load-through-links-meta-foundation-verification',
+      linkedCapabilities: linkedCount,
+      linkedCapabilityNames,
+      hostCapabilities: hostCount,
+      hostCapabilityNames,
+      totalCapabilities: linkedCount + hostCount,
+      numerator: linkedCount,
+      denominator: linkedCount + hostCount,
+    };
+    const sufficientOperations = removalExperiments
+      .filter(experiment => !experiment.baselinePreserved)
+      .map(experiment => experiment.operation);
+    const foundationCompression = {
+      basis: 'host-operation fault injection over the declared acceptance probe',
+      smallestSufficientHostOperations: smallestSufficient,
+      originalHostOperations: totalOperations,
+      candidateOperations: IMPLEMENTED_HOST_SEMANTIC_OPERATIONS,
+      sufficientOperations,
+      numerator: smallestSufficient,
+      denominator: totalOperations,
+    };
+    const current = {
+      totalHostSemanticOperations: totalOperations,
+      independentHostPrimitives: {
+        confirmed: confirmedIndependentCount,
+        unknown: unknownCount,
+      },
+      derivedHostSemanticServices: DERIVED_HOST_SERVICES.length,
+      duplicatedSemanticCapabilities: hostLinkedDuplications.length,
+      objectSpecificHostSemantics: 0,
+      undocumentedSemanticPaths:
+        undocumentedPaths.length +
+        undocumentedOperations.length +
+        undocumentedPathSegments.length,
+      selfHostingClosure,
+      foundationCompression,
+    };
+    return cloneReportValue({
+      schema: 'rml-bootstrap-metrics/v1',
+      previousRevision: PREVIOUS_METRIC_REVISION,
+      measurementScope: 'The executable probe covers textual load, import/rebind reduction, inference saturation, and links-meta-foundation result verification. UNKNOWN means removal failed but no exhaustive proof of independence exists.',
+      removalClassifications: REMOVAL_CLASSIFICATIONS,
+      current,
+      hostSemanticLayers: HOST_SEMANTIC_LAYERS.map(layer => ({
+        layer: layer.layer,
+        count: layer.operations.length,
+        operations: layer.operations,
+      })),
+      removalExperiments,
+      hostLinkedDuplications,
+      linkedSelfHostingCapabilities: linkedCapabilities,
+      runtimeTrustGraphCoverage,
+      comparison: [
+        {
+          metric: 'total-host-semantic-operations',
+          previous: 8,
+          current: current.totalHostSemanticOperations,
+          delta: current.totalHostSemanticOperations - 8,
+        },
+        {
+          metric: 'independent-host-primitives',
+          previous: null,
+          current: `${confirmedIndependentCount} confirmed; ${unknownCount} unknown`,
+          delta: null,
+        },
+        {
+          metric: 'derived-host-semantic-services',
+          previous: 2,
+          current: current.derivedHostSemanticServices,
+          delta: current.derivedHostSemanticServices - 2,
+        },
+        {
+          metric: 'host-linked-duplicated-semantics',
+          previous: null,
+          current: current.duplicatedSemanticCapabilities,
+          delta: null,
+        },
+        {
+          metric: 'object-specific-host-semantics',
+          previous: 0,
+          current: 0,
+          delta: 0,
+        },
+        {
+          metric: 'undocumented-semantic-paths',
+          previous: null,
+          current: current.undocumentedSemanticPaths,
+          delta: null,
+        },
+        {
+          metric: 'self-hosting-closure',
+          previous: null,
+          current: `${selfHostingClosure.numerator}/${selfHostingClosure.denominator}`,
+          delta: null,
+        },
+        {
+          metric: 'foundation-compression-ratio',
+          previous: null,
+          current: `${foundationCompression.numerator}/${foundationCompression.denominator}`,
+          delta: null,
+        },
+      ],
+    });
   }
 
   /**
@@ -508,7 +889,8 @@ class LinkedProgramRegistry {
     return [...this.programs.keys()].sort();
   }
 
-  #effective(name, field, seen = new Set(), rebindings = []) {
+  #effective(name, field, semanticPaths, seen = new Set(), rebindings = []) {
+    this.#observe(semanticPaths, 'resolve-and-rebind-program-imports');
     const program = this.#program(name, 'execution');
     const context = JSON.stringify([
       name,
@@ -540,6 +922,7 @@ class LinkedProgramRegistry {
       result.push(...this.#effective(
         dependency.program,
         field,
+        semanticPaths,
         seen,
         nestedRebindings,
       ));
@@ -547,19 +930,29 @@ class LinkedProgramRegistry {
     return result;
   }
 
-  #rewriteOnce(term, rules) {
+  #rewriteOnce(term, rules, semanticPaths) {
+    this.#observe(semanticPaths, 'select-and-traverse-rewrite-rules');
     for (const rule of rules) {
-      const substitution = matchTerm(rule.pattern, term);
+      const substitution = matchTerm(
+        rule.pattern,
+        term,
+        new Map(),
+        operation => this.#observe(semanticPaths, operation),
+      );
       if (substitution !== null) {
         return {
-          term: instantiate(rule.replacement, substitution),
+          term: instantiate(
+            rule.replacement,
+            substitution,
+            operation => this.#observe(semanticPaths, operation),
+          ),
           rule,
         };
       }
     }
     if (!Array.isArray(term)) return null;
     for (let index = 0; index < term.length; index += 1) {
-      const rewritten = this.#rewriteOnce(term[index], rules);
+      const rewritten = this.#rewriteOnce(term[index], rules, semanticPaths);
       if (rewritten !== null) {
         const result = term.map(cloneTerm);
         result[index] = rewritten.term;
@@ -570,15 +963,20 @@ class LinkedProgramRegistry {
   }
 
   reduce(name, input, { maxSteps = 10_000 } = {}) {
+    const semanticPaths = ['reduce-linked-program'];
+    if (name === 'links-meta-foundation') {
+      semanticPaths.push('execute-links-meta-foundation');
+    }
+    this.#observe(semanticPaths, 'enforce-cycle-and-resource-bounds');
     if (!Number.isSafeInteger(maxSteps) || maxSteps <= 0) {
       throw new Error('maxSteps must be a positive safe integer');
     }
-    const rules = this.#effective(name, 'rewrites');
+    const rules = this.#effective(name, 'rewrites', semanticPaths);
     let term = cloneTerm(input);
     const trace = [];
     const seen = new Set([keyOf(term)]);
     while (trace.length < maxSteps) {
-      const step = this.#rewriteOnce(term, rules);
+      const step = this.#rewriteOnce(term, rules, semanticPaths);
       if (step === null) return { term, trace, steps: trace.length };
       if (isStructurallySame(term, step.term)) {
         throw new Error(`linked rewrite ${step.rule.program}.${step.rule.name} made no progress`);
@@ -599,6 +997,9 @@ class LinkedProgramRegistry {
   }
 
   prove(name, goal, { facts = [], maxRounds = 128, maxFacts = 10_000 } = {}) {
+    const semanticPaths = ['prove-linked-judgement'];
+    this.#observe(semanticPaths, 'saturate-inference-rules');
+    this.#observe(semanticPaths, 'enforce-cycle-and-resource-bounds');
     if (!Number.isSafeInteger(maxRounds) || maxRounds <= 0 ||
         !Number.isSafeInteger(maxFacts) || maxFacts <= 0) {
       throw new Error('proof bounds must be positive safe integers');
@@ -613,7 +1014,7 @@ class LinkedProgramRegistry {
       if (known.size > maxFacts) throw new Error(`proof fact limit ${maxFacts} exceeded`);
       return true;
     };
-    for (const fact of this.#effective(name, 'facts')) {
+    for (const fact of this.#effective(name, 'facts', semanticPaths)) {
       add(fact.judgement, {
         judgement: cloneTerm(fact.judgement),
         program: fact.program,
@@ -630,7 +1031,7 @@ class LinkedProgramRegistry {
     const goalKey = keyOf(normalizedGoal);
     if (known.has(goalKey)) return { ok: true, proof: known.get(goalKey).proof };
 
-    const rules = this.#effective(name, 'inferences');
+    const rules = this.#effective(name, 'inferences', semanticPaths);
     for (let round = 0; round < maxRounds; round += 1) {
       let changed = false;
       for (const rule of rules) {
@@ -640,7 +1041,12 @@ class LinkedProgramRegistry {
           for (const candidate of candidates) {
             for (const entry of known.values()) {
               const substitution = new Map(candidate.substitution);
-              if (matchTerm(premise, entry.judgement, substitution) !== null) {
+              if (matchTerm(
+                premise,
+                entry.judgement,
+                substitution,
+                operation => this.#observe(semanticPaths, operation),
+              ) !== null) {
                 next.push({
                   substitution,
                   premises: [...candidate.premises, entry.proof],
@@ -652,7 +1058,11 @@ class LinkedProgramRegistry {
           if (candidates.length === 0) break;
         }
         for (const candidate of candidates) {
-          const judgement = instantiate(rule.conclusion, candidate.substitution);
+          const judgement = instantiate(
+            rule.conclusion,
+            candidate.substitution,
+            operation => this.#observe(semanticPaths, operation),
+          );
           const proof = {
             judgement: cloneTerm(judgement),
             program: rule.program,
