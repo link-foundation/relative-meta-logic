@@ -322,6 +322,7 @@ class LinkedProgramRegistry {
       const key = keyOf(normalized);
       if (known.has(key)) return false;
       known.set(key, { judgement: normalized, proof });
+      if (known.size > maxFacts) throw new Error(`proof fact limit ${maxFacts} exceeded`);
       return true;
     };
     for (const fact of this.#effective(name, 'facts')) {
@@ -372,7 +373,6 @@ class LinkedProgramRegistry {
           };
           if (add(judgement, proof)) {
             changed = true;
-            if (known.size > maxFacts) throw new Error(`proof fact limit ${maxFacts} exceeded`);
             if (known.has(goalKey)) return { ok: true, proof: known.get(goalKey).proof };
           }
         }

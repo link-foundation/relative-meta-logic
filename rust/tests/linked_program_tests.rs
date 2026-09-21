@@ -133,3 +133,26 @@ fn rejects_unbound_replacements_and_rewrite_cycles() {
         .expect_err("cycle must fail")
         .contains("rewrite cycle"));
 }
+
+#[test]
+fn applies_proof_fact_bound_to_declared_and_input_facts() {
+    let programs = registry(
+        "(linked-program bounded-proof)\n\
+         (linked-fact bounded-proof first (judgement (holds a)))\n\
+         (linked-fact bounded-proof second (judgement (holds b)))",
+    );
+    assert!(programs
+        .prove("bounded-proof", &node("(holds b)"), &[], 128, 1)
+        .is_none());
+
+    let input_only = registry("(linked-program bounded-input)");
+    assert!(input_only
+        .prove(
+            "bounded-input",
+            &node("(holds b)"),
+            &[node("(holds a)"), node("(holds b)")],
+            128,
+            1,
+        )
+        .is_none());
+}

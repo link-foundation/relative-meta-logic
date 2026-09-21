@@ -592,6 +592,9 @@ impl LinkedProgramRegistry {
                     },
                 )
             });
+            if known.len() > max_facts {
+                return None;
+            }
         }
         for (index, fact) in facts.iter().enumerate() {
             let normalized = self.reduce(name, fact, 10_000).ok()?.term;
@@ -607,6 +610,9 @@ impl LinkedProgramRegistry {
                     },
                 )
             });
+            if known.len() > max_facts {
+                return None;
+            }
         }
         if let Some((_, proof)) = known.get(&goal_key) {
             return Some(proof.clone());

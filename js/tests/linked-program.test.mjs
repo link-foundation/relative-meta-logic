@@ -124,4 +124,26 @@ describe('links-defined universal program evaluator', () => {
     `);
     assert.throws(() => programs.reduce('looping', 'left'), /rewrite cycle/);
   });
+
+  it('applies the proof fact bound to declared and input facts', () => {
+    const programs = registry(`
+      (linked-program bounded-proof)
+      (linked-fact bounded-proof first (judgement (holds a)))
+      (linked-fact bounded-proof second (judgement (holds b)))
+    `);
+
+    assert.throws(
+      () => programs.prove('bounded-proof', ['holds', 'b'], { maxFacts: 1 }),
+      /proof fact limit 1 exceeded/,
+    );
+
+    const inputOnly = registry('(linked-program bounded-input)');
+    assert.throws(
+      () => inputOnly.prove('bounded-input', ['holds', 'b'], {
+        facts: [['holds', 'a'], ['holds', 'b']],
+        maxFacts: 1,
+      }),
+      /proof fact limit 1 exceeded/,
+    );
+  });
 });
