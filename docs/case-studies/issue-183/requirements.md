@@ -28,10 +28,16 @@ both implementation and automated evidence.
 | R20 | Minimize and identify axioms. | Complete for this network | Object behavior lives in executable linked rules. Foundation axioms are limited to named implementation capabilities and proof premises, remain separately selected, and cannot be candidate-authored. |
 | R21 | Update documentation and preserve a complete review trail. | Complete | This ledger, the case-study README/audit, executable example, and main meta-theory guide. |
 | R22 | Use current dependency releases and prepare the next release. | Complete | JS/Rust are aligned at 0.21.0; direct packages and GitHub Actions use the latest releases available on 2026-09-21, lockfiles are refreshed, both npm audits report zero vulnerabilities, and all language suites run afterward. |
-| R23 | Make the meta-foundation explicit and inspectable. | Complete | The documented `K0 -> K1 -> F -> T` model and mirrored `bootstrapKernelReport` / `bootstrap_kernel_report` APIs enumerate every host operation and report zero object semantics. |
-| R24 | Define meta-semantics as links above the bootstrap boundary. | Complete | `links-meta-foundation` defines object-encoded environment lookup, matching, substitution, rule selection/application, and result verification; mirrored trace tests execute it through the same generic machine. |
+| R23 | Make the meta-foundation explicit and inspectable. | Complete | The documented `K0 -> K1 -> F -> T` model and mirrored kernel reports separate six current bootstrap operations from two derived host services and report zero object semantics. |
+| R24 | Define meta-semantics as links above the bootstrap boundary. | Complete | `links-meta-foundation` defines object-encoded environment lookup, matching, substitution, rule selection/application, and result verification; mirrored tests execute an encoded copy of its own repeated-variable matching rule and compare it with direct execution. |
 | R25 | Instantiate one unchanged theory over replaceable foundations. | Complete | Import-level `rebind` works across rewrites, facts, inferences, and transitive imports. One portable classifier returns `reject` or `accept` under strict/permissive user foundations without changing its source. |
 | R26 | Reuse one set-theory definition in traditional and associative contexts. | Complete | `set-theory-over-traditional-sequences` and `set-theory-over-associative-links` rebind constructor concepts while importing the same complete set program; mirrored membership tests execute both. |
+| R27 | Minimize K0 through an explicit experimental loop. | Complete for the current implementation | The report records one experiment and outcome for every original K0 operation. Import linking and inference saturation are moved above the six-operation bootstrap boundary. |
+| R28 | Add a stronger self-interpretation witness. | Complete | K1 interprets an encoded copy of its own non-linear `match-identical-atoms` pattern, including repeated-variable equality and substitution; JS/Rust require agreement with direct K0 execution and inspect the K1 trace. |
+| R29 | Publish a machine-readable K0 dependency/trust graph. | Complete | Both reports expose `rml-bootstrap-trust-graph/v1`, including all bootstrap operations, derived services, and public semantic paths with explicit dependencies. |
+| R30 | Fail CI when host semantics are absent from the trust graph. | Complete | Mirrored `auditBootstrapKernel` / `audit_bootstrap_kernel` tests compare an independent implementation manifest with the report and reject a simulated `hidden-object-evaluator`. The audit also requires every dependency branch to terminate in K0. |
+| R31 | Do not call the current K0 irreducible without proof. | Complete | Source and documentation consistently use “smallest current bootstrap boundary,” expose `claimsIrreducible: false`, and state the criterion for any later removal. |
+| R32 | Give a structural reason for each primitive that remains. | Complete | Every bootstrap node contains a non-empty `primitiveReason` / `primitive_reason`; mirrored tests make missing justifications fail. |
 
 ## Reviewer acceptance test
 
@@ -52,12 +58,19 @@ The trace is produced by rules named `beta-reduction`,
 
 The bootstrap host mechanism is structural and exactly listed by the public
 kernel report: parse links, compare structure, bind pattern variables,
-substitute matched link values, traverse/select rewrites, saturate finite rule
-sets, resolve rebound imports, and enforce cycles/resource bounds. It assigns
+substitute matched link values, traverse/select rewrites, and enforce
+cycles/resource bounds. Finite inference saturation and rebound import
+resolution are visible derived services above that bootstrap, and every
+semantic path through them terminates in a declared K0 operation. It assigns
 no built-in meaning to `lambda`, `set`, `graph`, `relation`, `Pi`, or RML truth
-constructors. `links-meta-foundation` then reconstructs the main interpreter
-relations as link-level data and rules, making the bootstrap boundary
-executable and inspectable rather than implicit.
+constructors. `links-meta-foundation` reconstructs the main interpreter
+relations as link-level data and rules and self-interprets a non-linear rule.
+
+This is a reproducible current fixed point, not a proof of irreducibility. An
+operation may leave K0 only when all public semantic paths still execute and
+the replacement does not presuppose the same operation under another name.
+The report publishes the structural reason and experiment outcome so a future
+implementation can repeat the loop rather than inherit the conclusion.
 
 The pinned Lean/Rocq corpus remains useful evidence that RML can preserve and
 query the upstream development. It is deliberately outside the authorization

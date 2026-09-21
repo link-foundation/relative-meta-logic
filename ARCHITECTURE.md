@@ -175,14 +175,23 @@ translates theory-local terms through shared concept addresses and performs
 cycle-safe shortest definition-chain searches.
 
 The executable meta-theory has an explicit `K0 -> K1 -> F -> T` structure.
-`K0` is one generic structural rewrite/inference machine; its mirrored public
-kernel report lists parsing, structural identity, pattern binding,
-substitution, rewrite traversal, finite saturation, rebound import resolution,
-and resource/cycle enforcement, with no object semantics. The
-`links-meta-foundation` program is the links-defined `K1` interpreter for
+`K0` is the smallest bootstrap boundary reached by the current minimization
+loop: parsing, structural identity, pattern binding, substitution, rewrite
+traversal, and resource/cycle enforcement. Generic inference saturation and
+rebound import linking are reported separately as services derived above K0,
+not smuggled into its primitive list. The mirrored public report includes a
+machine-readable dependency/trust graph, a structural reason for every
+remaining primitive, and the experiment performed for all eight original
+host operations. Its audit fails closed on an unreported operation or a path
+that does not terminate in K0. The boundary is not claimed to be irreducible.
+
+The `links-meta-foundation` program is the links-defined `K1` interpreter for
 object-encoded matching, substitution, rule application, and verification.
-Import-level `rebind` clauses instantiate one unchanged theory over different
-foundation vocabularies and compose through transitive imports.
+It executes an encoded copy of its own repeated-variable matching rule and
+must agree with direct K0 execution, providing a non-trivial
+self-interpretation witness. Import-level `rebind` clauses instantiate one
+unchanged theory over different foundation vocabularies and compose through
+transitive imports.
 
 `MembershipSetStore` supplies addressed membership links and finite
 extensional equality plus finite subset, pairing, union, separation, and

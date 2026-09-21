@@ -60,7 +60,11 @@ K0: structural linked-program machine in JavaScript/Rust
 ```
 
 `K0` is explicit and theory-independent. Both APIs expose the same
-`bootstrapKernelReport` / `bootstrap_kernel_report` inventory:
+`bootstrapKernelReport` / `bootstrap_kernel_report`. It is the smallest
+boundary reached by the current experiments, not a claim that no smaller
+machine can ever exist. The fixed-point criterion is executable: remove an
+operation only when every public semantic path still works and its replacement
+does not presuppose the same operation under another name.
 
 | Host operation | Purpose |
 |----------------|---------|
@@ -69,15 +73,47 @@ K0: structural linked-program machine in JavaScript/Rust
 | bind pattern variables | Associate `?variables` with sublinks. |
 | substitute bound structures | Instantiate a linked rule result. |
 | select/traverse rewrite rules | Perform deterministic outermost rewriting. |
-| saturate inference rules | Enumerate finite forward derivations. |
-| resolve/rebind imports | Compose programs and rename imported concepts. |
 | enforce bounds/cycles | Make partial or recursive systems observable safely. |
+
+Two generic services are derived above K0 and remain visible in the host trust
+surface:
+
+| Derived service | K0 dependencies |
+|-----------------|-----------------|
+| resolve/rebind imports | structural comparison and substitution |
+| saturate inference rules | binding, substitution, rewriting, and bounds |
+
+The machine-readable `rml-bootstrap-trust-graph/v1` graph includes these
+services plus the load, reduce, prove, and K1 execution paths. Every dependency
+branch must terminate in a declared K0 operation.
+
+The minimization loop records an outcome for every operation in the original
+eight-item report:
+
+| Operation | Experimental result |
+|-----------|---------------------|
+| parsing | Pre-linked input bypasses it, but textual LiNo requires one explicit ingress decoder; retained at ingress. |
+| structural comparison | K1 shadows equality, but activating that rule still needs structural identity; retained. |
+| variable binding | K1 self-interprets matching, but its outer rule still needs generic binding; retained. |
+| substitution | K1 self-interprets substitution, but its next state still needs generic instantiation; retained. |
+| rewrite traversal | K1 selects object rules, but linked rules still need a transition clock; retained. |
+| bounds/cycles | Untrusted rules cannot reliably observe their own divergence; retained as an external observer. |
+| import/rebind | A monolithic K1 boots without it; moved above K0 as a linker service. |
+| inference saturation | Rewrite-only K1 boots without it; moved above K0 as a derived proof service. |
 
 The report's `objectSemantics` list is empty. `K0` has no built-in `lambda`,
 set, graph, relation, type, truth, or confidence operation. A bootstrap cannot
 be literally empty: executing a links-defined interpreter requires an initial
 interpreter. This boundary is therefore the small structural operational
-contract, not an implicit collection of theory adapters.
+contract found so far, not an implicit collection of theory adapters.
+
+Every remaining bootstrap node has a structural `primitiveReason` /
+`primitive_reason`. The mirrored `auditBootstrapKernel` /
+`audit_bootstrap_kernel` API compares the graph with a separately maintained
+implementation manifest, rejects an unreported operation, validates all graph
+dependencies, and requires a minimization experiment for every host semantic
+operation. CI injects a simulated `hidden-object-evaluator` and requires the
+audit to fail.
 
 `links-meta-foundation` is the inspectable `K1` layer. It represents object
 atoms, pairs, variables, bindings, and rewrite rules as links and defines
@@ -86,6 +122,14 @@ selection/application, and result verification with `linked-rewrite` forms.
 Mirrored tests pass an object-encoded rule through this meta-interpreter and
 assert its rule trace. The same `K0` that runs other user programs runs `K1`;
 there is no privileged meta-interpreter callback.
+
+The stronger self-interpretation witness takes K1's own non-linear
+`match-identical-atoms` pattern, encodes that rule as object data, and asks K1
+to apply it to an encoded `meta-match` request. The result must equal an
+encoding of direct K0 execution, and the trace must contain K1's repeated
+variable matching and substitution rules. This exercises a fragment of the
+interpreter's own interpretation machinery rather than only an unrelated
+identity rule.
 
 ## Foundation-polymorphic imports
 
@@ -322,6 +366,7 @@ through linked conformance cases.
 |---------|------------|------|
 | Parse linked programs | `LinkedProgramRegistry.fromRml` | `LinkedProgramRegistry::from_rml` |
 | Inspect K0 boundary | `LinkedProgramRegistry.bootstrapKernelReport` | `LinkedProgramRegistry::bootstrap_kernel_report` |
+| Audit K0 trust graph | `LinkedProgramRegistry.auditBootstrapKernel` | `LinkedProgramRegistry::audit_bootstrap_kernel` |
 | Reduce with a program | `reduce` | `reduce` |
 | Prove a linked judgement | `prove` | `prove` |
 | Parse theory network | `TheoryNetwork.fromRml` | `TheoryNetwork::from_rml` |

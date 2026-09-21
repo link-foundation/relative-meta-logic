@@ -71,8 +71,53 @@ const relation = new FiniteRelation(
 );
 relation.define('example.pair', 'concept.alpha', 'concept.beta');
 
+const encodeMetaObject = (term, variables = false) => {
+  if (!Array.isArray(term)) {
+    if (variables && term.startsWith('?')) {
+      return ['meta-variable', term.slice(1)];
+    }
+    return ['atom', term];
+  }
+  return term.reduceRight(
+    (tail, item) => ['pair', encodeMetaObject(item, variables), tail],
+    ['atom', 'nil'],
+  );
+};
+const ownMatchPattern = [
+  'meta-match',
+  ['atom', '?value'],
+  ['atom', '?value'],
+  '?bindings',
+];
+const ownMatchReplacement = ['match-ok', '?bindings'];
+const directMatchRequest = [
+  'meta-match',
+  ['atom', 'same'],
+  ['atom', 'same'],
+  ['no-bindings'],
+];
+const directMatch = programs.reduce('links-meta-foundation', directMatchRequest);
+const selfInterpretedMatch = programs.reduce('links-meta-foundation', [
+  'meta-apply',
+  [
+    'rewrite',
+    encodeMetaObject(ownMatchPattern, true),
+    encodeMetaObject(ownMatchReplacement, true),
+  ],
+  encodeMetaObject(directMatchRequest),
+]);
+
 console.log(JSON.stringify({
   bootstrapKernel: LinkedProgramRegistry.bootstrapKernelReport(),
+  bootstrapAudit: LinkedProgramRegistry.auditBootstrapKernel(),
+  selfInterpretation: {
+    direct: directMatch.term,
+    selfInterpreted: selfInterpretedMatch.term,
+    agrees: JSON.stringify(selfInterpretedMatch.term) === JSON.stringify([
+      'rewrite-result',
+      encodeMetaObject(directMatch.term),
+    ]),
+  },
   traditionalSetMembership: programs.reduce(
     'set-theory-over-traditional-sequences',
     ['member', 'concept.beta', [

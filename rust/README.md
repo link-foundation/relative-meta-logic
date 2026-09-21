@@ -145,7 +145,12 @@ same structural rewrite/inference machine; object theories are not Rust
 callbacks. Imports support `(rebind abstract-concept selected-concept)` for
 foundation polymorphism, and
 `LinkedProgramRegistry::bootstrap_kernel_report()` exposes the complete
-theory-independent K0 host boundary with no object semantics.
+theory-independent K0 host boundary, derived services, per-operation
+minimization evidence, and a dependency/trust graph with no object semantics.
+`LinkedProgramRegistry::audit_bootstrap_kernel()` rejects an unreported host
+operation or a graph path that does not terminate in K0. The report identifies
+the smallest boundary reached by the current experiments; it does not call
+that boundary irreducible.
 `MembershipSetStore` provides addressed
 membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,

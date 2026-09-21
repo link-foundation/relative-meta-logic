@@ -55,10 +55,18 @@ cases, replays exact proof obligations, and checks the definition witness.
 Users can add an unknown logic without modifying either host runtime.
 
 The later foundation review is covered by an explicit `K0 -> K1 -> F -> T`
-split. `K0` reports every structural host operation and reports no
-object-theory semantics. `links-meta-foundation` is an executable,
-links-defined `K1` meta-interpreter for object-encoded binding, matching,
-substitution, rule selection/application, and result verification.
+split. `K0` is the six-operation boundary reached by the current experimental
+minimization loop and reports no object-theory semantics. Import linking and
+inference saturation are visible derived services above K0. The report does
+not claim irreducibility: it publishes the removal criterion, an experiment
+for every original host operation, a structural reason for each operation
+left in K0, and the complete dependency/trust graph.
+
+`links-meta-foundation` is an executable, links-defined `K1` meta-interpreter
+for object-encoded binding, matching, substitution, rule
+selection/application, and result verification. Its stronger witness executes
+an encoded copy of its own repeated-variable matching rule and agrees with
+direct bootstrap execution in both runtimes.
 
 Program imports accept `(rebind abstract-concept selected-concept)` clauses.
 One unchanged classifier is tested over strict and permissive user
@@ -92,11 +100,11 @@ sequence observation.
 
 ## Verification boundary
 
-The host trusts only the operations enumerated by `bootstrapKernelReport` /
-`bootstrap_kernel_report`: parsing, structural identity, pattern binding,
-substitution, rewrite traversal, bounded saturation, rebound import
-resolution, and resource/cycle enforcement. Object-theory semantics are
-linked rules. Candidate sources cannot add
+The host trusts only the operations and derived services enumerated by
+`bootstrapKernelReport` / `bootstrap_kernel_report`. The mirrored audit checks
+an independent implementation manifest, rejects unreported semantics, and
+requires every trust-graph branch to terminate in K0. Object-theory semantics
+are linked rules. Candidate sources cannot add
 their own contracts, conformance cases, proof rules, axioms, assumptions, or
 expected proof obligations.
 
