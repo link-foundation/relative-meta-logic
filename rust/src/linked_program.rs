@@ -8,6 +8,17 @@
 use crate::{key_of, parse_lino, parse_one, tokenize_one, Node};
 use std::collections::{BTreeMap, BTreeSet};
 
+const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS: &[&str] = &[
+    "parse-linked-forms",
+    "compare-link-structure",
+    "bind-pattern-variables",
+    "substitute-bound-structures",
+    "select-and-traverse-rewrite-rules",
+    "enforce-cycle-and-resource-bounds",
+    "resolve-and-rebind-program-imports",
+    "saturate-inference-rules",
+];
+
 #[derive(Debug, Clone, PartialEq)]
 struct RewriteRule {
     program: String,
@@ -72,8 +83,35 @@ pub struct LinkedProof {
 #[derive(Debug, Clone, PartialEq)]
 pub struct BootstrapKernelReport {
     pub name: &'static str,
+    pub status: &'static str,
+    pub claims_irreducible: bool,
+    pub fixed_point_criterion: &'static str,
     pub operations: Vec<&'static str>,
+    pub derived_host_services: Vec<&'static str>,
     pub object_semantics: Vec<&'static str>,
+    pub minimization_experiments: Vec<BootstrapMinimizationExperiment>,
+    pub trust_graph: BootstrapTrustGraph,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapMinimizationExperiment {
+    pub operation: &'static str,
+    pub outcome: &'static str,
+    pub evidence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapTrustNode {
+    pub id: &'static str,
+    pub layer: &'static str,
+    pub depends_on: Vec<&'static str>,
+    pub primitive_reason: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapTrustGraph {
+    pub schema: &'static str,
+    pub nodes: Vec<BootstrapTrustNode>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -213,22 +251,266 @@ fn assert_replacement_bound(
 }
 
 impl LinkedProgramRegistry {
-    /// Reports the complete K0 host boundary and its empty object-semantics set.
+    /// Reports the current minimum K0, derived host services, and their trust graph.
     pub fn bootstrap_kernel_report() -> BootstrapKernelReport {
+        let operations = vec![
+            "parse-linked-forms",
+            "compare-link-structure",
+            "bind-pattern-variables",
+            "substitute-bound-structures",
+            "select-and-traverse-rewrite-rules",
+            "enforce-cycle-and-resource-bounds",
+        ];
+        let derived_host_services = vec![
+            "resolve-and-rebind-program-imports",
+            "saturate-inference-rules",
+        ];
         BootstrapKernelReport {
             name: "K0",
-            operations: vec![
-                "parse-linked-forms",
-                "compare-link-structure",
-                "bind-pattern-variables",
-                "substitute-bound-structures",
-                "select-and-traverse-rewrite-rules",
-                "saturate-inference-rules",
-                "resolve-and-rebind-program-imports",
-                "enforce-cycle-and-resource-bounds",
-            ],
+            status: "smallest-current-bootstrap-boundary",
+            claims_irreducible: false,
+            fixed_point_criterion: "Remove an operation only when every public semantic path still executes and the replacement does not presuppose the same operation under another name.",
+            operations,
+            derived_host_services,
             object_semantics: Vec::new(),
+            minimization_experiments: vec![
+                BootstrapMinimizationExperiment {
+                    operation: "parse-linked-forms",
+                    outcome: "retained-at-text-ingress",
+                    evidence: "from_forms bypasses parsing for pre-linked input, while from_rml demonstrates that textual LiNo still needs one explicit decoder.",
+                },
+                BootstrapMinimizationExperiment {
+                    operation: "compare-link-structure",
+                    outcome: "retained-at-bootstrap-fixed-point",
+                    evidence: "K1 defines object equality through repeated variables, but activating that K1 rule still requires K0 structural identity.",
+                },
+                BootstrapMinimizationExperiment {
+                    operation: "bind-pattern-variables",
+                    outcome: "retained-at-bootstrap-fixed-point",
+                    evidence: "K1 self-interprets its repeated-variable matcher, but the outer K1 rewrite still requires generic K0 binding.",
+                },
+                BootstrapMinimizationExperiment {
+                    operation: "substitute-bound-structures",
+                    outcome: "retained-at-bootstrap-fixed-point",
+                    evidence: "K1 self-interprets substitution, but producing the next K1 state still requires generic K0 template instantiation.",
+                },
+                BootstrapMinimizationExperiment {
+                    operation: "select-and-traverse-rewrite-rules",
+                    outcome: "retained-at-bootstrap-fixed-point",
+                    evidence: "K1 defines object-rule selection, while K0 remains the transition clock that makes any linked rule active.",
+                },
+                BootstrapMinimizationExperiment {
+                    operation: "enforce-cycle-and-resource-bounds",
+                    outcome: "retained-as-external-observer",
+                    evidence: "A user program cannot reliably bound its own divergence; mirrored cycle and step/fact-limit tests require an outside observer.",
+                },
+                BootstrapMinimizationExperiment {
+                    operation: "resolve-and-rebind-program-imports",
+                    outcome: "moved-above-bootstrap",
+                    evidence: "The monolithic links-meta-foundation executes without imports; importing and rebinding is an explicit linker service over bootstrap structures.",
+                },
+                BootstrapMinimizationExperiment {
+                    operation: "saturate-inference-rules",
+                    outcome: "moved-above-bootstrap",
+                    evidence: "K1 and every rewrite-only program bootstrap without inference; saturation is a derived service composed from matching, substitution, reduction, and bounds.",
+                },
+            ],
+            trust_graph: BootstrapTrustGraph {
+                schema: "rml-bootstrap-trust-graph/v1",
+                nodes: vec![
+                    BootstrapTrustNode {
+                        id: "parse-linked-forms",
+                        layer: "bootstrap",
+                        depends_on: vec![],
+                        primitive_reason: "Text is outside the links substrate; one ingress operation must expose its leaf/list structure before any linked rule can run.",
+                    },
+                    BootstrapTrustNode {
+                        id: "compare-link-structure",
+                        layer: "bootstrap",
+                        depends_on: vec![],
+                        primitive_reason: "Rule activation and cycle observation require an initial decision about exact leaf/list identity; an encoded equality rule still needs this decision to activate.",
+                    },
+                    BootstrapTrustNode {
+                        id: "bind-pattern-variables",
+                        layer: "bootstrap",
+                        depends_on: vec!["compare-link-structure"],
+                        primitive_reason: "A parameterized linked rule cannot activate until sublinks are associated with its variables; the K1 matcher is itself activated by this association.",
+                    },
+                    BootstrapTrustNode {
+                        id: "substitute-bound-structures",
+                        layer: "bootstrap",
+                        depends_on: vec!["bind-pattern-variables"],
+                        primitive_reason: "An activated rule needs one operation that constructs its next linked state from the bindings; the K1 substitution relation is executed by that same transition.",
+                    },
+                    BootstrapTrustNode {
+                        id: "select-and-traverse-rewrite-rules",
+                        layer: "bootstrap",
+                        depends_on: vec![
+                            "bind-pattern-variables",
+                            "substitute-bound-structures",
+                        ],
+                        primitive_reason: "Links do not execute themselves; a deterministic transition clock must select a rule and a sublink at which to attempt activation.",
+                    },
+                    BootstrapTrustNode {
+                        id: "enforce-cycle-and-resource-bounds",
+                        layer: "bootstrap",
+                        depends_on: vec!["compare-link-structure"],
+                        primitive_reason: "Arbitrary user rules may diverge, so an observer outside those rules must bound execution and report repeated states without assigning object meaning.",
+                    },
+                    BootstrapTrustNode {
+                        id: "resolve-and-rebind-program-imports",
+                        layer: "derived-host-service",
+                        depends_on: vec![
+                            "compare-link-structure",
+                            "substitute-bound-structures",
+                        ],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "saturate-inference-rules",
+                        layer: "derived-host-service",
+                        depends_on: vec![
+                            "bind-pattern-variables",
+                            "substitute-bound-structures",
+                            "select-and-traverse-rewrite-rules",
+                            "enforce-cycle-and-resource-bounds",
+                        ],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "load-linked-program",
+                        layer: "semantic-path",
+                        depends_on: vec![
+                            "parse-linked-forms",
+                            "resolve-and-rebind-program-imports",
+                        ],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "reduce-linked-program",
+                        layer: "semantic-path",
+                        depends_on: vec![
+                            "select-and-traverse-rewrite-rules",
+                            "enforce-cycle-and-resource-bounds",
+                        ],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "prove-linked-judgement",
+                        layer: "semantic-path",
+                        depends_on: vec![
+                            "saturate-inference-rules",
+                            "reduce-linked-program",
+                        ],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "execute-links-meta-foundation",
+                        layer: "links-defined",
+                        depends_on: vec!["reduce-linked-program"],
+                        primitive_reason: "",
+                    },
+                ],
+            },
         }
+    }
+
+    /// Fails closed when executable host semantics and the trust graph differ.
+    pub fn audit_bootstrap_kernel(implemented_operations: Option<&[&str]>) -> Result<(), String> {
+        let report = Self::bootstrap_kernel_report();
+        let nodes: BTreeMap<&str, &BootstrapTrustNode> = report
+            .trust_graph
+            .nodes
+            .iter()
+            .map(|node| (node.id, node))
+            .collect();
+        if nodes.len() != report.trust_graph.nodes.len() {
+            return Err("duplicate trust graph node".to_string());
+        }
+        for node in nodes.values() {
+            for dependency in &node.depends_on {
+                if !nodes.contains_key(dependency) {
+                    return Err(format!(
+                        "trust graph node {} has unknown dependency {dependency}",
+                        node.id
+                    ));
+                }
+            }
+        }
+
+        fn reaches_bootstrap(
+            id: &str,
+            nodes: &BTreeMap<&str, &BootstrapTrustNode>,
+            visiting: &mut BTreeSet<String>,
+        ) -> Result<bool, String> {
+            let node = nodes[id];
+            if node.layer == "bootstrap" {
+                return Ok(true);
+            }
+            if !visiting.insert(id.to_string()) {
+                return Err(format!("trust graph dependency cycle at {id}"));
+            }
+            if node.depends_on.is_empty() {
+                visiting.remove(id);
+                return Ok(false);
+            }
+            for dependency in &node.depends_on {
+                if !reaches_bootstrap(dependency, nodes, visiting)? {
+                    visiting.remove(id);
+                    return Ok(false);
+                }
+            }
+            visiting.remove(id);
+            Ok(true)
+        }
+
+        for node in nodes.values() {
+            if node.layer != "bootstrap"
+                && !reaches_bootstrap(node.id, &nodes, &mut BTreeSet::new())?
+            {
+                return Err(format!(
+                    "trust graph path {} does not terminate in K0",
+                    node.id
+                ));
+            }
+        }
+
+        let reported: BTreeSet<&str> = report
+            .operations
+            .iter()
+            .chain(&report.derived_host_services)
+            .copied()
+            .collect();
+        let implemented: BTreeSet<&str> = implemented_operations
+            .unwrap_or(IMPLEMENTED_HOST_SEMANTIC_OPERATIONS)
+            .iter()
+            .copied()
+            .collect();
+        for operation in &implemented {
+            if !reported.contains(operation) {
+                return Err(format!("unreported host semantic operation {operation}"));
+            }
+        }
+        for operation in &reported {
+            if !implemented.contains(operation) {
+                return Err(format!(
+                    "reported host semantic operation {operation} is not implemented"
+                ));
+            }
+        }
+        let experimented: BTreeSet<&str> = report
+            .minimization_experiments
+            .iter()
+            .map(|experiment| experiment.operation)
+            .collect();
+        for operation in reported {
+            if !experimented.contains(operation) {
+                return Err(format!(
+                    "host semantic operation {operation} has no minimization experiment"
+                ));
+            }
+        }
+        Ok(())
     }
 
     pub fn from_rml(source: &str) -> Result<Self, String> {

@@ -278,6 +278,8 @@ fn executes_a_links_defined_meta_interpreter_above_an_explicit_k0_boundary() {
 
     let report = LinkedProgramRegistry::bootstrap_kernel_report();
     assert_eq!(report.name, "K0");
+    assert_eq!(report.status, "smallest-current-bootstrap-boundary");
+    assert!(!report.claims_irreducible);
     assert_eq!(
         report.operations,
         [
@@ -286,10 +288,93 @@ fn executes_a_links_defined_meta_interpreter_above_an_explicit_k0_boundary() {
             "bind-pattern-variables",
             "substitute-bound-structures",
             "select-and-traverse-rewrite-rules",
-            "saturate-inference-rules",
-            "resolve-and-rebind-program-imports",
             "enforce-cycle-and-resource-bounds",
         ]
     );
+    assert_eq!(
+        report.derived_host_services,
+        [
+            "resolve-and-rebind-program-imports",
+            "saturate-inference-rules",
+        ]
+    );
     assert!(report.object_semantics.is_empty());
+    assert_eq!(report.minimization_experiments.len(), 8);
+    assert!(report
+        .trust_graph
+        .nodes
+        .iter()
+        .filter(|node| node.layer == "bootstrap")
+        .all(|node| !node.primitive_reason.is_empty()));
+
+    assert!(LinkedProgramRegistry::audit_bootstrap_kernel(None).is_ok());
+    let mut hidden = report.operations.clone();
+    hidden.extend(report.derived_host_services.iter().copied());
+    hidden.push("hidden-object-evaluator");
+    assert_eq!(
+        LinkedProgramRegistry::audit_bootstrap_kernel(Some(&hidden)).unwrap_err(),
+        "unreported host semantic operation hidden-object-evaluator"
+    );
+}
+
+fn encode_object(term: &Node, variables: bool) -> Node {
+    match term {
+        Node::Leaf(value) if variables && value.starts_with('?') => Node::List(vec![
+            Node::Leaf("meta-variable".to_string()),
+            Node::Leaf(value[1..].to_string()),
+        ]),
+        Node::Leaf(value) => Node::List(vec![
+            Node::Leaf("atom".to_string()),
+            Node::Leaf(value.clone()),
+        ]),
+        Node::List(children) => children
+            .iter()
+            .rev()
+            .fold(node("(atom nil)"), |tail, item| {
+                Node::List(vec![
+                    Node::Leaf("pair".to_string()),
+                    encode_object(item, variables),
+                    tail,
+                ])
+            }),
+    }
+}
+
+#[test]
+fn self_interprets_a_non_trivial_fragment_of_its_own_matching_semantics() {
+    let programs = registry("");
+    let own_pattern = node("(meta-match (atom ?value) (atom ?value) ?bindings)");
+    let own_replacement = node("(match-ok ?bindings)");
+    let direct_request = node("(meta-match (atom same) (atom same) (no-bindings))");
+    let direct = programs
+        .reduce("links-meta-foundation", &direct_request, 10_000)
+        .expect("direct execution succeeds");
+    let self_request = Node::List(vec![
+        Node::Leaf("meta-apply".to_string()),
+        Node::List(vec![
+            Node::Leaf("rewrite".to_string()),
+            encode_object(&own_pattern, true),
+            encode_object(&own_replacement, true),
+        ]),
+        encode_object(&direct_request, false),
+    ]);
+    let self_interpreted = programs
+        .reduce("links-meta-foundation", &self_request, 10_000)
+        .expect("self-interpretation succeeds");
+
+    assert_eq!(
+        self_interpreted.term,
+        Node::List(vec![
+            Node::Leaf("rewrite-result".to_string()),
+            encode_object(&direct.term, false),
+        ])
+    );
+    assert!(self_interpreted
+        .trace
+        .iter()
+        .any(|step| step.rule == "match-repeated-variable"));
+    assert!(self_interpreted
+        .trace
+        .iter()
+        .any(|step| step.rule == "substitute-bound-variable"));
 }

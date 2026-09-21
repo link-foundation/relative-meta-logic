@@ -251,19 +251,79 @@ describe('links-defined universal program evaluator', () => {
     assert.ok(result.trace.some(step => step.rule === 'match-unbound-variable'));
     assert.ok(result.trace.some(step => step.rule === 'substitute-bound-variable'));
 
-    assert.deepEqual(LinkedProgramRegistry.bootstrapKernelReport(), {
-      name: 'K0',
-      operations: [
-        'parse-linked-forms',
-        'compare-link-structure',
-        'bind-pattern-variables',
-        'substitute-bound-structures',
-        'select-and-traverse-rewrite-rules',
-        'saturate-inference-rules',
-        'resolve-and-rebind-program-imports',
-        'enforce-cycle-and-resource-bounds',
-      ],
-      objectSemantics: [],
-    });
+    const report = LinkedProgramRegistry.bootstrapKernelReport();
+    assert.equal(report.name, 'K0');
+    assert.equal(report.status, 'smallest-current-bootstrap-boundary');
+    assert.equal(report.claimsIrreducible, false);
+    assert.deepEqual(report.operations, [
+      'parse-linked-forms',
+      'compare-link-structure',
+      'bind-pattern-variables',
+      'substitute-bound-structures',
+      'select-and-traverse-rewrite-rules',
+      'enforce-cycle-and-resource-bounds',
+    ]);
+    assert.deepEqual(report.derivedHostServices, [
+      'resolve-and-rebind-program-imports',
+      'saturate-inference-rules',
+    ]);
+    assert.deepEqual(report.objectSemantics, []);
+    assert.equal(report.minimizationExperiments.length, 8);
+    assert.deepEqual(
+      new Set(report.minimizationExperiments.map(experiment => experiment.operation)),
+      new Set([...report.operations, ...report.derivedHostServices]),
+    );
+    assert.ok(report.trustGraph.nodes.every(node =>
+      node.layer !== 'bootstrap' || node.primitiveReason.length > 0));
+
+    assert.deepEqual(LinkedProgramRegistry.auditBootstrapKernel(), { ok: true });
+    assert.throws(
+      () => LinkedProgramRegistry.auditBootstrapKernel([
+        ...report.operations,
+        ...report.derivedHostServices,
+        'hidden-object-evaluator',
+      ]),
+      /unreported host semantic operation hidden-object-evaluator/,
+    );
+  });
+
+  it('self-interprets a non-trivial fragment of its own matching semantics', () => {
+    const programs = registry();
+    const encode = (term, variables = false) => {
+      if (!Array.isArray(term)) {
+        if (variables && term.startsWith('?')) {
+          return ['meta-variable', term.slice(1)];
+        }
+        return ['atom', term];
+      }
+      return term.reduceRight(
+        (tail, item) => ['pair', encode(item, variables), tail],
+        ['atom', 'nil'],
+      );
+    };
+    const ownPattern = [
+      'meta-match',
+      ['atom', '?value'],
+      ['atom', '?value'],
+      '?bindings',
+    ];
+    const ownReplacement = ['match-ok', '?bindings'];
+    const directRequest = [
+      'meta-match',
+      ['atom', 'same'],
+      ['atom', 'same'],
+      ['no-bindings'],
+    ];
+    const direct = programs.reduce('links-meta-foundation', directRequest);
+    const selfRequest = [
+      'meta-apply',
+      ['rewrite', encode(ownPattern, true), encode(ownReplacement, true)],
+      encode(directRequest),
+    ];
+    const selfInterpreted = programs.reduce('links-meta-foundation', selfRequest);
+
+    assert.deepEqual(selfInterpreted.term, ['rewrite-result', encode(direct.term)]);
+    assert.ok(selfInterpreted.trace.some(step => step.rule === 'match-repeated-variable'));
+    assert.ok(selfInterpreted.trace.some(step => step.rule === 'substitute-bound-variable'));
   });
 });

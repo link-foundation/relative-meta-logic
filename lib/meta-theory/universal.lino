@@ -23,7 +23,9 @@
   (from (address (at ?address (link ?source ?target))))
   (to ?address))
 
-# K1 is a links-defined meta-interpreter above the irreducible structural K0.
+# K1 is a links-defined meta-interpreter above the current structural K0.
+# K0 is the smallest boundary reached by the documented minimization loop; it
+# is not claimed to be mathematically irreducible.
 # Object patterns use (meta-variable name), so their variables are data rather
 # than the ?variables consumed by K0. The rules below define environment
 # lookup, repeated-variable matching, substitution, rule selection,

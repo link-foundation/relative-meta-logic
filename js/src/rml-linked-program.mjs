@@ -105,6 +105,147 @@ function parseForms(source) {
   return parseLino(normalized).map(link => parseOne(tokenizeOne(link)));
 }
 
+const BOOTSTRAP_OPERATIONS = Object.freeze([
+  Object.freeze({
+    id: 'parse-linked-forms',
+    layer: 'bootstrap',
+    dependsOn: [],
+    primitiveReason: 'Text is outside the links substrate; one ingress operation must expose its leaf/list structure before any linked rule can run.',
+  }),
+  Object.freeze({
+    id: 'compare-link-structure',
+    layer: 'bootstrap',
+    dependsOn: [],
+    primitiveReason: 'Rule activation and cycle observation require an initial decision about exact leaf/list identity; an encoded equality rule still needs this decision to activate.',
+  }),
+  Object.freeze({
+    id: 'bind-pattern-variables',
+    layer: 'bootstrap',
+    dependsOn: ['compare-link-structure'],
+    primitiveReason: 'A parameterized linked rule cannot activate until sublinks are associated with its variables; the K1 matcher is itself activated by this association.',
+  }),
+  Object.freeze({
+    id: 'substitute-bound-structures',
+    layer: 'bootstrap',
+    dependsOn: ['bind-pattern-variables'],
+    primitiveReason: 'An activated rule needs one operation that constructs its next linked state from the bindings; the K1 substitution relation is executed by that same transition.',
+  }),
+  Object.freeze({
+    id: 'select-and-traverse-rewrite-rules',
+    layer: 'bootstrap',
+    dependsOn: ['bind-pattern-variables', 'substitute-bound-structures'],
+    primitiveReason: 'Links do not execute themselves; a deterministic transition clock must select a rule and a sublink at which to attempt activation.',
+  }),
+  Object.freeze({
+    id: 'enforce-cycle-and-resource-bounds',
+    layer: 'bootstrap',
+    dependsOn: ['compare-link-structure'],
+    primitiveReason: 'Arbitrary user rules may diverge, so an observer outside those rules must bound execution and report repeated states without assigning object meaning.',
+  }),
+]);
+
+const DERIVED_HOST_SERVICES = Object.freeze([
+  Object.freeze({
+    id: 'resolve-and-rebind-program-imports',
+    layer: 'derived-host-service',
+    dependsOn: ['compare-link-structure', 'substitute-bound-structures'],
+  }),
+  Object.freeze({
+    id: 'saturate-inference-rules',
+    layer: 'derived-host-service',
+    dependsOn: [
+      'bind-pattern-variables',
+      'substitute-bound-structures',
+      'select-and-traverse-rewrite-rules',
+      'enforce-cycle-and-resource-bounds',
+    ],
+  }),
+]);
+
+const SEMANTIC_PATHS = Object.freeze([
+  Object.freeze({
+    id: 'load-linked-program',
+    layer: 'semantic-path',
+    dependsOn: ['parse-linked-forms', 'resolve-and-rebind-program-imports'],
+  }),
+  Object.freeze({
+    id: 'reduce-linked-program',
+    layer: 'semantic-path',
+    dependsOn: [
+      'select-and-traverse-rewrite-rules',
+      'enforce-cycle-and-resource-bounds',
+    ],
+  }),
+  Object.freeze({
+    id: 'prove-linked-judgement',
+    layer: 'semantic-path',
+    dependsOn: ['saturate-inference-rules', 'reduce-linked-program'],
+  }),
+  Object.freeze({
+    id: 'execute-links-meta-foundation',
+    layer: 'links-defined',
+    dependsOn: ['reduce-linked-program'],
+  }),
+]);
+
+const MINIMIZATION_EXPERIMENTS = Object.freeze([
+  Object.freeze({
+    operation: 'parse-linked-forms',
+    outcome: 'retained-at-text-ingress',
+    evidence: 'fromForms bypasses parsing for pre-linked input, while fromRml demonstrates that textual LiNo still needs one explicit decoder.',
+  }),
+  Object.freeze({
+    operation: 'compare-link-structure',
+    outcome: 'retained-at-bootstrap-fixed-point',
+    evidence: 'K1 defines object equality through repeated variables, but activating that K1 rule still requires K0 structural identity.',
+  }),
+  Object.freeze({
+    operation: 'bind-pattern-variables',
+    outcome: 'retained-at-bootstrap-fixed-point',
+    evidence: 'K1 self-interprets its repeated-variable matcher, but the outer K1 rewrite still requires generic K0 binding.',
+  }),
+  Object.freeze({
+    operation: 'substitute-bound-structures',
+    outcome: 'retained-at-bootstrap-fixed-point',
+    evidence: 'K1 self-interprets substitution, but producing the next K1 state still requires generic K0 template instantiation.',
+  }),
+  Object.freeze({
+    operation: 'select-and-traverse-rewrite-rules',
+    outcome: 'retained-at-bootstrap-fixed-point',
+    evidence: 'K1 defines object-rule selection, while K0 remains the transition clock that makes any linked rule active.',
+  }),
+  Object.freeze({
+    operation: 'enforce-cycle-and-resource-bounds',
+    outcome: 'retained-as-external-observer',
+    evidence: 'A user program cannot reliably bound its own divergence; mirrored cycle and step/fact-limit tests require an outside observer.',
+  }),
+  Object.freeze({
+    operation: 'resolve-and-rebind-program-imports',
+    outcome: 'moved-above-bootstrap',
+    evidence: 'The monolithic links-meta-foundation executes without imports; importing and rebinding is an explicit linker service over bootstrap structures.',
+  }),
+  Object.freeze({
+    operation: 'saturate-inference-rules',
+    outcome: 'moved-above-bootstrap',
+    evidence: 'K1 and every rewrite-only program bootstrap without inference; saturation is a derived service composed from matching, substitution, reduction, and bounds.',
+  }),
+]);
+
+const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS = Object.freeze([
+  'parse-linked-forms',
+  'compare-link-structure',
+  'bind-pattern-variables',
+  'substitute-bound-structures',
+  'select-and-traverse-rewrite-rules',
+  'enforce-cycle-and-resource-bounds',
+  'resolve-and-rebind-program-imports',
+  'saturate-inference-rules',
+]);
+
+function cloneReportValue(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 /**
  * A registry of executable semantics represented entirely by LiNo links.
  *
@@ -142,20 +283,86 @@ class LinkedProgramRegistry {
    * links-defined meta-semantics.
    */
   static bootstrapKernelReport() {
-    return {
+    return cloneReportValue({
       name: 'K0',
-      operations: [
-        'parse-linked-forms',
-        'compare-link-structure',
-        'bind-pattern-variables',
-        'substitute-bound-structures',
-        'select-and-traverse-rewrite-rules',
-        'saturate-inference-rules',
-        'resolve-and-rebind-program-imports',
-        'enforce-cycle-and-resource-bounds',
-      ],
+      status: 'smallest-current-bootstrap-boundary',
+      claimsIrreducible: false,
+      fixedPointCriterion: 'Remove an operation only when every public semantic path still executes and the replacement does not presuppose the same operation under another name.',
+      operations: BOOTSTRAP_OPERATIONS.map(operation => operation.id),
+      derivedHostServices: DERIVED_HOST_SERVICES.map(service => service.id),
       objectSemantics: [],
+      minimizationExperiments: MINIMIZATION_EXPERIMENTS,
+      trustGraph: {
+        schema: 'rml-bootstrap-trust-graph/v1',
+        nodes: [
+          ...BOOTSTRAP_OPERATIONS,
+          ...DERIVED_HOST_SERVICES,
+          ...SEMANTIC_PATHS,
+        ],
+      },
+    });
+  }
+
+  /**
+   * Fail closed when the executable host-operation manifest and the published
+   * trust graph differ, or when a semantic path does not reach K0.
+   */
+  static auditBootstrapKernel(
+    implementedOperations = IMPLEMENTED_HOST_SEMANTIC_OPERATIONS,
+  ) {
+    const report = LinkedProgramRegistry.bootstrapKernelReport();
+    const nodes = new Map();
+    for (const node of report.trustGraph.nodes) {
+      if (nodes.has(node.id)) throw new Error(`duplicate trust graph node ${node.id}`);
+      nodes.set(node.id, node);
+    }
+    for (const node of nodes.values()) {
+      for (const dependency of node.dependsOn) {
+        if (!nodes.has(dependency)) {
+          throw new Error(`trust graph node ${node.id} has unknown dependency ${dependency}`);
+        }
+      }
+    }
+
+    const reachesBootstrap = (id, visiting = new Set()) => {
+      const node = nodes.get(id);
+      if (node.layer === 'bootstrap') return true;
+      if (visiting.has(id)) throw new Error(`trust graph dependency cycle at ${id}`);
+      const nested = new Set(visiting);
+      nested.add(id);
+      return node.dependsOn.length > 0 &&
+        node.dependsOn.every(dependency => reachesBootstrap(dependency, nested));
     };
+    for (const node of nodes.values()) {
+      if (node.layer !== 'bootstrap' && !reachesBootstrap(node.id)) {
+        throw new Error(`trust graph path ${node.id} does not terminate in K0`);
+      }
+    }
+
+    const reported = new Set([
+      ...report.operations,
+      ...report.derivedHostServices,
+    ]);
+    const implemented = new Set(implementedOperations);
+    for (const operation of implemented) {
+      if (!reported.has(operation)) {
+        throw new Error(`unreported host semantic operation ${operation}`);
+      }
+    }
+    for (const operation of reported) {
+      if (!implemented.has(operation)) {
+        throw new Error(`reported host semantic operation ${operation} is not implemented`);
+      }
+    }
+    const experimented = new Set(
+      report.minimizationExperiments.map(experiment => experiment.operation),
+    );
+    for (const operation of reported) {
+      if (!experimented.has(operation)) {
+        throw new Error(`host semantic operation ${operation} has no minimization experiment`);
+      }
+    }
+    return { ok: true };
   }
 
   #addProgram(form) {
