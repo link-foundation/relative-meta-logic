@@ -68,12 +68,26 @@ function isProofRuleShape(form) {
     form.slice(2).some(clause => clause[0] === 'conclusion');
 }
 
+function adapterProbeMap(value) {
+  if (value === undefined) return new Map();
+  const entries = value instanceof Map ? value.entries() : Object.entries(value);
+  const probes = new Map();
+  for (const [name, probe] of entries) {
+    requireLeaf(name, 'adapter probe name');
+    if (typeof probe !== 'function') {
+      throw new Error(`adapter probe ${name} must be a function`);
+    }
+    probes.set(name, probe);
+  }
+  return probes;
+}
+
 /**
  * An addressable network of theories, definition relations, and local terms.
  * Source is round-tripped through meta-language before its LiNo forms are read.
  */
 class TheoryNetwork {
-  constructor(metaLanguageRoundTripOk, trustedFoundationRoundTripOk) {
+  constructor(metaLanguageRoundTripOk, trustedFoundationRoundTripOk, adapterProbes) {
     this.metaLanguageRoundTripOk = metaLanguageRoundTripOk;
     this.trustedFoundationRoundTripOk = trustedFoundationRoundTripOk;
     this.theories = new Map();
@@ -86,9 +100,10 @@ class TheoryNetwork {
     this.proofEnv = new Env();
     this.adapterContracts = new Map();
     this.proofObligations = new Map();
+    this.adapterProbes = adapterProbes;
   }
 
-  static fromRml(source, trustedFoundationSource) {
+  static fromRml(source, trustedFoundationSource, { adapterProbes } = {}) {
     if (trustedFoundationSource === undefined) {
       throw new Error('trusted foundation source is required');
     }
@@ -101,6 +116,7 @@ class TheoryNetwork {
     const network = new TheoryNetwork(
       reconstructed === text,
       trustedReconstructed === trustedText,
+      adapterProbeMap(adapterProbes),
     );
     const trustedForms = parseLino(trustedReconstructed)
       .map(link => parseOne(tokenizeOne(link)));
@@ -646,6 +662,27 @@ class TheoryNetwork {
       }
       if (!doublets.doublet(root)) {
         throw new Error('implementation canonical-doublet-tree did not create nested doublets');
+      }
+      return [...contract.obligations];
+    }
+    const injectedProbe = this.adapterProbes.get(implementation.adapter);
+    if (injectedProbe !== undefined) {
+      const accepted = injectedProbe(Object.freeze({
+        definition: Object.freeze({ ...definition }),
+        witness: Object.freeze({ ...witness }),
+        implementation: Object.freeze({
+          ...implementation,
+          obligations: Object.freeze([...implementation.obligations]),
+        }),
+        contract: Object.freeze({
+          kind: contract.kind,
+          obligations: Object.freeze([...contract.obligations]),
+        }),
+      }));
+      if (accepted !== true) {
+        throw new Error(
+          `implementation ${implementation.name} injected adapter probe did not accept it`,
+        );
       }
       return [...contract.obligations];
     }

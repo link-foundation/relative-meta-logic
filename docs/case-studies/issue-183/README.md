@@ -59,7 +59,7 @@ parts.
 | R6 | Implement sequences through doublet links. | `encodeSequence` / `encode_sequence` create balanced, left, or right nested trees whose root and branches are link addresses. | Both suites assert exact four-element trees and decode all layouts to the same leaves. |
 | R7 | Support directly and indirectly self-referential, potentially infinite sequences. | Addressed doublets plus bounded right-spine `walk`. | Direct-cycle and two-node-cycle tests in JS and Rust. |
 | R8 | Unify concepts/terms/addresses. | `(term theory local-name shared-address)` links and address-mediated translation. | Six-theory resolution, reverse lookup, and cross-theory translation tests. |
-| R9 | Reason algorithmically about selected theories. | Generic `TheoryNetwork`, exact implementation manifests, complete finite conformance checks, proof replay, exact-conclusion checking, shared-address translation, and cycle-safe shortest definition-chain search. | Tests append an unknown user theory with its own contract/proof; reject unwitnessed, unsupported, incomplete, rebound, or misproved definitions; corrupt typed and definition premises; and query through the bundled cycle. |
+| R9 | Reason algorithmically about selected theories. | Generic `TheoryNetwork`, caller-injected adapter registries, exact implementation manifests, complete finite conformance checks, proof replay, exact-conclusion checking, shared-address translation, and cycle-safe shortest definition-chain search. | Tests append an unknown user theory and an entirely new adapter with their own contract/proof and executable callback; reject absent probes, unwitnessed, unsupported, incomplete, rebound, or misproved definitions; corrupt typed and definition premises; and query through the bundled cycle. |
 | R10 | Use `meta-language` for representation. | Both readers parse and reconstruct through the existing bridge first. | Both suites require a byte-lossless round trip. |
 | R11 | Keep JS/Rust behavior consistent, documented, and logged. | Mirrored modules/tests, shared LiNo source, executable example, this case study, and `docs/META_THEORY.md`. | Full language suites, focused parity tests, corpus parity, and CI. |
 | R12 | Treat graphs as a subset of links networks, not as the ambient meta-theory. | The public surface is `TheoryNetwork` over `LinkNetwork`; `LinkGraph` separately constrains edges to a membership-link vertex set. | Naming scan plus mirrored raw-link, endpoint validation, successor, and reachability tests. |
@@ -89,6 +89,15 @@ may supply proof objects but cannot add any of those trusted forms. The checks
 establish that the shipped executable representation completely backs the
 exact finite contract stated by its manifest. They do not claim equivalence of
 unrestricted mathematical theories.
+
+The built-in finite stores remain trusted host primitives, but adapter names
+are not a closed runtime enum. JavaScript callers provide additional probes in
+the `adapterProbes` map, and Rust callers use `AdapterProbeRegistry`. The same
+generic verifier applies the links-declared kind, obligations, capability
+axiom, witness, and exact proof conclusion before invoking an injected probe.
+This lets a user-defined theory supply new executable semantics without a
+source change to RML, while keeping the extension explicitly inside the
+caller's selected trust boundary.
 
 ### The linked formal semantics cannot silently drift
 

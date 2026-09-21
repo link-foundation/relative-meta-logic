@@ -67,6 +67,17 @@ implementation names or contract clauses, incomplete obligation sets,
 implementations rebound to another subject/foundation pair, and proofs that do
 not establish the exact link.
 
+Adapter execution is extensible at the trust boundary as well. JavaScript
+accepts an `adapterProbes` map in the third `fromRml` argument; Rust accepts an
+`AdapterProbeRegistry` through `from_rml_with_adapter_probes`. A caller can
+therefore implement a new links-declared adapter without modifying either RML
+runtime. The callback receives the already matched definition, witness,
+implementation, contract kind, and complete obligation set. Injection does not
+let candidate data authorize itself: the independently selected foundation
+must still declare the adapter contract and capability axiom, the candidate
+must still carry its exact proof, and an adapter with no executable built-in or
+caller-supplied probe is rejected.
+
 A definition is admitted only when four independent checks agree:
 
 1. its manifest matches the proposed subject/foundation pair and the host
@@ -345,6 +356,7 @@ walk emits the source and follows only the target.
 | Purpose | JavaScript | Rust |
 |---------|------------|------|
 | Parse theory network | `TheoryNetwork.fromRml` | `TheoryNetwork::from_rml` |
+| Parse with a caller adapter registry | `TheoryNetwork.fromRml(..., { adapterProbes })` | `TheoryNetwork::from_rml_with_adapter_probes` |
 | Parse pinned formal corpus | `FormalCorpus.fromRml` | `FormalCorpus::from_rml` |
 | Query a formal module | `module` | `module` |
 | Query full declaration semantics | `declaration` / `declarationAt` | `declaration` / `declaration_at` |
@@ -387,6 +399,8 @@ Mirrored tests in `js/tests/theory-network.test.mjs` and
   judgements, so a candidate cannot authorize its own proofs;
 - shared-address lookup and address-mediated translation;
 - arbitrary caller-defined theories and cycle-safe shortest definition chains;
+- caller-injected adapter semantics, with rejection when the executable probe
+  is absent;
 - exact balanced, left-staircase, and right-staircase doublets;
 - independent membership, subset, extensional equality, pairing, union,
   separation, replacement, canonical set normalization, and ordered-set

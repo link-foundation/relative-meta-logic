@@ -330,6 +330,60 @@ describe('meta-theory network', () => {
     );
   });
 
+  it('accepts caller-injected adapter semantics without host source changes', () => {
+    const source = `
+(theory source-theory (address user.source-theory))
+(theory target-theory (address user.target-theory))
+(term source-theory entity user.concept.entity)
+(term target-theory entity user.concept.entity)
+(implementation user-counter
+  (adapter user-counter-adapter)
+  (kind user-defined-semantics)
+  (subject source-theory)
+  (using target-theory)
+  (obligation evaluates-linked-contract))
+(witness user.definition.counter
+  (kind user-defined-semantics)
+  (implementation user-counter)
+  (proof user.proof.counter))
+(proof-object user.proof.counter
+  (applies verified-theory-definition)
+  (premise-by user.capability.counter)
+  (conclusion
+    (source-by-target defines source-theory using target-theory
+      via user-counter as user-defined-semantics)))
+(definition source-by-target
+  (subject source-theory)
+  (using target-theory)
+  (witness user.definition.counter))
+`;
+    const trustedFoundation = `${foundationSource}
+(adapter-contract user-counter-adapter
+  (kind user-defined-semantics)
+  (obligation evaluates-linked-contract))
+(axiom user.capability.counter
+  (judgement (user-counter implements user-defined-semantics)))
+`;
+    let observed;
+    const network = TheoryNetwork.fromRml(source, trustedFoundation, {
+      adapterProbes: {
+        'user-counter-adapter': context => {
+          observed = context;
+          return context.definition.subject === 'source-theory' &&
+            context.definition.using === 'target-theory' &&
+            context.contract.obligations.includes('evaluates-linked-contract');
+        },
+      },
+    });
+
+    assert.strictEqual(observed.implementation.name, 'user-counter');
+    assert.strictEqual(network.definitionVerification('source-by-target').verified, true);
+    assert.throws(
+      () => TheoryNetwork.fromRml(source, trustedFoundation),
+      /implementation user-counter has no executable probe/,
+    );
+  });
+
   it('rejects ambiguous term addresses', () => {
     assert.throws(
       () => networkFrom(`

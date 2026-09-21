@@ -58,6 +58,22 @@ pub struct TheoryDefinitionVerification {
     pub verified: bool,
 }
 
+/// Read-only data supplied to a caller-injected executable adapter probe.
+pub struct AdapterProbeContext<'a> {
+    pub definition: &'a TheoryDefinition,
+    pub witness: &'a TheoryWitness,
+    pub implementation: &'a TheoryImplementation,
+    pub contract_kind: &'a str,
+    pub contract_obligations: &'a [String],
+}
+
+/// A trusted host extension that checks a links-declared adapter contract.
+pub type AdapterProbe =
+    dyn for<'a> Fn(&AdapterProbeContext<'a>) -> Result<(), String> + Send + Sync;
+
+/// Caller-owned adapter names and their executable conformance probes.
+pub type AdapterProbeRegistry = BTreeMap<String, Box<AdapterProbe>>;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct TheoryTerm {
     theory: String,
@@ -93,6 +109,14 @@ pub struct TheoryNetwork {
 
 impl TheoryNetwork {
     pub fn from_rml(source: &str, trusted_foundation: &str) -> Result<Self, String> {
+        Self::from_rml_with_adapter_probes(source, trusted_foundation, &BTreeMap::new())
+    }
+
+    pub fn from_rml_with_adapter_probes(
+        source: &str,
+        trusted_foundation: &str,
+        adapter_probes: &AdapterProbeRegistry,
+    ) -> Result<Self, String> {
         let meta_language_network = parse_rml_to_meta_language(source);
         let reconstructed = reconstruct_rml_from_meta_language(&meta_language_network);
         let trusted_meta_language_network = parse_rml_to_meta_language(trusted_foundation);
@@ -164,7 +188,7 @@ impl TheoryNetwork {
             }
             forms.push(form);
         }
-        network.validate(&proof_env, &forms)?;
+        network.validate(&proof_env, &forms, adapter_probes)?;
         Ok(network)
     }
 
@@ -431,7 +455,12 @@ impl TheoryNetwork {
         Ok(())
     }
 
-    fn validate(&mut self, proof_env: &Env, forms: &[Node]) -> Result<(), String> {
+    fn validate(
+        &mut self,
+        proof_env: &Env,
+        forms: &[Node],
+        adapter_probes: &AdapterProbeRegistry,
+    ) -> Result<(), String> {
         for term in self.terms.values() {
             if !self.theories.contains_key(&term.theory) {
                 return Err(format!(
@@ -472,6 +501,7 @@ impl TheoryNetwork {
                 &implementation,
                 forms,
                 proof_env,
+                adapter_probes,
             )?;
             match check_proof_object(proof_env, &witness.proof) {
                 CheckProofVerdict::Ok(_) => {}
@@ -530,6 +560,7 @@ impl TheoryNetwork {
         implementation: &TheoryImplementation,
         forms: &[Node],
         proof_env: &Env,
+        adapter_probes: &AdapterProbeRegistry,
     ) -> Result<Vec<String>, String> {
         let Some(contract) = self.adapter_contracts.get(&implementation.adapter) else {
             return Err(format!(
@@ -827,6 +858,16 @@ impl TheoryNetwork {
                 return Ok(verified());
             }
             _ => {}
+        }
+        if let Some(probe) = adapter_probes.get(&implementation.adapter) {
+            probe(&AdapterProbeContext {
+                definition,
+                witness,
+                implementation,
+                contract_kind: &contract.kind,
+                contract_obligations: &contract.obligations,
+            })?;
+            return Ok(verified());
         }
         Err(format!(
             "implementation {} has no executable probe",

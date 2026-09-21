@@ -4,12 +4,14 @@
 
 use rml::formal_corpus::FormalCorpus;
 use rml::theory_network::{
-    DoubletSequenceStore, FiniteRelation, LinkGraph, LinkNetwork, MembershipSetStore,
-    SequenceLayout, TheoryNetwork, TypedLinkNetwork,
+    AdapterProbeRegistry, DoubletSequenceStore, FiniteRelation, LinkGraph, LinkNetwork,
+    MembershipSetStore, SequenceLayout, TheoryNetwork, TypedLinkNetwork,
 };
 use rml::{evaluate, RunResult};
 use std::collections::BTreeSet;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 const CORE: &str = include_str!("../../lib/meta-theory/core.lino");
 const FOUNDATION: &str = include_str!("../../lib/meta-theory/foundation.lino");
@@ -431,6 +433,76 @@ fn accepts_user_theories_without_hard_coded_theory_names() {
             .to_vec()
         )
     );
+}
+
+#[test]
+fn accepts_caller_injected_adapter_semantics_without_host_source_changes() {
+    let source = r#"
+(theory source-theory (address user.source-theory))
+(theory target-theory (address user.target-theory))
+(term source-theory entity user.concept.entity)
+(term target-theory entity user.concept.entity)
+(implementation user-counter
+  (adapter user-counter-adapter)
+  (kind user-defined-semantics)
+  (subject source-theory)
+  (using target-theory)
+  (obligation evaluates-linked-contract))
+(witness user.definition.counter
+  (kind user-defined-semantics)
+  (implementation user-counter)
+  (proof user.proof.counter))
+(proof-object user.proof.counter
+  (applies verified-theory-definition)
+  (premise-by user.capability.counter)
+  (conclusion
+    (source-by-target defines source-theory using target-theory
+      via user-counter as user-defined-semantics)))
+(definition source-by-target
+  (subject source-theory)
+  (using target-theory)
+  (witness user.definition.counter))
+"#;
+    let trusted_foundation = format!(
+        r#"{FOUNDATION}
+(adapter-contract user-counter-adapter
+  (kind user-defined-semantics)
+  (obligation evaluates-linked-contract))
+(axiom user.capability.counter
+  (judgement (user-counter implements user-defined-semantics)))
+"#
+    );
+    let called = Arc::new(AtomicBool::new(false));
+    let called_by_probe = Arc::clone(&called);
+    let mut probes = AdapterProbeRegistry::new();
+    probes.insert(
+        "user-counter-adapter".to_string(),
+        Box::new(move |context| {
+            assert_eq!(context.definition.subject, "source-theory");
+            assert_eq!(context.definition.using, "target-theory");
+            assert_eq!(context.implementation.name, "user-counter");
+            assert_eq!(context.contract_kind, "user-defined-semantics");
+            assert_eq!(
+                context.contract_obligations,
+                ["evaluates-linked-contract"].map(str::to_string)
+            );
+            called_by_probe.store(true, Ordering::SeqCst);
+            Ok(())
+        }),
+    );
+    let network = TheoryNetwork::from_rml_with_adapter_probes(source, &trusted_foundation, &probes)
+        .expect("caller-injected adapter semantics must be accepted");
+
+    assert!(called.load(Ordering::SeqCst));
+    assert!(
+        network
+            .definition_verification("source-by-target")
+            .unwrap()
+            .verified
+    );
+    let error = TheoryNetwork::from_rml(source, &trusted_foundation)
+        .expect_err("an undeclared host probe must not be trusted implicitly");
+    assert_eq!(error, "implementation user-counter has no executable probe");
 }
 
 #[test]
