@@ -4,23 +4,22 @@
 
 use rml::formal_corpus::FormalCorpus;
 use rml::theory_network::{
-    AdapterProbeRegistry, DoubletSequenceStore, FiniteRelation, LinkGraph, LinkNetwork,
-    MembershipSetStore, SequenceLayout, TheoryNetwork, TypedLinkNetwork,
+    DoubletSequenceStore, FiniteRelation, LinkGraph, LinkNetwork, MembershipSetStore,
+    SequenceLayout, TheoryNetwork, TypedLinkNetwork,
 };
 use rml::{evaluate, RunResult};
 use std::collections::BTreeSet;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
 
 const CORE: &str = include_str!("../../lib/meta-theory/core.lino");
+const UNIVERSAL: &str = include_str!("../../lib/meta-theory/universal.lino");
 const FOUNDATION: &str = include_str!("../../lib/meta-theory/foundation.lino");
 const UPSTREAM_CORPUS: &str = include_str!("../../lib/meta-theory/upstream-0.0.3.lino");
 const UPSTREAM_CORPUS_FOUNDATION: &str =
     include_str!("../../lib/meta-theory/upstream-0.0.3-foundation.lino");
 
 fn network_from(source: &str) -> Result<TheoryNetwork, String> {
-    TheoryNetwork::from_rml(source, FOUNDATION)
+    TheoryNetwork::from_rml(&format!("{UNIVERSAL}\n{source}"), FOUNDATION)
 }
 
 fn bundled_network() -> TheoryNetwork {
@@ -291,7 +290,8 @@ fn makes_rml_depend_on_links_theory_and_closes_set_type_self_cycle() {
     let implementation = network
         .implementation("typed-doublet-network")
         .expect("typed doublet implementation contract must be inspectable");
-    assert_eq!(implementation.adapter, "typed-doublet-network");
+    assert_eq!(implementation.contract, "typed-doublet-network");
+    assert_eq!(implementation.program, "dependent-type-theory");
     assert_eq!(implementation.kind, "dependent-function");
     assert_eq!(implementation.subject, "links-theory");
     assert_eq!(implementation.using, "type-theory");
@@ -388,7 +388,8 @@ fn accepts_user_theories_without_hard_coded_theory_names() {
 (theory user-theory (address user.theory))
 (term user-theory entity rml.concept.addressable-link)
 (implementation user-theory-network
-  (adapter theory-network)
+  (contract theory-network)
+  (program links-meta-theory)
   (kind link-network-composition)
   (subject user-theory)
   (using relative-meta-logic)
@@ -413,8 +414,8 @@ fn accepts_user_theories_without_hard_coded_theory_names() {
     let trusted_foundation = format!(
         "{FOUNDATION}\n(axiom user.capability.theory-network\n  (judgement (user-theory-network implements link-network-composition)))\n"
     );
-    let network =
-        TheoryNetwork::from_rml(&source, &trusted_foundation).expect("user theory must be valid");
+    let network = TheoryNetwork::from_rml(&format!("{UNIVERSAL}\n{source}"), &trusted_foundation)
+        .expect("user theory must be valid");
 
     assert_eq!(
         network.resolve_term("user-theory", "entity"),
@@ -436,14 +437,19 @@ fn accepts_user_theories_without_hard_coded_theory_names() {
 }
 
 #[test]
-fn accepts_caller_injected_adapter_semantics_without_host_source_changes() {
+fn accepts_user_defined_linked_semantics_without_host_source_changes() {
     let source = r#"
+(linked-program user-counter-program)
+(linked-rewrite user-counter-program evaluate-linked-contract
+  (from (counter (successor ?value)))
+  (to ?value))
 (theory source-theory (address user.source-theory))
 (theory target-theory (address user.target-theory))
 (term source-theory entity user.concept.entity)
 (term target-theory entity user.concept.entity)
 (implementation user-counter
-  (adapter user-counter-adapter)
+  (contract user-counter-contract)
+  (program user-counter-program)
   (kind user-defined-semantics)
   (subject source-theory)
   (using target-theory)
@@ -465,44 +471,26 @@ fn accepts_caller_injected_adapter_semantics_without_host_source_changes() {
 "#;
     let trusted_foundation = format!(
         r#"{FOUNDATION}
-(adapter-contract user-counter-adapter
+(implementation-contract user-counter-contract
   (kind user-defined-semantics)
   (obligation evaluates-linked-contract))
+(conformance-case user-counter-contract evaluates-linked-contract
+  (program user-counter-program)
+  (input (counter (successor zero)))
+  (expected zero))
 (axiom user.capability.counter
   (judgement (user-counter implements user-defined-semantics)))
 "#
     );
-    let called = Arc::new(AtomicBool::new(false));
-    let called_by_probe = Arc::clone(&called);
-    let mut probes = AdapterProbeRegistry::new();
-    probes.insert(
-        "user-counter-adapter".to_string(),
-        Box::new(move |context| {
-            assert_eq!(context.definition.subject, "source-theory");
-            assert_eq!(context.definition.using, "target-theory");
-            assert_eq!(context.implementation.name, "user-counter");
-            assert_eq!(context.contract_kind, "user-defined-semantics");
-            assert_eq!(
-                context.contract_obligations,
-                ["evaluates-linked-contract"].map(str::to_string)
-            );
-            called_by_probe.store(true, Ordering::SeqCst);
-            Ok(())
-        }),
-    );
-    let network = TheoryNetwork::from_rml_with_adapter_probes(source, &trusted_foundation, &probes)
-        .expect("caller-injected adapter semantics must be accepted");
+    let network = TheoryNetwork::from_rml(&format!("{UNIVERSAL}\n{source}"), &trusted_foundation)
+        .expect("link-defined semantics must be accepted");
 
-    assert!(called.load(Ordering::SeqCst));
     assert!(
         network
             .definition_verification("source-by-target")
             .unwrap()
             .verified
     );
-    let error = TheoryNetwork::from_rml(source, &trusted_foundation)
-        .expect_err("an undeclared host probe must not be trusted implicitly");
-    assert_eq!(error, "implementation user-counter has no executable probe");
 }
 
 #[test]
@@ -601,8 +589,8 @@ fn rejects_network_when_all_declared_implementations_are_non_executable() {
 #[test]
 fn rejects_implementation_rebound_to_a_different_theory_definition() {
     let source = CORE.replacen(
-        "(implementation addressed-doublet-network\n  (adapter addressed-doublet-network)\n  (kind set-theoretic-function)\n  (subject links-theory)",
-        "(implementation addressed-doublet-network\n  (adapter addressed-doublet-network)\n  (kind set-theoretic-function)\n  (subject graph-theory)",
+        "(implementation addressed-doublet-network\n  (contract addressed-doublet-network)\n  (program links-meta-theory)\n  (kind set-theoretic-function)\n  (subject links-theory)",
+        "(implementation addressed-doublet-network\n  (contract addressed-doublet-network)\n  (program links-meta-theory)\n  (kind set-theoretic-function)\n  (subject graph-theory)",
         1,
     );
     let error = network_from(&source).expect_err("rebound implementation must fail");
@@ -618,15 +606,15 @@ fn rejects_implementation_with_incomplete_declared_obligations() {
     let error = network_from(&source).expect_err("incomplete implementation must fail");
     assert_eq!(
         error,
-        "implementation addressed-doublet-network obligations do not match adapter addressed-doublet-network"
+        "implementation addressed-doublet-network obligations do not match contract addressed-doublet-network"
     );
 }
 
 #[test]
 fn rejects_undeclared_implementation_contract_clauses() {
     let source = CORE.replacen(
-        "  (adapter addressed-doublet-network)",
-        "  (adapter addressed-doublet-network)\n  (unchecked true)",
+        "  (contract addressed-doublet-network)",
+        "  (contract addressed-doublet-network)\n  (unchecked true)",
         1,
     );
     let error = network_from(&source).expect_err("unknown contract clause must fail");
@@ -646,7 +634,7 @@ fn rejects_typed_implementation_when_kernel_derivation_no_longer_replays() {
     let error = network_from(&source).expect_err("invalid typed proof must fail");
     assert_eq!(
         error,
-        "implementation typed-doublet-network failed typed enforcement or proof replay"
+        "proof-obligation typed-kernel-links.beta-conversion failed proof replay"
     );
 }
 
@@ -679,7 +667,7 @@ fn rejects_valid_typed_witnesses_that_establish_unrelated_judgements() {
         network_from(&source).expect_err("typed witnesses for unrelated judgements must fail");
     assert_eq!(
         error,
-        "implementation typed-doublet-network failed typed enforcement or proof replay"
+        "proof-obligation typed-kernel-links.application-elimination failed proof replay"
     );
 }
 
@@ -715,7 +703,7 @@ fn rejects_definition_proof_after_one_capability_premise_is_corrupted() {
         "(addressed-doublet-network implements WRONG-KIND)",
         1,
     );
-    let error = TheoryNetwork::from_rml(CORE, &corrupted_foundation)
+    let error = TheoryNetwork::from_rml(&format!("{UNIVERSAL}\n{CORE}"), &corrupted_foundation)
         .expect_err("corrupted premise must fail");
     assert_eq!(
         error,

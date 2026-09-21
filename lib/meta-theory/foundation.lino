@@ -1,35 +1,35 @@
 # Trusted verification profile for the executable theory network.
 #
 # This file is selected independently from a candidate theory document.  It
-# fixes the admissible host adapters, their complete finite contracts, the
+# fixes the admissible implementations, their complete finite contracts, the
 # inference rules and axioms used by proof replay, and the exact judgements
 # required from the typed-kernel witnesses.  Candidate documents may provide
 # proof objects, but they cannot add rules, axioms, contracts, or expected
 # judgements to this profile.
 
-(adapter-contract theory-network
+(implementation-contract theory-network
   (kind link-network-composition)
   (obligation meta-language-round-trip)
   (obligation definition-link))
 
-(adapter-contract addressed-doublet-network
+(implementation-contract addressed-doublet-network
   (kind set-theoretic-function)
   (obligation address-function)
   (obligation ordered-pair))
 
-(adapter-contract typed-doublet-network
+(implementation-contract typed-doublet-network
   (kind dependent-function)
   (obligation reference-typing)
   (obligation dependent-pair)
   (obligation ill-typed-rejection)
   (obligation typed-proof-replay))
 
-(adapter-contract doublet-template
+(implementation-contract doublet-template
   (kind recursive-doublet)
   (obligation template-expansion)
   (obligation recursive-reference))
 
-(adapter-contract membership-doublet-network
+(implementation-contract membership-doublet-network
   (kind extensional-set)
   (obligation membership)
   (obligation subset)
@@ -39,26 +39,26 @@
   (obligation separation)
   (obligation replacement))
 
-(adapter-contract canonical-doublet-tree
+(implementation-contract canonical-doublet-tree
   (kind finite-set)
   (obligation nested-doublets)
   (obligation canonical-order)
   (obligation unique-members))
 
-(adapter-contract typed-kernel-links
+(implementation-contract typed-kernel-links
   (kind link-typed-foundation)
   (obligation pi-formation)
   (obligation lambda-introduction)
   (obligation application-elimination)
   (obligation beta-conversion))
 
-(adapter-contract finite-directed-link-graph
+(implementation-contract finite-directed-link-graph
   (kind set-theoretic-graph)
   (obligation finite-vertex-set)
   (obligation endpoint-closure)
   (obligation reachability))
 
-(adapter-contract vertex-typed-link-graph
+(implementation-contract vertex-typed-link-graph
   (kind typed-graph)
   (obligation finite-vertex-set)
   (obligation endpoint-closure)
@@ -66,7 +66,7 @@
   (obligation edge-typing)
   (obligation typed-proof-replay))
 
-(adapter-contract finite-binary-link-relation
+(implementation-contract finite-binary-link-relation
   (kind set-theoretic-relation)
   (obligation domain-closure)
   (obligation codomain-closure)
@@ -75,7 +75,7 @@
   (obligation intersection)
   (obligation composition))
 
-(adapter-contract typed-binary-link-relation
+(implementation-contract typed-binary-link-relation
   (kind typed-relation)
   (obligation domain-closure)
   (obligation codomain-closure)
@@ -85,6 +85,280 @@
   (obligation composition)
   (obligation pair-typing)
   (obligation typed-proof-replay))
+
+# Contract conformance is executable link data. Reduction cases contain an
+# input and expected normal form; proof cases contain facts and a goal. The
+# verifier has no program-specific branches and applies the same structural
+# rewrite/inference machine to every case below.
+
+(conformance-case theory-network meta-language-round-trip
+  (program links-meta-theory)
+  (input (address (at probe.link (link source target))))
+  (expected probe.link))
+
+(conformance-case theory-network definition-link
+  (program links-meta-theory)
+  (input (target (at probe.link (link subject foundation))))
+  (expected foundation))
+
+(conformance-case addressed-doublet-network address-function
+  (program links-meta-theory)
+  (input (address (at probe.doublet (link source target))))
+  (expected probe.doublet))
+
+(conformance-case addressed-doublet-network ordered-pair
+  (program links-meta-theory)
+  (input (source (at probe.doublet (link left right))))
+  (expected left))
+
+(conformance-case typed-doublet-network reference-typing
+  (program dependent-type-theory)
+  (goal (has-type Nat Type0)))
+
+(conformance-case typed-doublet-network dependent-pair
+  (program dependent-type-theory)
+  (goal (has-type (Pi Nat Nat) Type0)))
+
+(conformance-case typed-doublet-network ill-typed-rejection
+  (program dependent-type-theory)
+  (input (type-compatible Nat Type1))
+  (expected false))
+
+(conformance-case typed-doublet-network typed-proof-replay
+  (program dependent-type-theory)
+  (goal (has-type (lambda Nat (bound zero)) (Pi Nat Nat))))
+
+(conformance-case doublet-template template-expansion
+  (program links-meta-theory)
+  (input (target (at address (link source target))))
+  (expected target))
+
+(conformance-case doublet-template recursive-reference
+  (program links-meta-theory)
+  (input (source (at self (link self self))))
+  (expected self))
+
+(conformance-case membership-doublet-network membership
+  (program set-theory)
+  (input (member beta (cons alpha (cons beta (empty)))))
+  (expected true))
+
+(conformance-case membership-doublet-network subset
+  (program set-theory)
+  (input
+    (subset
+      (cons alpha (empty))
+      (cons beta (cons alpha (empty)))))
+  (expected true))
+
+(conformance-case membership-doublet-network extensional-equality
+  (program set-theory)
+  (input
+    (set-equal
+      (cons alpha (cons beta (empty)))
+      (cons beta (cons alpha (empty)))))
+  (expected true))
+
+(conformance-case membership-doublet-network pairing
+  (program set-theory)
+  (input (set-pair alpha beta))
+  (expected (cons alpha (cons beta (empty)))))
+
+(conformance-case membership-doublet-network union
+  (program set-theory)
+  (input
+    (set-union
+      (cons alpha (empty))
+      (cons beta (empty))))
+  (expected (cons alpha (cons beta (empty)))))
+
+(conformance-case membership-doublet-network separation
+  (program set-theory)
+  (input
+    (set-intersection
+      (cons alpha (cons beta (empty)))
+      (cons beta (empty))))
+  (expected (cons beta (empty))))
+
+(conformance-case membership-doublet-network replacement
+  (program set-theory)
+  (input (set-image successor (cons alpha (empty))))
+  (expected (cons (image successor alpha) (empty))))
+
+(conformance-case canonical-doublet-tree nested-doublets
+  (program set-theory)
+  (input (member alpha (cons alpha (empty))))
+  (expected true))
+
+(conformance-case canonical-doublet-tree canonical-order
+  (program set-theory)
+  (input
+    (set-equal
+      (canonical-set (cons beta (cons alpha (empty))))
+      (cons alpha (cons beta (empty)))))
+  (expected true))
+
+(conformance-case canonical-doublet-tree unique-members
+  (program set-theory)
+  (input
+    (set-equal
+      (canonical-set (cons alpha (cons alpha (empty))))
+      (cons alpha (empty))))
+  (expected true))
+
+(conformance-case typed-kernel-links pi-formation
+  (program dependent-type-theory)
+  (goal (has-type (Pi Nat Nat) Type0)))
+
+(conformance-case typed-kernel-links lambda-introduction
+  (program dependent-type-theory)
+  (goal (has-type (lambda Nat (bound zero)) (Pi Nat Nat))))
+
+(conformance-case typed-kernel-links application-elimination
+  (program dependent-type-theory)
+  (goal
+    (has-type
+      (apply (lambda Nat (bound zero)) zero)
+      Nat)))
+
+(conformance-case typed-kernel-links beta-conversion
+  (program dependent-type-theory)
+  (goal
+    (has-type
+      (beta (lambda (bound zero)) zero)
+      Nat)))
+
+(conformance-case finite-directed-link-graph finite-vertex-set
+  (program graph-theory)
+  (input (member alpha (cons alpha (cons beta (empty)))))
+  (expected true))
+
+(conformance-case finite-directed-link-graph endpoint-closure
+  (program graph-theory)
+  (fact (vertex graph alpha))
+  (fact (vertex graph beta))
+  (goal (valid-edge graph alpha beta)))
+
+(conformance-case finite-directed-link-graph reachability
+  (program graph-theory)
+  (fact (edge alpha beta))
+  (fact (edge beta gamma))
+  (goal (reachable alpha gamma)))
+
+(conformance-case vertex-typed-link-graph finite-vertex-set
+  (program graph-theory)
+  (input (member alpha (cons alpha (cons beta (empty)))))
+  (expected true))
+
+(conformance-case vertex-typed-link-graph endpoint-closure
+  (program graph-theory)
+  (fact (vertex graph alpha))
+  (fact (vertex graph beta))
+  (goal (valid-edge graph alpha beta)))
+
+(conformance-case vertex-typed-link-graph reachability
+  (program graph-theory)
+  (fact (edge alpha beta))
+  (fact (edge beta gamma))
+  (goal (reachable alpha gamma)))
+
+(conformance-case vertex-typed-link-graph edge-typing
+  (program graph-theory)
+  (fact (vertex graph alpha))
+  (fact (vertex graph beta))
+  (goal
+    (has-edge-type graph alpha beta
+      (Pair (Vertex graph) (Vertex graph)))))
+
+(conformance-case vertex-typed-link-graph typed-proof-replay
+  (program graph-theory)
+  (fact (vertex graph alpha))
+  (fact (vertex graph beta))
+  (goal (valid-edge graph alpha beta)))
+
+(conformance-case finite-binary-link-relation domain-closure
+  (program relational-algebra)
+  (fact (member-of alpha (domain relation)))
+  (fact (member-of omega (codomain relation)))
+  (goal (valid-pair relation alpha omega)))
+
+(conformance-case finite-binary-link-relation codomain-closure
+  (program relational-algebra)
+  (fact (member-of alpha (domain relation)))
+  (fact (member-of omega (codomain relation)))
+  (goal (valid-pair relation alpha omega)))
+
+(conformance-case finite-binary-link-relation converse
+  (program relational-algebra)
+  (fact (relates relation alpha omega))
+  (goal (relates (converse relation) omega alpha)))
+
+(conformance-case finite-binary-link-relation union
+  (program relational-algebra)
+  (fact (relates left alpha omega))
+  (fact (relation right))
+  (goal (relates (relation-union left right) alpha omega)))
+
+(conformance-case finite-binary-link-relation intersection
+  (program relational-algebra)
+  (fact (relates left alpha omega))
+  (fact (relates right alpha omega))
+  (goal (relates (relation-intersection left right) alpha omega)))
+
+(conformance-case finite-binary-link-relation composition
+  (program relational-algebra)
+  (fact (relates left alpha middle))
+  (fact (relates right middle omega))
+  (goal (relates (compose left right) alpha omega)))
+
+(conformance-case typed-binary-link-relation domain-closure
+  (program relational-algebra)
+  (fact (member-of alpha (domain relation)))
+  (fact (member-of omega (codomain relation)))
+  (goal (valid-pair relation alpha omega)))
+
+(conformance-case typed-binary-link-relation codomain-closure
+  (program relational-algebra)
+  (fact (member-of alpha (domain relation)))
+  (fact (member-of omega (codomain relation)))
+  (goal (valid-pair relation alpha omega)))
+
+(conformance-case typed-binary-link-relation converse
+  (program relational-algebra)
+  (fact (relates relation alpha omega))
+  (goal (relates (converse relation) omega alpha)))
+
+(conformance-case typed-binary-link-relation union
+  (program relational-algebra)
+  (fact (relates left alpha omega))
+  (fact (relation right))
+  (goal (relates (relation-union left right) alpha omega)))
+
+(conformance-case typed-binary-link-relation intersection
+  (program relational-algebra)
+  (fact (relates left alpha omega))
+  (fact (relates right alpha omega))
+  (goal (relates (relation-intersection left right) alpha omega)))
+
+(conformance-case typed-binary-link-relation composition
+  (program relational-algebra)
+  (fact (relates left alpha middle))
+  (fact (relates right middle omega))
+  (goal (relates (compose left right) alpha omega)))
+
+(conformance-case typed-binary-link-relation pair-typing
+  (program relational-algebra)
+  (fact (member-of alpha (domain relation)))
+  (fact (member-of omega (codomain relation)))
+  (goal
+    (has-pair-type relation alpha omega
+      (Pair (Domain relation) (Codomain relation)))))
+
+(conformance-case typed-binary-link-relation typed-proof-replay
+  (program relational-algebra)
+  (fact (member-of alpha (domain relation)))
+  (fact (member-of omega (codomain relation)))
+  (goal (valid-pair relation alpha omega)))
 
 (rule verified-theory-definition
   (premise (?implementation implements ?kind))

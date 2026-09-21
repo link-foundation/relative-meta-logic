@@ -73,14 +73,15 @@
 # records make the implementation boundary algorithmically inspectable instead
 # of treating an arbitrary address as evidence for a theory projection.
 
-# Each host adapter has an explicit contract.  A witness may use an
+# Each implementation has an explicit contract and linked program. A witness may use an
 # implementation only for the declared subject/foundation pair, and the loader
-# requires the complete obligation set below before it executes the adapter.
+# requires the complete obligation set below before it executes the program.
 # This prevents a passing conformance case from being rebound to an unrelated
 # theory definition.
 
 (implementation theory-network
-  (adapter theory-network)
+  (contract theory-network)
+  (program links-meta-theory)
   (kind link-network-composition)
   (subject relative-meta-logic)
   (using links-theory)
@@ -88,7 +89,8 @@
   (obligation definition-link))
 
 (implementation addressed-doublet-network
-  (adapter addressed-doublet-network)
+  (contract addressed-doublet-network)
+  (program links-meta-theory)
   (kind set-theoretic-function)
   (subject links-theory)
   (using set-theory)
@@ -96,7 +98,8 @@
   (obligation ordered-pair))
 
 (implementation typed-doublet-network
-  (adapter typed-doublet-network)
+  (contract typed-doublet-network)
+  (program dependent-type-theory)
   (kind dependent-function)
   (subject links-theory)
   (using type-theory)
@@ -106,7 +109,8 @@
   (obligation typed-proof-replay))
 
 (implementation doublet-template
-  (adapter doublet-template)
+  (contract doublet-template)
+  (program links-meta-theory)
   (kind recursive-doublet)
   (subject links-theory)
   (using links-theory)
@@ -114,7 +118,8 @@
   (obligation recursive-reference))
 
 (implementation membership-doublet-network
-  (adapter membership-doublet-network)
+  (contract membership-doublet-network)
+  (program set-theory)
   (kind extensional-set)
   (subject set-theory)
   (using links-theory)
@@ -127,7 +132,8 @@
   (obligation replacement))
 
 (implementation canonical-doublet-tree
-  (adapter canonical-doublet-tree)
+  (contract canonical-doublet-tree)
+  (program set-theory)
   (kind finite-set)
   (subject set-theory)
   (using links-theory)
@@ -136,7 +142,8 @@
   (obligation unique-members))
 
 (implementation typed-kernel-links
-  (adapter typed-kernel-links)
+  (contract typed-kernel-links)
+  (program dependent-type-theory)
   (kind link-typed-foundation)
   (subject type-theory)
   (using links-theory)
@@ -146,7 +153,8 @@
   (obligation beta-conversion))
 
 (implementation finite-directed-link-graph
-  (adapter finite-directed-link-graph)
+  (contract finite-directed-link-graph)
+  (program graph-theory)
   (kind set-theoretic-graph)
   (subject graph-theory)
   (using set-theory)
@@ -155,7 +163,8 @@
   (obligation reachability))
 
 (implementation vertex-typed-link-graph
-  (adapter vertex-typed-link-graph)
+  (contract vertex-typed-link-graph)
+  (program graph-theory)
   (kind typed-graph)
   (subject graph-theory)
   (using type-theory)
@@ -166,7 +175,8 @@
   (obligation typed-proof-replay))
 
 (implementation finite-binary-link-relation
-  (adapter finite-binary-link-relation)
+  (contract finite-binary-link-relation)
+  (program relational-algebra)
   (kind set-theoretic-relation)
   (subject relational-algebra)
   (using set-theory)
@@ -178,7 +188,8 @@
   (obligation composition))
 
 (implementation typed-binary-link-relation
-  (adapter typed-binary-link-relation)
+  (contract typed-binary-link-relation)
+  (program relational-algebra)
   (kind typed-relation)
   (subject relational-algebra)
   (using type-theory)

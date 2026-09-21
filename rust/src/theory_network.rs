@@ -4,11 +4,12 @@
 //! `meta-language` bridge before interpreting theory declarations. This keeps
 //! arbitrary user theories on the same representation path as bundled ones.
 
+use crate::linked_program::LinkedProgramRegistry;
 use crate::meta_language_support::{
     parse_rml_to_meta_language, reconstruct_rml_from_meta_language,
 };
 use crate::{
-    check_proof_object, key_of, parse_lino, parse_one, parse_proof_assumption_form,
+    check_proof_object, parse_lino, parse_one, parse_proof_assumption_form,
     parse_proof_object_form, parse_rule_form, tokenize_one, CheckProofVerdict, Env, Node,
 };
 use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
@@ -40,7 +41,8 @@ pub struct TheoryWitness {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TheoryImplementation {
     pub name: String,
-    pub adapter: String,
+    pub contract: String,
+    pub program: String,
     pub kind: String,
     pub subject: String,
     pub using: String,
@@ -58,22 +60,6 @@ pub struct TheoryDefinitionVerification {
     pub verified: bool,
 }
 
-/// Read-only data supplied to a caller-injected executable adapter probe.
-pub struct AdapterProbeContext<'a> {
-    pub definition: &'a TheoryDefinition,
-    pub witness: &'a TheoryWitness,
-    pub implementation: &'a TheoryImplementation,
-    pub contract_kind: &'a str,
-    pub contract_obligations: &'a [String],
-}
-
-/// A trusted host extension that checks a links-declared adapter contract.
-pub type AdapterProbe =
-    dyn for<'a> Fn(&AdapterProbeContext<'a>) -> Result<(), String> + Send + Sync;
-
-/// Caller-owned adapter names and their executable conformance probes.
-pub type AdapterProbeRegistry = BTreeMap<String, Box<AdapterProbe>>;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct TheoryTerm {
     theory: String,
@@ -82,18 +68,29 @@ struct TheoryTerm {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct AdapterContract {
+struct ImplementationContract {
     kind: String,
     obligations: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct ProofObligation {
-    proof: String,
-    judgement: String,
+#[derive(Debug, Clone, PartialEq)]
+struct ConformanceCase {
+    contract: String,
+    obligation: String,
+    program: String,
+    input: Option<Node>,
+    expected: Option<Node>,
+    goal: Option<Node>,
+    facts: Vec<Node>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
+struct ProofObligation {
+    proof: String,
+    judgement: Node,
+}
+
+#[derive(Debug, Clone)]
 pub struct TheoryNetwork {
     meta_language_round_trip_ok: bool,
     trusted_foundation_round_trip_ok: bool,
@@ -103,20 +100,14 @@ pub struct TheoryNetwork {
     implementations: BTreeMap<String, TheoryImplementation>,
     witnesses: BTreeMap<String, TheoryWitness>,
     verifications: BTreeMap<String, TheoryDefinitionVerification>,
-    adapter_contracts: BTreeMap<String, AdapterContract>,
+    implementation_contracts: BTreeMap<String, ImplementationContract>,
+    conformance_cases: BTreeMap<(String, String), ConformanceCase>,
     proof_obligations: BTreeMap<(String, String), ProofObligation>,
+    linked_programs: LinkedProgramRegistry,
 }
 
 impl TheoryNetwork {
     pub fn from_rml(source: &str, trusted_foundation: &str) -> Result<Self, String> {
-        Self::from_rml_with_adapter_probes(source, trusted_foundation, &BTreeMap::new())
-    }
-
-    pub fn from_rml_with_adapter_probes(
-        source: &str,
-        trusted_foundation: &str,
-        adapter_probes: &AdapterProbeRegistry,
-    ) -> Result<Self, String> {
         let meta_language_network = parse_rml_to_meta_language(source);
         let reconstructed = reconstruct_rml_from_meta_language(&meta_language_network);
         let trusted_meta_language_network = parse_rml_to_meta_language(trusted_foundation);
@@ -131,8 +122,10 @@ impl TheoryNetwork {
             implementations: BTreeMap::new(),
             witnesses: BTreeMap::new(),
             verifications: BTreeMap::new(),
-            adapter_contracts: BTreeMap::new(),
+            implementation_contracts: BTreeMap::new(),
+            conformance_cases: BTreeMap::new(),
             proof_obligations: BTreeMap::new(),
+            linked_programs: LinkedProgramRegistry::default(),
         };
         let mut proof_env = Env::new(None);
         let mut forms = Vec::new();
@@ -147,7 +140,8 @@ impl TheoryNetwork {
                 continue;
             };
             match head {
-                "adapter-contract" => network.add_adapter_contract(children)?,
+                "implementation-contract" => network.add_implementation_contract(children)?,
+                "conformance-case" => network.add_conformance_case(children)?,
                 "proof-obligation" => network.add_proof_obligation(children)?,
                 "rule" if is_proof_rule_shape(&form) => {
                     proof_env.register_proof_rule(parse_rule_form(&form)?)
@@ -171,7 +165,12 @@ impl TheoryNetwork {
             };
             if matches!(
                 head.as_str(),
-                "adapter-contract" | "proof-obligation" | "rule" | "axiom" | "assumption"
+                "implementation-contract"
+                    | "conformance-case"
+                    | "proof-obligation"
+                    | "rule"
+                    | "axiom"
+                    | "assumption"
             ) {
                 return Err(format!(
                     "candidate theory source cannot declare trusted {head} forms"
@@ -188,114 +187,219 @@ impl TheoryNetwork {
             }
             forms.push(form);
         }
-        network.validate(&proof_env, &forms, adapter_probes)?;
+        network.linked_programs = LinkedProgramRegistry::from_forms(&forms)?;
+        network.validate(&proof_env)?;
         Ok(network)
     }
 
-    fn add_adapter_contract(&mut self, form: &[Node]) -> Result<(), String> {
+    fn add_implementation_contract(&mut self, form: &[Node]) -> Result<(), String> {
         if form.len() < 3 {
-            return Err("adapter-contract must have a name and clauses".to_string());
+            return Err("implementation-contract must have a name and clauses".to_string());
         }
-        let adapter = leaf(&form[1], "adapter-contract name")?.to_string();
-        if self.adapter_contracts.contains_key(&adapter) {
-            return Err(format!("duplicate adapter-contract {adapter}"));
+        let contract = leaf(&form[1], "implementation-contract name")?.to_string();
+        if self.implementation_contracts.contains_key(&contract) {
+            return Err(format!("duplicate implementation-contract {contract}"));
         }
         let (data, obligations) =
-            implementation_clauses(&form[2..], &format!("adapter-contract {adapter}"))?;
+            implementation_clauses(&form[2..], &format!("implementation-contract {contract}"))?;
         for key in data.keys() {
             if key != "kind" {
                 return Err(format!(
-                    "adapter-contract {adapter} has unsupported clause {key}"
+                    "implementation-contract {contract} has unsupported clause {key}"
                 ));
             }
         }
         let kind = data
             .get("kind")
             .cloned()
-            .ok_or_else(|| format!("adapter-contract {adapter} is missing kind"))?;
+            .ok_or_else(|| format!("implementation-contract {contract} is missing kind"))?;
         if obligations.is_empty() {
-            return Err(format!("adapter-contract {adapter} is missing obligations"));
+            return Err(format!(
+                "implementation-contract {contract} is missing obligations"
+            ));
         }
-        self.adapter_contracts
-            .insert(adapter, AdapterContract { kind, obligations });
+        self.implementation_contracts
+            .insert(contract, ImplementationContract { kind, obligations });
+        Ok(())
+    }
+
+    fn add_conformance_case(&mut self, form: &[Node]) -> Result<(), String> {
+        if form.len() < 5 {
+            return Err(
+                "conformance-case must have a contract, obligation, and clauses".to_string(),
+            );
+        }
+        let contract = leaf(&form[1], "conformance-case contract")?.to_string();
+        let obligation = leaf(&form[2], "conformance-case obligation")?.to_string();
+        let context = format!("conformance-case {contract}.{obligation}");
+        let mut values = BTreeMap::new();
+        let mut facts = Vec::new();
+        for node in &form[3..] {
+            let Node::List(clause) = node else {
+                return Err(format!("{context} clauses must have the form (name value)"));
+            };
+            if clause.len() != 2 {
+                return Err(format!("{context} clauses must have the form (name value)"));
+            }
+            let name = leaf(&clause[0], &format!("{context} clause name"))?;
+            if name == "fact" {
+                facts.push(clause[1].clone());
+            } else {
+                if !matches!(name, "program" | "input" | "expected" | "goal") {
+                    return Err(format!("{context} has unsupported clause {name}"));
+                }
+                if values.insert(name.to_string(), clause[1].clone()).is_some() {
+                    return Err(format!("{context} repeats clause {name}"));
+                }
+            }
+        }
+        let program = leaf(
+            values
+                .get("program")
+                .ok_or_else(|| format!("{context} is missing program"))?,
+            &format!("{context} program"),
+        )?
+        .to_string();
+        let has_reduction = values.contains_key("input") || values.contains_key("expected");
+        let has_proof = values.contains_key("goal") || !facts.is_empty();
+        if has_reduction == has_proof {
+            return Err(format!(
+                "{context} must define exactly one reduction or proof case"
+            ));
+        }
+        if has_reduction && (!values.contains_key("input") || !values.contains_key("expected")) {
+            return Err(format!(
+                "{context} reduction requires input and expected clauses"
+            ));
+        }
+        if has_proof && !values.contains_key("goal") {
+            return Err(format!("{context} proof requires a goal clause"));
+        }
+        let key = (contract.clone(), obligation.clone());
+        if self.conformance_cases.contains_key(&key) {
+            return Err(format!("duplicate {context}"));
+        }
+        self.conformance_cases.insert(
+            key,
+            ConformanceCase {
+                contract,
+                obligation,
+                program,
+                input: values.get("input").cloned(),
+                expected: values.get("expected").cloned(),
+                goal: values.get("goal").cloned(),
+                facts,
+            },
+        );
         Ok(())
     }
 
     fn add_proof_obligation(&mut self, form: &[Node]) -> Result<(), String> {
         if form.len() < 3 {
-            return Err("proof-obligation must have an adapter and clauses".to_string());
+            return Err("proof-obligation must have a contract and clauses".to_string());
         }
-        let adapter = leaf(&form[1], "proof-obligation adapter")?.to_string();
+        let contract = leaf(&form[1], "proof-obligation contract")?.to_string();
         let mut data = BTreeMap::new();
         for node in &form[2..] {
             let Node::List(clause) = node else {
                 return Err(format!(
-                    "proof-obligation {adapter} clauses must have the form (name value)"
+                    "proof-obligation {contract} clauses must have the form (name value)"
                 ));
             };
             if clause.len() != 2 {
                 return Err(format!(
-                    "proof-obligation {adapter} clauses must have the form (name value)"
+                    "proof-obligation {contract} clauses must have the form (name value)"
                 ));
             }
             let name = leaf(
                 &clause[0],
-                &format!("proof-obligation {adapter} clause name"),
+                &format!("proof-obligation {contract} clause name"),
             )?;
             if !matches!(name, "obligation" | "proof" | "judgement") {
                 return Err(format!(
-                    "proof-obligation {adapter} has unsupported clause {name}"
+                    "proof-obligation {contract} has unsupported clause {name}"
                 ));
             }
             if data.insert(name.to_string(), clause[1].clone()).is_some() {
-                return Err(format!("proof-obligation {adapter} repeats clause {name}"));
+                return Err(format!("proof-obligation {contract} repeats clause {name}"));
             }
         }
         let obligation = leaf(
             data.get("obligation")
-                .ok_or_else(|| format!("proof-obligation {adapter} is missing obligation"))?,
-            &format!("proof-obligation {adapter} name"),
+                .ok_or_else(|| format!("proof-obligation {contract} is missing obligation"))?,
+            &format!("proof-obligation {contract} name"),
         )?
         .to_string();
         let proof = leaf(
             data.get("proof")
-                .ok_or_else(|| format!("proof-obligation {adapter} is missing proof"))?,
-            &format!("proof-obligation {adapter} proof"),
+                .ok_or_else(|| format!("proof-obligation {contract} is missing proof"))?,
+            &format!("proof-obligation {contract} proof"),
         )?
         .to_string();
         let judgement = data
             .get("judgement")
-            .ok_or_else(|| format!("proof-obligation {adapter} is missing judgement"))?;
+            .ok_or_else(|| format!("proof-obligation {contract} is missing judgement"))?;
         if !matches!(judgement, Node::List(_)) {
             return Err(format!(
-                "proof-obligation {adapter}.{obligation} judgement must be a link"
+                "proof-obligation {contract}.{obligation} judgement must be a link"
             ));
         }
-        let key = (adapter.clone(), obligation.clone());
+        let key = (contract.clone(), obligation.clone());
         if self.proof_obligations.contains_key(&key) {
-            return Err(format!("duplicate proof-obligation {adapter}.{obligation}"));
+            return Err(format!(
+                "duplicate proof-obligation {contract}.{obligation}"
+            ));
         }
         self.proof_obligations.insert(
             key,
             ProofObligation {
                 proof,
-                judgement: key_of(judgement),
+                judgement: judgement.clone(),
             },
         );
         Ok(())
     }
 
     fn validate_trusted_foundation(&self) -> Result<(), String> {
-        if self.adapter_contracts.is_empty() {
-            return Err("trusted foundation does not declare any adapter contracts".to_string());
+        if self.implementation_contracts.is_empty() {
+            return Err(
+                "trusted foundation does not declare any implementation contracts".to_string(),
+            );
         }
-        for ((adapter, obligation), _) in &self.proof_obligations {
-            let contract = self.adapter_contracts.get(adapter).ok_or_else(|| {
-                format!("proof-obligation {adapter}.{obligation} has unknown adapter")
-            })?;
+        for (contract_name, contract) in &self.implementation_contracts {
+            for obligation in &contract.obligations {
+                if !self
+                    .conformance_cases
+                    .contains_key(&(contract_name.clone(), obligation.clone()))
+                {
+                    return Err(format!(
+                        "implementation-contract {contract_name} has no conformance-case for {obligation}"
+                    ));
+                }
+            }
+        }
+        for ((contract_name, obligation), _) in &self.conformance_cases {
+            let Some(contract) = self.implementation_contracts.get(contract_name) else {
+                return Err(format!(
+                    "conformance-case {contract_name}.{obligation} is not in its contract"
+                ));
+            };
             if !contract.obligations.contains(obligation) {
                 return Err(format!(
-                    "proof-obligation {adapter}.{obligation} is not in its contract"
+                    "conformance-case {contract_name}.{obligation} is not in its contract"
+                ));
+            }
+        }
+        for ((contract_name, obligation), _) in &self.proof_obligations {
+            let contract = self
+                .implementation_contracts
+                .get(contract_name)
+                .ok_or_else(|| {
+                    format!("proof-obligation {contract_name}.{obligation} has unknown contract")
+                })?;
+            if !contract.obligations.contains(obligation) {
+                return Err(format!(
+                    "proof-obligation {contract_name}.{obligation} is not in its contract"
                 ));
             }
         }
@@ -394,7 +498,10 @@ impl TheoryNetwork {
         let (data, obligations) =
             implementation_clauses(&form[2..], &format!("implementation {name}"))?;
         for key in data.keys() {
-            if !matches!(key.as_str(), "adapter" | "kind" | "subject" | "using") {
+            if !matches!(
+                key.as_str(),
+                "contract" | "program" | "kind" | "subject" | "using"
+            ) {
                 return Err(format!(
                     "implementation {name} has unsupported clause {key}"
                 ));
@@ -408,7 +515,8 @@ impl TheoryNetwork {
         if obligations.is_empty() {
             return Err(format!("implementation {name} is missing obligations"));
         }
-        let adapter = field("adapter")?;
+        let contract = field("contract")?;
+        let program = field("program")?;
         let kind = field("kind")?;
         let subject = field("subject")?;
         let using = field("using")?;
@@ -416,7 +524,8 @@ impl TheoryNetwork {
             name.clone(),
             TheoryImplementation {
                 name,
-                adapter,
+                contract,
+                program,
                 kind,
                 subject,
                 using,
@@ -455,12 +564,13 @@ impl TheoryNetwork {
         Ok(())
     }
 
-    fn validate(
-        &mut self,
-        proof_env: &Env,
-        forms: &[Node],
-        adapter_probes: &AdapterProbeRegistry,
-    ) -> Result<(), String> {
+    fn validate(&mut self, proof_env: &Env) -> Result<(), String> {
+        if !self.meta_language_round_trip_ok {
+            return Err("candidate theory source failed its meta-language round trip".to_string());
+        }
+        if !self.trusted_foundation_round_trip_ok {
+            return Err("trusted foundation failed its meta-language round trip".to_string());
+        }
         for term in self.terms.values() {
             if !self.theories.contains_key(&term.theory) {
                 return Err(format!(
@@ -495,14 +605,8 @@ impl TheoryNetwork {
                     witness.address, witness.implementation
                 ));
             };
-            let obligations = self.verify_implementation(
-                &definition,
-                &witness,
-                &implementation,
-                forms,
-                proof_env,
-                adapter_probes,
-            )?;
+            let obligations =
+                self.verify_implementation(&definition, &witness, &implementation, proof_env)?;
             match check_proof_object(proof_env, &witness.proof) {
                 CheckProofVerdict::Ok(_) => {}
                 CheckProofVerdict::Err(error) => {
@@ -558,20 +662,36 @@ impl TheoryNetwork {
         definition: &TheoryDefinition,
         witness: &TheoryWitness,
         implementation: &TheoryImplementation,
-        forms: &[Node],
         proof_env: &Env,
-        adapter_probes: &AdapterProbeRegistry,
     ) -> Result<Vec<String>, String> {
-        let Some(contract) = self.adapter_contracts.get(&implementation.adapter) else {
+        let Some(contract) = self.implementation_contracts.get(&implementation.contract) else {
             return Err(format!(
-                "implementation {} uses unknown adapter {}",
-                implementation.name, implementation.adapter
+                "implementation {} uses unknown contract {}",
+                implementation.name, implementation.contract
             ));
         };
+
+        for ((contract_name, obligation_name), obligation) in &self.proof_obligations {
+            if contract_name != &implementation.contract {
+                continue;
+            }
+            if !matches!(
+                check_proof_object(proof_env, &obligation.proof),
+                CheckProofVerdict::Ok(_)
+            ) || proof_env
+                .get_proof_object(&obligation.proof)
+                .is_none_or(|proof| proof.conclusion != obligation.judgement)
+            {
+                return Err(format!(
+                    "proof-obligation {contract_name}.{obligation_name} failed proof replay"
+                ));
+            }
+        }
+
         if implementation.kind != contract.kind {
             return Err(format!(
-                "implementation {} adapter {} requires kind {}, not {}",
-                implementation.name, implementation.adapter, contract.kind, implementation.kind
+                "implementation {} contract {} requires kind {}, not {}",
+                implementation.name, implementation.contract, contract.kind, implementation.kind
             ));
         }
         if implementation.kind != witness.kind {
@@ -596,12 +716,10 @@ impl TheoryNetwork {
         let expected_obligations: BTreeSet<_> = contract.obligations.iter().cloned().collect();
         if declared_obligations != expected_obligations {
             return Err(format!(
-                "implementation {} obligations do not match adapter {}",
-                implementation.name, implementation.adapter
+                "implementation {} obligations do not match contract {}",
+                implementation.name, implementation.contract
             ));
         }
-
-        let verified = || contract.obligations.clone();
 
         if definition.subject != definition.using {
             let subject_addresses: BTreeSet<&str> = self
@@ -621,280 +739,55 @@ impl TheoryNetwork {
             }
         }
 
-        match implementation.adapter.as_str() {
-            "theory-network" => {
-                if !self.meta_language_round_trip_ok {
-                    return Err(
-                        "implementation theory-network failed its meta-language round trip"
-                            .to_string(),
-                    );
-                }
-                let chain = self.definition_chain(&definition.subject, &definition.using);
-                if chain.as_deref() != Some(&[definition.subject.clone(), definition.using.clone()])
-                {
-                    return Err(
-                        "implementation theory-network failed its definition-link probe"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            "addressed-doublet-network" => {
-                let mut links = LinkNetwork::new();
-                links.define("probe.doublet", "probe.source", "probe.target")?;
-                if links.doublet("probe.doublet") != Some(("probe.source", "probe.target")) {
-                    return Err(format!(
-                        "implementation {} failed its doublet probe",
-                        implementation.name
-                    ));
-                }
-                if links
-                    .define("probe.doublet", "probe.other", "probe.value")
-                    .is_ok()
-                {
-                    return Err(
-                        "implementation addressed-doublet-network is not an address function"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            "typed-doublet-network" => {
-                let mut links = TypedLinkNetwork::new();
-                links.declare("probe.source", "Reference")?;
-                links.declare("probe.target", "Reference")?;
-                links.declare("probe.wrong", "NotReference")?;
-                links.define(
-                    "probe.typed-doublet",
-                    "probe.source",
-                    "probe.target",
-                    "Reference",
-                    "Reference",
-                )?;
-                if links.type_of("probe.typed-doublet") != Some("(Pair Reference Reference)")
-                    || links
-                        .define(
-                            "probe.invalid-doublet",
-                            "probe.wrong",
-                            "probe.target",
-                            "Reference",
-                            "Reference",
-                        )
-                        .is_ok()
-                    || !self.has_typed_foundation(proof_env)
-                {
-                    return Err(
-                        "implementation typed-doublet-network failed typed enforcement or proof replay"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            "doublet-template" => {
-                let expected =
-                    "(template (doublet address source target) (address maps-to (source target)))";
-                if !forms.iter().any(|form| key_of(form) == expected) {
-                    return Err(
-                        "implementation doublet-template is missing its executable template"
-                            .to_string(),
-                    );
-                }
-                let mut recursive = LinkNetwork::new();
-                recursive.define("probe.self", "probe.self", "probe.self")?;
-                if recursive.doublet("probe.self") != Some(("probe.self", "probe.self")) {
-                    return Err(
-                        "implementation doublet-template failed its recursive-reference probe"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            "membership-doublet-network" => {
-                let mut sets = MembershipSetStore::new();
-                sets.define("probe.membership.1", "probe.alpha", "probe.left")?;
-                sets.define("probe.membership.2", "probe.beta", "probe.left")?;
-                sets.define("probe.membership.3", "probe.beta", "probe.right")?;
-                sets.define("probe.membership.4", "probe.alpha", "probe.right")?;
-                if !sets.has("probe.left", "probe.alpha")
-                    || !sets.is_subset_of("probe.left", "probe.right")
-                    || !sets.equals("probe.left", "probe.right")
-                {
-                    return Err(
-                        "implementation membership-doublet-network failed its membership probe"
-                            .to_string(),
-                    );
-                }
-                sets.define("probe.collection.1", "probe.left", "probe.collection")?;
-                sets.define("probe.collection.2", "probe.right", "probe.collection")?;
-                if sets.pair("probe.alpha", "probe.beta")? != ["probe.alpha", "probe.beta"]
-                    || sets.union("probe.collection") != ["probe.alpha", "probe.beta"]
-                    || sets.separation("probe.left", |value| value == "probe.beta")
-                        != ["probe.beta"]
-                    || sets.replacement("probe.left", |value| format!("{value}.image"))?
-                        != ["probe.alpha.image", "probe.beta.image"]
-                {
-                    return Err(
-                        "implementation membership-doublet-network failed its set algebra probe"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            "canonical-doublet-tree" => {
-                let mut doublets = DoubletSequenceStore::new();
-                let root = doublets
-                    .encode_set(&["probe.beta", "probe.alpha", "probe.beta"], "probe.set")?;
-                if doublets.decode_set(&root)? != ["probe.alpha", "probe.beta"] {
-                    return Err(
-                        "implementation canonical-doublet-tree failed its set probe".to_string()
-                    );
-                }
-                if doublets.doublet(&root).is_none() {
-                    return Err(
-                        "implementation canonical-doublet-tree did not create nested doublets"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            "typed-kernel-links" => {
-                if !self.has_typed_foundation(proof_env) {
-                    return Err(
-                        "implementation typed-kernel-links is missing its typed foundation"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            "finite-directed-link-graph" | "vertex-typed-link-graph" => {
-                let mut graph = LinkGraph::new("probe.graph")?;
-                graph.add_vertex("probe.alpha")?;
-                graph.add_vertex("probe.beta")?;
-                graph.add_vertex("probe.gamma")?;
-                graph.define_edge("probe.edge.1", "probe.alpha", "probe.beta")?;
-                graph.define_edge("probe.edge.2", "probe.beta", "probe.gamma")?;
-                if !graph.reachable("probe.alpha", "probe.gamma") {
-                    return Err(format!(
-                        "implementation {} failed its graph probe",
-                        implementation.name
-                    ));
-                }
-                if graph
-                    .define_edge("probe.edge.invalid", "probe.alpha", "probe.missing")
-                    .is_ok()
-                {
-                    return Err(format!(
-                        "implementation {} failed endpoint closure",
-                        implementation.name
-                    ));
-                }
-                if implementation.adapter == "vertex-typed-link-graph"
-                    && (graph.edge_type("probe.edge.1")
-                        != Some("(Pair probe.graph.vertex probe.graph.vertex)")
-                        || !self.has_typed_foundation(proof_env))
-                {
-                    return Err(
-                        "implementation vertex-typed-link-graph failed edge typing or proof replay"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            "finite-binary-link-relation" | "typed-binary-link-relation" => {
-                let mut first = FiniteRelation::new(
-                    "probe.relation.first",
-                    &["probe.alpha"],
-                    &["probe.middle"],
-                )?;
-                first.define("probe.pair.first", "probe.alpha", "probe.middle")?;
-                let mut next = FiniteRelation::new(
-                    "probe.relation.next",
-                    &["probe.middle"],
-                    &["probe.omega"],
-                )?;
-                next.define("probe.pair.next", "probe.middle", "probe.omega")?;
-                let mut extra = FiniteRelation::new(
-                    "probe.relation.extra",
-                    &["probe.alpha"],
-                    &["probe.middle"],
-                )?;
-                extra.define("probe.pair.extra", "probe.alpha", "probe.middle")?;
-                let domain_rejected = first
-                    .define("probe.pair.invalid-left", "probe.outside", "probe.middle")
-                    .is_err();
-                let codomain_rejected = first
-                    .define("probe.pair.invalid-right", "probe.alpha", "probe.outside")
-                    .is_err();
-                if !first
-                    .compose(&next, "probe.relation.composed")?
-                    .has("probe.alpha", "probe.omega")
-                    || !first
-                        .converse("probe.relation.converse")?
-                        .has("probe.middle", "probe.alpha")
-                    || !first
-                        .union(&extra, "probe.relation.union")?
-                        .has("probe.alpha", "probe.middle")
-                    || !first
-                        .intersection(&extra, "probe.relation.intersection")?
-                        .has("probe.alpha", "probe.middle")
-                    || !domain_rejected
-                    || !codomain_rejected
-                {
-                    return Err(format!(
-                        "implementation {} failed its relation probe",
-                        implementation.name
-                    ));
-                }
-                if implementation.adapter == "typed-binary-link-relation"
-                    && (first.pair_type("probe.pair.first")
-                        != Some("(Pair probe.relation.first.domain probe.relation.first.codomain)")
-                        || !self.has_typed_foundation(proof_env))
-                {
-                    return Err(
-                        "implementation typed-binary-link-relation failed pair typing or proof replay"
-                            .to_string(),
-                    );
-                }
-                return Ok(verified());
-            }
-            _ => {}
+        if !self.linked_programs.has(&implementation.program) {
+            return Err(format!(
+                "implementation {} uses unknown linked-program {}",
+                implementation.name, implementation.program
+            ));
         }
-        if let Some(probe) = adapter_probes.get(&implementation.adapter) {
-            probe(&AdapterProbeContext {
-                definition,
-                witness,
-                implementation,
-                contract_kind: &contract.kind,
-                contract_obligations: &contract.obligations,
-            })?;
-            return Ok(verified());
-        }
-        Err(format!(
-            "implementation {} has no executable probe",
-            implementation.name
-        ))
-    }
-
-    fn has_typed_foundation(&self, env: &Env) -> bool {
-        let Some(contract) = self.adapter_contracts.get("typed-kernel-links") else {
-            return false;
-        };
-        contract.obligations.iter().all(|obligation| {
-            let Some(expected) = self
-                .proof_obligations
-                .get(&("typed-kernel-links".to_string(), obligation.clone()))
-            else {
-                return false;
-            };
-            if !matches!(
-                check_proof_object(env, &expected.proof),
-                CheckProofVerdict::Ok(_)
-            ) {
-                return false;
+        for obligation in &contract.obligations {
+            let test_case = self
+                .conformance_cases
+                .get(&(implementation.contract.clone(), obligation.clone()))
+                .expect("trusted foundation validation resolves every conformance case");
+            if test_case.program != implementation.program {
+                return Err(format!(
+                    "implementation {} program {} does not match {}.{} program {}",
+                    implementation.name,
+                    implementation.program,
+                    implementation.contract,
+                    obligation,
+                    test_case.program
+                ));
             }
-            env.get_proof_object(&expected.proof)
-                .is_some_and(|proof| key_of(&proof.conclusion) == expected.judgement)
-        })
+            if let Some(input) = &test_case.input {
+                let result = self
+                    .linked_programs
+                    .reduce(&test_case.program, input, 10_000)?;
+                if Some(&result.term) != test_case.expected.as_ref() {
+                    return Err(format!(
+                        "implementation {} failed reduction conformance {}.{}",
+                        implementation.name, implementation.contract, obligation
+                    ));
+                }
+            } else {
+                let goal = test_case
+                    .goal
+                    .as_ref()
+                    .expect("proof conformance cases have goals");
+                if self
+                    .linked_programs
+                    .prove(&test_case.program, goal, &test_case.facts, 128, 10_000)
+                    .is_none()
+                {
+                    return Err(format!(
+                        "implementation {} failed proof conformance {}.{}",
+                        implementation.name, implementation.contract, obligation
+                    ));
+                }
+            }
+        }
+        Ok(contract.obligations.clone())
     }
 
     pub fn meta_language_round_trip_ok(&self) -> bool {

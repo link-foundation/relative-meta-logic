@@ -22,9 +22,11 @@ import { evaluate } from '../src/rml-links.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 const corePath = join(repoRoot, 'lib', 'meta-theory', 'core.lino');
+const universalPath = join(repoRoot, 'lib', 'meta-theory', 'universal.lino');
 const foundationPath = join(repoRoot, 'lib', 'meta-theory', 'foundation.lino');
 const virtualRootFile = join(repoRoot, 'inline-meta-theory-test.lino');
 const foundationSource = readFileSync(foundationPath, 'utf8');
+const universalSource = readFileSync(universalPath, 'utf8');
 const upstreamCorpusPath = join(repoRoot, 'lib', 'meta-theory', 'upstream-0.0.3.lino');
 const upstreamCorpusFoundationPath = join(
   repoRoot,
@@ -34,7 +36,7 @@ const upstreamCorpusFoundationPath = join(
 );
 
 function networkFrom(source, trustedFoundation = foundationSource) {
-  return TheoryNetwork.fromRml(source, trustedFoundation);
+  return TheoryNetwork.fromRml(`${universalSource}\n${source}`, trustedFoundation);
 }
 
 function bundledNetwork() {
@@ -224,7 +226,8 @@ describe('meta-theory network', () => {
       network.implementation('typed-doublet-network'),
       {
         name: 'typed-doublet-network',
-        adapter: 'typed-doublet-network',
+        contract: 'typed-doublet-network',
+        program: 'dependent-type-theory',
         kind: 'dependent-function',
         subject: 'links-theory',
         using: 'type-theory',
@@ -293,7 +296,8 @@ describe('meta-theory network', () => {
 (theory user-theory (address user.theory))
 (term user-theory entity rml.concept.addressable-link)
 (implementation user-theory-network
-  (adapter theory-network)
+  (contract theory-network)
+  (program links-meta-theory)
   (kind link-network-composition)
   (subject user-theory)
   (using relative-meta-logic)
@@ -330,14 +334,19 @@ describe('meta-theory network', () => {
     );
   });
 
-  it('accepts caller-injected adapter semantics without host source changes', () => {
+  it('accepts user-defined linked semantics without host source changes', () => {
     const source = `
+(linked-program user-counter-program)
+(linked-rewrite user-counter-program evaluate-linked-contract
+  (from (counter (successor ?value)))
+  (to ?value))
 (theory source-theory (address user.source-theory))
 (theory target-theory (address user.target-theory))
 (term source-theory entity user.concept.entity)
 (term target-theory entity user.concept.entity)
 (implementation user-counter
-  (adapter user-counter-adapter)
+  (contract user-counter-contract)
+  (program user-counter-program)
   (kind user-defined-semantics)
   (subject source-theory)
   (using target-theory)
@@ -358,30 +367,19 @@ describe('meta-theory network', () => {
   (witness user.definition.counter))
 `;
     const trustedFoundation = `${foundationSource}
-(adapter-contract user-counter-adapter
+(implementation-contract user-counter-contract
   (kind user-defined-semantics)
   (obligation evaluates-linked-contract))
+(conformance-case user-counter-contract evaluates-linked-contract
+  (program user-counter-program)
+  (input (counter (successor zero)))
+  (expected zero))
 (axiom user.capability.counter
   (judgement (user-counter implements user-defined-semantics)))
 `;
-    let observed;
-    const network = TheoryNetwork.fromRml(source, trustedFoundation, {
-      adapterProbes: {
-        'user-counter-adapter': context => {
-          observed = context;
-          return context.definition.subject === 'source-theory' &&
-            context.definition.using === 'target-theory' &&
-            context.contract.obligations.includes('evaluates-linked-contract');
-        },
-      },
-    });
+    const network = networkFrom(source, trustedFoundation);
 
-    assert.strictEqual(observed.implementation.name, 'user-counter');
     assert.strictEqual(network.definitionVerification('source-by-target').verified, true);
-    assert.throws(
-      () => TheoryNetwork.fromRml(source, trustedFoundation),
-      /implementation user-counter has no executable probe/,
-    );
   });
 
   it('rejects ambiguous term addresses', () => {
@@ -434,11 +432,13 @@ describe('meta-theory network', () => {
   it('rejects an implementation rebound to a different theory definition', () => {
     const source = readFileSync(corePath, 'utf8').replace(
       `(implementation addressed-doublet-network
-  (adapter addressed-doublet-network)
+  (contract addressed-doublet-network)
+  (program links-meta-theory)
   (kind set-theoretic-function)
   (subject links-theory)`,
       `(implementation addressed-doublet-network
-  (adapter addressed-doublet-network)
+  (contract addressed-doublet-network)
+  (program links-meta-theory)
   (kind set-theoretic-function)
   (subject graph-theory)`,
     );
@@ -455,14 +455,14 @@ describe('meta-theory network', () => {
     );
     assert.throws(
       () => networkFrom(source),
-      /implementation addressed-doublet-network obligations do not match adapter addressed-doublet-network/,
+      /implementation addressed-doublet-network obligations do not match contract addressed-doublet-network/,
     );
   });
 
   it('rejects undeclared implementation contract clauses', () => {
     const source = readFileSync(corePath, 'utf8').replace(
-      '  (adapter addressed-doublet-network)',
-      `  (adapter addressed-doublet-network)
+      '  (contract addressed-doublet-network)',
+      `  (contract addressed-doublet-network)
   (unchecked true)`,
     );
     assert.throws(
@@ -478,7 +478,7 @@ describe('meta-theory network', () => {
     );
     assert.throws(
       () => networkFrom(source),
-      /implementation typed-doublet-network failed typed enforcement or proof replay/,
+      /proof-obligation typed-kernel-links.beta-conversion failed proof replay/,
     );
   });
 
@@ -506,7 +506,7 @@ describe('meta-theory network', () => {
 
     assert.throws(
       () => networkFrom(source),
-      /implementation typed-doublet-network failed typed enforcement or proof replay/,
+      /proof-obligation typed-kernel-links.pi-formation failed proof replay/,
     );
   });
 

@@ -146,6 +146,46 @@
   (from (set-union (cons ?head ?tail) ?right))
   (to (set-union ?tail (insert ?head ?right))))
 
+(linked-rewrite set-theory pairing
+  (from (set-pair ?left ?right))
+  (to
+    (insert ?left (insert ?right (empty)))))
+
+(linked-rewrite set-theory intersection-empty
+  (from (set-intersection (empty) ?right))
+  (to (empty)))
+
+(linked-rewrite set-theory intersection-cons
+  (from (set-intersection (cons ?head ?tail) ?right))
+  (to
+    (intersection-if
+      (member ?head ?right)
+      ?head
+      (set-intersection ?tail ?right))))
+
+(linked-rewrite set-theory intersection-include
+  (from (intersection-if true ?head ?tail))
+  (to (insert ?head ?tail)))
+
+(linked-rewrite set-theory intersection-exclude
+  (from (intersection-if false ?head ?tail))
+  (to ?tail))
+
+(linked-rewrite set-theory replacement-empty
+  (from (set-image ?constructor (empty)))
+  (to (empty)))
+
+(linked-rewrite set-theory replacement-cons
+  (from (set-image ?constructor (cons ?head ?tail)))
+  (to
+    (insert
+      (image ?constructor ?head)
+      (set-image ?constructor ?tail))))
+
+(linked-rewrite set-theory canonicalize-set
+  (from (canonical-set ?set))
+  (to (set-union ?set (empty))))
+
 # Graph reachability is the least closure of edges under these two inference
 # links. Saturation is finite under the caller's explicit resource bounds.
 
@@ -160,6 +200,17 @@
   (premise (reachable ?source ?middle))
   (premise (edge ?middle ?target))
   (conclusion (reachable ?source ?target)))
+
+(linked-inference graph-theory endpoint-closure
+  (premise (vertex ?graph ?source))
+  (premise (vertex ?graph ?target))
+  (conclusion (valid-edge ?graph ?source ?target)))
+
+(linked-inference graph-theory edge-typing
+  (premise (valid-edge ?graph ?source ?target))
+  (conclusion
+    (has-edge-type ?graph ?source ?target
+      (Pair (Vertex ?graph) (Vertex ?graph)))))
 
 # Binary relations are typed links. Converse and composition are inference
 # rules, while finite union and intersection reuse set definitions.
@@ -176,6 +227,38 @@
   (premise (relates ?right-relation ?middle ?right))
   (conclusion
     (relates (compose ?left-relation ?right-relation) ?left ?right)))
+
+(linked-inference relational-algebra domain-codomain-closure
+  (premise (member-of ?left (domain ?relation)))
+  (premise (member-of ?right (codomain ?relation)))
+  (conclusion (valid-pair ?relation ?left ?right)))
+
+(linked-inference relational-algebra union-left
+  (premise (relates ?left-relation ?left ?right))
+  (premise (relation ?right-relation))
+  (conclusion
+    (relates (relation-union ?left-relation ?right-relation) ?left ?right)))
+
+(linked-inference relational-algebra union-right
+  (premise (relation ?left-relation))
+  (premise (relates ?right-relation ?left ?right))
+  (conclusion
+    (relates (relation-union ?left-relation ?right-relation) ?left ?right)))
+
+(linked-inference relational-algebra intersection
+  (premise (relates ?left-relation ?left ?right))
+  (premise (relates ?right-relation ?left ?right))
+  (conclusion
+    (relates
+      (relation-intersection ?left-relation ?right-relation)
+      ?left
+      ?right)))
+
+(linked-inference relational-algebra pair-typing
+  (premise (valid-pair ?relation ?left ?right))
+  (conclusion
+    (has-pair-type ?relation ?left ?right
+      (Pair (Domain ?relation) (Codomain ?relation)))))
 
 # A small dependent type kernel expressed as judgements. Users can replace or
 # extend these facts and rules to construct another logic. The default fragment
@@ -197,6 +280,14 @@
 (linked-fact dependent-type-theory identity-function
   (judgement
     (has-type (lambda Nat (bound zero)) (Pi Nat Nat))))
+
+(linked-rewrite dependent-type-theory compatible-identical-types
+  (from (type-compatible ?type ?type))
+  (to true))
+
+(linked-rewrite dependent-type-theory incompatible-types
+  (from (type-compatible ?expected ?actual))
+  (to false))
 
 (linked-inference dependent-type-theory pi-formation
   (premise (has-type ?domain Type0))

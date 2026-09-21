@@ -13,6 +13,7 @@ import {
   parseRuleForm,
   tokenizeOne,
 } from './rml-links.mjs';
+import { LinkedProgramRegistry } from './rml-linked-program.mjs';
 
 const EMPTY_SEQUENCE = 'rml.sequence.empty';
 
@@ -68,26 +69,12 @@ function isProofRuleShape(form) {
     form.slice(2).some(clause => clause[0] === 'conclusion');
 }
 
-function adapterProbeMap(value) {
-  if (value === undefined) return new Map();
-  const entries = value instanceof Map ? value.entries() : Object.entries(value);
-  const probes = new Map();
-  for (const [name, probe] of entries) {
-    requireLeaf(name, 'adapter probe name');
-    if (typeof probe !== 'function') {
-      throw new Error(`adapter probe ${name} must be a function`);
-    }
-    probes.set(name, probe);
-  }
-  return probes;
-}
-
 /**
  * An addressable network of theories, definition relations, and local terms.
  * Source is round-tripped through meta-language before its LiNo forms are read.
  */
 class TheoryNetwork {
-  constructor(metaLanguageRoundTripOk, trustedFoundationRoundTripOk, adapterProbes) {
+  constructor(metaLanguageRoundTripOk, trustedFoundationRoundTripOk) {
     this.metaLanguageRoundTripOk = metaLanguageRoundTripOk;
     this.trustedFoundationRoundTripOk = trustedFoundationRoundTripOk;
     this.theories = new Map();
@@ -98,12 +85,13 @@ class TheoryNetwork {
     this.verifications = new Map();
     this.forms = [];
     this.proofEnv = new Env();
-    this.adapterContracts = new Map();
+    this.implementationContracts = new Map();
+    this.conformanceCases = new Map();
     this.proofObligations = new Map();
-    this.adapterProbes = adapterProbes;
+    this.linkedPrograms = null;
   }
 
-  static fromRml(source, trustedFoundationSource, { adapterProbes } = {}) {
+  static fromRml(source, trustedFoundationSource) {
     if (trustedFoundationSource === undefined) {
       throw new Error('trusted foundation source is required');
     }
@@ -116,7 +104,6 @@ class TheoryNetwork {
     const network = new TheoryNetwork(
       reconstructed === text,
       trustedReconstructed === trustedText,
-      adapterProbeMap(adapterProbes),
     );
     const trustedForms = parseLino(trustedReconstructed)
       .map(link => parseOne(tokenizeOne(link)));
@@ -124,8 +111,10 @@ class TheoryNetwork {
 
     for (const form of trustedForms) {
       if (!Array.isArray(form) || typeof form[0] !== 'string') continue;
-      if (form[0] === 'adapter-contract') {
-        network.#addAdapterContract(form);
+      if (form[0] === 'implementation-contract') {
+        network.#addImplementationContract(form);
+      } else if (form[0] === 'conformance-case') {
+        network.#addConformanceCase(form);
       } else if (form[0] === 'proof-obligation') {
         network.#addProofObligation(form);
       } else if (isProofRuleShape(form)) {
@@ -141,7 +130,8 @@ class TheoryNetwork {
     for (const form of forms) {
       if (!Array.isArray(form) || typeof form[0] !== 'string') continue;
       network.forms.push(form);
-      if (['adapter-contract', 'proof-obligation', 'rule', 'axiom', 'assumption']
+      if (['implementation-contract', 'conformance-case', 'proof-obligation',
+        'rule', 'axiom', 'assumption']
         .includes(form[0])) {
         throw new Error(`candidate theory source cannot declare trusted ${form[0]} forms`);
       }
@@ -154,67 +144,122 @@ class TheoryNetwork {
         network.proofEnv.registerProofObject(parseProofObjectForm(form));
       }
     }
+    network.linkedPrograms = LinkedProgramRegistry.fromForms(forms);
     network.#validate();
     return network;
   }
 
-  #addAdapterContract(form) {
-    if (form.length < 3) throw new Error('adapter-contract must have a name and clauses');
-    const adapter = requireLeaf(form[1], 'adapter-contract name');
-    if (this.adapterContracts.has(adapter)) {
-      throw new Error(`duplicate adapter-contract ${adapter}`);
+  #addImplementationContract(form) {
+    if (form.length < 3) {
+      throw new Error('implementation-contract must have a name and clauses');
+    }
+    const contract = requireLeaf(form[1], 'implementation-contract name');
+    if (this.implementationContracts.has(contract)) {
+      throw new Error(`duplicate implementation-contract ${contract}`);
     }
     const { data, obligations } = implementationClauses(
       form,
-      `adapter-contract ${adapter}`,
+      `implementation-contract ${contract}`,
     );
     for (const field of data.keys()) {
       if (field !== 'kind') {
-        throw new Error(`adapter-contract ${adapter} has unsupported clause ${field}`);
+        throw new Error(`implementation-contract ${contract} has unsupported clause ${field}`);
       }
     }
-    if (!data.has('kind')) throw new Error(`adapter-contract ${adapter} is missing kind`);
-    if (obligations.length === 0) {
-      throw new Error(`adapter-contract ${adapter} is missing obligations`);
+    if (!data.has('kind')) {
+      throw new Error(`implementation-contract ${contract} is missing kind`);
     }
-    this.adapterContracts.set(adapter, {
+    if (obligations.length === 0) {
+      throw new Error(`implementation-contract ${contract} is missing obligations`);
+    }
+    this.implementationContracts.set(contract, {
       kind: data.get('kind'),
       obligations,
     });
   }
 
+  #addConformanceCase(form) {
+    if (form.length < 5) {
+      throw new Error('conformance-case must have a contract, obligation, and clauses');
+    }
+    const contract = requireLeaf(form[1], 'conformance-case contract');
+    const obligation = requireLeaf(form[2], 'conformance-case obligation');
+    const context = `conformance-case ${contract}.${obligation}`;
+    const values = new Map();
+    const facts = [];
+    for (const clause of form.slice(3)) {
+      if (!Array.isArray(clause) || clause.length !== 2 || typeof clause[0] !== 'string') {
+        throw new Error(`${context} clauses must have the form (name value)`);
+      }
+      if (clause[0] === 'fact') {
+        facts.push(clause[1]);
+      } else {
+        if (values.has(clause[0])) throw new Error(`${context} repeats clause ${clause[0]}`);
+        values.set(clause[0], clause[1]);
+      }
+    }
+    for (const field of values.keys()) {
+      if (!['program', 'input', 'expected', 'goal'].includes(field)) {
+        throw new Error(`${context} has unsupported clause ${field}`);
+      }
+    }
+    const program = requireLeaf(values.get('program'), `${context} program`);
+    const hasReduction = values.has('input') || values.has('expected');
+    const hasProof = values.has('goal') || facts.length > 0;
+    if (hasReduction === hasProof) {
+      throw new Error(`${context} must define exactly one reduction or proof case`);
+    }
+    if (hasReduction && (!values.has('input') || !values.has('expected'))) {
+      throw new Error(`${context} reduction requires input and expected clauses`);
+    }
+    if (hasProof && !values.has('goal')) {
+      throw new Error(`${context} proof requires a goal clause`);
+    }
+    const key = JSON.stringify([contract, obligation]);
+    if (this.conformanceCases.has(key)) throw new Error(`duplicate ${context}`);
+    this.conformanceCases.set(key, {
+      contract,
+      obligation,
+      program,
+      input: values.get('input'),
+      expected: values.get('expected'),
+      goal: values.get('goal'),
+      facts,
+    });
+  }
+
   #addProofObligation(form) {
-    if (form.length < 3) throw new Error('proof-obligation must have an adapter and clauses');
-    const adapter = requireLeaf(form[1], 'proof-obligation adapter');
+    if (form.length < 3) throw new Error('proof-obligation must have a contract and clauses');
+    const contract = requireLeaf(form[1], 'proof-obligation contract');
     const data = new Map();
     for (const clause of form.slice(2)) {
       if (!Array.isArray(clause) || clause.length !== 2 || typeof clause[0] !== 'string') {
-        throw new Error(`proof-obligation ${adapter} clauses must have the form (name value)`);
+        throw new Error(`proof-obligation ${contract} clauses must have the form (name value)`);
       }
       if (data.has(clause[0])) {
-        throw new Error(`proof-obligation ${adapter} repeats clause ${clause[0]}`);
+        throw new Error(`proof-obligation ${contract} repeats clause ${clause[0]}`);
       }
       data.set(clause[0], clause[1]);
     }
     for (const field of data.keys()) {
       if (!['obligation', 'proof', 'judgement'].includes(field)) {
-        throw new Error(`proof-obligation ${adapter} has unsupported clause ${field}`);
+        throw new Error(`proof-obligation ${contract} has unsupported clause ${field}`);
       }
     }
     for (const field of ['obligation', 'proof', 'judgement']) {
-      if (!data.has(field)) throw new Error(`proof-obligation ${adapter} is missing ${field}`);
+      if (!data.has(field)) throw new Error(`proof-obligation ${contract} is missing ${field}`);
     }
-    const obligation = requireLeaf(data.get('obligation'), `proof-obligation ${adapter} name`);
-    const proof = requireLeaf(data.get('proof'), `proof-obligation ${adapter} proof`);
+    const obligation = requireLeaf(data.get('obligation'), `proof-obligation ${contract} name`);
+    const proof = requireLeaf(data.get('proof'), `proof-obligation ${contract} proof`);
     if (!Array.isArray(data.get('judgement'))) {
-      throw new Error(`proof-obligation ${adapter}.${obligation} judgement must be a link`);
+      throw new Error(`proof-obligation ${contract}.${obligation} judgement must be a link`);
     }
-    const key = JSON.stringify([adapter, obligation]);
+    const key = JSON.stringify([contract, obligation]);
     if (this.proofObligations.has(key)) {
-      throw new Error(`duplicate proof-obligation ${adapter}.${obligation}`);
+      throw new Error(`duplicate proof-obligation ${contract}.${obligation}`);
     }
     this.proofObligations.set(key, {
-      adapter,
+      contract,
       obligation,
       proof,
       judgement: data.get('judgement'),
@@ -222,19 +267,36 @@ class TheoryNetwork {
   }
 
   #validateTrustedFoundation() {
-    if (this.adapterContracts.size === 0) {
-      throw new Error('trusted foundation does not declare any adapter contracts');
+    if (this.implementationContracts.size === 0) {
+      throw new Error('trusted foundation does not declare any implementation contracts');
+    }
+    for (const [contractName, contract] of this.implementationContracts) {
+      for (const obligation of contract.obligations) {
+        if (!this.conformanceCases.has(JSON.stringify([contractName, obligation]))) {
+          throw new Error(
+            `implementation-contract ${contractName} has no conformance-case for ${obligation}`,
+          );
+        }
+      }
+    }
+    for (const testCase of this.conformanceCases.values()) {
+      const contract = this.implementationContracts.get(testCase.contract);
+      if (!contract || !contract.obligations.includes(testCase.obligation)) {
+        throw new Error(
+          `conformance-case ${testCase.contract}.${testCase.obligation} is not in its contract`,
+        );
+      }
     }
     for (const obligation of this.proofObligations.values()) {
-      const contract = this.adapterContracts.get(obligation.adapter);
+      const contract = this.implementationContracts.get(obligation.contract);
       if (!contract) {
         throw new Error(
-          `proof-obligation ${obligation.adapter}.${obligation.obligation} has unknown adapter`,
+          `proof-obligation ${obligation.contract}.${obligation.obligation} has unknown contract`,
         );
       }
       if (!contract.obligations.includes(obligation.obligation)) {
         throw new Error(
-          `proof-obligation ${obligation.adapter}.${obligation.obligation} is not in its contract`,
+          `proof-obligation ${obligation.contract}.${obligation.obligation} is not in its contract`,
         );
       }
     }
@@ -294,13 +356,13 @@ class TheoryNetwork {
       form,
       `implementation ${name}`,
     );
-    const fields = new Set(['adapter', 'kind', 'subject', 'using']);
+    const fields = new Set(['contract', 'program', 'kind', 'subject', 'using']);
     for (const field of data.keys()) {
       if (!fields.has(field)) {
         throw new Error(`implementation ${name} has unsupported clause ${field}`);
       }
     }
-    for (const field of ['adapter', 'kind', 'subject', 'using']) {
+    for (const field of ['contract', 'program', 'kind', 'subject', 'using']) {
       if (!data.has(field)) throw new Error(`implementation ${name} is missing ${field}`);
     }
     if (obligations.length === 0) {
@@ -308,7 +370,8 @@ class TheoryNetwork {
     }
     this.implementations.set(name, {
       name,
-      adapter: data.get('adapter'),
+      contract: data.get('contract'),
+      program: data.get('program'),
       kind: data.get('kind'),
       subject: data.get('subject'),
       using: data.get('using'),
@@ -333,6 +396,12 @@ class TheoryNetwork {
   }
 
   #validate() {
+    if (!this.metaLanguageRoundTripOk) {
+      throw new Error('candidate theory source failed its meta-language round trip');
+    }
+    if (!this.trustedFoundationRoundTripOk) {
+      throw new Error('trusted foundation failed its meta-language round trip');
+    }
     for (const { theory, term } of this.terms.values()) {
       if (!this.theories.has(theory)) {
         throw new Error(`term ${theory}.${term} references unknown theory ${theory}`);
@@ -394,15 +463,26 @@ class TheoryNetwork {
   }
 
   #verifyImplementation(definition, witness, implementation) {
-    const contract = this.adapterContracts.get(implementation.adapter);
+    const contract = this.implementationContracts.get(implementation.contract);
     if (contract === undefined) {
       throw new Error(
-        `implementation ${implementation.name} uses unknown adapter ${implementation.adapter}`,
+        `implementation ${implementation.name} uses unknown contract ${implementation.contract}`,
       );
+    }
+    for (const obligation of this.proofObligations.values()) {
+      if (obligation.contract !== implementation.contract) continue;
+      const verdict = checkProofObject(this.proofEnv, obligation.proof);
+      const proof = this.proofEnv.getProofObject(obligation.proof);
+      if (!verdict.ok || proof === null ||
+          !isStructurallySame(proof.conclusion, obligation.judgement)) {
+        throw new Error(
+          `proof-obligation ${obligation.contract}.${obligation.obligation} failed proof replay`,
+        );
+      }
     }
     if (implementation.kind !== contract.kind) {
       throw new Error(
-        `implementation ${implementation.name} adapter ${implementation.adapter} requires ` +
+        `implementation ${implementation.name} contract ${implementation.contract} requires ` +
         `kind ${contract.kind}, not ${implementation.kind}`,
       );
     }
@@ -424,8 +504,8 @@ class TheoryNetwork {
     const expectedObligations = [...contract.obligations].sort(compareReferences);
     if (!isStructurallySame(declaredObligations, expectedObligations)) {
       throw new Error(
-        `implementation ${implementation.name} obligations do not match adapter ` +
-        implementation.adapter,
+        `implementation ${implementation.name} obligations do not match contract ` +
+        implementation.contract,
       );
     }
 
@@ -445,262 +525,42 @@ class TheoryNetwork {
       }
     }
 
-    if (implementation.adapter === 'theory-network') {
-      if (!this.metaLanguageRoundTripOk) {
-        throw new Error('implementation theory-network failed its meta-language round trip');
-      }
-      const chain = this.definitionChain(definition.subject, definition.using);
-      if (chain?.length !== 2 || chain[0] !== definition.subject ||
-          chain[1] !== definition.using) {
-        throw new Error('implementation theory-network failed its definition-link probe');
-      }
-      return [...contract.obligations];
-    }
-
-    if (implementation.adapter === 'addressed-doublet-network') {
-      const links = new LinkNetwork();
-      links.define('probe.doublet', 'probe.source', 'probe.target');
-      const probe = links.doublet('probe.doublet');
-      if (probe?.source !== 'probe.source' || probe?.target !== 'probe.target') {
-        throw new Error(`implementation ${implementation.name} failed its doublet probe`);
-      }
-      let duplicateRejected = false;
-      try {
-        links.define('probe.doublet', 'probe.other', 'probe.value');
-      } catch (error) {
-        duplicateRejected = /already defined/.test(error.message);
-      }
-      if (!duplicateRejected) {
-        throw new Error('implementation addressed-doublet-network is not an address function');
-      }
-      return [...contract.obligations];
-    }
-
-    if (implementation.adapter === 'typed-doublet-network') {
-      const links = new TypedLinkNetwork();
-      links.declare('probe.source', 'Reference');
-      links.declare('probe.target', 'Reference');
-      links.declare('probe.wrong', 'NotReference');
-      links.define(
-        'probe.typed-doublet',
-        'probe.source',
-        'probe.target',
-        'Reference',
-        'Reference',
+    if (!this.linkedPrograms.has(implementation.program)) {
+      throw new Error(
+        `implementation ${implementation.name} uses unknown linked-program ${implementation.program}`,
       );
-      if (links.typeOf('probe.typed-doublet') !== '(Pair Reference Reference)') {
-        throw new Error('implementation typed-doublet-network failed its pair typing probe');
-      }
-      let mismatchRejected = false;
-      try {
-        links.define(
-          'probe.invalid-doublet',
-          'probe.wrong',
-          'probe.target',
-          'Reference',
-          'Reference',
-        );
-      } catch (error) {
-        mismatchRejected = /expected Reference/.test(error.message);
-      }
-      if (!mismatchRejected || !this.#hasTypedFoundation()) {
-        throw new Error(
-          'implementation typed-doublet-network failed typed enforcement or proof replay',
-        );
-      }
-      return [...contract.obligations];
     }
-
-    if (implementation.adapter === 'doublet-template') {
-      const expected = [
-        'template',
-        ['doublet', 'address', 'source', 'target'],
-        ['address', 'maps-to', ['source', 'target']],
-      ];
-      if (!this.forms.some(form => isStructurallySame(form, expected))) {
-        throw new Error('implementation doublet-template is missing its executable template');
-      }
-      const recursive = new LinkNetwork();
-      recursive.define('probe.self', 'probe.self', 'probe.self');
-      const probe = recursive.doublet('probe.self');
-      if (probe?.source !== 'probe.self' || probe?.target !== 'probe.self') {
-        throw new Error('implementation doublet-template failed its recursive-reference probe');
-      }
-      return [...contract.obligations];
-    }
-
-    if (implementation.adapter === 'membership-doublet-network') {
-      const sets = new MembershipSetStore();
-      sets.define('probe.membership.1', 'probe.alpha', 'probe.left');
-      sets.define('probe.membership.2', 'probe.beta', 'probe.left');
-      sets.define('probe.membership.3', 'probe.beta', 'probe.right');
-      sets.define('probe.membership.4', 'probe.alpha', 'probe.right');
-      if (!sets.has('probe.left', 'probe.alpha') ||
-          !sets.isSubsetOf('probe.left', 'probe.right') ||
-          !sets.equals('probe.left', 'probe.right')) {
-        throw new Error(
-          'implementation membership-doublet-network failed its membership probe',
-        );
-      }
-      sets.define('probe.collection.1', 'probe.left', 'probe.collection');
-      sets.define('probe.collection.2', 'probe.right', 'probe.collection');
-      if (!isStructurallySame(sets.pair('probe.alpha', 'probe.beta'), [
-        'probe.alpha',
-        'probe.beta',
-      ]) ||
-          !isStructurallySame(sets.union('probe.collection'), [
-            'probe.alpha',
-            'probe.beta',
-          ]) ||
-          !isStructurallySame(
-            sets.separation('probe.left', value => value === 'probe.beta'),
-            ['probe.beta'],
-          ) ||
-          !isStructurallySame(
-            sets.replacement('probe.left', value => `${value}.image`),
-            ['probe.alpha.image', 'probe.beta.image'],
-          )) {
-        throw new Error('implementation membership-doublet-network failed its set algebra probe');
-      }
-      return [...contract.obligations];
-    }
-
-    if (implementation.adapter === 'typed-kernel-links') {
-      if (!this.#hasTypedFoundation()) {
-        throw new Error('implementation typed-kernel-links is missing its typed foundation');
-      }
-      return [...contract.obligations];
-    }
-
-    if (implementation.adapter === 'finite-directed-link-graph' ||
-        implementation.adapter === 'vertex-typed-link-graph') {
-      const graph = new LinkGraph('probe.graph');
-      graph.addVertex('probe.alpha');
-      graph.addVertex('probe.beta');
-      graph.addVertex('probe.gamma');
-      graph.defineEdge('probe.edge.1', 'probe.alpha', 'probe.beta');
-      graph.defineEdge('probe.edge.2', 'probe.beta', 'probe.gamma');
-      if (!graph.reachable('probe.alpha', 'probe.gamma')) {
-        throw new Error(`implementation ${witness.implementation} failed its graph probe`);
-      }
-      let endpointRejected = false;
-      try {
-        graph.defineEdge('probe.edge.invalid', 'probe.alpha', 'probe.missing');
-      } catch (error) {
-        endpointRejected = /not a vertex/.test(error.message);
-      }
-      if (!endpointRejected) {
-        throw new Error(`implementation ${implementation.name} failed endpoint closure`);
-      }
-      if (implementation.adapter === 'vertex-typed-link-graph' &&
-          (graph.edgeType('probe.edge.1') !==
-            '(Pair probe.graph.vertex probe.graph.vertex)' ||
-            !this.#hasTypedFoundation())) {
-        throw new Error(
-          'implementation vertex-typed-link-graph failed edge typing or proof replay',
-        );
-      }
-      return [...contract.obligations];
-    }
-
-    if (implementation.adapter === 'finite-binary-link-relation' ||
-        implementation.adapter === 'typed-binary-link-relation') {
-      const first = new FiniteRelation(
-        'probe.relation.first',
-        ['probe.alpha'],
-        ['probe.middle'],
+    for (const obligation of contract.obligations) {
+      const testCase = this.conformanceCases.get(
+        JSON.stringify([implementation.contract, obligation]),
       );
-      first.define('probe.pair.first', 'probe.alpha', 'probe.middle');
-      const next = new FiniteRelation(
-        'probe.relation.next',
-        ['probe.middle'],
-        ['probe.omega'],
-      );
-      next.define('probe.pair.next', 'probe.middle', 'probe.omega');
-      const extra = new FiniteRelation(
-        'probe.relation.extra',
-        ['probe.alpha'],
-        ['probe.middle'],
-      );
-      extra.define('probe.pair.extra', 'probe.alpha', 'probe.middle');
-      let domainRejected = false;
-      let codomainRejected = false;
-      try {
-        first.define('probe.pair.invalid-left', 'probe.outside', 'probe.middle');
-      } catch (error) {
-        domainRejected = /outside the declared domain/.test(error.message);
-      }
-      try {
-        first.define('probe.pair.invalid-right', 'probe.alpha', 'probe.outside');
-      } catch (error) {
-        codomainRejected = /outside the declared codomain/.test(error.message);
-      }
-      if (!first.compose(next, 'probe.relation.composed').has('probe.alpha', 'probe.omega') ||
-          !first.converse('probe.relation.converse').has('probe.middle', 'probe.alpha') ||
-          !first.union(extra, 'probe.relation.union').has('probe.alpha', 'probe.middle') ||
-          !first.intersection(extra, 'probe.relation.intersection')
-            .has('probe.alpha', 'probe.middle') ||
-          !domainRejected || !codomainRejected) {
-        throw new Error(`implementation ${witness.implementation} failed its relation probe`);
-      }
-      if (implementation.adapter === 'typed-binary-link-relation' &&
-          (first.pairType('probe.pair.first') !==
-            '(Pair probe.relation.first.domain probe.relation.first.codomain)' ||
-            !this.#hasTypedFoundation())) {
+      if (testCase.program !== implementation.program) {
         throw new Error(
-          'implementation typed-binary-link-relation failed pair typing or proof replay',
+          `implementation ${implementation.name} program ${implementation.program} does not match ` +
+          `${implementation.contract}.${obligation} program ${testCase.program}`,
         );
       }
-      return [...contract.obligations];
-    }
-
-    if (implementation.adapter === 'canonical-doublet-tree') {
-      const doublets = new DoubletSequenceStore();
-      const root = doublets.encodeSet(['probe.beta', 'probe.alpha', 'probe.beta'], 'probe.set');
-      if (!isStructurallySame(doublets.decodeSet(root), ['probe.alpha', 'probe.beta'])) {
-        throw new Error('implementation canonical-doublet-tree failed its set probe');
+      if (testCase.input !== undefined) {
+        const result = this.linkedPrograms.reduce(testCase.program, testCase.input);
+        if (!isStructurallySame(result.term, testCase.expected)) {
+          throw new Error(
+            `implementation ${implementation.name} failed reduction conformance ` +
+            `${implementation.contract}.${obligation}`,
+          );
+        }
+      } else {
+        const verdict = this.linkedPrograms.prove(testCase.program, testCase.goal, {
+          facts: testCase.facts,
+        });
+        if (!verdict.ok) {
+          throw new Error(
+            `implementation ${implementation.name} failed proof conformance ` +
+            `${implementation.contract}.${obligation}`,
+          );
+        }
       }
-      if (!doublets.doublet(root)) {
-        throw new Error('implementation canonical-doublet-tree did not create nested doublets');
-      }
-      return [...contract.obligations];
     }
-    const injectedProbe = this.adapterProbes.get(implementation.adapter);
-    if (injectedProbe !== undefined) {
-      const accepted = injectedProbe(Object.freeze({
-        definition: Object.freeze({ ...definition }),
-        witness: Object.freeze({ ...witness }),
-        implementation: Object.freeze({
-          ...implementation,
-          obligations: Object.freeze([...implementation.obligations]),
-        }),
-        contract: Object.freeze({
-          kind: contract.kind,
-          obligations: Object.freeze([...contract.obligations]),
-        }),
-      }));
-      if (accepted !== true) {
-        throw new Error(
-          `implementation ${implementation.name} injected adapter probe did not accept it`,
-        );
-      }
-      return [...contract.obligations];
-    }
-    throw new Error(`implementation ${implementation.name} has no executable probe`);
-  }
-
-  #hasTypedFoundation() {
-    const contract = this.adapterContracts.get('typed-kernel-links');
-    return contract !== undefined && contract.obligations.every(obligation => {
-      const expected = this.proofObligations.get(
-        JSON.stringify(['typed-kernel-links', obligation]),
-      );
-      if (!expected) return false;
-      const verdict = checkProofObject(this.proofEnv, expected.proof);
-      const proof = this.proofEnv.getProofObject(expected.proof);
-      return verdict.ok && proof !== null &&
-        isStructurallySame(proof.conclusion, expected.judgement);
-    });
+    return [...contract.obligations];
   }
 
   theoryNames() {
