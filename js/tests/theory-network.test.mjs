@@ -51,7 +51,11 @@ describe('meta-theory network', () => {
     assert.strictEqual(corpus.metaLanguageRoundTripOk, true);
     assert.strictEqual(corpus.trustedFoundationRoundTripOk, true);
     assert.strictEqual(corpus.revision, '087f4515d0652925eecc54bcade724445c3978f1');
+    assert.strictEqual(corpus.schema, 'linked-source-v1');
+    assert.strictEqual(corpus.formalModules.length, 18);
     assert.strictEqual(corpus.declarations.length, 229);
+    assert.strictEqual(corpus.semanticTokenCount, 8815);
+    assert.strictEqual(corpus.dependencyCount, 510);
     assert.deepStrictEqual(corpus.languages(), ['lean', 'rocq']);
     assert.deepStrictEqual(corpus.modules('lean'), [
       'MetaDefinitions',
@@ -74,18 +78,64 @@ describe('meta-theory network', () => {
         'lean.strictly_ascending_implies_no_dup',
       ],
     );
-    assert.ok(corpus.declaration('rocq', 'SetSequenceEquivalence', 'mem_toOrderedUnique'));
+    const balanced = corpus.declaration('lean', 'SequenceDefinitions', 'ListToBalancedTree');
+    assert.strictEqual(balanced.recursive, true);
+    assert.ok(balanced.signature.map(token => token.text).includes('Option'));
+    assert.ok(balanced.body.map(token => token.text).includes('ListToBalancedTree'));
+    assert.ok(balanced.dependencies.includes(balanced.address));
+
+    const readSequence = corpus.declaration('lean', 'SequenceDefinitions', 'ReadSequence_');
+    assert.strictEqual(readSequence.recursive, true);
+    assert.ok(readSequence.body.map(token => token.text).includes('ReadSequence_'));
+
+    const theorem = corpus.declaration(
+      'lean',
+      'SetSequenceEquivalence',
+      'set_sequence_equivalence',
+    );
+    assert.ok(theorem.signature.map(token => token.text).includes('∃'));
+    assert.ok(theorem.proof.map(token => token.text).includes('mem_toOrderedUnique'));
+    assert.ok(theorem.dependencies.includes(
+      'rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending',
+    ));
+    assert.strictEqual(
+      corpus.counterpart(theorem).address,
+      'rml.formal.rocq.SetSequenceEquivalence.set_sequence_equivalence',
+    );
+    assert.ok(corpus.dependencyClosure(theorem.address).includes(
+      'rml.formal.lean.SetSequenceEquivalence.insertSorted',
+    ));
+
+    const rocqProof = corpus.declaration(
+      'rocq',
+      'MetaDefinitions',
+      'meta_network_is_duplet_network',
+    );
+    assert.deepStrictEqual(
+      rocqProof.proof.slice(0, 2).map(token => token.text),
+      ['Proof', '.'],
+    );
   });
 
   it('rejects an incomplete or self-authorized formal corpus', () => {
     const source = readFileSync(upstreamCorpusPath, 'utf8');
     const foundation = readFileSync(upstreamCorpusFoundationPath, 'utf8');
+    const omitted = source.replace(
+      /\n  \(declaration definition ReferenceDefault\n(?:    .*\n)*?  \)\n/,
+      '\n',
+    );
     assert.throws(
-      () => FormalCorpus.fromRml(
-        source.replace('  (definition ReferenceDefault)\n', ''),
-        foundation,
-      ),
-      /declaration count 228 does not match trusted count 229/,
+      () => FormalCorpus.fromRml(omitted, foundation),
+      /unknown dependency|declaration count 228 does not match trusted count 229/,
+    );
+    const changedBody = source.replace(
+      /(formal-module meta-theory-0\.0\.3 lean NetworkDefinitions[\s\S]*?)(\(token numeral )30(\))/,
+      (_match, prefix, open, close) => `${prefix}${open}31${close}`,
+    );
+    assert.notStrictEqual(changedBody, source);
+    assert.throws(
+      () => FormalCorpus.fromRml(changedBody, foundation),
+      /fingerprint .* does not match trusted fingerprint/,
     );
     assert.throws(
       () => FormalCorpus.fromRml(`${source}\n${foundation}`, foundation),

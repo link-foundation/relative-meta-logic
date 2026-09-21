@@ -92,26 +92,48 @@ Every source is first parsed and reconstructed by `meta-language`. The theory
 reader consumes only reconstructed LiNo and reports whether the round trip was
 byte-for-byte lossless.
 
-## Complete upstream formal corpus
+## Complete upstream semantic corpus
 
-The theory network is paired with a complete source inventory for upstream
-meta-theory 0.0.3. The candidate
-[`upstream-0.0.3.lino`](../lib/meta-theory/upstream-0.0.3.lino) contains 229
-named declarations from all nine Lean and nine Rocq modules. Its independent
+The theory network is paired with a linked representation of the complete
+compiler input for upstream meta-theory 0.0.3. The candidate
+[`upstream-0.0.3.lino`](../lib/meta-theory/upstream-0.0.3.lino) contains the
+normalized syntax of all nine Lean and nine Rocq modules as 8,815 typed UTF-8
+token links. Its 229 declaration links point into that syntax with four exact
+token ranges:
+
+- the complete declaration syntax;
+- the signature or theorem judgement;
+- the definition body, including recursive equations; and
+- the source proof object or proof script.
+
+Each declaration also records its stable address, proof status, recursion
+status, and resolved declaration dependencies. Recursive definitions must have
+a self-dependency. The 510 dependency links form a queryable graph;
+`dependencyClosure` / `dependency_closure` follows it transitively, and
+`counterpart` finds the corresponding declaration in the other formalization.
+For example, queries for `ListToBalancedTree`, `ReadSequence_`,
+`set_sequence_equivalence`, and `meta_network_is_duplet_network` return their
+actual source-level types, bodies or proofs—not only their names and kinds.
+
+The independent
 [`upstream-0.0.3-foundation.lino`](../lib/meta-theory/upstream-0.0.3-foundation.lino)
-contract fixes the repository, commit, declaration count, and normalized
-fingerprint.
+contract fixes the repository, revision, schema, module/declaration/token/
+dependency counts, and a SHA-256 fingerprint over every token, range, status,
+recursion marker, and dependency. `FormalCorpus.fromRml` /
+`FormalCorpus::from_rml` validate that contract through `meta-language`. They
+also derive theorem admission from the linked proof tokens, reject empty
+judgements/bodies/proofs, unresolved dependencies, inconsistent recursion,
+semantic mutations, omissions, and candidate-authored contracts. Four
+upstream Lean theorems contain `sorry` and are therefore `admitted`; all named
+Rocq theorems end in checked proof terminators and are `verified`.
 
-`FormalCorpus.fromRml` / `FormalCorpus::from_rml` load both documents through
-`meta-language` and reject metadata drift, duplicate symbols, missing or
-changed declarations, malformed theorem status, and a candidate that attempts
-to authorize its own contract. The manifest records four upstream Lean
-theorems as `admitted`; all named Rocq theorems are `verified`.
-
-The `formal-corpus` CI workflow independently checks out the pinned revision,
-extracts the inventory from the actual sources, compares it with the LiNo
-manifest, and builds the complete Lean and Rocq projects. The source build also
-checks commands that are not named declarations.
+The `formal-corpus` CI workflow independently checks out the pinned revision
+and re-extracts the same module token streams, declaration ranges, proof
+objects, recursion facts, and dependency graph. It compares those semantics
+declaration by declaration with the linked corpus before building the exact
+Lean and Rocq sources. Consequently the native kernels check the proof content
+whose tokens RML stores, rather than a separate name inventory. The source
+build also checks commands that are outside named declaration ranges.
 
 ## Unified concept addresses
 
@@ -324,6 +346,10 @@ walk emits the source and follows only the target.
 |---------|------------|------|
 | Parse theory network | `TheoryNetwork.fromRml` | `TheoryNetwork::from_rml` |
 | Parse pinned formal corpus | `FormalCorpus.fromRml` | `FormalCorpus::from_rml` |
+| Query a formal module | `module` | `module` |
+| Query full declaration semantics | `declaration` / `declarationAt` | `declaration` / `declaration_at` |
+| Follow declaration dependencies | `dependencyClosure` | `dependency_closure` |
+| Find Lean/Rocq counterpart | `counterpart` | `counterpart` |
 | Resolve local term | `resolveTerm` | `resolve_term` |
 | Translate term | `translateTerm` | `translate_term` |
 | Query implementation contract | `implementation` | `implementation` |
@@ -346,8 +372,10 @@ walk emits the source and follows only the target.
 Mirrored tests in `js/tests/theory-network.test.mjs` and
 `rust/tests/theory_network_tests.rs` verify:
 
-- exact accounting for all 229 pinned Lean/Rocq declarations, including
-  explicit admitted/verified status, independent fingerprints, mutation
+- exact accounting for all 18 pinned Lean/Rocq modules and all 229
+  declarations, including 8,815 typed source-token links, complete signatures,
+  bodies, recursive equations, proof objects, 510 dependency links,
+  admitted/verified status, independent fingerprints, semantic mutation
   rejection, and rejection of candidate-authored contracts;
 - lossless loading through `meta-language`;
 - RML's Links Theory dependency and the set/type/self definition cycle;
@@ -371,13 +399,17 @@ Mirrored tests in `js/tests/theory-network.test.mjs` and
 - rejection of finite-tree cycles; and
 - bounded direct and indirect right-spine cycles.
 
-These tests, source parity checks, and proof-assistant builds verify every
-named declaration is accounted for and every obligation in the finite implementation contracts,
-the theory-network algorithms, and the explicitly derived graph/relation
-algorithms shipped by RML. The boundary is intentionally precise: they do not
-assert unrestricted theory equivalence, turn upstream proof declarations into
-RML proof terms, treat the four upstream Lean admissions as proofs, or treat a
-finite prefix as proof about an entire infinite sequence. See the
+These tests, semantic source-parity checks, and proof-assistant builds verify
+that every linked source token and declaration view is the content accepted by
+the native Lean/Rocq kernel, as well as every obligation in the finite
+implementation contracts, theory-network algorithms, and explicitly derived
+graph/relation algorithms shipped by RML. RML preserves source proof terms and
+derivations as typed links and validates their structure and trusted
+fingerprint; elaboration and kernel reduction remain delegated to the pinned
+Lean and Rocq kernels. The boundary is intentionally precise: this finite
+cross-check does not assert equivalence for arbitrary future Lean/Rocq
+programs, treat the four upstream Lean admissions as proofs, or treat a finite
+prefix as proof about an entire infinite sequence. See the
 case study's
 [`baseline-audit.md`](./case-studies/issue-183/baseline-audit.md) for the exact
 upstream snapshot and formal-development boundary.

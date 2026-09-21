@@ -291,8 +291,10 @@ theories back into the same links network. See
 verification boundary.
 
 The separately contracted
-[`upstream-0.0.3.lino`](../lib/meta-theory/upstream-0.0.3.lino) inventory also
-accounts for every named declaration in the pinned Lean and Rocq sources. CI
-compares the inventory directly with that checkout and builds both formal
-projects; four admitted Lean declarations remain explicitly visible rather
-than being counted as completed proofs.
+[`upstream-0.0.3.lino`](../lib/meta-theory/upstream-0.0.3.lino) semantic corpus
+stores the complete normalized token streams of all pinned Lean and Rocq
+modules. Every declaration links to its full signature, body or source proof,
+recursion status, and resolved dependencies. CI re-extracts and compares that
+content declaration by declaration before building the exact sources with
+both native kernels; four admitted Lean declarations remain explicitly visible
+rather than being counted as completed proofs.

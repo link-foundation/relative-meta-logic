@@ -71,34 +71,49 @@ now makes the two interpretations explicit:
 | `encodeOrderedSet` / `encode_ordered_set` | caller order, unique balanced tree | finite decode; duplicates rejected |
 | `walk` | `(value, next-reference)` right spine | caller-bounded; direct/indirect cycles reported |
 
-## Complete source inventory and formal builds
+## Complete linked semantics and formal builds
 
 The audit is now machine-enforced rather than only narrative. The candidate
 [`upstream-0.0.3.lino`](../../../lib/meta-theory/upstream-0.0.3.lino) records
-all 229 named declarations across the nine Lean and nine Rocq modules. A
-separately loaded contract pins the repository, revision, count, and normalized
-fingerprint. JavaScript and Rust both reject an incomplete or modified
-candidate, and the candidate cannot supply its own contract.
+the complete normalized compiler-input token stream for all nine Lean and nine
+Rocq modules. Every one of the 229 declaration links supplies ranges for its
+complete syntax, signature/judgement, definition body, and source proof
+object, plus recursion and resolved dependency links. This is 8,815 typed
+source-token links and 510 dependency links rather than an inventory of names.
 
-The `formal-corpus` workflow checks out that exact revision, extracts the
-declarations from the source, compares them with the LiNo inventory, and
-builds both proof-assistant projects. This also covers source-level evaluation
-commands that are not named declarations.
+A separately loaded contract pins the repository and revision together with
+module, declaration, token, and dependency counts and a semantic SHA-256.
+JavaScript and Rust independently validate the ranges and theorem/definition
+invariants, derive admission status from proof content, resolve every
+dependency, and reject an incomplete or modified candidate. The candidate
+cannot supply its own contract.
+
+The `formal-corpus` workflow checks out that exact revision, re-extracts the
+full lexical semantics and dependency graph, and compares it declaration by
+declaration with the LiNo corpus. It then builds the same complete source with
+both proof assistants. This connects the linked RML representation to the
+native kernel results and also covers source-level commands outside named
+declarations.
 
 ## Verification boundary
 
-The upstream Lean and Rocq directories are formal developments and are built
-by this change, but they are not part of RML's trusted kernel or translated
-into RML proof terms. Four Lean proof obligations in the reviewed snapshot
-remain admitted with `sorry`; the manifest identifies them individually, and
-the corresponding Rocq declarations are verified. RML's additional acceptance
-evidence is mirrored runtime tests for exact doublets, tree round trips, two independent finite-set
-representations, canonical ordering, typed graph/relation operations, and
-bounded cycles. Definition witnesses additionally reuse RML's proof checker:
-each link must name an exact implementation manifest, pass every declared
-finite conformance operation, and carry a checked proof whose conclusion binds
-that exact link. The explicit implementation-capability axioms remain the host
-trust boundary; this is not a proof of unrestricted theory equivalence.
+The linked corpus preserves the complete source proof terms and tactic scripts;
+RML validates their ranges, status, dependencies, and semantic fingerprint.
+The Lean and Rocq elaborators and kernels remain the trusted components that
+interpret and check those language-specific proof objects. Four Lean proof
+obligations in the reviewed snapshot remain admitted with `sorry`; the corpus
+identifies them individually, while the corresponding Rocq declarations are
+verified. This proves correspondence for this pinned finite corpus, not a
+claim that RML implements unrestricted Lean or Rocq elaboration for arbitrary
+future input.
+
+RML's additional acceptance evidence is mirrored runtime tests for exact
+doublets, tree round trips, two independent finite-set representations,
+canonical ordering, typed graph/relation operations, and bounded cycles.
+Definition witnesses additionally reuse RML's proof checker: each link must
+name an exact implementation manifest, pass every declared finite conformance
+operation, and carry a checked proof whose conclusion binds that exact link.
+The explicit implementation-capability axioms remain the host trust boundary.
 
 The ambient representation is a **links network**, not a graph. Graph theory
 is implemented only as a derived interpretation that adds a finite vertex set

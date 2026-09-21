@@ -10,6 +10,7 @@ on:
       - 'lib/meta-theory/**'
       - 'scripts/check-meta-theory-corpus.mjs'
       - 'scripts/check-meta-theory-corpus.test.mjs'
+      - 'scripts/generate-meta-theory-corpus.mjs'
   push:
     branches: [main]
     paths:
@@ -19,14 +20,15 @@ on:
       - 'lib/meta-theory/**'
       - 'scripts/check-meta-theory-corpus.mjs'
       - 'scripts/check-meta-theory-corpus.test.mjs'
+      - 'scripts/generate-meta-theory-corpus.mjs'
   workflow_dispatch:
 
 env:
   META_THEORY_REVISION: 087f4515d0652925eecc54bcade724445c3978f1
 
 jobs:
-  manifest:
-    name: Source/manifest parity
+  semantic-corpus:
+    name: Linked semantic-source parity
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -44,7 +46,7 @@ jobs:
       - name: Install JavaScript dependencies
         working-directory: js
         run: npm ci
-      - name: Compare LiNo manifest with pinned formal sources
+      - name: Compare linked syntax, declarations, and dependencies with pinned sources
         run: node scripts/check-meta-theory-corpus.mjs upstream-meta-theory
 
   lean:

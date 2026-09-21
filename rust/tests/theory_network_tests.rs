@@ -36,7 +36,11 @@ fn accounts_for_complete_pinned_lean_and_rocq_declaration_corpus() {
         corpus.revision(),
         "087f4515d0652925eecc54bcade724445c3978f1"
     );
+    assert_eq!(corpus.schema(), "linked-source-v1");
+    assert_eq!(corpus.formal_modules().len(), 18);
     assert_eq!(corpus.declarations().len(), 229);
+    assert_eq!(corpus.semantic_token_count(), 8815);
+    assert_eq!(corpus.dependency_count(), 510);
     assert_eq!(corpus.languages(), vec!["lean", "rocq"]);
     assert_eq!(
         corpus.modules("lean"),
@@ -69,14 +73,100 @@ fn accounts_for_complete_pinned_lean_and_rocq_declaration_corpus() {
     assert!(corpus
         .declaration("rocq", "SetSequenceEquivalence", "mem_toOrderedUnique")
         .is_some());
+
+    let balanced = corpus
+        .declaration("lean", "SequenceDefinitions", "ListToBalancedTree")
+        .expect("the complete recursive Lean definition must be linked");
+    assert!(balanced.recursive);
+    assert!(balanced
+        .signature
+        .iter()
+        .any(|token| token.text == "Option"));
+    assert!(balanced
+        .body
+        .iter()
+        .any(|token| token.text == "ListToBalancedTree"));
+    assert!(balanced.dependencies.contains(&balanced.address));
+
+    let read_sequence = corpus
+        .declaration("lean", "SequenceDefinitions", "ReadSequence_")
+        .expect("the complete recursive sequence reader must be linked");
+    assert!(read_sequence.recursive);
+    assert!(read_sequence
+        .body
+        .iter()
+        .any(|token| token.text == "ReadSequence_"));
+
+    let theorem = corpus
+        .declaration("lean", "SetSequenceEquivalence", "set_sequence_equivalence")
+        .expect("the complete theorem judgement and proof must be linked");
+    assert!(theorem.signature.iter().any(|token| token.text == "∃"));
+    assert!(theorem
+        .proof
+        .iter()
+        .any(|token| token.text == "mem_toOrderedUnique"));
+    assert!(theorem.dependencies.contains(
+        &"rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending".to_string()
+    ));
+    assert_eq!(
+        corpus
+            .counterpart(theorem)
+            .expect("the theorem must have a Rocq counterpart")
+            .address,
+        "rml.formal.rocq.SetSequenceEquivalence.set_sequence_equivalence"
+    );
+    assert!(corpus
+        .dependency_closure(&theorem.address)
+        .expect("the theorem dependency graph must resolve")
+        .contains(&"rml.formal.lean.SetSequenceEquivalence.insertSorted"));
+
+    let rocq_proof = corpus
+        .declaration("rocq", "MetaDefinitions", "meta_network_is_duplet_network")
+        .expect("the complete Rocq proof script must be linked");
+    assert_eq!(
+        rocq_proof
+            .proof
+            .iter()
+            .take(2)
+            .map(|token| token.text.as_str())
+            .collect::<Vec<_>>(),
+        vec!["Proof", "."]
+    );
 }
 
 #[test]
 fn rejects_incomplete_or_self_authorized_formal_corpus() {
-    let incomplete = UPSTREAM_CORPUS.replacen("  (definition ReferenceDefault)\n", "", 1);
+    let marker = "\n  (declaration definition ReferenceDefault\n";
+    let start = UPSTREAM_CORPUS
+        .find(marker)
+        .expect("ReferenceDefault declaration must be present");
+    let relative_end = UPSTREAM_CORPUS[start..]
+        .find("\n  )\n")
+        .expect("ReferenceDefault declaration must be closed");
+    let end = start + relative_end + "\n  )\n".len();
+    let incomplete = format!("{}\n{}", &UPSTREAM_CORPUS[..start], &UPSTREAM_CORPUS[end..]);
     let error = FormalCorpus::from_rml(&incomplete, UPSTREAM_CORPUS_FOUNDATION).unwrap_err();
     assert!(
-        error.contains("declaration count 228 does not match trusted count 229"),
+        error.contains("unknown dependency")
+            || error.contains("declaration count 228 does not match trusted declaration count 229"),
+        "{error}"
+    );
+
+    let module = UPSTREAM_CORPUS
+        .find("(formal-module meta-theory-0.0.3 lean NetworkDefinitions")
+        .expect("Lean NetworkDefinitions module must be present");
+    let body_token = UPSTREAM_CORPUS[module..]
+        .find("(token numeral 30)")
+        .map(|offset| module + offset)
+        .expect("a definition-body numeral token must be present");
+    let mut changed_body = UPSTREAM_CORPUS.to_string();
+    changed_body.replace_range(
+        body_token..body_token + "(token numeral 30)".len(),
+        "(token numeral 31)",
+    );
+    let error = FormalCorpus::from_rml(&changed_body, UPSTREAM_CORPUS_FOUNDATION).unwrap_err();
+    assert!(
+        error.contains("fingerprint") && error.contains("does not match trusted fingerprint"),
         "{error}"
     );
 

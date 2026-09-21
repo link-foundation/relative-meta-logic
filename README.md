@@ -23,7 +23,7 @@ For versioning, deprecations, and release expectations, see
 - [Product feature comparison](./docs/FEATURE-COMPARISON.md) - RML vs the same systems by authoring workflow, automation, libraries, tooling, and distribution.
 - [Configurability and operator redefinition](./docs/CONFIGURABILITY.md) - Why every operator, truth constant, range, and valence is redefinable at runtime, with the precedence rules and a comparison to Lean/Rocq fixed semantics.
 - [Foundations and root-construct registry](./docs/FOUNDATIONS.md) - The trust catalogue of every primitive the kernel depends on, the `(foundation …)` / `(with-foundation …)` / `(foundation-report)` surface, the bundled Boolean and Kleene foundations, and the backward-compatibility guarantee.
-- [Executable meta-theory](./docs/META_THEORY.md) - A proof-checked Links/Set/Type/RML network with derived graph theory and relational algebra, unified concept translation, finite sets, nested doublets, and bounded self-reference.
+- [Executable meta-theory](./docs/META_THEORY.md) - A proof-checked Links/Set/Type/RML network with a complete linked Lean/Rocq semantic corpus, derived graph theory and relational algebra, unified concept translation, finite sets, nested doublets, and bounded self-reference.
 - [Typed kernel rules](./docs/KERNEL.md) - The implemented D1 rules for `Pi`, `lambda`, `apply`, `(expr of Type)`, and `(type of expr)`.
 - [Soundness statement](./docs/SOUNDNESS.md) - The trusted-kernel guarantee, proof-replay checker, trusted operator base, and aggregator-relative scope of soundness.
 - [Metatheorem checker](./docs/METATHEOREMS.md) - The C3 Twelf-style guarantee that composes D12 totality, D14 coverage, D15 modes, and D13 termination, plus the `rml-meta` CLI.

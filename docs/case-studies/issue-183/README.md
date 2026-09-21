@@ -22,9 +22,11 @@ Version 0.0.3 adds the work developed in upstream PRs
 - Links Theory closes its definition cycle in itself.
 
 The upstream source includes parallel Lean and Rocq developments. This project
-pins that revision, records every one of its 229 named declarations as LiNo,
-checks the record directly against the source, and rebuilds both formal
-projects in CI. Four Lean theorems that contain `sorry` are explicitly marked
+pins that revision and records the full normalized syntax of every module as
+LiNo token links. All 229 declarations expose complete signatures, bodies or
+source proofs, recursion, and 510 resolved dependency links. CI re-extracts
+that semantic content directly from the source and rebuilds both formal
+projects. Four Lean theorems that contain `sorry` are explicitly marked
 `admitted`; their Rocq counterparts are verified. RML also implements the
 runtime representation contract in JavaScript and Rust and tests observable
 parity. The detailed audit, including the correction from the first
@@ -62,7 +64,7 @@ parts.
 | R11 | Keep JS/Rust behavior consistent, documented, and logged. | Mirrored modules/tests, shared LiNo source, executable example, this case study, and `docs/META_THEORY.md`. | Full language suites, focused parity tests, corpus parity, and CI. |
 | R12 | Treat graphs as a subset of links networks, not as the ambient meta-theory. | The public surface is `TheoryNetwork` over `LinkNetwork`; `LinkGraph` separately constrains edges to a membership-link vertex set. | Naming scan plus mirrored raw-link, endpoint validation, successor, and reachability tests. |
 | R13 | Implement graph theory and relational algebra over set/type/link foundations. | Checked set/type definitions for graph theory and relational algebra; graph edges and relation pairs are actual typed links with concrete pair types. | Both suites execute graph reachability and relation converse, union, intersection, composition, pair typing, and invalid-domain rejection. |
-| R14 | Account for and continuously test the complete upstream formal corpus. | `upstream-0.0.3.lino` records all 229 named Lean/Rocq declarations; `upstream-0.0.3-foundation.lino` independently pins repository, revision, declaration count, and normalized fingerprint. | JS/Rust reject missing, changed, or self-authorized manifests; `formal-corpus` CI extracts the inventory from the pinned checkout and builds the full Lean and Rocq projects. |
+| R14 | Account for and continuously test the complete upstream formal corpus. | `upstream-0.0.3.lino` records all 8,815 typed source tokens and all 229 Lean/Rocq declarations with signatures, bodies/proofs, recursion, and 510 dependency links; `upstream-0.0.3-foundation.lino` independently pins counts and a semantic fingerprint. | JS/Rust query representative full definitions and theorems and reject omissions, body changes, unresolved dependencies, or self-authorized contracts; `formal-corpus` CI re-extracts declaration-by-declaration semantics and builds the exact Lean and Rocq sources. |
 
 ## Architecture
 
@@ -88,18 +90,21 @@ establish that the shipped executable representation completely backs the
 exact finite contract stated by its manifest. They do not claim equivalence of
 unrestricted mathematical theories.
 
-### The formal-source inventory cannot silently drift
+### The linked formal semantics cannot silently drift
 
-`FormalCorpus` loads the candidate declaration inventory and its independent
-contract through `meta-language`. It normalizes language, module, declaration
-kind, symbol, and theorem status, then requires the exact trusted count and
-fingerprint. Candidate data cannot add or modify its own contract.
+`FormalCorpus` loads the module token streams, declaration views, and their
+independent contract through `meta-language`. It validates every range,
+signature/judgement, body, proof object, recursion marker, and dependency,
+then requires exact trusted counts and a fingerprint over all of that semantic
+content. Candidate data cannot add or modify its own contract.
 
 The `formal-corpus` workflow checks out exactly commit `087f451`, extracts the
-same inventory from all nine Lean and nine Rocq source modules, compares it to
-the LiNo record, then runs `lake build` and the Rocq build. This covers every
-source command in those projects while keeping their four admitted Lean proofs
-visible instead of describing the whole snapshot as fully proved.
+same semantics from all nine Lean and nine Rocq source modules, compares it to
+the LiNo record declaration by declaration, then runs `lake build` and the
+Rocq build. The kernels therefore check the same proof content represented by
+the linked token streams. The build covers every source command while keeping
+the four admitted Lean proofs visible instead of describing the whole snapshot
+as fully proved.
 
 ### Local names share addresses without being collapsed
 
@@ -134,8 +139,9 @@ specializations rather than names applied to the whole links network.
 
 ## Result compared with the latest draft
 
-RML now accounts for the complete named declaration surface and continuously
-builds both formalizations. It also executes the 0.0.3 finite sequence/set representation, exposes all
+RML now carries the complete normalized source semantics, declaration views,
+and dependency graph and continuously checks them against both formalizations.
+It also executes the 0.0.3 finite sequence/set representation, exposes all
 three tree layouts, supplies a second extensional-membership set
 representation, admits definition links only after exact contract conformance
 and proof checks, translates terms through one address space, adds bounded
@@ -144,9 +150,11 @@ layers.
 The general theory network accepts caller-selected theories without
 hard-coding the six bundled names.
 
-The evidence has three explicit layers: the upstream Lean/Rocq builds, exact
-source/manifest parity, and mirrored executable RML tests. Together they catch
-formal-source failure, omitted content, runtime divergence, and invalid proof
-witnesses. They do not relabel the upstream Lean `sorry` declarations as
-proofs or imply that a finite implementation contract proves unrestricted
-equivalence of all mathematical theories.
+The evidence has three connected layers: declaration-by-declaration semantic
+source parity, native Lean/Rocq checks of that exact content, and mirrored
+executable RML tests. Together they catch formal-source failure, omitted or
+changed semantics, runtime divergence, and invalid proof witnesses. RML stores
+and queries the language-specific proof objects; their elaboration and kernel
+checking remain the responsibility of the pinned proof assistants. The checks
+do not relabel upstream Lean `sorry` declarations as proofs or imply that a
+finite corpus proves unrestricted equivalence for arbitrary future programs.
