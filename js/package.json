@@ -1,6 +1,6 @@
 {
   "name": "relative-meta-logic",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "A prototype for logic framework that can reason about anything relative to given probability of input statements",
   "type": "module",
   "main": "src/rml-links.mjs",
@@ -12,7 +12,8 @@
   },
   "scripts": {
     "test": "node --test tests/*.test.mjs ../scripts/*.test.mjs",
-    "test:bootstrap": "node --test --test-name-pattern \"replays self corpus\" tests/self-evaluator.test.mjs",
+    "test:bootstrap": "node --test --test-name-pattern \"replays self corpus|measures the complete host semantic surface\" tests/self-evaluator.test.mjs tests/linked-program.test.mjs",
+    "report:bootstrap-metrics": "node ../scripts/report-bootstrap-metrics.mjs",
     "docs": "jsdoc -c ../docs/api/jsdoc.json",
     "build:playground": "node ../scripts/build-playground.mjs",
     "test:playground": "node --test ../scripts/playground.test.mjs",

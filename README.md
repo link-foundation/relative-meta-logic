@@ -59,7 +59,12 @@ theory-independent K0 machine executes the links-defined K1 meta-foundation;
 user-selected foundations then instantiate unchanged object theories through
 contextual import rebinding. K0 is the current boundary reached by the
 machine-checked minimization loop, not an unsupported claim of
-mathematical irreducibility. Lambda, set, type, graph, relation, and RML
+mathematical irreducibility. The measured host surface is still eight
+operations: all six K0 operations plus two host-implemented derived services.
+The executable metrics report currently records 0 confirmed independent/8
+unknown operations, three host/linked duplications, 4/11 self-hosting closure,
+8/8 foundation compression, and zero undocumented runtime paths. Lambda, set,
+type, graph, relation, and RML
 semantics are linked programs rather than host callbacks or external-kernel
 decisions. Lean/Rocq artifacts are parity evidence only.
 
@@ -1026,6 +1031,9 @@ cd js && npm test
 
 # Rust
 cd rust && cargo test
+
+# Machine-readable bootstrap boundary and previous/current delta
+cd ../js && npm run report:bootstrap-metrics
 ```
 
 The test suites cover:

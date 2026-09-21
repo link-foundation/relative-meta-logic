@@ -151,6 +151,12 @@ minimization evidence, and a dependency/trust graph with no object semantics.
 operation or a graph path that does not terminate in K0. The report identifies
 the current bootstrap boundary reached by the experiments; it does not call
 that boundary irreducible.
+`LinkedProgramRegistry::bootstrap_metrics_report(universal_source)` executes
+the mirrored runtime and removal probes. It counts all eight host
+implementations, checks observed paths against graph reachability, and reports
+layering, duplication, self-hosting closure, foundation compression, and the
+previous/current delta without treating a failed removal as proof of
+independence.
 `MembershipSetStore` provides addressed
 membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,

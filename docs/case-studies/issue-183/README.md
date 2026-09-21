@@ -57,10 +57,20 @@ Users can add an unknown logic without modifying either host runtime.
 The later foundation review is covered by an explicit `K0 -> K1 -> F -> T`
 split. `K0` is the six-operation boundary reached by the current experimental
 minimization loop and reports no object-theory semantics. Import linking and
-inference saturation are visible derived services above K0. The report does
+inference saturation are visible derived services above K0, but their host
+implementations have not disappeared: the complete host surface remains eight
+operations. The report does
 not claim irreducibility: it publishes the removal criterion, an experiment
 for every original host operation, a structural reason for each operation
 left in K0, and the complete dependency/trust graph.
+
+The follow-up quantitative review is captured in
+[`bootstrap-metrics.md`](./bootstrap-metrics.md). Mirrored executable probes
+now report 0 confirmed independent/8 unknown operations, three observed
+host/linked duplications, 4/11 self-hosting closure, 8/8 foundation
+compression, and zero undocumented observations across 4/4 runtime paths and
+19/19 path segments. CI publishes the machine-readable previous/current
+comparison instead of inferring progress from labels or host line counts.
 
 `links-meta-foundation` is an executable, links-defined `K1` meta-interpreter
 for object-encoded binding, matching, substitution, rule
@@ -103,7 +113,9 @@ sequence observation.
 The host trusts only the operations and derived services enumerated by
 `bootstrapKernelReport` / `bootstrap_kernel_report`. The mirrored audit checks
 an independent implementation manifest, rejects unreported semantics, and
-requires every trust-graph branch to terminate in K0. Object-theory semantics
+requires every trust-graph branch to terminate in K0. The runtime metrics audit
+also checks observed paths and path/operation segments against graph
+reachability. Object-theory semantics
 are linked rules. Candidate sources cannot add
 their own contracts, conformance cases, proof rules, axioms, assumptions, or
 expected proof obligations.

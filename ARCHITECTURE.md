@@ -179,11 +179,23 @@ The executable meta-theory has an explicit `K0 -> K1 -> F -> T` structure.
 loop: parsing, structural identity, pattern binding, substitution, rewrite
 traversal, and resource/cycle enforcement. Generic inference saturation and
 rebound import linking are reported separately as services derived above K0,
-not smuggled into its primitive list. The mirrored public report includes a
+not smuggled into its primitive list. They nevertheless remain host
+implementations, so the complete measured host surface is eight rather than
+six. The mirrored public report includes a
 machine-readable dependency/trust graph, a structural reason for every
 remaining primitive, and the experiment performed for all eight original
 host operations. Its audit fails closed on an unreported operation or a path
 that does not terminate in K0. The boundary is not claimed to be irreducible.
+
+`bootstrapMetricsReport` / `bootstrap_metrics_report` runs the same acceptance
+probe with each actual operation disabled. No removal currently preserves the
+baseline, so the report conservatively says 0 confirmed independent and 8
+`UNKNOWN`, with an 8/8 compression ratio. Runtime hooks cover 4/4 observed
+semantic paths and 19/19 path/operation segments; the audit requires zero
+undocumented observations. The K1 trace supplies four of eleven capabilities
+on the measured task and duplicates three capabilities still present in the
+host. See
+[`docs/case-studies/issue-183/bootstrap-metrics.md`](./docs/case-studies/issue-183/bootstrap-metrics.md).
 
 The `links-meta-foundation` program is the links-defined `K1` interpreter for
 object-encoded matching, substitution, rule application, and verification.

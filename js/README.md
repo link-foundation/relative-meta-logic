@@ -205,6 +205,13 @@ graph with an empty object-semantics list.
 operation manifest and that graph differ or when any dependency branch does
 not terminate in K0. The report calls K0 the current bootstrap boundary and
 does not claim that it is irreducible.
+`LinkedProgramRegistry.bootstrapMetricsReport(universalSource)` goes further:
+it observes actual load/reduce/prove/K1 execution, fault-injects every host
+operation, checks every observed path segment against trust-graph reachability,
+and publishes layer, duplication, closure, compression, and previous/current
+metrics under `rml-bootstrap-metrics/v1`. The current result counts all eight
+host implementations and reports `UNKNOWN` rather than claiming independence
+from a failed removal.
 
 ```javascript
 import { readFileSync } from 'node:fs';

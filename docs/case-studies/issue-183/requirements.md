@@ -27,17 +27,25 @@ both implementation and automated evidence.
 | R19 | Present familiar theories and their links-derived constructions. | Complete | The theory table and source walkthrough in `docs/META_THEORY.md`; conformance fixtures cover both reduction and judgement views. |
 | R20 | Minimize and identify axioms. | Complete for this network | Object behavior lives in executable linked rules. Foundation axioms are limited to named implementation capabilities and proof premises, remain separately selected, and cannot be candidate-authored. |
 | R21 | Update documentation and preserve a complete review trail. | Complete | This ledger, the case-study README/audit, executable example, and main meta-theory guide. |
-| R22 | Use current dependency releases and prepare the next release. | Complete | JS/Rust are aligned at 0.21.0; direct packages and GitHub Actions use the latest releases available on 2026-09-21, lockfiles are refreshed, both npm audits report zero vulnerabilities, and all language suites run afterward. |
-| R23 | Make the meta-foundation explicit and inspectable. | Complete | The documented `K0 -> K1 -> F -> T` model and mirrored kernel reports separate six current bootstrap operations from two derived host services and report zero object semantics. |
+| R22 | Use current dependency releases and prepare the next release. | Complete | JS/Rust are aligned at 0.22.0; direct packages and GitHub Actions use the latest releases available on 2026-09-21, lockfiles are refreshed, both npm audits report zero vulnerabilities, and all language suites run afterward. |
+| R23 | Make the meta-foundation explicit and inspectable. | Complete | The documented `K0 -> K1 -> F -> T` model and mirrored kernel reports separate six current bootstrap operations from two derived host services, while the metrics report correctly counts all eight as host implementations and reports zero object semantics. |
 | R24 | Define meta-semantics as links above the bootstrap boundary. | Complete | `links-meta-foundation` defines object-encoded environment lookup, matching, substitution, rule selection/application, and result verification; mirrored tests execute an encoded copy of its own repeated-variable matching rule and compare it with direct execution. |
 | R25 | Instantiate one unchanged theory over replaceable foundations. | Complete | Import-level `rebind` works across rewrites, facts, inferences, and transitive imports. One portable classifier returns `reject` or `accept` under strict/permissive user foundations without changing its source. |
 | R26 | Reuse one set-theory definition in traditional and associative contexts. | Complete | `set-theory-over-traditional-sequences` and `set-theory-over-associative-links` rebind constructor concepts while importing the same complete set program; mirrored membership tests execute both. |
-| R27 | Minimize K0 through an explicit experimental loop. | Complete for the current implementation | The report records one experiment and outcome for every original K0 operation. Import linking and inference saturation are moved above the six-operation bootstrap boundary. |
+| R27 | Minimize K0 through an explicit experimental loop. | Complete for the current implementation | The report records one fault-injection experiment and outcome for all eight host operations. Import linking and inference saturation are conceptually derived but remain counted host implementations because disabling either changes the acceptance probe. |
 | R28 | Add a stronger self-interpretation witness. | Complete | K1 interprets an encoded copy of its own non-linear `match-identical-atoms` pattern, including repeated-variable equality and substitution; JS/Rust require agreement with direct K0 execution and inspect the K1 trace. |
 | R29 | Publish a machine-readable K0 dependency/trust graph. | Complete | Both reports expose `rml-bootstrap-trust-graph/v1`, including all bootstrap operations, derived services, and public semantic paths with explicit dependencies. |
 | R30 | Fail CI when host semantics are absent from the trust graph. | Complete | Mirrored `auditBootstrapKernel` / `audit_bootstrap_kernel` tests compare an independent implementation manifest with the report and reject a simulated `hidden-object-evaluator`. The audit also requires every dependency branch to terminate in K0. |
 | R31 | Do not call the current K0 irreducible without proof. | Complete | Source and documentation consistently use “current bootstrap boundary,” expose `claimsIrreducible: false`, and state the criterion for any later removal. |
 | R32 | Give a structural reason for each primitive that remains. | Complete | Every bootstrap node contains a non-empty `primitiveReason` / `primitive_reason`; mirrored tests make missing justifications fail. |
+| R33 | Count the complete host semantic surface, not only K0 labels. | Complete | `bootstrapMetricsReport` / `bootstrap_metrics_report` executes a common probe and reports eight host operations: six K0 operations plus two still-host-implemented derived services. |
+| R34 | Classify primitive-removal experiments without hiding equivalent re-encodings. | Complete for measured candidates | Each real operation can be disabled at its execution point. All eight current removals fail the probe and are conservatively classified `UNKNOWN`, yielding 0 confirmed independent and 8 unresolved; failure is not presented as proof of irreducibility. |
+| R35 | Count host/linked semantic duplication. | Complete | The K1 trace and host runtime trace jointly identify three observed duplicated capabilities: matching, substitution, and rule selection. |
+| R36 | Quantify self-hosting closure. | Complete for the declared probe | The textual-load-through-K1-verification task uses four observed linked capabilities over eleven total host-plus-linked capabilities, so closure is reported as `4/11` with every capability named. |
+| R37 | Separate host information by layer. | Complete | The report separates semantic bootstrap (4), derived host semantics (2), representation/parsing (1), resource control (1), debugging/observability (0), and object-specific host semantics (0). |
+| R38 | Compare runtime-observed semantics with the trust graph. | Complete | Operation hooks record four public paths and 19 path/operation segments. The audit computes reachability from those observations and CI requires 4/4 paths, 19/19 segments, and zero undocumented paths, operations, or segments. |
+| R39 | Publish a foundation compression experiment. | Complete for measured candidates | No single real host implementation can currently be removed while preserving the probe, so the conservative current ratio is `8/8`, not the misleading `6/8`. The report does not extrapolate this to global minimality. |
+| R40 | Publish previous/current metric deltas on every foundational iteration. | Complete | The versioned `rml-bootstrap-metrics/v1` comparison records known values from `e2e9f7b`, uses `null` for previously unmeasured values, and is printed in the bootstrap workflow. |
 
 ## Reviewer acceptance test
 
@@ -60,8 +68,10 @@ The bootstrap host mechanism is structural and exactly listed by the public
 kernel report: parse links, compare structure, bind pattern variables,
 substitute matched link values, traverse/select rewrites, and enforce
 cycles/resource bounds. Finite inference saturation and rebound import
-resolution are visible derived services above that bootstrap, and every
-semantic path through them terminates in a declared K0 operation. It assigns
+resolution are visible derived services above that bootstrap, but both still
+have host implementations and therefore remain inside the measured eight-
+operation host surface. Every semantic path through them terminates in a
+declared K0 operation. It assigns
 no built-in meaning to `lambda`, `set`, `graph`, `relation`, `Pi`, or RML truth
 constructors. `links-meta-foundation` reconstructs the main interpreter
 relations as link-level data and rules and self-interprets a non-linear rule.
@@ -71,6 +81,11 @@ operation may leave K0 only when all public semantic paths still execute and
 the replacement does not presuppose the same operation under another name.
 The report publishes the structural reason and experiment outcome so a future
 implementation can repeat the loop rather than inherit the conclusion.
+
+The separate [bootstrap metrics report](./bootstrap-metrics.md) records the
+actual current distance from self-hosting. Its `UNKNOWN` classifications and
+`8/8` compression ratio deliberately prevent the six-operation K0 label from
+being mistaken for a six-operation host surface or a minimality proof.
 
 The pinned Lean/Rocq corpus remains useful evidence that RML can preserve and
 query the upstream development. It is deliberately outside the authorization

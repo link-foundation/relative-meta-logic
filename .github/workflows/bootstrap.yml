@@ -6,7 +6,11 @@ on:
     paths:
       - '.github/workflows/bootstrap.yml'
       - 'js/**'
+      - 'rust/src/linked_program.rs'
+      - 'rust/tests/linked_program_tests.rs'
+      - 'lib/meta-theory/**'
       - 'lib/self/**'
+      - 'scripts/report-bootstrap-metrics.mjs'
       - 'test-corpus/**'
       - 'README.md'
   push:
@@ -14,7 +18,11 @@ on:
     paths:
       - '.github/workflows/bootstrap.yml'
       - 'js/**'
+      - 'rust/src/linked_program.rs'
+      - 'rust/tests/linked_program_tests.rs'
+      - 'lib/meta-theory/**'
       - 'lib/self/**'
+      - 'scripts/report-bootstrap-metrics.mjs'
       - 'test-corpus/**'
       - 'README.md'
   workflow_dispatch:
@@ -36,3 +44,6 @@ jobs:
       - name: Replay corpus through encoded RML
         working-directory: js
         run: npm run test:bootstrap
+      - name: Publish measured bootstrap boundary
+        working-directory: js
+        run: npm run report:bootstrap-metrics
