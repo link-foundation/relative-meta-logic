@@ -13,8 +13,16 @@ import {
 } from '../js/src/rml-theory-network.mjs';
 import { FormalCorpus } from '../js/src/rml-formal-corpus.mjs';
 
+const universalSource = readFileSync(
+  new URL('../lib/meta-theory/universal.lino', import.meta.url),
+  'utf8',
+);
+const networkSource = readFileSync(
+  new URL('../lib/meta-theory/core.lino', import.meta.url),
+  'utf8',
+);
 const network = TheoryNetwork.fromRml(
-  readFileSync(new URL('../lib/meta-theory/core.lino', import.meta.url), 'utf8'),
+  `${universalSource}\n${networkSource}`,
   readFileSync(new URL('../lib/meta-theory/foundation.lino', import.meta.url), 'utf8'),
 );
 const formalCorpus = FormalCorpus.fromRml(

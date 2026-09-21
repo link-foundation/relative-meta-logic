@@ -236,10 +236,10 @@ sequences.define('loop', 'value', 'loop');
 const prefix = sequences.walk('loop', 3);
 ```
 
-See [`docs/META_THEORY.md`](../docs/META_THEORY.md) for the shared source
-format, exact implementation contracts, checked proof witnesses, unified
-addresses, both finite-set interpretations, derived graph/relation semantics,
-nested sequence/set encodings, and cycle semantics.
+See [`docs/META_THEORY.md`](../docs/META_THEORY.md) for the shared linked
+rewrite/inference format, exact implementation contracts, checked proof
+witnesses, unified addresses, both finite-set interpretations, derived
+graph/relation semantics, nested sequence/set encodings, and cycle semantics.
 
 ## Testing
 

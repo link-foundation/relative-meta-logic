@@ -97,28 +97,25 @@ declarations.
 
 ## Verification boundary
 
-The linked corpus preserves the complete source proof terms and tactic scripts;
-RML validates their ranges, status, dependencies, and semantic fingerprint.
-The Lean and Rocq elaborators and kernels remain the trusted components that
-interpret and check those language-specific proof objects. Four Lean proof
-obligations in the reviewed snapshot remain admitted with `sorry`; the corpus
-identifies them individually, while the corresponding Rocq declarations are
-verified. This proves correspondence for this pinned finite corpus, not a
-claim that RML implements unrestricted Lean or Rocq elaboration for arbitrary
-future input.
+The linked corpus preserves external source proof terms and tactic scripts and
+validates their ranges, status, dependencies, and semantic fingerprint. Lean
+and Rocq remain authoritative only for those pinned language-specific
+artifacts. Four Lean obligations in the snapshot contain `sorry` and remain
+reported as admitted.
 
-RML's additional acceptance evidence is mirrored runtime tests for exact
-doublets, tree round trips, two independent finite-set representations,
-canonical ordering, typed graph/relation operations, and bounded cycles.
-Definition witnesses additionally reuse RML's proof checker: each link must
-name an exact implementation manifest, pass every declared finite conformance
-operation, and carry a checked proof whose conclusion binds that exact link.
-The explicit implementation-capability axioms remain the host trust boundary.
+RML reasoning has a different boundary. The shared `universal.lino` programs
+define object theories with linked rewrites, facts, and inference rules.
+JavaScript and Rust run those programs with the same theory-independent
+structural machine. Contract conformance and witness proof replay never call a
+Lean/Rocq kernel and never dispatch to theory-specific host callbacks.
 
 The ambient representation is a **links network**, not a graph. Graph theory
-is implemented only as a derived interpretation that adds a finite vertex set
-and admits links whose endpoints belong to that set. Relational algebra is a
-second derived interpretation over typed ordered-pair links, with executable
-converse, union, intersection, and composition. This distinction follows the
-maintainer review and prevents graph vocabulary from narrowing the more
-general links substrate.
+is a derived program that adds vertex membership, endpoint closure,
+reachability, and edge typing. Relational algebra is another derived program
+over typed ordered-pair links. The host graph/relation stores remain convenient
+public data structures, but they do not authorize theory definitions.
+
+The external corpus therefore supplies provenance and regression comparison,
+while linked-program execution supplies RML semantics. Neither finite corpus
+parity nor a native build is presented as proof about arbitrary future
+Lean/Rocq programs.

@@ -1,9 +1,10 @@
 # Executable theory network for Relative Meta-Logic.
 #
-# The forms in this file are ordinary links. The host TheoryNetwork adapters read
-# them through meta-language, so theories supplied by users participate in the
-# same network without requiring hard-coded names. The templates at the end also
-# make the primitive doublet and triplet encodings available to LiNo programs.
+# The forms in this file are ordinary links. TheoryNetwork reads them through
+# meta-language and verifies each implementation with the generic linked
+# programs in universal.lino. The runtime contains no per-theory dispatch.
+# The templates at the end also make primitive doublet and triplet encodings
+# available to LiNo programs.
 
 (namespace meta-theory)
 

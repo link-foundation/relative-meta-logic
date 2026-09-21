@@ -215,7 +215,12 @@ Each `uses` doublet's right component is itself a node with its own
 `(depends-on)` doublets — the network is recursive and finite, which is
 exactly the shape the meta-theory takes as its primitive.
 
-## 6. What stays host-primitive — and why
+## 6. Legacy typed-kernel host boundary
+
+This section describes the older `typed-kernel-links` and general evaluator
+surface, not the issue #183 linked-program verifier. The latter defines and
+executes its own de Bruijn binding, substitution, and beta rules from
+`universal.lino`; it does not invoke these host primitives.
 
 Three operations cannot be reduced to a finite associative network of
 the form above without losing decidability, so they remain
@@ -256,11 +261,14 @@ Together those four documents describe a complete instance of the
 meta-theory at work: an associative network of references connected by
 doublets and triplets, whose semantics is
 a small bounded set of host primitives, and whose audit trail is the
-foundation report.
+foundation report. Section 8 describes the newer linked-program execution
+path, whose host boundary is instead generic structural matching,
+substitution, traversal, and explicit resource bounds.
 
 ## 8. Executable cross-theory network
 
 Issue #183 turns this mapping into executable data in
+[`lib/meta-theory/universal.lino`](../lib/meta-theory/universal.lino) and
 [`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino), checked against the
 independently selected
 [`lib/meta-theory/foundation.lino`](../lib/meta-theory/foundation.lino) trust
@@ -268,11 +276,13 @@ profile. The matching JavaScript and Rust `TheoryNetwork` APIs load both through
 `meta-language`, resolve and translate theory-local terms through shared concept
 addresses, and search the cyclic definition network safely. Every definition link names an
 implementation manifest and a proof object. Network construction requires the
-manifest's proposed subject/foundation pair and the adapter's exact kind and
-obligation set; executes all finite conformance operations; replays the proof
+manifest's proposed subject/foundation pair and contract's exact kind and
+obligation set; executes every conformance case with one generic linked-program
+machine; replays the proof
 through the existing proof substrate; and requires the checked conclusion to
 match that exact link. Candidate theory documents cannot declare the rules,
-axioms, adapter contracts, or expected judgements used to verify themselves.
+axioms, implementation contracts, conformance cases, or expected judgements
+used to verify themselves.
 Links Theory has explicit definitions through set theory, type theory, and
 itself; set theory and type theory have reverse links definitions; and Relative
 Meta-Logic has an explicit Links Theory foundation.
@@ -297,4 +307,6 @@ modules. Every declaration links to its full signature, body or source proof,
 recursion status, and resolved dependencies. CI re-extracts and compares that
 content declaration by declaration before building the exact sources with
 both native kernels; four admitted Lean declarations remain explicitly visible
-rather than being counted as completed proofs.
+rather than being counted as completed proofs. These builds are provenance
+checks, not the RML reasoning path: reduction, inference, and contract
+conformance execute directly from links.
