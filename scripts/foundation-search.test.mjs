@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v5');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v6');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v1',
+      'rml-link-ontology-symmetry-experiment/v2',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -243,14 +243,139 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['structure-transformation-separation', 'NON_ABSOLUTE_FOR_SYMMETRIES'],
         ['representation-independent-authority', 'NEGATIVE_CONSTRAINT_ONLY'],
         ['intrinsic-dynamics', 'NOT_SELECTED'],
+        ['fixed-binary-observation-sufficiency', 'INSUFFICIENT_OUTSIDE_FIXED_ARITY'],
+        ['conditional-refinement-recoverability', 'NOT_RECOVERABLE_FROM_BASE_PROJECTION'],
+        ['conditional-structural-asymmetry', 'EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL'],
+        ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
     );
     assert.match(experiment.admissibleConclusion, /exhaustive/i);
     assert.match(experiment.admissibleConclusion, /cannot select source/i);
     assert.match(experiment.remainingBoundary, /does not define a link ontology/i);
+    const boundary = experiment.observationBoundary;
+    assert.equal(boundary.status, 'BINARY_CONTRACT_NOT_EXHAUSTIVE');
+    assert.deepEqual(
+      boundary.arityEnumeration.map(item => ({
+        occurrenceCount: item.occurrenceCount,
+        surjectiveAssignmentsExamined: item.surjectiveAssignmentsExamined,
+        referenceRenameClasses: item.referenceRenameClasses,
+        quotientClasses: item.quotientClasses,
+        multiplicitySpectra: item.multiplicitySpectra,
+      })),
+      [
+        {
+          occurrenceCount: 1,
+          surjectiveAssignmentsExamined: 1,
+          referenceRenameClasses: 1,
+          quotientClasses: 1,
+          multiplicitySpectra: [[1]],
+        },
+        {
+          occurrenceCount: 2,
+          surjectiveAssignmentsExamined: 3,
+          referenceRenameClasses: 2,
+          quotientClasses: 2,
+          multiplicitySpectra: [[1, 1], [2]],
+        },
+        {
+          occurrenceCount: 3,
+          surjectiveAssignmentsExamined: 13,
+          referenceRenameClasses: 5,
+          quotientClasses: 3,
+          multiplicitySpectra: [[1, 1, 1], [2, 1], [3]],
+        },
+        {
+          occurrenceCount: 4,
+          surjectiveAssignmentsExamined: 75,
+          referenceRenameClasses: 15,
+          quotientClasses: 5,
+          multiplicitySpectra: [[1, 1, 1, 1], [2, 1, 1], [2, 2], [3, 1], [4]],
+        },
+      ],
+    );
+    assert.equal(boundary.arityEnumerationComplete, true);
+    assert.equal(
+      boundary.generalizedCompleteInvariant,
+      'reference multiplicity spectrum at each fixed unlabelled width',
+    );
+
+    const refinement = boundary.conditionalRefinement;
+    assert.equal(
+      refinement.assumption.provenance,
+      'CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED',
+    );
+    assert.equal(refinement.assumption.foundationalStatus, 'UNESTABLISHED');
+    assert.equal(refinement.occurrenceCount, 4);
+    assert.equal(refinement.referencePartitionsExamined, 15);
+    assert.equal(refinement.refinementPartitionsExamined, 15);
+    assert.equal(refinement.labelledJointStructuresExamined, 225);
+    assert.equal(refinement.occurrencePermutationsExamined, 24);
+    assert.equal(refinement.jointQuotientClasses, 33);
+    assert.deepEqual(
+      refinement.encodings.map(item => ({
+        id: item.id,
+        distinctClasses: item.distinctClasses,
+        completeForEnumeration: item.completeForEnumeration,
+      })),
+      [
+        {
+          id: 'canonical-partition-pair',
+          distinctClasses: 33,
+          completeForEnumeration: true,
+        },
+        {
+          id: 'paired-equality-matrices',
+          distinctClasses: 33,
+          completeForEnumeration: true,
+        },
+        {
+          id: 'intersection-multiplicity-table',
+          distinctClasses: 33,
+          completeForEnumeration: true,
+        },
+      ],
+    );
+    assert.equal(refinement.encodingAgreement, true);
+    assert.deepEqual(
+      refinement.projectionFibres.map(item => ({
+        referenceMultiplicitySpectrum: item.referenceMultiplicitySpectrum,
+        jointClasses: item.jointClasses,
+      })),
+      [
+        { referenceMultiplicitySpectrum: [1, 1, 1, 1], jointClasses: 5 },
+        { referenceMultiplicitySpectrum: [2, 1, 1], jointClasses: 9 },
+        { referenceMultiplicitySpectrum: [2, 2], jointClasses: 7 },
+        { referenceMultiplicitySpectrum: [3, 1], jointClasses: 7 },
+        { referenceMultiplicitySpectrum: [4], jointClasses: 5 },
+      ],
+    );
+    assert.equal(refinement.everyProjectionFibreAmbiguous, true);
+    assert.equal(refinement.refinementRecoverableFromBase, false);
+    assert.equal(refinement.classesWithInvariantSingleton, 13);
+    assert.equal(refinement.classesWithoutInvariantSingleton, 20);
+    assert.equal(refinement.conditionalSingletonSelectorExists, true);
+    assert.equal(refinement.universalSingletonSelectorExists, false);
+
+    assert.deepEqual(
+      boundary.lossAudit.map(item => [item.distinction, item.classification]),
+      [
+        ['reference names', 'INTENTIONAL_QUOTIENT'],
+        ['occurrence order', 'INTENTIONAL_QUOTIENT'],
+        ['width beyond two occurrences', 'PROVEN_INFORMATION_LOSS'],
+        ['second equivalence observation', 'PROVEN_NOT_RECOVERABLE'],
+        ['endpoint direction', 'NOT_OBSERVED_NOT_DISPROVED'],
+        ['dynamics and time', 'NOT_OBSERVED_NOT_DISPROVED'],
+      ],
+    );
+    assert.ok(experiment.results.some(item =>
+      item.id === 'fixed-binary-observation-sufficiency' &&
+      item.result === 'INSUFFICIENT_OUTSIDE_FIXED_ARITY'));
+    assert.ok(experiment.results.some(item =>
+      item.id === 'conditional-structural-asymmetry' &&
+      item.result === 'EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL'));
     assert.match(
       report.conclusion.ontologyExperimentConclusion,
-      /equality coincidence is complete for the tested contract/i,
+      /binary equality coincidence is complete only at fixed width two/i,
     );
   });
 
@@ -297,7 +422,17 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v5');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v6');
+    assert.equal(
+      new Set(expected.claimBoundary.proved).size,
+      expected.claimBoundary.proved.length,
+      'proved claim list must not contain duplicate generated entries',
+    );
+    assert.equal(
+      new Set(expected.claimBoundary.notProved).size,
+      expected.claimBoundary.notProved.length,
+      'not-proved claim list must not contain duplicate generated entries',
+    );
     for (const row of expected.candidates) {
       const candidate = report.candidates.find(item => item.candidate === row.candidate);
       assert.ok(candidate, `missing executed candidate ${row.candidate}`);
@@ -368,10 +503,16 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.equal(expected.claimBoundary.ontologyQuestionsResolved, false);
     assert.equal(expected.claimBoundary.existingCandidatesConstrainOntologySearch, false);
     assert.ok(expected.claimBoundary.proved.includes(
-      'the equality partition is the complete invariant of the exhaustive two-occurrence observation contract',
+      'binary equality coincidence is complete for the exhaustive fixed-width-two observation contract',
+    ));
+    assert.ok(expected.claimBoundary.proved.includes(
+      'a conditional second equivalence observation produces 33 joint classes whose reference-only projection has five to nine refinements per fibre',
     ));
     assert.ok(expected.claimBoundary.notProved.includes(
       'that the two-occurrence observation contract exhausts the ontology of links',
+    ));
+    assert.ok(expected.claimBoundary.notProved.includes(
+      'that the conditional second equivalence observation is fundamental to links',
     ));
     assert.equal(report.conclusion.globallyMinimal, expected.claimBoundary.globallyMinimal);
     assert.equal(

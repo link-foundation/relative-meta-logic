@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v5",
+  "schema": "rml-foundation-candidate-table/v6",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "foundationStatus": "OPEN",
@@ -96,8 +96,8 @@
     "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
   },
   "ontologyExperiment": {
-    "schema": "rml-link-ontology-symmetry-experiment/v1",
-    "question": "Which facts survive when a two-occurrence reference observation is quotiented by occurrence permutation, reference renaming, and representation change?",
+    "schema": "rml-link-ontology-symmetry-experiment/v2",
+    "question": "Which facts survive the binary reference observation, what information does its fixed width erase, and which distinctions emerge only under explicitly conditional refinements?",
     "startingContract": {
       "id": "unoriented-binary-reference-observation",
       "occurrenceCount": 2,
@@ -310,6 +310,326 @@
         ]
       }
     ],
+    "observationBoundary": {
+      "status": "BINARY_CONTRACT_NOT_EXHAUSTIVE",
+      "unchangedPrimitiveVocabulary": [
+        "unlabelled reference occurrences",
+        "reference equality"
+      ],
+      "arityEnumeration": [
+        {
+          "occurrenceCount": 1,
+          "surjectiveAssignmentsExamined": 1,
+          "referenceRenameClasses": 1,
+          "quotientClasses": 1,
+          "multiplicitySpectra": [
+            [
+              1
+            ]
+          ],
+          "completeInvariantVerified": true
+        },
+        {
+          "occurrenceCount": 2,
+          "surjectiveAssignmentsExamined": 3,
+          "referenceRenameClasses": 2,
+          "quotientClasses": 2,
+          "multiplicitySpectra": [
+            [
+              1,
+              1
+            ],
+            [
+              2
+            ]
+          ],
+          "completeInvariantVerified": true
+        },
+        {
+          "occurrenceCount": 3,
+          "surjectiveAssignmentsExamined": 13,
+          "referenceRenameClasses": 5,
+          "quotientClasses": 3,
+          "multiplicitySpectra": [
+            [
+              1,
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3
+            ]
+          ],
+          "completeInvariantVerified": true
+        },
+        {
+          "occurrenceCount": 4,
+          "surjectiveAssignmentsExamined": 75,
+          "referenceRenameClasses": 15,
+          "quotientClasses": 5,
+          "multiplicitySpectra": [
+            [
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              2,
+              1,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              4
+            ]
+          ],
+          "completeInvariantVerified": true
+        }
+      ],
+      "arityEnumerationComplete": true,
+      "generalizedCompleteInvariant": "reference multiplicity spectrum at each fixed unlabelled width",
+      "conditionalRefinement": {
+        "assumption": {
+          "id": "second-unlabelled-equivalence-observation",
+          "provenance": "CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED",
+          "foundationalStatus": "UNESTABLISHED",
+          "role": "measures information erased by the reference-only projection without interpreting the second equivalence as link identity, grouping, order, or semantics"
+        },
+        "occurrenceCount": 4,
+        "referencePartitionsExamined": 15,
+        "refinementPartitionsExamined": 15,
+        "labelledJointStructuresExamined": 225,
+        "occurrencePermutationsExamined": 24,
+        "jointQuotientClasses": 33,
+        "encodings": [
+          {
+            "id": "canonical-partition-pair",
+            "distinctClasses": 33,
+            "completeForEnumeration": true
+          },
+          {
+            "id": "paired-equality-matrices",
+            "distinctClasses": 33,
+            "completeForEnumeration": true
+          },
+          {
+            "id": "intersection-multiplicity-table",
+            "distinctClasses": 33,
+            "completeForEnumeration": true
+          }
+        ],
+        "encodingAgreement": true,
+        "projectionFibres": [
+          {
+            "referenceMultiplicitySpectrum": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "jointClasses": 5,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ]
+          },
+          {
+            "referenceMultiplicitySpectrum": [
+              2,
+              1,
+              1
+            ],
+            "jointClasses": 9,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ]
+          },
+          {
+            "referenceMultiplicitySpectrum": [
+              2,
+              2
+            ],
+            "jointClasses": 7,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ]
+          },
+          {
+            "referenceMultiplicitySpectrum": [
+              3,
+              1
+            ],
+            "jointClasses": 7,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ]
+          },
+          {
+            "referenceMultiplicitySpectrum": [
+              4
+            ],
+            "jointClasses": 5,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ]
+          }
+        ],
+        "everyProjectionFibreAmbiguous": true,
+        "refinementRecoverableFromBase": false,
+        "classesWithInvariantSingleton": 13,
+        "classesWithoutInvariantSingleton": 20,
+        "conditionalSingletonSelectorExists": true,
+        "universalSingletonSelectorExists": false
+      },
+      "lossAudit": [
+        {
+          "distinction": "reference names",
+          "classification": "INTENTIONAL_QUOTIENT",
+          "evidence": "All observations are quotiented by reference renaming."
+        },
+        {
+          "distinction": "occurrence order",
+          "classification": "INTENTIONAL_QUOTIENT",
+          "evidence": "All observations are quotiented by every occurrence permutation."
+        },
+        {
+          "distinction": "width beyond two occurrences",
+          "classification": "PROVEN_INFORMATION_LOSS",
+          "evidence": "The unchanged equality vocabulary yields three classes at width three and five at width four, which the fixed binary contract cannot express."
+        },
+        {
+          "distinction": "second equivalence observation",
+          "classification": "PROVEN_NOT_RECOVERABLE",
+          "evidence": "Every reference-only width-four class is the projection of five to nine inequivalent joint classes."
+        },
+        {
+          "distinction": "endpoint direction",
+          "classification": "NOT_OBSERVED_NOT_DISPROVED",
+          "evidence": "Neither the base family nor the conditional refinement names or measures endpoint order."
+        },
+        {
+          "distinction": "dynamics and time",
+          "classification": "NOT_OBSERVED_NOT_DISPROVED",
+          "evidence": "Both enumerations are static and contain no transition or temporal observation."
+        }
+      ]
+    },
     "results": [
       {
         "id": "endpoint-direction",
@@ -340,10 +660,30 @@
         "id": "intrinsic-dynamics",
         "result": "NOT_SELECTED",
         "evidence": "Exactly two self-maps commute with every computed symmetry: identity and swap. The static contract does not select either as a dynamic law."
+      },
+      {
+        "id": "fixed-binary-observation-sufficiency",
+        "result": "INSUFFICIENT_OUTSIDE_FIXED_ARITY",
+        "evidence": "Without adding an observable, widening from two to three and four unlabelled occurrences yields three and five multiplicity classes. The binary quotient cannot express those distinctions."
+      },
+      {
+        "id": "conditional-refinement-recoverability",
+        "result": "NOT_RECOVERABLE_FROM_BASE_PROJECTION",
+        "evidence": "At width four, every reference-only class is the image of five to nine inequivalent structures carrying an uninterpreted second equivalence observation."
+      },
+      {
+        "id": "conditional-structural-asymmetry",
+        "result": "EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL",
+        "evidence": "Thirteen of 33 joint classes have an automorphism-invariant singleton occurrence, while 20 do not. A role-like distinction can therefore emerge conditionally but is neither universal nor selected as source or target."
+      },
+      {
+        "id": "observation-loss-provenance",
+        "result": "CLASSIFIED_NOT_RESOLVED",
+        "evidence": "The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological."
       }
     ],
-    "admissibleConclusion": "For the exhaustive two-occurrence contract, equality coincidence is the complete representation-independent invariant. The contract cannot select source versus target or a unique self-map, and reification does not survive the tested projection.",
-    "remainingBoundary": "This experiment eliminates properties from one minimal observational contract; it does not define a link ontology, prove that the contract is exhaustive of links, or turn a structural automorphism into execution semantics."
+    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. With the same vocabulary, wider unlabelled observations derive multiplicity spectra; a conditional second equivalence reveals exactly measured projection loss and sometimes breaks occurrence symmetry, but supplies no universal role, link identity, or dynamics and cannot select source versus target.",
+    "remainingBoundary": "This experiment does not define a link ontology, justify the second equivalence observation as fundamental, decide whether any erased distinction belongs to links, promote a conditional singleton to source or target, or turn a structural automorphism into execution semantics."
   },
   "acceptanceWorkload": [
     "load",
@@ -593,11 +933,14 @@
       "all three mechanisms execute the complete two-counter-machine instruction basis",
       "the linked JavaScript and Rust counter cores execute and the Lean and Rocq dependent cores check identity proofs",
       "the tested ordered-link host representation does not select between two witnessed transitions",
-      "the equality partition is the complete invariant of the exhaustive two-occurrence observation contract",
       "no source or target selector is invariant under the distinct-reference observation's automorphisms",
       "reified and unreified models project to the same observation while disagreeing about link identity",
       "the observation derives identity and swap as structural automorphisms but selects neither as a unique dynamic law",
-      "only Candidate A currently passes the symmetric execution-comparison eligibility gate"
+      "only Candidate A currently passes the symmetric execution-comparison eligibility gate",
+      "binary equality coincidence is complete for the exhaustive fixed-width-two observation contract",
+      "the same unlabelled-occurrence and equality vocabulary yields 1, 2, 3, and 5 multiplicity classes at widths one through four",
+      "a conditional second equivalence observation produces 33 joint classes whose reference-only projection has five to nine refinements per fibre",
+      "structural singleton occurrences emerge in 13 conditional refinements but remain absent in 20"
     ],
     "notProved": [
       "that S/K is globally minimal",
@@ -613,7 +956,10 @@
       "that transformation must be external to links",
       "that links have no intrinsic execution principle",
       "that the current candidates constrain the independent ontology search",
-      "that the current semantic vocabulary has foundational status"
+      "that the current semantic vocabulary has foundational status",
+      "that fixed width two is sufficient to characterize links",
+      "that the conditional second equivalence observation is fundamental to links",
+      "that a conditional invariant singleton is a source, target, or execution role"
     ]
   }
 }

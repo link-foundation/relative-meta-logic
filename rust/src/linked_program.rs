@@ -451,6 +451,76 @@ pub struct LinkOntologyReificationCountermodel {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyArityEnumeration {
+    pub occurrence_count: usize,
+    pub surjective_assignments_examined: usize,
+    pub reference_rename_classes: usize,
+    pub quotient_classes: usize,
+    pub multiplicity_spectra: Vec<Vec<usize>>,
+    pub complete_invariant_verified: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyConditionalAssumption {
+    pub id: &'static str,
+    pub provenance: &'static str,
+    pub foundational_status: &'static str,
+    pub role: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyRefinementEncoding {
+    pub id: &'static str,
+    pub distinct_classes: usize,
+    pub complete_for_enumeration: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyProjectionFibre {
+    pub reference_multiplicity_spectrum: Vec<usize>,
+    pub joint_classes: usize,
+    pub refinement_multiplicity_spectra: Vec<Vec<usize>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyConditionalRefinement {
+    pub assumption: LinkOntologyConditionalAssumption,
+    pub occurrence_count: usize,
+    pub reference_partitions_examined: usize,
+    pub refinement_partitions_examined: usize,
+    pub labelled_joint_structures_examined: usize,
+    pub occurrence_permutations_examined: usize,
+    pub joint_quotient_classes: usize,
+    pub encodings: Vec<LinkOntologyRefinementEncoding>,
+    pub encoding_agreement: bool,
+    pub projection_fibres: Vec<LinkOntologyProjectionFibre>,
+    pub every_projection_fibre_ambiguous: bool,
+    pub refinement_recoverable_from_base: bool,
+    pub classes_with_invariant_singleton: usize,
+    pub classes_without_invariant_singleton: usize,
+    pub conditional_singleton_selector_exists: bool,
+    pub universal_singleton_selector_exists: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyLossAudit {
+    pub distinction: &'static str,
+    pub classification: &'static str,
+    pub evidence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyObservationBoundary {
+    pub status: &'static str,
+    pub unchanged_primitive_vocabulary: Vec<&'static str>,
+    pub arity_enumeration: Vec<LinkOntologyArityEnumeration>,
+    pub arity_enumeration_complete: bool,
+    pub generalized_complete_invariant: &'static str,
+    pub conditional_refinement: LinkOntologyConditionalRefinement,
+    pub loss_audit: Vec<LinkOntologyLossAudit>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyResult {
     pub id: &'static str,
     pub result: &'static str,
@@ -475,6 +545,7 @@ pub struct LinkOntologySymmetryReport {
     pub representation_agreement: Vec<LinkOntologyRepresentationAgreement>,
     pub distinct_reference_symmetry: LinkOntologyDistinctReferenceSymmetry,
     pub reification_countermodels: Vec<LinkOntologyReificationCountermodel>,
+    pub observation_boundary: LinkOntologyObservationBoundary,
     pub results: Vec<LinkOntologyResult>,
     pub admissible_conclusion: &'static str,
     pub remaining_boundary: &'static str,
@@ -672,6 +743,373 @@ fn finite_maps_commute(left: &[usize], right: &[usize]) -> bool {
     (0..left.len()).all(|index| left[right[index]] == right[left[index]])
 }
 
+fn ontology_set_partitions(width: usize) -> Vec<Vec<usize>> {
+    (1..=width)
+        .flat_map(|carrier_size| surjective_finite_assignments(width, carrier_size))
+        .map(|assignment| first_occurrence_normal_form(&assignment))
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+fn permute_ontology_partition(partition: &[usize], permutation: &[usize]) -> Vec<usize> {
+    first_occurrence_normal_form(
+        &permutation
+            .iter()
+            .map(|index| partition[*index])
+            .collect::<Vec<_>>(),
+    )
+}
+
+fn canonical_partition_signature(partition: &[usize]) -> Vec<usize> {
+    finite_permutations(&(0..partition.len()).collect::<Vec<_>>())
+        .iter()
+        .map(|permutation| permute_ontology_partition(partition, permutation))
+        .min()
+        .expect("a nonempty observation has a permutation")
+}
+
+fn canonical_partition_pair_signature(left: &[usize], right: &[usize]) -> Vec<usize> {
+    finite_permutations(&(0..left.len()).collect::<Vec<_>>())
+        .iter()
+        .map(|permutation| {
+            let mut signature = permute_ontology_partition(left, permutation);
+            signature.push(usize::MAX);
+            signature.extend(permute_ontology_partition(right, permutation));
+            signature
+        })
+        .min()
+        .expect("a nonempty observation has a permutation")
+}
+
+fn canonical_paired_equality_matrix_signature(left: &[usize], right: &[usize]) -> Vec<usize> {
+    finite_permutations(&(0..left.len()).collect::<Vec<_>>())
+        .iter()
+        .map(|permutation| {
+            let mut signature =
+                ontology_equality_matrix(&permute_ontology_partition(left, permutation));
+            signature.push(usize::MAX);
+            signature.extend(ontology_equality_matrix(&permute_ontology_partition(
+                right,
+                permutation,
+            )));
+            signature
+        })
+        .min()
+        .expect("a nonempty observation has a permutation")
+}
+
+fn ontology_intersection_table(left: &[usize], right: &[usize]) -> Vec<Vec<usize>> {
+    let rows = left.iter().copied().max().unwrap_or(0) + 1;
+    let columns = right.iter().copied().max().unwrap_or(0) + 1;
+    let mut table = vec![vec![0; columns]; rows];
+    for index in 0..left.len() {
+        table[left[index]][right[index]] += 1;
+    }
+    table
+}
+
+fn canonical_intersection_table_signature(left: &[usize], right: &[usize]) -> Vec<usize> {
+    let table = ontology_intersection_table(left, right);
+    let rows = table.len();
+    let columns = table[0].len();
+    finite_permutations(&(0..rows).collect::<Vec<_>>())
+        .iter()
+        .flat_map(|row_permutation| {
+            finite_permutations(&(0..columns).collect::<Vec<_>>())
+                .into_iter()
+                .map(|column_permutation| {
+                    let mut signature = vec![rows, columns];
+                    signature.extend(row_permutation.iter().flat_map(|row| {
+                        column_permutation.iter().map(|column| table[*row][*column])
+                    }));
+                    signature
+                })
+                .collect::<Vec<_>>()
+        })
+        .min()
+        .expect("a nonempty table has row and column permutations")
+}
+
+type OntologyPairEncoder = fn(&[usize], &[usize]) -> Vec<usize>;
+
+fn pair_classifications_agree(
+    structures: &[(Vec<usize>, Vec<usize>)],
+    baseline: OntologyPairEncoder,
+    candidate: OntologyPairEncoder,
+) -> bool {
+    let mut baseline_to_candidate = BTreeMap::<Vec<usize>, BTreeSet<Vec<usize>>>::new();
+    let mut candidate_to_baseline = BTreeMap::<Vec<usize>, BTreeSet<Vec<usize>>>::new();
+    for (left, right) in structures {
+        let baseline_key = baseline(left, right);
+        let candidate_key = candidate(left, right);
+        baseline_to_candidate
+            .entry(baseline_key.clone())
+            .or_default()
+            .insert(candidate_key.clone());
+        candidate_to_baseline
+            .entry(candidate_key)
+            .or_default()
+            .insert(baseline_key);
+    }
+    baseline_to_candidate
+        .values()
+        .all(|values| values.len() == 1)
+        && candidate_to_baseline
+            .values()
+            .all(|values| values.len() == 1)
+}
+
+fn partition_pair_occurrence_orbits(left: &[usize], right: &[usize]) -> Vec<Vec<usize>> {
+    let identity = {
+        let mut value = left.to_vec();
+        value.push(usize::MAX);
+        value.extend(right);
+        value
+    };
+    let automorphisms = finite_permutations(&(0..left.len()).collect::<Vec<_>>())
+        .into_iter()
+        .filter(|permutation| {
+            let mut transformed = permute_ontology_partition(left, permutation);
+            transformed.push(usize::MAX);
+            transformed.extend(permute_ontology_partition(right, permutation));
+            transformed == identity
+        })
+        .collect::<Vec<_>>();
+    let mut pending = (0..left.len()).collect::<BTreeSet<_>>();
+    let mut orbits = Vec::new();
+    while let Some(seed) = pending.iter().next().copied() {
+        let orbit = automorphisms
+            .iter()
+            .map(|permutation| permutation[seed])
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect::<Vec<_>>();
+        for occurrence in &orbit {
+            pending.remove(occurrence);
+        }
+        orbits.push(orbit);
+    }
+    orbits.sort();
+    orbits
+}
+
+fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
+    let arity_enumeration = (1..=4)
+        .map(|occurrence_count| {
+            let surjective_assignments_examined = (1..=occurrence_count)
+                .map(|carrier_size| {
+                    surjective_finite_assignments(occurrence_count, carrier_size).len()
+                })
+                .sum();
+            let partitions = ontology_set_partitions(occurrence_count);
+            let multiplicity_spectra = partitions
+                .iter()
+                .map(|partition| ontology_multiplicity_spectrum(partition))
+                .collect::<BTreeSet<_>>()
+                .into_iter()
+                .collect::<Vec<_>>();
+            let mut orbit_to_spectrum = BTreeMap::<Vec<usize>, BTreeSet<Vec<usize>>>::new();
+            let mut spectrum_to_orbit = BTreeMap::<Vec<usize>, BTreeSet<Vec<usize>>>::new();
+            for partition in &partitions {
+                let orbit = canonical_partition_signature(partition);
+                let spectrum = ontology_multiplicity_spectrum(partition);
+                orbit_to_spectrum
+                    .entry(orbit.clone())
+                    .or_default()
+                    .insert(spectrum.clone());
+                spectrum_to_orbit.entry(spectrum).or_default().insert(orbit);
+            }
+            LinkOntologyArityEnumeration {
+                occurrence_count,
+                surjective_assignments_examined,
+                reference_rename_classes: partitions.len(),
+                quotient_classes: multiplicity_spectra.len(),
+                multiplicity_spectra,
+                complete_invariant_verified: orbit_to_spectrum
+                    .values()
+                    .all(|values| values.len() == 1)
+                    && spectrum_to_orbit.values().all(|values| values.len() == 1),
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let occurrence_count = 4;
+    let partitions = ontology_set_partitions(occurrence_count);
+    let structures = partitions
+        .iter()
+        .flat_map(|reference_partition| {
+            partitions.iter().map(|refinement_partition| {
+                (reference_partition.clone(), refinement_partition.clone())
+            })
+        })
+        .collect::<Vec<_>>();
+    let encoders: [(&str, OntologyPairEncoder); 3] = [
+        (
+            "canonical-partition-pair",
+            canonical_partition_pair_signature,
+        ),
+        (
+            "paired-equality-matrices",
+            canonical_paired_equality_matrix_signature,
+        ),
+        (
+            "intersection-multiplicity-table",
+            canonical_intersection_table_signature,
+        ),
+    ];
+    let encodings = encoders
+        .iter()
+        .map(|(id, encode)| LinkOntologyRefinementEncoding {
+            id,
+            distinct_classes: structures
+                .iter()
+                .map(|(left, right)| encode(left, right))
+                .collect::<BTreeSet<_>>()
+                .len(),
+            complete_for_enumeration: pair_classifications_agree(
+                &structures,
+                canonical_partition_pair_signature,
+                *encode,
+            ),
+        })
+        .collect::<Vec<_>>();
+
+    #[derive(Debug)]
+    struct JointClassSummary {
+        reference_spectrum: Vec<usize>,
+        refinement_spectrum: Vec<usize>,
+        occurrence_orbit_sizes: Vec<usize>,
+    }
+
+    let mut joint_classes = BTreeMap::new();
+    for (reference_partition, refinement_partition) in &structures {
+        let key = canonical_partition_pair_signature(reference_partition, refinement_partition);
+        joint_classes.entry(key).or_insert_with(|| {
+            let mut occurrence_orbit_sizes =
+                partition_pair_occurrence_orbits(reference_partition, refinement_partition)
+                    .iter()
+                    .map(Vec::len)
+                    .collect::<Vec<_>>();
+            occurrence_orbit_sizes.sort_by(|left, right| right.cmp(left));
+            JointClassSummary {
+                reference_spectrum: ontology_multiplicity_spectrum(reference_partition),
+                refinement_spectrum: ontology_multiplicity_spectrum(refinement_partition),
+                occurrence_orbit_sizes,
+            }
+        });
+    }
+
+    let mut fibres = BTreeMap::<Vec<usize>, Vec<&JointClassSummary>>::new();
+    for joint_class in joint_classes.values() {
+        fibres
+            .entry(joint_class.reference_spectrum.clone())
+            .or_default()
+            .push(joint_class);
+    }
+    let projection_fibres = fibres
+        .into_iter()
+        .map(
+            |(reference_multiplicity_spectrum, items)| LinkOntologyProjectionFibre {
+                reference_multiplicity_spectrum,
+                joint_classes: items.len(),
+                refinement_multiplicity_spectra: items
+                    .iter()
+                    .map(|item| item.refinement_spectrum.clone())
+                    .collect::<BTreeSet<_>>()
+                    .into_iter()
+                    .collect(),
+            },
+        )
+        .collect::<Vec<_>>();
+    let classes_with_invariant_singleton = joint_classes
+        .values()
+        .filter(|item| item.occurrence_orbit_sizes.contains(&1))
+        .count();
+    let classes_without_invariant_singleton =
+        joint_classes.len() - classes_with_invariant_singleton;
+    let every_projection_fibre_ambiguous =
+        projection_fibres.iter().all(|item| item.joint_classes > 1);
+    let refinement_recoverable_from_base =
+        projection_fibres.iter().all(|item| item.joint_classes == 1);
+    let joint_quotient_classes = joint_classes.len();
+    let encoding_agreement = encodings.iter().all(|item| {
+        item.complete_for_enumeration && item.distinct_classes == joint_quotient_classes
+    });
+
+    LinkOntologyObservationBoundary {
+        status: "BINARY_CONTRACT_NOT_EXHAUSTIVE",
+        unchanged_primitive_vocabulary: vec![
+            "unlabelled reference occurrences",
+            "reference equality",
+        ],
+        arity_enumeration_complete: arity_enumeration
+            .iter()
+            .all(|item| item.complete_invariant_verified),
+        arity_enumeration,
+        generalized_complete_invariant:
+            "reference multiplicity spectrum at each fixed unlabelled width",
+        conditional_refinement: LinkOntologyConditionalRefinement {
+            assumption: LinkOntologyConditionalAssumption {
+                id: "second-unlabelled-equivalence-observation",
+                provenance: "CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED",
+                foundational_status: "UNESTABLISHED",
+                role: "measures information erased by the reference-only projection without interpreting the second equivalence as link identity, grouping, order, or semantics",
+            },
+            occurrence_count,
+            reference_partitions_examined: partitions.len(),
+            refinement_partitions_examined: partitions.len(),
+            labelled_joint_structures_examined: structures.len(),
+            occurrence_permutations_examined: finite_permutations(
+                &(0..occurrence_count).collect::<Vec<_>>(),
+            )
+            .len(),
+            joint_quotient_classes,
+            encodings,
+            encoding_agreement,
+            projection_fibres,
+            every_projection_fibre_ambiguous,
+            refinement_recoverable_from_base,
+            classes_with_invariant_singleton,
+            classes_without_invariant_singleton,
+            conditional_singleton_selector_exists: classes_with_invariant_singleton > 0,
+            universal_singleton_selector_exists: classes_without_invariant_singleton == 0,
+        },
+        loss_audit: vec![
+            LinkOntologyLossAudit {
+                distinction: "reference names",
+                classification: "INTENTIONAL_QUOTIENT",
+                evidence: "All observations are quotiented by reference renaming.",
+            },
+            LinkOntologyLossAudit {
+                distinction: "occurrence order",
+                classification: "INTENTIONAL_QUOTIENT",
+                evidence: "All observations are quotiented by every occurrence permutation.",
+            },
+            LinkOntologyLossAudit {
+                distinction: "width beyond two occurrences",
+                classification: "PROVEN_INFORMATION_LOSS",
+                evidence: "The unchanged equality vocabulary yields three classes at width three and five at width four, which the fixed binary contract cannot express.",
+            },
+            LinkOntologyLossAudit {
+                distinction: "second equivalence observation",
+                classification: "PROVEN_NOT_RECOVERABLE",
+                evidence: "Every reference-only width-four class is the projection of five to nine inequivalent joint classes.",
+            },
+            LinkOntologyLossAudit {
+                distinction: "endpoint direction",
+                classification: "NOT_OBSERVED_NOT_DISPROVED",
+                evidence: "Neither the base family nor the conditional refinement names or measures endpoint order.",
+            },
+            LinkOntologyLossAudit {
+                distinction: "dynamics and time",
+                classification: "NOT_OBSERVED_NOT_DISPROVED",
+                evidence: "Both enumerations are static and contain no transition or temporal observation.",
+            },
+        ],
+    }
+}
+
 /// Exhaust the representation-independent consequences of observing two
 /// unlabelled reference occurrences plus equality. This is not an evaluator
 /// or a fourth foundation architecture: it enumerates every finite assignment,
@@ -799,10 +1237,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
             projection: reified_projection,
         },
     ];
+    let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v1",
-        question: "Which facts survive when a two-occurrence reference observation is quotiented by occurrence permutation, reference renaming, and representation change?",
+        schema: "rml-link-ontology-symmetry-experiment/v2",
+        question: "Which facts survive the binary reference observation, what information does its fixed width erase, and which distinctions emerge only under explicitly conditional refinements?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -846,6 +1285,7 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
         representation_agreement,
         distinct_reference_symmetry,
         reification_countermodels,
+        observation_boundary,
         results: vec![
             LinkOntologyResult {
                 id: "endpoint-direction",
@@ -877,9 +1317,29 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 result: "NOT_SELECTED",
                 evidence: "Exactly two self-maps commute with every computed symmetry: identity and swap. The static contract does not select either as a dynamic law.",
             },
+            LinkOntologyResult {
+                id: "fixed-binary-observation-sufficiency",
+                result: "INSUFFICIENT_OUTSIDE_FIXED_ARITY",
+                evidence: "Without adding an observable, widening from two to three and four unlabelled occurrences yields three and five multiplicity classes. The binary quotient cannot express those distinctions.",
+            },
+            LinkOntologyResult {
+                id: "conditional-refinement-recoverability",
+                result: "NOT_RECOVERABLE_FROM_BASE_PROJECTION",
+                evidence: "At width four, every reference-only class is the image of five to nine inequivalent structures carrying an uninterpreted second equivalence observation.",
+            },
+            LinkOntologyResult {
+                id: "conditional-structural-asymmetry",
+                result: "EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL",
+                evidence: "Thirteen of 33 joint classes have an automorphism-invariant singleton occurrence, while 20 do not. A role-like distinction can therefore emerge conditionally but is neither universal nor selected as source or target.",
+            },
+            LinkOntologyResult {
+                id: "observation-loss-provenance",
+                result: "CLASSIFIED_NOT_RESOLVED",
+                evidence: "The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological.",
+            },
         ],
-        admissible_conclusion: "For the exhaustive two-occurrence contract, equality coincidence is the complete representation-independent invariant. The contract cannot select source versus target or a unique self-map, and reification does not survive the tested projection.",
-        remaining_boundary: "This experiment eliminates properties from one minimal observational contract; it does not define a link ontology, prove that the contract is exhaustive of links, or turn a structural automorphism into execution semantics.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. With the same vocabulary, wider unlabelled observations derive multiplicity spectra; a conditional second equivalence reveals exactly measured projection loss and sometimes breaks occurrence symmetry, but supplies no universal role, link identity, or dynamics and cannot select source versus target.",
+        remaining_boundary: "This experiment does not define a link ontology, justify the second equivalence observation as fundamental, decide whether any erased distinction belongs to links, promote a conditional singleton to source or target, or turn a structural automorphism into execution semantics.",
     }
 }
 

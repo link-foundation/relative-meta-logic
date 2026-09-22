@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v1");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v2");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -530,15 +530,146 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
                 "NEGATIVE_CONSTRAINT_ONLY"
             ),
             ("intrinsic-dynamics", "NOT_SELECTED"),
+            (
+                "fixed-binary-observation-sufficiency",
+                "INSUFFICIENT_OUTSIDE_FIXED_ARITY",
+            ),
+            (
+                "conditional-refinement-recoverability",
+                "NOT_RECOVERABLE_FROM_BASE_PROJECTION",
+            ),
+            (
+                "conditional-structural-asymmetry",
+                "EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL",
+            ),
+            ("observation-loss-provenance", "CLASSIFIED_NOT_RESOLVED"),
         ]
     );
-    assert!(report.admissible_conclusion.contains("exhaustive"));
+    assert!(report
+        .admissible_conclusion
+        .to_lowercase()
+        .contains("exhaustive"));
     assert!(report
         .admissible_conclusion
         .contains("cannot select source"));
     assert!(report
         .remaining_boundary
         .contains("does not define a link ontology"));
+
+    let boundary = &report.observation_boundary;
+    assert_eq!(boundary.status, "BINARY_CONTRACT_NOT_EXHAUSTIVE");
+    assert_eq!(
+        boundary
+            .arity_enumeration
+            .iter()
+            .map(|item| (
+                item.occurrence_count,
+                item.surjective_assignments_examined,
+                item.reference_rename_classes,
+                item.quotient_classes,
+                item.multiplicity_spectra.clone(),
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (1, 1, 1, 1, vec![vec![1]]),
+            (2, 3, 2, 2, vec![vec![1, 1], vec![2]]),
+            (3, 13, 5, 3, vec![vec![1, 1, 1], vec![2, 1], vec![3]]),
+            (
+                4,
+                75,
+                15,
+                5,
+                vec![
+                    vec![1, 1, 1, 1],
+                    vec![2, 1, 1],
+                    vec![2, 2],
+                    vec![3, 1],
+                    vec![4]
+                ],
+            ),
+        ]
+    );
+    assert!(boundary.arity_enumeration_complete);
+    assert_eq!(
+        boundary.generalized_complete_invariant,
+        "reference multiplicity spectrum at each fixed unlabelled width"
+    );
+
+    let refinement = &boundary.conditional_refinement;
+    assert_eq!(
+        refinement.assumption.provenance,
+        "CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED"
+    );
+    assert_eq!(refinement.assumption.foundational_status, "UNESTABLISHED");
+    assert_eq!(refinement.occurrence_count, 4);
+    assert_eq!(refinement.reference_partitions_examined, 15);
+    assert_eq!(refinement.refinement_partitions_examined, 15);
+    assert_eq!(refinement.labelled_joint_structures_examined, 225);
+    assert_eq!(refinement.occurrence_permutations_examined, 24);
+    assert_eq!(refinement.joint_quotient_classes, 33);
+    assert_eq!(
+        refinement
+            .encodings
+            .iter()
+            .map(|item| (
+                item.id,
+                item.distinct_classes,
+                item.complete_for_enumeration
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("canonical-partition-pair", 33, true),
+            ("paired-equality-matrices", 33, true),
+            ("intersection-multiplicity-table", 33, true),
+        ]
+    );
+    assert!(refinement.encoding_agreement);
+    assert_eq!(
+        refinement
+            .projection_fibres
+            .iter()
+            .map(|item| (
+                item.reference_multiplicity_spectrum.clone(),
+                item.joint_classes
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (vec![1, 1, 1, 1], 5),
+            (vec![2, 1, 1], 9),
+            (vec![2, 2], 7),
+            (vec![3, 1], 7),
+            (vec![4], 5),
+        ]
+    );
+    assert!(refinement.every_projection_fibre_ambiguous);
+    assert!(!refinement.refinement_recoverable_from_base);
+    assert_eq!(refinement.classes_with_invariant_singleton, 13);
+    assert_eq!(refinement.classes_without_invariant_singleton, 20);
+    assert!(refinement.conditional_singleton_selector_exists);
+    assert!(!refinement.universal_singleton_selector_exists);
+    assert_eq!(
+        boundary
+            .loss_audit
+            .iter()
+            .map(|item| (item.distinction, item.classification))
+            .collect::<Vec<_>>(),
+        vec![
+            ("reference names", "INTENTIONAL_QUOTIENT"),
+            ("occurrence order", "INTENTIONAL_QUOTIENT"),
+            ("width beyond two occurrences", "PROVEN_INFORMATION_LOSS"),
+            ("second equivalence observation", "PROVEN_NOT_RECOVERABLE"),
+            ("endpoint direction", "NOT_OBSERVED_NOT_DISPROVED"),
+            ("dynamics and time", "NOT_OBSERVED_NOT_DISPROVED"),
+        ]
+    );
+    assert!(report.results.iter().any(|item| {
+        item.id == "fixed-binary-observation-sufficiency"
+            && item.result == "INSUFFICIENT_OUTSIDE_FIXED_ARITY"
+    }));
+    assert!(report.results.iter().any(|item| {
+        item.id == "conditional-structural-asymmetry"
+            && item.result == "EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL"
+    }));
 }
 
 #[test]

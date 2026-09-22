@@ -118,8 +118,10 @@ function surjectiveAssignments(width, carrierSize) {
     new Set(assignment).size === carrierSize);
 }
 
-function observationActions(carrierSize) {
-  const occurrencePermutations = permutations([0, 1]);
+function observationActions(carrierSize, occurrenceCount = 2) {
+  const occurrencePermutations = permutations(
+    Array.from({ length: occurrenceCount }, (_, index) => index),
+  );
   const referencePermutations = permutations(
     Array.from({ length: carrierSize }, (_, index) => index),
   );
@@ -144,7 +146,7 @@ function uniqueVectors(vectors) {
 
 function observationOrbit(assignment) {
   return uniqueVectors(
-    observationActions(new Set(assignment).size)
+    observationActions(new Set(assignment).size, assignment.length)
       .map(action => applyObservationAction(assignment, action)),
   );
 }
@@ -189,6 +191,303 @@ function invariantSubsets(size, permutationsToCheck) {
 
 function mapsCommute(left, right) {
   return left.every((_, index) => left[right[index]] === right[left[index]]);
+}
+
+function compareVectors(left, right) {
+  return JSON.stringify(left).localeCompare(JSON.stringify(right));
+}
+
+function setPartitions(width) {
+  return uniqueVectors(
+    Array.from({ length: width }, (_, index) =>
+      surjectiveAssignments(width, index + 1))
+      .flat()
+      .map(firstOccurrenceNormalForm),
+  );
+}
+
+function permutePartition(partition, permutation) {
+  return firstOccurrenceNormalForm(
+    permutation.map(index => partition[index]),
+  );
+}
+
+function canonicalPartitionSignature(partition) {
+  return permutations(partition.map((_, index) => index))
+    .map(permutation => JSON.stringify(
+      permutePartition(partition, permutation),
+    ))
+    .sort()[0];
+}
+
+function canonicalPartitionPairSignature(referencePartition, refinementPartition) {
+  return permutations(referencePartition.map((_, index) => index))
+    .map(permutation => JSON.stringify([
+      permutePartition(referencePartition, permutation),
+      permutePartition(refinementPartition, permutation),
+    ]))
+    .sort()[0];
+}
+
+function canonicalPairedEqualityMatrixSignature(
+  referencePartition,
+  refinementPartition,
+) {
+  return permutations(referencePartition.map((_, index) => index))
+    .map(permutation => JSON.stringify([
+      equalityMatrix(permutePartition(referencePartition, permutation)),
+      equalityMatrix(permutePartition(refinementPartition, permutation)),
+    ]))
+    .sort()[0];
+}
+
+function intersectionMultiplicityTable(leftPartition, rightPartition) {
+  const rows = new Set(leftPartition).size;
+  const columns = new Set(rightPartition).size;
+  const table = Array.from({ length: rows }, () =>
+    Array(columns).fill(0));
+  for (let index = 0; index < leftPartition.length; index += 1) {
+    table[leftPartition[index]][rightPartition[index]] += 1;
+  }
+  return table;
+}
+
+function canonicalIntersectionTableSignature(
+  referencePartition,
+  refinementPartition,
+) {
+  const table = intersectionMultiplicityTable(
+    referencePartition,
+    refinementPartition,
+  );
+  const rows = table.length;
+  const columns = table[0].length;
+  return permutations(Array.from({ length: rows }, (_, index) => index))
+    .flatMap(rowPermutation =>
+      permutations(Array.from({ length: columns }, (_, index) => index))
+        .map(columnPermutation => JSON.stringify([
+          rows,
+          columns,
+          rowPermutation.flatMap(row =>
+            columnPermutation.map(column => table[row][column])),
+        ])))
+    .sort()[0];
+}
+
+function classificationsAgree(structures, baseline, candidate) {
+  const baselineToCandidate = new Map();
+  const candidateToBaseline = new Map();
+  for (const structure of structures) {
+    const baselineKey = baseline(...structure);
+    const candidateKey = candidate(...structure);
+    if (!baselineToCandidate.has(baselineKey)) {
+      baselineToCandidate.set(baselineKey, new Set());
+    }
+    if (!candidateToBaseline.has(candidateKey)) {
+      candidateToBaseline.set(candidateKey, new Set());
+    }
+    baselineToCandidate.get(baselineKey).add(candidateKey);
+    candidateToBaseline.get(candidateKey).add(baselineKey);
+  }
+  return [...baselineToCandidate.values()].every(values => values.size === 1) &&
+    [...candidateToBaseline.values()].every(values => values.size === 1);
+}
+
+function partitionPairOccurrenceOrbits(referencePartition, refinementPartition) {
+  const width = referencePartition.length;
+  const identityKey = JSON.stringify([
+    referencePartition,
+    refinementPartition,
+  ]);
+  const automorphisms = permutations(Array.from({ length: width }, (_, index) => index))
+    .filter(permutation => JSON.stringify([
+      permutePartition(referencePartition, permutation),
+      permutePartition(refinementPartition, permutation),
+    ]) === identityKey);
+  const pending = new Set(Array.from({ length: width }, (_, index) => index));
+  const orbits = [];
+  while (pending.size > 0) {
+    const seed = pending.values().next().value;
+    const orbit = [...new Set(
+      automorphisms.map(permutation => permutation[seed]),
+    )].sort((left, right) => left - right);
+    for (const occurrence of orbit) pending.delete(occurrence);
+    orbits.push(orbit);
+  }
+  return orbits.sort(compareVectors);
+}
+
+function observationBoundaryExperiment() {
+  const arityEnumeration = Array.from({ length: 4 }, (_, index) => index + 1)
+    .map(occurrenceCount => {
+      const rawAssignments = Array.from(
+        { length: occurrenceCount },
+        (_, carrierIndex) => surjectiveAssignments(
+          occurrenceCount,
+          carrierIndex + 1,
+        ),
+      ).flat();
+      const partitions = setPartitions(occurrenceCount);
+      const spectra = uniqueVectors(partitions.map(multiplicitySpectrum));
+      const structures = partitions.map(partition => [partition]);
+      return {
+        occurrenceCount,
+        surjectiveAssignmentsExamined: rawAssignments.length,
+        referenceRenameClasses: partitions.length,
+        quotientClasses: spectra.length,
+        multiplicitySpectra: spectra,
+        completeInvariantVerified: classificationsAgree(
+          structures,
+          partition => canonicalPartitionSignature(partition),
+          partition => JSON.stringify(multiplicitySpectrum(partition)),
+        ),
+      };
+    });
+
+  const occurrenceCount = 4;
+  const partitions = setPartitions(occurrenceCount);
+  const structures = partitions.flatMap(referencePartition =>
+    partitions.map(refinementPartition => [
+      referencePartition,
+      refinementPartition,
+    ]));
+  const encoders = [
+    {
+      id: 'canonical-partition-pair',
+      encode: canonicalPartitionPairSignature,
+    },
+    {
+      id: 'paired-equality-matrices',
+      encode: canonicalPairedEqualityMatrixSignature,
+    },
+    {
+      id: 'intersection-multiplicity-table',
+      encode: canonicalIntersectionTableSignature,
+    },
+  ];
+  const baselineEncoder = encoders[0].encode;
+  const encodings = encoders.map(({ id, encode }) => ({
+    id,
+    distinctClasses: new Set(structures.map(structure => encode(...structure))).size,
+    completeForEnumeration: classificationsAgree(
+      structures,
+      baselineEncoder,
+      encode,
+    ),
+  }));
+
+  const jointClasses = new Map();
+  for (const [referencePartition, refinementPartition] of structures) {
+    const key = baselineEncoder(referencePartition, refinementPartition);
+    if (jointClasses.has(key)) continue;
+    const occurrenceOrbits = partitionPairOccurrenceOrbits(
+      referencePartition,
+      refinementPartition,
+    );
+    jointClasses.set(key, {
+      referenceMultiplicitySpectrum: multiplicitySpectrum(referencePartition),
+      refinementMultiplicitySpectrum: multiplicitySpectrum(refinementPartition),
+      occurrenceOrbitSizes: occurrenceOrbits
+        .map(orbit => orbit.length)
+        .sort((left, right) => right - left),
+    });
+  }
+
+  const fibres = new Map();
+  for (const jointClass of jointClasses.values()) {
+    const key = JSON.stringify(jointClass.referenceMultiplicitySpectrum);
+    if (!fibres.has(key)) fibres.set(key, []);
+    fibres.get(key).push(jointClass);
+  }
+  const projectionFibres = [...fibres.values()]
+    .map(items => ({
+      referenceMultiplicitySpectrum: items[0].referenceMultiplicitySpectrum,
+      jointClasses: items.length,
+      refinementMultiplicitySpectra: uniqueVectors(
+        items.map(item => item.refinementMultiplicitySpectrum),
+      ),
+    }))
+    .sort((left, right) => compareVectors(
+      left.referenceMultiplicitySpectrum,
+      right.referenceMultiplicitySpectrum,
+    ));
+  const classesWithInvariantSingleton = [...jointClasses.values()]
+    .filter(item => item.occurrenceOrbitSizes.includes(1)).length;
+  const classesWithoutInvariantSingleton = jointClasses.size -
+    classesWithInvariantSingleton;
+
+  return {
+    status: 'BINARY_CONTRACT_NOT_EXHAUSTIVE',
+    unchangedPrimitiveVocabulary: [
+      'unlabelled reference occurrences',
+      'reference equality',
+    ],
+    arityEnumeration,
+    arityEnumerationComplete: arityEnumeration.every(item =>
+      item.completeInvariantVerified),
+    generalizedCompleteInvariant:
+      'reference multiplicity spectrum at each fixed unlabelled width',
+    conditionalRefinement: {
+      assumption: {
+        id: 'second-unlabelled-equivalence-observation',
+        provenance: 'CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED',
+        foundationalStatus: 'UNESTABLISHED',
+        role: 'measures information erased by the reference-only projection without interpreting the second equivalence as link identity, grouping, order, or semantics',
+      },
+      occurrenceCount,
+      referencePartitionsExamined: partitions.length,
+      refinementPartitionsExamined: partitions.length,
+      labelledJointStructuresExamined: structures.length,
+      occurrencePermutationsExamined: permutations(
+        Array.from({ length: occurrenceCount }, (_, index) => index),
+      ).length,
+      jointQuotientClasses: jointClasses.size,
+      encodings,
+      encodingAgreement: encodings.every(item =>
+        item.completeForEnumeration && item.distinctClasses === jointClasses.size),
+      projectionFibres,
+      everyProjectionFibreAmbiguous: projectionFibres.every(item =>
+        item.jointClasses > 1),
+      refinementRecoverableFromBase: projectionFibres.every(item =>
+        item.jointClasses === 1),
+      classesWithInvariantSingleton,
+      classesWithoutInvariantSingleton,
+      conditionalSingletonSelectorExists: classesWithInvariantSingleton > 0,
+      universalSingletonSelectorExists: classesWithoutInvariantSingleton === 0,
+    },
+    lossAudit: [
+      {
+        distinction: 'reference names',
+        classification: 'INTENTIONAL_QUOTIENT',
+        evidence: 'All observations are quotiented by reference renaming.',
+      },
+      {
+        distinction: 'occurrence order',
+        classification: 'INTENTIONAL_QUOTIENT',
+        evidence: 'All observations are quotiented by every occurrence permutation.',
+      },
+      {
+        distinction: 'width beyond two occurrences',
+        classification: 'PROVEN_INFORMATION_LOSS',
+        evidence: 'The unchanged equality vocabulary yields three classes at width three and five at width four, which the fixed binary contract cannot express.',
+      },
+      {
+        distinction: 'second equivalence observation',
+        classification: 'PROVEN_NOT_RECOVERABLE',
+        evidence: 'Every reference-only width-four class is the projection of five to nine inequivalent joint classes.',
+      },
+      {
+        distinction: 'endpoint direction',
+        classification: 'NOT_OBSERVED_NOT_DISPROVED',
+        evidence: 'Neither the base family nor the conditional refinement names or measures endpoint order.',
+      },
+      {
+        distinction: 'dynamics and time',
+        classification: 'NOT_OBSERVED_NOT_DISPROVED',
+        evidence: 'Both enumerations are static and contain no transition or temporal observation.',
+      },
+    ],
+  };
 }
 
 /**
@@ -296,10 +595,11 @@ function linkOntologySymmetryExperiment() {
       projection: firstOccurrenceNormalForm(projectedReferences),
     };
   });
+  const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v1',
-    question: 'Which facts survive when a two-occurrence reference observation is quotiented by occurrence permutation, reference renaming, and representation change?',
+    schema: 'rml-link-ontology-symmetry-experiment/v2',
+    question: 'Which facts survive the binary reference observation, what information does its fixed width erase, and which distinctions emerge only under explicitly conditional refinements?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
       occurrenceCount,
@@ -350,6 +650,7 @@ function linkOntologySymmetryExperiment() {
       uniqueEquivariantSelfMap: equivariantSelfMaps.length === 1,
     },
     reificationCountermodels,
+    observationBoundary,
     results: [
       {
         id: 'endpoint-direction',
@@ -381,9 +682,29 @@ function linkOntologySymmetryExperiment() {
         result: 'NOT_SELECTED',
         evidence: 'Exactly two self-maps commute with every computed symmetry: identity and swap. The static contract does not select either as a dynamic law.',
       },
+      {
+        id: 'fixed-binary-observation-sufficiency',
+        result: 'INSUFFICIENT_OUTSIDE_FIXED_ARITY',
+        evidence: 'Without adding an observable, widening from two to three and four unlabelled occurrences yields three and five multiplicity classes. The binary quotient cannot express those distinctions.',
+      },
+      {
+        id: 'conditional-refinement-recoverability',
+        result: 'NOT_RECOVERABLE_FROM_BASE_PROJECTION',
+        evidence: 'At width four, every reference-only class is the image of five to nine inequivalent structures carrying an uninterpreted second equivalence observation.',
+      },
+      {
+        id: 'conditional-structural-asymmetry',
+        result: 'EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL',
+        evidence: 'Thirteen of 33 joint classes have an automorphism-invariant singleton occurrence, while 20 do not. A role-like distinction can therefore emerge conditionally but is neither universal nor selected as source or target.',
+      },
+      {
+        id: 'observation-loss-provenance',
+        result: 'CLASSIFIED_NOT_RESOLVED',
+        evidence: 'The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological.',
+      },
     ],
-    admissibleConclusion: 'For the exhaustive two-occurrence contract, equality coincidence is the complete representation-independent invariant. The contract cannot select source versus target or a unique self-map, and reification does not survive the tested projection.',
-    remainingBoundary: 'This experiment eliminates properties from one minimal observational contract; it does not define a link ontology, prove that the contract is exhaustive of links, or turn a structural automorphism into execution semantics.',
+    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. With the same vocabulary, wider unlabelled observations derive multiplicity spectra; a conditional second equivalence reveals exactly measured projection loss and sometimes breaks occurrence symmetry, but supplies no universal role, link identity, or dynamics and cannot select source versus target.',
+    remainingBoundary: 'This experiment does not define a link ontology, justify the second equivalence observation as fundamental, decide whether any erased distinction belongs to links, promote a conditional singleton to source or target, or turn a structural automorphism into execution semantics.',
   };
 }
 
@@ -1083,7 +1404,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v5',
+    schema: 'rml-alternative-foundation-search/v6',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
@@ -1094,7 +1415,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     comparisonStatus: comparisonCohortSufficient
       ? 'COMPARABLE_COHORT_ESTABLISHED_NO_GLOBAL_MINIMALITY_CLAIM'
       : 'OPEN_NO_COMPARABLE_ALTERNATIVE',
-    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, and the complete symmetry quotient of its stated two-occurrence observation contract. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The finite quotient does not establish link ontology, prove that its starting contract exhausts links, identify the correct primitive categories, turn a structural automorphism into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
+    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, the binary symmetry quotient, the width-one-through-four multiplicity quotients, and the conditional width-four refinement fibres. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The finite observation evidence does not establish link ontology, justify the conditional refinement as fundamental, identify the correct primitive categories, turn a structural automorphism into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
     candidates,
     representationBoundaryWitness: linkRepresentationBoundaryWitness(),
     comparisonCohort: {
@@ -1128,7 +1449,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       globallyMinimal: false,
       intrinsicTransitionAuthority: 'UNRESOLVED',
       representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
-      ontologyExperimentConclusion: 'Reference equality coincidence is complete for the tested contract; endpoint direction, reified link identity, and a unique dynamic law do not survive its tested symmetries and projections.',
+      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Wider observations derive multiplicity spectra, while a conditional second equivalence exposes non-recoverable projection loss and non-universal structural asymmetry without selecting an ontology or dynamics.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };
