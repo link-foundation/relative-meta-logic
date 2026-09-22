@@ -210,8 +210,12 @@ witness, and four language semantic cores. Their representation, authority,
 formation/control boundaries, residual operations, removal outcomes, and
 runtime trust coverage are published in the
 [architecture-neutral foundation search](./docs/case-studies/issue-183/foundation-search.md).
-This comparison scopes S/K's two-law result to the measured candidates rather
-than treating the failed zero-transition experiment as a selection proof.
+The search admits only fully self-hosted, zero-duplication implementations to
+its ranking cohort. Direct and Horn execution remain useful controls, but are
+excluded, leaving too few peers to select a winner. A two-model witness over
+one ordered link shows why no transition is forced by representation alone;
+the failed zero-transition experiment then shows why some added transition
+authority is operationally necessary.
 
 The `links-meta-foundation` program is the links-defined `K1` interpreter for
 object-encoded matching, substitution, rule application, and verification.

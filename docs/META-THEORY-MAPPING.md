@@ -16,8 +16,9 @@ into.
 For the separate question of which transition authority makes such networks
 executable, see the
 [architecture-neutral foundation search](./case-studies/issue-183/foundation-search.md).
-It compares three mechanisms without treating S/K as a native Links Theory
-law or inferring global minimality from the current representation.
+It executes three mechanisms without treating S/K as a native Links Theory
+law or ranking unequally reduced controls. Its two-model witness establishes
+that the link signature itself does not select any unique transition law.
 
 If you have not read it yet, the companion piece is
 [`case-studies/issue-13/README.md`](./case-studies/issue-13/README.md),

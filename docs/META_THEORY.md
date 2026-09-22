@@ -131,7 +131,11 @@ their traces must not observe either combinator contraction. The report
 records every candidate's representation, transition authority, provenance,
 host/formation/control boundaries, self-description/interpretation/generation
 mechanisms, removal experiments, and neutral metrics. Candidate A's smaller
-measured boundary remains an experimental comparison, not a global minimum.
+raw boundary is not ranked against the less-reduced controls. Only A passes
+the symmetric eligibility gate, so the comparison cohort is insufficient and
+the report names no winner. Its two-model witness additionally shows that the
+same link representation admits distinct renaming-invariant transitions;
+links intrinsically provide structure, not a unique execution relation.
 
 Every remaining boundary node has a structural `primitiveReason` /
 `primitive_reason`. The mirrored `auditBootstrapKernel` /

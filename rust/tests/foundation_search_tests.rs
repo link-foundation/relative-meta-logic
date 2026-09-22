@@ -2,7 +2,10 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::PathBuf;
 
-use rml::linked_program::{ExecutionBasis, LinkedProgramRegistry};
+use rml::linked_program::{
+    foundation_comparison_eligibility, intrinsic_link_authority_report, ExecutionBasis,
+    LinkedProgramRegistry,
+};
 use rml::{parse_one, tokenize_one, Node};
 
 fn node(source: &str) -> Node {
@@ -306,5 +309,46 @@ fn fault_injects_every_candidate_residual_law() {
         "schedule-horn-saturation",
     ] {
         assert!(run_horn_candidate(&source, &[operation]).is_err());
+    }
+}
+
+#[test]
+fn link_structure_alone_does_not_select_an_execution_relation() {
+    let report = intrinsic_link_authority_report();
+    assert_eq!(report.classification, "NO_INTRINSIC_TRANSITION_AUTHORITY");
+    assert_eq!(report.interpretations.len(), 2);
+    assert_eq!(report.interpretations[0].input, report.shared_input);
+    assert_eq!(report.interpretations[1].input, report.shared_input);
+    assert_ne!(
+        report.interpretations[0].output,
+        report.interpretations[1].output
+    );
+    assert!(report
+        .interpretations
+        .iter()
+        .all(|item| item.preserves_link_formation && item.renaming_invariant));
+    assert!(report.forced_execution_laws.is_empty());
+}
+
+#[test]
+fn excludes_asymmetrically_reduced_candidates_from_ranking() {
+    let closed_sk = foundation_comparison_eligibility(9, 0, 0, true);
+    assert!(closed_sk.eligible);
+    assert!(closed_sk.exclusion_reasons.is_empty());
+
+    for (host_capabilities, expected_closure) in [(6, "9/15"), (5, "9/14")] {
+        let control = foundation_comparison_eligibility(9, host_capabilities, 1, true);
+        assert!(
+            !control.eligible,
+            "{expected_closure} must not enter ranking"
+        );
+        assert_eq!(
+            control.exclusion_reasons,
+            vec![
+                "INCOMPLETE_SELF_HOSTING_CLOSURE",
+                "HOST_SELF_SEMANTIC_DUPLICATION",
+                "EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION",
+            ]
+        );
     }
 }

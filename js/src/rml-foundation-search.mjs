@@ -35,6 +35,61 @@ const NON_SEMANTIC_OPERATIONS = Object.freeze([
   'enforce-cycle-and-resource-bounds',
 ]);
 
+function renameAtoms(term, renaming) {
+  if (Array.isArray(term)) return term.map(child => renameAtoms(child, renaming));
+  return renaming.get(term) ?? term;
+}
+
+function intrinsicLinkAuthorityWitness() {
+  const sharedInput = ['link', 'left', 'right'];
+  const interpretations = [
+    {
+      id: 'reflexive-observation',
+      transition: term => cloneFoundationTerm(term),
+    },
+    {
+      id: 'reverse-endpoints',
+      transition: term => [term[0], term[2], term[1]],
+    },
+  ];
+  const renaming = new Map([
+    ['left', 'renamed-left'],
+    ['right', 'renamed-right'],
+  ]);
+  return {
+    classification: 'NO_INTRINSIC_TRANSITION_AUTHORITY',
+    sharedInput: cloneFoundationTerm(sharedInput),
+    representationSignature: [
+      'link-identity',
+      'ordered-source-reference',
+      'ordered-target-reference',
+    ],
+    interpretations: interpretations.map(({ id, transition }) => {
+      const input = cloneFoundationTerm(sharedInput);
+      const output = transition(input);
+      const renamedThenTransitioned = transition(renameAtoms(input, renaming));
+      const transitionedThenRenamed = renameAtoms(output, renaming);
+      return {
+        id,
+        input,
+        output,
+        preservesLinkFormation: Array.isArray(output) &&
+          output.length === 3 && output[0] === 'link',
+        renamingInvariant: isStructurallySame(
+          renamedThenTransitioned,
+          transitionedThenRenamed,
+        ),
+      };
+    }),
+    forcedExecutionLaws: [],
+    argument: 'The same link structure admits two formation-preserving, atom-renaming-invariant transition interpretations with different results. Therefore the representation signature does not determine a unique execution relation; every dynamic law is additional semantic authority.',
+  };
+}
+
+function cloneFoundationTerm(term) {
+  return Array.isArray(term) ? term.map(cloneFoundationTerm) : term;
+}
+
 function counterProgram() {
   return [
     ['instruction', 'q0', 'decrement-left', 'failed', 'q1'],
@@ -458,6 +513,19 @@ function candidateRecord({
   }
   const linkedCapabilities = ACCEPTANCE_OPERATIONS.length;
   const hostCapabilities = hostSelfDuplication;
+  const comparisonExclusionReasons = [];
+  if (linkedCapabilities !== linkedCapabilities + hostCapabilities) {
+    comparisonExclusionReasons.push('INCOMPLETE_SELF_HOSTING_CLOSURE');
+  }
+  if (hostSelfDuplication !== 0) {
+    comparisonExclusionReasons.push('HOST_SELF_SEMANTIC_DUPLICATION');
+  }
+  if (externalSemanticSources !== 0) {
+    comparisonExclusionReasons.push('EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION');
+  }
+  if (!coverage.complete) {
+    comparisonExclusionReasons.push('INCOMPLETE_RUNTIME_TRUST_COVERAGE');
+  }
   return {
     candidate: id,
     title,
@@ -490,12 +558,17 @@ function candidateRecord({
       selfHostingClosure: {
         linkedCapabilities,
         hostCapabilities,
+        totalCapabilities: linkedCapabilities + hostCapabilities,
         ratio: `${linkedCapabilities}/${linkedCapabilities + hostCapabilities}`,
       },
       foundationCompression: `${primitiveLaws.length}/8`,
       runtimeTrustCoverage: coverage,
       objectSpecificHostSemantics: 0,
       undocumentedAuthorityPaths: coverage.undocumentedAuthorityPaths,
+    },
+    comparisonEligibility: {
+      eligible: comparisonExclusionReasons.length === 0,
+      exclusionReasons: comparisonExclusionReasons,
     },
     eliminationExperiments: removal,
     equivalentTo: null,
@@ -597,26 +670,56 @@ function foundationSearchReport(universalSource, alternativeSource) {
       externalSemanticSources: 1,
     }),
   ];
-  const smallestMeasuredExternalLawCount = Math.min(
-    ...candidates.map(candidate => candidate.externalSemanticInformation),
-  );
+  const comparisonCandidates = candidates.filter(candidate =>
+    candidate.comparisonEligibility.eligible);
+  const comparisonCohortSufficient = comparisonCandidates.length >= 2;
+  const smallestMeasuredExternalLawCount = comparisonCohortSufficient
+    ? Math.min(...comparisonCandidates.map(candidate =>
+      candidate.externalSemanticInformation))
+    : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v1',
+    schema: 'rml-alternative-foundation-search/v2',
     question: 'What minimum semantic structure must be added to links before links can define, interpret, and execute their own meta-theory?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
     acceptanceOperations: ACCEPTANCE_OPERATIONS,
-    comparisonStatus: 'NO_GLOBAL_MINIMALITY_CLAIM',
+    comparisonStatus: comparisonCohortSufficient
+      ? 'COMPARABLE_COHORT_ESTABLISHED_NO_GLOBAL_MINIMALITY_CLAIM'
+      : 'OPEN_NO_COMPARABLE_ALTERNATIVE',
     proofBoundary: 'The report proves the finite acceptance workload and an instruction-by-instruction simulation of the complete two-counter-machine basis. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. It does not claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
     candidates,
+    intrinsicAuthorityWitness: intrinsicLinkAuthorityWitness(),
+    comparisonCohort: {
+      eligibilityRequirements: [
+        'complete finite acceptance workload',
+        'full links-defined acceptance closure',
+        'zero host/self semantic duplication',
+        'zero external semantic source descriptions',
+        'complete runtime trust coverage',
+      ],
+      minimumCandidates: 2,
+      eligibleCandidates: comparisonCandidates.map(candidate => candidate.candidate),
+      excludedCandidates: candidates
+        .filter(candidate => !candidate.comparisonEligibility.eligible)
+        .map(candidate => ({
+          candidate: candidate.candidate,
+          reasons: candidate.comparisonEligibility.exclusionReasons,
+        })),
+      sufficient: comparisonCohortSufficient,
+      asymmetricRankingPermitted: false,
+    },
     conclusion: {
       smallestMeasuredExternalLawCount,
-      smallestMeasuredCandidates: candidates
-        .filter(candidate =>
-          candidate.externalSemanticInformation === smallestMeasuredExternalLawCount)
-        .map(candidate => candidate.candidate),
+      smallestMeasuredCandidates: comparisonCohortSufficient
+        ? comparisonCandidates
+          .filter(candidate =>
+            candidate.externalSemanticInformation === smallestMeasuredExternalLawCount)
+          .map(candidate => candidate.candidate)
+        : [],
+      selectedFoundation: null,
       globallyMinimal: false,
-      pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms. S/K remains the smallest measured boundary in this experiment, but is not promoted to an axiom or global minimum.',
+      intrinsicTransitionAuthority: 'none: links determine representation structure but no unique dynamic relation',
+      pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };
 }
@@ -626,4 +729,5 @@ export {
   DIRECT_SEMANTIC_OPERATIONS,
   HORN_SEMANTIC_OPERATIONS,
   foundationSearchReport,
+  intrinsicLinkAuthorityWitness,
 };

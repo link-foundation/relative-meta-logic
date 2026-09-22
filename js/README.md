@@ -223,7 +223,10 @@ closed-term compiler. `foundationSearchReport` runs the common nine-operation
 workload, 13 removal experiments, the linked two-counter machine, language
 semantic cores, and a guarded referential proof knot. Run the versioned JSON
 report with `npm run report:foundation-search`; its claim boundary is
-documented in `docs/case-studies/issue-183/foundation-search.md`.
+documented in `docs/case-studies/issue-183/foundation-search.md`. The report's
+eligibility gate excludes the direct and Horn controls from ranking while
+they retain host/self duplication, and its executable two-model witness shows
+that link formation alone determines no unique transition relation.
 
 ```javascript
 import { readFileSync } from 'node:fs';

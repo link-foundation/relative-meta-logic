@@ -91,9 +91,13 @@ structural rewriting, and monotone Horn saturation. The versioned comparison
 records every transition authority and boundary, fault-injects all 13
 candidate primitives, executes all six cases of a universal two-counter
 instruction basis, and checks guarded referential and language-core witnesses
-with JavaScript/Rust parity. S/K is the smallest measured candidate here, but
-the report explicitly declines global minimality and pairwise-equivalence
-claims.
+with JavaScript/Rust parity. S/K has the smallest raw operation count, but
+only it currently passes the full-self-hosting comparison gate. The report
+therefore excludes the direct and Horn controls from ranking, names no
+smallest candidate, and keeps the comparative search open. Its executable
+two-model witness also establishes that ordered link structure does not force
+a unique transition relation: every execution mechanism adds authority beyond
+link formation.
 
 `links-meta-foundation` is an executable, links-defined `K1` meta-interpreter
 for object-encoded binding, matching, substitution, rule

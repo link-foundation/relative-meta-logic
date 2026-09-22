@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v1",
+  "schema": "rml-foundation-candidate-table/v2",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "acceptanceWorkload": [
@@ -13,6 +13,31 @@
     "verify",
     "self-interpret"
   ],
+  "intrinsicAuthority": {
+    "classification": "NO_INTRINSIC_TRANSITION_AUTHORITY",
+    "representationSignature": [
+      "link-identity",
+      "ordered-source-reference",
+      "ordered-target-reference"
+    ],
+    "forcedExecutionLaws": [],
+    "witnessInterpretations": [
+      "reflexive-observation",
+      "reverse-endpoints"
+    ]
+  },
+  "comparisonCohort": {
+    "minimumCandidates": 2,
+    "eligibleCandidates": [
+      "candidate-a-closed-s-k"
+    ],
+    "excludedCandidates": [
+      "candidate-b-direct-structural",
+      "candidate-c-horn-relational"
+    ],
+    "sufficient": false,
+    "asymmetricRankingPermitted": false
+  },
   "candidates": [
     {
       "candidate": "candidate-a-closed-s-k",
@@ -37,6 +62,8 @@
       "derivedSemanticInformation": 9,
       "externalSemanticSourceDescriptions": 0,
       "hostSelfSemanticDuplication": 0,
+      "comparisonEligible": true,
+      "comparisonExclusionReasons": [],
       "runtimeTrustCoverage": "complete",
       "objectSpecificHostKnowledge": [],
       "undocumentedAuthorityPaths": [],
@@ -77,6 +104,12 @@
       "derivedSemanticInformation": 9,
       "externalSemanticSourceDescriptions": 1,
       "hostSelfSemanticDuplication": 6,
+      "comparisonEligible": false,
+      "comparisonExclusionReasons": [
+        "INCOMPLETE_SELF_HOSTING_CLOSURE",
+        "HOST_SELF_SEMANTIC_DUPLICATION",
+        "EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION"
+      ],
       "runtimeTrustCoverage": "complete",
       "objectSpecificHostKnowledge": [],
       "undocumentedAuthorityPaths": [],
@@ -116,6 +149,12 @@
       "derivedSemanticInformation": 9,
       "externalSemanticSourceDescriptions": 1,
       "hostSelfSemanticDuplication": 5,
+      "comparisonEligible": false,
+      "comparisonExclusionReasons": [
+        "INCOMPLETE_SELF_HOSTING_CLOSURE",
+        "HOST_SELF_SEMANTIC_DUPLICATION",
+        "EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION"
+      ],
       "runtimeTrustCoverage": "complete",
       "objectSpecificHostKnowledge": [],
       "undocumentedAuthorityPaths": [],
@@ -132,16 +171,22 @@
   ],
   "claimBoundary": {
     "globallyMinimal": false,
+    "comparableCohortEstablished": false,
+    "intrinsicTransitionAuthority": "NO_INTRINSIC_TRANSITION_AUTHORITY",
     "completeProductionLanguageImplementations": false,
     "proved": [
       "the same finite acceptance workload passes under three transition mechanisms",
       "every measured residual semantic law has an executable removal experiment",
       "all three mechanisms execute the complete two-counter-machine instruction basis",
-      "the linked JavaScript and Rust counter cores execute and the Lean and Rocq dependent cores check identity proofs"
+      "the linked JavaScript and Rust counter cores execute and the Lean and Rocq dependent cores check identity proofs",
+      "link formation alone does not determine a unique execution relation",
+      "only Candidate A currently passes the symmetric comparison-eligibility gate"
     ],
     "notProved": [
       "that S/K is globally minimal",
       "that the three candidates are equivalent",
+      "that Candidate A is smaller than a comparably reduced self-hosted alternative",
+      "that a sufficient comparative cohort currently exists",
       "that finite tests enumerate every formal system",
       "that these semantic cores replace production Lean, Rocq, Rust, or JavaScript toolchains"
     ]

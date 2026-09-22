@@ -165,7 +165,9 @@ irreducibility.
 architecture-neutral comparison. The mirrored foundation-search suite runs
 the same workload, counter-machine and language cores, guarded referential
 witness, and all 13 primitive-removal experiments without allowing the two
-non-combinator mechanisms to observe S/K.
+non-combinator mechanisms to observe S/K. The same suite checks the
+intrinsic-authority two-model witness; the machine-readable report excludes
+the less-reduced controls from ranking and names no foundation winner.
 `MembershipSetStore` provides addressed
 membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,

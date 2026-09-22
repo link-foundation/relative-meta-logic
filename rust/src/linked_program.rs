@@ -364,6 +364,140 @@ pub enum ExecutionBasis {
     HornRelational,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct IntrinsicLinkInterpretation {
+    pub id: &'static str,
+    pub input: Node,
+    pub output: Node,
+    pub preserves_link_formation: bool,
+    pub renaming_invariant: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct IntrinsicLinkAuthorityReport {
+    pub classification: &'static str,
+    pub shared_input: Node,
+    pub representation_signature: Vec<&'static str>,
+    pub interpretations: Vec<IntrinsicLinkInterpretation>,
+    pub forced_execution_laws: Vec<&'static str>,
+    pub argument: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct FoundationComparisonEligibility {
+    pub eligible: bool,
+    pub exclusion_reasons: Vec<&'static str>,
+}
+
+/// Apply the same comparison-cohort gate as the JavaScript foundation report.
+pub fn foundation_comparison_eligibility(
+    linked_capabilities: usize,
+    host_self_semantic_duplication: usize,
+    external_semantic_source_descriptions: usize,
+    runtime_trust_coverage_complete: bool,
+) -> FoundationComparisonEligibility {
+    let mut exclusion_reasons = Vec::new();
+    let total_capabilities = linked_capabilities + host_self_semantic_duplication;
+    if linked_capabilities != total_capabilities {
+        exclusion_reasons.push("INCOMPLETE_SELF_HOSTING_CLOSURE");
+    }
+    if host_self_semantic_duplication != 0 {
+        exclusion_reasons.push("HOST_SELF_SEMANTIC_DUPLICATION");
+    }
+    if external_semantic_source_descriptions != 0 {
+        exclusion_reasons.push("EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION");
+    }
+    if !runtime_trust_coverage_complete {
+        exclusion_reasons.push("INCOMPLETE_RUNTIME_TRUST_COVERAGE");
+    }
+    FoundationComparisonEligibility {
+        eligible: exclusion_reasons.is_empty(),
+        exclusion_reasons,
+    }
+}
+
+fn rename_authority_witness_atoms(node: &Node) -> Node {
+    match node {
+        Node::Leaf(value) if value == "left" => Node::Leaf("renamed-left".to_string()),
+        Node::Leaf(value) if value == "right" => Node::Leaf("renamed-right".to_string()),
+        Node::Leaf(value) => Node::Leaf(value.clone()),
+        Node::List(children) => Node::List(
+            children
+                .iter()
+                .map(rename_authority_witness_atoms)
+                .collect(),
+        ),
+    }
+}
+
+fn reverse_link_endpoints(node: &Node) -> Node {
+    let Node::List(children) = node else {
+        return node.clone();
+    };
+    if children.len() != 3 || children.first() != Some(&Node::Leaf("link".to_string())) {
+        return node.clone();
+    }
+    Node::List(vec![
+        children[0].clone(),
+        children[2].clone(),
+        children[1].clone(),
+    ])
+}
+
+fn is_link_form(node: &Node) -> bool {
+    matches!(
+        node,
+        Node::List(children)
+            if children.len() == 3
+                && children.first() == Some(&Node::Leaf("link".to_string()))
+    )
+}
+
+/// Exhibit two different transition relations over the same ordered link.
+///
+/// Both interpretations preserve link formation and commute with atom
+/// renaming, yet produce different results. The link representation therefore
+/// does not determine either transition; execution requires an additional law.
+pub fn intrinsic_link_authority_report() -> IntrinsicLinkAuthorityReport {
+    let shared_input = Node::List(vec![
+        Node::Leaf("link".to_string()),
+        Node::Leaf("left".to_string()),
+        Node::Leaf("right".to_string()),
+    ]);
+    let identity_output = shared_input.clone();
+    let reversed_output = reverse_link_endpoints(&shared_input);
+    let renamed_input = rename_authority_witness_atoms(&shared_input);
+    let interpretations = vec![
+        IntrinsicLinkInterpretation {
+            id: "reflexive-observation",
+            input: shared_input.clone(),
+            output: identity_output.clone(),
+            preserves_link_formation: is_link_form(&identity_output),
+            renaming_invariant: renamed_input == rename_authority_witness_atoms(&identity_output),
+        },
+        IntrinsicLinkInterpretation {
+            id: "reverse-endpoints",
+            input: shared_input.clone(),
+            output: reversed_output.clone(),
+            preserves_link_formation: is_link_form(&reversed_output),
+            renaming_invariant: reverse_link_endpoints(&renamed_input)
+                == rename_authority_witness_atoms(&reversed_output),
+        },
+    ];
+    IntrinsicLinkAuthorityReport {
+        classification: "NO_INTRINSIC_TRANSITION_AUTHORITY",
+        shared_input,
+        representation_signature: vec![
+            "link-identity",
+            "ordered-source-reference",
+            "ordered-target-reference",
+        ],
+        interpretations,
+        forced_execution_laws: Vec::new(),
+        argument: "The same link structure admits two formation-preserving, atom-renaming-invariant transition interpretations with different results. Therefore the representation signature does not determine a unique execution relation; every dynamic law is additional semantic authority.",
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct LinkedProgramRegistry {
     programs: BTreeMap<String, LinkedProgram>,

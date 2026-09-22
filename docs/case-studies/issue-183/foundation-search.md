@@ -14,7 +14,7 @@ an S/K transition nor bracket abstraction and do not use the closed-term
 compiler. Language constructors used by the workload remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v1`. Run it with:
+`rml-alternative-foundation-search/v2`. Run it with:
 
 ```bash
 cd js
@@ -37,6 +37,7 @@ and the shared linked programs are in
 | External semantic source descriptions | 0 | 1 | 1 |
 | Host/object-specific knowledge | none | none | none |
 | Self-hosting closure for the nine operations | 9/9 | 9/15 | 9/14 |
+| Symmetric-comparison eligible | yes | no | no |
 | Formation boundary | Closed generated terms and source/artifact parity | Bound variables and acyclic imports | Range-restricted conclusions and finite bounds |
 | Control boundary | Contraction order and resource bound | Traversal order, cycle detection, and resource bounds | Fair saturation rounds and fact bound |
 
@@ -46,7 +47,9 @@ monotone relational mechanism: it never replaces a subterm, and its
 transition authority is materially different from both rewrite candidates.
 Their implementation paths are selected explicitly by `ExecutionBasis` /
 `executionBasis`; runtime traces verify that B and C never observe an S or K
-contraction.
+contraction. B and C are executable controls, not peer foundational
+candidates: their host still duplicates six and five capabilities,
+respectively, and each consumes an external semantic source description.
 
 All three record the following separately:
 
@@ -60,6 +63,23 @@ All three record the following separately:
 
 No candidate is declared equivalent to another. Equivalence remains
 `NOT_CLAIMED_WITHOUT_EXECUTABLE_BISIMULATION`.
+
+## What is intrinsic to links
+
+The report now executes an underdetermination witness over one shared ordered
+link `(link left right)`. One interpretation observes it reflexively; another
+reverses its endpoints. Both preserve link formation and commute with an
+arbitrary renaming of `left` and `right`, but their results differ. These are
+two model expansions of the same representation signature, so that signature
+cannot determine a unique transition relation.
+
+This gives a precise answer to the foundational question. Link identity and
+ordered source/target reference are intrinsic representation structure. No
+dynamic execution law is intrinsic to that structure alone. The existing
+zero-transition experiment supplies the complementary operational result:
+without an added transition law, the acceptance workload does not execute.
+S/K, structural rewriting, Horn saturation, or another mechanism can be
+defined over links, but choosing any one of them adds semantic authority.
 
 ## Common executable workload
 
@@ -97,11 +117,20 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-Candidate A has the smallest measured external-law count in this experiment.
-That observation is path-dependent and does not promote S/K to a Links Theory
-axiom or a global minimum. A smaller vocabulary is likewise not treated as an
-improvement unless an executable equivalence or reduction removes semantic
-information rather than renaming it.
+The v2 comparison gate admits a candidate only if it passes the common
+workload, derives the whole acceptance interpreter in links, has no host/self
+semantic duplication, consumes no external semantic source description, and
+has complete runtime trust coverage. Candidate A passes. B and C do not.
+Since a comparative cohort requires at least two eligible candidates, the
+report sets `OPEN_NO_COMPARABLE_ALTERNATIVE`, returns no smallest candidate,
+and selects no foundation. The raw counts 2, 6, and 5 remain useful boundary
+measurements, but the implementation now makes it impossible to rank them as
+if they came from equally reduced architectures.
+
+A smaller vocabulary is not treated as an improvement unless an executable
+equivalence or reduction removes semantic information rather than renaming
+it. The report therefore makes neither a global-minimality claim nor the
+weaker claim that S/K wins this currently asymmetric experiment.
 
 ## Computability argument
 
@@ -170,10 +199,13 @@ permission for a theorem to prove itself.
 The JavaScript suite executes the versioned report and synchronizes it with
 the checked-in JSON table. The Rust suite independently runs all three
 mechanisms, confirms that the non-combinator candidates do not observe S/K,
-and repeats every removal experiment.
+repeats every removal experiment, and checks the same intrinsic-authority
+witness.
 
 What is established is the common finite workload, complete counter-machine
 instruction simulation, language semantic cores, guarded referential witness,
-and measured trust boundaries. What is not established is global minimality,
-pairwise candidate equivalence, enumeration of every formal system, or full
-production implementations of Lean, Rocq, Rust, and JavaScript.
+measured trust boundaries, and the absence of a transition relation forced by
+link formation alone. What is not established is a comparable alternative
+cohort, a winning foundation, global minimality, pairwise candidate
+equivalence, enumeration of every formal system, or full production
+implementations of Lean, Rocq, Rust, and JavaScript.

@@ -15,8 +15,11 @@ listed here cannot authorize a linked-program theory definition.
 The linked-program engine also has an
 [architecture-neutral foundation search](./case-studies/issue-183/foundation-search.md)
 that compares closed S/K, direct structural, and Horn-relational execution.
-Those measured execution bases are distinct from the legacy configurable
-operator registry documented on this page.
+The latter two remain controls rather than ranking peers until they eliminate
+host/self duplication. The report names no winner and proves by a two-model
+witness that link formation alone selects no transition law. These measured
+execution bases are distinct from the legacy configurable operator registry
+documented on this page.
 
 The headline guarantee is backward compatibility:
 

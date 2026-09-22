@@ -78,7 +78,13 @@ a monotone Horn interpreter. It fault-injects all 13 residual laws, executes a
 complete two-counter-machine instruction basis, and checks linked
 JavaScript/Rust operational cores plus Lean/Rocq dependent cores in both
 runtimes. The comparison still makes no global minimality or production
-language claim; see the
+language claim. It also enforces a symmetric comparison gate: the direct and
+Horn implementations remain executable controls, but their host/self
+duplication excludes them from ranking against the fully reduced S/K
+candidate. The report therefore names no winner. An executable two-model
+witness shows that the same ordered link admits distinct
+formation-preserving transition relations, so link structure alone forces no
+execution law; see the
 [foundation-search report](./docs/case-studies/issue-183/foundation-search.md).
 Lambda, set, type, graph, relation, and RML semantics remain linked programs,
 not host callbacks or external-kernel decisions. Lean/Rocq artifacts are
