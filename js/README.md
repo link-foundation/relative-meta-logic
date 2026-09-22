@@ -225,8 +225,9 @@ semantic cores, and a guarded referential proof knot. Run the versioned JSON
 report with `npm run report:foundation-search`; its claim boundary is
 documented in `docs/case-studies/issue-183/foundation-search.md`. The report's
 eligibility gate excludes the direct and Horn controls from ranking while
-they retain host/self duplication, and its executable two-model witness shows
-that link formation alone determines no unique transition relation.
+they retain host/self duplication. Its executable two-model witness shows
+only that one ordered-link host representation does not select between two
+tested transition functions; link ontology remains unresolved.
 
 ```javascript
 import { readFileSync } from 'node:fs';

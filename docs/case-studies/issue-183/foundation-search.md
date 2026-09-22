@@ -1,20 +1,22 @@
 # Architecture-neutral foundation search
 
-This experiment asks a narrower, falsifiable question than “which foundation
-is mathematically minimal?”:
+This experiment asks a falsifiable question without assuming that its current
+semantic categories are ontologically primitive:
 
-> What semantic structure must be added to links before the resulting system
-> can load, interpret, and execute its own linked meta-theory?
+> Which representation and semantic assumptions does each executable links
+> model introduce, and which comparisons remain justified?
 
-The earlier zero-transition result answers only that structure without any
-transition cannot execute this workload. It does not select S/K, prove S/K
-minimal, or exclude a different transition system. The search therefore runs
-the same workload through three mechanisms, including two that define neither
-an S/K transition nor bracket abstraction and do not use the closed-term
-compiler. Language constructors used by the workload remain opaque link data.
+The earlier zero-transition result answers only that the current passive host
+model cannot execute this workload after its transition operations are
+disabled. It does not show that links are passive, that transformation must be
+external, select S/K, prove S/K minimal, or exclude a different conception of
+links. The search runs the same workload through three mechanisms, including
+two that define neither an S/K transition nor bracket abstraction and do not
+use the closed-term compiler. Language constructors used by the workload
+remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v2`. Run it with:
+`rml-alternative-foundation-search/v3`. Run it with:
 
 ```bash
 cd js
@@ -64,22 +66,42 @@ All three record the following separately:
 No candidate is declared equivalent to another. Equivalence remains
 `NOT_CLAIMED_WITHOUT_EXECUTABLE_BISIMULATION`.
 
-## What is intrinsic to links
+## Host-representation boundary audit
 
-The report now executes an underdetermination witness over one shared ordered
-link `(link left right)`. One interpretation observes it reflexively; another
-reverses its endpoints. Both preserve link formation and commute with an
-arbitrary renaming of `left` and `right`, but their results differ. These are
-two model expansions of the same representation signature, so that signature
-cannot determine a unique transition relation.
+The report executes an underdetermination witness over the host value
+`(link left right)`. One host function returns the value unchanged; another
+reverses its endpoint positions. Both outputs retain the tagged ternary shape
+and both functions commute with an atom renaming, but their results differ.
+The admissible result is deliberately narrow: this host representation
+signature does not select between those two tested functions.
 
-This gives a precise answer to the foundational question. Link identity and
-ordered source/target reference are intrinsic representation structure. No
-dynamic execution law is intrinsic to that structure alone. The existing
-zero-transition experiment supplies the complementary operational result:
-without an added transition law, the acceptance workload does not execute.
-S/K, structural rewriting, Horn saturation, or another mechanism can be
-defined over links, but choosing any one of them adds semantic authority.
+That experiment does **not** identify the ontology of a link. Version 3 makes
+its starting assumptions machine-readable:
+
+| Model choice | Status |
+|---|---|
+| A link is represented by a tagged ternary host value | `ASSUMED_NOT_DERIVED` |
+| Source and target occupy distinct ordered positions | `ASSUMED_NOT_DERIVED` |
+| The represented value is passive until acted upon | `ASSUMED_NOT_DERIVED` |
+| Transformation is supplied by an external host function | `ASSUMED_NOT_DERIVED` |
+
+Consequently, `linkOntologyCovered` and
+`representationExhaustivenessEstablished` are both `false`,
+`structureTransformationSeparation` and `transitionExternality` are both
+`ASSUMED_BY_EXPERIMENT`, and `intrinsicTransitionAuthority` is `UNRESOLVED`.
+The classifier
+`ORDERED_LINK_REPRESENTATION_UNDERDETERMINES_TESTED_TRANSITIONS` replaces the
+overbroad `NO_INTRINSIC_TRANSITION_AUTHORITY` result.
+
+In particular, the witness does not prove that its signature exhausts links,
+that structure and transformation are intrinsically independent, that
+transformation must be external, or that no execution principle can arise
+from links themselves. The zero-transition run likewise says only that the
+finite acceptance workload does not execute in the current passive host
+model when its transition operations are disabled. Before an ontological or
+foundational conclusion is possible, the model of a link itself must be
+re-audited without treating another familiar calculus as evidence about that
+ontology.
 
 ## Common executable workload
 
@@ -105,7 +127,8 @@ Every declared primitive is disabled at its execution point and the complete
 workload is rerun. All 13 current removals fail closed: two for A, six for B,
 and five for C. This establishes
 `INDEPENDENT_FOR_CANDIDATE_WORKLOAD`, not mathematical independence in every
-possible representation.
+possible representation or evidence that semantic operations are the correct
+primitive category.
 
 The comparison reports, for each candidate:
 
@@ -117,7 +140,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v2 comparison gate admits a candidate only if it passes the common
+The v3 comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.
@@ -199,13 +222,15 @@ permission for a theorem to prove itself.
 The JavaScript suite executes the versioned report and synchronizes it with
 the checked-in JSON table. The Rust suite independently runs all three
 mechanisms, confirms that the non-combinator candidates do not observe S/K,
-repeats every removal experiment, and checks the same intrinsic-authority
-witness.
+repeats every removal experiment, and checks the same host-representation
+boundary witness.
 
 What is established is the common finite workload, complete counter-machine
 instruction simulation, language semantic cores, guarded referential witness,
-measured trust boundaries, and the absence of a transition relation forced by
-link formation alone. What is not established is a comparable alternative
-cohort, a winning foundation, global minimality, pairwise candidate
-equivalence, enumeration of every formal system, or full production
-implementations of Lean, Rocq, Rust, and JavaScript.
+measured trust boundaries, and the failure of the tested ordered-link host
+signature to select between two witnessed functions. What is not established
+is the ontology of links, whether structure and transformation are
+intrinsically separate, whether execution can arise from links themselves, a
+comparable alternative cohort, a winning foundation, global minimality,
+pairwise candidate equivalence, enumeration of every formal system, or full
+production implementations of Lean, Rocq, Rust, and JavaScript.

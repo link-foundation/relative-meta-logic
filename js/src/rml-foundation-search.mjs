@@ -40,7 +40,7 @@ function renameAtoms(term, renaming) {
   return renaming.get(term) ?? term;
 }
 
-function intrinsicLinkAuthorityWitness() {
+function linkRepresentationBoundaryWitness() {
   const sharedInput = ['link', 'left', 'right'];
   const interpretations = [
     {
@@ -57,7 +57,35 @@ function intrinsicLinkAuthorityWitness() {
     ['right', 'renamed-right'],
   ]);
   return {
-    classification: 'NO_INTRINSIC_TRANSITION_AUTHORITY',
+    classification: 'ORDERED_LINK_REPRESENTATION_UNDERDETERMINES_TESTED_TRANSITIONS',
+    investigatedObject: 'host-representation-of-an-ordered-link',
+    linkOntologyCovered: false,
+    representationExhaustivenessEstablished: false,
+    intrinsicTransitionAuthority: 'UNRESOLVED',
+    structureTransformationSeparation: 'ASSUMED_BY_EXPERIMENT',
+    transitionExternality: 'ASSUMED_BY_EXPERIMENT',
+    modelAssumptions: [
+      {
+        id: 'tagged-ternary-host-value',
+        status: 'ASSUMED_NOT_DERIVED',
+        role: 'models one link as a host array containing a tag and two references',
+      },
+      {
+        id: 'ordered-endpoint-positions',
+        status: 'ASSUMED_NOT_DERIVED',
+        role: 'models source and target as distinct ordered array positions',
+      },
+      {
+        id: 'passive-link-value',
+        status: 'ASSUMED_NOT_DERIVED',
+        role: 'keeps represented structure unchanged until a host function acts',
+      },
+      {
+        id: 'external-transition-function',
+        status: 'ASSUMED_NOT_DERIVED',
+        role: 'models transformation as a function supplied outside the represented link',
+      },
+    ],
     sharedInput: cloneFoundationTerm(sharedInput),
     representationSignature: [
       'link-identity',
@@ -81,10 +109,22 @@ function intrinsicLinkAuthorityWitness() {
         ),
       };
     }),
-    forcedExecutionLaws: [],
-    argument: 'The same link structure admits two formation-preserving, atom-renaming-invariant transition interpretations with different results. Therefore the representation signature does not determine a unique execution relation; every dynamic law is additional semantic authority.',
+    uniqueTransitionSelected: false,
+    admissibleConclusion: 'This host representation signature does not select between the two tested formation-preserving, atom-renaming-invariant transition functions.',
+    prohibitedConclusions: [
+      'the representation signature exhausts the nature of links',
+      'structure and transformation are intrinsically independent',
+      'transformation must be external to links',
+      'no execution principle can arise from links themselves',
+      'links have no intrinsic transition authority',
+    ],
+    nextSearchConstraint: 'Re-audit the model of a link before drawing an ontological or foundational conclusion; do not add another known calculus as evidence about link ontology.',
   };
 }
+
+// Kept as a source-compatible alias for the pre-v3 API. The returned report
+// deliberately makes no claim about intrinsic link authority.
+const intrinsicLinkAuthorityWitness = linkRepresentationBoundaryWitness;
 
 function cloneFoundationTerm(term) {
   return Array.isArray(term) ? term.map(cloneFoundationTerm) : term;
@@ -679,16 +719,16 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v2',
-    question: 'What minimum semantic structure must be added to links before links can define, interpret, and execute their own meta-theory?',
+    schema: 'rml-alternative-foundation-search/v3',
+    question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
     acceptanceOperations: ACCEPTANCE_OPERATIONS,
     comparisonStatus: comparisonCohortSufficient
       ? 'COMPARABLE_COHORT_ESTABLISHED_NO_GLOBAL_MINIMALITY_CLAIM'
       : 'OPEN_NO_COMPARABLE_ALTERNATIVE',
-    proofBoundary: 'The report proves the finite acceptance workload and an instruction-by-instruction simulation of the complete two-counter-machine basis. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. It does not claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
+    proofBoundary: 'The report proves the finite acceptance workload and an instruction-by-instruction simulation of the complete two-counter-machine basis. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. It does not establish link ontology, identify the correct primitive categories, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
     candidates,
-    intrinsicAuthorityWitness: intrinsicLinkAuthorityWitness(),
+    representationBoundaryWitness: linkRepresentationBoundaryWitness(),
     comparisonCohort: {
       eligibilityRequirements: [
         'complete finite acceptance workload',
@@ -718,7 +758,8 @@ function foundationSearchReport(universalSource, alternativeSource) {
         : [],
       selectedFoundation: null,
       globallyMinimal: false,
-      intrinsicTransitionAuthority: 'none: links determine representation structure but no unique dynamic relation',
+      intrinsicTransitionAuthority: 'UNRESOLVED',
+      representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };
@@ -730,4 +771,5 @@ export {
   HORN_SEMANTIC_OPERATIONS,
   foundationSearchReport,
   intrinsicLinkAuthorityWitness,
+  linkRepresentationBoundaryWitness,
 };

@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v2",
+  "schema": "rml-foundation-candidate-table/v3",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "acceptanceWorkload": [
@@ -13,17 +13,48 @@
     "verify",
     "self-interpret"
   ],
-  "intrinsicAuthority": {
-    "classification": "NO_INTRINSIC_TRANSITION_AUTHORITY",
+  "representationBoundary": {
+    "classification": "ORDERED_LINK_REPRESENTATION_UNDERDETERMINES_TESTED_TRANSITIONS",
+    "investigatedObject": "host-representation-of-an-ordered-link",
+    "linkOntologyCovered": false,
+    "representationExhaustivenessEstablished": false,
+    "intrinsicTransitionAuthority": "UNRESOLVED",
+    "structureTransformationSeparation": "ASSUMED_BY_EXPERIMENT",
+    "transitionExternality": "ASSUMED_BY_EXPERIMENT",
+    "modelAssumptions": [
+      {
+        "id": "tagged-ternary-host-value",
+        "status": "ASSUMED_NOT_DERIVED"
+      },
+      {
+        "id": "ordered-endpoint-positions",
+        "status": "ASSUMED_NOT_DERIVED"
+      },
+      {
+        "id": "passive-link-value",
+        "status": "ASSUMED_NOT_DERIVED"
+      },
+      {
+        "id": "external-transition-function",
+        "status": "ASSUMED_NOT_DERIVED"
+      }
+    ],
     "representationSignature": [
       "link-identity",
       "ordered-source-reference",
       "ordered-target-reference"
     ],
-    "forcedExecutionLaws": [],
     "witnessInterpretations": [
       "reflexive-observation",
       "reverse-endpoints"
+    ],
+    "uniqueTransitionSelected": false,
+    "prohibitedConclusions": [
+      "the representation signature exhausts the nature of links",
+      "structure and transformation are intrinsically independent",
+      "transformation must be external to links",
+      "no execution principle can arise from links themselves",
+      "links have no intrinsic transition authority"
     ]
   },
   "comparisonCohort": {
@@ -172,14 +203,14 @@
   "claimBoundary": {
     "globallyMinimal": false,
     "comparableCohortEstablished": false,
-    "intrinsicTransitionAuthority": "NO_INTRINSIC_TRANSITION_AUTHORITY",
+    "intrinsicTransitionAuthority": "UNRESOLVED",
     "completeProductionLanguageImplementations": false,
     "proved": [
       "the same finite acceptance workload passes under three transition mechanisms",
       "every measured residual semantic law has an executable removal experiment",
       "all three mechanisms execute the complete two-counter-machine instruction basis",
       "the linked JavaScript and Rust counter cores execute and the Lean and Rocq dependent cores check identity proofs",
-      "link formation alone does not determine a unique execution relation",
+      "the tested ordered-link host representation does not select between two witnessed transitions",
       "only Candidate A currently passes the symmetric comparison-eligibility gate"
     ],
     "notProved": [
@@ -188,7 +219,11 @@
       "that Candidate A is smaller than a comparably reduced self-hosted alternative",
       "that a sufficient comparative cohort currently exists",
       "that finite tests enumerate every formal system",
-      "that these semantic cores replace production Lean, Rocq, Rust, or JavaScript toolchains"
+      "that these semantic cores replace production Lean, Rocq, Rust, or JavaScript toolchains",
+      "that the tested host representation exhausts the ontology of links",
+      "that structure and transformation are intrinsically independent",
+      "that transformation must be external to links",
+      "that links have no intrinsic execution principle"
     ]
   }
 }

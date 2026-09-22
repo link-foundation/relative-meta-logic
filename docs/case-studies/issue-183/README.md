@@ -95,9 +95,10 @@ with JavaScript/Rust parity. S/K has the smallest raw operation count, but
 only it currently passes the full-self-hosting comparison gate. The report
 therefore excludes the direct and Horn controls from ranking, names no
 smallest candidate, and keeps the comparative search open. Its executable
-two-model witness also establishes that ordered link structure does not force
-a unique transition relation: every execution mechanism adds authority beyond
-link formation.
+two-model witness establishes only that the tested ordered-link host value
+does not select between two transition functions. Version 3 marks passivity,
+external transition, and structure/transformation separation as experimental
+assumptions, and leaves link ontology and intrinsic authority unresolved.
 
 `links-meta-foundation` is an executable, links-defined `K1` meta-interpreter
 for object-encoded binding, matching, substitution, rule

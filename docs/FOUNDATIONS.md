@@ -16,8 +16,9 @@ The linked-program engine also has an
 [architecture-neutral foundation search](./case-studies/issue-183/foundation-search.md)
 that compares closed S/K, direct structural, and Horn-relational execution.
 The latter two remain controls rather than ranking peers until they eliminate
-host/self duplication. The report names no winner and proves by a two-model
-witness that link formation alone selects no transition law. These measured
+host/self duplication. The report names no winner. Its two-model witness shows
+only that the tested ordered-link host signature does not select between two
+functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
 documented on this page.
 

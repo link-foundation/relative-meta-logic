@@ -20,7 +20,10 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v2');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v3');
+    assert.match(report.question, /representation and semantic assumptions/i);
+    assert.doesNotMatch(report.question, /must be added to links/i);
+    assert.match(report.proofBoundary, /does not establish link ontology/i);
     assert.deepEqual(report.acceptanceOperations, expected.acceptanceWorkload);
     assert.equal(report.candidates.length, 3);
     for (const candidate of report.candidates) {
@@ -64,9 +67,25 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.equal(report.conclusion.selectedFoundation, null);
   });
 
-  it('demonstrates that link structure alone underdetermines transition semantics', () => {
-    const witness = report.intrinsicAuthorityWitness;
-    assert.equal(witness.classification, 'NO_INTRINSIC_TRANSITION_AUTHORITY');
+  it('bounds the witness to its host representation without claiming link ontology', () => {
+    const witness = report.representationBoundaryWitness;
+    assert.equal(
+      witness.classification,
+      'ORDERED_LINK_REPRESENTATION_UNDERDETERMINES_TESTED_TRANSITIONS',
+    );
+    assert.equal(witness.investigatedObject, 'host-representation-of-an-ordered-link');
+    assert.equal(witness.linkOntologyCovered, false);
+    assert.equal(witness.representationExhaustivenessEstablished, false);
+    assert.equal(witness.intrinsicTransitionAuthority, 'UNRESOLVED');
+    assert.equal(
+      witness.structureTransformationSeparation,
+      'ASSUMED_BY_EXPERIMENT',
+    );
+    assert.equal(witness.transitionExternality, 'ASSUMED_BY_EXPERIMENT');
+    assert.deepEqual(
+      witness.modelAssumptions.map(assumption => assumption.status),
+      Array(witness.modelAssumptions.length).fill('ASSUMED_NOT_DERIVED'),
+    );
     assert.deepEqual(witness.sharedInput, ['link', 'left', 'right']);
     assert.deepEqual(witness.interpretations.map(item => item.input), [
       witness.sharedInput,
@@ -78,8 +97,12 @@ describe('architecture-neutral alternative-foundation search', () => {
     );
     assert.ok(witness.interpretations.every(item =>
       item.preservesLinkFormation && item.renamingInvariant));
-    assert.equal(witness.forcedExecutionLaws.length, 0);
-    assert.match(witness.argument, /same link structure/i);
+    assert.equal(witness.uniqueTransitionSelected, false);
+    assert.match(witness.admissibleConclusion, /host representation signature/i);
+    assert.ok(witness.prohibitedConclusions.includes(
+      'no execution principle can arise from links themselves',
+    ));
+    assert.doesNotMatch(witness.admissibleConclusion, /intrinsic to links/i);
   });
 
   it('fault-injects every residual semantic law instead of assuming it', () => {
@@ -125,7 +148,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v2');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v3');
     for (const row of expected.candidates) {
       const candidate = report.candidates.find(item => item.candidate === row.candidate);
       assert.ok(candidate, `missing executed candidate ${row.candidate}`);
@@ -185,24 +208,55 @@ describe('architecture-neutral alternative-foundation search', () => {
       expected.claimBoundary.comparableCohortEstablished,
     );
     assert.equal(
-      report.intrinsicAuthorityWitness.classification,
+      report.representationBoundaryWitness.intrinsicTransitionAuthority,
       expected.claimBoundary.intrinsicTransitionAuthority,
     );
     assert.equal(
-      report.intrinsicAuthorityWitness.classification,
-      expected.intrinsicAuthority.classification,
+      report.representationBoundaryWitness.classification,
+      expected.representationBoundary.classification,
     );
     assert.deepEqual(
-      report.intrinsicAuthorityWitness.representationSignature,
-      expected.intrinsicAuthority.representationSignature,
+      report.representationBoundaryWitness.representationSignature,
+      expected.representationBoundary.representationSignature,
+    );
+    assert.equal(
+      report.representationBoundaryWitness.investigatedObject,
+      expected.representationBoundary.investigatedObject,
+    );
+    assert.equal(
+      report.representationBoundaryWitness.linkOntologyCovered,
+      expected.representationBoundary.linkOntologyCovered,
+    );
+    assert.equal(
+      report.representationBoundaryWitness.representationExhaustivenessEstablished,
+      expected.representationBoundary.representationExhaustivenessEstablished,
+    );
+    assert.equal(
+      report.representationBoundaryWitness.structureTransformationSeparation,
+      expected.representationBoundary.structureTransformationSeparation,
+    );
+    assert.equal(
+      report.representationBoundaryWitness.transitionExternality,
+      expected.representationBoundary.transitionExternality,
     );
     assert.deepEqual(
-      report.intrinsicAuthorityWitness.forcedExecutionLaws,
-      expected.intrinsicAuthority.forcedExecutionLaws,
+      report.representationBoundaryWitness.modelAssumptions.map(({ id, status }) => ({
+        id,
+        status,
+      })),
+      expected.representationBoundary.modelAssumptions,
     );
     assert.deepEqual(
-      report.intrinsicAuthorityWitness.interpretations.map(item => item.id),
-      expected.intrinsicAuthority.witnessInterpretations,
+      report.representationBoundaryWitness.interpretations.map(item => item.id),
+      expected.representationBoundary.witnessInterpretations,
+    );
+    assert.equal(
+      report.representationBoundaryWitness.uniqueTransitionSelected,
+      expected.representationBoundary.uniqueTransitionSelected,
+    );
+    assert.deepEqual(
+      report.representationBoundaryWitness.prohibitedConclusions,
+      expected.representationBoundary.prohibitedConclusions,
     );
     assert.equal(
       report.comparisonCohort.minimumCandidates,

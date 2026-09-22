@@ -3,7 +3,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use rml::linked_program::{
-    foundation_comparison_eligibility, intrinsic_link_authority_report, ExecutionBasis,
+    foundation_comparison_eligibility, link_representation_boundary_report, ExecutionBasis,
     LinkedProgramRegistry,
 };
 use rml::{parse_one, tokenize_one, Node};
@@ -313,9 +313,40 @@ fn fault_injects_every_candidate_residual_law() {
 }
 
 #[test]
-fn link_structure_alone_does_not_select_an_execution_relation() {
-    let report = intrinsic_link_authority_report();
-    assert_eq!(report.classification, "NO_INTRINSIC_TRANSITION_AUTHORITY");
+fn host_representation_witness_does_not_claim_link_ontology() {
+    let report = link_representation_boundary_report();
+    assert_eq!(
+        report.classification,
+        "ORDERED_LINK_REPRESENTATION_UNDERDETERMINES_TESTED_TRANSITIONS"
+    );
+    assert_eq!(
+        report.investigated_object,
+        "host-representation-of-an-ordered-link"
+    );
+    assert!(!report.link_ontology_covered);
+    assert!(!report.representation_exhaustiveness_established);
+    assert_eq!(report.intrinsic_transition_authority, "UNRESOLVED");
+    assert_eq!(
+        report.structure_transformation_separation,
+        "ASSUMED_BY_EXPERIMENT"
+    );
+    assert_eq!(report.transition_externality, "ASSUMED_BY_EXPERIMENT");
+    assert_eq!(
+        report
+            .model_assumptions
+            .iter()
+            .map(|assumption| assumption.id)
+            .collect::<Vec<_>>(),
+        vec![
+            "tagged-ternary-host-value",
+            "ordered-endpoint-positions",
+            "passive-link-value",
+            "external-transition-function",
+        ]
+    );
+    assert!(report.model_assumptions.iter().all(|assumption| {
+        assumption.status == "ASSUMED_NOT_DERIVED" && !assumption.role.is_empty()
+    }));
     assert_eq!(report.interpretations.len(), 2);
     assert_eq!(report.interpretations[0].input, report.shared_input);
     assert_eq!(report.interpretations[1].input, report.shared_input);
@@ -327,7 +358,14 @@ fn link_structure_alone_does_not_select_an_execution_relation() {
         .interpretations
         .iter()
         .all(|item| item.preserves_link_formation && item.renaming_invariant));
-    assert!(report.forced_execution_laws.is_empty());
+    assert!(!report.unique_transition_selected);
+    assert!(report
+        .admissible_conclusion
+        .contains("host representation signature"));
+    assert!(report
+        .prohibited_conclusions
+        .contains(&"no execution principle can arise from links themselves"));
+    assert!(!report.admissible_conclusion.contains("intrinsic to links"));
 }
 
 #[test]

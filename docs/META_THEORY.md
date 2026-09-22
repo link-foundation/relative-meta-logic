@@ -115,10 +115,11 @@ re-encoding, not less external semantic information, and does not prove that
 no different representation could use a smaller boundary.
 
 The foundation search also executes a zero-transition candidate by disabling
-S and K together. It fails the same complete acceptance probe. This shows that
-the upstream addressed-network structure alone is not yet an executable
-transition system. The narrower iota witness preserves its identity, discard,
-and duplication cases but observes both S/K operations, so its one name is not
+S and K together. It fails the same complete acceptance probe. This shows only
+that the encoded value does not execute the probe in the current passive host
+model after those operations are disabled; it does not characterize link
+ontology. The narrower iota witness preserves its identity, discard, and
+duplication cases but observes both S/K operations, so its one name is not
 counted as evidence that external semantic information disappeared.
 
 That negative control is no longer the only alternative. The
@@ -133,9 +134,11 @@ host/formation/control boundaries, self-description/interpretation/generation
 mechanisms, removal experiments, and neutral metrics. Candidate A's smaller
 raw boundary is not ranked against the less-reduced controls. Only A passes
 the symmetric eligibility gate, so the comparison cohort is insufficient and
-the report names no winner. Its two-model witness additionally shows that the
-same link representation admits distinct renaming-invariant transitions;
-links intrinsically provide structure, not a unique execution relation.
+the report names no winner. Its two-model witness additionally shows that one
+tagged ordered-link host representation admits distinct renaming-invariant
+transitions. It does not establish that this representation exhausts links or
+that structure and transformation are intrinsically separate; intrinsic
+transition authority remains unresolved.
 
 Every remaining boundary node has a structural `primitiveReason` /
 `primitive_reason`. The mirrored `auditBootstrapKernel` /

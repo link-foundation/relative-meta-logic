@@ -374,14 +374,33 @@ pub struct IntrinsicLinkInterpretation {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct IntrinsicLinkAuthorityReport {
+pub struct LinkModelAssumption {
+    pub id: &'static str,
+    pub status: &'static str,
+    pub role: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkRepresentationBoundaryReport {
     pub classification: &'static str,
+    pub investigated_object: &'static str,
+    pub link_ontology_covered: bool,
+    pub representation_exhaustiveness_established: bool,
+    pub intrinsic_transition_authority: &'static str,
+    pub structure_transformation_separation: &'static str,
+    pub transition_externality: &'static str,
+    pub model_assumptions: Vec<LinkModelAssumption>,
     pub shared_input: Node,
     pub representation_signature: Vec<&'static str>,
     pub interpretations: Vec<IntrinsicLinkInterpretation>,
-    pub forced_execution_laws: Vec<&'static str>,
-    pub argument: &'static str,
+    pub unique_transition_selected: bool,
+    pub admissible_conclusion: &'static str,
+    pub prohibited_conclusions: Vec<&'static str>,
+    pub next_search_constraint: &'static str,
 }
+
+/// Source-compatible name for the pre-v3 report type.
+pub type IntrinsicLinkAuthorityReport = LinkRepresentationBoundaryReport;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FoundationComparisonEligibility {
@@ -453,12 +472,15 @@ fn is_link_form(node: &Node) -> bool {
     )
 }
 
-/// Exhibit two different transition relations over the same ordered link.
+/// Exhibit two different transition functions over one host representation.
 ///
 /// Both interpretations preserve link formation and commute with atom
-/// renaming, yet produce different results. The link representation therefore
-/// does not determine either transition; execution requires an additional law.
-pub fn intrinsic_link_authority_report() -> IntrinsicLinkAuthorityReport {
+/// renaming, yet produce different results. This only establishes that the
+/// tested signature does not select between them. Passivity, external
+/// transition, ordered endpoints, and the separation of structure from
+/// transformation are inputs to this experiment, not facts derived about the
+/// ontology of links.
+pub fn link_representation_boundary_report() -> LinkRepresentationBoundaryReport {
     let shared_input = Node::List(vec![
         Node::Leaf("link".to_string()),
         Node::Leaf("left".to_string()),
@@ -484,8 +506,36 @@ pub fn intrinsic_link_authority_report() -> IntrinsicLinkAuthorityReport {
                 == rename_authority_witness_atoms(&reversed_output),
         },
     ];
-    IntrinsicLinkAuthorityReport {
-        classification: "NO_INTRINSIC_TRANSITION_AUTHORITY",
+    LinkRepresentationBoundaryReport {
+        classification: "ORDERED_LINK_REPRESENTATION_UNDERDETERMINES_TESTED_TRANSITIONS",
+        investigated_object: "host-representation-of-an-ordered-link",
+        link_ontology_covered: false,
+        representation_exhaustiveness_established: false,
+        intrinsic_transition_authority: "UNRESOLVED",
+        structure_transformation_separation: "ASSUMED_BY_EXPERIMENT",
+        transition_externality: "ASSUMED_BY_EXPERIMENT",
+        model_assumptions: vec![
+            LinkModelAssumption {
+                id: "tagged-ternary-host-value",
+                status: "ASSUMED_NOT_DERIVED",
+                role: "models one link as a host list containing a tag and two references",
+            },
+            LinkModelAssumption {
+                id: "ordered-endpoint-positions",
+                status: "ASSUMED_NOT_DERIVED",
+                role: "models source and target as distinct ordered list positions",
+            },
+            LinkModelAssumption {
+                id: "passive-link-value",
+                status: "ASSUMED_NOT_DERIVED",
+                role: "keeps represented structure unchanged until a host function acts",
+            },
+            LinkModelAssumption {
+                id: "external-transition-function",
+                status: "ASSUMED_NOT_DERIVED",
+                role: "models transformation as a function supplied outside the represented link",
+            },
+        ],
         shared_input,
         representation_signature: vec![
             "link-identity",
@@ -493,9 +543,23 @@ pub fn intrinsic_link_authority_report() -> IntrinsicLinkAuthorityReport {
             "ordered-target-reference",
         ],
         interpretations,
-        forced_execution_laws: Vec::new(),
-        argument: "The same link structure admits two formation-preserving, atom-renaming-invariant transition interpretations with different results. Therefore the representation signature does not determine a unique execution relation; every dynamic law is additional semantic authority.",
+        unique_transition_selected: false,
+        admissible_conclusion: "This host representation signature does not select between the two tested formation-preserving, atom-renaming-invariant transition functions.",
+        prohibited_conclusions: vec![
+            "the representation signature exhausts the nature of links",
+            "structure and transformation are intrinsically independent",
+            "transformation must be external to links",
+            "no execution principle can arise from links themselves",
+            "links have no intrinsic transition authority",
+        ],
+        next_search_constraint: "Re-audit the model of a link before drawing an ontological or foundational conclusion; do not add another known calculus as evidence about link ontology.",
     }
+}
+
+/// Source-compatible alias for the pre-v3 API. The returned report deliberately
+/// makes no claim about intrinsic link authority.
+pub fn intrinsic_link_authority_report() -> IntrinsicLinkAuthorityReport {
+    link_representation_boundary_report()
 }
 
 #[derive(Debug, Clone, Default)]

@@ -66,12 +66,13 @@ records zero derived host semantic services, zero host/linked duplication,
 6/6 self-hosting closure, 2/8 foundation compression, and zero undocumented
 runtime paths. The authoritative semantic source is links-native rather than a
 host-language builder, but S/K are not presented as native Links Theory laws:
-the upstream addressed network supplies structure, not execution. An
-executable zero-transition candidate fails. This is not a claim of globally
-irreducible semantics: an executable iota witness reconstructs identity, K,
-and S with one surface equation, but observes both residual contractions. It
-therefore demonstrates vocabulary compression without claiming less external
-semantic information.
+the current host model represents the upstream addressed network as passive
+structure and supplies execution separately. Its zero-transition candidate
+fails the finite acceptance probe. This is not a claim about link ontology or
+globally irreducible semantics: an executable iota witness reconstructs
+identity, K, and S with one surface equation, but observes both residual
+contractions. It therefore demonstrates vocabulary compression without
+claiming less external semantic information.
 An architecture-neutral follow-up now runs the same nine-operation workload
 through the S/K bootstrap, an independent direct structural interpreter, and
 a monotone Horn interpreter. It fault-injects all 13 residual laws, executes a
@@ -82,9 +83,9 @@ language claim. It also enforces a symmetric comparison gate: the direct and
 Horn implementations remain executable controls, but their host/self
 duplication excludes them from ranking against the fully reduced S/K
 candidate. The report therefore names no winner. An executable two-model
-witness shows that the same ordered link admits distinct
-formation-preserving transition relations, so link structure alone forces no
-execution law; see the
+witness shows only that one ordered-link host representation does not select
+between two tested transition functions. It explicitly leaves link ontology
+and intrinsic transition authority unresolved; see the
 [foundation-search report](./docs/case-studies/issue-183/foundation-search.md).
 Lambda, set, type, graph, relation, and RML semantics remain linked programs,
 not host callbacks or external-kernel decisions. Lean/Rocq artifacts are

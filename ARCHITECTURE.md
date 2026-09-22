@@ -213,9 +213,12 @@ runtime trust coverage are published in the
 The search admits only fully self-hosted, zero-duplication implementations to
 its ranking cohort. Direct and Horn execution remain useful controls, but are
 excluded, leaving too few peers to select a winner. A two-model witness over
-one ordered link shows why no transition is forced by representation alone;
-the failed zero-transition experiment then shows why some added transition
-authority is operationally necessary.
+one tagged ordered-link host value shows only that the selected representation
+does not choose between two tested functions. The report marks passivity,
+external transition, ordered endpoints, and structure/transformation
+separation as assumptions; it does not infer link ontology from them. The
+failed zero-transition experiment is likewise scoped to the current passive
+host model and finite workload.
 
 The `links-meta-foundation` program is the links-defined `K1` interpreter for
 object-encoded matching, substitution, rule application, and verification.
