@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import generatedKernel from '../js/src/rml-combinator-kernel-data.mjs';
+import { combinatorIotaEquivalenceReport } from '../js/src/rml-combinator-kernel.mjs';
 import {
   compileCombinatorSource,
   serializeCombinatorSource,
@@ -33,4 +34,17 @@ test('the runtime graph is compiled from authoritative addressed-link source', (
   assert.equal(artifact, serializedKernel);
   assert.equal(generatedKernel, serializedKernel);
   assert.doesNotMatch(runtime, /buildSourceKernel/);
+});
+
+test('the one-name iota basis exposes the same two residual contractions', () => {
+  assert.deepEqual(combinatorIotaEquivalenceReport(), {
+    schema: 'rml-basis-equivalence-witness/v1',
+    candidate: 'iota',
+    surfaceLaw: 'ι f -> f S K',
+    surfaceLawCount: 1,
+    witnessCases: ['identity', 'discard', 'duplicate'],
+    baselinePreserved: true,
+    observedExternalOperations: ['contract-k-link', 'contract-s-link'],
+    semanticInformationReduced: false,
+  });
 });

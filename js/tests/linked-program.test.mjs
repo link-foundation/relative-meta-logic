@@ -334,7 +334,7 @@ describe('links-defined universal program evaluator', () => {
   it('measures the complete host semantic surface and self-hosting distance', () => {
     const report = LinkedProgramRegistry.bootstrapMetricsReport(source);
 
-    assert.equal(report.schema, 'rml-bootstrap-metrics/v2');
+    assert.equal(report.schema, 'rml-bootstrap-metrics/v3');
     assert.deepEqual(report.provenanceClassifications, [
       'link-native',
       'derived-inside-system',
@@ -379,22 +379,23 @@ describe('links-defined universal program evaluator', () => {
     assert.equal(report.foundationSearchExperiments[0].externalSemanticLaws, 0);
     assert.equal(report.foundationSearchExperiments[0].baselinePreserved, false);
     assert.ok(report.foundationSearchExperiments[0].observedFailure.length > 0);
-    assert.deepEqual(report.foundationSearchExperiments.slice(1), [
-      {
-        candidate: 's-k-over-link-native-source',
-        classification: 'CURRENT_SUFFICIENT',
-        externalSemanticLaws: 2,
-        baselinePreserved: true,
-        observedFailure: '',
-      },
-      {
-        candidate: 'iota',
-        classification: 'EQUIVALENT_REENCODING',
-        externalSemanticLaws: 1,
-        baselinePreserved: null,
-        observedFailure: '',
-      },
-    ]);
+    assert.deepEqual(report.foundationSearchExperiments[1], {
+      candidate: 's-k-over-link-native-source',
+      classification: 'CURRENT_SUFFICIENT',
+      externalSemanticLaws: 2,
+      baselinePreserved: true,
+      observedFailure: '',
+    });
+    assert.deepEqual(report.foundationSearchExperiments[2], {
+      candidate: 'iota',
+      classification: 'EQUIVALENT_REENCODING',
+      externalSemanticLaws: 1,
+      baselinePreserved: true,
+      observedFailure: '',
+      experimentScope: 'residual-basis-equivalence-witness',
+      observedExternalOperations: ['contract-k-link', 'contract-s-link'],
+      semanticInformationReduced: false,
+    });
     assert.deepEqual(report.current.selfHostingClosure, {
       task: 'linked-load-import-reduce-infer-and-self-verify-above-residual-basis',
       linkedCapabilities: 6,

@@ -384,7 +384,7 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     let report = LinkedProgramRegistry::bootstrap_metrics_report(&source())
         .expect("bootstrap metrics must be reproducible");
 
-    assert_eq!(report.schema, "rml-bootstrap-metrics/v2");
+    assert_eq!(report.schema, "rml-bootstrap-metrics/v3");
     assert_eq!(
         report.provenance_classifications,
         vec![
@@ -466,6 +466,19 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     assert!(!report.foundation_search_experiments[0]
         .observed_failure
         .is_empty());
+    let iota = &report.foundation_search_experiments[2];
+    assert_eq!(iota.candidate, "iota");
+    assert_eq!(iota.classification, "EQUIVALENT_REENCODING");
+    assert_eq!(iota.baseline_preserved, Some(true));
+    assert_eq!(
+        iota.experiment_scope,
+        Some("residual-basis-equivalence-witness")
+    );
+    assert_eq!(
+        iota.observed_external_operations,
+        vec!["contract-k-link", "contract-s-link"]
+    );
+    assert_eq!(iota.semantic_information_reduced, Some(false));
     assert_eq!(report.current.self_hosting_closure.linked_capabilities, 6);
     assert_eq!(
         report.current.self_hosting_closure.task,
