@@ -731,6 +731,57 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
         vec![1, 1, 1, 1]
     );
     assert_eq!(
+        refinement
+            .derivation_boundary
+            .finite_enumeration
+            .iter()
+            .map(|item| (
+                item.occurrence_count,
+                item.base_patterns_examined,
+                item.candidate_observations_examined,
+                item.base_symmetry_preserving_candidates,
+                item.symmetry_breaking_candidates,
+                item.preserving_candidates_changing_occurrence_orbits,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (1, 1, 1, 1, 0, 0),
+            (2, 2, 4, 4, 0, 0),
+            (3, 5, 25, 13, 12, 0),
+            (4, 15, 225, 55, 170, 0),
+        ]
+    );
+    assert_eq!(
+        refinement.derivation_boundary.consequence,
+        "BASE_DERIVATION_CANNOT_CREATE_NEW_OCCURRENCE_DISTINCTIONS"
+    );
+    assert_eq!(
+        refinement.derivation_boundary.general_argument.scope,
+        "all finite observations satisfying the stated derivation criterion"
+    );
+    let interaction_counterexample = &refinement
+        .derivation_boundary
+        .interaction_only_counterexample;
+    assert_eq!(interaction_counterexample.base_pattern, vec![0, 0, 1, 2]);
+    assert_eq!(
+        interaction_counterexample.conditional_pattern,
+        vec![0, 1, 0, 2]
+    );
+    assert_eq!(
+        interaction_counterexample.base_preserving_relabelling,
+        vec![1, 0, 2, 3]
+    );
+    assert_eq!(
+        interaction_counterexample.relabelled_base_pattern,
+        vec![0, 0, 1, 2]
+    );
+    assert_eq!(
+        interaction_counterexample.relabelled_conditional_pattern,
+        vec![0, 1, 1, 2]
+    );
+    assert!(interaction_counterexample.base_preserved);
+    assert!(!interaction_counterexample.conditional_pattern_preserved);
+    assert_eq!(
         boundary
             .loss_audit
             .iter()
@@ -752,6 +803,11 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(report.results.iter().any(|item| {
         item.id == "conditional-structural-asymmetry"
             && item.result == "EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL"
+    }));
+    assert!(report.results.iter().any(|item| {
+        item.id == "conditional-interaction-forcedness"
+            && item.result
+                == "SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE"
     }));
 }
 

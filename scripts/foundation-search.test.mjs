@@ -423,6 +423,60 @@ describe('architecture-neutral alternative-foundation search', () => {
         jointOccurrenceOrbitSizes: [1, 1, 1, 1],
       },
     });
+    assert.deepEqual(refinement.derivationBoundary.finiteEnumeration, [
+      {
+        occurrenceCount: 1,
+        basePatternsExamined: 1,
+        candidateObservationsExamined: 1,
+        baseSymmetryPreservingCandidates: 1,
+        symmetryBreakingCandidates: 0,
+        preservingCandidatesChangingOccurrenceOrbits: 0,
+      },
+      {
+        occurrenceCount: 2,
+        basePatternsExamined: 2,
+        candidateObservationsExamined: 4,
+        baseSymmetryPreservingCandidates: 4,
+        symmetryBreakingCandidates: 0,
+        preservingCandidatesChangingOccurrenceOrbits: 0,
+      },
+      {
+        occurrenceCount: 3,
+        basePatternsExamined: 5,
+        candidateObservationsExamined: 25,
+        baseSymmetryPreservingCandidates: 13,
+        symmetryBreakingCandidates: 12,
+        preservingCandidatesChangingOccurrenceOrbits: 0,
+      },
+      {
+        occurrenceCount: 4,
+        basePatternsExamined: 15,
+        candidateObservationsExamined: 225,
+        baseSymmetryPreservingCandidates: 55,
+        symmetryBreakingCandidates: 170,
+        preservingCandidatesChangingOccurrenceOrbits: 0,
+      },
+    ]);
+    assert.equal(
+      refinement.derivationBoundary.consequence,
+      'BASE_DERIVATION_CANNOT_CREATE_NEW_OCCURRENCE_DISTINCTIONS',
+    );
+    assert.equal(
+      refinement.derivationBoundary.generalArgument.scope,
+      'all finite observations satisfying the stated derivation criterion',
+    );
+    assert.deepEqual(
+      refinement.derivationBoundary.interactionOnlyCounterexample,
+      {
+        basePattern: [0, 0, 1, 2],
+        conditionalPattern: [0, 1, 0, 2],
+        basePreservingRelabelling: [1, 0, 2, 3],
+        relabelledBasePattern: [0, 0, 1, 2],
+        relabelledConditionalPattern: [0, 1, 1, 2],
+        basePreserved: true,
+        conditionalPatternPreserved: false,
+      },
+    );
 
     assert.deepEqual(
       boundary.lossAudit.map(item => [item.distinction, item.classification]),
@@ -441,6 +495,9 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.ok(experiment.results.some(item =>
       item.id === 'conditional-structural-asymmetry' &&
       item.result === 'EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL'));
+    assert.ok(experiment.results.some(item =>
+      item.id === 'conditional-interaction-forcedness' &&
+      item.result === 'SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE'));
     assert.match(
       report.conclusion.ontologyExperimentConclusion,
       /binary equality coincidence is complete only at fixed width two/i,
