@@ -1,0 +1,179 @@
+# Architecture-neutral foundation search
+
+This experiment asks a narrower, falsifiable question than “which foundation
+is mathematically minimal?”:
+
+> What semantic structure must be added to links before the resulting system
+> can load, interpret, and execute its own linked meta-theory?
+
+The earlier zero-transition result answers only that structure without any
+transition cannot execute this workload. It does not select S/K, prove S/K
+minimal, or exclude a different transition system. The search therefore runs
+the same workload through three mechanisms, including two that define neither
+an S/K transition nor bracket abstraction and do not use the closed-term
+compiler. Language constructors used by the workload remain opaque link data.
+
+The executable report is
+`rml-alternative-foundation-search/v1`. Run it with:
+
+```bash
+cd js
+npm run report:foundation-search
+```
+
+The compact checked-in comparison is
+[`foundation-candidates.json`](../../../lib/meta-theory/foundation-candidates.json),
+and the shared linked programs are in
+[`alternative-foundations.lino`](../../../lib/meta-theory/alternative-foundations.lino).
+
+## Candidate designs
+
+| Property | A: closed S/K | B: direct structural | C: Horn relational |
+|---|---|---|---|
+| Representation | Addressed-doublet closed-term DAG | LiNo patterns, replacements, imports, facts, and rules | Linked facts and Horn clauses |
+| Transition | Leftmost S/K contraction | Leftmost structural match and replacement | Monotone premise unification and conclusion insertion |
+| Transition authority | Two external equations | Ordered linked rewrite/inference declarations | Clause set plus saturation schedule |
+| External semantic operations | 2 | 6 | 5 |
+| External semantic source descriptions | 0 | 1 | 1 |
+| Host/object-specific knowledge | none | none | none |
+| Self-hosting closure for the nine operations | 9/9 | 9/15 | 9/14 |
+| Formation boundary | Closed generated terms and source/artifact parity | Bound variables and acyclic imports | Range-restricted conclusions and finite bounds |
+| Control boundary | Contraction order and resource bound | Traversal order, cycle detection, and resource bounds | Fair saturation rounds and fact bound |
+
+Candidate A is the current bootstrap. Candidate B deliberately retains the
+pre-S/K reference interpreter as an independent control. Candidate C uses a
+monotone relational mechanism: it never replaces a subterm, and its
+transition authority is materially different from both rewrite candidates.
+Their implementation paths are selected explicitly by `ExecutionBasis` /
+`executionBasis`; runtime traces verify that B and C never observe an S or K
+contraction.
+
+All three record the following separately:
+
+- representation and primitive semantic laws;
+- transition mechanism, authority, and source provenance;
+- host runtime, formation/admissibility, and execution-control boundaries;
+- self-description, self-interpretation, and self-generation mechanisms;
+- external and derived semantic information;
+- object-specific host knowledge and undocumented authority; and
+- rejection, removal, and equivalence status.
+
+No candidate is declared equivalent to another. Equivalence remains
+`NOT_CLAIMED_WITHOUT_EXECUTABLE_BISIMULATION`.
+
+## Common executable workload
+
+Every candidate must perform `load`, `import`, `rebind`, `match`,
+`substitute`, `rewrite`, `infer`, `verify`, and `self-interpret`. The rewrite
+candidates execute the same linked source. The Horn candidate represents the
+same observable stages as facts and clauses so its relational mechanism is
+not disguised term rewriting.
+
+Self-description exposes an active rule/clause as links. Self-interpretation
+executes an encoded rule. Self-generation derives a rule description and then
+uses it. The host contains no branches for `lambda`, `set`, `graph`,
+`relation`, the language-core constructors, or any test-specific predicate.
+
+The workload also checks definitions, rule-like axioms, dependent statements,
+theorem conclusions, and proof trees. Substitution is represented as linked
+patterns and bindings above each candidate's explicit matching/instantiation
+boundary; it is not assigned hidden object-language behavior.
+
+## Removal and comparison protocol
+
+Every declared primitive is disabled at its execution point and the complete
+workload is rerun. All 13 current removals fail closed: two for A, six for B,
+and five for C. This establishes
+`INDEPENDENT_FOR_CANDIDATE_WORKLOAD`, not mathematical independence in every
+possible representation.
+
+The comparison reports, for each candidate:
+
+- independent external semantic information;
+- host semantic operations and external semantic source descriptions;
+- host/self-semantic duplication;
+- self-hosting closure and foundation compression;
+- runtime trust-graph coverage;
+- object-specific host semantics; and
+- undocumented authority paths.
+
+Candidate A has the smallest measured external-law count in this experiment.
+That observation is path-dependent and does not promote S/K to a Links Theory
+axiom or a global minimum. A smaller vocabulary is likewise not treated as an
+improvement unless an executable equivalence or reduction removes semantic
+information rather than renaming it.
+
+## Computability argument
+
+The shared link-register program represents a configuration as program links,
+a control label, two unary counters, and a linked trace. Its rules cover six
+transition cases: increment either counter, decrement either nonzero counter,
+and take the zero branch for either counter. The Horn candidate defines the
+same cases as inference clauses.
+
+For an instruction at label `q`, structural matching or premise unification
+selects exactly that instruction and produces the corresponding successor
+configuration. Induction on the number of machine steps therefore gives:
+
+1. the encoded initial configuration represents the source machine state;
+2. each source increment or conditional-decrement step has a matching linked
+   transition with the same next label and counter values; and
+3. a finite source run ending at `halt` produces the linked halt certificate.
+
+The regression program takes both zero branches and both nonzero decrement
+branches, executes both increment instructions, and halts at `(zero, zero)`.
+Fault injection and JavaScript/Rust parity test the interpreter rather than a
+single hand-written reduction.
+
+The final universality step uses Minsky's two-register result in chapter 14.1
+of *Computation: Finite and Infinite Machines* (Prentice-Hall, 1967), which
+shows how the increment and conditional-decrement basis simulates arbitrary
+Turing-machine computation. An [archived catalog and scan reference is
+available through Open Library](https://openlibrary.org/books/OL5535641M/Computation_finite_and_infinite_machines).
+Thus the idealized unbounded linked transition relation is Turing complete.
+The executable runtimes retain configurable finite resource bounds: every
+finite machine prefix runs with a sufficiently large bound, while a concrete
+process cannot certify that a nonterminating run will finish.
+
+## Language semantic cores and exact boundary
+
+All candidates execute linked JavaScript and Rust counter-machine operational
+cores and check linked Lean and Rocq dependent-identity cores. These are real
+executable semantic cores with distinct linked vocabularies, not stored source
+strings and not calls to external compilers or proof kernels.
+
+They are not complete production implementations of the four ecosystems.
+RML does not claim their parsers, optimizers, unsafe/runtime facilities,
+standard libraries, module systems, tactics, or foreign-function interfaces.
+The full pinned Lean/Rocq corpus remains a provenance and parity artifact, not
+execution authority. Expanding these cores to production-language coverage is
+separate, open work and cannot honestly be inferred from Turing completeness.
+
+## Guarded proof knots
+
+`guarded-referential-links` demonstrates a concrete benefit of referential
+links. A repeated address in `(guarded-link address value address)` is checked
+structurally and yields one finite observation plus an opaque continuation at
+the same address. Unequal endpoints do not match. The Horn candidate derives
+the same guarded observation through repeated-variable unification.
+
+This “proof knot” gives a finite certificate for one observation of cyclic
+data without eagerly unfolding an infinite object. It composes naturally with
+the existing bounded cyclic-sequence observer and suggests a research path for
+memoized coinductive certificates: each address can name both the observed
+fact and the continuation that reuses it. Crucially, the proof substrate still
+rejects circular justification; referential data is useful structure, not
+permission for a theorem to prove itself.
+
+## Reproducibility and claim boundary
+
+The JavaScript suite executes the versioned report and synchronizes it with
+the checked-in JSON table. The Rust suite independently runs all three
+mechanisms, confirms that the non-combinator candidates do not observe S/K,
+and repeats every removal experiment.
+
+What is established is the common finite workload, complete counter-machine
+instruction simulation, language semantic cores, guarded referential witness,
+and measured trust boundaries. What is not established is global minimality,
+pairwise candidate equivalence, enumeration of every formal system, or full
+production implementations of Lean, Rocq, Rust, and JavaScript.

@@ -160,6 +160,12 @@ zero duplication, 6/6 linked closure, and 2/8 foundation compression, while
 checking observed paths against graph reachability. S/K necessity is scoped to
 the current representation and probe rather than presented as global
 irreducibility.
+`LinkedProgramRegistry::from_rml_with_basis` additionally exposes
+`ExecutionBasis::{ClosedSk, DirectStructural, HornRelational}` for the
+architecture-neutral comparison. The mirrored foundation-search suite runs
+the same workload, counter-machine and language cores, guarded referential
+witness, and all 13 primitive-removal experiments without allowing the two
+non-combinator mechanisms to observe S/K.
 `MembershipSetStore` provides addressed
 membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,

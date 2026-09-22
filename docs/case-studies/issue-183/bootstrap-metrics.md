@@ -143,3 +143,10 @@ the full JSON report, while the JavaScript and Rust tests independently assert
 the counts, removal outcomes, closure, compression, runtime coverage, and
 generated-artifact parity. Run the focused equivalence experiment with
 `node experiments/iota-bootstrap.mjs` from the repository root.
+
+This report measures the current S/K architecture. It should be read together
+with the later [architecture-neutral foundation search](./foundation-search.md),
+which reruns a larger nine-operation workload under direct structural and Horn
+transition systems. That comparison addresses path dependence; it does not
+change these measurements or reinterpret zero-transition failure as proof
+that S/K is globally minimal.

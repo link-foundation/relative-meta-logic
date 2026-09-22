@@ -37,6 +37,8 @@ const REQUIREMENT_SOURCES = [
     5769569663,
     5772097742,
     5772805558,
+    5773411325,
+    5773514118,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -59,7 +61,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = [...ledger.matchAll(/^\| R(\d+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)];
 
-    assert.ok(rows.length >= 56, `expected at least 56 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 69, `expected at least 69 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(match => Number(match[1])),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -82,6 +84,8 @@ describe('issue 183 requirement traceability', () => {
       'Lean/Rocq cannot authorize RML execution',
       'all possible formal systems',
       'finite executable acceptance scope',
+      'globallyMinimal: false',
+      'not complete production implementations',
     ]) {
       assert.ok(ledger.includes(statement), `missing scope statement: ${statement}`);
     }

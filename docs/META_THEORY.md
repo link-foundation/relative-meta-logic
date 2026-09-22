@@ -121,6 +121,18 @@ transition system. The narrower iota witness preserves its identity, discard,
 and duplication cases but observes both S/K operations, so its one name is not
 counted as evidence that external semantic information disappeared.
 
+That negative control is no longer the only alternative. The
+[architecture-neutral foundation search](./case-studies/issue-183/foundation-search.md)
+runs two non-combinator candidates: a direct structural interpreter and a
+monotone Horn interpreter. Neither defines an S/K transition or bracket
+abstraction; language terms are opaque data. Both execute the same
+nine-operation acceptance workload, and
+their traces must not observe either combinator contraction. The report
+records every candidate's representation, transition authority, provenance,
+host/formation/control boundaries, self-description/interpretation/generation
+mechanisms, removal experiments, and neutral metrics. Candidate A's smaller
+measured boundary remains an experimental comparison, not a global minimum.
+
 Every remaining boundary node has a structural `primitiveReason` /
 `primitive_reason`. The mirrored `auditBootstrapKernel` /
 `audit_bootstrap_kernel` API compares the graph with a separately maintained
@@ -374,6 +386,12 @@ The host data-store APIs implement the upstream 0.0.3 representation contract:
 These convenience APIs are tested in both languages. Their corresponding
 mathematical obligations are also represented in `universal.lino` and checked
 through linked conformance cases.
+
+`alternative-foundations.lino` adds a guarded referential witness: a link
+whose source and continuation repeat the same address yields one finite
+observation and an opaque resume address. Unequal endpoints fail the guard.
+This proof-knot pattern exploits self-reference for productive, memoizable
+observations without allowing circular proof justification.
 
 ## API correspondence
 

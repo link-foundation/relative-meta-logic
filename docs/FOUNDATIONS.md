@@ -12,6 +12,11 @@ It is distinct from the native linked-program meta-theory in
 host report, executes a links-defined K1 meta-interpreter, and supports
 foundation-polymorphic imports. Legacy host primitives and external tactics
 listed here cannot authorize a linked-program theory definition.
+The linked-program engine also has an
+[architecture-neutral foundation search](./case-studies/issue-183/foundation-search.md)
+that compares closed S/K, direct structural, and Horn-relational execution.
+Those measured execution bases are distinct from the legacy configurable
+operator registry documented on this page.
 
 The headline guarantee is backward compatibility:
 

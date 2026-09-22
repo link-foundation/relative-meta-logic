@@ -216,6 +216,15 @@ compression. Fault injection classifies S and K as experimentally necessary
 for this representation and acceptance probe, without claiming global
 irreducibility.
 
+For falsification across architectures,
+`LinkedProgramRegistry.fromRml(source, { executionBasis })` accepts `s-k`,
+`direct-structural`, or `horn-relational`. The latter two do not invoke the
+closed-term compiler. `foundationSearchReport` runs the common nine-operation
+workload, 13 removal experiments, the linked two-counter machine, language
+semantic cores, and a guarded referential proof knot. Run the versioned JSON
+report with `npm run report:foundation-search`; its claim boundary is
+documented in `docs/case-studies/issue-183/foundation-search.md`.
+
 ```javascript
 import { readFileSync } from 'node:fs';
 import {

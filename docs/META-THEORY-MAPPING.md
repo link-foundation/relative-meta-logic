@@ -13,6 +13,12 @@ a network of doublets and triplets") to the concrete LiNo forms that
 `examples/nat-links.lino` and `examples/typed-kernel-links.lino` parse
 into.
 
+For the separate question of which transition authority makes such networks
+executable, see the
+[architecture-neutral foundation search](./case-studies/issue-183/foundation-search.md).
+It compares three mechanisms without treating S/K as a native Links Theory
+law or inferring global minimality from the current representation.
+
 If you have not read it yet, the companion piece is
 [`case-studies/issue-13/README.md`](./case-studies/issue-13/README.md),
 which establishes the same correspondence for the

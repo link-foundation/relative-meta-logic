@@ -84,6 +84,17 @@ publishes the machine-readable
 previous/current comparison instead of inferring progress from labels or host
 line counts.
 
+The subsequent path-dependence review is addressed by the
+[architecture-neutral foundation search](./foundation-search.md). It executes
+the same nine-operation workload under closed S/K, independent direct
+structural rewriting, and monotone Horn saturation. The versioned comparison
+records every transition authority and boundary, fault-injects all 13
+candidate primitives, executes all six cases of a universal two-counter
+instruction basis, and checks guarded referential and language-core witnesses
+with JavaScript/Rust parity. S/K is the smallest measured candidate here, but
+the report explicitly declines global minimality and pairwise-equivalence
+claims.
+
 `links-meta-foundation` is an executable, links-defined `K1` meta-interpreter
 for object-encoded binding, matching, substitution, rule
 selection/application, and result verification. Its stronger witness executes

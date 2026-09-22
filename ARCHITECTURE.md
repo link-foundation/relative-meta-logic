@@ -201,6 +201,18 @@ therefore does not turn the scoped fault-injection result into a global
 minimality claim. See
 [`docs/case-studies/issue-183/bootstrap-metrics.md`](./docs/case-studies/issue-183/bootstrap-metrics.md).
 
+The bootstrap result is also tested against two genuinely different
+transition mechanisms. `ExecutionBasis` selects closed S/K contraction,
+direct structural rewriting, or monotone Horn saturation without changing
+object-theory names. All three execute the same load/import/rebind/match/
+substitute/rewrite/infer/verify/self-interpret workload, a two-counter-machine
+witness, and four language semantic cores. Their representation, authority,
+formation/control boundaries, residual operations, removal outcomes, and
+runtime trust coverage are published in the
+[architecture-neutral foundation search](./docs/case-studies/issue-183/foundation-search.md).
+This comparison scopes S/K's two-law result to the measured candidates rather
+than treating the failed zero-transition experiment as a selection proof.
+
 The `links-meta-foundation` program is the links-defined `K1` interpreter for
 object-encoded matching, substitution, rule application, and verification.
 It executes an encoded copy of its own repeated-variable matching rule and

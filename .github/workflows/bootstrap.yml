@@ -8,9 +8,12 @@ on:
       - 'js/**'
       - 'rust/src/linked_program.rs'
       - 'rust/tests/linked_program_tests.rs'
+      - 'rust/tests/foundation_search_tests.rs'
       - 'lib/meta-theory/**'
       - 'lib/self/**'
       - 'scripts/report-bootstrap-metrics.mjs'
+      - 'scripts/report-foundation-search.mjs'
+      - 'scripts/foundation-search.test.mjs'
       - 'test-corpus/**'
       - 'README.md'
   push:
@@ -20,9 +23,12 @@ on:
       - 'js/**'
       - 'rust/src/linked_program.rs'
       - 'rust/tests/linked_program_tests.rs'
+      - 'rust/tests/foundation_search_tests.rs'
       - 'lib/meta-theory/**'
       - 'lib/self/**'
       - 'scripts/report-bootstrap-metrics.mjs'
+      - 'scripts/report-foundation-search.mjs'
+      - 'scripts/foundation-search.test.mjs'
       - 'test-corpus/**'
       - 'README.md'
   workflow_dispatch:
@@ -47,3 +53,6 @@ jobs:
       - name: Publish measured bootstrap boundary
         working-directory: js
         run: npm run report:bootstrap-metrics
+      - name: Compare independent foundation candidates
+        working-directory: js
+        run: npm run report:foundation-search

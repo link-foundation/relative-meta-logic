@@ -72,6 +72,14 @@ irreducible semantics: an executable iota witness reconstructs identity, K,
 and S with one surface equation, but observes both residual contractions. It
 therefore demonstrates vocabulary compression without claiming less external
 semantic information.
+An architecture-neutral follow-up now runs the same nine-operation workload
+through the S/K bootstrap, an independent direct structural interpreter, and
+a monotone Horn interpreter. It fault-injects all 13 residual laws, executes a
+complete two-counter-machine instruction basis, and checks linked
+JavaScript/Rust operational cores plus Lean/Rocq dependent cores in both
+runtimes. The comparison still makes no global minimality or production
+language claim; see the
+[foundation-search report](./docs/case-studies/issue-183/foundation-search.md).
 Lambda, set, type, graph, relation, and RML semantics remain linked programs,
 not host callbacks or external-kernel decisions. Lean/Rocq artifacts are
 parity evidence only.
