@@ -20,7 +20,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v3');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v4');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -105,6 +105,60 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.doesNotMatch(witness.admissibleConclusion, /intrinsic to links/i);
   });
 
+  it('keeps the ontology investigation open and audits imported categories', () => {
+    assert.equal(report.foundationStatus, 'OPEN');
+    assert.equal(
+      report.ontologySearch.status,
+      'OPEN_INDEPENDENT_INVESTIGATION',
+    );
+    assert.equal(
+      report.comparisonScope,
+      'EXECUTION_ARCHITECTURE_ONLY_NOT_ONTOLOGY',
+    );
+    assert.deepEqual(
+      report.ontologySearch.openQuestions.map(({ id, status }) => ({ id, status })),
+      [
+        { id: 'link-ontology', status: 'UNRESOLVED' },
+        { id: 'primitive-categories', status: 'UNRESOLVED' },
+        { id: 'structure-transformation-relation', status: 'UNRESOLVED' },
+        { id: 'intrinsic-semantic-authority', status: 'UNRESOLVED' },
+        { id: 'comparative-minimality', status: 'UNRESOLVED' },
+      ],
+    );
+    assert.deepEqual(
+      report.ontologySearch.importedPrimitiveCategories.map(item => item.id),
+      [
+        'data',
+        'operation',
+        'state',
+        'transition',
+        'interpreter',
+        'evaluator',
+        'rewrite',
+        'rule',
+        'function',
+        'relation',
+      ],
+    );
+    assert.ok(report.ontologySearch.importedPrimitiveCategories.every(item =>
+      item.provenance === 'IMPORTED_EXPERIMENTAL_VOCABULARY' &&
+      item.foundationalStatus === 'UNESTABLISHED'));
+    assert.equal(report.ontologySearch.existingCandidatesRole, 'EXECUTABLE_CONTROLS_ONLY');
+    assert.equal(report.ontologySearch.existingCandidatesConstrainSearch, false);
+    assert.equal(report.ontologySearch.targetArchitectureSelected, false);
+    assert.ok(report.ontologySearch.provenanceQuestions.length >= 3);
+
+    for (const candidate of report.candidates) {
+      assert.equal(candidate.ontologyRole, 'EXECUTABLE_CONTROL');
+      assert.equal(candidate.constrainsOntologySearch, false);
+      assert.equal(candidate.foundationalEligibility.eligible, false);
+      assert.ok(candidate.foundationalEligibility.exclusionReasons.includes(
+        'LINK_ONTOLOGY_UNRESOLVED',
+      ));
+    }
+    assert.doesNotMatch(JSON.stringify(report), /link-native|links-native/i);
+  });
+
   it('fault-injects every residual semantic law instead of assuming it', () => {
     for (const candidate of report.candidates) {
       assert.equal(
@@ -148,7 +202,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v3');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v4');
     for (const row of expected.candidates) {
       const candidate = report.candidates.find(item => item.candidate === row.candidate);
       assert.ok(candidate, `missing executed candidate ${row.candidate}`);
@@ -201,7 +255,22 @@ describe('architecture-neutral alternative-foundation search', () => {
         candidate.comparisonEligibility.exclusionReasons,
         row.comparisonExclusionReasons,
       );
+      assert.equal(candidate.ontologyRole, row.ontologyRole);
+      assert.equal(
+        candidate.constrainsOntologySearch,
+        row.constrainsOntologySearch,
+      );
+      assert.deepEqual(
+        candidate.foundationalEligibility,
+        row.foundationalEligibility,
+      );
     }
+    assert.equal(report.foundationStatus, expected.foundationStatus);
+    assert.equal(report.comparisonScope, expected.comparisonScope);
+    assert.deepEqual(report.ontologySearch, expected.ontologySearch);
+    assert.equal(expected.claimBoundary.foundationStatus, 'OPEN');
+    assert.equal(expected.claimBoundary.ontologyQuestionsResolved, false);
+    assert.equal(expected.claimBoundary.existingCandidatesConstrainOntologySearch, false);
     assert.equal(report.conclusion.globallyMinimal, expected.claimBoundary.globallyMinimal);
     assert.equal(
       report.comparisonCohort.sufficient,

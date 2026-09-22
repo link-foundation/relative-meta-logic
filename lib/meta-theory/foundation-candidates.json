@@ -1,7 +1,100 @@
 {
-  "schema": "rml-foundation-candidate-table/v3",
+  "schema": "rml-foundation-candidate-table/v4",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
+  "foundationStatus": "OPEN",
+  "comparisonScope": "EXECUTION_ARCHITECTURE_ONLY_NOT_ONTOLOGY",
+  "ontologySearch": {
+    "status": "OPEN_INDEPENDENT_INVESTIGATION",
+    "openQuestions": [
+      {
+        "id": "link-ontology",
+        "status": "UNRESOLVED",
+        "question": "What is a link before a host representation assigns categories to it?"
+      },
+      {
+        "id": "primitive-categories",
+        "status": "UNRESOLVED",
+        "question": "Which, if any, primitive categories are forced by the investigated phenomenon?"
+      },
+      {
+        "id": "structure-transformation-relation",
+        "status": "UNRESOLVED",
+        "question": "Is a distinction between structure and transformation derived or imported?"
+      },
+      {
+        "id": "intrinsic-semantic-authority",
+        "status": "UNRESOLVED",
+        "question": "Can semantic authority arise from links without being supplied externally?"
+      },
+      {
+        "id": "comparative-minimality",
+        "status": "UNRESOLVED",
+        "question": "Do independent derivations converge on a comparable minimal foundation?"
+      }
+    ],
+    "provenanceQuestions": [
+      "Was the concept forced by the investigated link phenomenon?",
+      "Was the concept derived from already established properties?",
+      "Was the concept imported from an existing formalism or host representation?"
+    ],
+    "importedPrimitiveCategories": [
+      {
+        "id": "data",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "operation",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "state",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "transition",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "interpreter",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "evaluator",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "rewrite",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "rule",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "function",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "relation",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      }
+    ],
+    "existingCandidatesRole": "EXECUTABLE_CONTROLS_ONLY",
+    "existingCandidatesConstrainSearch": false,
+    "targetArchitectureSelected": false,
+    "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
+  },
   "acceptanceWorkload": [
     "load",
     "import",
@@ -81,7 +174,7 @@
       "independentExternalInformation": 2,
       "hostSemanticOperations": 2,
       "selfHostingClosure": "9/9",
-      "sourceProvenance": "externally primitive equations over a link-native addressed source",
+      "sourceProvenance": "externally primitive equations over a source represented as addressed links",
       "transitionMechanism": "contract the leftmost S or K redex",
       "transitionAuthority": "the two external contraction equations",
       "hostRuntimeBoundary": "S/K contraction only; linked terms define all acceptance services",
@@ -95,6 +188,18 @@
       "hostSelfSemanticDuplication": 0,
       "comparisonEligible": true,
       "comparisonExclusionReasons": [],
+      "ontologyRole": "EXECUTABLE_CONTROL",
+      "constrainsOntologySearch": false,
+      "foundationalEligibility": {
+        "eligible": false,
+        "exclusionReasons": [
+          "LINK_ONTOLOGY_UNRESOLVED",
+          "PRIMITIVE_CATEGORY_PROVENANCE_UNESTABLISHED",
+          "STRUCTURE_TRANSFORMATION_RELATION_UNRESOLVED",
+          "INTRINSIC_SEMANTIC_AUTHORITY_UNRESOLVED",
+          "COMPARATIVE_MINIMALITY_UNRESOLVED"
+        ]
+      },
       "runtimeTrustCoverage": "complete",
       "objectSpecificHostKnowledge": [],
       "undocumentedAuthorityPaths": [],
@@ -141,6 +246,18 @@
         "HOST_SELF_SEMANTIC_DUPLICATION",
         "EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION"
       ],
+      "ontologyRole": "EXECUTABLE_CONTROL",
+      "constrainsOntologySearch": false,
+      "foundationalEligibility": {
+        "eligible": false,
+        "exclusionReasons": [
+          "LINK_ONTOLOGY_UNRESOLVED",
+          "PRIMITIVE_CATEGORY_PROVENANCE_UNESTABLISHED",
+          "STRUCTURE_TRANSFORMATION_RELATION_UNRESOLVED",
+          "INTRINSIC_SEMANTIC_AUTHORITY_UNRESOLVED",
+          "COMPARATIVE_MINIMALITY_UNRESOLVED"
+        ]
+      },
       "runtimeTrustCoverage": "complete",
       "objectSpecificHostKnowledge": [],
       "undocumentedAuthorityPaths": [],
@@ -186,6 +303,18 @@
         "HOST_SELF_SEMANTIC_DUPLICATION",
         "EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION"
       ],
+      "ontologyRole": "EXECUTABLE_CONTROL",
+      "constrainsOntologySearch": false,
+      "foundationalEligibility": {
+        "eligible": false,
+        "exclusionReasons": [
+          "LINK_ONTOLOGY_UNRESOLVED",
+          "PRIMITIVE_CATEGORY_PROVENANCE_UNESTABLISHED",
+          "STRUCTURE_TRANSFORMATION_RELATION_UNRESOLVED",
+          "INTRINSIC_SEMANTIC_AUTHORITY_UNRESOLVED",
+          "COMPARATIVE_MINIMALITY_UNRESOLVED"
+        ]
+      },
       "runtimeTrustCoverage": "complete",
       "objectSpecificHostKnowledge": [],
       "undocumentedAuthorityPaths": [],
@@ -201,6 +330,9 @@
     }
   ],
   "claimBoundary": {
+    "foundationStatus": "OPEN",
+    "ontologyQuestionsResolved": false,
+    "existingCandidatesConstrainOntologySearch": false,
     "globallyMinimal": false,
     "comparableCohortEstablished": false,
     "intrinsicTransitionAuthority": "UNRESOLVED",
@@ -211,7 +343,7 @@
       "all three mechanisms execute the complete two-counter-machine instruction basis",
       "the linked JavaScript and Rust counter cores execute and the Lean and Rocq dependent cores check identity proofs",
       "the tested ordered-link host representation does not select between two witnessed transitions",
-      "only Candidate A currently passes the symmetric comparison-eligibility gate"
+      "only Candidate A currently passes the symmetric execution-comparison eligibility gate"
     ],
     "notProved": [
       "that S/K is globally minimal",
@@ -223,7 +355,9 @@
       "that the tested host representation exhausts the ontology of links",
       "that structure and transformation are intrinsically independent",
       "that transformation must be external to links",
-      "that links have no intrinsic execution principle"
+      "that links have no intrinsic execution principle",
+      "that the current candidates constrain the independent ontology search",
+      "that the current semantic vocabulary has foundational status"
     ]
   }
 }

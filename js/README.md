@@ -210,7 +210,7 @@ does not claim that it is irreducible.
 it observes actual load/reduce/prove/K1 execution, fault-injects every host
 operation, checks every observed path segment against trust-graph reachability,
 and publishes layer, duplication, closure, compression, and previous/current
-metrics under `rml-bootstrap-metrics/v1`. The current result reports two host
+metrics under `rml-bootstrap-metrics/v4`. The current result reports two host
 semantic operations, zero duplicated semantics, 6/6 linked closure, and 2/8
 compression. Fault injection classifies S and K as experimentally necessary
 for this representation and acceptance probe, without claiming global
@@ -228,6 +228,10 @@ eligibility gate excludes the direct and Horn controls from ranking while
 they retain host/self duplication. Its executable two-model witness shows
 only that one ordered-link host representation does not select between two
 tested transition functions; link ontology remains unresolved.
+The v4 ontology audit also keeps primitive categories, the
+structure/transformation relation, intrinsic authority, and comparative
+minimality unresolved. All three implementations are executable controls and
+cannot constrain the independent search or select a target architecture.
 
 ```javascript
 import { readFileSync } from 'node:fs';

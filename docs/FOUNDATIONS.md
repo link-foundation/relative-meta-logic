@@ -7,7 +7,7 @@ The two together let users replace the meaning of operators such as `and`,
 prover is actually trusting at any point in time.
 
 This is the compatibility surface for the original general-purpose evaluator.
-It is distinct from the native linked-program meta-theory in
+It is distinct from the executable linked-program meta-theory in
 [`META_THEORY.md`](./META_THEORY.md). That newer path publishes its exact K0
 host report, executes a links-defined K1 meta-interpreter, and supports
 foundation-polymorphic imports. Legacy host primitives and external tactics
@@ -21,6 +21,10 @@ only that the tested ordered-link host signature does not select between two
 functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
 documented on this page.
+The v4 report additionally marks all three bases as executable controls that
+cannot constrain the independent ontology investigation; primitive categories,
+the structure/transformation relation, intrinsic authority, and comparative
+minimality remain explicitly unresolved.
 
 The headline guarantee is backward compatibility:
 

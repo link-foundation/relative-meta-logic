@@ -41,6 +41,7 @@ const REQUIREMENT_SOURCES = [
     5773514118,
     5775207546,
     5776265940,
+    5777314436,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -59,19 +60,24 @@ describe('issue 183 requirement traceability', () => {
     }
   });
 
-  it('tracks a contiguous atomic requirement set with completion evidence', () => {
+  it('tracks a contiguous atomic requirement set without relabelling open research as complete', () => {
     const ledger = readLedger();
     const rows = [...ledger.matchAll(/^\| R(\d+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)];
 
-    assert.ok(rows.length >= 73, `expected at least 73 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 76, `expected at least 76 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(match => Number(match[1])),
       Array.from({ length: rows.length }, (_, index) => index + 1),
       'requirement identifiers must be unique and contiguous',
     );
 
+    const openRequirements = new Set(['71', '73', '74']);
     for (const [, id, requirement, status, evidence] of rows) {
-      assert.match(status, /^Complete(?: |$)/, `R${id} is not complete`);
+      if (openRequirements.has(id)) {
+        assert.match(status, /^Open(?: |$)/, `R${id} must remain open`);
+      } else {
+        assert.match(status, /^Complete(?: |$)/, `R${id} is not complete`);
+      }
       assert.ok(requirement.trim().length > 0, `R${id} has no requirement text`);
       assert.ok(evidence.includes('`'), `R${id} has no concrete repository evidence`);
     }
@@ -93,6 +99,10 @@ describe('issue 183 requirement traceability', () => {
       'ORDERED_LINK_REPRESENTATION_UNDERDETERMINES_TESTED_TRANSITIONS',
       'intrinsicTransitionAuthority: UNRESOLVED',
       'structureTransformationSeparation: ASSUMED_BY_EXPERIMENT',
+      'OPEN_INDEPENDENT_INVESTIGATION',
+      'primitive categories: UNRESOLVED',
+      'EXECUTABLE_CONTROLS_ONLY',
+      'represented-as-addressed-links',
     ]) {
       assert.ok(ledger.includes(statement), `missing scope statement: ${statement}`);
     }

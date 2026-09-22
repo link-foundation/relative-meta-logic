@@ -35,6 +35,70 @@ const NON_SEMANTIC_OPERATIONS = Object.freeze([
   'enforce-cycle-and-resource-bounds',
 ]);
 
+const OPEN_FOUNDATIONAL_QUESTIONS = Object.freeze([
+  Object.freeze({
+    id: 'link-ontology',
+    status: 'UNRESOLVED',
+    question: 'What is a link before a host representation assigns categories to it?',
+  }),
+  Object.freeze({
+    id: 'primitive-categories',
+    status: 'UNRESOLVED',
+    question: 'Which, if any, primitive categories are forced by the investigated phenomenon?',
+  }),
+  Object.freeze({
+    id: 'structure-transformation-relation',
+    status: 'UNRESOLVED',
+    question: 'Is a distinction between structure and transformation derived or imported?',
+  }),
+  Object.freeze({
+    id: 'intrinsic-semantic-authority',
+    status: 'UNRESOLVED',
+    question: 'Can semantic authority arise from links without being supplied externally?',
+  }),
+  Object.freeze({
+    id: 'comparative-minimality',
+    status: 'UNRESOLVED',
+    question: 'Do independent derivations converge on a comparable minimal foundation?',
+  }),
+]);
+
+const IMPORTED_PRIMITIVE_CATEGORIES = Object.freeze([
+  'data',
+  'operation',
+  'state',
+  'transition',
+  'interpreter',
+  'evaluator',
+  'rewrite',
+  'rule',
+  'function',
+  'relation',
+].map(id => Object.freeze({
+  id,
+  provenance: 'IMPORTED_EXPERIMENTAL_VOCABULARY',
+  foundationalStatus: 'UNESTABLISHED',
+})));
+
+function ontologySearchAudit() {
+  return {
+    status: 'OPEN_INDEPENDENT_INVESTIGATION',
+    openQuestions: OPEN_FOUNDATIONAL_QUESTIONS.map(question => ({ ...question })),
+    provenanceQuestions: [
+      'Was the concept forced by the investigated link phenomenon?',
+      'Was the concept derived from already established properties?',
+      'Was the concept imported from an existing formalism or host representation?',
+    ],
+    importedPrimitiveCategories: IMPORTED_PRIMITIVE_CATEGORIES.map(
+      category => ({ ...category }),
+    ),
+    existingCandidatesRole: 'EXECUTABLE_CONTROLS_ONLY',
+    existingCandidatesConstrainSearch: false,
+    targetArchitectureSelected: false,
+    acceptanceCriterion: 'A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient.',
+  };
+}
+
 function renameAtoms(term, renaming) {
   if (Array.isArray(term)) return term.map(child => renameAtoms(child, renaming));
   return renaming.get(term) ?? term;
@@ -610,6 +674,18 @@ function candidateRecord({
       eligible: comparisonExclusionReasons.length === 0,
       exclusionReasons: comparisonExclusionReasons,
     },
+    ontologyRole: 'EXECUTABLE_CONTROL',
+    constrainsOntologySearch: false,
+    foundationalEligibility: {
+      eligible: false,
+      exclusionReasons: [
+        'LINK_ONTOLOGY_UNRESOLVED',
+        'PRIMITIVE_CATEGORY_PROVENANCE_UNESTABLISHED',
+        'STRUCTURE_TRANSFORMATION_RELATION_UNRESOLVED',
+        'INTRINSIC_SEMANTIC_AUTHORITY_UNRESOLVED',
+        'COMPARATIVE_MINIMALITY_UNRESOLVED',
+      ],
+    },
     eliminationExperiments: removal,
     equivalentTo: null,
     equivalenceStatus: 'NOT_CLAIMED_WITHOUT_EXECUTABLE_BISIMULATION',
@@ -649,7 +725,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       primitiveLaws: aOperations,
       transitionMechanism: 'contract the leftmost S or K redex',
       authority: 'the two external contraction equations',
-      provenance: 'externally primitive equations over a link-native addressed source',
+      provenance: 'externally primitive equations over a source represented as addressed links',
       hostBoundary: 'S/K contraction only; linked terms define all acceptance services',
       formationBoundary: 'closed generated term plus checked source/artifact parity',
       controlBoundary: 'external contraction and resource bound',
@@ -719,14 +795,17 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v3',
+    schema: 'rml-alternative-foundation-search/v4',
+    foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
+    ontologySearch: ontologySearchAudit(),
     acceptanceOperations: ACCEPTANCE_OPERATIONS,
+    comparisonScope: 'EXECUTION_ARCHITECTURE_ONLY_NOT_ONTOLOGY',
     comparisonStatus: comparisonCohortSufficient
       ? 'COMPARABLE_COHORT_ESTABLISHED_NO_GLOBAL_MINIMALITY_CLAIM'
       : 'OPEN_NO_COMPARABLE_ALTERNATIVE',
-    proofBoundary: 'The report proves the finite acceptance workload and an instruction-by-instruction simulation of the complete two-counter-machine basis. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. It does not establish link ontology, identify the correct primitive categories, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
+    proofBoundary: 'The report proves the finite acceptance workload and an instruction-by-instruction simulation of the complete two-counter-machine basis. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. It does not establish link ontology, identify the correct primitive categories, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
     candidates,
     representationBoundaryWitness: linkRepresentationBoundaryWitness(),
     comparisonCohort: {

@@ -366,6 +366,53 @@ fn host_representation_witness_does_not_claim_link_ontology() {
         .prohibited_conclusions
         .contains(&"no execution principle can arise from links themselves"));
     assert!(!report.admissible_conclusion.contains("intrinsic to links"));
+    assert_eq!(report.foundational_status, "OPEN");
+    assert_eq!(report.investigation_status, "OPEN_INDEPENDENT_INVESTIGATION");
+    assert_eq!(
+        report
+            .open_questions
+            .iter()
+            .map(|question| (question.id, question.status))
+            .collect::<Vec<_>>(),
+        vec![
+            ("link-ontology", "UNRESOLVED"),
+            ("primitive-categories", "UNRESOLVED"),
+            ("structure-transformation-relation", "UNRESOLVED"),
+            ("intrinsic-semantic-authority", "UNRESOLVED"),
+            ("comparative-minimality", "UNRESOLVED"),
+        ]
+    );
+    assert_eq!(
+        report
+            .imported_primitive_categories
+            .iter()
+            .map(|category| category.id)
+            .collect::<Vec<_>>(),
+        vec![
+            "data",
+            "operation",
+            "state",
+            "transition",
+            "interpreter",
+            "evaluator",
+            "rewrite",
+            "rule",
+            "function",
+            "relation",
+        ]
+    );
+    assert!(report.imported_primitive_categories.iter().all(|category| {
+        category.provenance == "IMPORTED_EXPERIMENTAL_VOCABULARY"
+            && category.foundational_status == "UNESTABLISHED"
+    }));
+    assert_eq!(report.existing_candidates_role, "EXECUTABLE_CONTROLS_ONLY");
+    assert!(!report.existing_candidates_constrain_search);
+    assert!(!report.target_architecture_selected);
+    assert_eq!(
+        report.comparison_scope,
+        "EXECUTION_ARCHITECTURE_ONLY_NOT_ONTOLOGY"
+    );
+    assert!(report.provenance_questions.len() >= 3);
 }
 
 #[test]

@@ -82,8 +82,9 @@ generator-consistency test prevents the link source, runtime artifact, and
 browser-safe JavaScript data module from drifting; Rust includes the same DAG.
 
 This distinction makes provenance explicit. The semantic program has
-`link-native` provenance and is no longer compiled from a JavaScript semantic
-description. The two transition laws have `externally-primitive` provenance:
+`represented-as-addressed-links` provenance and is no longer compiled from a
+JavaScript semantic description. The two transition laws have
+`externally-primitive` provenance:
 the upstream Links Theory network model supplies the addressed doublet
 structure, but it does not prescribe S or K reduction. The six higher
 capabilities are `derived-inside-system`. These classifications describe where
@@ -139,6 +140,13 @@ tagged ordered-link host representation admits distinct renaming-invariant
 transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
+
+Version 4 consequently reports the entire foundational investigation as
+`OPEN`. Link ontology, primitive categories, the structure/transformation
+relation, intrinsic semantic authority, and comparative minimality are five
+separate `UNRESOLVED` questions. A/B/C are executable controls only and cannot
+constrain the ontology search. The report also marks the semantic vocabulary
+each control imports as experimental rather than foundational.
 
 Every remaining boundary node has a structural `primitiveReason` /
 `primitive_reason`. The mirrored `auditBootstrapKernel` /

@@ -26,7 +26,7 @@ writeFileSync(
       upstreamModel: metadata.upstreamModel,
       sourceNodes: metadata.declaredNodeCount,
       roots: metadata.declaredRootCount,
-      provenance: 'link-native',
+      provenance: 'represented-as-addressed-links',
       compiledFromExternalSemanticDescription: false,
     }, null, 2)});\n` +
     `export default \`${serialized}\`;\n`,

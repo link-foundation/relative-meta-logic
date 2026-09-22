@@ -64,8 +64,9 @@ experimentally necessary for the current representation and probe. Parsing
 and resource bounds remain explicit non-semantic boundary layers. The report
 records zero derived host semantic services, zero host/linked duplication,
 6/6 self-hosting closure, 2/8 foundation compression, and zero undocumented
-runtime paths. The authoritative semantic source is links-native rather than a
-host-language builder, but S/K are not presented as native Links Theory laws:
+runtime paths. The authoritative semantic source is represented as addressed
+links rather than emitted by a host-language semantic builder, but S/K are not
+presented as native Links Theory laws:
 the current host model represents the upstream addressed network as passive
 structure and supplies execution separately. Its zero-transition candidate
 fails the finite acceptance probe. This is not a claim about link ontology or
@@ -85,7 +86,11 @@ duplication excludes them from ranking against the fully reduced S/K
 candidate. The report therefore names no winner. An executable two-model
 witness shows only that one ordered-link host representation does not select
 between two tested transition functions. It explicitly leaves link ontology
-and intrinsic transition authority unresolved; see the
+and intrinsic transition authority unresolved. The v4 report also keeps
+primitive categories, the structure/transformation relation, and comparative
+minimality unresolved, classifies all three implementations as executable
+controls that cannot constrain the ontology search, and selects no target
+architecture; see the
 [foundation-search report](./docs/case-studies/issue-183/foundation-search.md).
 Lambda, set, type, graph, relation, and RML semantics remain linked programs,
 not host callbacks or external-kernel decisions. Lean/Rocq artifacts are

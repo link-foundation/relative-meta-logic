@@ -220,6 +220,14 @@ separation as assumptions; it does not infer link ontology from them. The
 failed zero-transition experiment is likewise scoped to the current passive
 host model and finite workload.
 
+The v4 ontology audit is a separate gate from execution comparison. It keeps
+link ontology, primitive categories, the structure/transformation relation,
+intrinsic semantic authority, and comparative minimality `UNRESOLVED` under
+`OPEN_INDEPENDENT_INVESTIGATION`. A/B/C are `EXECUTABLE_CONTROLS_ONLY`, do not
+constrain that search, and do not select a target architecture. Vocabulary
+such as data, transition, evaluator, rule, function, and relation is recorded
+as imported experimental vocabulary rather than foundational fact.
+
 The `links-meta-foundation` program is the links-defined `K1` interpreter for
 object-encoded matching, substitution, rule application, and verification.
 It executes an encoded copy of its own repeated-variable matching rule and

@@ -297,7 +297,7 @@ describe('links-defined universal program evaluator', () => {
       sourceNodes: 1446,
       runtimeNodes: 35674,
       roots: 25,
-      provenance: 'link-native',
+      provenance: 'represented-as-addressed-links',
       compiledFromExternalSemanticDescription: false,
     });
     assert.deepEqual(report.semanticLawProvenance, [
@@ -334,9 +334,9 @@ describe('links-defined universal program evaluator', () => {
   it('measures the complete host semantic surface and self-hosting distance', () => {
     const report = LinkedProgramRegistry.bootstrapMetricsReport(source);
 
-    assert.equal(report.schema, 'rml-bootstrap-metrics/v3');
+    assert.equal(report.schema, 'rml-bootstrap-metrics/v4');
     assert.deepEqual(report.provenanceClassifications, [
-      'link-native',
+      'represented-as-addressed-links',
       'derived-inside-system',
       'compiled-from-external-semantic-description',
       'externally-primitive',
@@ -361,7 +361,10 @@ describe('links-defined universal program evaluator', () => {
       lawNames: ['contract-s-link', 'contract-k-link'],
       provenance: 'externally-primitive',
     });
-    assert.equal(report.semanticProvenance.authoritativeSource.provenance, 'link-native');
+    assert.equal(
+      report.semanticProvenance.authoritativeSource.provenance,
+      'represented-as-addressed-links',
+    );
     assert.equal(
       report.semanticProvenance.authoritativeSource.compiledFromExternalSemanticDescription,
       false,
@@ -381,7 +384,7 @@ describe('links-defined universal program evaluator', () => {
     assert.equal(report.foundationSearchExperiments[0].baselinePreserved, false);
     assert.ok(report.foundationSearchExperiments[0].observedFailure.length > 0);
     assert.deepEqual(report.foundationSearchExperiments[1], {
-      candidate: 's-k-over-link-native-source',
+      candidate: 's-k-over-addressed-link-source',
       classification: 'CURRENT_SUFFICIENT',
       surfaceLawCount: 2,
       residualExternalSemanticLawCount: 2,

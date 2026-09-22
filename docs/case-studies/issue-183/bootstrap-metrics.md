@@ -42,7 +42,7 @@ vocabulary does not remove external semantic information. Disabling both
 contractions is the explicit zero-transition candidate. It fails the complete
 probe, recording the actual runtime error.
 
-Schema v3 keeps those quantities separate: iota has `surfaceLawCount: 1` and
+Schema v4 keeps those quantities separate: iota has `surfaceLawCount: 1` and
 `residualExternalSemanticLawCount: 2`. The S/K control has 2 and 2, while the
 failing zero-transition candidate has 0 and 0. A smaller first number is not
 reported as a smaller foundation unless the second number also decreases in a
@@ -54,7 +54,7 @@ resource control are `UNKNOWN` because they are retained non-semantic boundary
 layers, not candidates in the two-operation semantic basis.
 
 The schema also publishes provenance using four non-overlapping labels:
-`link-native`, `derived-inside-system`,
+`represented-as-addressed-links`, `derived-inside-system`,
 `compiled-from-external-semantic-description`, and `externally-primitive`.
 These classify the source of independent semantic information, separately
 from the removal experiment classifications above.
@@ -65,7 +65,8 @@ The checked-in
 [`fixed-point-source.lino`](../../../lib/meta-theory/fixed-point-source.lino)
 is the authoritative 1,446-node, 25-root semantic program. It is an addressed
 doublet network aligned with the upstream `network-duplet-function` model and
-is classified `link-native`. A generation-only bracket-abstraction step lowers
+is classified `represented-as-addressed-links`. This label describes the
+representation and makes no ontological claim. A generation-only bracket-abstraction step lowers
 it to the runtime graph. The former host-side `buildSourceKernel` semantic
 description is absent and recorded as an eliminated
 `compiled-from-external-semantic-description` source.
@@ -138,7 +139,7 @@ data module with:
 node scripts/generate-combinator-kernel.mjs
 ```
 
-The output schema is `rml-bootstrap-metrics/v3`. The bootstrap workflow prints
+The output schema is `rml-bootstrap-metrics/v4`. The bootstrap workflow prints
 the full JSON report, while the JavaScript and Rust tests independently assert
 the counts, removal outcomes, closure, compression, runtime coverage, and
 generated-artifact parity. Run the focused equivalence experiment with

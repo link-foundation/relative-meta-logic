@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v3`. Run it with:
+`rml-alternative-foundation-search/v4`. Run it with:
 
 ```bash
 cd js
@@ -42,6 +42,8 @@ and the shared linked programs are in
 | Symmetric-comparison eligible | yes | no | no |
 | Formation boundary | Closed generated terms and source/artifact parity | Bound variables and acyclic imports | Range-restricted conclusions and finite bounds |
 | Control boundary | Contraction order and resource bound | Traversal order, cycle detection, and resource bounds | Fair saturation rounds and fact bound |
+| Ontology role | Executable control | Executable control | Executable control |
+| Constrains ontology search | no | no | no |
 
 Candidate A is the current bootstrap. Candidate B deliberately retains the
 pre-S/K reference interpreter as an independent control. Candidate C uses a
@@ -66,6 +68,40 @@ All three record the following separately:
 No candidate is declared equivalent to another. Equivalence remains
 `NOT_CLAIMED_WITHOUT_EXECUTABLE_BISIMULATION`.
 
+## Independent ontology investigation
+
+Version 4 does not convert a correctly documented boundary into a completed
+foundational result. The report sets `foundationStatus: OPEN` and
+`ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
+questions machine-readably unresolved:
+
+- link ontology;
+- primitive categories;
+- the structure/transformation relation;
+- intrinsic semantic authority; and
+- comparative minimality.
+
+Candidates A, B, and C have role `EXECUTABLE_CONTROL`. Their implementations
+are evidence about what can execute over the tested representations, but
+`existingCandidatesConstrainSearch` is `false`. No target architecture is
+selected, so a future investigation cannot use the presence of S/K,
+rewriting, or Horn clauses here as a reason to assume that any of their
+categories belongs at the foundation.
+
+The report also audits the words `data`, `operation`, `state`, `transition`,
+`interpreter`, `evaluator`, `rewrite`, `rule`, `function`, and `relation` as
+`IMPORTED_EXPERIMENTAL_VOCABULARY`. Their foundational status is
+`UNESTABLISHED`. For any proposed primitive, the acceptance protocol asks
+whether it was forced by the investigated phenomenon, derived from already
+established properties, or imported from a host representation or existing
+formalism. Successful execution, universality, self-hosting, elegance, and
+small size do not by themselves answer that provenance question.
+
+For the same reason, the authoritative semantic source is described as
+`represented-as-addressed-links`, not “link-native.” This establishes how it
+is represented. It does not claim that its categories or authority were
+derived from the intrinsic nature of links.
+
 ## Host-representation boundary audit
 
 The report executes an underdetermination witness over the host value
@@ -75,7 +111,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 3 makes
+That experiment does **not** identify the ontology of a link. Version 4 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -140,7 +176,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v3 comparison gate admits a candidate only if it passes the common
+The v4 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.
@@ -234,3 +270,8 @@ intrinsically separate, whether execution can arise from links themselves, a
 comparable alternative cohort, a winning foundation, global minimality,
 pairwise candidate equivalence, enumeration of every formal system, or full
 production implementations of Lean, Rocq, Rust, and JavaScript.
+
+Accordingly, identifying and enforcing these boundaries completes an audit,
+not the research questions themselves. The requirements ledger preserves that
+distinction by marking the ontology, intrinsic-authority, and combined
+foundational investigation rows `Open`.

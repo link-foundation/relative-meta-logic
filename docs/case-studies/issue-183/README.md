@@ -67,7 +67,7 @@ remain explicit non-semantic layers.
 The provenance report does not relabel S/K as laws of Links Theory. Upstream
 defines an addressed doublet network but no execution transition; the current
 S and K reductions are therefore recorded as two `externally-primitive` laws.
-The link source is `link-native`, while its six capabilities are
+The link source is `represented-as-addressed-links`, while its six capabilities are
 `derived-inside-system`. The executable zero-law candidate fails the complete
 probe. A separate iota witness preserves identity, discard, and duplication,
 but observes both S/K contractions; its single rule name is therefore an
@@ -96,9 +96,15 @@ only it currently passes the full-self-hosting comparison gate. The report
 therefore excludes the direct and Horn controls from ranking, names no
 smallest candidate, and keeps the comparative search open. Its executable
 two-model witness establishes only that the tested ordered-link host value
-does not select between two transition functions. Version 3 marks passivity,
+does not select between two transition functions. Version 4 marks passivity,
 external transition, and structure/transformation separation as experimental
 assumptions, and leaves link ontology and intrinsic authority unresolved.
+The v4 audit does not count that boundary as completion: it also keeps
+primitive categories, the structure/transformation relation, and comparative
+minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them
+from constraining an independent ontology search. Source provenance now says
+`represented-as-addressed-links`, which describes representation without
+claiming that the source's semantic categories are intrinsic to links.
 
 `links-meta-foundation` is an executable, links-defined `K1` meta-interpreter
 for object-encoded binding, matching, substitution, rule

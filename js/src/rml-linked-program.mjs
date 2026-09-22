@@ -269,7 +269,7 @@ const REMOVAL_CLASSIFICATIONS = Object.freeze([
 ]);
 
 const PROVENANCE_CLASSIFICATIONS = Object.freeze([
-  'link-native',
+  'represented-as-addressed-links',
   'derived-inside-system',
   'compiled-from-external-semantic-description',
   'externally-primitive',
@@ -632,9 +632,9 @@ class LinkedProgramRegistry {
       },
     };
     return cloneReportValue({
-      schema: 'rml-bootstrap-metrics/v3',
+      schema: 'rml-bootstrap-metrics/v4',
       previousRevision: PREVIOUS_METRIC_REVISION,
-      measurementScope: 'The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, links-meta-foundation result verification, and a zero-transition fault injection. The addressed-link source is native to the upstream network-duplet structure; S/K remain externally primitive transition laws. Necessity is relative to this representation and probe, not a claim of global irreducibility.',
+      measurementScope: 'The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, links-meta-foundation result verification, and a zero-transition fault injection. The source is represented as an addressed network aligned with the upstream network-duplet structure; S/K remain externally primitive transition laws. Necessity is relative to this representation and probe, not a claim of global irreducibility.',
       provenanceClassifications: PROVENANCE_CLASSIFICATIONS,
       removalClassifications: REMOVAL_CLASSIFICATIONS,
       current,
@@ -663,7 +663,7 @@ class LinkedProgramRegistry {
           semanticInformationReduced: null,
         },
         {
-          candidate: 's-k-over-link-native-source',
+          candidate: 's-k-over-addressed-link-source',
           classification: 'CURRENT_SUFFICIENT',
           surfaceLawCount: 2,
           residualExternalSemanticLawCount: 2,

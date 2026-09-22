@@ -340,7 +340,10 @@ fn executes_a_links_defined_meta_interpreter_above_an_explicit_k0_boundary() {
     assert_eq!(report.semantic_source.source_nodes, 1446);
     assert_eq!(report.semantic_source.runtime_nodes, 35674);
     assert_eq!(report.semantic_source.roots, 25);
-    assert_eq!(report.semantic_source.provenance, "link-native");
+    assert_eq!(
+        report.semantic_source.provenance,
+        "represented-as-addressed-links"
+    );
     assert!(
         !report
             .semantic_source
@@ -384,11 +387,11 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     let report = LinkedProgramRegistry::bootstrap_metrics_report(&source())
         .expect("bootstrap metrics must be reproducible");
 
-    assert_eq!(report.schema, "rml-bootstrap-metrics/v3");
+    assert_eq!(report.schema, "rml-bootstrap-metrics/v4");
     assert_eq!(
         report.provenance_classifications,
         vec![
-            "link-native",
+            "represented-as-addressed-links",
             "derived-inside-system",
             "compiled-from-external-semantic-description",
             "externally-primitive",
@@ -427,7 +430,7 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     );
     assert_eq!(
         report.semantic_provenance.authoritative_source.provenance,
-        "link-native"
+        "represented-as-addressed-links"
     );
     assert!(
         !report

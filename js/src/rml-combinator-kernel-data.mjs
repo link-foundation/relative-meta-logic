@@ -6,7 +6,7 @@ export const KERNEL_SOURCE_METADATA = Object.freeze({
   "upstreamModel": "network-duplet-function",
   "sourceNodes": 1446,
   "roots": 25,
-  "provenance": "link-native",
+  "provenance": "represented-as-addressed-links",
   "compiledFromExternalSemanticDescription": false
 });
 export default `rml-addressed-link-dag-v1

@@ -20,6 +20,9 @@ It executes three mechanisms without treating S/K as a native Links Theory
 law or ranking unequally reduced controls. Its two-model witness establishes
 only that the tested ordered-link host signature does not select between two
 transition functions; it leaves link ontology and intrinsic authority open.
+Its v4 audit also leaves primitive categories, the structure/transformation
+relation, and comparative minimality open; the three executed mechanisms are
+controls and do not define the ontology search space.
 
 If you have not read it yet, the companion piece is
 [`case-studies/issue-13/README.md`](./case-studies/issue-13/README.md),

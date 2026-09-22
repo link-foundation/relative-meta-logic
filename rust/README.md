@@ -169,6 +169,10 @@ non-combinator mechanisms to observe S/K. The same suite checks the
 host-representation boundary witness; the machine-readable report excludes
 the less-reduced controls from ranking, names no foundation winner, and leaves
 link ontology and intrinsic transition authority unresolved.
+The v4 audit separately keeps primitive categories, the
+structure/transformation relation, and comparative minimality unresolved;
+A/B/C are executable controls that cannot constrain the independent ontology
+search or select its target architecture.
 `MembershipSetStore` provides addressed
 membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,

@@ -127,7 +127,7 @@ function compileCombinatorSource(source) {
   return { metadata, roots: Object.fromEntries(compiledRoots) };
 }
 
-/** Compile link-native source to the compact addressed-doublet runtime graph. */
+/** Compile source represented as links to the compact addressed-doublet graph. */
 function serializeCombinatorSource(source) {
   const { roots } = compileCombinatorSource(source);
   const ids = new WeakMap();

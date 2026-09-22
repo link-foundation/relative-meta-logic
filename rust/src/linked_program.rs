@@ -44,7 +44,7 @@ const BOOTSTRAP_METRIC_PROBE_SOURCE: &str = r#"
 
 const PREVIOUS_METRIC_REVISION: &str = "8b39df510a083e5cbe2a56a72e6595aae7b48146";
 const PROVENANCE_CLASSIFICATIONS: &[&str] = &[
-    "link-native",
+    "represented-as-addressed-links",
     "derived-inside-system",
     "compiled-from-external-semantic-description",
     "externally-primitive",
@@ -381,6 +381,20 @@ pub struct LinkModelAssumption {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct FoundationalOpenQuestion {
+    pub id: &'static str,
+    pub status: &'static str,
+    pub question: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ImportedPrimitiveCategory {
+    pub id: &'static str,
+    pub provenance: &'static str,
+    pub foundational_status: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkRepresentationBoundaryReport {
     pub classification: &'static str,
     pub investigated_object: &'static str,
@@ -397,9 +411,19 @@ pub struct LinkRepresentationBoundaryReport {
     pub admissible_conclusion: &'static str,
     pub prohibited_conclusions: Vec<&'static str>,
     pub next_search_constraint: &'static str,
+    pub foundational_status: &'static str,
+    pub investigation_status: &'static str,
+    pub open_questions: Vec<FoundationalOpenQuestion>,
+    pub provenance_questions: Vec<&'static str>,
+    pub imported_primitive_categories: Vec<ImportedPrimitiveCategory>,
+    pub existing_candidates_role: &'static str,
+    pub existing_candidates_constrain_search: bool,
+    pub target_architecture_selected: bool,
+    pub comparison_scope: &'static str,
+    pub acceptance_criterion: &'static str,
 }
 
-/// Source-compatible name for the pre-v3 report type.
+/// Source-compatible name for the legacy intrinsic-authority report type.
 pub type IntrinsicLinkAuthorityReport = LinkRepresentationBoundaryReport;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -553,6 +577,64 @@ pub fn link_representation_boundary_report() -> LinkRepresentationBoundaryReport
             "links have no intrinsic transition authority",
         ],
         next_search_constraint: "Re-audit the model of a link before drawing an ontological or foundational conclusion; do not add another known calculus as evidence about link ontology.",
+        foundational_status: "OPEN",
+        investigation_status: "OPEN_INDEPENDENT_INVESTIGATION",
+        open_questions: vec![
+            FoundationalOpenQuestion {
+                id: "link-ontology",
+                status: "UNRESOLVED",
+                question: "What is a link before a host representation assigns categories to it?",
+            },
+            FoundationalOpenQuestion {
+                id: "primitive-categories",
+                status: "UNRESOLVED",
+                question: "Which, if any, primitive categories are forced by the investigated phenomenon?",
+            },
+            FoundationalOpenQuestion {
+                id: "structure-transformation-relation",
+                status: "UNRESOLVED",
+                question: "Is a distinction between structure and transformation derived or imported?",
+            },
+            FoundationalOpenQuestion {
+                id: "intrinsic-semantic-authority",
+                status: "UNRESOLVED",
+                question: "Can semantic authority arise from links without being supplied externally?",
+            },
+            FoundationalOpenQuestion {
+                id: "comparative-minimality",
+                status: "UNRESOLVED",
+                question: "Do independent derivations converge on a comparable minimal foundation?",
+            },
+        ],
+        provenance_questions: vec![
+            "Was the concept forced by the investigated link phenomenon?",
+            "Was the concept derived from already established properties?",
+            "Was the concept imported from an existing formalism or host representation?",
+        ],
+        imported_primitive_categories: [
+            "data",
+            "operation",
+            "state",
+            "transition",
+            "interpreter",
+            "evaluator",
+            "rewrite",
+            "rule",
+            "function",
+            "relation",
+        ]
+        .into_iter()
+        .map(|id| ImportedPrimitiveCategory {
+            id,
+            provenance: "IMPORTED_EXPERIMENTAL_VOCABULARY",
+            foundational_status: "UNESTABLISHED",
+        })
+        .collect(),
+        existing_candidates_role: "EXECUTABLE_CONTROLS_ONLY",
+        existing_candidates_constrain_search: false,
+        target_architecture_selected: false,
+        comparison_scope: "EXECUTION_ARCHITECTURE_ONLY_NOT_ONTOLOGY",
+        acceptance_criterion: "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient.",
     }
 }
 
@@ -824,7 +906,7 @@ impl LinkedProgramRegistry {
                 source_nodes: source.source_nodes,
                 runtime_nodes: source.runtime_nodes,
                 roots: source.roots,
-                provenance: "link-native",
+                provenance: "represented-as-addressed-links",
                 compiled_from_external_semantic_description: false,
             },
             semantic_law_provenance: vec![
@@ -1464,9 +1546,9 @@ impl LinkedProgramRegistry {
         ];
         let iota_operations = combinator_kernel::iota_equivalence_operations()?;
         Ok(BootstrapMetricsReport {
-            schema: "rml-bootstrap-metrics/v3",
+            schema: "rml-bootstrap-metrics/v4",
             previous_revision: PREVIOUS_METRIC_REVISION,
-            measurement_scope: "The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, links-meta-foundation result verification, and a zero-transition fault injection. The addressed-link source is native to the upstream network-duplet structure; S/K remain externally primitive transition laws. Necessity is relative to this representation and probe, not a claim of global irreducibility.",
+            measurement_scope: "The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, links-meta-foundation result verification, and a zero-transition fault injection. The source is represented as an addressed network aligned with the upstream network-duplet structure; S/K remain externally primitive transition laws. Necessity is relative to this representation and probe, not a claim of global irreducibility.",
             provenance_classifications: PROVENANCE_CLASSIFICATIONS.to_vec(),
             removal_classifications: REMOVAL_CLASSIFICATIONS.to_vec(),
             current,
@@ -1505,7 +1587,7 @@ impl LinkedProgramRegistry {
                     semantic_information_reduced: None,
                 },
                 BootstrapFoundationSearchExperiment {
-                    candidate: "s-k-over-link-native-source",
+                    candidate: "s-k-over-addressed-link-source",
                     classification: "CURRENT_SUFFICIENT",
                     surface_law_count: 2,
                     residual_external_semantic_law_count: 2,
