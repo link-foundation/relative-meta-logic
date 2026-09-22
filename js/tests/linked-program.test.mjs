@@ -78,6 +78,32 @@ describe('links-defined universal program evaluator', () => {
     ]);
   });
 
+  it('preserves proof-round capacity and unnormalized proof witnesses', () => {
+    const programs = registry(`
+      (linked-program normalized-proofs)
+      (linked-rewrite normalized-proofs unwrap
+        (from (wrapped ?value))
+        (to ?value))
+      (linked-fact normalized-proofs seed
+        (judgement (wrapped seed)))
+      (linked-inference normalized-proofs first
+        (premise seed)
+        (conclusion (wrapped intermediate)))
+      (linked-inference normalized-proofs second
+        (premise intermediate)
+        (conclusion (wrapped goal)))
+    `);
+
+    const result = programs.prove('normalized-proofs', 'goal', { maxRounds: 1 });
+    assert.equal(result.ok, true);
+    assert.deepEqual(result.proof.judgement, ['wrapped', 'goal']);
+    assert.deepEqual(result.proof.premises[0].judgement, ['wrapped', 'intermediate']);
+    assert.deepEqual(
+      result.proof.premises[0].premises[0].judgement,
+      ['wrapped', 'seed'],
+    );
+  });
+
   it('defines finite sets, graphs, relations, and dependent typing as programs', () => {
     const programs = registry();
     const set = ['cons', 'a', ['cons', 'b', ['empty']]];
@@ -256,19 +282,14 @@ describe('links-defined universal program evaluator', () => {
     assert.equal(report.status, 'current-bootstrap-boundary');
     assert.equal(report.claimsIrreducible, false);
     assert.deepEqual(report.operations, [
+      'contract-s-link',
+      'contract-k-link',
       'parse-linked-forms',
-      'compare-link-structure',
-      'bind-pattern-variables',
-      'substitute-bound-structures',
-      'select-and-traverse-rewrite-rules',
       'enforce-cycle-and-resource-bounds',
     ]);
-    assert.deepEqual(report.derivedHostServices, [
-      'resolve-and-rebind-program-imports',
-      'saturate-inference-rules',
-    ]);
+    assert.deepEqual(report.derivedHostServices, []);
     assert.deepEqual(report.objectSemantics, []);
-    assert.equal(report.minimizationExperiments.length, 8);
+    assert.equal(report.minimizationExperiments.length, 4);
     assert.deepEqual(
       new Set(report.minimizationExperiments.map(experiment => experiment.operation)),
       new Set([...report.operations, ...report.derivedHostServices]),
@@ -297,71 +318,53 @@ describe('links-defined universal program evaluator', () => {
       'EQUIVALENT_REENCODING',
       'UNKNOWN',
     ]);
-    assert.equal(report.current.totalHostSemanticOperations, 8);
+    assert.equal(report.current.totalHostSemanticOperations, 2);
     assert.deepEqual(report.current.independentHostPrimitives, {
-      confirmed: 0,
-      unknown: 8,
+      confirmed: 2,
+      unknown: 0,
     });
-    assert.equal(report.current.derivedHostSemanticServices, 2);
-    assert.equal(report.current.duplicatedSemanticCapabilities, 3);
+    assert.equal(report.current.derivedHostSemanticServices, 0);
+    assert.equal(report.current.duplicatedSemanticCapabilities, 0);
     assert.equal(report.current.objectSpecificHostSemantics, 0);
     assert.equal(report.current.undocumentedSemanticPaths, 0);
     assert.deepEqual(report.current.selfHostingClosure, {
-      task: 'textual-load-through-links-meta-foundation-verification',
-      linkedCapabilities: 4,
+      task: 'linked-load-import-reduce-infer-and-self-verify-above-residual-basis',
+      linkedCapabilities: 6,
       linkedCapabilityNames: [
         'matching',
         'substitution',
-        'rule-selection',
+        'rule-selection-and-traversal',
+        'import-and-rebinding',
+        'inference-saturation',
         'result-verification',
       ],
-      hostCapabilities: 7,
-      hostCapabilityNames: [
-        'bind-pattern-variables',
-        'compare-link-structure',
-        'enforce-cycle-and-resource-bounds',
-        'parse-linked-forms',
-        'resolve-and-rebind-program-imports',
-        'select-and-traverse-rewrite-rules',
-        'substitute-bound-structures',
-      ],
-      totalCapabilities: 11,
-      numerator: 4,
-      denominator: 11,
+      hostCapabilities: 0,
+      hostCapabilityNames: [],
+      totalCapabilities: 6,
+      numerator: 6,
+      denominator: 6,
     });
     assert.deepEqual(report.current.foundationCompression, {
-      basis: 'host-operation fault injection over the declared acceptance probe',
-      smallestSufficientHostOperations: 8,
+      basis: 'semantic-operation fault injection over the complete acceptance probe',
+      smallestSufficientHostOperations: 2,
       originalHostOperations: 8,
       candidateOperations: [
-        'parse-linked-forms',
-        'compare-link-structure',
-        'bind-pattern-variables',
-        'substitute-bound-structures',
-        'select-and-traverse-rewrite-rules',
-        'enforce-cycle-and-resource-bounds',
-        'resolve-and-rebind-program-imports',
-        'saturate-inference-rules',
+        'contract-s-link',
+        'contract-k-link',
       ],
       sufficientOperations: [
-        'parse-linked-forms',
-        'compare-link-structure',
-        'bind-pattern-variables',
-        'substitute-bound-structures',
-        'select-and-traverse-rewrite-rules',
-        'enforce-cycle-and-resource-bounds',
-        'resolve-and-rebind-program-imports',
-        'saturate-inference-rules',
+        'contract-s-link',
+        'contract-k-link',
       ],
-      numerator: 8,
+      numerator: 2,
       denominator: 8,
     });
 
     assert.deepEqual(
       report.hostSemanticLayers.map(({ layer, count }) => [layer, count]),
       [
-        ['semantic-bootstrap', 4],
-        ['derived-host-semantics', 2],
+        ['semantic-bootstrap', 2],
+        ['derived-host-semantics', 0],
         ['representation-parsing', 1],
         ['execution-control-resource-bounds', 1],
         ['debugging-observability', 0],
@@ -375,11 +378,22 @@ describe('links-defined universal program evaluator', () => {
         ...LinkedProgramRegistry.bootstrapKernelReport().derivedHostServices,
       ]),
     );
-    assert.equal(report.removalExperiments.length, 8);
+    assert.equal(report.removalExperiments.length, 4);
     assert.ok(report.removalExperiments.every(experiment =>
-      experiment.classification === 'UNKNOWN' &&
       experiment.baselinePreserved === false &&
       experiment.observedFailure.length > 0));
+    assert.deepEqual(
+      Object.fromEntries(report.removalExperiments.map(experiment => [
+        experiment.operation,
+        experiment.classification,
+      ])),
+      {
+        'parse-linked-forms': 'UNKNOWN',
+        'contract-s-link': 'INDEPENDENT',
+        'contract-k-link': 'INDEPENDENT',
+        'enforce-cycle-and-resource-bounds': 'UNKNOWN',
+      },
+    );
     assert.deepEqual(
       new Set(report.removalExperiments.map(experiment => experiment.operation)),
       new Set([
@@ -387,15 +401,12 @@ describe('links-defined universal program evaluator', () => {
         ...LinkedProgramRegistry.bootstrapKernelReport().derivedHostServices,
       ]),
     );
-    assert.deepEqual(
-      report.hostLinkedDuplications.map(duplication => duplication.capability),
-      ['matching', 'substitution', 'rule-selection'],
-    );
+    assert.deepEqual(report.hostLinkedDuplications, []);
     assert.deepEqual(report.runtimeTrustGraphCoverage.undocumentedPaths, []);
     assert.deepEqual(report.runtimeTrustGraphCoverage.undocumentedOperations, []);
     assert.deepEqual(report.runtimeTrustGraphCoverage.undocumentedPathSegments, []);
     assert.equal(report.runtimeTrustGraphCoverage.totalObservedPaths, 4);
-    assert.equal(report.runtimeTrustGraphCoverage.totalObservedPathSegments, 19);
+    assert.equal(report.runtimeTrustGraphCoverage.totalObservedPathSegments, 10);
     assert.equal(
       report.runtimeTrustGraphCoverage.documentedObservedPaths,
       report.runtimeTrustGraphCoverage.totalObservedPaths,
@@ -408,8 +419,8 @@ describe('links-defined universal program evaluator', () => {
     assert.deepEqual(report.comparison[0], {
       metric: 'total-host-semantic-operations',
       previous: 8,
-      current: 8,
-      delta: 0,
+      current: 2,
+      delta: -6,
     });
     assert.equal(
       report.previousRevision,
@@ -423,16 +434,45 @@ describe('links-defined universal program evaluator', () => {
         delta,
       ]),
       [
-        ['total-host-semantic-operations', 8, 8, 0],
-        ['independent-host-primitives', null, '0 confirmed; 8 unknown', null],
-        ['derived-host-semantic-services', 2, 2, 0],
-        ['host-linked-duplicated-semantics', null, 3, null],
+        ['total-host-semantic-operations', 8, 2, -6],
+        ['independent-host-primitives', null, '2 confirmed; 0 unknown', null],
+        ['derived-host-semantic-services', 2, 0, -2],
+        ['host-linked-duplicated-semantics', null, 0, null],
         ['object-specific-host-semantics', 0, 0, 0],
         ['undocumented-semantic-paths', null, 0, null],
-        ['self-hosting-closure', null, '4/11', null],
-        ['foundation-compression-ratio', null, '8/8', null],
+        ['self-hosting-closure', null, '6/6', null],
+        ['foundation-compression-ratio', null, '2/8', null],
       ],
     );
+  });
+
+  it('closes the linked semantic path over a non-duplicating residual basis', () => {
+    const report = LinkedProgramRegistry.bootstrapMetricsReport(source);
+
+    assert.deepEqual(report.current.residualSemanticBasis, {
+      operations: ['contract-s-link', 'contract-k-link'],
+      experimentallyNecessary: 2,
+      equivalentOneRuleBases: ['iota'],
+    });
+    assert.equal(report.current.derivedHostSemanticServices, 0);
+    assert.equal(report.current.duplicatedSemanticCapabilities, 0);
+    assert.deepEqual(report.current.selfHostingClosure, {
+      task: 'linked-load-import-reduce-infer-and-self-verify-above-residual-basis',
+      linkedCapabilities: 6,
+      linkedCapabilityNames: [
+        'matching',
+        'substitution',
+        'rule-selection-and-traversal',
+        'import-and-rebinding',
+        'inference-saturation',
+        'result-verification',
+      ],
+      hostCapabilities: 0,
+      hostCapabilityNames: [],
+      totalCapabilities: 6,
+      numerator: 6,
+      denominator: 6,
+    });
   });
 
   it('self-interprets a non-trivial fragment of its own matching semantics', () => {

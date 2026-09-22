@@ -75,6 +75,39 @@ fn derives_judgements_through_user_defined_inference() {
 }
 
 #[test]
+fn preserves_proof_round_capacity_and_unnormalized_proof_witnesses() {
+    let programs = registry(
+        "(linked-program normalized-proofs)\n\
+         (linked-rewrite normalized-proofs unwrap\n\
+           (from (wrapped ?value))\n\
+           (to ?value))\n\
+         (linked-fact normalized-proofs seed (judgement (wrapped seed)))\n\
+         (linked-inference normalized-proofs first\n\
+           (premise seed)\n\
+           (conclusion (wrapped intermediate)))\n\
+         (linked-inference normalized-proofs second\n\
+           (premise intermediate)\n\
+           (conclusion (wrapped goal)))",
+    );
+    let proof = programs
+        .prove(
+            "normalized-proofs",
+            &Node::Leaf("goal".to_string()),
+            &[],
+            1,
+            10_000,
+        )
+        .expect("one legacy round retains capacity for multiple derivations");
+
+    assert_eq!(proof.judgement, node("(wrapped goal)"));
+    assert_eq!(proof.premises[0].judgement, node("(wrapped intermediate)"));
+    assert_eq!(
+        proof.premises[0].premises[0].judgement,
+        node("(wrapped seed)")
+    );
+}
+
+#[test]
 fn defines_sets_graphs_relations_and_types_as_linked_programs() {
     let programs = registry("");
     let set = node("(cons a (cons b (empty)))");
@@ -283,23 +316,15 @@ fn executes_a_links_defined_meta_interpreter_above_an_explicit_k0_boundary() {
     assert_eq!(
         report.operations,
         [
+            "contract-s-link",
+            "contract-k-link",
             "parse-linked-forms",
-            "compare-link-structure",
-            "bind-pattern-variables",
-            "substitute-bound-structures",
-            "select-and-traverse-rewrite-rules",
             "enforce-cycle-and-resource-bounds",
         ]
     );
-    assert_eq!(
-        report.derived_host_services,
-        [
-            "resolve-and-rebind-program-imports",
-            "saturate-inference-rules",
-        ]
-    );
+    assert!(report.derived_host_services.is_empty());
     assert!(report.object_semantics.is_empty());
-    assert_eq!(report.minimization_experiments.len(), 8);
+    assert_eq!(report.minimization_experiments.len(), 4);
     assert!(report
         .trust_graph
         .nodes
@@ -332,53 +357,48 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
             "UNKNOWN",
         ]
     );
-    assert_eq!(report.current.total_host_semantic_operations, 8);
-    assert_eq!(report.current.independent_host_primitives.confirmed, 0);
-    assert_eq!(report.current.independent_host_primitives.unknown, 8);
-    assert_eq!(report.current.derived_host_semantic_services, 2);
-    assert_eq!(report.current.duplicated_semantic_capabilities, 3);
+    assert_eq!(report.current.total_host_semantic_operations, 2);
+    assert_eq!(report.current.independent_host_primitives.confirmed, 2);
+    assert_eq!(report.current.independent_host_primitives.unknown, 0);
+    assert_eq!(report.current.derived_host_semantic_services, 0);
+    assert_eq!(report.current.duplicated_semantic_capabilities, 0);
     assert_eq!(report.current.object_specific_host_semantics, 0);
     assert_eq!(report.current.undocumented_semantic_paths, 0);
-    assert_eq!(report.current.self_hosting_closure.linked_capabilities, 4);
+    assert_eq!(report.current.self_hosting_closure.linked_capabilities, 6);
     assert_eq!(
         report.current.self_hosting_closure.task,
-        "textual-load-through-links-meta-foundation-verification"
+        "linked-load-import-reduce-infer-and-self-verify-above-residual-basis"
     );
     assert_eq!(
         report.current.self_hosting_closure.linked_capability_names,
         vec![
             "matching",
             "substitution",
-            "rule-selection",
+            "rule-selection-and-traversal",
+            "import-and-rebinding",
+            "inference-saturation",
             "result-verification",
         ]
     );
-    assert_eq!(report.current.self_hosting_closure.host_capabilities, 7);
-    assert_eq!(
-        report.current.self_hosting_closure.host_capability_names,
-        vec![
-            "bind-pattern-variables",
-            "compare-link-structure",
-            "enforce-cycle-and-resource-bounds",
-            "parse-linked-forms",
-            "resolve-and-rebind-program-imports",
-            "select-and-traverse-rewrite-rules",
-            "substitute-bound-structures",
-        ]
-    );
-    assert_eq!(report.current.self_hosting_closure.total_capabilities, 11);
-    assert_eq!(report.current.self_hosting_closure.numerator, 4);
-    assert_eq!(report.current.self_hosting_closure.denominator, 11);
+    assert_eq!(report.current.self_hosting_closure.host_capabilities, 0);
+    assert!(report
+        .current
+        .self_hosting_closure
+        .host_capability_names
+        .is_empty());
+    assert_eq!(report.current.self_hosting_closure.total_capabilities, 6);
+    assert_eq!(report.current.self_hosting_closure.numerator, 6);
+    assert_eq!(report.current.self_hosting_closure.denominator, 6);
     assert_eq!(
         report
             .current
             .foundation_compression
             .smallest_sufficient_host_operations,
-        8
+        2
     );
     assert_eq!(
         report.current.foundation_compression.basis,
-        "host-operation fault injection over the declared acceptance probe"
+        "semantic-operation fault injection over the complete acceptance probe"
     );
     assert_eq!(
         report.current.foundation_compression.candidate_operations,
@@ -386,16 +406,7 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     );
     assert_eq!(
         report.current.foundation_compression.candidate_operations,
-        vec![
-            "parse-linked-forms",
-            "compare-link-structure",
-            "bind-pattern-variables",
-            "substitute-bound-structures",
-            "select-and-traverse-rewrite-rules",
-            "enforce-cycle-and-resource-bounds",
-            "resolve-and-rebind-program-imports",
-            "saturate-inference-rules",
-        ]
+        vec!["contract-s-link", "contract-k-link"]
     );
     assert_eq!(
         report
@@ -404,8 +415,26 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
             .original_host_operations,
         8
     );
-    assert_eq!(report.current.foundation_compression.numerator, 8);
+    assert_eq!(report.current.foundation_compression.numerator, 2);
     assert_eq!(report.current.foundation_compression.denominator, 8);
+    assert_eq!(
+        report.current.residual_semantic_basis.operations,
+        vec!["contract-s-link", "contract-k-link"]
+    );
+    assert_eq!(
+        report
+            .current
+            .residual_semantic_basis
+            .experimentally_necessary,
+        2
+    );
+    assert_eq!(
+        report
+            .current
+            .residual_semantic_basis
+            .equivalent_one_rule_bases,
+        vec!["iota"]
+    );
 
     assert_eq!(
         report
@@ -414,8 +443,8 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
             .map(|layer| (layer.layer, layer.count))
             .collect::<Vec<_>>(),
         vec![
-            ("semantic-bootstrap", 4),
-            ("derived-host-semantics", 2),
+            ("semantic-bootstrap", 2),
+            ("derived-host-semantics", 0),
             ("representation-parsing", 1),
             ("execution-control-resource-bounds", 1),
             ("debugging-observability", 0),
@@ -439,20 +468,24 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
             .copied()
             .collect::<std::collections::BTreeSet<_>>()
     );
-    assert_eq!(report.removal_experiments.len(), 8);
+    assert_eq!(report.removal_experiments.len(), 4);
     assert!(report.removal_experiments.iter().all(|experiment| {
-        experiment.classification == "UNKNOWN"
-            && !experiment.baseline_preserved
-            && !experiment.observed_failure.is_empty()
+        !experiment.baseline_preserved && !experiment.observed_failure.is_empty()
     }));
     assert_eq!(
         report
-            .host_linked_duplications
+            .removal_experiments
             .iter()
-            .map(|duplication| duplication.capability)
-            .collect::<Vec<_>>(),
-        vec!["matching", "substitution", "rule-selection"]
+            .map(|experiment| (experiment.operation, experiment.classification))
+            .collect::<std::collections::BTreeMap<_, _>>(),
+        std::collections::BTreeMap::from([
+            ("contract-s-link", "INDEPENDENT"),
+            ("contract-k-link", "INDEPENDENT"),
+            ("parse-linked-forms", "UNKNOWN"),
+            ("enforce-cycle-and-resource-bounds", "UNKNOWN"),
+        ])
     );
+    assert!(report.host_linked_duplications.is_empty());
     assert!(report
         .runtime_trust_graph_coverage
         .undocumented_paths
@@ -470,7 +503,7 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
         report
             .runtime_trust_graph_coverage
             .total_observed_path_segments,
-        19
+        10
     );
     assert_eq!(
         report
@@ -490,8 +523,8 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     let total = &report.comparison[0];
     assert_eq!(total.metric, "total-host-semantic-operations");
     assert_eq!(total.previous.as_deref(), Some("8"));
-    assert_eq!(total.current, "8");
-    assert_eq!(total.delta.as_deref(), Some("0"));
+    assert_eq!(total.current, "2");
+    assert_eq!(total.delta.as_deref(), Some("-6"));
     assert_eq!(
         report.previous_revision,
         "e2e9f7b2a87d4b128bb736d693d5512509974860"
@@ -508,19 +541,19 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
             ))
             .collect::<Vec<_>>(),
         vec![
-            ("total-host-semantic-operations", Some("8"), "8", Some("0"),),
+            ("total-host-semantic-operations", Some("8"), "2", Some("-6"),),
             (
                 "independent-host-primitives",
                 None,
-                "0 confirmed; 8 unknown",
+                "2 confirmed; 0 unknown",
                 None,
             ),
-            ("derived-host-semantic-services", Some("2"), "2", Some("0"),),
-            ("host-linked-duplicated-semantics", None, "3", None),
+            ("derived-host-semantic-services", Some("2"), "0", Some("-2"),),
+            ("host-linked-duplicated-semantics", None, "0", None),
             ("object-specific-host-semantics", Some("0"), "0", Some("0")),
             ("undocumented-semantic-paths", None, "0", None),
-            ("self-hosting-closure", None, "4/11", None),
-            ("foundation-compression-ratio", None, "8/8", None),
+            ("self-hosting-closure", None, "6/6", None),
+            ("foundation-compression-ratio", None, "2/8", None),
         ]
     );
 }

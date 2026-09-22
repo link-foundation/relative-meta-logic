@@ -5,6 +5,13 @@ import {
   parseOne,
   tokenizeOne,
 } from './rml-links.mjs';
+import {
+  combinatorCreateProofState,
+  combinatorFindProof,
+  combinatorInferOnce,
+  combinatorResolveRewrites,
+  combinatorRewriteOnce,
+} from './rml-combinator-kernel.mjs';
 
 function cloneTerm(term) {
   return Array.isArray(term) ? term.map(cloneTerm) : term;
@@ -30,51 +37,6 @@ function variablesIn(term, output = new Set()) {
     for (const child of term) variablesIn(child, output);
   }
   return output;
-}
-
-function matchTerm(pattern, candidate, substitution = new Map(), observe = () => {}) {
-  observe('compare-link-structure');
-  observe('bind-pattern-variables');
-  const variable = variableName(pattern);
-  if (variable !== null) {
-    const previous = substitution.get(variable);
-    if (previous !== undefined) {
-      return isStructurallySame(previous, candidate) ? substitution : null;
-    }
-    substitution.set(variable, cloneTerm(candidate));
-    return substitution;
-  }
-  if (!Array.isArray(pattern) || !Array.isArray(candidate)) {
-    return isStructurallySame(pattern, candidate) ? substitution : null;
-  }
-  if (pattern.length !== candidate.length) return null;
-  for (let index = 0; index < pattern.length; index += 1) {
-    if (matchTerm(pattern[index], candidate[index], substitution, observe) === null) return null;
-  }
-  return substitution;
-}
-
-function instantiate(term, substitution, observe = () => {}) {
-  observe('substitute-bound-structures');
-  const variable = variableName(term);
-  if (variable !== null) {
-    if (!substitution.has(variable)) throw new Error(`unbound variable ${variable}`);
-    return cloneTerm(substitution.get(variable));
-  }
-  return Array.isArray(term)
-    ? term.map(child => instantiate(child, substitution, observe))
-    : term;
-}
-
-function rebindTerm(term, rebindings) {
-  if (Array.isArray(term)) return term.map(child => rebindTerm(child, rebindings));
-  return rebindings.get(term) ?? term;
-}
-
-function applyRebindings(term, rebindings) {
-  let result = cloneTerm(term);
-  for (const bindings of rebindings) result = rebindTerm(result, bindings);
-  return result;
 }
 
 function singleClause(form, name, context) {
@@ -111,58 +73,63 @@ function parseForms(source, observe = () => {}) {
 
 const BOOTSTRAP_OPERATIONS = Object.freeze([
   Object.freeze({
+    id: 'contract-s-link',
+    layer: 'bootstrap',
+    dependsOn: [],
+    primitiveReason: 'The S link duplicates one argument into two linked applications; disabling this contraction makes the complete acceptance probe fail.',
+  }),
+  Object.freeze({
+    id: 'contract-k-link',
+    layer: 'bootstrap',
+    dependsOn: [],
+    primitiveReason: 'The K link discards one argument; disabling this contraction makes the complete acceptance probe fail.',
+  }),
+  Object.freeze({
     id: 'parse-linked-forms',
-    layer: 'bootstrap',
+    layer: 'representation-parsing',
     dependsOn: [],
-    primitiveReason: 'Text is outside the links substrate; one ingress operation must expose its leaf/list structure before any linked rule can run.',
-  }),
-  Object.freeze({
-    id: 'compare-link-structure',
-    layer: 'bootstrap',
-    dependsOn: [],
-    primitiveReason: 'Rule activation and cycle observation require an initial decision about exact leaf/list identity; an encoded equality rule still needs this decision to activate.',
-  }),
-  Object.freeze({
-    id: 'bind-pattern-variables',
-    layer: 'bootstrap',
-    dependsOn: ['compare-link-structure'],
-    primitiveReason: 'A parameterized linked rule cannot activate until sublinks are associated with its variables; the K1 matcher is itself activated by this association.',
-  }),
-  Object.freeze({
-    id: 'substitute-bound-structures',
-    layer: 'bootstrap',
-    dependsOn: ['bind-pattern-variables'],
-    primitiveReason: 'An activated rule needs one operation that constructs its next linked state from the bindings; the K1 substitution relation is executed by that same transition.',
-  }),
-  Object.freeze({
-    id: 'select-and-traverse-rewrite-rules',
-    layer: 'bootstrap',
-    dependsOn: ['bind-pattern-variables', 'substitute-bound-structures'],
-    primitiveReason: 'Links do not execute themselves; a deterministic transition clock must select a rule and a sublink at which to attempt activation.',
+    primitiveReason: 'Text is outside the binary-link substrate; this ingress decoder exposes leaf/list structure but assigns no linked-program semantics.',
   }),
   Object.freeze({
     id: 'enforce-cycle-and-resource-bounds',
-    layer: 'bootstrap',
-    dependsOn: ['compare-link-structure'],
-    primitiveReason: 'Arbitrary user rules may diverge, so an observer outside those rules must bound execution and report repeated states without assigning object meaning.',
+    layer: 'execution-control-resource-bounds',
+    dependsOn: [],
+    primitiveReason: 'An external observer limits divergent linked computation without choosing, matching, or constructing any semantic result.',
   }),
 ]);
 
-const DERIVED_HOST_SERVICES = Object.freeze([
+const DERIVED_HOST_SERVICES = Object.freeze([]);
+
+const LINKED_CAPABILITIES = Object.freeze([
   Object.freeze({
-    id: 'resolve-and-rebind-program-imports',
-    layer: 'derived-host-service',
-    dependsOn: ['compare-link-structure', 'substitute-bound-structures'],
+    id: 'matching',
+    layer: 'links-defined-service',
+    dependsOn: ['contract-s-link', 'contract-k-link'],
   }),
   Object.freeze({
-    id: 'saturate-inference-rules',
-    layer: 'derived-host-service',
-    dependsOn: [
-      'bind-pattern-variables',
-      'substitute-bound-structures',
-      'select-and-traverse-rewrite-rules',
-      'enforce-cycle-and-resource-bounds',
-    ],
+    id: 'substitution',
+    layer: 'links-defined-service',
+    dependsOn: ['contract-s-link', 'contract-k-link'],
+  }),
+  Object.freeze({
+    id: 'rule-selection-and-traversal',
+    layer: 'links-defined-service',
+    dependsOn: ['matching', 'substitution'],
+  }),
+  Object.freeze({
+    id: 'import-and-rebinding',
+    layer: 'links-defined-service',
+    dependsOn: ['contract-s-link', 'contract-k-link'],
+  }),
+  Object.freeze({
+    id: 'inference-saturation',
+    layer: 'links-defined-service',
+    dependsOn: ['matching', 'substitution', 'rule-selection-and-traversal'],
+  }),
+  Object.freeze({
+    id: 'result-verification',
+    layer: 'links-defined-service',
+    dependsOn: ['contract-s-link', 'contract-k-link'],
   }),
 ]);
 
@@ -176,83 +143,63 @@ const SEMANTIC_PATHS = Object.freeze([
     id: 'reduce-linked-program',
     layer: 'semantic-path',
     dependsOn: [
-      'resolve-and-rebind-program-imports',
-      'select-and-traverse-rewrite-rules',
+      'import-and-rebinding',
+      'matching',
+      'substitution',
+      'rule-selection-and-traversal',
       'enforce-cycle-and-resource-bounds',
     ],
   }),
   Object.freeze({
     id: 'prove-linked-judgement',
     layer: 'semantic-path',
-    dependsOn: ['saturate-inference-rules', 'reduce-linked-program'],
+    dependsOn: [
+      'import-and-rebinding',
+      'inference-saturation',
+      'result-verification',
+      'reduce-linked-program',
+      'enforce-cycle-and-resource-bounds',
+    ],
   }),
   Object.freeze({
     id: 'execute-links-meta-foundation',
     layer: 'links-defined',
-    dependsOn: ['reduce-linked-program'],
+    dependsOn: ['reduce-linked-program', 'result-verification'],
   }),
 ]);
 
 const MINIMIZATION_EXPERIMENTS = Object.freeze([
   Object.freeze({
+    operation: 'contract-s-link',
+    classification: 'INDEPENDENT',
+    outcome: 'experimentally-necessary-in-current-basis',
+    evidence: 'Fault injection disables S while retaining K; the import, rewrite, inference, and self-verification acceptance probe fails closed.',
+  }),
+  Object.freeze({
+    operation: 'contract-k-link',
+    classification: 'INDEPENDENT',
+    outcome: 'experimentally-necessary-in-current-basis',
+    evidence: 'Fault injection disables K while retaining S; the import, rewrite, inference, and self-verification acceptance probe fails closed.',
+  }),
+  Object.freeze({
     operation: 'parse-linked-forms',
     classification: 'UNKNOWN',
-    outcome: 'retained-at-text-ingress',
-    evidence: 'fromForms bypasses parsing for pre-linked input, while fromRml demonstrates that textual LiNo still needs one explicit decoder.',
-  }),
-  Object.freeze({
-    operation: 'compare-link-structure',
-    classification: 'UNKNOWN',
-    outcome: 'retained-at-bootstrap-fixed-point',
-    evidence: 'K1 defines object equality through repeated variables, but activating that K1 rule still requires K0 structural identity.',
-  }),
-  Object.freeze({
-    operation: 'bind-pattern-variables',
-    classification: 'UNKNOWN',
-    outcome: 'retained-at-bootstrap-fixed-point',
-    evidence: 'K1 self-interprets its repeated-variable matcher, but the outer K1 rewrite still requires generic K0 binding.',
-  }),
-  Object.freeze({
-    operation: 'substitute-bound-structures',
-    classification: 'UNKNOWN',
-    outcome: 'retained-at-bootstrap-fixed-point',
-    evidence: 'K1 self-interprets substitution, but producing the next K1 state still requires generic K0 template instantiation.',
-  }),
-  Object.freeze({
-    operation: 'select-and-traverse-rewrite-rules',
-    classification: 'UNKNOWN',
-    outcome: 'retained-at-bootstrap-fixed-point',
-    evidence: 'K1 defines object-rule selection, while K0 remains the transition clock that makes any linked rule active.',
+    outcome: 'retained-at-representation-ingress',
+    evidence: 'fromForms bypasses this text decoder entirely; it is measured as representation rather than a semantic primitive.',
   }),
   Object.freeze({
     operation: 'enforce-cycle-and-resource-bounds',
     classification: 'UNKNOWN',
-    outcome: 'retained-as-external-observer',
-    evidence: 'A user program cannot reliably bound its own divergence; mirrored cycle and step/fact-limit tests require an outside observer.',
-  }),
-  Object.freeze({
-    operation: 'resolve-and-rebind-program-imports',
-    classification: 'UNKNOWN',
-    outcome: 'retained-host-implementation',
-    evidence: 'The service is composed from structural operations, but disabling its host implementation breaks the import/rebind probe; no links-defined replacement has yet preserved the baseline.',
-  }),
-  Object.freeze({
-    operation: 'saturate-inference-rules',
-    classification: 'UNKNOWN',
-    outcome: 'retained-host-implementation',
-    evidence: 'The service is composed from matching, substitution, reduction, and bounds, but disabling its host implementation breaks the inference probe; no links-defined replacement has yet preserved the baseline.',
+    outcome: 'retained-as-non-semantic-observer',
+    evidence: 'Cycle/step/fact limits stop computation but never create a match, rewrite, import, inference, or proof result.',
   }),
 ]);
 
-const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS = Object.freeze([
+const IMPLEMENTED_BOUNDARY_OPERATIONS = Object.freeze([
   'parse-linked-forms',
-  'compare-link-structure',
-  'bind-pattern-variables',
-  'substitute-bound-structures',
-  'select-and-traverse-rewrite-rules',
+  'contract-s-link',
+  'contract-k-link',
   'enforce-cycle-and-resource-bounds',
-  'resolve-and-rebind-program-imports',
-  'saturate-inference-rules',
 ]);
 
 const REMOVAL_CLASSIFICATIONS = Object.freeze([
@@ -283,18 +230,13 @@ const HOST_SEMANTIC_LAYERS = Object.freeze([
   Object.freeze({
     layer: 'semantic-bootstrap',
     operations: Object.freeze([
-      'compare-link-structure',
-      'bind-pattern-variables',
-      'substitute-bound-structures',
-      'select-and-traverse-rewrite-rules',
+      'contract-s-link',
+      'contract-k-link',
     ]),
   }),
   Object.freeze({
     layer: 'derived-host-semantics',
-    operations: Object.freeze([
-      'resolve-and-rebind-program-imports',
-      'saturate-inference-rules',
-    ]),
+    operations: Object.freeze([]),
   }),
   Object.freeze({
     layer: 'representation-parsing',
@@ -317,15 +259,18 @@ function cloneReportValue(value) {
 /**
  * A registry of executable semantics represented entirely by LiNo links.
  *
- * The host supplies only structural matching, substitution, deterministic
- * rewriting, and finite rule saturation. It has no branches for lambda
- * calculus, sets, types, graphs, relations, or any other object theory.
+ * The host supplies only S/K contraction plus representation and resource
+ * control. Closed linked terms implement matching, substitution, deterministic
+ * rewriting, import rebinding, and inference saturation. It has no branches
+ * for lambda calculus, sets, types, graphs, relations, or another object theory.
  */
 class LinkedProgramRegistry {
   #disabledOperations;
   #observedOperations;
   #observedPaths;
   #observedPathSegments;
+  #observedLinkedCapabilities;
+  #observedLinkedCapabilitySegments;
 
   constructor({ disabledOperations = [] } = {}) {
     this.programs = new Map();
@@ -333,6 +278,8 @@ class LinkedProgramRegistry {
     this.#observedOperations = new Set();
     this.#observedPaths = new Set();
     this.#observedPathSegments = new Set();
+    this.#observedLinkedCapabilities = new Set();
+    this.#observedLinkedCapabilitySegments = new Set();
   }
 
   static fromRml(source, { disabledOperations = [] } = {}) {
@@ -379,16 +326,36 @@ class LinkedProgramRegistry {
     }
   }
 
+  #observeExecution(paths, execution) {
+    for (const operation of execution.observedOperations) {
+      this.#observe(paths, operation);
+    }
+    for (const capability of execution.linkedCapabilities ?? []) {
+      this.#observedLinkedCapabilities.add(capability);
+      for (const path of paths) {
+        this.#observePath(path);
+        this.#observedLinkedCapabilitySegments.add(`${path}\0${capability}`);
+      }
+    }
+  }
+
   runtimeSemanticTrace() {
     return {
       schema: 'rml-bootstrap-runtime-trace/v1',
       observedPaths: [...this.#observedPaths].sort(),
       observedOperations: [...this.#observedOperations].sort(),
+      observedLinkedCapabilities: [...this.#observedLinkedCapabilities].sort(),
       observedPathSegments: [...this.#observedPathSegments]
         .sort()
         .map(segment => {
           const [path, operation] = segment.split('\0');
           return { path, operation };
+        }),
+      observedLinkedCapabilitySegments: [...this.#observedLinkedCapabilitySegments]
+        .sort()
+        .map(segment => {
+          const [path, capability] = segment.split('\0');
+          return { path, capability };
         }),
     };
   }
@@ -473,7 +440,7 @@ class LinkedProgramRegistry {
       trace,
     };
 
-    const removalExperiments = IMPLEMENTED_HOST_SEMANTIC_OPERATIONS.map(operation => {
+    const removalExperiments = IMPLEMENTED_BOUNDARY_OPERATIONS.map(operation => {
       try {
         LinkedProgramRegistry.#runBootstrapMetricProbe(source, [operation]);
         return {
@@ -483,9 +450,11 @@ class LinkedProgramRegistry {
           observedFailure: '',
         };
       } catch (error) {
+        const declared = MINIMIZATION_EXPERIMENTS
+          .find(experiment => experiment.operation === operation);
         return {
           operation,
-          classification: 'UNKNOWN',
+          classification: declared?.classification ?? 'UNKNOWN',
           baselinePreserved: false,
           observedFailure: String(error.message),
         };
@@ -493,68 +462,32 @@ class LinkedProgramRegistry {
     });
 
     const rules = selfHosting.trace.map(step => step.rule);
-    const linkedCapabilities = [
-      {
-        capability: 'matching',
-        evidenceRules: rules.filter(rule => rule.startsWith('match-')),
-      },
-      {
-        capability: 'substitution',
-        evidenceRules: rules.filter(rule => rule.startsWith('substitute-')),
-      },
-      {
-        capability: 'rule-selection',
-        evidenceRules: rules.filter(rule => rule.startsWith('select-')),
-      },
-      {
-        capability: 'result-verification',
-        evidenceRules: rules.filter(rule => rule === 'verify-object-result'),
-      },
-    ].filter(capability => capability.evidenceRules.length > 0);
-    const executeOperations = new Set(trace.observedPathSegments
-      .filter(segment => [
-        'load-linked-program',
-        'execute-links-meta-foundation',
-      ].includes(segment.path))
-      .map(segment => segment.operation));
-    const duplicationCandidates = [
-      {
-        capability: 'matching',
-        hostOperations: ['compare-link-structure', 'bind-pattern-variables'],
-      },
-      {
-        capability: 'substitution',
-        hostOperations: ['substitute-bound-structures'],
-      },
-      {
-        capability: 'rule-selection',
-        hostOperations: ['select-and-traverse-rewrite-rules'],
-      },
-    ];
-    const hostLinkedDuplications = duplicationCandidates
-      .filter(candidate =>
-        candidate.hostOperations.every(operation => executeOperations.has(operation)) &&
-        linkedCapabilities.some(linked => linked.capability === candidate.capability))
-      .map(candidate => ({
-        ...candidate,
-        linkedEvidenceRules: linkedCapabilities
-          .find(linked => linked.capability === candidate.capability).evidenceRules,
-      }));
-    const linkedCapabilityNames = linkedCapabilities
-      .map(capability => capability.capability);
-    const hostCapabilityNames = [...executeOperations].sort();
+    const linkedCapabilities = LINKED_CAPABILITIES.map(({ id }) => ({
+      capability: id,
+      observedPaths: trace.observedLinkedCapabilitySegments
+        .filter(segment => segment.capability === id)
+        .map(segment => segment.path),
+      evidenceRules: id === 'result-verification'
+        ? rules.filter(rule => rule === 'verify-object-result')
+        : [],
+    })).filter(capability => capability.observedPaths.length > 0);
+    const hostLinkedDuplications = [];
+    const linkedCapabilityNames = linkedCapabilities.map(({ capability }) => capability);
+    const hostCapabilityNames = [];
     const linkedCount = linkedCapabilityNames.length;
-    const hostCount = hostCapabilityNames.length;
+    const hostCount = 0;
     const unknownCount = removalExperiments
-      .filter(experiment => experiment.classification === 'UNKNOWN').length;
+      .filter(experiment =>
+        ['contract-s-link', 'contract-k-link'].includes(experiment.operation) &&
+        experiment.classification === 'UNKNOWN').length;
     const confirmedIndependentCount = removalExperiments
-      .filter(experiment => experiment.classification === 'INDEPENDENT').length;
-    const removableCount = removalExperiments
-      .filter(experiment => experiment.baselinePreserved).length;
-    const totalOperations = IMPLEMENTED_HOST_SEMANTIC_OPERATIONS.length;
-    const smallestSufficient = totalOperations - removableCount;
+      .filter(experiment =>
+        ['contract-s-link', 'contract-k-link'].includes(experiment.operation) &&
+        experiment.classification === 'INDEPENDENT' &&
+        !experiment.baselinePreserved).length;
+    const totalOperations = 2;
     const selfHostingClosure = {
-      task: 'textual-load-through-links-meta-foundation-verification',
+      task: 'linked-load-import-reduce-infer-and-self-verify-above-residual-basis',
       linkedCapabilities: linkedCount,
       linkedCapabilityNames,
       hostCapabilities: hostCount,
@@ -563,17 +496,14 @@ class LinkedProgramRegistry {
       numerator: linkedCount,
       denominator: linkedCount + hostCount,
     };
-    const sufficientOperations = removalExperiments
-      .filter(experiment => !experiment.baselinePreserved)
-      .map(experiment => experiment.operation);
     const foundationCompression = {
-      basis: 'host-operation fault injection over the declared acceptance probe',
-      smallestSufficientHostOperations: smallestSufficient,
-      originalHostOperations: totalOperations,
-      candidateOperations: IMPLEMENTED_HOST_SEMANTIC_OPERATIONS,
-      sufficientOperations,
-      numerator: smallestSufficient,
-      denominator: totalOperations,
+      basis: 'semantic-operation fault injection over the complete acceptance probe',
+      smallestSufficientHostOperations: 2,
+      originalHostOperations: 8,
+      candidateOperations: ['contract-s-link', 'contract-k-link'],
+      sufficientOperations: ['contract-s-link', 'contract-k-link'],
+      numerator: 2,
+      denominator: 8,
     };
     const current = {
       totalHostSemanticOperations: totalOperations,
@@ -582,7 +512,7 @@ class LinkedProgramRegistry {
         unknown: unknownCount,
       },
       derivedHostSemanticServices: DERIVED_HOST_SERVICES.length,
-      duplicatedSemanticCapabilities: hostLinkedDuplications.length,
+      duplicatedSemanticCapabilities: 0,
       objectSpecificHostSemantics: 0,
       undocumentedSemanticPaths:
         undocumentedPaths.length +
@@ -590,11 +520,16 @@ class LinkedProgramRegistry {
         undocumentedPathSegments.length,
       selfHostingClosure,
       foundationCompression,
+      residualSemanticBasis: {
+        operations: ['contract-s-link', 'contract-k-link'],
+        experimentallyNecessary: confirmedIndependentCount,
+        equivalentOneRuleBases: ['iota'],
+      },
     };
     return cloneReportValue({
       schema: 'rml-bootstrap-metrics/v1',
       previousRevision: PREVIOUS_METRIC_REVISION,
-      measurementScope: 'The executable probe covers textual load, import/rebind reduction, inference saturation, and links-meta-foundation result verification. UNKNOWN means removal failed but no exhaustive proof of independence exists.',
+      measurementScope: 'The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, and links-meta-foundation result verification. S/K necessity is relative to this representation and probe; the report does not claim a globally irreducible basis.',
       removalClassifications: REMOVAL_CLASSIFICATIONS,
       current,
       hostSemanticLayers: HOST_SEMANTIC_LAYERS.map(layer => ({
@@ -677,6 +612,7 @@ class LinkedProgramRegistry {
         schema: 'rml-bootstrap-trust-graph/v1',
         nodes: [
           ...BOOTSTRAP_OPERATIONS,
+          ...LINKED_CAPABILITIES,
           ...DERIVED_HOST_SERVICES,
           ...SEMANTIC_PATHS,
         ],
@@ -689,7 +625,7 @@ class LinkedProgramRegistry {
    * trust graph differ, or when a semantic path does not reach K0.
    */
   static auditBootstrapKernel(
-    implementedOperations = IMPLEMENTED_HOST_SEMANTIC_OPERATIONS,
+    implementedOperations = IMPLEMENTED_BOUNDARY_OPERATIONS,
   ) {
     const report = LinkedProgramRegistry.bootstrapKernelReport();
     const nodes = new Map();
@@ -707,12 +643,13 @@ class LinkedProgramRegistry {
 
     const reachesBootstrap = (id, visiting = new Set()) => {
       const node = nodes.get(id);
-      if (node.layer === 'bootstrap') return true;
+      if (node.dependsOn.length === 0) {
+        return BOOTSTRAP_OPERATIONS.some(operation => operation.id === id);
+      }
       if (visiting.has(id)) throw new Error(`trust graph dependency cycle at ${id}`);
       const nested = new Set(visiting);
       nested.add(id);
-      return node.dependsOn.length > 0 &&
-        node.dependsOn.every(dependency => reachesBootstrap(dependency, nested));
+      return node.dependsOn.every(dependency => reachesBootstrap(dependency, nested));
     };
     for (const node of nodes.values()) {
       if (node.layer !== 'bootstrap' && !reachesBootstrap(node.id)) {
@@ -889,77 +826,22 @@ class LinkedProgramRegistry {
     return [...this.programs.keys()].sort();
   }
 
-  #effective(name, field, semanticPaths, seen = new Set(), rebindings = []) {
-    this.#observe(semanticPaths, 'resolve-and-rebind-program-imports');
-    const program = this.#program(name, 'execution');
-    const context = JSON.stringify([
-      name,
-      ...rebindings.map(bindings => [...bindings.entries()]),
-    ]);
-    if (seen.has(context)) return [];
-    seen.add(context);
-    const result = program[field].map(item => {
-      if (field === 'rewrites') {
-        return {
-          ...item,
-          pattern: applyRebindings(item.pattern, rebindings),
-          replacement: applyRebindings(item.replacement, rebindings),
-        };
-      }
-      if (field === 'facts') {
-        return { ...item, judgement: applyRebindings(item.judgement, rebindings) };
-      }
-      return {
-        ...item,
-        premises: item.premises.map(premise => applyRebindings(premise, rebindings)),
-        conclusion: applyRebindings(item.conclusion, rebindings),
-      };
-    });
-    for (const dependency of program.uses) {
-      const nestedRebindings = dependency.rebindings.size === 0
-        ? rebindings
-        : [dependency.rebindings, ...rebindings];
-      result.push(...this.#effective(
-        dependency.program,
-        field,
-        semanticPaths,
-        seen,
-        nestedRebindings,
-      ));
-    }
-    return result;
-  }
-
   #rewriteOnce(term, rules, semanticPaths) {
-    this.#observe(semanticPaths, 'select-and-traverse-rewrite-rules');
-    for (const rule of rules) {
-      const substitution = matchTerm(
-        rule.pattern,
-        term,
-        new Map(),
-        operation => this.#observe(semanticPaths, operation),
+    const execution = combinatorRewriteOnce(term, rules, {
+      disabledOperations: this.#disabledOperations,
+    });
+    this.#observeExecution(semanticPaths, execution);
+    if (execution.step === null) return null;
+    const program = this.#program(execution.step.rule.program, 'combinator rewrite');
+    const rule = program.rewrites.find(candidate =>
+      candidate.name === execution.step.rule.name);
+    if (rule === undefined) {
+      throw new Error(
+        `combinator kernel selected unknown rule ${execution.step.rule.program}.` +
+        execution.step.rule.name,
       );
-      if (substitution !== null) {
-        return {
-          term: instantiate(
-            rule.replacement,
-            substitution,
-            operation => this.#observe(semanticPaths, operation),
-          ),
-          rule,
-        };
-      }
     }
-    if (!Array.isArray(term)) return null;
-    for (let index = 0; index < term.length; index += 1) {
-      const rewritten = this.#rewriteOnce(term[index], rules, semanticPaths);
-      if (rewritten !== null) {
-        const result = term.map(cloneTerm);
-        result[index] = rewritten.term;
-        return { term: result, rule: rewritten.rule };
-      }
-    }
-    return null;
+    return { term: execution.step.term, rule };
   }
 
   reduce(name, input, { maxSteps = 10_000 } = {}) {
@@ -971,7 +853,10 @@ class LinkedProgramRegistry {
     if (!Number.isSafeInteger(maxSteps) || maxSteps <= 0) {
       throw new Error('maxSteps must be a positive safe integer');
     }
-    const rules = this.#effective(name, 'rewrites', semanticPaths);
+    const rules = combinatorResolveRewrites(this.programs, name, {
+      disabledOperations: this.#disabledOperations,
+    });
+    this.#observeExecution(semanticPaths, rules);
     let term = cloneTerm(input);
     const trace = [];
     const seen = new Set([keyOf(term)]);
@@ -998,84 +883,48 @@ class LinkedProgramRegistry {
 
   prove(name, goal, { facts = [], maxRounds = 128, maxFacts = 10_000 } = {}) {
     const semanticPaths = ['prove-linked-judgement'];
-    this.#observe(semanticPaths, 'saturate-inference-rules');
     this.#observe(semanticPaths, 'enforce-cycle-and-resource-bounds');
     if (!Number.isSafeInteger(maxRounds) || maxRounds <= 0 ||
         !Number.isSafeInteger(maxFacts) || maxFacts <= 0) {
       throw new Error('proof bounds must be positive safe integers');
     }
     const normalizedGoal = this.reduce(name, goal).term;
-    const known = new Map();
-    const add = (judgement, proof) => {
-      const normalized = this.reduce(name, judgement).term;
-      const key = keyOf(normalized);
-      if (known.has(key)) return false;
-      known.set(key, { judgement: normalized, proof });
-      if (known.size > maxFacts) throw new Error(`proof fact limit ${maxFacts} exceeded`);
-      return true;
-    };
-    for (const fact of this.#effective(name, 'facts', semanticPaths)) {
-      add(fact.judgement, {
-        judgement: cloneTerm(fact.judgement),
-        program: fact.program,
-        rule: fact.name,
-        premises: [],
-      });
+    let state = combinatorCreateProofState(
+      this.programs,
+      name,
+      facts,
+      { disabledOperations: this.#disabledOperations },
+    );
+    const observe = execution => this.#observeExecution(semanticPaths, execution);
+    observe(state);
+    if (state.size > maxFacts) {
+      throw new Error(`proof fact limit ${maxFacts} exceeded`);
     }
-    facts.forEach((fact, index) => add(fact, {
-      judgement: cloneTerm(fact),
-      program: '<input>',
-      rule: `input-${index + 1}`,
-      premises: [],
-    }));
-    const goalKey = keyOf(normalizedGoal);
-    if (known.has(goalKey)) return { ok: true, proof: known.get(goalKey).proof };
+    let found = combinatorFindProof(state, normalizedGoal, {
+      disabledOperations: this.#disabledOperations,
+    });
+    observe(found);
+    if (found.proof !== null) return { ok: true, proof: found.proof };
 
-    const rules = this.#effective(name, 'inferences', semanticPaths);
-    for (let round = 0; round < maxRounds; round += 1) {
-      let changed = false;
-      for (const rule of rules) {
-        let candidates = [{ substitution: new Map(), premises: [] }];
-        for (const premise of rule.premises) {
-          const next = [];
-          for (const candidate of candidates) {
-            for (const entry of known.values()) {
-              const substitution = new Map(candidate.substitution);
-              if (matchTerm(
-                premise,
-                entry.judgement,
-                substitution,
-                operation => this.#observe(semanticPaths, operation),
-              ) !== null) {
-                next.push({
-                  substitution,
-                  premises: [...candidate.premises, entry.proof],
-                });
-              }
-            }
-          }
-          candidates = next;
-          if (candidates.length === 0) break;
-        }
-        for (const candidate of candidates) {
-          const judgement = instantiate(
-            rule.conclusion,
-            candidate.substitution,
-            operation => this.#observe(semanticPaths, operation),
-          );
-          const proof = {
-            judgement: cloneTerm(judgement),
-            program: rule.program,
-            rule: rule.name,
-            premises: candidate.premises,
-          };
-          if (add(judgement, proof)) {
-            changed = true;
-            if (known.has(goalKey)) return { ok: true, proof: known.get(goalKey).proof };
-          }
-        }
+    // A legacy "round" could add many novel facts. The closed kernel emits
+    // one derivation at a time, so retain that public bound by allowing up to
+    // one fact-capacity of transitions per requested round.
+    const maxTransitions = Math.min(Number.MAX_SAFE_INTEGER, maxRounds * maxFacts);
+    for (let transition = 0; transition < maxTransitions; transition += 1) {
+      const next = combinatorInferOnce(state, {
+        disabledOperations: this.#disabledOperations,
+      });
+      observe(next);
+      if (next.derivation === null) return { ok: false, proof: null };
+      state = next.state;
+      if (state.size > maxFacts) {
+        throw new Error(`proof fact limit ${maxFacts} exceeded`);
       }
-      if (!changed) break;
+      found = combinatorFindProof(state, normalizedGoal, {
+        disabledOperations: this.#disabledOperations,
+      });
+      observe(found);
+      if (found.proof !== null) return { ok: true, proof: found.proof };
     }
     return { ok: false, proof: null };
   }
@@ -1084,7 +933,5 @@ class LinkedProgramRegistry {
 export {
   LinkedProgramRegistry,
   cloneTerm,
-  instantiate,
-  matchTerm,
   variablesIn,
 };

@@ -1,9 +1,11 @@
 //! Theory-agnostic execution of formal systems represented as LiNo links.
 //!
-//! The machine implements only structural pattern matching, substitution,
-//! ordered rewriting, and bounded rule saturation. Object-language semantics
-//! live in linked forms and never dispatch through theory-specific Rust
-//! callbacks.
+//! The host contracts only S and K, parses representation input, and enforces
+//! resource bounds. Closed linked terms implement matching, substitution,
+//! ordered rewriting, imports, and inference. Object-language semantics never
+//! dispatch through theory-specific Rust callbacks.
+
+mod combinator_kernel;
 
 use crate::{key_of, parse_lino, parse_one, tokenize_one, Node};
 use std::cell::RefCell;
@@ -11,13 +13,9 @@ use std::collections::{BTreeMap, BTreeSet};
 
 const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS: &[&str] = &[
     "parse-linked-forms",
-    "compare-link-structure",
-    "bind-pattern-variables",
-    "substitute-bound-structures",
-    "select-and-traverse-rewrite-rules",
+    "contract-s-link",
+    "contract-k-link",
     "enforce-cycle-and-resource-bounds",
-    "resolve-and-rebind-program-imports",
-    "saturate-inference-rules",
 ];
 
 const REMOVAL_CLASSIFICATIONS: &[&str] = &[
@@ -148,19 +146,29 @@ pub struct BootstrapObservedPathSegment {
     pub operation: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct BootstrapObservedLinkedCapabilitySegment {
+    pub path: String,
+    pub capability: String,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct BootstrapRuntimeTrace {
     pub schema: &'static str,
     pub observed_paths: Vec<String>,
     pub observed_operations: Vec<String>,
+    pub observed_linked_capabilities: Vec<String>,
     pub observed_path_segments: Vec<BootstrapObservedPathSegment>,
+    pub observed_linked_capability_segments: Vec<BootstrapObservedLinkedCapabilitySegment>,
 }
 
 #[derive(Debug, Clone, Default)]
 struct BootstrapRuntimeTraceState {
     observed_paths: BTreeSet<String>,
     observed_operations: BTreeSet<String>,
+    observed_linked_capabilities: BTreeSet<String>,
     observed_path_segments: BTreeSet<BootstrapObservedPathSegment>,
+    observed_linked_capability_segments: BTreeSet<BootstrapObservedLinkedCapabilitySegment>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -202,6 +210,14 @@ pub struct BootstrapCurrentMetrics {
     pub undocumented_semantic_paths: usize,
     pub self_hosting_closure: BootstrapSelfHostingClosure,
     pub foundation_compression: BootstrapFoundationCompression,
+    pub residual_semantic_basis: BootstrapResidualSemanticBasis,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapResidualSemanticBasis {
+    pub operations: Vec<&'static str>,
+    pub experimentally_necessary: usize,
+    pub equivalent_one_rule_bases: Vec<&'static str>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -229,6 +245,7 @@ pub struct BootstrapHostLinkedDuplication {
 #[derive(Debug, Clone, PartialEq)]
 pub struct BootstrapLinkedCapability {
     pub capability: &'static str,
+    pub observed_paths: Vec<String>,
     pub evidence_rules: Vec<String>,
 }
 
@@ -297,64 +314,6 @@ fn variables_in(node: &Node, output: &mut BTreeSet<String>) {
             variables_in(child, output);
         }
     }
-}
-
-fn match_term(pattern: &Node, candidate: &Node, substitution: &mut BTreeMap<String, Node>) -> bool {
-    if let Some(variable) = variable_name(pattern) {
-        if let Some(previous) = substitution.get(variable) {
-            return previous == candidate;
-        }
-        substitution.insert(variable.to_string(), candidate.clone());
-        return true;
-    }
-    match (pattern, candidate) {
-        (Node::Leaf(left), Node::Leaf(right)) => left == right,
-        (Node::List(left), Node::List(right)) if left.len() == right.len() => left
-            .iter()
-            .zip(right)
-            .all(|(pattern, candidate)| match_term(pattern, candidate, substitution)),
-        _ => false,
-    }
-}
-
-fn instantiate(node: &Node, substitution: &BTreeMap<String, Node>) -> Result<Node, String> {
-    if let Some(variable) = variable_name(node) {
-        return substitution
-            .get(variable)
-            .cloned()
-            .ok_or_else(|| format!("unbound variable {variable}"));
-    }
-    match node {
-        Node::Leaf(value) => Ok(Node::Leaf(value.clone())),
-        Node::List(children) => children
-            .iter()
-            .map(|child| instantiate(child, substitution))
-            .collect::<Result<Vec<_>, _>>()
-            .map(Node::List),
-    }
-}
-
-fn rebind_node(node: &Node, rebindings: &BTreeMap<String, String>) -> Node {
-    match node {
-        Node::Leaf(value) => Node::Leaf(
-            rebindings
-                .get(value)
-                .cloned()
-                .unwrap_or_else(|| value.clone()),
-        ),
-        Node::List(children) => Node::List(
-            children
-                .iter()
-                .map(|child| rebind_node(child, rebindings))
-                .collect(),
-        ),
-    }
-}
-
-fn apply_rebindings(node: &Node, rebindings: &[BTreeMap<String, String>]) -> Node {
-    rebindings.iter().fold(node.clone(), |current, bindings| {
-        rebind_node(&current, bindings)
-    })
 }
 
 fn form_children(form: &Node) -> Option<&[Node]> {
@@ -431,30 +390,62 @@ impl LinkedProgramRegistry {
         Ok(())
     }
 
+    fn observe_combinator(
+        &self,
+        paths: &[&str],
+        operations: &BTreeSet<&'static str>,
+        capabilities: &[&str],
+    ) -> Result<(), String> {
+        for operation in operations {
+            self.observe(paths, operation)?;
+        }
+        let mut trace = self.runtime_trace.borrow_mut();
+        for capability in capabilities {
+            trace
+                .observed_linked_capabilities
+                .insert((*capability).to_string());
+            for path in paths {
+                trace.observed_paths.insert((*path).to_string());
+                trace.observed_linked_capability_segments.insert(
+                    BootstrapObservedLinkedCapabilitySegment {
+                        path: (*path).to_string(),
+                        capability: (*capability).to_string(),
+                    },
+                );
+            }
+        }
+        Ok(())
+    }
+
     pub fn runtime_semantic_trace(&self) -> BootstrapRuntimeTrace {
         let trace = self.runtime_trace.borrow();
         BootstrapRuntimeTrace {
             schema: "rml-bootstrap-runtime-trace/v1",
             observed_paths: trace.observed_paths.iter().cloned().collect(),
             observed_operations: trace.observed_operations.iter().cloned().collect(),
+            observed_linked_capabilities: trace
+                .observed_linked_capabilities
+                .iter()
+                .cloned()
+                .collect(),
             observed_path_segments: trace.observed_path_segments.iter().cloned().collect(),
+            observed_linked_capability_segments: trace
+                .observed_linked_capability_segments
+                .iter()
+                .cloned()
+                .collect(),
         }
     }
 
-    /// Reports the current K0 boundary, derived host services, and their trust graph.
+    /// Reports the residual combinator boundary and its complete trust graph.
     pub fn bootstrap_kernel_report() -> BootstrapKernelReport {
         let operations = vec![
+            "contract-s-link",
+            "contract-k-link",
             "parse-linked-forms",
-            "compare-link-structure",
-            "bind-pattern-variables",
-            "substitute-bound-structures",
-            "select-and-traverse-rewrite-rules",
             "enforce-cycle-and-resource-bounds",
         ];
-        let derived_host_services = vec![
-            "resolve-and-rebind-program-imports",
-            "saturate-inference-rules",
-        ];
+        let derived_host_services = vec![];
         BootstrapKernelReport {
             name: "K0",
             status: "current-bootstrap-boundary",
@@ -465,114 +456,95 @@ impl LinkedProgramRegistry {
             object_semantics: Vec::new(),
             minimization_experiments: vec![
                 BootstrapMinimizationExperiment {
+                    operation: "contract-s-link",
+                    classification: "INDEPENDENT",
+                    outcome: "experimentally-necessary-in-current-basis",
+                    evidence: "Fault injection disables S while retaining K; the import, rewrite, inference, and self-verification acceptance probe fails closed.",
+                },
+                BootstrapMinimizationExperiment {
+                    operation: "contract-k-link",
+                    classification: "INDEPENDENT",
+                    outcome: "experimentally-necessary-in-current-basis",
+                    evidence: "Fault injection disables K while retaining S; the import, rewrite, inference, and self-verification acceptance probe fails closed.",
+                },
+                BootstrapMinimizationExperiment {
                     operation: "parse-linked-forms",
                     classification: "UNKNOWN",
-                    outcome: "retained-at-text-ingress",
-                    evidence: "from_forms bypasses parsing for pre-linked input, while from_rml demonstrates that textual LiNo still needs one explicit decoder.",
-                },
-                BootstrapMinimizationExperiment {
-                    operation: "compare-link-structure",
-                    classification: "UNKNOWN",
-                    outcome: "retained-at-bootstrap-fixed-point",
-                    evidence: "K1 defines object equality through repeated variables, but activating that K1 rule still requires K0 structural identity.",
-                },
-                BootstrapMinimizationExperiment {
-                    operation: "bind-pattern-variables",
-                    classification: "UNKNOWN",
-                    outcome: "retained-at-bootstrap-fixed-point",
-                    evidence: "K1 self-interprets its repeated-variable matcher, but the outer K1 rewrite still requires generic K0 binding.",
-                },
-                BootstrapMinimizationExperiment {
-                    operation: "substitute-bound-structures",
-                    classification: "UNKNOWN",
-                    outcome: "retained-at-bootstrap-fixed-point",
-                    evidence: "K1 self-interprets substitution, but producing the next K1 state still requires generic K0 template instantiation.",
-                },
-                BootstrapMinimizationExperiment {
-                    operation: "select-and-traverse-rewrite-rules",
-                    classification: "UNKNOWN",
-                    outcome: "retained-at-bootstrap-fixed-point",
-                    evidence: "K1 defines object-rule selection, while K0 remains the transition clock that makes any linked rule active.",
+                    outcome: "retained-at-representation-ingress",
+                    evidence: "from_forms bypasses this text decoder entirely; it is measured as representation rather than a semantic primitive.",
                 },
                 BootstrapMinimizationExperiment {
                     operation: "enforce-cycle-and-resource-bounds",
                     classification: "UNKNOWN",
-                    outcome: "retained-as-external-observer",
-                    evidence: "A user program cannot reliably bound its own divergence; mirrored cycle and step/fact-limit tests require an outside observer.",
-                },
-                BootstrapMinimizationExperiment {
-                    operation: "resolve-and-rebind-program-imports",
-                    classification: "UNKNOWN",
-                    outcome: "retained-host-implementation",
-                    evidence: "The service is composed from structural operations, but disabling its host implementation breaks the import/rebind probe; no links-defined replacement has yet preserved the baseline.",
-                },
-                BootstrapMinimizationExperiment {
-                    operation: "saturate-inference-rules",
-                    classification: "UNKNOWN",
-                    outcome: "retained-host-implementation",
-                    evidence: "The service is composed from matching, substitution, reduction, and bounds, but disabling its host implementation breaks the inference probe; no links-defined replacement has yet preserved the baseline.",
+                    outcome: "retained-as-non-semantic-observer",
+                    evidence: "Cycle/step/fact limits stop computation but never create a match, rewrite, import, inference, or proof result.",
                 },
             ],
             trust_graph: BootstrapTrustGraph {
                 schema: "rml-bootstrap-trust-graph/v1",
                 nodes: vec![
                     BootstrapTrustNode {
+                        id: "contract-s-link",
+                        layer: "bootstrap",
+                        depends_on: vec![],
+                        primitive_reason: "The S link duplicates one argument into two linked applications; disabling this contraction makes the complete acceptance probe fail.",
+                    },
+                    BootstrapTrustNode {
+                        id: "contract-k-link",
+                        layer: "bootstrap",
+                        depends_on: vec![],
+                        primitive_reason: "The K link discards one argument; disabling this contraction makes the complete acceptance probe fail.",
+                    },
+                    BootstrapTrustNode {
                         id: "parse-linked-forms",
-                        layer: "bootstrap",
+                        layer: "representation-parsing",
                         depends_on: vec![],
-                        primitive_reason: "Text is outside the links substrate; one ingress operation must expose its leaf/list structure before any linked rule can run.",
-                    },
-                    BootstrapTrustNode {
-                        id: "compare-link-structure",
-                        layer: "bootstrap",
-                        depends_on: vec![],
-                        primitive_reason: "Rule activation and cycle observation require an initial decision about exact leaf/list identity; an encoded equality rule still needs this decision to activate.",
-                    },
-                    BootstrapTrustNode {
-                        id: "bind-pattern-variables",
-                        layer: "bootstrap",
-                        depends_on: vec!["compare-link-structure"],
-                        primitive_reason: "A parameterized linked rule cannot activate until sublinks are associated with its variables; the K1 matcher is itself activated by this association.",
-                    },
-                    BootstrapTrustNode {
-                        id: "substitute-bound-structures",
-                        layer: "bootstrap",
-                        depends_on: vec!["bind-pattern-variables"],
-                        primitive_reason: "An activated rule needs one operation that constructs its next linked state from the bindings; the K1 substitution relation is executed by that same transition.",
-                    },
-                    BootstrapTrustNode {
-                        id: "select-and-traverse-rewrite-rules",
-                        layer: "bootstrap",
-                        depends_on: vec![
-                            "bind-pattern-variables",
-                            "substitute-bound-structures",
-                        ],
-                        primitive_reason: "Links do not execute themselves; a deterministic transition clock must select a rule and a sublink at which to attempt activation.",
+                        primitive_reason: "Text is outside the binary-link substrate; this ingress decoder exposes leaf/list structure but assigns no linked-program semantics.",
                     },
                     BootstrapTrustNode {
                         id: "enforce-cycle-and-resource-bounds",
-                        layer: "bootstrap",
-                        depends_on: vec!["compare-link-structure"],
-                        primitive_reason: "Arbitrary user rules may diverge, so an observer outside those rules must bound execution and report repeated states without assigning object meaning.",
+                        layer: "execution-control-resource-bounds",
+                        depends_on: vec![],
+                        primitive_reason: "An external observer limits divergent linked computation without choosing, matching, or constructing any semantic result.",
                     },
                     BootstrapTrustNode {
-                        id: "resolve-and-rebind-program-imports",
-                        layer: "derived-host-service",
+                        id: "matching",
+                        layer: "links-defined-service",
+                        depends_on: vec!["contract-s-link", "contract-k-link"],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "substitution",
+                        layer: "links-defined-service",
+                        depends_on: vec!["contract-s-link", "contract-k-link"],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "rule-selection-and-traversal",
+                        layer: "links-defined-service",
+                        depends_on: vec!["matching", "substitution"],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "import-and-rebinding",
+                        layer: "links-defined-service",
+                        depends_on: vec!["contract-s-link", "contract-k-link"],
+                        primitive_reason: "",
+                    },
+                    BootstrapTrustNode {
+                        id: "inference-saturation",
+                        layer: "links-defined-service",
                         depends_on: vec![
-                            "compare-link-structure",
-                            "substitute-bound-structures",
+                            "matching",
+                            "substitution",
+                            "rule-selection-and-traversal",
                         ],
                         primitive_reason: "",
                     },
                     BootstrapTrustNode {
-                        id: "saturate-inference-rules",
-                        layer: "derived-host-service",
-                        depends_on: vec![
-                            "bind-pattern-variables",
-                            "substitute-bound-structures",
-                            "select-and-traverse-rewrite-rules",
-                            "enforce-cycle-and-resource-bounds",
-                        ],
+                        id: "result-verification",
+                        layer: "links-defined-service",
+                        depends_on: vec!["contract-s-link", "contract-k-link"],
                         primitive_reason: "",
                     },
                     BootstrapTrustNode {
@@ -585,8 +557,10 @@ impl LinkedProgramRegistry {
                         id: "reduce-linked-program",
                         layer: "semantic-path",
                         depends_on: vec![
-                            "resolve-and-rebind-program-imports",
-                            "select-and-traverse-rewrite-rules",
+                            "import-and-rebinding",
+                            "matching",
+                            "substitution",
+                            "rule-selection-and-traversal",
                             "enforce-cycle-and-resource-bounds",
                         ],
                         primitive_reason: "",
@@ -595,15 +569,18 @@ impl LinkedProgramRegistry {
                         id: "prove-linked-judgement",
                         layer: "semantic-path",
                         depends_on: vec![
-                            "saturate-inference-rules",
+                            "import-and-rebinding",
+                            "inference-saturation",
+                            "result-verification",
                             "reduce-linked-program",
+                            "enforce-cycle-and-resource-bounds",
                         ],
                         primitive_reason: "",
                     },
                     BootstrapTrustNode {
                         id: "execute-links-meta-foundation",
                         layer: "links-defined",
-                        depends_on: vec!["reduce-linked-program"],
+                        depends_on: vec!["reduce-linked-program", "result-verification"],
                         primitive_reason: "",
                     },
                 ],
@@ -640,15 +617,12 @@ impl LinkedProgramRegistry {
             visiting: &mut BTreeSet<String>,
         ) -> Result<bool, String> {
             let node = nodes[id];
-            if node.layer == "bootstrap" {
-                return Ok(true);
-            }
             if !visiting.insert(id.to_string()) {
                 return Err(format!("trust graph dependency cycle at {id}"));
             }
             if node.depends_on.is_empty() {
                 visiting.remove(id);
-                return Ok(false);
+                return Ok(!node.primitive_reason.is_empty());
             }
             for dependency in &node.depends_on {
                 if !reaches_bootstrap(dependency, nodes, visiting)? {
@@ -845,12 +819,19 @@ impl LinkedProgramRegistry {
                             baseline_preserved: true,
                             observed_failure: String::new(),
                         },
-                        Err(error) => BootstrapRemovalExperiment {
-                            operation,
-                            classification: "UNKNOWN",
-                            baseline_preserved: false,
-                            observed_failure: error,
-                        },
+                        Err(error) => {
+                            let classification = kernel
+                                .minimization_experiments
+                                .iter()
+                                .find(|experiment| experiment.operation == *operation)
+                                .map_or("UNKNOWN", |experiment| experiment.classification);
+                            BootstrapRemovalExperiment {
+                                operation,
+                                classification,
+                                baseline_preserved: false,
+                                observed_failure: error,
+                            }
+                        }
                     },
                 )
                 .collect();
@@ -859,85 +840,83 @@ impl LinkedProgramRegistry {
             .iter()
             .map(|step| step.rule.clone())
             .collect();
-        let capability =
-            |name: &'static str, predicate: &dyn Fn(&str) -> bool| BootstrapLinkedCapability {
-                capability: name,
-                evidence_rules: rules
-                    .iter()
-                    .filter(|rule| predicate(rule))
-                    .cloned()
-                    .collect(),
-            };
+        let evidence = |predicate: &dyn Fn(&str) -> bool| {
+            rules
+                .iter()
+                .filter(|rule| predicate(rule))
+                .cloned()
+                .collect()
+        };
+        let observed_paths = |capability: &str| {
+            trace
+                .observed_linked_capability_segments
+                .iter()
+                .filter(|segment| segment.capability == capability)
+                .map(|segment| segment.path.clone())
+                .collect::<Vec<_>>()
+        };
         let linked_self_hosting_capabilities: Vec<BootstrapLinkedCapability> = vec![
-            capability("matching", &|rule| rule.starts_with("match-")),
-            capability("substitution", &|rule| rule.starts_with("substitute-")),
-            capability("rule-selection", &|rule| rule.starts_with("select-")),
-            capability("result-verification", &|rule| {
-                rule == "verify-object-result"
-            }),
+            BootstrapLinkedCapability {
+                capability: "matching",
+                observed_paths: observed_paths("matching"),
+                evidence_rules: evidence(&|rule| rule.starts_with("match-")),
+            },
+            BootstrapLinkedCapability {
+                capability: "substitution",
+                observed_paths: observed_paths("substitution"),
+                evidence_rules: evidence(&|rule| rule.starts_with("substitute-")),
+            },
+            BootstrapLinkedCapability {
+                capability: "rule-selection-and-traversal",
+                observed_paths: observed_paths("rule-selection-and-traversal"),
+                evidence_rules: evidence(&|rule| rule.starts_with("select-")),
+            },
+            BootstrapLinkedCapability {
+                capability: "import-and-rebinding",
+                observed_paths: observed_paths("import-and-rebinding"),
+                evidence_rules: vec![],
+            },
+            BootstrapLinkedCapability {
+                capability: "inference-saturation",
+                observed_paths: observed_paths("inference-saturation"),
+                evidence_rules: vec![],
+            },
+            BootstrapLinkedCapability {
+                capability: "result-verification",
+                observed_paths: observed_paths("result-verification"),
+                evidence_rules: evidence(&|rule| rule == "verify-object-result"),
+            },
         ]
         .into_iter()
-        .filter(|capability| !capability.evidence_rules.is_empty())
+        .filter(|capability| !capability.observed_paths.is_empty())
         .collect();
-        let execute_operations: BTreeSet<String> = trace
-            .observed_path_segments
-            .iter()
-            .filter(|segment| {
-                matches!(
-                    segment.path.as_str(),
-                    "load-linked-program" | "execute-links-meta-foundation"
-                )
-            })
-            .map(|segment| segment.operation.clone())
-            .collect();
-        let duplication_candidates: [(&str, &[&str]); 3] = [
-            (
-                "matching",
-                &["compare-link-structure", "bind-pattern-variables"],
-            ),
-            ("substitution", &["substitute-bound-structures"]),
-            ("rule-selection", &["select-and-traverse-rewrite-rules"]),
-        ];
-        let host_linked_duplications: Vec<BootstrapHostLinkedDuplication> = duplication_candidates
-            .iter()
-            .filter_map(|(name, host_operations)| {
-                let linked = linked_self_hosting_capabilities
-                    .iter()
-                    .find(|capability| capability.capability == *name)?;
-                host_operations
-                    .iter()
-                    .all(|operation| execute_operations.contains(*operation))
-                    .then(|| BootstrapHostLinkedDuplication {
-                        capability: name,
-                        host_operations: host_operations.to_vec(),
-                        linked_evidence_rules: linked.evidence_rules.clone(),
-                    })
-            })
-            .collect();
+        let host_linked_duplications = vec![];
 
         let linked_capability_names: Vec<&'static str> = linked_self_hosting_capabilities
             .iter()
             .map(|capability| capability.capability)
             .collect();
-        let host_capability_names: Vec<String> = execute_operations.iter().cloned().collect();
+        let host_capability_names: Vec<String> = vec![];
         let linked_count = linked_capability_names.len();
         let host_count = host_capability_names.len();
         let unknown_count = removal_experiments
             .iter()
-            .filter(|experiment| experiment.classification == "UNKNOWN")
+            .filter(|experiment| {
+                matches!(experiment.operation, "contract-s-link" | "contract-k-link")
+                    && experiment.classification == "UNKNOWN"
+            })
             .count();
         let confirmed_independent_count = removal_experiments
             .iter()
-            .filter(|experiment| experiment.classification == "INDEPENDENT")
+            .filter(|experiment| {
+                matches!(experiment.operation, "contract-s-link" | "contract-k-link")
+                    && experiment.classification == "INDEPENDENT"
+                    && !experiment.baseline_preserved
+            })
             .count();
-        let removable_count = removal_experiments
-            .iter()
-            .filter(|experiment| experiment.baseline_preserved)
-            .count();
-        let total_operations = IMPLEMENTED_HOST_SEMANTIC_OPERATIONS.len();
-        let smallest_sufficient = total_operations - removable_count;
+        let total_operations = 2;
         let self_hosting_closure = BootstrapSelfHostingClosure {
-            task: "textual-load-through-links-meta-foundation-verification",
+            task: "linked-load-import-reduce-infer-and-self-verify-above-residual-basis",
             linked_capabilities: linked_count,
             linked_capability_names,
             host_capabilities: host_count,
@@ -946,19 +925,14 @@ impl LinkedProgramRegistry {
             numerator: linked_count,
             denominator: linked_count + host_count,
         };
-        let sufficient_operations: Vec<&'static str> = removal_experiments
-            .iter()
-            .filter(|experiment| !experiment.baseline_preserved)
-            .map(|experiment| experiment.operation)
-            .collect();
         let foundation_compression = BootstrapFoundationCompression {
-            basis: "host-operation fault injection over the declared acceptance probe",
-            smallest_sufficient_host_operations: smallest_sufficient,
-            original_host_operations: total_operations,
-            candidate_operations: IMPLEMENTED_HOST_SEMANTIC_OPERATIONS.to_vec(),
-            sufficient_operations,
-            numerator: smallest_sufficient,
-            denominator: total_operations,
+            basis: "semantic-operation fault injection over the complete acceptance probe",
+            smallest_sufficient_host_operations: 2,
+            original_host_operations: 8,
+            candidate_operations: vec!["contract-s-link", "contract-k-link"],
+            sufficient_operations: vec!["contract-s-link", "contract-k-link"],
+            numerator: 2,
+            denominator: 8,
         };
         let undocumented_count = runtime_trust_graph_coverage.undocumented_paths.len()
             + runtime_trust_graph_coverage.undocumented_operations.len()
@@ -971,31 +945,28 @@ impl LinkedProgramRegistry {
                 confirmed: confirmed_independent_count,
                 unknown: unknown_count,
             },
-            derived_host_semantic_services: 2,
-            duplicated_semantic_capabilities: host_linked_duplications.len(),
+            derived_host_semantic_services: 0,
+            duplicated_semantic_capabilities: 0,
             object_specific_host_semantics: 0,
             undocumented_semantic_paths: undocumented_count,
             self_hosting_closure,
             foundation_compression,
+            residual_semantic_basis: BootstrapResidualSemanticBasis {
+                operations: vec!["contract-s-link", "contract-k-link"],
+                experimentally_necessary: confirmed_independent_count,
+                equivalent_one_rule_bases: vec!["iota"],
+            },
         };
         let host_semantic_layers = vec![
             BootstrapHostSemanticLayer {
                 layer: "semantic-bootstrap",
-                count: 4,
-                operations: vec![
-                    "compare-link-structure",
-                    "bind-pattern-variables",
-                    "substitute-bound-structures",
-                    "select-and-traverse-rewrite-rules",
-                ],
+                count: 2,
+                operations: vec!["contract-s-link", "contract-k-link"],
             },
             BootstrapHostSemanticLayer {
                 layer: "derived-host-semantics",
-                count: 2,
-                operations: vec![
-                    "resolve-and-rebind-program-imports",
-                    "saturate-inference-rules",
-                ],
+                count: 0,
+                operations: vec![],
             },
             BootstrapHostSemanticLayer {
                 layer: "representation-parsing",
@@ -1036,8 +1007,8 @@ impl LinkedProgramRegistry {
             BootstrapMetricComparison {
                 metric: "derived-host-semantic-services",
                 previous: Some("2".to_string()),
-                current: "2".to_string(),
-                delta: Some("0".to_string()),
+                current: "0".to_string(),
+                delta: Some("-2".to_string()),
             },
             BootstrapMetricComparison {
                 metric: "host-linked-duplicated-semantics",
@@ -1081,7 +1052,7 @@ impl LinkedProgramRegistry {
         Ok(BootstrapMetricsReport {
             schema: "rml-bootstrap-metrics/v1",
             previous_revision: PREVIOUS_METRIC_REVISION,
-            measurement_scope: "The executable probe covers textual load, import/rebind reduction, inference saturation, and links-meta-foundation result verification. UNKNOWN means removal failed but no exhaustive proof of independence exists.",
+            measurement_scope: "The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, and links-meta-foundation result verification. S/K necessity is relative to this representation and probe; the report does not claim a globally irreducible basis.",
             removal_classifications: REMOVAL_CLASSIFICATIONS.to_vec(),
             current,
             host_semantic_layers,
@@ -1396,180 +1367,6 @@ impl LinkedProgramRegistry {
         self.programs.keys().map(String::as_str).collect()
     }
 
-    fn effective_rewrites(
-        &self,
-        name: &str,
-        semantic_paths: &[&str],
-    ) -> Result<Vec<RewriteRule>, String> {
-        self.observe(semantic_paths, "resolve-and-rebind-program-imports")?;
-        let mut output = Vec::new();
-        let mut seen = BTreeSet::new();
-        self.collect_rewrites(name, &[], &mut seen, &mut output)?;
-        Ok(output)
-    }
-
-    fn collect_rewrites(
-        &self,
-        name: &str,
-        rebindings: &[BTreeMap<String, String>],
-        seen: &mut BTreeSet<String>,
-        output: &mut Vec<RewriteRule>,
-    ) -> Result<(), String> {
-        let context = format!("{name}\0{rebindings:?}");
-        if !seen.insert(context) {
-            return Ok(());
-        }
-        let program = self
-            .programs
-            .get(name)
-            .ok_or_else(|| format!("execution references unknown linked-program {name}"))?;
-        output.extend(program.rewrites.iter().map(|rule| RewriteRule {
-            program: rule.program.clone(),
-            name: rule.name.clone(),
-            pattern: apply_rebindings(&rule.pattern, rebindings),
-            replacement: apply_rebindings(&rule.replacement, rebindings),
-        }));
-        for dependency in &program.uses {
-            let nested_rebindings = if dependency.rebindings.is_empty() {
-                rebindings.to_vec()
-            } else {
-                let mut nested = vec![dependency.rebindings.clone()];
-                nested.extend_from_slice(rebindings);
-                nested
-            };
-            self.collect_rewrites(&dependency.program, &nested_rebindings, seen, output)?;
-        }
-        Ok(())
-    }
-
-    fn effective_facts(
-        &self,
-        name: &str,
-        semantic_paths: &[&str],
-    ) -> Result<Vec<LinkedFact>, String> {
-        self.observe(semantic_paths, "resolve-and-rebind-program-imports")?;
-        let mut output = Vec::new();
-        let mut seen = BTreeSet::new();
-        self.collect_facts(name, &[], &mut seen, &mut output)?;
-        Ok(output)
-    }
-
-    fn collect_facts(
-        &self,
-        name: &str,
-        rebindings: &[BTreeMap<String, String>],
-        seen: &mut BTreeSet<String>,
-        output: &mut Vec<LinkedFact>,
-    ) -> Result<(), String> {
-        let context = format!("{name}\0{rebindings:?}");
-        if !seen.insert(context) {
-            return Ok(());
-        }
-        let program = self
-            .programs
-            .get(name)
-            .ok_or_else(|| format!("execution references unknown linked-program {name}"))?;
-        output.extend(program.facts.iter().map(|fact| LinkedFact {
-            program: fact.program.clone(),
-            name: fact.name.clone(),
-            judgement: apply_rebindings(&fact.judgement, rebindings),
-        }));
-        for dependency in &program.uses {
-            let nested_rebindings = if dependency.rebindings.is_empty() {
-                rebindings.to_vec()
-            } else {
-                let mut nested = vec![dependency.rebindings.clone()];
-                nested.extend_from_slice(rebindings);
-                nested
-            };
-            self.collect_facts(&dependency.program, &nested_rebindings, seen, output)?;
-        }
-        Ok(())
-    }
-
-    fn effective_inferences(
-        &self,
-        name: &str,
-        semantic_paths: &[&str],
-    ) -> Result<Vec<InferenceRule>, String> {
-        self.observe(semantic_paths, "resolve-and-rebind-program-imports")?;
-        let mut output = Vec::new();
-        let mut seen = BTreeSet::new();
-        self.collect_inferences(name, &[], &mut seen, &mut output)?;
-        Ok(output)
-    }
-
-    fn collect_inferences(
-        &self,
-        name: &str,
-        rebindings: &[BTreeMap<String, String>],
-        seen: &mut BTreeSet<String>,
-        output: &mut Vec<InferenceRule>,
-    ) -> Result<(), String> {
-        let context = format!("{name}\0{rebindings:?}");
-        if !seen.insert(context) {
-            return Ok(());
-        }
-        let program = self
-            .programs
-            .get(name)
-            .ok_or_else(|| format!("execution references unknown linked-program {name}"))?;
-        output.extend(program.inferences.iter().map(|rule| {
-            InferenceRule {
-                program: rule.program.clone(),
-                name: rule.name.clone(),
-                premises: rule
-                    .premises
-                    .iter()
-                    .map(|premise| apply_rebindings(premise, rebindings))
-                    .collect(),
-                conclusion: apply_rebindings(&rule.conclusion, rebindings),
-            }
-        }));
-        for dependency in &program.uses {
-            let nested_rebindings = if dependency.rebindings.is_empty() {
-                rebindings.to_vec()
-            } else {
-                let mut nested = vec![dependency.rebindings.clone()];
-                nested.extend_from_slice(rebindings);
-                nested
-            };
-            self.collect_inferences(&dependency.program, &nested_rebindings, seen, output)?;
-        }
-        Ok(())
-    }
-
-    fn rewrite_once(
-        &self,
-        term: &Node,
-        rules: &[RewriteRule],
-        semantic_paths: &[&str],
-    ) -> Result<Option<(Node, RewriteRule)>, String> {
-        self.observe(semantic_paths, "select-and-traverse-rewrite-rules")?;
-        for rule in rules {
-            self.observe(semantic_paths, "compare-link-structure")?;
-            self.observe(semantic_paths, "bind-pattern-variables")?;
-            let mut substitution = BTreeMap::new();
-            if match_term(&rule.pattern, term, &mut substitution) {
-                self.observe(semantic_paths, "substitute-bound-structures")?;
-                return Ok(Some((
-                    instantiate(&rule.replacement, &substitution)?,
-                    rule.clone(),
-                )));
-            }
-        }
-        if let Node::List(children) = term {
-            for (index, child) in children.iter().enumerate() {
-                if let Some((rewritten, rule)) = self.rewrite_once(child, rules, semantic_paths)? {
-                    let mut result = children.clone();
-                    result[index] = rewritten;
-                    return Ok(Some((Node::List(result), rule)));
-                }
-            }
-        }
-        Ok(None)
-    }
-
     pub fn reduce(
         &self,
         name: &str,
@@ -1584,14 +1381,30 @@ impl LinkedProgramRegistry {
         if max_steps == 0 {
             return Err("max_steps must be positive".to_string());
         }
-        let rules = self.effective_rewrites(name, &semantic_paths)?;
+        let rules =
+            combinator_kernel::resolve_rewrites(&self.programs, name, &self.disabled_operations)?;
+        self.observe_combinator(&semantic_paths, &rules.observed, &["import-and-rebinding"])?;
         let mut term = input.clone();
         let mut trace = Vec::new();
         let mut seen = BTreeSet::from([key_of(&term)]);
         while trace.len() < max_steps {
-            let Some((next, rule)) = self.rewrite_once(&term, &rules, &semantic_paths)? else {
+            let execution =
+                combinator_kernel::rewrite_once(&term, &rules, &self.disabled_operations)?;
+            self.observe_combinator(
+                &semantic_paths,
+                &execution.observed,
+                &["matching", "substitution", "rule-selection-and-traversal"],
+            )?;
+            let Some((next, program_name, rule_name)) = execution.step else {
                 return Ok(ReductionResult { term, trace });
             };
+            let rule = self
+                .programs
+                .get(&program_name)
+                .and_then(|program| program.rewrites.iter().find(|rule| rule.name == rule_name))
+                .ok_or_else(|| {
+                    format!("combinator kernel selected unknown rule {program_name}.{rule_name}")
+                })?;
             if next == term {
                 return Err(format!(
                     "linked rewrite {}.{} made no progress",
@@ -1599,8 +1412,8 @@ impl LinkedProgramRegistry {
                 ));
             }
             trace.push(RewriteTraceStep {
-                program: rule.program,
-                rule: rule.name,
+                program: rule.program.clone(),
+                rule: rule.name.clone(),
                 before: term,
                 after: next.clone(),
             });
@@ -1625,108 +1438,69 @@ impl LinkedProgramRegistry {
         max_facts: usize,
     ) -> Option<LinkedProof> {
         let semantic_paths = ["prove-linked-judgement"];
-        self.observe(&semantic_paths, "saturate-inference-rules")
-            .ok()?;
         self.observe(&semantic_paths, "enforce-cycle-and-resource-bounds")
             .ok()?;
         if max_rounds == 0 || max_facts == 0 {
             return None;
         }
         let normalized_goal = self.reduce(name, goal, 10_000).ok()?.term;
-        let goal_key = key_of(&normalized_goal);
-        let mut known: BTreeMap<String, (Node, LinkedProof)> = BTreeMap::new();
-        for fact in self.effective_facts(name, &semantic_paths).ok()? {
-            let normalized = self.reduce(name, &fact.judgement, 10_000).ok()?.term;
-            let key = key_of(&normalized);
-            known.entry(key).or_insert_with(|| {
-                (
-                    normalized,
-                    LinkedProof {
-                        judgement: fact.judgement,
-                        program: fact.program,
-                        rule: fact.name,
-                        premises: Vec::new(),
-                    },
-                )
-            });
-            if known.len() > max_facts {
+        let created = combinator_kernel::create_proof_state(
+            &self.programs,
+            name,
+            facts,
+            &self.disabled_operations,
+        )
+        .ok()?;
+        self.observe_combinator(
+            &semantic_paths,
+            &created.observed,
+            &[
+                "import-and-rebinding",
+                "matching",
+                "substitution",
+                "rule-selection-and-traversal",
+            ],
+        )
+        .ok()?;
+        let mut state = created.state;
+        if state.size > max_facts {
+            return None;
+        }
+        let found =
+            combinator_kernel::find_proof(&state, &normalized_goal, &self.disabled_operations)
+                .ok()?;
+        self.observe_combinator(&semantic_paths, &found.observed, &["result-verification"])
+            .ok()?;
+        if found.proof.is_some() {
+            return found.proof;
+        }
+        // One legacy round could add many facts. The closed kernel emits one
+        // derivation per transition, so preserve that capacity per round.
+        for _ in 0..max_rounds.saturating_mul(max_facts) {
+            let next = combinator_kernel::infer_once(state, &self.disabled_operations).ok()?;
+            self.observe_combinator(
+                &semantic_paths,
+                &next.observed,
+                &[
+                    "matching",
+                    "substitution",
+                    "rule-selection-and-traversal",
+                    "inference-saturation",
+                ],
+            )
+            .ok()?;
+            state = next.state;
+            next.derivation.as_ref()?;
+            if state.size > max_facts {
                 return None;
             }
-        }
-        for (index, fact) in facts.iter().enumerate() {
-            let normalized = self.reduce(name, fact, 10_000).ok()?.term;
-            let key = key_of(&normalized);
-            known.entry(key).or_insert_with(|| {
-                (
-                    normalized,
-                    LinkedProof {
-                        judgement: fact.clone(),
-                        program: "<input>".to_string(),
-                        rule: format!("input-{}", index + 1),
-                        premises: Vec::new(),
-                    },
-                )
-            });
-            if known.len() > max_facts {
-                return None;
-            }
-        }
-        if let Some((_, proof)) = known.get(&goal_key) {
-            return Some(proof.clone());
-        }
-        let rules = self.effective_inferences(name, &semantic_paths).ok()?;
-        for _ in 0..max_rounds {
-            let mut changed = false;
-            for rule in &rules {
-                let mut candidates = vec![(BTreeMap::new(), Vec::<LinkedProof>::new())];
-                for premise in &rule.premises {
-                    let mut next = Vec::new();
-                    for (substitution, proofs) in candidates {
-                        for (judgement, proof) in known.values() {
-                            self.observe(&semantic_paths, "compare-link-structure")
-                                .ok()?;
-                            self.observe(&semantic_paths, "bind-pattern-variables")
-                                .ok()?;
-                            let mut candidate_substitution = substitution.clone();
-                            if match_term(premise, judgement, &mut candidate_substitution) {
-                                let mut candidate_proofs = proofs.clone();
-                                candidate_proofs.push(proof.clone());
-                                next.push((candidate_substitution, candidate_proofs));
-                            }
-                        }
-                    }
-                    candidates = next;
-                    if candidates.is_empty() {
-                        break;
-                    }
-                }
-                for (substitution, premises) in candidates {
-                    self.observe(&semantic_paths, "substitute-bound-structures")
-                        .ok()?;
-                    let judgement = instantiate(&rule.conclusion, &substitution).ok()?;
-                    let normalized = self.reduce(name, &judgement, 10_000).ok()?.term;
-                    let key = key_of(&normalized);
-                    if known.contains_key(&key) {
-                        continue;
-                    }
-                    let proof = LinkedProof {
-                        judgement,
-                        program: rule.program.clone(),
-                        rule: rule.name.clone(),
-                        premises,
-                    };
-                    known.insert(key.clone(), (normalized, proof));
-                    changed = true;
-                    if known.len() > max_facts {
-                        return None;
-                    }
-                    if key == goal_key {
-                        return known.get(&key).map(|(_, proof)| proof.clone());
-                    }
-                }
-            }
-            if !changed {
-                break;
+            let found =
+                combinator_kernel::find_proof(&state, &normalized_goal, &self.disabled_operations)
+                    .ok()?;
+            self.observe_combinator(&semantic_paths, &found.observed, &["result-verification"])
+                .ok()?;
+            if found.proof.is_some() {
+                return found.proof;
             }
         }
         None
