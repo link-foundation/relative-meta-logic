@@ -15,7 +15,7 @@
 # ---------- Build stage ----------
 FROM rust:1-slim-bookworm AS builder
 
-WORKDIR /build
+WORKDIR /build/rust
 
 # Copy only the manifests first so the dependency layer is cached.
 COPY rust/Cargo.toml rust/Cargo.lock ./
@@ -29,6 +29,7 @@ RUN mkdir -p src src/bin \
 
 # Build the real sources.
 COPY rust/src ./src
+COPY lib/meta-theory /build/lib/meta-theory
 RUN cargo build --release --bin rml --bin rml-check --bin rml-meta
 
 # ---------- Runtime stage ----------
@@ -41,9 +42,9 @@ RUN apt-get update \
 
 WORKDIR /repo
 
-COPY --from=builder /build/target/release/rml /usr/local/bin/rml
-COPY --from=builder /build/target/release/rml-check /usr/local/bin/rml-check
-COPY --from=builder /build/target/release/rml-meta /usr/local/bin/rml-meta
+COPY --from=builder /build/rust/target/release/rml /usr/local/bin/rml
+COPY --from=builder /build/rust/target/release/rml-check /usr/local/bin/rml-check
+COPY --from=builder /build/rust/target/release/rml-meta /usr/local/bin/rml-meta
 
 COPY examples ./examples
 COPY lib ./lib

@@ -36,6 +36,19 @@ test('the runtime graph is compiled from authoritative addressed-link source', (
   assert.doesNotMatch(runtime, /buildSourceKernel/);
 });
 
+test('the Rust container preserves the shared source paths at compile time', () => {
+  const dockerfile = readFileSync(
+    new URL('../docker/Dockerfile.rust', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(dockerfile, /^WORKDIR \/build\/rust$/m);
+  assert.match(
+    dockerfile,
+    /^COPY lib\/meta-theory \/build\/lib\/meta-theory$/m,
+  );
+});
+
 test('the one-name iota basis exposes the same two residual contractions', () => {
   assert.deepEqual(combinatorIotaEquivalenceReport(), {
     schema: 'rml-basis-equivalence-witness/v1',
