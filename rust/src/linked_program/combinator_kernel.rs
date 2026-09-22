@@ -4,7 +4,18 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, OnceLock};
 
 const ARTIFACT: &str = include_str!("../../../lib/meta-theory/fixed-point.ski");
+const SOURCE: &str = include_str!("../../../lib/meta-theory/fixed-point-source.lino");
 const MAX_CONTRACTIONS: usize = 100_000_000;
+
+pub(super) struct KernelSourceSummary {
+    pub(super) artifact: &'static str,
+    pub(super) schema: &'static str,
+    pub(super) representation: &'static str,
+    pub(super) upstream_model: &'static str,
+    pub(super) source_nodes: usize,
+    pub(super) runtime_nodes: usize,
+    pub(super) roots: usize,
+}
 
 #[derive(Debug)]
 enum Term {
@@ -31,12 +42,14 @@ fn apply_many(head: LinkedTerm, arguments: impl IntoIterator<Item = LinkedTerm>)
 #[derive(Debug)]
 struct Kernel {
     roots: BTreeMap<String, LinkedTerm>,
+    node_count: usize,
+    root_count: usize,
 }
 
 impl Kernel {
     fn load() -> Result<Self, String> {
         let mut lines = ARTIFACT.lines();
-        if lines.next() != Some("rml-ski-dag-v1") {
+        if lines.next() != Some("rml-addressed-link-dag-v1") {
             return Err("invalid fixed-point kernel header".to_string());
         }
         let counts: Vec<usize> = lines
@@ -101,7 +114,11 @@ impl Kernel {
         if lines.any(|line| !line.is_empty()) {
             return Err("unexpected data after fixed-point root table".to_string());
         }
-        Ok(Self { roots })
+        Ok(Self {
+            roots,
+            node_count: counts[0],
+            root_count: counts[1],
+        })
     }
 
     fn shared() -> Result<&'static Self, String> {
@@ -313,6 +330,54 @@ impl Kernel {
         let items = runner.materialize_list(arguments[0].clone())?;
         Ok(self.encode_list(items))
     }
+}
+
+pub(super) fn source_summary() -> Result<KernelSourceSummary, String> {
+    fn clause(name: &str) -> Result<&'static str, String> {
+        let prefix = format!("({name} ");
+        SOURCE
+            .lines()
+            .find_map(|line| {
+                line.trim()
+                    .strip_prefix(&prefix)
+                    .map(|value| value.trim_end_matches(')'))
+            })
+            .ok_or_else(|| format!("fixed-point source requires ({name} value)"))
+    }
+
+    if !SOURCE.contains("(bootstrap-source rml.bootstrap.fixed-point") {
+        return Err("missing fixed-point bootstrap source declaration".to_string());
+    }
+    let source_nodes = SOURCE
+        .lines()
+        .filter(|line| line.trim_start().starts_with("(bootstrap-source-node "))
+        .count();
+    let roots = SOURCE
+        .lines()
+        .filter(|line| line.trim_start().starts_with("(bootstrap-source-root "))
+        .count();
+    let declared_source_nodes = clause("node-count")?
+        .parse::<usize>()
+        .map_err(|error| error.to_string())?;
+    let declared_roots = clause("root-count")?
+        .parse::<usize>()
+        .map_err(|error| error.to_string())?;
+    if source_nodes != declared_source_nodes || roots != declared_roots {
+        return Err("fixed-point bootstrap source counts do not match its declaration".to_string());
+    }
+    let kernel = Kernel::shared()?;
+    if roots != kernel.root_count {
+        return Err("fixed-point source and runtime root counts differ".to_string());
+    }
+    Ok(KernelSourceSummary {
+        artifact: "lib/meta-theory/fixed-point-source.lino",
+        schema: clause("schema")?,
+        representation: clause("representation")?,
+        upstream_model: clause("upstream-model")?,
+        source_nodes,
+        runtime_nodes: kernel.node_count,
+        roots,
+    })
 }
 
 pub(super) struct Runner {

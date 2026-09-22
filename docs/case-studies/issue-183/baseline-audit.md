@@ -40,6 +40,15 @@ The following upstream files define the baseline used here:
   gives references, doublets, tuple networks, and the network-of-networks
   representation.
 
+At the foundational level, the upstream network is an addressed doublet
+function of the form `N² : Reference -> Reference × Reference` (with the Lean
+and Rocq presentations spelling out the corresponding reference and network
+types). `MetaDefinitions` establishes structural self-definition relationships.
+Neither module introduces an execution or reduction transition. Consequently,
+the current RML S/K contractions are not attributed to upstream Links Theory;
+they are separately reported as externally primitive laws over the upstream
+addressed-link structure.
+
 For four leaves `[1, 2, 3, 4]`, the three required shapes are:
 
 ```text

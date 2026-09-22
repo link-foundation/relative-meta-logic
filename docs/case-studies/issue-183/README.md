@@ -55,20 +55,30 @@ cases, replays exact proof obligations, and checks the definition witness.
 Users can add an unknown logic without modifying either host runtime.
 
 The later foundation review is covered by an explicit
-`S/K -> closed linked terms -> K1 -> F -> T` split. The residual semantic
-boundary contracts only S and K; matching, substitution, traversal,
-import/rebinding, inference, and verification are generated closed terms
-shared by JavaScript and Rust. Parsing and resource bounds remain explicit
-non-semantic layers. The report does not claim global irreducibility: it
-publishes the removal criterion, fault-injection evidence, the equivalent iota
-re-encoding, and the complete dependency/trust graph.
+`external S/K laws -> addressed-link semantic program -> K1 -> F -> T` split.
+The authoritative 1,446-node program is now checked in as
+[`fixed-point-source.lino`](../../../lib/meta-theory/fixed-point-source.lino),
+not described by a large JavaScript `buildSourceKernel` function. A
+generation-only compiler lowers its 25 roots to the shared 35,674-node runtime
+network. Matching, substitution, traversal, import/rebinding, inference, and
+verification are derived inside that network. Parsing and resource bounds
+remain explicit non-semantic layers.
+
+The provenance report does not relabel S/K as laws of Links Theory. Upstream
+defines an addressed doublet network but no execution transition; the current
+S and K reductions are therefore recorded as two `externally-primitive` laws.
+The link source is `link-native`, while its six capabilities are
+`derived-inside-system`. The executable zero-law candidate fails the complete
+probe, and iota remains an equivalent re-encoding rather than a semantic
+reduction. The report continues to reject any claim of global irreducibility.
 
 The follow-up quantitative review is captured in
 [`bootstrap-metrics.md`](./bootstrap-metrics.md). Mirrored executable probes
-now report two representation-scoped independent contractions, zero derived
-host semantics, zero host/linked duplication, 6/6 self-hosting closure, 2/8
-foundation compression, and zero undocumented observations across 4/4 runtime
-paths and 10/10 path segments. CI publishes the machine-readable
+now report two representation-scoped external laws, zero external semantic
+source descriptions, zero derived host semantics, zero host/linked
+duplication, 6/6 self-hosting closure, 2/8 foundation compression, and zero
+undocumented observations across 4/4 runtime paths and 10/10 path segments. CI
+publishes the machine-readable
 previous/current comparison instead of inferring progress from labels or host
 line counts.
 
@@ -110,7 +120,8 @@ sequence observation.
 
 ## Verification boundary
 
-The host trusts only the S/K contractions and non-semantic boundary operations
+The host trusts only the externally primitive S/K contractions and
+non-semantic boundary operations
 enumerated by `bootstrapKernelReport` / `bootstrap_kernel_report`. The mirrored
 audit checks an independent implementation manifest, rejects unreported
 semantics, and requires every trust-graph branch to terminate in the declared

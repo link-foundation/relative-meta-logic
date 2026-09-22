@@ -9,6 +9,7 @@ import {
   combinatorCreateProofState,
   combinatorFindProof,
   combinatorInferOnce,
+  combinatorKernelSourceReport,
   combinatorResolveRewrites,
   combinatorRewriteOnce,
 } from './rml-combinator-kernel.mjs';
@@ -209,6 +210,26 @@ const REMOVAL_CLASSIFICATIONS = Object.freeze([
   'UNKNOWN',
 ]);
 
+const PROVENANCE_CLASSIFICATIONS = Object.freeze([
+  'link-native',
+  'derived-inside-system',
+  'compiled-from-external-semantic-description',
+  'externally-primitive',
+]);
+
+const SEMANTIC_LAW_PROVENANCE = Object.freeze([
+  Object.freeze({
+    operation: 'contract-s-link',
+    provenance: 'externally-primitive',
+    law: 'S x y z -> x z (y z)',
+  }),
+  Object.freeze({
+    operation: 'contract-k-link',
+    provenance: 'externally-primitive',
+    law: 'K x y -> x',
+  }),
+]);
+
 const BOOTSTRAP_METRIC_PROBE_SOURCE = `
   (linked-program bootstrap-metric-rewrite)
   (linked-rewrite bootstrap-metric-rewrite apply
@@ -250,7 +271,7 @@ const HOST_SEMANTIC_LAYERS = Object.freeze([
   Object.freeze({ layer: 'object-specific-host-semantics', operations: Object.freeze([]) }),
 ]);
 
-const PREVIOUS_METRIC_REVISION = 'e2e9f7b2a87d4b128bb736d693d5512509974860';
+const PREVIOUS_METRIC_REVISION = '8b39df510a083e5cbe2a56a72e6595aae7b48146';
 
 function cloneReportValue(value) {
   return JSON.parse(JSON.stringify(value));
@@ -505,6 +526,19 @@ class LinkedProgramRegistry {
       numerator: 2,
       denominator: 8,
     };
+    let zeroTransitionFailure = '';
+    try {
+      LinkedProgramRegistry.#runBootstrapMetricProbe(source, [
+        'contract-s-link',
+        'contract-k-link',
+      ]);
+    } catch (error) {
+      zeroTransitionFailure = String(error.message);
+    }
+    if (zeroTransitionFailure.length === 0) {
+      throw new Error('zero-transition foundation unexpectedly preserved the baseline');
+    }
+    const semanticSource = combinatorKernelSourceReport();
     const current = {
       totalHostSemanticOperations: totalOperations,
       independentHostPrimitives: {
@@ -525,13 +559,54 @@ class LinkedProgramRegistry {
         experimentallyNecessary: confirmedIndependentCount,
         equivalentOneRuleBases: ['iota'],
       },
+      externalSemanticInformation: {
+        independentLaws: 2,
+        lawNames: ['contract-s-link', 'contract-k-link'],
+        provenance: 'externally-primitive',
+      },
     };
     return cloneReportValue({
-      schema: 'rml-bootstrap-metrics/v1',
+      schema: 'rml-bootstrap-metrics/v2',
       previousRevision: PREVIOUS_METRIC_REVISION,
-      measurementScope: 'The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, and links-meta-foundation result verification. S/K necessity is relative to this representation and probe; the report does not claim a globally irreducible basis.',
+      measurementScope: 'The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, links-meta-foundation result verification, and a zero-transition fault injection. The addressed-link source is native to the upstream network-duplet structure; S/K remain externally primitive transition laws. Necessity is relative to this representation and probe, not a claim of global irreducibility.',
+      provenanceClassifications: PROVENANCE_CLASSIFICATIONS,
       removalClassifications: REMOVAL_CLASSIFICATIONS,
       current,
+      semanticProvenance: {
+        authoritativeSource: semanticSource,
+        derivedCapabilities: LINKED_CAPABILITIES.map(({ id }) => ({
+          id,
+          provenance: 'derived-inside-system',
+        })),
+        eliminatedExternalSources: [{
+          id: 'buildSourceKernel',
+          provenance: 'compiled-from-external-semantic-description',
+          present: false,
+        }],
+      },
+      foundationSearchExperiments: [
+        {
+          candidate: 'zero-semantic-transition',
+          classification: 'INSUFFICIENT',
+          externalSemanticLaws: 0,
+          baselinePreserved: false,
+          observedFailure: zeroTransitionFailure,
+        },
+        {
+          candidate: 's-k-over-link-native-source',
+          classification: 'CURRENT_SUFFICIENT',
+          externalSemanticLaws: 2,
+          baselinePreserved: true,
+          observedFailure: '',
+        },
+        {
+          candidate: 'iota',
+          classification: 'EQUIVALENT_REENCODING',
+          externalSemanticLaws: 1,
+          baselinePreserved: null,
+          observedFailure: '',
+        },
+      ],
       hostSemanticLayers: HOST_SEMANTIC_LAYERS.map(layer => ({
         layer: layer.layer,
         count: layer.operations.length,
@@ -544,27 +619,27 @@ class LinkedProgramRegistry {
       comparison: [
         {
           metric: 'total-host-semantic-operations',
-          previous: 8,
+          previous: 2,
           current: current.totalHostSemanticOperations,
-          delta: current.totalHostSemanticOperations - 8,
+          delta: current.totalHostSemanticOperations - 2,
         },
         {
           metric: 'independent-host-primitives',
-          previous: null,
+          previous: '2 confirmed; 0 unknown',
           current: `${confirmedIndependentCount} confirmed; ${unknownCount} unknown`,
           delta: null,
         },
         {
           metric: 'derived-host-semantic-services',
-          previous: 2,
+          previous: 0,
           current: current.derivedHostSemanticServices,
-          delta: current.derivedHostSemanticServices - 2,
+          delta: current.derivedHostSemanticServices,
         },
         {
           metric: 'host-linked-duplicated-semantics',
-          previous: null,
+          previous: 0,
           current: current.duplicatedSemanticCapabilities,
-          delta: null,
+          delta: 0,
         },
         {
           metric: 'object-specific-host-semantics',
@@ -574,21 +649,33 @@ class LinkedProgramRegistry {
         },
         {
           metric: 'undocumented-semantic-paths',
-          previous: null,
+          previous: 0,
           current: current.undocumentedSemanticPaths,
-          delta: null,
+          delta: 0,
         },
         {
           metric: 'self-hosting-closure',
-          previous: null,
+          previous: '6/6',
           current: `${selfHostingClosure.numerator}/${selfHostingClosure.denominator}`,
           delta: null,
         },
         {
           metric: 'foundation-compression-ratio',
-          previous: null,
+          previous: '2/8',
           current: `${foundationCompression.numerator}/${foundationCompression.denominator}`,
           delta: null,
+        },
+        {
+          metric: 'independent-external-semantic-laws',
+          previous: null,
+          current: 2,
+          delta: null,
+        },
+        {
+          metric: 'external-semantic-source-descriptions',
+          previous: 1,
+          current: 0,
+          delta: -1,
         },
       ],
     });
@@ -607,6 +694,8 @@ class LinkedProgramRegistry {
       operations: BOOTSTRAP_OPERATIONS.map(operation => operation.id),
       derivedHostServices: DERIVED_HOST_SERVICES.map(service => service.id),
       objectSemantics: [],
+      semanticSource: combinatorKernelSourceReport(),
+      semanticLawProvenance: SEMANTIC_LAW_PROVENANCE,
       minimizationExperiments: MINIMIZATION_EXPERIMENTS,
       trustGraph: {
         schema: 'rml-bootstrap-trust-graph/v1',

@@ -42,7 +42,13 @@ const BOOTSTRAP_METRIC_PROBE_SOURCE: &str = r#"
   (conclusion (metric-derived ?value)))
 "#;
 
-const PREVIOUS_METRIC_REVISION: &str = "e2e9f7b2a87d4b128bb736d693d5512509974860";
+const PREVIOUS_METRIC_REVISION: &str = "8b39df510a083e5cbe2a56a72e6595aae7b48146";
+const PROVENANCE_CLASSIFICATIONS: &[&str] = &[
+    "link-native",
+    "derived-inside-system",
+    "compiled-from-external-semantic-description",
+    "externally-primitive",
+];
 
 #[derive(Debug, Clone, PartialEq)]
 struct RewriteRule {
@@ -114,8 +120,30 @@ pub struct BootstrapKernelReport {
     pub operations: Vec<&'static str>,
     pub derived_host_services: Vec<&'static str>,
     pub object_semantics: Vec<&'static str>,
+    pub semantic_source: BootstrapSemanticSource,
+    pub semantic_law_provenance: Vec<BootstrapSemanticLawProvenance>,
     pub minimization_experiments: Vec<BootstrapMinimizationExperiment>,
     pub trust_graph: BootstrapTrustGraph,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapSemanticSource {
+    pub artifact: &'static str,
+    pub schema: &'static str,
+    pub representation: &'static str,
+    pub upstream_model: &'static str,
+    pub source_nodes: usize,
+    pub runtime_nodes: usize,
+    pub roots: usize,
+    pub provenance: &'static str,
+    pub compiled_from_external_semantic_description: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapSemanticLawProvenance {
+    pub operation: &'static str,
+    pub provenance: &'static str,
+    pub law: &'static str,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -211,6 +239,14 @@ pub struct BootstrapCurrentMetrics {
     pub self_hosting_closure: BootstrapSelfHostingClosure,
     pub foundation_compression: BootstrapFoundationCompression,
     pub residual_semantic_basis: BootstrapResidualSemanticBasis,
+    pub external_semantic_information: BootstrapExternalSemanticInformation,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapExternalSemanticInformation {
+    pub independent_laws: usize,
+    pub law_names: Vec<&'static str>,
+    pub provenance: &'static str,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -274,14 +310,46 @@ pub struct BootstrapMetricsReport {
     pub schema: &'static str,
     pub previous_revision: &'static str,
     pub measurement_scope: &'static str,
+    pub provenance_classifications: Vec<&'static str>,
     pub removal_classifications: Vec<&'static str>,
     pub current: BootstrapCurrentMetrics,
+    pub semantic_provenance: BootstrapSemanticProvenance,
+    pub foundation_search_experiments: Vec<BootstrapFoundationSearchExperiment>,
     pub host_semantic_layers: Vec<BootstrapHostSemanticLayer>,
     pub removal_experiments: Vec<BootstrapRemovalExperiment>,
     pub host_linked_duplications: Vec<BootstrapHostLinkedDuplication>,
     pub linked_self_hosting_capabilities: Vec<BootstrapLinkedCapability>,
     pub runtime_trust_graph_coverage: BootstrapRuntimeTrustGraphCoverage,
     pub comparison: Vec<BootstrapMetricComparison>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapProvenanceItem {
+    pub id: &'static str,
+    pub provenance: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapEliminatedSource {
+    pub id: &'static str,
+    pub provenance: &'static str,
+    pub present: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapSemanticProvenance {
+    pub authoritative_source: BootstrapSemanticSource,
+    pub derived_capabilities: Vec<BootstrapProvenanceItem>,
+    pub eliminated_external_sources: Vec<BootstrapEliminatedSource>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapFoundationSearchExperiment {
+    pub candidate: &'static str,
+    pub classification: &'static str,
+    pub external_semantic_laws: usize,
+    pub baseline_preserved: Option<bool>,
+    pub observed_failure: String,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -439,6 +507,8 @@ impl LinkedProgramRegistry {
 
     /// Reports the residual combinator boundary and its complete trust graph.
     pub fn bootstrap_kernel_report() -> BootstrapKernelReport {
+        let source = combinator_kernel::source_summary()
+            .expect("checked-in fixed-point source and runtime graph must be valid");
         let operations = vec![
             "contract-s-link",
             "contract-k-link",
@@ -454,6 +524,29 @@ impl LinkedProgramRegistry {
             operations,
             derived_host_services,
             object_semantics: Vec::new(),
+            semantic_source: BootstrapSemanticSource {
+                artifact: source.artifact,
+                schema: source.schema,
+                representation: source.representation,
+                upstream_model: source.upstream_model,
+                source_nodes: source.source_nodes,
+                runtime_nodes: source.runtime_nodes,
+                roots: source.roots,
+                provenance: "link-native",
+                compiled_from_external_semantic_description: false,
+            },
+            semantic_law_provenance: vec![
+                BootstrapSemanticLawProvenance {
+                    operation: "contract-s-link",
+                    provenance: "externally-primitive",
+                    law: "S x y z -> x z (y z)",
+                },
+                BootstrapSemanticLawProvenance {
+                    operation: "contract-k-link",
+                    provenance: "externally-primitive",
+                    law: "K x y -> x",
+                },
+            ],
             minimization_experiments: vec![
                 BootstrapMinimizationExperiment {
                     operation: "contract-s-link",
@@ -934,6 +1027,17 @@ impl LinkedProgramRegistry {
             numerator: 2,
             denominator: 8,
         };
+        let zero_transition_failure =
+            match Self::run_bootstrap_metric_probe(source, &["contract-s-link", "contract-k-link"])
+            {
+                Ok(_) => {
+                    return Err(
+                        "zero-transition foundation unexpectedly preserved the baseline"
+                            .to_string(),
+                    )
+                }
+                Err(error) => error,
+            };
         let undocumented_count = runtime_trust_graph_coverage.undocumented_paths.len()
             + runtime_trust_graph_coverage.undocumented_operations.len()
             + runtime_trust_graph_coverage
@@ -955,6 +1059,11 @@ impl LinkedProgramRegistry {
                 operations: vec!["contract-s-link", "contract-k-link"],
                 experimentally_necessary: confirmed_independent_count,
                 equivalent_one_rule_bases: vec!["iota"],
+            },
+            external_semantic_information: BootstrapExternalSemanticInformation {
+                independent_laws: 2,
+                law_names: vec!["contract-s-link", "contract-k-link"],
+                provenance: "externally-primitive",
             },
         };
         let host_semantic_layers = vec![
@@ -992,13 +1101,13 @@ impl LinkedProgramRegistry {
         let comparison = vec![
             BootstrapMetricComparison {
                 metric: "total-host-semantic-operations",
-                previous: Some("8".to_string()),
+                previous: Some("2".to_string()),
                 current: total_operations.to_string(),
-                delta: Some((total_operations as isize - 8).to_string()),
+                delta: Some((total_operations as isize - 2).to_string()),
             },
             BootstrapMetricComparison {
                 metric: "independent-host-primitives",
-                previous: None,
+                previous: Some("2 confirmed; 0 unknown".to_string()),
                 current: format!(
                     "{confirmed_independent_count} confirmed; {unknown_count} unknown"
                 ),
@@ -1006,15 +1115,15 @@ impl LinkedProgramRegistry {
             },
             BootstrapMetricComparison {
                 metric: "derived-host-semantic-services",
-                previous: Some("2".to_string()),
+                previous: Some("0".to_string()),
                 current: "0".to_string(),
-                delta: Some("-2".to_string()),
+                delta: Some("0".to_string()),
             },
             BootstrapMetricComparison {
                 metric: "host-linked-duplicated-semantics",
-                previous: None,
+                previous: Some("0".to_string()),
                 current: host_linked_duplications.len().to_string(),
-                delta: None,
+                delta: Some("0".to_string()),
             },
             BootstrapMetricComparison {
                 metric: "object-specific-host-semantics",
@@ -1024,13 +1133,13 @@ impl LinkedProgramRegistry {
             },
             BootstrapMetricComparison {
                 metric: "undocumented-semantic-paths",
-                previous: None,
+                previous: Some("0".to_string()),
                 current: undocumented_count.to_string(),
-                delta: None,
+                delta: Some("0".to_string()),
             },
             BootstrapMetricComparison {
                 metric: "self-hosting-closure",
-                previous: None,
+                previous: Some("6/6".to_string()),
                 current: format!(
                     "{}/{}",
                     current.self_hosting_closure.numerator,
@@ -1040,7 +1149,7 @@ impl LinkedProgramRegistry {
             },
             BootstrapMetricComparison {
                 metric: "foundation-compression-ratio",
-                previous: None,
+                previous: Some("2/8".to_string()),
                 current: format!(
                     "{}/{}",
                     current.foundation_compression.numerator,
@@ -1048,13 +1157,71 @@ impl LinkedProgramRegistry {
                 ),
                 delta: None,
             },
+            BootstrapMetricComparison {
+                metric: "independent-external-semantic-laws",
+                previous: None,
+                current: "2".to_string(),
+                delta: None,
+            },
+            BootstrapMetricComparison {
+                metric: "external-semantic-source-descriptions",
+                previous: Some("1".to_string()),
+                current: "0".to_string(),
+                delta: Some("-1".to_string()),
+            },
         ];
         Ok(BootstrapMetricsReport {
-            schema: "rml-bootstrap-metrics/v1",
+            schema: "rml-bootstrap-metrics/v2",
             previous_revision: PREVIOUS_METRIC_REVISION,
-            measurement_scope: "The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, and links-meta-foundation result verification. S/K necessity is relative to this representation and probe; the report does not claim a globally irreducible basis.",
+            measurement_scope: "The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, links-meta-foundation result verification, and a zero-transition fault injection. The addressed-link source is native to the upstream network-duplet structure; S/K remain externally primitive transition laws. Necessity is relative to this representation and probe, not a claim of global irreducibility.",
+            provenance_classifications: PROVENANCE_CLASSIFICATIONS.to_vec(),
             removal_classifications: REMOVAL_CLASSIFICATIONS.to_vec(),
             current,
+            semantic_provenance: BootstrapSemanticProvenance {
+                authoritative_source: kernel.semantic_source.clone(),
+                derived_capabilities: vec![
+                    "matching",
+                    "substitution",
+                    "rule-selection-and-traversal",
+                    "import-and-rebinding",
+                    "inference-saturation",
+                    "result-verification",
+                ]
+                .into_iter()
+                .map(|id| BootstrapProvenanceItem {
+                    id,
+                    provenance: "derived-inside-system",
+                })
+                .collect(),
+                eliminated_external_sources: vec![BootstrapEliminatedSource {
+                    id: "buildSourceKernel",
+                    provenance: "compiled-from-external-semantic-description",
+                    present: false,
+                }],
+            },
+            foundation_search_experiments: vec![
+                BootstrapFoundationSearchExperiment {
+                    candidate: "zero-semantic-transition",
+                    classification: "INSUFFICIENT",
+                    external_semantic_laws: 0,
+                    baseline_preserved: Some(false),
+                    observed_failure: zero_transition_failure,
+                },
+                BootstrapFoundationSearchExperiment {
+                    candidate: "s-k-over-link-native-source",
+                    classification: "CURRENT_SUFFICIENT",
+                    external_semantic_laws: 2,
+                    baseline_preserved: Some(true),
+                    observed_failure: String::new(),
+                },
+                BootstrapFoundationSearchExperiment {
+                    candidate: "iota",
+                    classification: "EQUIVALENT_REENCODING",
+                    external_semantic_laws: 1,
+                    baseline_preserved: None,
+                    observed_failure: String::new(),
+                },
+            ],
             host_semantic_layers,
             removal_experiments,
             host_linked_duplications,

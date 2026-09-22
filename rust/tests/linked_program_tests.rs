@@ -324,6 +324,43 @@ fn executes_a_links_defined_meta_interpreter_above_an_explicit_k0_boundary() {
     );
     assert!(report.derived_host_services.is_empty());
     assert!(report.object_semantics.is_empty());
+    assert_eq!(
+        report.semantic_source.artifact,
+        "lib/meta-theory/fixed-point-source.lino"
+    );
+    assert_eq!(report.semantic_source.schema, "rml-lambda-link-dag-v1");
+    assert_eq!(
+        report.semantic_source.representation,
+        "addressed-doublet-network"
+    );
+    assert_eq!(
+        report.semantic_source.upstream_model,
+        "network-duplet-function"
+    );
+    assert_eq!(report.semantic_source.source_nodes, 1446);
+    assert_eq!(report.semantic_source.runtime_nodes, 35674);
+    assert_eq!(report.semantic_source.roots, 25);
+    assert_eq!(report.semantic_source.provenance, "link-native");
+    assert!(
+        !report
+            .semantic_source
+            .compiled_from_external_semantic_description
+    );
+    assert_eq!(
+        report
+            .semantic_law_provenance
+            .iter()
+            .map(|item| (item.operation, item.provenance, item.law))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                "contract-s-link",
+                "externally-primitive",
+                "S x y z -> x z (y z)",
+            ),
+            ("contract-k-link", "externally-primitive", "K x y -> x",),
+        ]
+    );
     assert_eq!(report.minimization_experiments.len(), 4);
     assert!(report
         .trust_graph
@@ -347,7 +384,16 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     let report = LinkedProgramRegistry::bootstrap_metrics_report(&source())
         .expect("bootstrap metrics must be reproducible");
 
-    assert_eq!(report.schema, "rml-bootstrap-metrics/v1");
+    assert_eq!(report.schema, "rml-bootstrap-metrics/v2");
+    assert_eq!(
+        report.provenance_classifications,
+        vec![
+            "link-native",
+            "derived-inside-system",
+            "compiled-from-external-semantic-description",
+            "externally-primitive",
+        ]
+    );
     assert_eq!(
         report.removal_classifications,
         vec![
@@ -364,6 +410,62 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     assert_eq!(report.current.duplicated_semantic_capabilities, 0);
     assert_eq!(report.current.object_specific_host_semantics, 0);
     assert_eq!(report.current.undocumented_semantic_paths, 0);
+    assert_eq!(
+        report
+            .current
+            .external_semantic_information
+            .independent_laws,
+        2
+    );
+    assert_eq!(
+        report.current.external_semantic_information.law_names,
+        vec!["contract-s-link", "contract-k-link"]
+    );
+    assert_eq!(
+        report.current.external_semantic_information.provenance,
+        "externally-primitive"
+    );
+    assert_eq!(
+        report.semantic_provenance.authoritative_source.provenance,
+        "link-native"
+    );
+    assert!(
+        !report
+            .semantic_provenance
+            .authoritative_source
+            .compiled_from_external_semantic_description
+    );
+    assert!(report
+        .semantic_provenance
+        .derived_capabilities
+        .iter()
+        .all(|item| item.provenance == "derived-inside-system"));
+    assert_eq!(report.semantic_provenance.derived_capabilities.len(), 6);
+    assert_eq!(
+        report.semantic_provenance.eliminated_external_sources.len(),
+        1
+    );
+    assert_eq!(
+        report.semantic_provenance.eliminated_external_sources[0].id,
+        "buildSourceKernel"
+    );
+    assert!(!report.semantic_provenance.eliminated_external_sources[0].present);
+    assert_eq!(report.foundation_search_experiments.len(), 3);
+    assert_eq!(
+        report.foundation_search_experiments[0].candidate,
+        "zero-semantic-transition"
+    );
+    assert_eq!(
+        report.foundation_search_experiments[0].external_semantic_laws,
+        0
+    );
+    assert_eq!(
+        report.foundation_search_experiments[0].baseline_preserved,
+        Some(false)
+    );
+    assert!(!report.foundation_search_experiments[0]
+        .observed_failure
+        .is_empty());
     assert_eq!(report.current.self_hosting_closure.linked_capabilities, 6);
     assert_eq!(
         report.current.self_hosting_closure.task,
@@ -522,12 +624,12 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
 
     let total = &report.comparison[0];
     assert_eq!(total.metric, "total-host-semantic-operations");
-    assert_eq!(total.previous.as_deref(), Some("8"));
+    assert_eq!(total.previous.as_deref(), Some("2"));
     assert_eq!(total.current, "2");
-    assert_eq!(total.delta.as_deref(), Some("-6"));
+    assert_eq!(total.delta.as_deref(), Some("0"));
     assert_eq!(
         report.previous_revision,
-        "e2e9f7b2a87d4b128bb736d693d5512509974860"
+        "8b39df510a083e5cbe2a56a72e6595aae7b48146"
     );
     assert_eq!(
         report
@@ -541,19 +643,31 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
             ))
             .collect::<Vec<_>>(),
         vec![
-            ("total-host-semantic-operations", Some("8"), "2", Some("-6"),),
+            ("total-host-semantic-operations", Some("2"), "2", Some("0"),),
             (
                 "independent-host-primitives",
-                None,
+                Some("2 confirmed; 0 unknown"),
                 "2 confirmed; 0 unknown",
                 None,
             ),
-            ("derived-host-semantic-services", Some("2"), "0", Some("-2"),),
-            ("host-linked-duplicated-semantics", None, "0", None),
+            ("derived-host-semantic-services", Some("0"), "0", Some("0"),),
+            (
+                "host-linked-duplicated-semantics",
+                Some("0"),
+                "0",
+                Some("0")
+            ),
             ("object-specific-host-semantics", Some("0"), "0", Some("0")),
-            ("undocumented-semantic-paths", None, "0", None),
-            ("self-hosting-closure", None, "6/6", None),
-            ("foundation-compression-ratio", None, "2/8", None),
+            ("undocumented-semantic-paths", Some("0"), "0", Some("0")),
+            ("self-hosting-closure", Some("6/6"), "6/6", None),
+            ("foundation-compression-ratio", Some("2/8"), "2/8", None),
+            ("independent-external-semantic-laws", None, "2", None),
+            (
+                "external-semantic-source-descriptions",
+                Some("1"),
+                "0",
+                Some("-1")
+            ),
         ]
     );
 }

@@ -53,8 +53,8 @@ The system distinguishes an initial bootstrap machine from the semantics it
 executes:
 
 ```text
-K0: S/K contraction in JavaScript/Rust
-  -> closed linked combinator terms: match/substitute/traverse/import/infer/verify
+K0: two externally primitive transition laws (S/K) in JavaScript/Rust
+  -> addressed-link source: match/substitute/traverse/import/infer/verify
     -> K1: links-meta-foundation in universal.lino
       -> F: selected user foundation
         -> T: unchanged user theory
@@ -71,11 +71,24 @@ has only two reductions:
 
 Parsing textual LiNo and enforcing cycle/resource limits remain visible in the
 boundary report, but are classified as representation ingress and external
-execution control rather than semantic operations. The checked-in
-[`fixed-point.ski`](../lib/meta-theory/fixed-point.ski) DAG contains the exact
-closed terms shared by both runtimes. A generator-consistency test prevents
-both that shared artifact and its browser-safe JavaScript data module from
-drifting from the generation-only definitions; Rust includes the same DAG.
+execution control rather than semantic operations. The authoritative semantic
+program is the 1,446-node addressed-link network in
+[`fixed-point-source.lino`](../lib/meta-theory/fixed-point-source.lino). Its
+applications are doublets and its tagged lambda/variable nodes are links. A
+generation-only bracket-abstraction compiler lowers its 25 roots to the
+35,674-node [`fixed-point.ski`](../lib/meta-theory/fixed-point.ski) runtime DAG
+shared by both runtimes. The runtime contains no source builder. A
+generator-consistency test prevents the link source, runtime artifact, and
+browser-safe JavaScript data module from drifting; Rust includes the same DAG.
+
+This distinction makes provenance explicit. The semantic program has
+`link-native` provenance and is no longer compiled from a JavaScript semantic
+description. The two transition laws have `externally-primitive` provenance:
+the upstream Links Theory network model supplies the addressed doublet
+structure, but it does not prescribe S or K reduction. The six higher
+capabilities are `derived-inside-system`. These classifications describe where
+independent semantic information enters; they do not make S/K native laws of
+Links Theory.
 
 Matching, substitution, ordered rule selection/traversal, transitive import
 rebinding, inference saturation, and result verification are roots in that
@@ -99,6 +112,12 @@ The report still exposes `claimsIrreducible: false`: S/K can be re-encoded by
 a one-rule universal basis such as iota, and the experiment is not a proof
 that no different representation could use a smaller boundary.
 
+The foundation search also executes a zero-transition candidate by disabling
+S and K together. It fails the same complete acceptance probe. This shows that
+the upstream addressed-network structure alone is not yet an executable
+transition system. Iota is reported as an equivalent one-name re-encoding,
+not as evidence that the amount of external semantic information disappeared.
+
 Every remaining boundary node has a structural `primitiveReason` /
 `primitive_reason`. The mirrored `auditBootstrapKernel` /
 `audit_bootstrap_kernel` API compares the graph with a separately maintained
@@ -113,7 +132,8 @@ environment lookup, repeated-variable matching, substitution, rule
 selection/application, and result verification with `linked-rewrite` forms.
 Mirrored tests pass an object-encoded rule through this meta-interpreter and
 assert its rule trace. K1 and every other linked program are driven by the
-same generated S/K terms; there is no privileged meta-interpreter callback.
+same addressed-link runtime terms; there is no privileged meta-interpreter
+callback.
 
 The stronger self-interpretation witness takes K1's own non-linear
 `match-identical-atoms` pattern, encodes that rule as object data, and asks K1
@@ -396,8 +416,9 @@ external corpus. See the issue-specific
 [`requirements.md`](./case-studies/issue-183/requirements.md) for the complete
 requirement-to-evidence matrix.
 
-The generic machine is intentionally small. S/K supplies a universal
-computation substrate, while the explicit K0/K1 split lets users encode and
-self-interpret proof systems. This does not make bounded saturation a decision
-procedure for every logic, and it does not silently treat arbitrary Lean or
-Rocq syntax as native RML semantics.
+The generic machine is intentionally small. An addressed-link semantic program
+is lowered to S/K, whose two externally primitive transition laws supply the
+current universal computation substrate. The explicit K0/K1 split lets users
+encode and self-interpret proof systems. This does not make bounded saturation
+a decision procedure for every logic, and it does not silently treat arbitrary
+Lean or Rocq syntax as native RML semantics.

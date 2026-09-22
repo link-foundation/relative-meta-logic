@@ -2,30 +2,33 @@
 
 This report measures how much semantic machinery remains outside the closed
 linked terms used by the current acceptance task. JavaScript and Rust execute
-the same generated S/K DAG and check the same metrics independently.
+the same addressed-link runtime DAG and check the same metrics independently.
 
 The probe loads textual LiNo, resolves and rebinds an imported rewrite
 program, derives a judgement by finite inference, and executes
 `links-meta-foundation` through result verification. It is repeated with each
-of the four boundary operations disabled. Parsing and resource control remain
-reported for auditability but are not counted as semantic contractions.
+of the four boundary operations disabled and with S and K disabled together.
+Parsing and resource control remain reported for auditability but are not
+counted as semantic contractions.
 
 ## Current metrics
 
 The previous column is the last reviewed foundation report at
-`e2e9f7b2a87d4b128bb736d693d5512509974860`. A dash means that revision did
+`8b39df510a083e5cbe2a56a72e6595aae7b48146`. A dash means that revision did
 not measure the value; it is not silently treated as zero.
 
 | Metric | Previous | Current | Delta |
 |---|---:|---:|---:|
-| Total host semantic operations | 8 | 2 | -6 |
-| Confirmed independent host primitives | — | 2 confirmed; 0 unknown | — |
-| Derived host semantic services | 2 | 0 | -2 |
-| Host/linked duplicated semantics | — | 0 | — |
+| Total host semantic operations | 2 | 2 | 0 |
+| Confirmed independent host primitives | 2 confirmed; 0 unknown | 2 confirmed; 0 unknown | — |
+| Derived host semantic services | 0 | 0 | 0 |
+| Host/linked duplicated semantics | 0 | 0 | 0 |
 | Object-specific host semantics | 0 | 0 | 0 |
-| Undocumented runtime semantic paths | — | 0 | — |
-| Self-hosting closure | — | 6/6 | — |
-| Foundation compression ratio | — | 2/8 | — |
+| Undocumented runtime semantic paths | 0 | 0 | 0 |
+| Self-hosting closure | 6/6 | 6/6 | — |
+| Foundation compression ratio | 2/8 | 2/8 | — |
+| Independent external semantic laws | — | 2 | — |
+| External semantic source descriptions | 1 | 0 | -1 |
 
 The residual semantic basis is `contract-s-link` and `contract-k-link`.
 Disabling either contraction while keeping the other makes the complete probe
@@ -33,12 +36,43 @@ fail, so both are classified `INDEPENDENT` relative to this representation and
 probe. This is falsifiable experimental necessity, not global mathematical
 irreducibility. The report explicitly names iota as an equivalent one-rule
 re-encoding; moving to it would change representation, not erase universal
-computation.
+computation. Disabling both contractions is the explicit zero-transition
+candidate. It fails the complete probe, recording the actual runtime error.
 
 The versioned schema publishes the complete classification vocabulary:
 `INDEPENDENT`, `DERIVABLE`, `EQUIVALENT_REENCODING`, and `UNKNOWN`. Parsing and
 resource control are `UNKNOWN` because they are retained non-semantic boundary
 layers, not candidates in the two-operation semantic basis.
+
+The schema also publishes provenance using four non-overlapping labels:
+`link-native`, `derived-inside-system`,
+`compiled-from-external-semantic-description`, and `externally-primitive`.
+These classify the source of independent semantic information, separately
+from the removal experiment classifications above.
+
+## Authoritative source and external laws
+
+The checked-in
+[`fixed-point-source.lino`](../../../lib/meta-theory/fixed-point-source.lino)
+is the authoritative 1,446-node, 25-root semantic program. It is an addressed
+doublet network aligned with the upstream `network-duplet-function` model and
+is classified `link-native`. A generation-only bracket-abstraction step lowers
+it to the runtime graph. The former host-side `buildSourceKernel` semantic
+description is absent and recorded as an eliminated
+`compiled-from-external-semantic-description` source.
+
+The upstream addressed network supplies structure, not a transition rule. The
+runtime therefore names both residual laws without hiding their provenance:
+
+| Law | Provenance |
+|---|---|
+| `S x y z -> x z (y z)` | `externally-primitive` |
+| `K x y -> x` | `externally-primitive` |
+
+Matching, substitution, traversal, import/rebinding, inference, and result
+verification are each `derived-inside-system`. A one-symbol iota encoding
+would still carry equivalent transition information, so it is not reported as
+a deeper foundation.
 
 ## Host information by layer
 
@@ -58,8 +92,9 @@ derivation, or proof.
 
 ## Shared closed terms and closure
 
-The generated [`fixed-point.ski`](../../../lib/meta-theory/fixed-point.ski)
-artifact contains closed roots for matching, substitution, ordered rule
+The generated 35,674-node
+[`fixed-point.ski`](../../../lib/meta-theory/fixed-point.ski) artifact contains
+closed roots for matching, substitution, ordered rule
 selection/traversal, import/rebinding, inference saturation, and result
 verification. Both runtimes provide only S/K contraction around those roots;
 none of the six capabilities has a duplicate host implementation.
@@ -93,7 +128,7 @@ data module with:
 node scripts/generate-combinator-kernel.mjs
 ```
 
-The output schema is `rml-bootstrap-metrics/v1`. The bootstrap workflow prints
+The output schema is `rml-bootstrap-metrics/v2`. The bootstrap workflow prints
 the full JSON report, while the JavaScript and Rust tests independently assert
 the counts, removal outcomes, closure, compression, runtime coverage, and
 generated-artifact parity.

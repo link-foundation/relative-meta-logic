@@ -289,6 +289,29 @@ describe('links-defined universal program evaluator', () => {
     ]);
     assert.deepEqual(report.derivedHostServices, []);
     assert.deepEqual(report.objectSemantics, []);
+    assert.deepEqual(report.semanticSource, {
+      artifact: 'lib/meta-theory/fixed-point-source.lino',
+      schema: 'rml-lambda-link-dag-v1',
+      representation: 'addressed-doublet-network',
+      upstreamModel: 'network-duplet-function',
+      sourceNodes: 1446,
+      runtimeNodes: 35674,
+      roots: 25,
+      provenance: 'link-native',
+      compiledFromExternalSemanticDescription: false,
+    });
+    assert.deepEqual(report.semanticLawProvenance, [
+      {
+        operation: 'contract-s-link',
+        provenance: 'externally-primitive',
+        law: 'S x y z -> x z (y z)',
+      },
+      {
+        operation: 'contract-k-link',
+        provenance: 'externally-primitive',
+        law: 'K x y -> x',
+      },
+    ]);
     assert.equal(report.minimizationExperiments.length, 4);
     assert.deepEqual(
       new Set(report.minimizationExperiments.map(experiment => experiment.operation)),
@@ -311,7 +334,13 @@ describe('links-defined universal program evaluator', () => {
   it('measures the complete host semantic surface and self-hosting distance', () => {
     const report = LinkedProgramRegistry.bootstrapMetricsReport(source);
 
-    assert.equal(report.schema, 'rml-bootstrap-metrics/v1');
+    assert.equal(report.schema, 'rml-bootstrap-metrics/v2');
+    assert.deepEqual(report.provenanceClassifications, [
+      'link-native',
+      'derived-inside-system',
+      'compiled-from-external-semantic-description',
+      'externally-primitive',
+    ]);
     assert.deepEqual(report.removalClassifications, [
       'INDEPENDENT',
       'DERIVABLE',
@@ -327,6 +356,45 @@ describe('links-defined universal program evaluator', () => {
     assert.equal(report.current.duplicatedSemanticCapabilities, 0);
     assert.equal(report.current.objectSpecificHostSemantics, 0);
     assert.equal(report.current.undocumentedSemanticPaths, 0);
+    assert.deepEqual(report.current.externalSemanticInformation, {
+      independentLaws: 2,
+      lawNames: ['contract-s-link', 'contract-k-link'],
+      provenance: 'externally-primitive',
+    });
+    assert.equal(report.semanticProvenance.authoritativeSource.provenance, 'link-native');
+    assert.equal(
+      report.semanticProvenance.authoritativeSource.compiledFromExternalSemanticDescription,
+      false,
+    );
+    assert.deepEqual(
+      report.semanticProvenance.derivedCapabilities.map(item => item.provenance),
+      Array(6).fill('derived-inside-system'),
+    );
+    assert.deepEqual(report.semanticProvenance.eliminatedExternalSources, [{
+      id: 'buildSourceKernel',
+      provenance: 'compiled-from-external-semantic-description',
+      present: false,
+    }]);
+    assert.equal(report.foundationSearchExperiments[0].candidate, 'zero-semantic-transition');
+    assert.equal(report.foundationSearchExperiments[0].externalSemanticLaws, 0);
+    assert.equal(report.foundationSearchExperiments[0].baselinePreserved, false);
+    assert.ok(report.foundationSearchExperiments[0].observedFailure.length > 0);
+    assert.deepEqual(report.foundationSearchExperiments.slice(1), [
+      {
+        candidate: 's-k-over-link-native-source',
+        classification: 'CURRENT_SUFFICIENT',
+        externalSemanticLaws: 2,
+        baselinePreserved: true,
+        observedFailure: '',
+      },
+      {
+        candidate: 'iota',
+        classification: 'EQUIVALENT_REENCODING',
+        externalSemanticLaws: 1,
+        baselinePreserved: null,
+        observedFailure: '',
+      },
+    ]);
     assert.deepEqual(report.current.selfHostingClosure, {
       task: 'linked-load-import-reduce-infer-and-self-verify-above-residual-basis',
       linkedCapabilities: 6,
@@ -418,13 +486,13 @@ describe('links-defined universal program evaluator', () => {
 
     assert.deepEqual(report.comparison[0], {
       metric: 'total-host-semantic-operations',
-      previous: 8,
+      previous: 2,
       current: 2,
-      delta: -6,
+      delta: 0,
     });
     assert.equal(
       report.previousRevision,
-      'e2e9f7b2a87d4b128bb736d693d5512509974860',
+      '8b39df510a083e5cbe2a56a72e6595aae7b48146',
     );
     assert.deepEqual(
       report.comparison.map(({ metric, previous, current, delta }) => [
@@ -434,14 +502,16 @@ describe('links-defined universal program evaluator', () => {
         delta,
       ]),
       [
-        ['total-host-semantic-operations', 8, 2, -6],
-        ['independent-host-primitives', null, '2 confirmed; 0 unknown', null],
-        ['derived-host-semantic-services', 2, 0, -2],
-        ['host-linked-duplicated-semantics', null, 0, null],
+        ['total-host-semantic-operations', 2, 2, 0],
+        ['independent-host-primitives', '2 confirmed; 0 unknown', '2 confirmed; 0 unknown', null],
+        ['derived-host-semantic-services', 0, 0, 0],
+        ['host-linked-duplicated-semantics', 0, 0, 0],
         ['object-specific-host-semantics', 0, 0, 0],
-        ['undocumented-semantic-paths', null, 0, null],
-        ['self-hosting-closure', null, '6/6', null],
-        ['foundation-compression-ratio', null, '2/8', null],
+        ['undocumented-semantic-paths', 0, 0, 0],
+        ['self-hosting-closure', '6/6', '6/6', null],
+        ['foundation-compression-ratio', '2/8', '2/8', null],
+        ['independent-external-semantic-laws', null, 2, null],
+        ['external-semantic-source-descriptions', 1, 0, -1],
       ],
     );
   });

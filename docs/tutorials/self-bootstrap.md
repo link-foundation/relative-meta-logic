@@ -218,12 +218,17 @@ is the CI gate for evaluator divergence and for the measured K0/K1 boundary.
 It executes the host-operation fault-injection test and prints the versioned
 bootstrap metrics report.
 
-The report now exposes the residual S/K semantic basis directly. Matching,
-substitution, traversal, import/rebinding, inference saturation, and result
-verification are closed combinator terms shared by both runtimes. The probe
-therefore reports 2/8 foundation compression, 6/6 self-hosting closure, and no
-duplicated host/linked semantics. Parsing and resource bounds remain visible
-as non-semantic boundary layers.
+The report now exposes the residual S/K semantic basis directly. The
+authoritative program is the addressed-link network in
+`lib/meta-theory/fixed-point-source.lino`; generation lowers it to the runtime
+DAG shared by both runtimes. Matching, substitution, traversal,
+import/rebinding, inference saturation, and result verification are derived
+inside that network. S/K remain two explicitly external transition laws, and
+the zero-transition experiment fails the complete probe. The report therefore
+records zero external host-language semantic descriptions, 2/8 foundation
+compression, 6/6 self-hosting closure, and no duplicated host/linked
+semantics. Parsing and resource bounds remain visible as non-semantic boundary
+layers.
 
 Inspect the machine-readable evidence locally:
 

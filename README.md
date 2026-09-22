@@ -55,16 +55,21 @@ For versioning, deprecations, and release expectations, see
 RML (Relative Meta-Logic, formerly Associative-Dependent Logic / ADL) is a minimal probabilistic logic system built on top of [LiNo (Links Notation)](https://github.com/link-foundation/links-notation). It supports [many-valued logics](https://en.wikipedia.org/wiki/Many-valued_logic) from unary (1-valued) through continuous probabilistic ([fuzzy](https://en.wikipedia.org/wiki/Fuzzy_logic)), allowing you to:
 
 Its executable meta-theory makes the bootstrap boundary explicit. An audited
-S/K combinator machine executes closed linked terms for matching,
-substitution, traversal, import rebinding, inference, and verification;
+addressed-link program executes matching, substitution, traversal, import
+rebinding, inference, and verification over two externally primitive S/K
+transition laws;
 user-selected foundations then instantiate unchanged object theories. The
 measured semantic host surface is two contractions (`S` and `K`), both
 experimentally necessary for the current representation and probe. Parsing
 and resource bounds remain explicit non-semantic boundary layers. The report
 records zero derived host semantic services, zero host/linked duplication,
 6/6 self-hosting closure, 2/8 foundation compression, and zero undocumented
-runtime paths. This is not a claim of globally irreducible semantics: the
-same basis can be re-encoded with one universal combinator such as iota.
+runtime paths. The authoritative semantic source is links-native rather than a
+host-language builder, but S/K are not presented as native Links Theory laws:
+the upstream addressed network supplies structure, not execution. An
+executable zero-transition candidate fails. This is not a claim of globally
+irreducible semantics: the same basis can be re-encoded with one universal
+combinator such as iota without reducing its semantic information.
 Lambda, set, type, graph, relation, and RML semantics remain linked programs,
 not host callbacks or external-kernel decisions. Lean/Rocq artifacts are
 parity evidence only.

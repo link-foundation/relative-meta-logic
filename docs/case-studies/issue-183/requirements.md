@@ -27,7 +27,7 @@ both implementation and automated evidence.
 | R19 | Present familiar theories and their links-derived constructions. | Complete | The theory table and source walkthrough in `docs/META_THEORY.md`; conformance fixtures cover both reduction and judgement views. |
 | R20 | Minimize and identify axioms. | Complete for this network | Object behavior lives in executable linked rules. Foundation axioms are limited to named implementation capabilities and proof premises, remain separately selected, and cannot be candidate-authored. |
 | R21 | Update documentation and preserve a complete review trail. | Complete | This ledger, the case-study README/audit, executable example, and main meta-theory guide. |
-| R22 | Use current dependency releases and prepare the next release. | Complete | JS/Rust are aligned at 0.23.0; direct packages and GitHub Actions use the latest releases available on 2026-09-21, lockfiles are refreshed, both npm audits report zero vulnerabilities, and all language suites run afterward. |
+| R22 | Use current dependency releases and prepare the next release. | Complete | JS/Rust are aligned at 0.24.0; direct packages and GitHub Actions use the latest releases available on 2026-09-21, lockfiles are refreshed, both npm audits report zero vulnerabilities, and all language suites run afterward. |
 | R23 | Make the meta-foundation explicit and inspectable. | Complete | The documented `S/K -> closed linked terms -> K1 -> F -> T` model and mirrored kernel reports separate two semantic contractions from parsing and resource control, with zero derived host services and zero object semantics. |
 | R24 | Define meta-semantics as links above the bootstrap boundary. | Complete | `links-meta-foundation` defines object-encoded environment lookup, matching, substitution, rule selection/application, and result verification; mirrored tests execute an encoded copy of its own repeated-variable matching rule and compare it with direct execution. |
 | R25 | Instantiate one unchanged theory over replaceable foundations. | Complete | Import-level `rebind` works across rewrites, facts, inferences, and transitive imports. One portable classifier returns `reject` or `accept` under strict/permissive user foundations without changing its source. |
@@ -45,7 +45,11 @@ both implementation and automated evidence.
 | R37 | Separate host information by layer. | Complete | The report separates semantic bootstrap (2), derived host semantics (0), representation/parsing (1), resource control (1), debugging/observability (0), and object-specific host semantics (0). |
 | R38 | Compare runtime-observed semantics with the trust graph. | Complete | Operation hooks record four public paths and 10 path/operation segments. The audit computes reachability from those observations and CI requires 4/4 paths, 10/10 segments, and zero undocumented paths, operations, or segments. |
 | R39 | Publish a foundation compression experiment. | Complete for measured candidates | The executable semantic host surface falls from eight operations to the S/K basis, so the current ratio is `2/8`. The report scopes necessity to its representation/probe and does not extrapolate to global minimality. |
-| R40 | Publish previous/current metric deltas on every foundational iteration. | Complete | The versioned `rml-bootstrap-metrics/v1` comparison records known values from `e2e9f7b`, uses `null` for previously unmeasured values, and is printed in the bootstrap workflow. |
+| R40 | Publish previous/current metric deltas on every foundational iteration. | Complete | The versioned `rml-bootstrap-metrics/v2` comparison records known values from `8b39df5`, uses `null` for previously unmeasured values, and is printed in the bootstrap workflow. |
+| R41 | Remove the large host-language semantic description from the runtime. | Complete | The authoritative 1,446-node program is `fixed-point-source.lino`; the runtime no longer contains `buildSourceKernel`, and generator-consistency tests compile all 25 roots to the checked-in artifact. |
+| R42 | Anchor the bootstrap representation in upstream Links Theory. | Complete for representation | The source and artifact are addressed doublet networks tied to the upstream `network-duplet-function` model. The audit explicitly notes that upstream defines structure and self-definition, not an execution transition. |
+| R43 | Classify the provenance of every residual semantic contribution. | Complete | Mirrored reports distinguish `link-native`, `derived-inside-system`, `compiled-from-external-semantic-description`, and `externally-primitive`; S/K are explicitly external laws and the six higher capabilities are derived. |
+| R44 | Test whether link structure alone supplies execution. | Complete for the declared probe | The executable zero-transition experiment disables S and K together and fails the complete acceptance probe. S/K succeeds; iota is classified only as an equivalent re-encoding. |
 
 ## Reviewer acceptance test
 
@@ -64,8 +68,9 @@ The trace is produced by rules named `beta-reduction`,
 
 ## Trust and scope statement
 
-The bootstrap semantic mechanism is exactly S and K contraction. Closed terms
-generated into `lib/meta-theory/fixed-point.ski` implement matching,
+The bootstrap semantic mechanism is exactly two externally primitive S and K
+contractions. Closed terms compiled from the authoritative addressed-link
+`lib/meta-theory/fixed-point-source.lino` into `fixed-point.ski` implement matching,
 substitution, traversal, import/rebinding, inference, and result verification
 for both runtimes. Parsing and cycles/resource bounds remain explicit
 non-semantic boundary layers. The host assigns no built-in meaning to
@@ -80,10 +85,12 @@ The report publishes the structural reason and experiment outcome so a future
 implementation can repeat the loop rather than inherit the conclusion.
 
 The separate [bootstrap metrics report](./bootstrap-metrics.md) records the
-actual current distance from self-hosting: zero duplicated semantics, `6/6`
-closure, and `2/8` compression. Its representation-scoped S/K classifications
-and explicit iota equivalence prevent experimental necessity from being
-mistaken for a global minimality proof.
+actual current distance from self-hosting: two external semantic laws, zero
+external semantic source descriptions, zero duplicated semantics, `6/6`
+closure, and `2/8` compression. Its zero-transition failure,
+representation-scoped S/K classifications, and explicit iota equivalence
+prevent experimental necessity from being mistaken for a global minimality
+proof.
 
 The pinned Lean/Rocq corpus remains useful evidence that RML can preserve and
 query the upstream development. It is deliberately outside the authorization
