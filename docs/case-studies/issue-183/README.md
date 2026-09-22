@@ -98,7 +98,7 @@ smallest candidate, and keeps the comparative search open. Its executable
 two-model witness establishes only that the tested ordered-link host value
 does not select between two transition functions.
 
-Version 7 advances the separate ontology investigation with an exhaustive
+Version 8 advances the separate ontology investigation with an exhaustive
 finite symmetry experiment that does not use A/B/C. Starting only with two
 unlabelled reference occurrences and equality, it enumerates three surjective
 observations on their used support, six group elements, and ten action
@@ -122,14 +122,19 @@ reference-only class. The exact singleton-orbit histogram is `20/5/7/1` for
 `0/1/2/4` singleton orbits. The provenance quotient separates `7`
 base-forced, `5` refinement-present, `1` interaction-only, and `20` symmetric
 classes. Four base fibres admit both outcomes, and an explicit same-base
-countermodel shows the unique interaction-only class. This is conditional
-structural evidence, not an endpoint direction or a justified ontology.
+countermodel shows the unique interaction-only class. A further forcedness
+experiment enumerates all 255 base/candidate pairs at widths one through four.
+All 73 candidates preserving every base symmetry leave the base occurrence
+orbits unchanged. The interaction-only conditional changes under a
+relabelling that leaves its base fixed, so its distinctions require information
+not derived from that base. This is conditional structural evidence, not an
+endpoint direction or a justified ontology.
 
 Those results are eliminations and a complete finite classification at the
-tested widths, not an unbounded theorem or positive execution law. Version 7
+tested widths, not an unbounded theorem or positive execution law. Version 8
 still marks passivity and external
 transition as experimental assumptions of the older host witness, and it
-leaves link ontology and intrinsic authority unresolved. The v7 result does
+leaves link ontology and intrinsic authority unresolved. The v8 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

@@ -85,7 +85,7 @@ Horn implementations remain executable controls, but their host/self
 duplication excludes them from ranking against the fully reduced S/K
 candidate. The report therefore names no winner. An executable two-model
 witness shows only that one ordered-link host representation does not select
-between two tested transition functions. A separate v7 experiment starts from
+between two tested transition functions. A separate v8 experiment starts from
 two unlabelled reference occurrences plus equality and exhausts their finite
 symmetries. It derives exactly the same-reference/distinct-reference quotient,
 no invariant source/target selector, no unique equivariant dynamics, and
@@ -96,7 +96,12 @@ classes whose reference-only fibres contain 5–9 refinements. Their singleton-
 orbit histogram is 20/5/7/1 classes with 0/1/2/4 singleton orbits. Provenance
 separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20
 symmetric classes; a same-base countermodel demonstrates refinement-dependent
-outcomes. These are measured observation boundaries, not a completed link
+outcomes. An exhaustive forcedness check then examines all 255 base/candidate
+pairs at widths one through four. All 73 candidates that preserve their base
+symmetries preserve its occurrence orbits; the interaction-only conditional
+instead breaks a relabelling that fixes its base. Its distinctions therefore
+require information not derived from that base. These are measured observation
+boundaries, not a completed link
 ontology or an unbounded theorem. The report keeps link ontology,
 intrinsic authority, primitive categories, the structure/transformation
 relation, and comparative minimality unresolved; classifies all three

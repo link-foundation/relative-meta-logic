@@ -141,7 +141,7 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 7 also performs an independent finite symmetry experiment without
+Version 8 also performs an independent finite symmetry experiment without
 using A/B/C. It begins with two unlabelled reference occurrences and equality,
 then exhausts all three surjective observations on their used support, six
 occurrence-permutation/reference-renaming group elements, and ten action
@@ -165,7 +165,11 @@ separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20
 symmetric classes; four base fibres have countermodels with both outcomes.
 This shows that relational interaction can force asymmetry conditionally, but
 neither establishes the second relation as fundamental nor names any orbit
-source or target. Completeness remains bounded to widths one through four.
+source or target. A forcedness check exhausts all 255 base/candidate pairs at
+those widths: none of the 73 candidates preserving every base symmetry changes
+the base occurrence orbits. The interaction-only conditional instead breaks a
+base-preserving relabelling, so its distinction uses information not derived
+from the tested base. Completeness remains bounded to widths one through four.
 
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,

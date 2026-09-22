@@ -20,7 +20,7 @@ host/self duplication. The report names no winner. Its two-model witness shows
 only that the tested ordered-link host signature does not select between two
 functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
-documented on this page. The v7 report additionally performs an independent
+documented on this page. The v8 report additionally performs an independent
 finite symmetry experiment over two unlabelled reference occurrences. It
 derives equality coincidence as complete for that contract while eliminating
 an invariant source/target selector, unique dynamics, and
@@ -31,7 +31,10 @@ explicitly conditional second equivalence to measure 33 joint classes and
 5–9 refinements per coarse fibre. The exact singleton-orbit histogram and
 provenance split distinguish base-forced, refinement-present,
 interaction-only, and symmetric cases without assigning semantic roles or
-claiming an unbounded invariant. All three execution bases remain
+claiming an unbounded invariant. Its derivation check further proves that an
+observation derived from the tested base and respecting occurrence relabelling
+cannot create new occurrence distinctions; the interaction-only conditional
+fails that criterion. All three execution bases remain
 controls that cannot constrain the independent ontology investigation;
 primitive categories, the structure/transformation relation, intrinsic
 authority, and comparative minimality remain explicitly unresolved.

@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v7`. Run it with:
+`rml-alternative-foundation-search/v8`. Run it with:
 
 ```bash
 cd js
@@ -70,7 +70,7 @@ No candidate is declared equivalent to another. Equivalence remains
 
 ## Independent ontology investigation
 
-Version 7 extends a falsifiable ontology experiment rather than converting a
+Version 8 extends a falsifiable ontology experiment rather than converting a
 correctly documented boundary into a completed foundational result. The report
 sets `foundationStatus: OPEN` and
 `ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v3` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v4` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v3 follow-up first changes no primitive vocabulary at all. It retains only
+The v4 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -244,9 +244,47 @@ explicit: the normalized base `[0,0,1,2]` has orbit sizes `[2,2]`. With the
 all-equal conditional partition `[0,0,0,0]`, the joint orbit sizes remain
 `[2,2]`; with the crossing partition `[0,1,0,2]`, whose own orbit sizes are
 also `[2,2]`, the conjunction has `[1,1,1,1]`. The last asymmetry is therefore
-not present in either relation separately; it is forced by their interaction.
-Because the second relation remains unestablished, this is conditional
-relational evidence rather than a link-ontology result.
+not present in either relation separately; it is forced by their interaction
+once both observations are supplied. Because the second relation remains
+unestablished, this is conditional relational evidence rather than a
+link-ontology result.
+
+### Is the interaction itself forced by the base?
+
+The next experiment does not add another relation. It asks whether the
+interaction-only conditional could have been derived from the tested base.
+The derivation criterion is link-first: a deterministic observation derived
+from the base occurrences and their reference coincidences must commute with
+every relabelling of those occurrences. It imports no membership axiom,
+category object or morphism, type judgement, evaluator, transition law, or
+semantic endpoint role.
+
+Every base partition and candidate observation partition at widths one through
+four is checked directly:
+
+| Width | Base patterns | Base/candidate pairs | Preserve every base symmetry | Break a base symmetry | Preserving candidates changing base orbits |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 1 | 1 | 1 | 0 | 0 |
+| 2 | 2 | 4 | 4 | 0 | 0 |
+| 3 | 5 | 25 | 13 | 12 | 0 |
+| 4 | 15 | 225 | 55 | 170 | 0 |
+| **Total** | **23** | **255** | **73** | **182** | **0** |
+
+The last zero is not only a finite pattern. For any base observation `B`, let
+`d(B)` be a deterministic derived observation that commutes with occurrence
+relabeling. Take a relabelling `p` that preserves `B`. Commutation gives
+`d(p(B)) = p(d(B))`; because `p(B) = B`, it follows that `p(d(B)) = d(B)`.
+Thus every base-preserving relabelling also preserves the derived observation,
+and adjoining that observation cannot split a base occurrence orbit. This
+argument covers every finite observation satisfying the stated derivation
+criterion, beyond the enumerated widths.
+
+The interaction-only witness fails the criterion explicitly. Relabelling
+occurrences by `[1,0,2,3]` leaves its base `[0,0,1,2]` unchanged but changes
+the conditional pattern from `[0,1,0,2]` to `[0,1,1,2]`. The new occurrence
+distinctions are therefore supplied by information not derived from the tested
+base. This eliminates that conditional pattern as a base-forced explanation;
+it does not establish that the base exhausts the intrinsic structure of links.
 
 The machine-readable loss audit distinguishes:
 
@@ -276,7 +314,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 7 makes
+That experiment does **not** identify the ontology of a link. Version 8 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -341,7 +379,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v7 execution-comparison gate admits a candidate only if it passes the common
+The v8 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.

@@ -53,6 +53,8 @@ const REQUIREMENT_SOURCES = [
     5778625533,
     5780145503,
     5781219145,
+    5782983781,
+    5783034346,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -75,7 +77,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = [...ledger.matchAll(/^\| R(\d+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)];
 
-    assert.ok(rows.length >= 91, `expected at least 91 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 93, `expected at least 93 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(match => Number(match[1])),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -114,7 +116,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v3',
+      'rml-link-ontology-symmetry-experiment/v4',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -127,6 +129,12 @@ describe('issue 183 requirement traceability', () => {
       'REFINEMENT_PRESENT_NOT_BASE_FORCED',
       'RELATIONAL_INTERACTION_ONLY',
       '20/5/7/1',
+      'BASE_DERIVATION_CANNOT_CREATE_NEW_OCCURRENCE_DISTINCTIONS',
+      '255',
+      '73',
+      'none changes the base occurrence orbits',
+      'The result uses no set,',
+      'category, or type-theory axiom',
       'GITHUB_EVENT_PATH',
       'Advances #183',
     ]) {

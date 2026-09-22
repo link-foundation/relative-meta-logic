@@ -220,7 +220,7 @@ separation as assumptions; it does not infer link ontology from them. The
 failed zero-transition experiment is likewise scoped to the current passive
 host model and finite workload.
 
-The v7 ontology investigation is separate from execution comparison. Its
+The v8 ontology investigation is separate from execution comparison. Its
 finite experiment quotients two unlabelled reference occurrences by every
 occurrence permutation and reference renaming. Equality coincidence is
 complete for that contract; no invariant singleton selects source or target,
@@ -234,8 +234,13 @@ refinements per reference-only fibre. The singleton-orbit histogram is
 20/5/7/1 classes with 0/1/2/4 singleton orbits, so only five classes select
 exactly one occurrence orbit. Provenance separates 7 base-forced, 5
 refinement-present, 1 interaction-only, and 20 symmetric classes; four base
-fibres admit both outcomes, while only `[3,1]` forces one. The second relation remains
-`CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED`, not an ontological commitment.
+fibres admit both outcomes, while only `[3,1]` forces one. Across all 255
+base/candidate pairs at widths one through four, every one of the 73 candidates
+that preserves all base symmetries also preserves the base occurrence orbits.
+The interaction-only conditional breaks a relabelling that fixes its base, so
+its distinction requires information not derived from that base. The second
+relation remains `CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED`, not an ontological
+commitment.
 Link ontology, primitive categories, the structure/transformation
 relation, intrinsic semantic authority, and comparative minimality therefore
 remain `UNRESOLVED` under `OPEN_INDEPENDENT_INVESTIGATION`. A/B/C are
