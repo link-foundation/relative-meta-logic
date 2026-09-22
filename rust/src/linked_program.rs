@@ -521,6 +521,42 @@ pub struct LinkOntologyAsymmetryProvenance {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyDerivationEnumeration {
+    pub occurrence_count: usize,
+    pub base_patterns_examined: usize,
+    pub candidate_observations_examined: usize,
+    pub base_symmetry_preserving_candidates: usize,
+    pub symmetry_breaking_candidates: usize,
+    pub preserving_candidates_changing_occurrence_orbits: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyGeneralDerivationArgument {
+    pub scope: &'static str,
+    pub steps: Vec<&'static str>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyInteractionCounterexample {
+    pub base_pattern: Vec<usize>,
+    pub conditional_pattern: Vec<usize>,
+    pub base_preserving_relabelling: Vec<usize>,
+    pub relabelled_base_pattern: Vec<usize>,
+    pub relabelled_conditional_pattern: Vec<usize>,
+    pub base_preserved: bool,
+    pub conditional_pattern_preserved: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyDerivationBoundary {
+    pub derivation_criterion: &'static str,
+    pub finite_enumeration: Vec<LinkOntologyDerivationEnumeration>,
+    pub general_argument: LinkOntologyGeneralDerivationArgument,
+    pub consequence: &'static str,
+    pub interaction_only_counterexample: LinkOntologyInteractionCounterexample,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyConditionalRefinement {
     pub assumption: LinkOntologyConditionalAssumption,
     pub occurrence_count: usize,
@@ -540,6 +576,7 @@ pub struct LinkOntologyConditionalRefinement {
     pub universal_singleton_selector_exists: bool,
     pub singleton_orbit_histogram: Vec<LinkOntologySingletonOrbitHistogram>,
     pub asymmetry_provenance: LinkOntologyAsymmetryProvenance,
+    pub derivation_boundary: LinkOntologyDerivationBoundary,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -934,6 +971,95 @@ fn partition_pair_occurrence_orbits(left: &[usize], right: &[usize]) -> Vec<Vec<
     orbits
 }
 
+fn base_preserving_relabellings(base_pattern: &[usize]) -> Vec<Vec<usize>> {
+    finite_permutations(&(0..base_pattern.len()).collect::<Vec<_>>())
+        .into_iter()
+        .filter(|permutation| permute_ontology_partition(base_pattern, permutation) == base_pattern)
+        .collect()
+}
+
+fn link_ontology_derivation_boundary(
+    interaction_base_pattern: &[usize],
+    interaction_conditional_pattern: &[usize],
+) -> LinkOntologyDerivationBoundary {
+    let finite_enumeration = (1..=4)
+        .map(|occurrence_count| {
+            let patterns = ontology_set_partitions(occurrence_count);
+            let mut base_symmetry_preserving_candidates = 0;
+            let mut preserving_candidates_changing_occurrence_orbits = 0;
+            for base_pattern in &patterns {
+                let base_relabellings = base_preserving_relabellings(base_pattern);
+                let base_orbits = partition_pair_occurrence_orbits(base_pattern, base_pattern);
+                for candidate_pattern in &patterns {
+                    let preserves_base_symmetry = base_relabellings.iter().all(|permutation| {
+                        permute_ontology_partition(candidate_pattern, permutation)
+                            == *candidate_pattern
+                    });
+                    if !preserves_base_symmetry {
+                        continue;
+                    }
+                    base_symmetry_preserving_candidates += 1;
+                    let joint_orbits =
+                        partition_pair_occurrence_orbits(base_pattern, candidate_pattern);
+                    if joint_orbits != base_orbits {
+                        preserving_candidates_changing_occurrence_orbits += 1;
+                    }
+                }
+            }
+            let candidate_observations_examined = patterns.len() * patterns.len();
+            LinkOntologyDerivationEnumeration {
+                occurrence_count,
+                base_patterns_examined: patterns.len(),
+                candidate_observations_examined,
+                base_symmetry_preserving_candidates,
+                symmetry_breaking_candidates: candidate_observations_examined
+                    - base_symmetry_preserving_candidates,
+                preserving_candidates_changing_occurrence_orbits,
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let base_preserving_relabelling = base_preserving_relabellings(interaction_base_pattern)
+        .into_iter()
+        .find(|permutation| {
+            permutation[0] == 1
+                && permute_ontology_partition(interaction_conditional_pattern, permutation)
+                    != interaction_conditional_pattern
+        })
+        .expect("interaction-only witness must expose added choice");
+    let relabelled_base_pattern =
+        permute_ontology_partition(interaction_base_pattern, &base_preserving_relabelling);
+    let relabelled_conditional_pattern = permute_ontology_partition(
+        interaction_conditional_pattern,
+        &base_preserving_relabelling,
+    );
+
+    LinkOntologyDerivationBoundary {
+        derivation_criterion: "a deterministic observation derived from the base alone must commute with every occurrence relabelling",
+        finite_enumeration,
+        general_argument: LinkOntologyGeneralDerivationArgument {
+            scope: "all finite observations satisfying the stated derivation criterion",
+            steps: vec![
+                "take any occurrence relabelling that leaves the base observation unchanged",
+                "commutation makes derivation after relabelling equal relabelling after derivation",
+                "because the relabelled base is unchanged, the derived observation must also be unchanged",
+                "therefore every base-preserving relabelling survives in the base together with its derived observation",
+            ],
+        },
+        consequence: "BASE_DERIVATION_CANNOT_CREATE_NEW_OCCURRENCE_DISTINCTIONS",
+        interaction_only_counterexample: LinkOntologyInteractionCounterexample {
+            base_pattern: interaction_base_pattern.to_vec(),
+            conditional_pattern: interaction_conditional_pattern.to_vec(),
+            base_preserving_relabelling,
+            base_preserved: relabelled_base_pattern == interaction_base_pattern,
+            conditional_pattern_preserved: relabelled_conditional_pattern
+                == interaction_conditional_pattern,
+            relabelled_base_pattern,
+            relabelled_conditional_pattern,
+        },
+    }
+}
+
 fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
     let arity_enumeration = (1..=4)
         .map(|occurrence_count| {
@@ -1195,6 +1321,10 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
             joint_occurrence_orbit_sizes: interaction_only_class.occurrence_orbit_sizes.clone(),
         },
     };
+    let derivation_boundary = link_ontology_derivation_boundary(
+        &interaction_only_class.reference_partition,
+        &interaction_only_class.refinement_partition,
+    );
     let every_projection_fibre_ambiguous =
         projection_fibres.iter().all(|item| item.joint_classes > 1);
     let refinement_recoverable_from_base =
@@ -1259,6 +1389,7 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                 base_projection_fibres_forcing_singleton,
                 countermodel: asymmetry_countermodel,
             },
+            derivation_boundary,
         },
         loss_audit: vec![
             LinkOntologyLossAudit {
@@ -1425,8 +1556,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v3",
-        question: "Which facts survive the binary reference observation, what information does its fixed width erase, and which distinctions emerge only under explicitly conditional refinements?",
+        schema: "rml-link-ontology-symmetry-experiment/v4",
+        question: "Which facts survive the binary reference observation, what does its fixed width erase, and can an observation derived from that base create new distinctions?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -1523,13 +1654,18 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "Seven classes inherit a singleton forced by the base [3,1] multiplicity, five acquire one from an independently asymmetric refinement, one acquires four only through the interaction of two individually symmetric relations, and 20 retain none. Four base fibres have both outcomes; only [3,1] forces asymmetry across every refinement.",
             },
             LinkOntologyResult {
+                id: "conditional-interaction-forcedness",
+                result: "SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE",
+                evidence: "All 73 candidate observations at widths one through four that preserve every base symmetry leave the base occurrence orbits unchanged. The interaction-only witness instead changes under a relabelling that leaves its base fixed. Generally, any deterministic derivation commuting with relabelling must preserve every base symmetry.",
+            },
+            LinkOntologyResult {
                 id: "observation-loss-provenance",
                 result: "CLASSIFIED_NOT_RESOLVED",
                 evidence: "The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations. At width four, seven refined classes inherit base-forced asymmetry, five depend on asymmetry already present in the conditional relation, one derives four singleton orbits only from relational interaction, and 20 remain symmetric. This separates structural provenance but cannot select source or target, link identity, or dynamics.",
-        remaining_boundary: "This experiment does not define a link ontology, justify the second equivalence observation as fundamental, generalize the width-one-through-four enumeration into an unbounded theorem, decide whether any erased distinction belongs to links, promote a singleton orbit to a semantic role, or turn a structural automorphism into execution semantics.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged. The interaction-only witness fails that derivation criterion, so its new distinctions require information not derived from the tested base; they cannot select source, target, link identity, or dynamics.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base alone. It does not define a link ontology, decide whether richer structure belongs intrinsically to links, generalize the finite multiplicity enumeration into an unbounded theorem, promote a singleton orbit to a semantic role, or turn a structural symmetry into execution semantics.",
     }
 }
 

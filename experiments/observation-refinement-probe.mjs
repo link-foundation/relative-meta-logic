@@ -57,12 +57,17 @@ const partitions = restrictedGrowthPartitions(width);
 const jointClasses = new Map();
 
 function occurrenceOrbitSizes(...relations) {
+  const relabellings = permutations(
+    Array.from({ length: relations[0].length }, (_, index) => index),
+  );
   const identity = JSON.stringify(relations.map(normalize));
-  const automorphisms = occurrencePermutations.filter(permutation =>
+  const automorphisms = relabellings.filter(permutation =>
     JSON.stringify(relations.map(relation =>
       permutePartition(relation, permutation))) === identity);
   const occurrenceOrbits = [];
-  const pending = new Set([0, 1, 2, 3]);
+  const pending = new Set(
+    Array.from({ length: relations[0].length }, (_, index) => index),
+  );
   while (pending.size > 0) {
     const seed = pending.values().next().value;
     const orbitMembers = new Set(
@@ -74,6 +79,14 @@ function occurrenceOrbitSizes(...relations) {
   return occurrenceOrbits
     .map(orbitMembers => orbitMembers.length)
     .sort((left, right) => right - left);
+}
+
+function basePreservingRelabellings(basePattern) {
+  return permutations(
+    Array.from({ length: basePattern.length }, (_, index) => index),
+  ).filter(permutation =>
+    JSON.stringify(permutePartition(basePattern, permutation)) ===
+      JSON.stringify(basePattern));
 }
 
 for (const referencePartition of partitions) {
@@ -129,6 +142,42 @@ const withoutSingletonClass = jointClassValues.find(jointClass =>
   JSON.stringify(jointClass.referencePartition) ===
     JSON.stringify(interactionOnlyClass.referencePartition) &&
   !jointClass.occurrenceOrbitSizes.includes(1));
+
+const derivationEnumeration = widths.map(({ width: observationWidth, partitions: items }) => {
+  let baseSymmetryPreservingCandidates = 0;
+  let preservingCandidatesChangingOccurrenceOrbits = 0;
+  for (const basePattern of items) {
+    const relabellings = basePreservingRelabellings(basePattern);
+    const baseOrbits = occurrenceOrbitSizes(basePattern);
+    for (const candidatePattern of items) {
+      const preservesBaseSymmetry = relabellings.every(permutation =>
+        JSON.stringify(permutePartition(candidatePattern, permutation)) ===
+          JSON.stringify(candidatePattern));
+      if (!preservesBaseSymmetry) continue;
+      baseSymmetryPreservingCandidates += 1;
+      if (JSON.stringify(occurrenceOrbitSizes(basePattern, candidatePattern)) !==
+          JSON.stringify(baseOrbits)) {
+        preservingCandidatesChangingOccurrenceOrbits += 1;
+      }
+    }
+  }
+  const candidateObservationsExamined = items.length ** 2;
+  return {
+    occurrenceCount: observationWidth,
+    basePatternsExamined: items.length,
+    candidateObservationsExamined,
+    baseSymmetryPreservingCandidates,
+    symmetryBreakingCandidates:
+      candidateObservationsExamined - baseSymmetryPreservingCandidates,
+    preservingCandidatesChangingOccurrenceOrbits,
+  };
+});
+const basePattern = interactionOnlyClass.referencePartition;
+const conditionalPattern = interactionOnlyClass.refinementPartition;
+const basePreservingRelabelling = basePreservingRelabellings(basePattern)
+  .find(permutation => permutation[0] === 1 &&
+    JSON.stringify(permutePartition(conditionalPattern, permutation)) !==
+      JSON.stringify(conditionalPattern));
 
 console.log(JSON.stringify({
   arityBoundary: widths.map(({ width: observationWidth, partitions: items }) => ({
@@ -189,6 +238,23 @@ console.log(JSON.stringify({
             interactionOnlyClass.refinementOccurrenceOrbitSizes,
           jointOccurrenceOrbitSizes: interactionOnlyClass.occurrenceOrbitSizes,
         },
+      },
+    },
+    derivationBoundary: {
+      finiteEnumeration: derivationEnumeration,
+      consequence: 'BASE_DERIVATION_CANNOT_CREATE_NEW_OCCURRENCE_DISTINCTIONS',
+      interactionOnlyCounterexample: {
+        basePattern,
+        conditionalPattern,
+        basePreservingRelabelling,
+        relabelledBasePattern: permutePartition(
+          basePattern,
+          basePreservingRelabelling,
+        ),
+        relabelledConditionalPattern: permutePartition(
+          conditionalPattern,
+          basePreservingRelabelling,
+        ),
       },
     },
   },

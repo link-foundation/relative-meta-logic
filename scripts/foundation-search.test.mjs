@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v7');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v8');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v3',
+      'rml-link-ontology-symmetry-experiment/v4',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -247,6 +247,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['conditional-refinement-recoverability', 'NOT_RECOVERABLE_FROM_BASE_PROJECTION'],
         ['conditional-structural-asymmetry', 'EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL'],
         ['conditional-asymmetry-provenance', 'BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED'],
+        ['conditional-interaction-forcedness', 'SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
     );
@@ -547,7 +548,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v7');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v8');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

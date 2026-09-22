@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v3");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v4");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -545,6 +545,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "conditional-asymmetry-provenance",
                 "BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED",
+            ),
+            (
+                "conditional-interaction-forcedness",
+                "SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE",
             ),
             ("observation-loss-provenance", "CLASSIFIED_NOT_RESOLVED"),
         ]
@@ -806,8 +810,7 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     }));
     assert!(report.results.iter().any(|item| {
         item.id == "conditional-interaction-forcedness"
-            && item.result
-                == "SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE"
+            && item.result == "SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE"
     }));
 }
 

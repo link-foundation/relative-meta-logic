@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v7';
+table.schema = 'rml-foundation-candidate-table/v8';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -32,6 +32,9 @@ table.claimBoundary.proved = [...new Set([
   'the width-four singleton-orbit histogram is 20 classes with zero, 5 with one, 7 with two, and 1 with four singleton orbits',
   'asymmetry provenance separates into 7 base-forced, 5 refinement-present, 1 relational-interaction-only, and 20 symmetric joint classes',
   'the same [2,1,1] base projection has a symmetric refinement countermodel and an interaction-only four-singleton refinement',
+  'all 73 base-symmetry-preserving candidate observations at widths one through four retain the base occurrence orbits',
+  'the interaction-only refinement changes under a relabelling that leaves its base observation fixed',
+  'any deterministic observation derived from the base and commuting with occurrence relabelling preserves every base symmetry',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -39,6 +42,8 @@ table.claimBoundary.notProved = [...new Set([
   'that the conditional second equivalence observation is fundamental to links',
   'that a conditional invariant singleton is a source, target, or execution role',
   'that finite completeness at widths one through four is an unbounded theorem',
+  'that the interaction-only refinement is forced by the tested base observation',
+  'that the tested base observation exhausts the intrinsic structure of links',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);

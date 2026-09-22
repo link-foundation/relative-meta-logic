@@ -317,6 +317,99 @@ function partitionPairOccurrenceOrbits(referencePartition, refinementPartition) 
   return orbits.sort(compareVectors);
 }
 
+function basePreservingRelabellings(basePattern) {
+  const identityKey = JSON.stringify(basePattern);
+  return permutations(basePattern.map((_, index) => index))
+    .filter(permutation => JSON.stringify(
+      permutePartition(basePattern, permutation),
+    ) === identityKey);
+}
+
+function derivationBoundaryExperiment(interactionOnlyClass) {
+  const finiteEnumeration = Array.from({ length: 4 }, (_, index) => index + 1)
+    .map(occurrenceCount => {
+      const patterns = setPartitions(occurrenceCount);
+      let baseSymmetryPreservingCandidates = 0;
+      let preservingCandidatesChangingOccurrenceOrbits = 0;
+      for (const basePattern of patterns) {
+        const baseRelabellings = basePreservingRelabellings(basePattern);
+        const baseOrbits = partitionPairOccurrenceOrbits(
+          basePattern,
+          basePattern,
+        );
+        for (const candidatePattern of patterns) {
+          const preservesBaseSymmetry = baseRelabellings.every(permutation =>
+            JSON.stringify(permutePartition(candidatePattern, permutation)) ===
+              JSON.stringify(candidatePattern));
+          if (!preservesBaseSymmetry) continue;
+          baseSymmetryPreservingCandidates += 1;
+          const jointOrbits = partitionPairOccurrenceOrbits(
+            basePattern,
+            candidatePattern,
+          );
+          if (JSON.stringify(jointOrbits) !== JSON.stringify(baseOrbits)) {
+            preservingCandidatesChangingOccurrenceOrbits += 1;
+          }
+        }
+      }
+      const candidateObservationsExamined = patterns.length ** 2;
+      return {
+        occurrenceCount,
+        basePatternsExamined: patterns.length,
+        candidateObservationsExamined,
+        baseSymmetryPreservingCandidates,
+        symmetryBreakingCandidates:
+          candidateObservationsExamined - baseSymmetryPreservingCandidates,
+        preservingCandidatesChangingOccurrenceOrbits,
+      };
+    });
+
+  const basePattern = interactionOnlyClass.referencePartition;
+  const conditionalPattern = interactionOnlyClass.refinementPartition;
+  const basePreservingRelabelling = basePreservingRelabellings(basePattern)
+    .find(permutation => permutation[0] === 1 &&
+      JSON.stringify(permutePartition(conditionalPattern, permutation)) !==
+        JSON.stringify(conditionalPattern));
+  if (!basePreservingRelabelling) {
+    throw new Error('interaction-only witness did not expose added choice');
+  }
+  const relabelledBasePattern = permutePartition(
+    basePattern,
+    basePreservingRelabelling,
+  );
+  const relabelledConditionalPattern = permutePartition(
+    conditionalPattern,
+    basePreservingRelabelling,
+  );
+
+  return {
+    derivationCriterion: 'a deterministic observation derived from the base alone must commute with every occurrence relabelling',
+    finiteEnumeration,
+    generalArgument: {
+      scope: 'all finite observations satisfying the stated derivation criterion',
+      steps: [
+        'take any occurrence relabelling that leaves the base observation unchanged',
+        'commutation makes derivation after relabelling equal relabelling after derivation',
+        'because the relabelled base is unchanged, the derived observation must also be unchanged',
+        'therefore every base-preserving relabelling survives in the base together with its derived observation',
+      ],
+    },
+    consequence: 'BASE_DERIVATION_CANNOT_CREATE_NEW_OCCURRENCE_DISTINCTIONS',
+    interactionOnlyCounterexample: {
+      basePattern,
+      conditionalPattern,
+      basePreservingRelabelling,
+      relabelledBasePattern,
+      relabelledConditionalPattern,
+      basePreserved:
+        JSON.stringify(relabelledBasePattern) === JSON.stringify(basePattern),
+      conditionalPatternPreserved:
+        JSON.stringify(relabelledConditionalPattern) ===
+          JSON.stringify(conditionalPattern),
+    },
+  };
+}
+
 function observationBoundaryExperiment() {
   const arityEnumeration = Array.from({ length: 4 }, (_, index) => index + 1)
     .map(occurrenceCount => {
@@ -554,6 +647,7 @@ function observationBoundaryExperiment() {
           },
         },
       },
+      derivationBoundary: derivationBoundaryExperiment(interactionOnlyClass),
     },
     lossAudit: [
       {
@@ -698,8 +792,8 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v3',
-    question: 'Which facts survive the binary reference observation, what information does its fixed width erase, and which distinctions emerge only under explicitly conditional refinements?',
+    schema: 'rml-link-ontology-symmetry-experiment/v4',
+    question: 'Which facts survive the binary reference observation, what does its fixed width erase, and can an observation derived from that base create new distinctions?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
       occurrenceCount,
@@ -803,13 +897,18 @@ function linkOntologySymmetryExperiment() {
         evidence: 'Seven classes inherit a singleton forced by the base [3,1] multiplicity, five acquire one from an independently asymmetric refinement, one acquires four only through the interaction of two individually symmetric relations, and 20 retain none. Four base fibres have both outcomes; only [3,1] forces asymmetry across every refinement.',
       },
       {
+        id: 'conditional-interaction-forcedness',
+        result: 'SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE',
+        evidence: 'All 73 candidate observations at widths one through four that preserve every base symmetry leave the base occurrence orbits unchanged. The interaction-only witness instead changes under a relabelling that leaves its base fixed. Generally, any deterministic derivation commuting with relabelling must preserve every base symmetry.',
+      },
+      {
         id: 'observation-loss-provenance',
         result: 'CLASSIFIED_NOT_RESOLVED',
         evidence: 'The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological.',
       },
     ],
-    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations. At width four, seven refined classes inherit base-forced asymmetry, five depend on asymmetry already present in the conditional relation, one derives four singleton orbits only from relational interaction, and 20 remain symmetric. This separates structural provenance but cannot select source or target, link identity, or dynamics.',
-    remainingBoundary: 'This experiment does not define a link ontology, justify the second equivalence observation as fundamental, generalize the width-one-through-four enumeration into an unbounded theorem, decide whether any erased distinction belongs to links, promote a singleton orbit to a semantic role, or turn a structural automorphism into execution semantics.',
+    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged. The interaction-only witness fails that derivation criterion, so its new distinctions require information not derived from the tested base; they cannot select source, target, link identity, or dynamics.',
+    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base alone. It does not define a link ontology, decide whether richer structure belongs intrinsically to links, generalize the finite multiplicity enumeration into an unbounded theorem, promote a singleton orbit to a semantic role, or turn a structural symmetry into execution semantics.',
   };
 }
 
@@ -1509,7 +1608,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v7',
+    schema: 'rml-alternative-foundation-search/v8',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
@@ -1520,7 +1619,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     comparisonStatus: comparisonCohortSufficient
       ? 'COMPARABLE_COHORT_ESTABLISHED_NO_GLOBAL_MINIMALITY_CLAIM'
       : 'OPEN_NO_COMPARABLE_ALTERNATIVE',
-    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, the binary symmetry quotient, the width-one-through-four multiplicity quotients, and the conditional width-four refinement fibres. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The finite observation evidence does not establish link ontology, justify the conditional refinement as fundamental, identify the correct primitive categories, turn a structural automorphism into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
+    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, the binary symmetry quotient, the width-one-through-four multiplicity quotients, the conditional width-four refinement fibres, and the symmetry non-creation result for observations derived from the tested base. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The observation evidence does not establish link ontology, identify richer intrinsic link structure, turn a structural symmetry into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
     candidates,
     representationBoundaryWitness: linkRepresentationBoundaryWitness(),
     comparisonCohort: {
@@ -1554,7 +1653,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       globallyMinimal: false,
       intrinsicTransitionAuthority: 'UNRESOLVED',
       representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
-      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes without selecting an ontology or dynamics.',
+      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };
