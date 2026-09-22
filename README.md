@@ -85,12 +85,16 @@ Horn implementations remain executable controls, but their host/self
 duplication excludes them from ranking against the fully reduced S/K
 candidate. The report therefore names no winner. An executable two-model
 witness shows only that one ordered-link host representation does not select
-between two tested transition functions. It explicitly leaves link ontology
-and intrinsic transition authority unresolved. The v4 report also keeps
-primitive categories, the structure/transformation relation, and comparative
-minimality unresolved, classifies all three implementations as executable
-controls that cannot constrain the ontology search, and selects no target
-architecture; see the
+between two tested transition functions. A separate v5 experiment starts from
+two unlabelled reference occurrences plus equality and exhausts their finite
+symmetries. It derives exactly the same-reference/distinct-reference quotient,
+no invariant source/target selector, no unique equivariant dynamics, and
+representation-dependent reification. These are eliminations for that stated
+contract, not a completed link ontology. The report keeps link ontology,
+intrinsic authority, primitive categories, the structure/transformation
+relation, and comparative minimality unresolved; classifies all three
+implementations as executable controls that cannot constrain the ontology
+search; and selects no target architecture. See the
 [foundation-search report](./docs/case-studies/issue-183/foundation-search.md).
 Lambda, set, type, graph, relation, and RML semantics remain linked programs,
 not host callbacks or external-kernel decisions. Lean/Rocq artifacts are

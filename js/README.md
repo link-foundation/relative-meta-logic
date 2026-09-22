@@ -227,11 +227,15 @@ documented in `docs/case-studies/issue-183/foundation-search.md`. The report's
 eligibility gate excludes the direct and Horn controls from ranking while
 they retain host/self duplication. Its executable two-model witness shows
 only that one ordered-link host representation does not select between two
-tested transition functions; link ontology remains unresolved.
-The v4 ontology audit also keeps primitive categories, the
-structure/transformation relation, intrinsic authority, and comparative
-minimality unresolved. All three implementations are executable controls and
-cannot constrain the independent search or select a target architecture.
+tested transition functions. `npm run report:link-ontology` separately
+exhausts a two-unlabelled-occurrence contract and derives exactly two equality
+classes, no invariant source/target selector, no unique equivariant dynamics,
+and representation-dependent reification. The v5 report treats these as
+finite eliminations, not a link ontology or execution law. Primitive
+categories, the structure/transformation relation, intrinsic authority, and
+comparative minimality remain unresolved. All three implementations are
+executable controls and cannot constrain the independent search or select a
+target architecture.
 
 ```javascript
 import { readFileSync } from 'node:fs';

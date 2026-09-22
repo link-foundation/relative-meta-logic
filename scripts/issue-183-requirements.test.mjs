@@ -42,6 +42,8 @@ const REQUIREMENT_SOURCES = [
     5775207546,
     5776265940,
     5777314436,
+    5778389052,
+    5778625533,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -64,7 +66,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = [...ledger.matchAll(/^\| R(\d+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)];
 
-    assert.ok(rows.length >= 76, `expected at least 76 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 78, `expected at least 78 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(match => Number(match[1])),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -103,6 +105,12 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
+      'rml-link-ontology-symmetry-experiment/v1',
+      'COMPLETE_INVARIANT_FOR_CONTRACT',
+      'NOT_DERIVABLE',
+      'REPRESENTATION_DEPENDENT',
+      'NEGATIVE_CONSTRAINT_ONLY',
+      'Advances #183',
     ]) {
       assert.ok(ledger.includes(statement), `missing scope statement: ${statement}`);
     }

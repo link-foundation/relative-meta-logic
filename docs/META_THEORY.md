@@ -141,12 +141,26 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 4 consequently reports the entire foundational investigation as
-`OPEN`. Link ontology, primitive categories, the structure/transformation
-relation, intrinsic semantic authority, and comparative minimality are five
-separate `UNRESOLVED` questions. A/B/C are executable controls only and cannot
-constrain the ontology search. The report also marks the semantic vocabulary
-each control imports as experimental rather than foundational.
+Version 5 also performs an independent finite symmetry experiment without
+using A/B/C. It begins with two unlabelled reference occurrences and equality,
+then exhausts all three surjective observations on their used support, six
+occurrence-permutation/reference-renaming group elements, and ten action
+applications. The quotient contains only the same-reference and
+distinct-reference classes. Three independent
+encodings agree in JavaScript and Rust. For that stated contract, no invariant
+singleton can select source or target, identity and swap are both equivariant
+self-maps, and reified and unreified models project to the same observation.
+This falsifies endpoint direction and unique dynamics at that boundary and
+makes reification representation-dependent there; it does not turn a
+structural automorphism into an execution rule.
+
+The report consequently keeps the entire foundational investigation `OPEN`.
+Link ontology, primitive categories, the structure/transformation relation,
+intrinsic semantic authority, and comparative minimality are five separate
+`UNRESOLVED` questions. The finite contract is not claimed to exhaust links.
+A/B/C are executable controls only and cannot constrain the ontology search.
+The report also marks the semantic vocabulary each control imports as
+experimental rather than foundational.
 
 Every remaining boundary node has a structural `primitiveReason` /
 `primitive_reason`. The mirrored `auditBootstrapKernel` /

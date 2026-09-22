@@ -96,10 +96,27 @@ only it currently passes the full-self-hosting comparison gate. The report
 therefore excludes the direct and Horn controls from ranking, names no
 smallest candidate, and keeps the comparative search open. Its executable
 two-model witness establishes only that the tested ordered-link host value
-does not select between two transition functions. Version 4 marks passivity,
-external transition, and structure/transformation separation as experimental
-assumptions, and leaves link ontology and intrinsic authority unresolved.
-The v4 audit does not count that boundary as completion: it also keeps
+does not select between two transition functions.
+
+Version 5 advances the separate ontology investigation with an exhaustive
+finite symmetry experiment that does not use A/B/C. Starting only with two
+unlabelled reference occurrences and equality, it enumerates three surjective
+observations on their used support, six group elements, and ten action
+applications. The quotient has exactly the same-reference and
+distinct-reference classes, confirmed by three
+independent encodings in both runtimes. The distinct class has no invariant
+singleton occurrence selector, its identity and swap maps are both
+equivariant, and reified and unreified countermodels have the same projection.
+For this contract, endpoint direction is `NOT_DERIVABLE`, reified link identity
+is `REPRESENTATION_DEPENDENT`, equality is
+`COMPLETE_INVARIANT_FOR_CONTRACT`, and representation-independent authority is
+`NEGATIVE_CONSTRAINT_ONLY`.
+
+Those results are eliminations and a complete finite classification, not a
+positive execution law. Version 5 still marks passivity and external
+transition as experimental assumptions of the older host witness, and it
+leaves link ontology and intrinsic authority unresolved. The v5 result does
+not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them
 from constraining an independent ontology search. Source provenance now says

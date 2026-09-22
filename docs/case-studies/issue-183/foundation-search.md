@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v4`. Run it with:
+`rml-alternative-foundation-search/v5`. Run it with:
 
 ```bash
 cd js
@@ -70,8 +70,9 @@ No candidate is declared equivalent to another. Equivalence remains
 
 ## Independent ontology investigation
 
-Version 4 does not convert a correctly documented boundary into a completed
-foundational result. The report sets `foundationStatus: OPEN` and
+Version 5 adds a falsifiable ontology experiment rather than converting a
+correctly documented boundary into a completed foundational result. The report
+sets `foundationStatus: OPEN` and
 `ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
 questions machine-readably unresolved:
 
@@ -102,6 +103,68 @@ For the same reason, the authoritative semantic source is described as
 is represented. It does not claim that its categories or authority were
 derived from the intrinsic nature of links.
 
+## Exhaustive symmetry result
+
+The `rml-link-ontology-symmetry-experiment/v1` experiment starts from a
+strictly weaker contract than the upstream model or candidates A/B/C: there
+are exactly two **unlabelled reference occurrences**, and reference equality
+can be observed. It deliberately assumes no link identity, endpoint order,
+source/target role, passivity, time, or execution law. Those omissions are part
+of the executable input contract, not conclusions about links.
+
+The carrier is restricted to the references actually observed, so unused
+references cannot inflate the search: two occurrences have support size one
+or two. There are exactly three surjective assignments: `[0, 0]`, `[0, 1]`,
+and `[1, 0]`. The experiment enumerates six group elements across those two
+support sizes, applies them ten times across the three assignments, and
+computes the quotient rather than stipulating its answer. Exactly two classes
+remain:
+
+| Canonical class | Representative | Orbit |
+|---|---|---|
+| Same reference | `[0, 0]` | `[0, 0]` |
+| Distinct references | `[0, 1]` | `[0, 1]`, `[1, 0]` |
+
+The equality partition of the two occurrences is therefore a complete
+invariant **for this contract**. Three separately implemented encodings—first
+occurrence normal form, the occurrence-equality matrix, and the reference
+multiplicity spectrum—produce the same partition and remain invariant under
+every enumerated action. JavaScript and Rust independently repeat the
+enumeration.
+
+The distinct-reference class has two automorphisms: identity and the
+simultaneous occurrence/reference swap. Its two occurrences form one orbit.
+Exhausting all four unary occurrence selectors leaves only the empty selector
+and the selector containing both occurrences; no invariant singleton exists.
+Thus a source/target choice is `NOT_DERIVABLE` from the starting contract.
+Exhausting all four self-maps leaves identity and swap as the two equivariant
+maps, so the contract also selects no unique dynamics.
+
+Two explicit countermodels test reification. An unreified occurrence pair and
+a reified incidence star project to the same distinct-reference observation,
+but only the latter has a separate link identity. Reified link identity is
+therefore `REPRESENTATION_DEPENDENT` at this observation boundary. Conversely,
+identity and swap are derived from the structure as automorphisms, so an
+absolute structure/transformation separation fails for structural symmetries.
+That is not an execution result: an automorphism describes indistinguishable
+structure and supplies no time, application, or authority to enact itself.
+
+These computations yield a narrow form of representation-independent
+authority: a valid assertion must be constant on each computed orbit. This is
+`NEGATIVE_CONSTRAINT_ONLY`; it rejects an intrinsic endpoint direction for the
+contract but creates no positive evaluator or transition law. The result is
+independent of S/K, direct rewriting, Horn inference, and their host
+boundaries. It eliminates proposed properties from one observation contract;
+it does not claim that the contract is the ontology of a link or that the
+search is finished.
+
+Run the standalone result with:
+
+```bash
+cd js
+npm run report:link-ontology
+```
+
 ## Host-representation boundary audit
 
 The report executes an underdetermination witness over the host value
@@ -111,7 +174,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 4 makes
+That experiment does **not** identify the ontology of a link. Version 5 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -176,7 +239,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v4 execution-comparison gate admits a candidate only if it passes the common
+The v5 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.
@@ -258,18 +321,22 @@ permission for a theorem to prove itself.
 The JavaScript suite executes the versioned report and synchronizes it with
 the checked-in JSON table. The Rust suite independently runs all three
 mechanisms, confirms that the non-combinator candidates do not observe S/K,
-repeats every removal experiment, and checks the same host-representation
-boundary witness.
+repeats every removal experiment, checks the same host-representation boundary
+witness, and independently enumerates the symmetry quotient, selectors,
+self-maps, and reification countermodels.
 
 What is established is the common finite workload, complete counter-machine
 instruction simulation, language semantic cores, guarded referential witness,
-measured trust boundaries, and the failure of the tested ordered-link host
-signature to select between two witnessed functions. What is not established
-is the ontology of links, whether structure and transformation are
-intrinsically separate, whether execution can arise from links themselves, a
-comparable alternative cohort, a winning foundation, global minimality,
-pairwise candidate equivalence, enumeration of every formal system, or full
-production implementations of Lean, Rocq, Rust, and JavaScript.
+measured trust boundaries, the failure of the tested ordered-link host
+signature to select between two witnessed functions, and the complete
+two-class quotient of the stated two-occurrence observation contract. That
+quotient falsifies endpoint direction and unique dynamics under its symmetries
+and makes reification representation-dependent at its projection boundary.
+What is not established is that this contract exhausts the ontology of links,
+whether execution can arise from links themselves, a comparable alternative
+cohort, a winning foundation, global minimality, pairwise candidate
+equivalence, enumeration of every formal system, or full production
+implementations of Lean, Rocq, Rust, and JavaScript.
 
 Accordingly, identifying and enforcing these boundaries completes an audit,
 not the research questions themselves. The requirements ledger preserves that
