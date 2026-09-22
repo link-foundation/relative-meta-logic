@@ -634,16 +634,61 @@ pub struct LinkOntologyGeneralProjectionArgument {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyQuotientEnumeration {
+    pub occurrence_count: usize,
+    pub ordered_equality_classes_after_address_renaming: usize,
+    pub unlabelled_addressable_classes: usize,
+    pub classes_collapsed_by_occurrence_permutation: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyQuotientTransformation {
+    pub transformation: &'static str,
+    pub classification: &'static str,
+    pub evidence: &'static str,
+    pub ontology_scope: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOccurrencePermutationCountermodel {
+    pub first_ordered_pattern: Vec<usize>,
+    pub second_ordered_pattern: Vec<usize>,
+    pub same_under_address_renaming_alone: bool,
+    pub same_after_occurrence_permutation: bool,
+    pub interpretation: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyMinimalFaithfulDescriptor {
+    pub status: &'static str,
+    pub fields: Vec<&'static str>,
+    pub finite_enumeration_agreement: bool,
+    pub general_argument: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyQuotientAudit {
+    pub finite_enumeration: Vec<LinkOntologyQuotientEnumeration>,
+    pub address_renaming_complete_invariant_verified: bool,
+    pub transformations: Vec<LinkOntologyQuotientTransformation>,
+    pub occurrence_permutation_countermodel: LinkOntologyOccurrencePermutationCountermodel,
+    pub minimal_faithful_descriptor: LinkOntologyMinimalFaithfulDescriptor,
+    pub occurrence_permutation_intrinsic: &'static str,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyStartingRepresentationAudit {
     pub status: &'static str,
     pub scope: &'static str,
     pub independent_justification: LinkOntologyStartingRepresentationJustification,
-    pub allowed_representation_changes: Vec<&'static str>,
+    pub representation_changes_under_audit: Vec<&'static str>,
     pub finite_enumeration: Vec<LinkOntologyAddressableEnumeration>,
     pub every_projection_fibre_ambiguous: bool,
     pub reference_only_projection_faithful: bool,
     pub countermodel: LinkOntologyAddressableCountermodel,
     pub general_argument: LinkOntologyGeneralProjectionArgument,
+    pub quotient_audit: LinkOntologyQuotientAudit,
     pub claim_boundary: &'static str,
 }
 
@@ -1134,6 +1179,17 @@ fn canonical_addressable_link_signature(address_pattern: &[usize]) -> Vec<usize>
         .expect("an addressable link has at least one reference occurrence")
 }
 
+fn addressable_link_descriptor(address_pattern: &[usize]) -> (Vec<usize>, usize) {
+    let references = &address_pattern[1..];
+    (
+        ontology_multiplicity_spectrum(references),
+        references
+            .iter()
+            .filter(|address| **address == address_pattern[0])
+            .count(),
+    )
+}
+
 fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresentationAudit {
     let finite_enumeration = (1..=4)
         .map(|occurrence_count| {
@@ -1186,6 +1242,50 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
     let fresh_external_pattern = vec![0, 1, 2];
     let direct_self_projection = ontology_multiplicity_spectrum(&direct_self_pattern[1..]);
     let fresh_external_projection = ontology_multiplicity_spectrum(&fresh_external_pattern[1..]);
+    let quotient_finite_enumeration = (1..=4)
+        .map(|occurrence_count| {
+            let ordered_patterns = ontology_set_partitions(occurrence_count + 1);
+            let unlabelled_signatures = ordered_patterns
+                .iter()
+                .map(|pattern| canonical_addressable_link_signature(pattern))
+                .collect::<BTreeSet<_>>();
+            LinkOntologyQuotientEnumeration {
+                occurrence_count,
+                ordered_equality_classes_after_address_renaming: ordered_patterns.len(),
+                unlabelled_addressable_classes: unlabelled_signatures.len(),
+                classes_collapsed_by_occurrence_permutation: ordered_patterns.len()
+                    - unlabelled_signatures.len(),
+            }
+        })
+        .collect::<Vec<_>>();
+    let mut descriptor_to_signatures = BTreeMap::<(Vec<usize>, usize), BTreeSet<Vec<usize>>>::new();
+    for occurrence_count in 1..=4 {
+        for address_pattern in ontology_set_partitions(occurrence_count + 1) {
+            descriptor_to_signatures
+                .entry(addressable_link_descriptor(&address_pattern))
+                .or_default()
+                .insert(canonical_addressable_link_signature(&address_pattern));
+        }
+    }
+    let address_renaming_complete_invariant_verified = (1..=4).all(|occurrence_count| {
+        let ordered_patterns = ontology_set_partitions(occurrence_count + 1);
+        ordered_patterns
+            .iter()
+            .map(|pattern| ontology_equality_matrix(pattern))
+            .collect::<BTreeSet<_>>()
+            .len()
+            == ordered_patterns.len()
+    });
+    let descriptor_finite_enumeration_agreement = descriptor_to_signatures
+        .values()
+        .all(|signatures| signatures.len() == 1)
+        && descriptor_to_signatures.len()
+            == quotient_finite_enumeration
+                .iter()
+                .map(|item| item.unlabelled_addressable_classes)
+                .sum::<usize>();
+    let first_ordered_pattern = vec![0, 0, 1];
+    let second_ordered_pattern = vec![0, 1, 0];
 
     LinkOntologyStartingRepresentationAudit {
         status: "REFERENCE_ONLY_PROJECTION_NOT_FAITHFUL_FOR_SELF_REFERENCE",
@@ -1195,9 +1295,9 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
             provenance: "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT",
             consequence: "the link address and reference addresses must participate in the same equality comparison",
         },
-        allowed_representation_changes: vec![
+        representation_changes_under_audit: vec![
             "global address renaming",
-            "permutation of unlabelled reference occurrences",
+            "permutation of reference occurrences",
         ],
         every_projection_fibre_ambiguous: finite_enumeration
             .iter()
@@ -1239,7 +1339,51 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
             exact_fibre_cardinality: "one fresh-address lift plus one self-identifying lift for each distinct reference multiplicity",
             consequence: "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY",
         },
-        claim_boundary: "This proves a loss in the starting representation required to express direct self-reference; it does not establish link identity as a complete ontology, endpoint roles, an evaluator, dynamics, or an execution law.",
+        quotient_audit: LinkOntologyQuotientAudit {
+            finite_enumeration: quotient_finite_enumeration,
+            address_renaming_complete_invariant_verified,
+            transformations: vec![
+                LinkOntologyQuotientTransformation {
+                    transformation: "global address renaming",
+                    classification:
+                        "DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT",
+                    evidence: "The full equality matrix is invariant under every bijective address renaming and uniquely determines every ordered equality class at widths one through four; generally, equal matrices induce the bijection between used addresses.",
+                    ontology_scope: "CONTRACT_RELATIVE_NOT_ABSOLUTE",
+                },
+                LinkOntologyQuotientTransformation {
+                    transformation: "reference-occurrence permutation",
+                    classification: "UNESTABLISHED_EQUIVALENCE",
+                    evidence: "No link-derived fact in the tested contract identifies reference slots. The quotient collapses 0/1/8/40 ordered equality classes at widths one through four; treating those collapses as intrinsic would require an independent reason that slots have no identity.",
+                    ontology_scope: "OBSERVER_CHOICE_UNTIL_DERIVED",
+                },
+            ],
+            occurrence_permutation_countermodel:
+                LinkOntologyOccurrencePermutationCountermodel {
+                    same_under_address_renaming_alone:
+                        first_occurrence_normal_form(&first_ordered_pattern)
+                            == first_occurrence_normal_form(&second_ordered_pattern),
+                    same_after_occurrence_permutation:
+                        canonical_addressable_link_signature(&first_ordered_pattern)
+                            == canonical_addressable_link_signature(&second_ordered_pattern),
+                    first_ordered_pattern,
+                    second_ordered_pattern,
+                    interpretation:
+                        "DISTINGUISHABLE_ONLY_IF_REFERENCE_SLOTS_HAVE_IDENTITY",
+                },
+            minimal_faithful_descriptor: LinkOntologyMinimalFaithfulDescriptor {
+                status:
+                    "COMPLETE_INVARIANT_FOR_DECLARED_UNLABELLED_ADDRESS_EQUALITY_CONTRACT",
+                fields: vec![
+                    "referenceMultiplicitySpectrum",
+                    "directSelfReferenceMultiplicity",
+                ],
+                finite_enumeration_agreement: descriptor_finite_enumeration_agreement,
+                general_argument: "The reference multiplicity spectrum fixes the unlabelled reference classes; zero denotes a fresh link address, while a positive self-reference multiplicity selects the uniquely sized reference class identified with the link. Equal descriptors therefore differ only by address renaming and occurrence permutation.",
+            },
+            occurrence_permutation_intrinsic: "UNRESOLVED",
+            claim_boundary: "The canonical descriptor is faithful only after unlabelled occurrences are declared. The audit derives address-renaming equivalence from equality, but it neither derives occurrence permutation from links nor proves that ordered slots are intrinsic.",
+        },
+        claim_boundary: "This proves a loss in the starting representation required to express direct self-reference and audits the remaining quotient assumptions. It does not establish that reference occurrences are intrinsically ordered or unlabelled, make link identity a complete ontology, derive endpoint roles, an evaluator, dynamics, or an execution law.",
     }
 }
 
@@ -1578,13 +1722,13 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
         loss_audit: vec![
             LinkOntologyLossAudit {
                 distinction: "reference names",
-                classification: "INTENTIONAL_QUOTIENT",
-                evidence: "All observations are quotiented by reference renaming.",
+                classification: "DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT",
+                evidence: "The full equality matrix is invariant and complete under bijective address renaming; this justification remains relative to the address/equality contract.",
             },
             LinkOntologyLossAudit {
                 distinction: "occurrence order",
-                classification: "INTENTIONAL_QUOTIENT",
-                evidence: "All observations are quotiented by every occurrence permutation.",
+                classification: "UNESTABLISHED_EQUIVALENCE",
+                evidence: "Occurrence permutation collapses 0/1/8/40 ordered equality classes at widths one through four, but no link-derived premise in the tested contract establishes that reference slots lack identity.",
             },
             LinkOntologyLossAudit {
                 distinction: "width beyond two occurrences",
@@ -1853,13 +1997,18 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "Direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but cannot be related by address renaming or occurrence permutation. At widths one through four, 2/4/7/12 addressable classes collapse to 1/2/3/5 reference-only classes.",
             },
             LinkOntologyResult {
+                id: "addressable-quotient-assumptions",
+                result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
+                evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
+            },
+            LinkOntologyResult {
                 id: "observation-loss-provenance",
                 result: "CLASSIFIED_NOT_RESOLVED",
-                evidence: "The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological.",
+                evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged. The interaction-only witness fails that derivation criterion, so its new distinctions require information not derived from the tested base; these results cannot select source, target, dynamics, or an execution law.",
-        remaining_boundary: "This experiment proves both that the interaction-only asymmetry is not derivable from the tested base alone and that the starting reference-only projection loses direct-self-reference information required by the issue. It does not define a link ontology or derive endpoint roles, generalize every finite enumeration into an unbounded classification theorem, promote a singleton orbit to a semantic role, or turn a structural symmetry into execution semantics.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. For the repaired address/equality representation, bijective address renaming is derived from the complete equality invariant, while occurrence permutation remains an unestablished observer choice. Multiplicity spectrum plus self-reference multiplicity is a complete invariant only after the unlabelled-occurrence premise is declared. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, and that raw address names add no information within the address/equality contract. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, claim the addressable quotient is complete, derive endpoint roles, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics.",
     }
 }
 

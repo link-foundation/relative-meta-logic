@@ -554,6 +554,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
                 "starting-representation-faithfulness",
                 "REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE",
             ),
+            (
+                "addressable-quotient-assumptions",
+                "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
+            ),
             ("observation-loss-provenance", "CLASSIFIED_NOT_RESOLVED"),
         ]
     );
@@ -873,14 +877,100 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
         "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY"
     );
     assert_eq!(
+        starting_representation
+            .quotient_audit
+            .finite_enumeration
+            .iter()
+            .map(|item| (
+                item.occurrence_count,
+                item.ordered_equality_classes_after_address_renaming,
+                item.unlabelled_addressable_classes,
+                item.classes_collapsed_by_occurrence_permutation,
+            ))
+            .collect::<Vec<_>>(),
+        vec![(1, 2, 2, 0), (2, 5, 4, 1), (3, 15, 7, 8), (4, 52, 12, 40)]
+    );
+    assert!(
+        starting_representation
+            .quotient_audit
+            .address_renaming_complete_invariant_verified
+    );
+    assert_eq!(
+        starting_representation
+            .quotient_audit
+            .transformations
+            .iter()
+            .map(|item| (item.transformation, item.classification))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                "global address renaming",
+                "DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT",
+            ),
+            (
+                "reference-occurrence permutation",
+                "UNESTABLISHED_EQUIVALENCE",
+            ),
+        ]
+    );
+    let permutation_countermodel = &starting_representation
+        .quotient_audit
+        .occurrence_permutation_countermodel;
+    assert_eq!(
+        permutation_countermodel.first_ordered_pattern,
+        vec![0, 0, 1]
+    );
+    assert_eq!(
+        permutation_countermodel.second_ordered_pattern,
+        vec![0, 1, 0]
+    );
+    assert!(!permutation_countermodel.same_under_address_renaming_alone);
+    assert!(permutation_countermodel.same_after_occurrence_permutation);
+    assert_eq!(
+        permutation_countermodel.interpretation,
+        "DISTINGUISHABLE_ONLY_IF_REFERENCE_SLOTS_HAVE_IDENTITY"
+    );
+    assert_eq!(
+        starting_representation
+            .quotient_audit
+            .minimal_faithful_descriptor
+            .status,
+        "COMPLETE_INVARIANT_FOR_DECLARED_UNLABELLED_ADDRESS_EQUALITY_CONTRACT"
+    );
+    assert_eq!(
+        starting_representation
+            .quotient_audit
+            .minimal_faithful_descriptor
+            .fields,
+        vec![
+            "referenceMultiplicitySpectrum",
+            "directSelfReferenceMultiplicity",
+        ]
+    );
+    assert!(
+        starting_representation
+            .quotient_audit
+            .minimal_faithful_descriptor
+            .finite_enumeration_agreement
+    );
+    assert_eq!(
+        starting_representation
+            .quotient_audit
+            .occurrence_permutation_intrinsic,
+        "UNRESOLVED"
+    );
+    assert_eq!(
         boundary
             .loss_audit
             .iter()
             .map(|item| (item.distinction, item.classification))
             .collect::<Vec<_>>(),
         vec![
-            ("reference names", "INTENTIONAL_QUOTIENT"),
-            ("occurrence order", "INTENTIONAL_QUOTIENT"),
+            (
+                "reference names",
+                "DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT"
+            ),
+            ("occurrence order", "UNESTABLISHED_EQUIVALENCE"),
             ("width beyond two occurrences", "PROVEN_INFORMATION_LOSS"),
             ("second equivalence observation", "PROVEN_NOT_RECOVERABLE"),
             (
@@ -902,6 +992,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(report.results.iter().any(|item| {
         item.id == "conditional-interaction-forcedness"
             && item.result == "SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE"
+    }));
+    assert!(report.results.iter().any(|item| {
+        item.id == "addressable-quotient-assumptions"
+            && item.result == "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED"
     }));
 }
 

@@ -99,6 +99,15 @@ function canonicalAddressableLinkPattern(addressPattern) {
     .sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)))[0];
 }
 
+function addressableDescriptor(addressPattern) {
+  const references = addressPattern.slice(1);
+  return {
+    referenceMultiplicitySpectrum: spectrum(references),
+    directSelfReferenceMultiplicity: references
+      .filter(address => address === addressPattern[0]).length,
+  };
+}
+
 const startingRepresentationAudit = widths.map(({ width: observationWidth }) => {
   const addressableClasses = new Map();
   for (const addressPattern of restrictedGrowthPartitions(observationWidth + 1)) {
@@ -132,6 +141,28 @@ const startingRepresentationAudit = widths.map(({ width: observationWidth }) => 
       })),
   };
 });
+
+const quotientAuditEnumeration = widths.map(({ width: observationWidth }) => {
+  const orderedPatterns = restrictedGrowthPartitions(observationWidth + 1);
+  const unlabelledClasses = new Set(orderedPatterns.map(pattern =>
+    JSON.stringify(canonicalAddressableLinkPattern(pattern))));
+  return {
+    occurrenceCount: observationWidth,
+    orderedEqualityClassesAfterAddressRenaming: orderedPatterns.length,
+    unlabelledAddressableClasses: unlabelledClasses.size,
+    classesCollapsedByOccurrencePermutation:
+      orderedPatterns.length - unlabelledClasses.size,
+  };
+});
+const descriptorToClasses = new Map();
+for (const { width: observationWidth } of widths) {
+  for (const pattern of restrictedGrowthPartitions(observationWidth + 1)) {
+    const descriptor = JSON.stringify(addressableDescriptor(pattern));
+    const canonical = JSON.stringify(canonicalAddressableLinkPattern(pattern));
+    if (!descriptorToClasses.has(descriptor)) descriptorToClasses.set(descriptor, new Set());
+    descriptorToClasses.get(descriptor).add(canonical);
+  }
+}
 
 for (const referencePartition of partitions) {
   for (const refinementPartition of partitions) {
@@ -233,6 +264,48 @@ console.log(JSON.stringify({
     },
     consequence:
       'REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY',
+    quotientAudit: {
+      finiteEnumeration: quotientAuditEnumeration,
+      addressRenamingCompleteInvariantVerified: widths.every(
+        ({ width: observationWidth }) => {
+          const patterns = restrictedGrowthPartitions(observationWidth + 1);
+          const matrices = new Set(patterns.map(pattern => JSON.stringify(
+            pattern.flatMap(left => pattern.map(right => Number(left === right))),
+          )));
+          return matrices.size === patterns.length;
+        },
+      ),
+      transformations: [
+        {
+          transformation: 'global address renaming',
+          classification:
+            'DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT',
+        },
+        {
+          transformation: 'reference-occurrence permutation',
+          classification: 'UNESTABLISHED_EQUIVALENCE',
+        },
+      ],
+      occurrencePermutationCountermodel: {
+        firstOrderedPattern: [0, 0, 1],
+        secondOrderedPattern: [0, 1, 0],
+        sameUnderAddressRenamingAlone: false,
+        sameAfterOccurrencePermutation:
+          JSON.stringify(canonicalAddressableLinkPattern([0, 0, 1])) ===
+            JSON.stringify(canonicalAddressableLinkPattern([0, 1, 0])),
+      },
+      minimalFaithfulDescriptor: {
+        fields: [
+          'referenceMultiplicitySpectrum',
+          'directSelfReferenceMultiplicity',
+        ],
+        finiteEnumerationAgreement: [...descriptorToClasses.values()]
+          .every(classes => classes.size === 1) &&
+            descriptorToClasses.size === quotientAuditEnumeration
+              .reduce((total, item) => total + item.unlabelledAddressableClasses, 0),
+      },
+      occurrencePermutationIntrinsic: 'UNRESOLVED',
+    },
   },
   arityBoundary: widths.map(({ width: observationWidth, partitions: items }) => ({
     occurrenceCount: observationWidth,

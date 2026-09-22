@@ -249,6 +249,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['conditional-asymmetry-provenance', 'BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED'],
         ['conditional-interaction-forcedness', 'SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE'],
         ['starting-representation-faithfulness', 'REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE'],
+        ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
     );
@@ -558,12 +559,89 @@ describe('architecture-neutral alternative-foundation search', () => {
       startingRepresentation.generalArgument.consequence,
       'REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY',
     );
+    assert.deepEqual(
+      startingRepresentation.quotientAudit.finiteEnumeration,
+      [
+        {
+          occurrenceCount: 1,
+          orderedEqualityClassesAfterAddressRenaming: 2,
+          unlabelledAddressableClasses: 2,
+          classesCollapsedByOccurrencePermutation: 0,
+        },
+        {
+          occurrenceCount: 2,
+          orderedEqualityClassesAfterAddressRenaming: 5,
+          unlabelledAddressableClasses: 4,
+          classesCollapsedByOccurrencePermutation: 1,
+        },
+        {
+          occurrenceCount: 3,
+          orderedEqualityClassesAfterAddressRenaming: 15,
+          unlabelledAddressableClasses: 7,
+          classesCollapsedByOccurrencePermutation: 8,
+        },
+        {
+          occurrenceCount: 4,
+          orderedEqualityClassesAfterAddressRenaming: 52,
+          unlabelledAddressableClasses: 12,
+          classesCollapsedByOccurrencePermutation: 40,
+        },
+      ],
+    );
+    assert.equal(
+      startingRepresentation.quotientAudit
+        .addressRenamingCompleteInvariantVerified,
+      true,
+    );
+    assert.deepEqual(
+      startingRepresentation.quotientAudit.transformations.map(item => [
+        item.transformation,
+        item.classification,
+      ]),
+      [
+        [
+          'global address renaming',
+          'DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT',
+        ],
+        ['reference-occurrence permutation', 'UNESTABLISHED_EQUIVALENCE'],
+      ],
+    );
+    assert.deepEqual(
+      startingRepresentation.quotientAudit.occurrencePermutationCountermodel,
+      {
+        firstOrderedPattern: [0, 0, 1],
+        secondOrderedPattern: [0, 1, 0],
+        sameUnderAddressRenamingAlone: false,
+        sameAfterOccurrencePermutation: true,
+        interpretation: 'DISTINGUISHABLE_ONLY_IF_REFERENCE_SLOTS_HAVE_IDENTITY',
+      },
+    );
+    assert.equal(
+      startingRepresentation.quotientAudit.minimalFaithfulDescriptor.status,
+      'COMPLETE_INVARIANT_FOR_DECLARED_UNLABELLED_ADDRESS_EQUALITY_CONTRACT',
+    );
+    assert.deepEqual(
+      startingRepresentation.quotientAudit.minimalFaithfulDescriptor.fields,
+      ['referenceMultiplicitySpectrum', 'directSelfReferenceMultiplicity'],
+    );
+    assert.equal(
+      startingRepresentation.quotientAudit.minimalFaithfulDescriptor
+        .finiteEnumerationAgreement,
+      true,
+    );
+    assert.equal(
+      startingRepresentation.quotientAudit.occurrencePermutationIntrinsic,
+      'UNRESOLVED',
+    );
 
     assert.deepEqual(
       boundary.lossAudit.map(item => [item.distinction, item.classification]),
       [
-        ['reference names', 'INTENTIONAL_QUOTIENT'],
-        ['occurrence order', 'INTENTIONAL_QUOTIENT'],
+        [
+          'reference names',
+          'DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT',
+        ],
+        ['occurrence order', 'UNESTABLISHED_EQUIVALENCE'],
         ['width beyond two occurrences', 'PROVEN_INFORMATION_LOSS'],
         ['second equivalence observation', 'PROVEN_NOT_RECOVERABLE'],
         ['direct self-reference', 'PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS'],
@@ -580,6 +658,9 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.ok(experiment.results.some(item =>
       item.id === 'conditional-interaction-forcedness' &&
       item.result === 'SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE'));
+    assert.ok(experiment.results.some(item =>
+      item.id === 'addressable-quotient-assumptions' &&
+      item.result === 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'));
     assert.match(
       report.conclusion.ontologyExperimentConclusion,
       /binary equality coincidence is complete only at fixed width two/i,

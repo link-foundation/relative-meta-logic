@@ -38,6 +38,9 @@ table.claimBoundary.proved = [...new Set([
   'the direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but are not equivalent under address renaming and occurrence permutation',
   'forgetting the link address collapses 2, 4, 7, and 12 addressable classes to 1, 2, 3, and 5 reference-only classes at widths one through four',
   'every nonempty finite reference-only class has a fresh-address lift and at least one inequivalent self-identifying lift',
+  'full equality matrices completely classify ordered address patterns under bijective address renaming',
+  'reference-occurrence permutation collapses 0, 1, 8, and 40 additional ordered classes at widths one through four',
+  'reference multiplicity plus direct-self-reference multiplicity classifies the declared unlabelled addressable quotient at widths one through four',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -49,6 +52,8 @@ table.claimBoundary.notProved = [...new Set([
   'that the tested base observation exhausts the intrinsic structure of links',
   'that retaining the link address defines a complete link ontology',
   'that direct self-reference supplies endpoint roles, dynamics, or an execution law',
+  'that reference occurrences intrinsically lack slot identity',
+  'that the declared unlabelled addressable quotient is a complete representation of links',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);
