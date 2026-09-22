@@ -141,7 +141,7 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 5 also performs an independent finite symmetry experiment without
+Version 6 also performs an independent finite symmetry experiment without
 using A/B/C. It begins with two unlabelled reference occurrences and equality,
 then exhausts all three surjective observations on their used support, six
 occurrence-permutation/reference-renaming group elements, and ten action
@@ -153,6 +153,16 @@ self-maps, and reified and unreified models project to the same observation.
 This falsifies endpoint direction and unique dynamics at that boundary and
 makes reification representation-dependent there; it does not turn a
 structural automorphism into an execution rule.
+
+The follow-up measures that contract's losses rather than treating it as a
+destination. With the same primitive vocabulary, exhaustive widths one
+through four have 1, 2, 3, and 5 multiplicity-spectrum classes. A separate
+conditional probe adds an uninterpreted second equivalence relation solely to
+measure a forgetful projection: 225 labelled pairs reduce to 33 joint classes,
+and every reference-only fibre contains 5–9 incompatible refinements. Thirteen
+joint classes have an invariant singleton occurrence and 20 do not. This shows
+that relational asymmetry can emerge conditionally, but neither establishes
+the second relation as fundamental nor names the singleton source or target.
 
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,

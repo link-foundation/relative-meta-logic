@@ -168,12 +168,14 @@ witness, and all 13 primitive-removal experiments without allowing the two
 non-combinator mechanisms to observe S/K. The same suite checks the
 host-representation boundary witness; the machine-readable report excludes
 the less-reduced controls from ranking and names no foundation winner.
-`link_ontology_symmetry_report` independently exhausts the two-occurrence
-contract: equality gives its two canonical classes, no invariant singleton
-selects source or target, identity and swap are both equivariant, and
-reification depends on representation under the tested projection. The v5
-report treats these as finite eliminations, not a link ontology or execution
-law. Primitive categories, the structure/transformation relation, intrinsic
+`link_ontology_symmetry_report` independently exhausts the binary contract and
+its observation boundary. Equality gives two width-two classes; the same
+vocabulary gives 1, 2, 3, and 5 multiplicity classes at widths one through
+four. A conditional second equivalence has 33 joint classes and 5–9
+refinements per coarse fibre; 13 classes have a fixed occurrence and 20 do
+not. The v6 report treats these as finite, provenance-labelled constraints,
+not a link ontology or execution law. Primitive categories, the
+structure/transformation relation, intrinsic
 authority, and comparative minimality remain unresolved; A/B/C cannot
 constrain the independent search or select its target architecture.
 `MembershipSetStore` provides addressed

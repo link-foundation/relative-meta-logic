@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v5`. Run it with:
+`rml-alternative-foundation-search/v6`. Run it with:
 
 ```bash
 cd js
@@ -70,7 +70,7 @@ No candidate is declared equivalent to another. Equivalence remains
 
 ## Independent ontology investigation
 
-Version 5 adds a falsifiable ontology experiment rather than converting a
+Version 6 extends a falsifiable ontology experiment rather than converting a
 correctly documented boundary into a completed foundational result. The report
 sets `foundationStatus: OPEN` and
 `ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
@@ -103,9 +103,9 @@ For the same reason, the authoritative semantic source is described as
 is represented. It does not claim that its categories or authority were
 derived from the intrinsic nature of links.
 
-## Exhaustive symmetry result
+## Exhaustive symmetry and observation-loss result
 
-The `rml-link-ontology-symmetry-experiment/v1` experiment starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v2` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -158,6 +158,78 @@ boundaries. It eliminates proposed properties from one observation contract;
 it does not claim that the contract is the ontology of a link or that the
 search is finished.
 
+### Fixed-arity information loss
+
+The v2 follow-up first changes no primitive vocabulary at all. It retains only
+unlabelled reference occurrences and observable reference equality, but
+exhausts widths one through four instead of fixing the width at two.
+
+| Width | Surjective assignments | Reference-renaming classes | Full permutation quotient | Complete invariant |
+|---:|---:|---:|---:|---|
+| 1 | 1 | 1 | 1 | `[1]` |
+| 2 | 3 | 2 | 2 | `[1,1]`, `[2]` |
+| 3 | 13 | 5 | 3 | `[1,1,1]`, `[2,1]`, `[3]` |
+| 4 | 75 | 15 | 5 | `[1,1,1,1]`, `[2,1,1]`, `[2,2]`, `[3,1]`, `[4]` |
+
+The reference multiplicity spectrum is complete at each fixed unlabelled
+width. This is a derived generalization of the binary equality result: the
+same-reference/distinct-reference quotient is only the width-two member of
+the family. Consequently, the binary observation is
+`INSUFFICIENT_OUTSIDE_FIXED_ARITY`; its fixed width demonstrably erases
+higher multiplicity and overlap distinctions.
+
+### Conditional refinement probe
+
+The second follow-up asks what a reference-only projection would lose if an
+independently observable co-membership relation existed. It does **not** call
+that relation link identity, endpoint grouping, order, time, or semantics.
+Its provenance is
+`CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED`, and its foundational status is
+`UNESTABLISHED`.
+
+At width four there are 15 reference-equality partitions and 15 partitions
+of the conditional relation, giving 225 labelled joint structures. Exhaustive
+quotienting by all 24 occurrence permutations yields 33 joint classes. Three
+independent constructions classify exactly the same 33 classes:
+
+- canonical pairs of restricted-growth partitions;
+- paired occurrence-equality matrices; and
+- row/column-quotiented intersection-multiplicity tables.
+
+Forgetting the conditional relation produces these exact projection fibres:
+
+| Reference multiplicity | Inequivalent joint refinements |
+|---|---:|
+| `[1,1,1,1]` | 5 |
+| `[2,1,1]` | 9 |
+| `[2,2]` | 7 |
+| `[3,1]` | 7 |
+| `[4]` | 5 |
+
+Every coarse class therefore has multiple incompatible refinements. The
+second relation is `NOT_RECOVERABLE_FROM_BASE_PROJECTION`; this establishes
+what the current observation forgets, not whether the forgotten relation is
+fundamental to links.
+
+Automorphism enumeration supplies a further conditional result. Thirteen of
+the 33 joint classes have an invariant singleton occurrence, while 20 do not.
+Thus a role-like asymmetry can emerge from relational structure without
+naming source or target in advance, but it is neither universal nor selected
+as endpoint direction. The experiment derives the asymmetry only after the
+conditional observation is given; it does not derive that observation.
+
+The machine-readable loss audit distinguishes:
+
+- intentional quotienting of reference names and occurrence order;
+- demonstrated information loss from fixed binary width;
+- demonstrated non-recoverability of the conditional relation;
+- endpoint direction that was not observed and therefore not disproved; and
+- dynamics and time that were not observed and therefore not disproved.
+
+This answers which facts survive the tested representation changes while
+preserving the unresolved question: none of these finite observations has
+been established as a sufficient characterization of a link.
+
 Run the standalone result with:
 
 ```bash
@@ -174,7 +246,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 5 makes
+That experiment does **not** identify the ontology of a link. Version 6 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -239,7 +311,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v5 execution-comparison gate admits a candidate only if it passes the common
+The v6 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.

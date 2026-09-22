@@ -98,7 +98,7 @@ smallest candidate, and keeps the comparative search open. Its executable
 two-model witness establishes only that the tested ordered-link host value
 does not select between two transition functions.
 
-Version 5 advances the separate ontology investigation with an exhaustive
+Version 6 advances the separate ontology investigation with an exhaustive
 finite symmetry experiment that does not use A/B/C. Starting only with two
 unlabelled reference occurrences and equality, it enumerates three surjective
 observations on their used support, six group elements, and ten action
@@ -112,10 +112,20 @@ is `REPRESENTATION_DEPENDENT`, equality is
 `COMPLETE_INVARIANT_FOR_CONTRACT`, and representation-independent authority is
 `NEGATIVE_CONSTRAINT_ONLY`.
 
+The follow-up does not treat that binary quotient as a foundational endpoint.
+Using the same unlabelled-occurrence/equality vocabulary at widths one through
+four derives 1, 2, 3, and 5 multiplicity-spectrum classes, proving that fixed
+binary width loses observable structure. A separately marked conditional
+second equivalence enumerates 225 labelled structures and 33 joint symmetry
+classes; forgetting it leaves 5–9 inequivalent refinements behind every
+reference-only class. Thirteen joint classes acquire an invariant singleton
+occurrence and 20 do not. This is conditional structural asymmetry, not an
+endpoint direction or a justified ontology.
+
 Those results are eliminations and a complete finite classification, not a
-positive execution law. Version 5 still marks passivity and external
+positive execution law. Version 6 still marks passivity and external
 transition as experimental assumptions of the older host witness, and it
-leaves link ontology and intrinsic authority unresolved. The v5 result does
+leaves link ontology and intrinsic authority unresolved. The v6 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

@@ -228,10 +228,12 @@ eligibility gate excludes the direct and Horn controls from ranking while
 they retain host/self duplication. Its executable two-model witness shows
 only that one ordered-link host representation does not select between two
 tested transition functions. `npm run report:link-ontology` separately
-exhausts a two-unlabelled-occurrence contract and derives exactly two equality
-classes, no invariant source/target selector, no unique equivariant dynamics,
-and representation-dependent reification. The v5 report treats these as
-finite eliminations, not a link ontology or execution law. Primitive
+exhausts the binary contract and its observation boundary. Equality gives two
+width-two classes; the same vocabulary gives 1, 2, 3, and 5 multiplicity
+classes at widths one through four. A conditional second equivalence has 33
+joint classes and 5–9 refinements per coarse fibre; 13 classes have a fixed
+occurrence and 20 do not. The v6 report treats these as finite,
+provenance-labelled constraints, not a link ontology or execution law. Primitive
 categories, the structure/transformation relation, intrinsic authority, and
 comparative minimality remain unresolved. All three implementations are
 executable controls and cannot constrain the independent search or select a

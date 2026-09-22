@@ -20,12 +20,15 @@ host/self duplication. The report names no winner. Its two-model witness shows
 only that the tested ordered-link host signature does not select between two
 functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
-documented on this page. The v5 report additionally performs an independent
+documented on this page. The v6 report additionally performs an independent
 finite symmetry experiment over two unlabelled reference occurrences. It
 derives equality coincidence as complete for that contract while eliminating
 an invariant source/target selector, unique dynamics, and
 representation-independent reification. The contract is not claimed to
-exhaust links or supply execution semantics. All three execution bases remain
+exhaust links or supply execution semantics. Its observation-loss follow-up
+derives wider multiplicity spectra without a new primitive and uses an
+explicitly conditional second equivalence to measure 33 joint classes and
+5–9 refinements per coarse fibre. All three execution bases remain
 controls that cannot constrain the independent ontology investigation;
 primitive categories, the structure/transformation relation, intrinsic
 authority, and comparative minimality remain explicitly unresolved.
