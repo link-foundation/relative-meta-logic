@@ -89,6 +89,50 @@ function basePreservingRelabellings(basePattern) {
       JSON.stringify(basePattern));
 }
 
+function canonicalAddressableLinkPattern(addressPattern) {
+  const referenceIndexes = addressPattern.slice(1).map((_, index) => index + 1);
+  return permutations(referenceIndexes)
+    .map(permutation => normalize([
+      addressPattern[0],
+      ...permutation.map(index => addressPattern[index]),
+    ]))
+    .sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)))[0];
+}
+
+const startingRepresentationAudit = widths.map(({ width: observationWidth }) => {
+  const addressableClasses = new Map();
+  for (const addressPattern of restrictedGrowthPartitions(observationWidth + 1)) {
+    const canonical = canonicalAddressableLinkPattern(addressPattern);
+    addressableClasses.set(JSON.stringify(canonical), canonical);
+  }
+  const fibres = new Map();
+  for (const addressPattern of addressableClasses.values()) {
+    const projection = spectrum(addressPattern.slice(1)).join('+');
+    if (!fibres.has(projection)) fibres.set(projection, []);
+    fibres.get(projection).push(addressPattern);
+  }
+  const histogram = new Map();
+  for (const fibre of fibres.values()) {
+    histogram.set(fibre.length, (histogram.get(fibre.length) ?? 0) + 1);
+  }
+  const classesWithDirectSelfReference = [...addressableClasses.values()]
+    .filter(pattern => pattern.slice(1).includes(pattern[0])).length;
+  return {
+    occurrenceCount: observationWidth,
+    referenceOnlyClasses: fibres.size,
+    addressableLinkClasses: addressableClasses.size,
+    classesWithNoDirectSelfReference:
+      addressableClasses.size - classesWithDirectSelfReference,
+    classesWithDirectSelfReference,
+    projectionFibreHistogram: [...histogram]
+      .sort(([left], [right]) => left - right)
+      .map(([addressableClasses, referenceOnlyClasses]) => ({
+        addressableClasses,
+        referenceOnlyClasses,
+      })),
+  };
+});
+
 for (const referencePartition of partitions) {
   for (const refinementPartition of partitions) {
     const orbit = occurrencePermutations
@@ -180,6 +224,16 @@ const basePreservingRelabelling = basePreservingRelabellings(basePattern)
       JSON.stringify(conditionalPattern));
 
 console.log(JSON.stringify({
+  startingRepresentationAudit: {
+    finiteEnumeration: startingRepresentationAudit,
+    countermodel: {
+      directSelfLink: [0, 0, 1],
+      freshExternalLink: [0, 1, 2],
+      sharedProjection: [1, 1],
+    },
+    consequence:
+      'REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY',
+  },
   arityBoundary: widths.map(({ width: observationWidth, partitions: items }) => ({
     occurrenceCount: observationWidth,
     labelledPartitions: items.length,

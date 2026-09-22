@@ -130,6 +130,16 @@ relabelling that leaves its base fixed, so its distinctions require information
 not derived from that base. This is conditional structural evidence, not an
 endpoint direction or a justified ontology.
 
+The v5 starting-representation audit then uses the issue's independent
+requirement that addressed links may refer to themselves. Direct-self
+`[0,0,1]` and fresh-external `[0,1,2]` links have the same reference-only
+`[1,1]` projection but remain inequivalent under global address renaming and
+reference-occurrence permutation. Widths one through four collapse
+`2/4/7/12` addressable classes to `1/2/3/5` reference-only classes, and a
+general lift argument proves non-injectivity at every nonzero finite arity.
+This falsifies completeness of the starting projection for self-reference; it
+does not promote link identity to a complete ontology or execution law.
+
 Those results are eliminations and a complete finite classification at the
 tested widths, not an unbounded theorem or positive execution law. Version 8
 still marks passivity and external

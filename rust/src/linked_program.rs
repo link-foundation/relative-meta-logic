@@ -587,12 +587,74 @@ pub struct LinkOntologyLossAudit {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAddressableProjectionFibreHistogram {
+    pub addressable_classes: usize,
+    pub reference_only_classes: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAddressableEnumeration {
+    pub occurrence_count: usize,
+    pub reference_only_classes: usize,
+    pub addressable_link_classes: usize,
+    pub classes_with_no_direct_self_reference: usize,
+    pub classes_with_direct_self_reference: usize,
+    pub projection_fibre_histogram: Vec<LinkOntologyAddressableProjectionFibreHistogram>,
+    pub every_projection_fibre_ambiguous: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyStartingRepresentationJustification {
+    pub requirement: &'static str,
+    pub provenance: &'static str,
+    pub consequence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAddressableCountermodelSide {
+    pub normalized_address_pattern: Vec<usize>,
+    pub direct_self_reference_count: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAddressableCountermodel {
+    pub projected_reference_multiplicity_spectrum: Vec<usize>,
+    pub direct_self_link: LinkOntologyAddressableCountermodelSide,
+    pub fresh_external_link: LinkOntologyAddressableCountermodelSide,
+    pub same_reference_only_projection: bool,
+    pub same_addressable_link_class: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyGeneralProjectionArgument {
+    pub scope: &'static str,
+    pub steps: Vec<&'static str>,
+    pub exact_fibre_cardinality: &'static str,
+    pub consequence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyStartingRepresentationAudit {
+    pub status: &'static str,
+    pub scope: &'static str,
+    pub independent_justification: LinkOntologyStartingRepresentationJustification,
+    pub allowed_representation_changes: Vec<&'static str>,
+    pub finite_enumeration: Vec<LinkOntologyAddressableEnumeration>,
+    pub every_projection_fibre_ambiguous: bool,
+    pub reference_only_projection_faithful: bool,
+    pub countermodel: LinkOntologyAddressableCountermodel,
+    pub general_argument: LinkOntologyGeneralProjectionArgument,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyObservationBoundary {
     pub status: &'static str,
     pub unchanged_primitive_vocabulary: Vec<&'static str>,
     pub arity_enumeration: Vec<LinkOntologyArityEnumeration>,
     pub arity_enumeration_complete: bool,
     pub generalized_complete_invariant: &'static str,
+    pub starting_representation_audit: LinkOntologyStartingRepresentationAudit,
     pub conditional_refinement: LinkOntologyConditionalRefinement,
     pub loss_audit: Vec<LinkOntologyLossAudit>,
 }
@@ -1060,6 +1122,127 @@ fn link_ontology_derivation_boundary(
     }
 }
 
+fn canonical_addressable_link_signature(address_pattern: &[usize]) -> Vec<usize> {
+    finite_permutations(&(1..address_pattern.len()).collect::<Vec<_>>())
+        .into_iter()
+        .map(|permutation| {
+            let mut permuted = vec![address_pattern[0]];
+            permuted.extend(permutation.iter().map(|index| address_pattern[*index]));
+            first_occurrence_normal_form(&permuted)
+        })
+        .min()
+        .expect("an addressable link has at least one reference occurrence")
+}
+
+fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresentationAudit {
+    let finite_enumeration = (1..=4)
+        .map(|occurrence_count| {
+            let addressable_classes = ontology_set_partitions(occurrence_count + 1)
+                .into_iter()
+                .map(|address_pattern| {
+                    let signature = canonical_addressable_link_signature(&address_pattern);
+                    (signature.clone(), signature)
+                })
+                .collect::<BTreeMap<_, _>>();
+            let mut fibres = BTreeMap::<Vec<usize>, Vec<Vec<usize>>>::new();
+            for address_pattern in addressable_classes.values() {
+                fibres
+                    .entry(ontology_multiplicity_spectrum(&address_pattern[1..]))
+                    .or_default()
+                    .push(address_pattern.clone());
+            }
+            let projection_fibre_histogram = fibres
+                .values()
+                .fold(BTreeMap::new(), |mut histogram, fibre| {
+                    *histogram.entry(fibre.len()).or_insert(0) += 1;
+                    histogram
+                })
+                .into_iter()
+                .map(|(addressable_classes, reference_only_classes)| {
+                    LinkOntologyAddressableProjectionFibreHistogram {
+                        addressable_classes,
+                        reference_only_classes,
+                    }
+                })
+                .collect::<Vec<_>>();
+            let classes_with_direct_self_reference = addressable_classes
+                .values()
+                .filter(|pattern| pattern[1..].contains(&pattern[0]))
+                .count();
+
+            LinkOntologyAddressableEnumeration {
+                occurrence_count,
+                reference_only_classes: fibres.len(),
+                addressable_link_classes: addressable_classes.len(),
+                classes_with_no_direct_self_reference: addressable_classes.len()
+                    - classes_with_direct_self_reference,
+                classes_with_direct_self_reference,
+                projection_fibre_histogram,
+                every_projection_fibre_ambiguous: fibres.values().all(|fibre| fibre.len() > 1),
+            }
+        })
+        .collect::<Vec<_>>();
+    let direct_self_pattern = vec![0, 0, 1];
+    let fresh_external_pattern = vec![0, 1, 2];
+    let direct_self_projection = ontology_multiplicity_spectrum(&direct_self_pattern[1..]);
+    let fresh_external_projection = ontology_multiplicity_spectrum(&fresh_external_pattern[1..]);
+
+    LinkOntologyStartingRepresentationAudit {
+        status: "REFERENCE_ONLY_PROJECTION_NOT_FAITHFUL_FOR_SELF_REFERENCE",
+        scope: "finite addressable links with one or more unlabelled reference occurrences and direct self-reference in the same address space",
+        independent_justification: LinkOntologyStartingRepresentationJustification {
+            requirement: "a link may occur directly among its own references",
+            provenance: "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT",
+            consequence: "the link address and reference addresses must participate in the same equality comparison",
+        },
+        allowed_representation_changes: vec![
+            "global address renaming",
+            "permutation of unlabelled reference occurrences",
+        ],
+        every_projection_fibre_ambiguous: finite_enumeration
+            .iter()
+            .all(|item| item.every_projection_fibre_ambiguous),
+        reference_only_projection_faithful: finite_enumeration
+            .iter()
+            .all(|item| item.addressable_link_classes == item.reference_only_classes),
+        finite_enumeration,
+        countermodel: LinkOntologyAddressableCountermodel {
+            projected_reference_multiplicity_spectrum: direct_self_projection.clone(),
+            direct_self_link: LinkOntologyAddressableCountermodelSide {
+                normalized_address_pattern: direct_self_pattern.clone(),
+                direct_self_reference_count: direct_self_pattern[1..]
+                    .iter()
+                    .filter(|address| **address == direct_self_pattern[0])
+                    .count(),
+            },
+            fresh_external_link: LinkOntologyAddressableCountermodelSide {
+                normalized_address_pattern: fresh_external_pattern.clone(),
+                direct_self_reference_count: fresh_external_pattern[1..]
+                    .iter()
+                    .filter(|address| **address == fresh_external_pattern[0])
+                    .count(),
+            },
+            same_reference_only_projection: direct_self_projection
+                == fresh_external_projection,
+            same_addressable_link_class: canonical_addressable_link_signature(
+                &direct_self_pattern,
+            ) == canonical_addressable_link_signature(&fresh_external_pattern),
+        },
+        general_argument: LinkOntologyGeneralProjectionArgument {
+            scope: "every nonempty finite reference multiplicity spectrum",
+            steps: vec![
+                "give the link a fresh address not used by any reference occurrence",
+                "alternatively identify the link address with a reference class",
+                "forgetting the link address maps both lifts to the same reference-only observation",
+                "global address renaming and occurrence permutation preserve whether a reference equals the link address",
+            ],
+            exact_fibre_cardinality: "one fresh-address lift plus one self-identifying lift for each distinct reference multiplicity",
+            consequence: "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY",
+        },
+        claim_boundary: "This proves a loss in the starting representation required to express direct self-reference; it does not establish link identity as a complete ontology, endpoint roles, an evaluator, dynamics, or an execution law.",
+    }
+}
+
 fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
     let arity_enumeration = (1..=4)
         .map(|occurrence_count| {
@@ -1357,6 +1540,7 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
         arity_enumeration,
         generalized_complete_invariant:
             "reference multiplicity spectrum for each exhaustively tested unlabelled width 1 through 4",
+        starting_representation_audit: link_ontology_starting_representation_audit(),
         conditional_refinement: LinkOntologyConditionalRefinement {
             assumption: LinkOntologyConditionalAssumption {
                 id: "second-unlabelled-equivalence-observation",
@@ -1411,6 +1595,11 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                 distinction: "second equivalence observation",
                 classification: "PROVEN_NOT_RECOVERABLE",
                 evidence: "Every reference-only width-four class is the projection of five to nine inequivalent joint classes.",
+            },
+            LinkOntologyLossAudit {
+                distinction: "direct self-reference",
+                classification: "PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS",
+                evidence: "At widths one through four, forgetting the link address maps 2/4/7/12 addressable classes to 1/2/3/5 reference-only classes; every coarse fibre contains both fresh-address and self-identifying lifts.",
             },
             LinkOntologyLossAudit {
                 distinction: "endpoint direction",
@@ -1556,8 +1745,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v4",
-        question: "Which facts survive the binary reference observation, what does its fixed width erase, and can an observation derived from that base create new distinctions?",
+        schema: "rml-link-ontology-symmetry-experiment/v5",
+        question: "Which facts survive the binary reference observation, what does its fixed width erase, can it represent direct self-reference, and can an observation derived from that base create new distinctions?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -1659,13 +1848,18 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "All 73 candidate observations at widths one through four that preserve every base symmetry leave the base occurrence orbits unchanged. The interaction-only witness instead changes under a relabelling that leaves its base fixed. Generally, any deterministic derivation commuting with relabelling must preserve every base symmetry.",
             },
             LinkOntologyResult {
+                id: "starting-representation-faithfulness",
+                result: "REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE",
+                evidence: "Direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but cannot be related by address renaming or occurrence permutation. At widths one through four, 2/4/7/12 addressable classes collapse to 1/2/3/5 reference-only classes.",
+            },
+            LinkOntologyResult {
                 id: "observation-loss-provenance",
                 result: "CLASSIFIED_NOT_RESOLVED",
                 evidence: "The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged. The interaction-only witness fails that derivation criterion, so its new distinctions require information not derived from the tested base; they cannot select source, target, link identity, or dynamics.",
-        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base alone. It does not define a link ontology, decide whether richer structure belongs intrinsically to links, generalize the finite multiplicity enumeration into an unbounded theorem, promote a singleton orbit to a semantic role, or turn a structural symmetry into execution semantics.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged. The interaction-only witness fails that derivation criterion, so its new distinctions require information not derived from the tested base; these results cannot select source, target, dynamics, or an execution law.",
+        remaining_boundary: "This experiment proves both that the interaction-only asymmetry is not derivable from the tested base alone and that the starting reference-only projection loses direct-self-reference information required by the issue. It does not define a link ontology or derive endpoint roles, generalize every finite enumeration into an unbounded classification theorem, promote a singleton orbit to a semantic role, or turn a structural symmetry into execution semantics.",
     }
 }
 

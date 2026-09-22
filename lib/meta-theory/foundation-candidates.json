@@ -96,8 +96,8 @@
     "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
   },
   "ontologyExperiment": {
-    "schema": "rml-link-ontology-symmetry-experiment/v4",
-    "question": "Which facts survive the binary reference observation, what does its fixed width erase, and can an observation derived from that base create new distinctions?",
+    "schema": "rml-link-ontology-symmetry-experiment/v5",
+    "question": "Which facts survive the binary reference observation, what does its fixed width erase, can it represent direct self-reference, and can an observation derived from that base create new distinctions?",
     "startingContract": {
       "id": "unoriented-binary-reference-observation",
       "occurrenceCount": 2,
@@ -400,6 +400,123 @@
       ],
       "arityEnumerationComplete": true,
       "generalizedCompleteInvariant": "reference multiplicity spectrum for each exhaustively tested unlabelled width 1 through 4",
+      "startingRepresentationAudit": {
+        "status": "REFERENCE_ONLY_PROJECTION_NOT_FAITHFUL_FOR_SELF_REFERENCE",
+        "scope": "finite addressable links with one or more unlabelled reference occurrences and direct self-reference in the same address space",
+        "independentJustification": {
+          "requirement": "a link may occur directly among its own references",
+          "provenance": "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT",
+          "consequence": "the link address and reference addresses must participate in the same equality comparison"
+        },
+        "allowedRepresentationChanges": [
+          "global address renaming",
+          "permutation of unlabelled reference occurrences"
+        ],
+        "finiteEnumeration": [
+          {
+            "occurrenceCount": 1,
+            "referenceOnlyClasses": 1,
+            "addressableLinkClasses": 2,
+            "classesWithNoDirectSelfReference": 1,
+            "classesWithDirectSelfReference": 1,
+            "projectionFibreHistogram": [
+              {
+                "addressableClasses": 2,
+                "referenceOnlyClasses": 1
+              }
+            ],
+            "everyProjectionFibreAmbiguous": true
+          },
+          {
+            "occurrenceCount": 2,
+            "referenceOnlyClasses": 2,
+            "addressableLinkClasses": 4,
+            "classesWithNoDirectSelfReference": 2,
+            "classesWithDirectSelfReference": 2,
+            "projectionFibreHistogram": [
+              {
+                "addressableClasses": 2,
+                "referenceOnlyClasses": 2
+              }
+            ],
+            "everyProjectionFibreAmbiguous": true
+          },
+          {
+            "occurrenceCount": 3,
+            "referenceOnlyClasses": 3,
+            "addressableLinkClasses": 7,
+            "classesWithNoDirectSelfReference": 3,
+            "classesWithDirectSelfReference": 4,
+            "projectionFibreHistogram": [
+              {
+                "addressableClasses": 2,
+                "referenceOnlyClasses": 2
+              },
+              {
+                "addressableClasses": 3,
+                "referenceOnlyClasses": 1
+              }
+            ],
+            "everyProjectionFibreAmbiguous": true
+          },
+          {
+            "occurrenceCount": 4,
+            "referenceOnlyClasses": 5,
+            "addressableLinkClasses": 12,
+            "classesWithNoDirectSelfReference": 5,
+            "classesWithDirectSelfReference": 7,
+            "projectionFibreHistogram": [
+              {
+                "addressableClasses": 2,
+                "referenceOnlyClasses": 3
+              },
+              {
+                "addressableClasses": 3,
+                "referenceOnlyClasses": 2
+              }
+            ],
+            "everyProjectionFibreAmbiguous": true
+          }
+        ],
+        "everyProjectionFibreAmbiguous": true,
+        "referenceOnlyProjectionFaithful": false,
+        "countermodel": {
+          "projectedReferenceMultiplicitySpectrum": [
+            1,
+            1
+          ],
+          "directSelfLink": {
+            "normalizedAddressPattern": [
+              0,
+              0,
+              1
+            ],
+            "directSelfReferenceCount": 1
+          },
+          "freshExternalLink": {
+            "normalizedAddressPattern": [
+              0,
+              1,
+              2
+            ],
+            "directSelfReferenceCount": 0
+          },
+          "sameReferenceOnlyProjection": true,
+          "sameAddressableLinkClass": false
+        },
+        "generalArgument": {
+          "scope": "every nonempty finite reference multiplicity spectrum",
+          "steps": [
+            "give the link a fresh address not used by any reference occurrence",
+            "alternatively identify the link address with a reference class",
+            "forgetting the link address maps both lifts to the same reference-only observation",
+            "global address renaming and occurrence permutation preserve whether a reference equals the link address"
+          ],
+          "exactFibreCardinality": "one fresh-address lift plus one self-identifying lift for each distinct reference multiplicity",
+          "consequence": "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY"
+        },
+        "claimBoundary": "This proves a loss in the starting representation required to express direct self-reference; it does not establish link identity as a complete ontology, endpoint roles, an evaluator, dynamics, or an execution law."
+      },
       "conditionalRefinement": {
         "assumption": {
           "id": "second-unlabelled-equivalence-observation",
@@ -800,6 +917,11 @@
           "evidence": "Every reference-only width-four class is the projection of five to nine inequivalent joint classes."
         },
         {
+          "distinction": "direct self-reference",
+          "classification": "PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS",
+          "evidence": "At widths one through four, forgetting the link address maps 2/4/7/12 addressable classes to 1/2/3/5 reference-only classes; every coarse fibre contains both fresh-address and self-identifying lifts."
+        },
+        {
           "distinction": "endpoint direction",
           "classification": "NOT_OBSERVED_NOT_DISPROVED",
           "evidence": "Neither the base family nor the conditional refinement names or measures endpoint order."
@@ -868,13 +990,18 @@
         "evidence": "All 73 candidate observations at widths one through four that preserve every base symmetry leave the base occurrence orbits unchanged. The interaction-only witness instead changes under a relabelling that leaves its base fixed. Generally, any deterministic derivation commuting with relabelling must preserve every base symmetry."
       },
       {
+        "id": "starting-representation-faithfulness",
+        "result": "REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE",
+        "evidence": "Direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but cannot be related by address renaming or occurrence permutation. At widths one through four, 2/4/7/12 addressable classes collapse to 1/2/3/5 reference-only classes."
+      },
+      {
         "id": "observation-loss-provenance",
         "result": "CLASSIFIED_NOT_RESOLVED",
         "evidence": "The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological."
       }
     ],
-    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged. The interaction-only witness fails that derivation criterion, so its new distinctions require information not derived from the tested base; they cannot select source, target, link identity, or dynamics.",
-    "remainingBoundary": "This experiment proves that the interaction-only asymmetry is not derivable from the tested base alone. It does not define a link ontology, decide whether richer structure belongs intrinsically to links, generalize the finite multiplicity enumeration into an unbounded theorem, promote a singleton orbit to a semantic role, or turn a structural symmetry into execution semantics."
+    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged. The interaction-only witness fails that derivation criterion, so its new distinctions require information not derived from the tested base; these results cannot select source, target, dynamics, or an execution law.",
+    "remainingBoundary": "This experiment proves both that the interaction-only asymmetry is not derivable from the tested base alone and that the starting reference-only projection loses direct-self-reference information required by the issue. It does not define a link ontology or derive endpoint roles, generalize every finite enumeration into an unbounded classification theorem, promote a singleton orbit to a semantic role, or turn a structural symmetry into execution semantics."
   },
   "acceptanceWorkload": [
     "load",
@@ -1136,7 +1263,10 @@
       "the same [2,1,1] base projection has a symmetric refinement countermodel and an interaction-only four-singleton refinement",
       "all 73 base-symmetry-preserving candidate observations at widths one through four retain the base occurrence orbits",
       "the interaction-only refinement changes under a relabelling that leaves its base observation fixed",
-      "any deterministic observation derived from the base and commuting with occurrence relabelling preserves every base symmetry"
+      "any deterministic observation derived from the base and commuting with occurrence relabelling preserves every base symmetry",
+      "the direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but are not equivalent under address renaming and occurrence permutation",
+      "forgetting the link address collapses 2, 4, 7, and 12 addressable classes to 1, 2, 3, and 5 reference-only classes at widths one through four",
+      "every nonempty finite reference-only class has a fresh-address lift and at least one inequivalent self-identifying lift"
     ],
     "notProved": [
       "that S/K is globally minimal",
@@ -1158,7 +1288,9 @@
       "that a conditional invariant singleton is a source, target, or execution role",
       "that finite completeness at widths one through four is an unbounded theorem",
       "that the interaction-only refinement is forced by the tested base observation",
-      "that the tested base observation exhausts the intrinsic structure of links"
+      "that the tested base observation exhausts the intrinsic structure of links",
+      "that retaining the link address defines a complete link ontology",
+      "that direct self-reference supplies endpoint roles, dynamics, or an execution law"
     ]
   }
 }

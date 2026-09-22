@@ -35,6 +35,9 @@ table.claimBoundary.proved = [...new Set([
   'all 73 base-symmetry-preserving candidate observations at widths one through four retain the base occurrence orbits',
   'the interaction-only refinement changes under a relabelling that leaves its base observation fixed',
   'any deterministic observation derived from the base and commuting with occurrence relabelling preserves every base symmetry',
+  'the direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but are not equivalent under address renaming and occurrence permutation',
+  'forgetting the link address collapses 2, 4, 7, and 12 addressable classes to 1, 2, 3, and 5 reference-only classes at widths one through four',
+  'every nonempty finite reference-only class has a fresh-address lift and at least one inequivalent self-identifying lift',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -44,6 +47,8 @@ table.claimBoundary.notProved = [...new Set([
   'that finite completeness at widths one through four is an unbounded theorem',
   'that the interaction-only refinement is forced by the tested base observation',
   'that the tested base observation exhausts the intrinsic structure of links',
+  'that retaining the link address defines a complete link ontology',
+  'that direct self-reference supplies endpoint roles, dynamics, or an execution law',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);

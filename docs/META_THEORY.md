@@ -171,6 +171,17 @@ the base occurrence orbits. The interaction-only conditional instead breaks a
 base-preserving relabelling, so its distinction uses information not derived
 from the tested base. Completeness remains bounded to widths one through four.
 
+The v5 audit also tests the starting projection against the independently
+required ability of an addressed link to refer to itself. Direct-self
+`[0,0,1]` and fresh-external `[0,1,2]` patterns have the same reference-only
+`[1,1]` projection but are inequivalent under address renaming and
+reference-occurrence permutation. At widths one through four, forgetting the
+link address collapses `2/4/7/12` addressable classes to `1/2/3/5`; generally
+every nonempty reference class has inequivalent fresh-address and
+self-identifying lifts. This proves the weak projection is non-faithful for
+self-reference, not that a distinguished address supplies a complete ontology
+or semantics.
+
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,
 intrinsic semantic authority, and comparative minimality are five separate

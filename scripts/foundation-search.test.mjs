@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v4',
+      'rml-link-ontology-symmetry-experiment/v5',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -248,6 +248,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['conditional-structural-asymmetry', 'EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL'],
         ['conditional-asymmetry-provenance', 'BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED'],
         ['conditional-interaction-forcedness', 'SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE'],
+        ['starting-representation-faithfulness', 'REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
     );
@@ -479,6 +480,85 @@ describe('architecture-neutral alternative-foundation search', () => {
       },
     );
 
+    const startingRepresentation = boundary.startingRepresentationAudit;
+    assert.equal(
+      startingRepresentation.status,
+      'REFERENCE_ONLY_PROJECTION_NOT_FAITHFUL_FOR_SELF_REFERENCE',
+    );
+    assert.equal(
+      startingRepresentation.independentJustification.provenance,
+      'ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT',
+    );
+    assert.deepEqual(
+      startingRepresentation.finiteEnumeration.map(item => ({
+        occurrenceCount: item.occurrenceCount,
+        referenceOnlyClasses: item.referenceOnlyClasses,
+        addressableLinkClasses: item.addressableLinkClasses,
+        classesWithNoDirectSelfReference: item.classesWithNoDirectSelfReference,
+        classesWithDirectSelfReference: item.classesWithDirectSelfReference,
+        projectionFibreHistogram: item.projectionFibreHistogram,
+      })),
+      [
+        {
+          occurrenceCount: 1,
+          referenceOnlyClasses: 1,
+          addressableLinkClasses: 2,
+          classesWithNoDirectSelfReference: 1,
+          classesWithDirectSelfReference: 1,
+          projectionFibreHistogram: [{ addressableClasses: 2, referenceOnlyClasses: 1 }],
+        },
+        {
+          occurrenceCount: 2,
+          referenceOnlyClasses: 2,
+          addressableLinkClasses: 4,
+          classesWithNoDirectSelfReference: 2,
+          classesWithDirectSelfReference: 2,
+          projectionFibreHistogram: [{ addressableClasses: 2, referenceOnlyClasses: 2 }],
+        },
+        {
+          occurrenceCount: 3,
+          referenceOnlyClasses: 3,
+          addressableLinkClasses: 7,
+          classesWithNoDirectSelfReference: 3,
+          classesWithDirectSelfReference: 4,
+          projectionFibreHistogram: [
+            { addressableClasses: 2, referenceOnlyClasses: 2 },
+            { addressableClasses: 3, referenceOnlyClasses: 1 },
+          ],
+        },
+        {
+          occurrenceCount: 4,
+          referenceOnlyClasses: 5,
+          addressableLinkClasses: 12,
+          classesWithNoDirectSelfReference: 5,
+          classesWithDirectSelfReference: 7,
+          projectionFibreHistogram: [
+            { addressableClasses: 2, referenceOnlyClasses: 3 },
+            { addressableClasses: 3, referenceOnlyClasses: 2 },
+          ],
+        },
+      ],
+    );
+    assert.equal(startingRepresentation.everyProjectionFibreAmbiguous, true);
+    assert.equal(startingRepresentation.referenceOnlyProjectionFaithful, false);
+    assert.deepEqual(startingRepresentation.countermodel, {
+      projectedReferenceMultiplicitySpectrum: [1, 1],
+      directSelfLink: {
+        normalizedAddressPattern: [0, 0, 1],
+        directSelfReferenceCount: 1,
+      },
+      freshExternalLink: {
+        normalizedAddressPattern: [0, 1, 2],
+        directSelfReferenceCount: 0,
+      },
+      sameReferenceOnlyProjection: true,
+      sameAddressableLinkClass: false,
+    });
+    assert.equal(
+      startingRepresentation.generalArgument.consequence,
+      'REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY',
+    );
+
     assert.deepEqual(
       boundary.lossAudit.map(item => [item.distinction, item.classification]),
       [
@@ -486,6 +566,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['occurrence order', 'INTENTIONAL_QUOTIENT'],
         ['width beyond two occurrences', 'PROVEN_INFORMATION_LOSS'],
         ['second equivalence observation', 'PROVEN_NOT_RECOVERABLE'],
+        ['direct self-reference', 'PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS'],
         ['endpoint direction', 'NOT_OBSERVED_NOT_DISPROVED'],
         ['dynamics and time', 'NOT_OBSERVED_NOT_DISPROVED'],
       ],

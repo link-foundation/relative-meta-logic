@@ -101,8 +101,13 @@ pairs at widths one through four. All 73 candidates that preserve their base
 symmetries preserve its occurrence orbits; the interaction-only conditional
 instead breaks a relabelling that fixes its base. Its distinctions therefore
 require information not derived from that base. These are measured observation
-boundaries, not a completed link
-ontology or an unbounded theorem. The report keeps link ontology,
+boundaries. A further starting-representation audit compares direct-self
+`[0,0,1]` with fresh-external `[0,1,2]`: both project to `[1,1]`, proving that
+forgetting the link address loses self-reference. It enumerates
+`2/4/7/12` addressable classes versus `1/2/3/5` reference-only classes at
+widths one through four and proves non-injectivity for every nonzero finite
+arity. These results do not complete link ontology or establish an unbounded
+classification theorem. The report keeps link ontology,
 intrinsic authority, primitive categories, the structure/transformation
 relation, and comparative minimality unresolved; classifies all three
 implementations as executable controls that cannot constrain the ontology

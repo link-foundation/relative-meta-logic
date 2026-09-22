@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v4` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v5` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v4 follow-up first changes no primitive vocabulary at all. It retains only
+The v5 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -178,6 +178,48 @@ tested range, the same-reference/distinct-reference quotient is the width-two
 member of the family. Consequently, the binary observation is
 `INSUFFICIENT_OUTSIDE_FIXED_ARITY`; its fixed width demonstrably erases
 higher multiplicity and overlap distinctions.
+
+### Starting-representation faithfulness
+
+The next audit tests the weak starting projection itself rather than adding a
+desired observable. Issue 183 independently requires one address space in
+which a link can refer to itself directly. That makes one comparison
+unavoidable for this scope: whether a reference occurrence has the same
+address as the link containing it. This introduces no endpoint order,
+membership relation, type judgement, evaluator, transition, or calculus.
+
+An addressable pattern records the link address first and then its unlabelled
+reference occurrences. The quotient permits every global address renaming and
+every permutation of reference occurrences, while keeping the link position
+distinguished. Forgetting the first position recovers the existing
+reference-only multiplicity observation.
+
+| Reference occurrences | Reference-only classes | Addressable classes | No direct self-reference | With direct self-reference | Projection-fibre histogram |
+|---:|---:|---:|---:|---:|---|
+| 1 | 1 | 2 | 1 | 1 | 1 fibre of size 2 |
+| 2 | 2 | 4 | 2 | 2 | 2 fibres of size 2 |
+| 3 | 3 | 7 | 3 | 4 | 2 fibres of size 2; 1 of size 3 |
+| 4 | 5 | 12 | 5 | 7 | 3 fibres of size 2; 2 of size 3 |
+
+The smallest explicit countermodel uses two reference occurrences. A
+direct-self link has normalized address pattern `[0,0,1]`; a link with a fresh
+external address has `[0,1,2]`. Both forget to the distinct-reference
+multiplicity spectrum `[1,1]`, but no allowed renaming or occurrence
+permutation changes whether a reference equals the link address. They are
+therefore inequivalent addressable links with the same starting projection.
+
+The finite counts instantiate a general argument. Every nonempty reference
+multiplicity spectrum has one lift where the link address is fresh, plus one
+self-identifying lift for each distinct part size. Those lifts all have the
+same reference-only projection and remain inequivalent because direct
+self-reference is invariant under the allowed representation changes. Hence
+`REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY`.
+
+This establishes
+`REFERENCE_ONLY_PROJECTION_NOT_FAITHFUL_FOR_SELF_REFERENCE`: the original weak
+projection already forgot information justified by the issue's link object.
+It does not prove that a distinguished address is the whole ontology of a
+link, assign source/target roles, or supply dynamics or execution semantics.
 
 ### Conditional refinement probe
 
@@ -291,6 +333,8 @@ The machine-readable loss audit distinguishes:
 - intentional quotienting of reference names and occurrence order;
 - demonstrated information loss from fixed binary width;
 - demonstrated non-recoverability of the conditional relation;
+- demonstrated direct-self-reference loss when an addressable link is
+  projected to reference occurrences alone;
 - endpoint direction that was not observed and therefore not disproved; and
 - dynamics and time that were not observed and therefore not disproved.
 

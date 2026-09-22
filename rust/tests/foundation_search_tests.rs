@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v4");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v5");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -549,6 +549,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "conditional-interaction-forcedness",
                 "SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE",
+            ),
+            (
+                "starting-representation-faithfulness",
+                "REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE",
             ),
             ("observation-loss-provenance", "CLASSIFIED_NOT_RESOLVED"),
         ]
@@ -785,6 +789,89 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     );
     assert!(interaction_counterexample.base_preserved);
     assert!(!interaction_counterexample.conditional_pattern_preserved);
+
+    let starting_representation = &boundary.starting_representation_audit;
+    assert_eq!(
+        starting_representation.status,
+        "REFERENCE_ONLY_PROJECTION_NOT_FAITHFUL_FOR_SELF_REFERENCE"
+    );
+    assert_eq!(
+        starting_representation.independent_justification.provenance,
+        "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT"
+    );
+    assert_eq!(
+        starting_representation
+            .finite_enumeration
+            .iter()
+            .map(|item| (
+                item.occurrence_count,
+                item.reference_only_classes,
+                item.addressable_link_classes,
+                item.classes_with_no_direct_self_reference,
+                item.classes_with_direct_self_reference,
+                item.projection_fibre_histogram
+                    .iter()
+                    .map(|row| (row.addressable_classes, row.reference_only_classes))
+                    .collect::<Vec<_>>(),
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (1, 1, 2, 1, 1, vec![(2, 1)]),
+            (2, 2, 4, 2, 2, vec![(2, 2)]),
+            (3, 3, 7, 3, 4, vec![(2, 2), (3, 1)]),
+            (4, 5, 12, 5, 7, vec![(2, 3), (3, 2)]),
+        ]
+    );
+    assert!(starting_representation.every_projection_fibre_ambiguous);
+    assert!(!starting_representation.reference_only_projection_faithful);
+    assert_eq!(
+        starting_representation
+            .countermodel
+            .projected_reference_multiplicity_spectrum,
+        vec![1, 1]
+    );
+    assert_eq!(
+        starting_representation
+            .countermodel
+            .direct_self_link
+            .normalized_address_pattern,
+        vec![0, 0, 1]
+    );
+    assert_eq!(
+        starting_representation
+            .countermodel
+            .direct_self_link
+            .direct_self_reference_count,
+        1
+    );
+    assert_eq!(
+        starting_representation
+            .countermodel
+            .fresh_external_link
+            .normalized_address_pattern,
+        vec![0, 1, 2]
+    );
+    assert_eq!(
+        starting_representation
+            .countermodel
+            .fresh_external_link
+            .direct_self_reference_count,
+        0
+    );
+    assert!(
+        starting_representation
+            .countermodel
+            .same_reference_only_projection
+    );
+    assert!(
+        !starting_representation
+            .countermodel
+            .same_addressable_link_class
+    );
+    assert_eq!(
+        starting_representation.general_argument.consequence,
+        "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY"
+    );
     assert_eq!(
         boundary
             .loss_audit
@@ -796,6 +883,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             ("occurrence order", "INTENTIONAL_QUOTIENT"),
             ("width beyond two occurrences", "PROVEN_INFORMATION_LOSS"),
             ("second equivalence observation", "PROVEN_NOT_RECOVERABLE"),
+            (
+                "direct self-reference",
+                "PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS"
+            ),
             ("endpoint direction", "NOT_OBSERVED_NOT_DISPROVED"),
             ("dynamics and time", "NOT_OBSERVED_NOT_DISPROVED"),
         ]
