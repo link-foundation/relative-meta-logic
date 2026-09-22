@@ -384,9 +384,25 @@ function observationBoundaryExperiment() {
       referencePartition,
       refinementPartition,
     );
+    const referenceOccurrenceOrbits = partitionPairOccurrenceOrbits(
+      referencePartition,
+      referencePartition,
+    );
+    const refinementOccurrenceOrbits = partitionPairOccurrenceOrbits(
+      refinementPartition,
+      refinementPartition,
+    );
     jointClasses.set(key, {
+      referencePartition,
+      refinementPartition,
       referenceMultiplicitySpectrum: multiplicitySpectrum(referencePartition),
       refinementMultiplicitySpectrum: multiplicitySpectrum(refinementPartition),
+      referenceOccurrenceOrbitSizes: referenceOccurrenceOrbits
+        .map(orbit => orbit.length)
+        .sort((left, right) => right - left),
+      refinementOccurrenceOrbitSizes: refinementOccurrenceOrbits
+        .map(orbit => orbit.length)
+        .sort((left, right) => right - left),
       occurrenceOrbitSizes: occurrenceOrbits
         .map(orbit => orbit.length)
         .sort((left, right) => right - left),
@@ -400,13 +416,25 @@ function observationBoundaryExperiment() {
     fibres.get(key).push(jointClass);
   }
   const projectionFibres = [...fibres.values()]
-    .map(items => ({
-      referenceMultiplicitySpectrum: items[0].referenceMultiplicitySpectrum,
-      jointClasses: items.length,
-      refinementMultiplicitySpectra: uniqueVectors(
-        items.map(item => item.refinementMultiplicitySpectrum),
-      ),
-    }))
+    .map(items => {
+      const classesWithInvariantSingleton = items
+        .filter(item => item.occurrenceOrbitSizes.includes(1)).length;
+      const classesWithoutInvariantSingleton = items.length -
+        classesWithInvariantSingleton;
+      return {
+        referenceMultiplicitySpectrum: items[0].referenceMultiplicitySpectrum,
+        jointClasses: items.length,
+        refinementMultiplicitySpectra: uniqueVectors(
+          items.map(item => item.refinementMultiplicitySpectrum),
+        ),
+        classesWithInvariantSingleton,
+        classesWithoutInvariantSingleton,
+        singletonPresenceClassification:
+          items[0].referenceOccurrenceOrbitSizes.includes(1)
+          ? 'BASE_FORCED'
+          : 'REFINEMENT_DEPENDENT',
+      };
+    })
     .sort((left, right) => compareVectors(
       left.referenceMultiplicitySpectrum,
       right.referenceMultiplicitySpectrum,
@@ -415,6 +443,51 @@ function observationBoundaryExperiment() {
     .filter(item => item.occurrenceOrbitSizes.includes(1)).length;
   const classesWithoutInvariantSingleton = jointClasses.size -
     classesWithInvariantSingleton;
+  const singletonOrbitHistogram = [...jointClasses.values()]
+    .reduce((histogram, item) => {
+      const singletonOrbits = item.occurrenceOrbitSizes
+        .filter(size => size === 1).length;
+      histogram.set(singletonOrbits, (histogram.get(singletonOrbits) ?? 0) + 1);
+      return histogram;
+    }, new Map());
+  const histogramRows = [...singletonOrbitHistogram]
+    .sort(([left], [right]) => left - right)
+    .map(([singletonOrbits, jointClassCount]) => ({
+      singletonOrbits,
+      jointClasses: jointClassCount,
+    }));
+  const provenanceClassifications = [
+    {
+      id: 'BASE_FORCED',
+      matches: item => item.referenceOccurrenceOrbitSizes.includes(1),
+    },
+    {
+      id: 'REFINEMENT_PRESENT_NOT_BASE_FORCED',
+      matches: item => !item.referenceOccurrenceOrbitSizes.includes(1) &&
+        item.refinementOccurrenceOrbitSizes.includes(1),
+    },
+    {
+      id: 'RELATIONAL_INTERACTION_ONLY',
+      matches: item => !item.referenceOccurrenceOrbitSizes.includes(1) &&
+        !item.refinementOccurrenceOrbitSizes.includes(1) &&
+        item.occurrenceOrbitSizes.includes(1),
+    },
+    {
+      id: 'NO_SINGLETON_ORBIT',
+      matches: item => !item.occurrenceOrbitSizes.includes(1),
+    },
+  ].map(({ id, matches }) => ({
+    id,
+    jointClasses: [...jointClasses.values()].filter(matches).length,
+  }));
+  const interactionOnlyClass = [...jointClasses.values()].find(item =>
+    !item.referenceOccurrenceOrbitSizes.includes(1) &&
+    !item.refinementOccurrenceOrbitSizes.includes(1) &&
+    item.occurrenceOrbitSizes.includes(1));
+  const withoutSingletonClass = [...jointClasses.values()].find(item =>
+    JSON.stringify(item.referencePartition) ===
+      JSON.stringify(interactionOnlyClass.referencePartition) &&
+    !item.occurrenceOrbitSizes.includes(1));
 
   return {
     status: 'BINARY_CONTRACT_NOT_EXHAUSTIVE',
@@ -426,7 +499,7 @@ function observationBoundaryExperiment() {
     arityEnumerationComplete: arityEnumeration.every(item =>
       item.completeInvariantVerified),
     generalizedCompleteInvariant:
-      'reference multiplicity spectrum at each fixed unlabelled width',
+      'reference multiplicity spectrum for each exhaustively tested unlabelled width 1 through 4',
     conditionalRefinement: {
       assumption: {
         id: 'second-unlabelled-equivalence-observation',
@@ -454,6 +527,33 @@ function observationBoundaryExperiment() {
       classesWithoutInvariantSingleton,
       conditionalSingletonSelectorExists: classesWithInvariantSingleton > 0,
       universalSingletonSelectorExists: classesWithoutInvariantSingleton === 0,
+      singletonOrbitHistogram: histogramRows,
+      asymmetryProvenance: {
+        classifications: provenanceClassifications,
+        baseProjectionFibresWithBothOutcomes: projectionFibres
+          .filter(item => item.classesWithInvariantSingleton > 0 &&
+            item.classesWithoutInvariantSingleton > 0).length,
+        baseProjectionFibresForcingSingleton: projectionFibres
+          .filter(item =>
+            item.singletonPresenceClassification === 'BASE_FORCED').length,
+        countermodel: {
+          normalizedReferencePartition: interactionOnlyClass.referencePartition,
+          referenceOccurrenceOrbitSizes:
+            interactionOnlyClass.referenceOccurrenceOrbitSizes,
+          withoutSingletonRefinement: {
+            normalizedPartition: withoutSingletonClass.refinementPartition,
+            refinementOccurrenceOrbitSizes:
+              withoutSingletonClass.refinementOccurrenceOrbitSizes,
+            jointOccurrenceOrbitSizes: withoutSingletonClass.occurrenceOrbitSizes,
+          },
+          interactionOnlyRefinement: {
+            normalizedPartition: interactionOnlyClass.refinementPartition,
+            refinementOccurrenceOrbitSizes:
+              interactionOnlyClass.refinementOccurrenceOrbitSizes,
+            jointOccurrenceOrbitSizes: interactionOnlyClass.occurrenceOrbitSizes,
+          },
+        },
+      },
     },
     lossAudit: [
       {
@@ -598,7 +698,7 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v2',
+    schema: 'rml-link-ontology-symmetry-experiment/v3',
     question: 'Which facts survive the binary reference observation, what information does its fixed width erase, and which distinctions emerge only under explicitly conditional refinements?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
@@ -695,7 +795,12 @@ function linkOntologySymmetryExperiment() {
       {
         id: 'conditional-structural-asymmetry',
         result: 'EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL',
-        evidence: 'Thirteen of 33 joint classes have an automorphism-invariant singleton occurrence, while 20 do not. A role-like distinction can therefore emerge conditionally but is neither universal nor selected as source or target.',
+        evidence: 'The singleton-orbit histogram is 20 classes with zero, 5 with one, 7 with two, and 1 with four. Structural asymmetry can therefore emerge, but only five classes select exactly one occurrence orbit and none assigns semantic endpoint meaning.',
+      },
+      {
+        id: 'conditional-asymmetry-provenance',
+        result: 'BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED',
+        evidence: 'Seven classes inherit a singleton forced by the base [3,1] multiplicity, five acquire one from an independently asymmetric refinement, one acquires four only through the interaction of two individually symmetric relations, and 20 retain none. Four base fibres have both outcomes; only [3,1] forces asymmetry across every refinement.',
       },
       {
         id: 'observation-loss-provenance',
@@ -703,8 +808,8 @@ function linkOntologySymmetryExperiment() {
         evidence: 'The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological.',
       },
     ],
-    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. With the same vocabulary, wider unlabelled observations derive multiplicity spectra; a conditional second equivalence reveals exactly measured projection loss and sometimes breaks occurrence symmetry, but supplies no universal role, link identity, or dynamics and cannot select source versus target.',
-    remainingBoundary: 'This experiment does not define a link ontology, justify the second equivalence observation as fundamental, decide whether any erased distinction belongs to links, promote a conditional singleton to source or target, or turn a structural automorphism into execution semantics.',
+    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations. At width four, seven refined classes inherit base-forced asymmetry, five depend on asymmetry already present in the conditional relation, one derives four singleton orbits only from relational interaction, and 20 remain symmetric. This separates structural provenance but cannot select source or target, link identity, or dynamics.',
+    remainingBoundary: 'This experiment does not define a link ontology, justify the second equivalence observation as fundamental, generalize the width-one-through-four enumeration into an unbounded theorem, decide whether any erased distinction belongs to links, promote a singleton orbit to a semantic role, or turn a structural automorphism into execution semantics.',
   };
 }
 
@@ -1404,7 +1509,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v6',
+    schema: 'rml-alternative-foundation-search/v7',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
@@ -1449,7 +1554,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       globallyMinimal: false,
       intrinsicTransitionAuthority: 'UNRESOLVED',
       representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
-      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Wider observations derive multiplicity spectra, while a conditional second equivalence exposes non-recoverable projection loss and non-universal structural asymmetry without selecting an ontology or dynamics.',
+      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes without selecting an ontology or dynamics.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };

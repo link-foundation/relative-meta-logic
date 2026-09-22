@@ -19,13 +19,16 @@ executable, see the
 It executes three mechanisms without treating S/K as a native Links Theory
 law or ranking unequally reduced controls. Its two-model witness establishes
 only that the tested ordered-link host signature does not select between two
-transition functions. Its v6 finite symmetry experiment independently derives
+transition functions. Its v7 finite symmetry experiment independently derives
 the equality partition of two unlabelled reference occurrences, eliminates an
 invariant source/target selector and unique dynamics for that contract, and
 makes reification representation-dependent at the tested projection. The same
 vocabulary across widths one through four derives multiplicity spectra, while
 an explicitly conditional second equivalence measures 33 joint classes and
-5–9 refinements per coarse projection without being promoted to ontology. It
+5–9 refinements per coarse projection without being promoted to ontology. Its
+singleton-orbit histogram and provenance split distinguish base-forced,
+refinement-present, interaction-only, and symmetric classes while keeping the
+width-one-through-four scope explicit. It
 leaves link ontology, intrinsic authority, primitive categories, the
 structure/transformation relation, and comparative minimality open; the three
 executed mechanisms are controls and do not define the ontology search space.

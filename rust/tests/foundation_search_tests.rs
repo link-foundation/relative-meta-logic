@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v2");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v3");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -542,6 +542,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
                 "conditional-structural-asymmetry",
                 "EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL",
             ),
+            (
+                "conditional-asymmetry-provenance",
+                "BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED",
+            ),
             ("observation-loss-provenance", "CLASSIFIED_NOT_RESOLVED"),
         ]
     );
@@ -592,7 +596,7 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(boundary.arity_enumeration_complete);
     assert_eq!(
         boundary.generalized_complete_invariant,
-        "reference multiplicity spectrum at each fixed unlabelled width"
+        "reference multiplicity spectrum for each exhaustively tested unlabelled width 1 through 4"
     );
 
     let refinement = &boundary.conditional_refinement;
@@ -630,15 +634,18 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             .iter()
             .map(|item| (
                 item.reference_multiplicity_spectrum.clone(),
-                item.joint_classes
+                item.joint_classes,
+                item.classes_with_invariant_singleton,
+                item.classes_without_invariant_singleton,
+                item.singleton_presence_classification,
             ))
             .collect::<Vec<_>>(),
         vec![
-            (vec![1, 1, 1, 1], 5),
-            (vec![2, 1, 1], 9),
-            (vec![2, 2], 7),
-            (vec![3, 1], 7),
-            (vec![4], 5),
+            (vec![1, 1, 1, 1], 5, 1, 4, "REFINEMENT_DEPENDENT"),
+            (vec![2, 1, 1], 9, 3, 6, "REFINEMENT_DEPENDENT"),
+            (vec![2, 2], 7, 1, 6, "REFINEMENT_DEPENDENT"),
+            (vec![3, 1], 7, 7, 0, "BASE_FORCED"),
+            (vec![4], 5, 1, 4, "REFINEMENT_DEPENDENT"),
         ]
     );
     assert!(refinement.every_projection_fibre_ambiguous);
@@ -647,6 +654,82 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert_eq!(refinement.classes_without_invariant_singleton, 20);
     assert!(refinement.conditional_singleton_selector_exists);
     assert!(!refinement.universal_singleton_selector_exists);
+    assert_eq!(
+        refinement
+            .singleton_orbit_histogram
+            .iter()
+            .map(|item| (item.singleton_orbits, item.joint_classes))
+            .collect::<Vec<_>>(),
+        vec![(0, 20), (1, 5), (2, 7), (4, 1)]
+    );
+    assert_eq!(
+        refinement
+            .asymmetry_provenance
+            .classifications
+            .iter()
+            .map(|item| (item.id, item.joint_classes))
+            .collect::<Vec<_>>(),
+        vec![
+            ("BASE_FORCED", 7),
+            ("REFINEMENT_PRESENT_NOT_BASE_FORCED", 5),
+            ("RELATIONAL_INTERACTION_ONLY", 1),
+            ("NO_SINGLETON_ORBIT", 20),
+        ]
+    );
+    assert_eq!(
+        refinement
+            .asymmetry_provenance
+            .base_projection_fibres_with_both_outcomes,
+        4
+    );
+    assert_eq!(
+        refinement
+            .asymmetry_provenance
+            .base_projection_fibres_forcing_singleton,
+        1
+    );
+    let countermodel = &refinement.asymmetry_provenance.countermodel;
+    assert_eq!(
+        countermodel.normalized_reference_partition,
+        vec![0, 0, 1, 2]
+    );
+    assert_eq!(countermodel.reference_occurrence_orbit_sizes, vec![2, 2]);
+    assert_eq!(
+        countermodel
+            .without_singleton_refinement
+            .normalized_partition,
+        vec![0, 0, 0, 0]
+    );
+    assert_eq!(
+        countermodel
+            .without_singleton_refinement
+            .refinement_occurrence_orbit_sizes,
+        vec![4]
+    );
+    assert_eq!(
+        countermodel
+            .without_singleton_refinement
+            .joint_occurrence_orbit_sizes,
+        vec![2, 2]
+    );
+    assert_eq!(
+        countermodel
+            .interaction_only_refinement
+            .normalized_partition,
+        vec![0, 1, 0, 2]
+    );
+    assert_eq!(
+        countermodel
+            .interaction_only_refinement
+            .refinement_occurrence_orbit_sizes,
+        vec![2, 2]
+    );
+    assert_eq!(
+        countermodel
+            .interaction_only_refinement
+            .joint_occurrence_orbit_sizes,
+        vec![1, 1, 1, 1]
+    );
     assert_eq!(
         boundary
             .loss_audit

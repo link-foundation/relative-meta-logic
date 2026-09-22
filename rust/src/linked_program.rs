@@ -480,6 +480,44 @@ pub struct LinkOntologyProjectionFibre {
     pub reference_multiplicity_spectrum: Vec<usize>,
     pub joint_classes: usize,
     pub refinement_multiplicity_spectra: Vec<Vec<usize>>,
+    pub classes_with_invariant_singleton: usize,
+    pub classes_without_invariant_singleton: usize,
+    pub singleton_presence_classification: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySingletonOrbitHistogram {
+    pub singleton_orbits: usize,
+    pub joint_classes: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAsymmetryProvenanceClassification {
+    pub id: &'static str,
+    pub joint_classes: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyRefinementCountermodel {
+    pub normalized_partition: Vec<usize>,
+    pub refinement_occurrence_orbit_sizes: Vec<usize>,
+    pub joint_occurrence_orbit_sizes: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAsymmetryCountermodel {
+    pub normalized_reference_partition: Vec<usize>,
+    pub reference_occurrence_orbit_sizes: Vec<usize>,
+    pub without_singleton_refinement: LinkOntologyRefinementCountermodel,
+    pub interaction_only_refinement: LinkOntologyRefinementCountermodel,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAsymmetryProvenance {
+    pub classifications: Vec<LinkOntologyAsymmetryProvenanceClassification>,
+    pub base_projection_fibres_with_both_outcomes: usize,
+    pub base_projection_fibres_forcing_singleton: usize,
+    pub countermodel: LinkOntologyAsymmetryCountermodel,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -500,6 +538,8 @@ pub struct LinkOntologyConditionalRefinement {
     pub classes_without_invariant_singleton: usize,
     pub conditional_singleton_selector_exists: bool,
     pub universal_singleton_selector_exists: bool,
+    pub singleton_orbit_histogram: Vec<LinkOntologySingletonOrbitHistogram>,
+    pub asymmetry_provenance: LinkOntologyAsymmetryProvenance,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -977,8 +1017,12 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
 
     #[derive(Debug)]
     struct JointClassSummary {
+        reference_partition: Vec<usize>,
+        refinement_partition: Vec<usize>,
         reference_spectrum: Vec<usize>,
         refinement_spectrum: Vec<usize>,
+        reference_occurrence_orbit_sizes: Vec<usize>,
+        refinement_occurrence_orbit_sizes: Vec<usize>,
         occurrence_orbit_sizes: Vec<usize>,
     }
 
@@ -991,10 +1035,26 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                     .iter()
                     .map(Vec::len)
                     .collect::<Vec<_>>();
+            let mut reference_occurrence_orbit_sizes =
+                partition_pair_occurrence_orbits(reference_partition, reference_partition)
+                    .iter()
+                    .map(Vec::len)
+                    .collect::<Vec<_>>();
+            let mut refinement_occurrence_orbit_sizes =
+                partition_pair_occurrence_orbits(refinement_partition, refinement_partition)
+                    .iter()
+                    .map(Vec::len)
+                    .collect::<Vec<_>>();
             occurrence_orbit_sizes.sort_by(|left, right| right.cmp(left));
+            reference_occurrence_orbit_sizes.sort_by(|left, right| right.cmp(left));
+            refinement_occurrence_orbit_sizes.sort_by(|left, right| right.cmp(left));
             JointClassSummary {
+                reference_partition: reference_partition.clone(),
+                refinement_partition: refinement_partition.clone(),
                 reference_spectrum: ontology_multiplicity_spectrum(reference_partition),
                 refinement_spectrum: ontology_multiplicity_spectrum(refinement_partition),
+                reference_occurrence_orbit_sizes,
+                refinement_occurrence_orbit_sizes,
                 occurrence_orbit_sizes,
             }
         });
@@ -1009,8 +1069,14 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
     }
     let projection_fibres = fibres
         .into_iter()
-        .map(
-            |(reference_multiplicity_spectrum, items)| LinkOntologyProjectionFibre {
+        .map(|(reference_multiplicity_spectrum, items)| {
+            let classes_with_invariant_singleton = items
+                .iter()
+                .filter(|item| item.occurrence_orbit_sizes.contains(&1))
+                .count();
+            let classes_without_invariant_singleton =
+                items.len() - classes_with_invariant_singleton;
+            LinkOntologyProjectionFibre {
                 reference_multiplicity_spectrum,
                 joint_classes: items.len(),
                 refinement_multiplicity_spectra: items
@@ -1019,8 +1085,18 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                     .collect::<BTreeSet<_>>()
                     .into_iter()
                     .collect(),
-            },
-        )
+                classes_with_invariant_singleton,
+                classes_without_invariant_singleton,
+                singleton_presence_classification: if items[0]
+                    .reference_occurrence_orbit_sizes
+                    .contains(&1)
+                {
+                    "BASE_FORCED"
+                } else {
+                    "REFINEMENT_DEPENDENT"
+                },
+            }
+        })
         .collect::<Vec<_>>();
     let classes_with_invariant_singleton = joint_classes
         .values()
@@ -1028,10 +1104,112 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
         .count();
     let classes_without_invariant_singleton =
         joint_classes.len() - classes_with_invariant_singleton;
+    let singleton_orbit_histogram = joint_classes
+        .values()
+        .fold(BTreeMap::new(), |mut histogram, item| {
+            let singleton_orbits = item
+                .occurrence_orbit_sizes
+                .iter()
+                .filter(|size| **size == 1)
+                .count();
+            *histogram.entry(singleton_orbits).or_insert(0) += 1;
+            histogram
+        })
+        .into_iter()
+        .map(
+            |(singleton_orbits, joint_classes)| LinkOntologySingletonOrbitHistogram {
+                singleton_orbits,
+                joint_classes,
+            },
+        )
+        .collect::<Vec<_>>();
+    let provenance_classifications = vec![
+        LinkOntologyAsymmetryProvenanceClassification {
+            id: "BASE_FORCED",
+            joint_classes: joint_classes
+                .values()
+                .filter(|item| item.reference_occurrence_orbit_sizes.contains(&1))
+                .count(),
+        },
+        LinkOntologyAsymmetryProvenanceClassification {
+            id: "REFINEMENT_PRESENT_NOT_BASE_FORCED",
+            joint_classes: joint_classes
+                .values()
+                .filter(|item| {
+                    !item.reference_occurrence_orbit_sizes.contains(&1)
+                        && item.refinement_occurrence_orbit_sizes.contains(&1)
+                })
+                .count(),
+        },
+        LinkOntologyAsymmetryProvenanceClassification {
+            id: "RELATIONAL_INTERACTION_ONLY",
+            joint_classes: joint_classes
+                .values()
+                .filter(|item| {
+                    !item.reference_occurrence_orbit_sizes.contains(&1)
+                        && !item.refinement_occurrence_orbit_sizes.contains(&1)
+                        && item.occurrence_orbit_sizes.contains(&1)
+                })
+                .count(),
+        },
+        LinkOntologyAsymmetryProvenanceClassification {
+            id: "NO_SINGLETON_ORBIT",
+            joint_classes: joint_classes
+                .values()
+                .filter(|item| !item.occurrence_orbit_sizes.contains(&1))
+                .count(),
+        },
+    ];
+    let interaction_only_class = joint_classes
+        .values()
+        .find(|item| {
+            !item.reference_occurrence_orbit_sizes.contains(&1)
+                && !item.refinement_occurrence_orbit_sizes.contains(&1)
+                && item.occurrence_orbit_sizes.contains(&1)
+        })
+        .expect("the exhaustive width-four quotient has an interaction-only class");
+    let without_singleton_class = joint_classes
+        .values()
+        .find(|item| {
+            item.reference_partition == interaction_only_class.reference_partition
+                && !item.occurrence_orbit_sizes.contains(&1)
+        })
+        .expect("the interaction-only base projection has a symmetric countermodel");
+    let asymmetry_countermodel = LinkOntologyAsymmetryCountermodel {
+        normalized_reference_partition: interaction_only_class.reference_partition.clone(),
+        reference_occurrence_orbit_sizes: interaction_only_class
+            .reference_occurrence_orbit_sizes
+            .clone(),
+        without_singleton_refinement: LinkOntologyRefinementCountermodel {
+            normalized_partition: without_singleton_class.refinement_partition.clone(),
+            refinement_occurrence_orbit_sizes: without_singleton_class
+                .refinement_occurrence_orbit_sizes
+                .clone(),
+            joint_occurrence_orbit_sizes: without_singleton_class.occurrence_orbit_sizes.clone(),
+        },
+        interaction_only_refinement: LinkOntologyRefinementCountermodel {
+            normalized_partition: interaction_only_class.refinement_partition.clone(),
+            refinement_occurrence_orbit_sizes: interaction_only_class
+                .refinement_occurrence_orbit_sizes
+                .clone(),
+            joint_occurrence_orbit_sizes: interaction_only_class.occurrence_orbit_sizes.clone(),
+        },
+    };
     let every_projection_fibre_ambiguous =
         projection_fibres.iter().all(|item| item.joint_classes > 1);
     let refinement_recoverable_from_base =
         projection_fibres.iter().all(|item| item.joint_classes == 1);
+    let base_projection_fibres_with_both_outcomes = projection_fibres
+        .iter()
+        .filter(|item| {
+            item.classes_with_invariant_singleton > 0
+                && item.classes_without_invariant_singleton > 0
+        })
+        .count();
+    let base_projection_fibres_forcing_singleton = projection_fibres
+        .iter()
+        .filter(|item| item.singleton_presence_classification == "BASE_FORCED")
+        .count();
     let joint_quotient_classes = joint_classes.len();
     let encoding_agreement = encodings.iter().all(|item| {
         item.complete_for_enumeration && item.distinct_classes == joint_quotient_classes
@@ -1048,7 +1226,7 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
             .all(|item| item.complete_invariant_verified),
         arity_enumeration,
         generalized_complete_invariant:
-            "reference multiplicity spectrum at each fixed unlabelled width",
+            "reference multiplicity spectrum for each exhaustively tested unlabelled width 1 through 4",
         conditional_refinement: LinkOntologyConditionalRefinement {
             assumption: LinkOntologyConditionalAssumption {
                 id: "second-unlabelled-equivalence-observation",
@@ -1074,6 +1252,13 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
             classes_without_invariant_singleton,
             conditional_singleton_selector_exists: classes_with_invariant_singleton > 0,
             universal_singleton_selector_exists: classes_without_invariant_singleton == 0,
+            singleton_orbit_histogram,
+            asymmetry_provenance: LinkOntologyAsymmetryProvenance {
+                classifications: provenance_classifications,
+                base_projection_fibres_with_both_outcomes,
+                base_projection_fibres_forcing_singleton,
+                countermodel: asymmetry_countermodel,
+            },
         },
         loss_audit: vec![
             LinkOntologyLossAudit {
@@ -1240,7 +1425,7 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v2",
+        schema: "rml-link-ontology-symmetry-experiment/v3",
         question: "Which facts survive the binary reference observation, what information does its fixed width erase, and which distinctions emerge only under explicitly conditional refinements?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
@@ -1330,7 +1515,12 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
             LinkOntologyResult {
                 id: "conditional-structural-asymmetry",
                 result: "EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL",
-                evidence: "Thirteen of 33 joint classes have an automorphism-invariant singleton occurrence, while 20 do not. A role-like distinction can therefore emerge conditionally but is neither universal nor selected as source or target.",
+                evidence: "The singleton-orbit histogram is 20 classes with zero, 5 with one, 7 with two, and 1 with four. Structural asymmetry can therefore emerge, but only five classes select exactly one occurrence orbit and none assigns semantic endpoint meaning.",
+            },
+            LinkOntologyResult {
+                id: "conditional-asymmetry-provenance",
+                result: "BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED",
+                evidence: "Seven classes inherit a singleton forced by the base [3,1] multiplicity, five acquire one from an independently asymmetric refinement, one acquires four only through the interaction of two individually symmetric relations, and 20 retain none. Four base fibres have both outcomes; only [3,1] forces asymmetry across every refinement.",
             },
             LinkOntologyResult {
                 id: "observation-loss-provenance",
@@ -1338,8 +1528,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report separates intentional renaming and order quotients, demonstrated width and projection losses, and distinctions that were never observed. It does not decide which lost distinctions are ontological.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. With the same vocabulary, wider unlabelled observations derive multiplicity spectra; a conditional second equivalence reveals exactly measured projection loss and sometimes breaks occurrence symmetry, but supplies no universal role, link identity, or dynamics and cannot select source versus target.",
-        remaining_boundary: "This experiment does not define a link ontology, justify the second equivalence observation as fundamental, decide whether any erased distinction belongs to links, promote a conditional singleton to source or target, or turn a structural automorphism into execution semantics.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations. At width four, seven refined classes inherit base-forced asymmetry, five depend on asymmetry already present in the conditional relation, one derives four singleton orbits only from relational interaction, and 20 remain symmetric. This separates structural provenance but cannot select source or target, link identity, or dynamics.",
+        remaining_boundary: "This experiment does not define a link ontology, justify the second equivalence observation as fundamental, generalize the width-one-through-four enumeration into an unbounded theorem, decide whether any erased distinction belongs to links, promote a singleton orbit to a semantic role, or turn a structural automorphism into execution semantics.",
     }
 }
 

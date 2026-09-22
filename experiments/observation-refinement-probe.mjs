@@ -56,6 +56,26 @@ const occurrencePermutations = permutations(
 const partitions = restrictedGrowthPartitions(width);
 const jointClasses = new Map();
 
+function occurrenceOrbitSizes(...relations) {
+  const identity = JSON.stringify(relations.map(normalize));
+  const automorphisms = occurrencePermutations.filter(permutation =>
+    JSON.stringify(relations.map(relation =>
+      permutePartition(relation, permutation))) === identity);
+  const occurrenceOrbits = [];
+  const pending = new Set([0, 1, 2, 3]);
+  while (pending.size > 0) {
+    const seed = pending.values().next().value;
+    const orbitMembers = new Set(
+      automorphisms.map(permutation => permutation[seed]),
+    );
+    for (const member of orbitMembers) pending.delete(member);
+    occurrenceOrbits.push([...orbitMembers].sort((left, right) => left - right));
+  }
+  return occurrenceOrbits
+    .map(orbitMembers => orbitMembers.length)
+    .sort((left, right) => right - left);
+}
+
 for (const referencePartition of partitions) {
   for (const refinementPartition of partitions) {
     const orbit = occurrencePermutations
@@ -68,25 +88,17 @@ for (const referencePartition of partitions) {
     const canonical = orbit[0];
     if (jointClasses.has(canonical)) continue;
 
-    const automorphisms = occurrencePermutations.filter(permutation =>
-      jointKey(referencePartition, refinementPartition, permutation) ===
-        jointKey(referencePartition, refinementPartition, [0, 1, 2, 3]));
-    const occurrenceOrbits = [];
-    const pending = new Set([0, 1, 2, 3]);
-    while (pending.size > 0) {
-      const seed = pending.values().next().value;
-      const orbitMembers = new Set(
-        automorphisms.map(permutation => permutation[seed]),
-      );
-      for (const member of orbitMembers) pending.delete(member);
-      occurrenceOrbits.push([...orbitMembers].sort((left, right) => left - right));
-    }
     jointClasses.set(canonical, {
+      referencePartition,
+      refinementPartition,
       referenceSpectrum: spectrum(referencePartition).join('+'),
       refinementSpectrum: spectrum(refinementPartition).join('+'),
-      occurrenceOrbitSizes: occurrenceOrbits
-        .map(orbitMembers => orbitMembers.length)
-        .sort((left, right) => right - left),
+      referenceOccurrenceOrbitSizes: occurrenceOrbitSizes(referencePartition),
+      refinementOccurrenceOrbitSizes: occurrenceOrbitSizes(refinementPartition),
+      occurrenceOrbitSizes: occurrenceOrbitSizes(
+        referencePartition,
+        refinementPartition,
+      ),
     });
   }
 }
@@ -98,6 +110,25 @@ for (const jointClass of jointClasses.values()) {
   }
   projectionFibres.get(jointClass.referenceSpectrum).push(jointClass);
 }
+
+const jointClassValues = [...jointClasses.values()];
+const singletonOrbitHistogram = new Map();
+for (const jointClass of jointClassValues) {
+  const singletonOrbits = jointClass.occurrenceOrbitSizes
+    .filter(size => size === 1).length;
+  singletonOrbitHistogram.set(
+    singletonOrbits,
+    (singletonOrbitHistogram.get(singletonOrbits) ?? 0) + 1,
+  );
+}
+const interactionOnlyClass = jointClassValues.find(jointClass =>
+  !jointClass.referenceOccurrenceOrbitSizes.includes(1) &&
+  !jointClass.refinementOccurrenceOrbitSizes.includes(1) &&
+  jointClass.occurrenceOrbitSizes.includes(1));
+const withoutSingletonClass = jointClassValues.find(jointClass =>
+  JSON.stringify(jointClass.referencePartition) ===
+    JSON.stringify(interactionOnlyClass.referencePartition) &&
+  !jointClass.occurrenceOrbitSizes.includes(1));
 
 console.log(JSON.stringify({
   arityBoundary: widths.map(({ width: observationWidth, partitions: items }) => ({
@@ -118,10 +149,47 @@ console.log(JSON.stringify({
         referenceSpectrum,
         jointClasses: items.length,
         refinementSpectra: [...new Set(items.map(item => item.refinementSpectrum))].sort(),
+        classesWithInvariantSingleton: items
+          .filter(item => item.occurrenceOrbitSizes.includes(1)).length,
+        classesWithoutInvariantSingleton: items
+          .filter(item => !item.occurrenceOrbitSizes.includes(1)).length,
       })),
-    classesWithInvariantSingleton: [...jointClasses.values()]
+    classesWithInvariantSingleton: jointClassValues
       .filter(item => item.occurrenceOrbitSizes.includes(1)).length,
-    classesWithoutInvariantSingleton: [...jointClasses.values()]
+    classesWithoutInvariantSingleton: jointClassValues
       .filter(item => !item.occurrenceOrbitSizes.includes(1)).length,
+    singletonOrbitHistogram: [...singletonOrbitHistogram]
+      .sort(([left], [right]) => left - right)
+      .map(([singletonOrbits, classes]) => ({ singletonOrbits, classes })),
+    asymmetryProvenance: {
+      baseForcedClasses: jointClassValues.filter(item =>
+        item.referenceOccurrenceOrbitSizes.includes(1)).length,
+      refinementPresentNotBaseForcedClasses: jointClassValues.filter(item =>
+        !item.referenceOccurrenceOrbitSizes.includes(1) &&
+        item.refinementOccurrenceOrbitSizes.includes(1)).length,
+      relationalInteractionOnlyClasses: jointClassValues.filter(item =>
+        !item.referenceOccurrenceOrbitSizes.includes(1) &&
+        !item.refinementOccurrenceOrbitSizes.includes(1) &&
+        item.occurrenceOrbitSizes.includes(1)).length,
+      noSingletonOrbitClasses: jointClassValues.filter(item =>
+        !item.occurrenceOrbitSizes.includes(1)).length,
+      countermodel: {
+        normalizedReferencePartition: interactionOnlyClass.referencePartition,
+        referenceOccurrenceOrbitSizes:
+          interactionOnlyClass.referenceOccurrenceOrbitSizes,
+        withoutSingletonRefinement: {
+          normalizedPartition: withoutSingletonClass.refinementPartition,
+          refinementOccurrenceOrbitSizes:
+            withoutSingletonClass.refinementOccurrenceOrbitSizes,
+          jointOccurrenceOrbitSizes: withoutSingletonClass.occurrenceOrbitSizes,
+        },
+        interactionOnlyRefinement: {
+          normalizedPartition: interactionOnlyClass.refinementPartition,
+          refinementOccurrenceOrbitSizes:
+            interactionOnlyClass.refinementOccurrenceOrbitSizes,
+          jointOccurrenceOrbitSizes: interactionOnlyClass.occurrenceOrbitSizes,
+        },
+      },
+    },
   },
 }, null, 2));

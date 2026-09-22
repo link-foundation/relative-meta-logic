@@ -141,7 +141,7 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 6 also performs an independent finite symmetry experiment without
+Version 7 also performs an independent finite symmetry experiment without
 using A/B/C. It begins with two unlabelled reference occurrences and equality,
 then exhausts all three surjective observations on their used support, six
 occurrence-permutation/reference-renaming group elements, and ten action
@@ -159,10 +159,13 @@ destination. With the same primitive vocabulary, exhaustive widths one
 through four have 1, 2, 3, and 5 multiplicity-spectrum classes. A separate
 conditional probe adds an uninterpreted second equivalence relation solely to
 measure a forgetful projection: 225 labelled pairs reduce to 33 joint classes,
-and every reference-only fibre contains 5–9 incompatible refinements. Thirteen
-joint classes have an invariant singleton occurrence and 20 do not. This shows
-that relational asymmetry can emerge conditionally, but neither establishes
-the second relation as fundamental nor names the singleton source or target.
+and every reference-only fibre contains 5–9 incompatible refinements. The
+singleton-orbit histogram is 20/5/7/1 for 0/1/2/4 singleton orbits. Provenance
+separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20
+symmetric classes; four base fibres have countermodels with both outcomes.
+This shows that relational interaction can force asymmetry conditionally, but
+neither establishes the second relation as fundamental nor names any orbit
+source or target. Completeness remains bounded to widths one through four.
 
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,

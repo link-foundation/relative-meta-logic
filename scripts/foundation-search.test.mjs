@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v6');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v7');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v2',
+      'rml-link-ontology-symmetry-experiment/v3',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -246,6 +246,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['fixed-binary-observation-sufficiency', 'INSUFFICIENT_OUTSIDE_FIXED_ARITY'],
         ['conditional-refinement-recoverability', 'NOT_RECOVERABLE_FROM_BASE_PROJECTION'],
         ['conditional-structural-asymmetry', 'EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL'],
+        ['conditional-asymmetry-provenance', 'BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
     );
@@ -296,7 +297,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.equal(boundary.arityEnumerationComplete, true);
     assert.equal(
       boundary.generalizedCompleteInvariant,
-      'reference multiplicity spectrum at each fixed unlabelled width',
+      'reference multiplicity spectrum for each exhaustively tested unlabelled width 1 through 4',
     );
 
     const refinement = boundary.conditionalRefinement;
@@ -340,13 +341,46 @@ describe('architecture-neutral alternative-foundation search', () => {
       refinement.projectionFibres.map(item => ({
         referenceMultiplicitySpectrum: item.referenceMultiplicitySpectrum,
         jointClasses: item.jointClasses,
+        classesWithInvariantSingleton: item.classesWithInvariantSingleton,
+        classesWithoutInvariantSingleton: item.classesWithoutInvariantSingleton,
+        singletonPresenceClassification: item.singletonPresenceClassification,
       })),
       [
-        { referenceMultiplicitySpectrum: [1, 1, 1, 1], jointClasses: 5 },
-        { referenceMultiplicitySpectrum: [2, 1, 1], jointClasses: 9 },
-        { referenceMultiplicitySpectrum: [2, 2], jointClasses: 7 },
-        { referenceMultiplicitySpectrum: [3, 1], jointClasses: 7 },
-        { referenceMultiplicitySpectrum: [4], jointClasses: 5 },
+        {
+          referenceMultiplicitySpectrum: [1, 1, 1, 1],
+          jointClasses: 5,
+          classesWithInvariantSingleton: 1,
+          classesWithoutInvariantSingleton: 4,
+          singletonPresenceClassification: 'REFINEMENT_DEPENDENT',
+        },
+        {
+          referenceMultiplicitySpectrum: [2, 1, 1],
+          jointClasses: 9,
+          classesWithInvariantSingleton: 3,
+          classesWithoutInvariantSingleton: 6,
+          singletonPresenceClassification: 'REFINEMENT_DEPENDENT',
+        },
+        {
+          referenceMultiplicitySpectrum: [2, 2],
+          jointClasses: 7,
+          classesWithInvariantSingleton: 1,
+          classesWithoutInvariantSingleton: 6,
+          singletonPresenceClassification: 'REFINEMENT_DEPENDENT',
+        },
+        {
+          referenceMultiplicitySpectrum: [3, 1],
+          jointClasses: 7,
+          classesWithInvariantSingleton: 7,
+          classesWithoutInvariantSingleton: 0,
+          singletonPresenceClassification: 'BASE_FORCED',
+        },
+        {
+          referenceMultiplicitySpectrum: [4],
+          jointClasses: 5,
+          classesWithInvariantSingleton: 1,
+          classesWithoutInvariantSingleton: 4,
+          singletonPresenceClassification: 'REFINEMENT_DEPENDENT',
+        },
       ],
     );
     assert.equal(refinement.everyProjectionFibreAmbiguous, true);
@@ -355,6 +389,40 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.equal(refinement.classesWithoutInvariantSingleton, 20);
     assert.equal(refinement.conditionalSingletonSelectorExists, true);
     assert.equal(refinement.universalSingletonSelectorExists, false);
+    assert.deepEqual(refinement.singletonOrbitHistogram, [
+      { singletonOrbits: 0, jointClasses: 20 },
+      { singletonOrbits: 1, jointClasses: 5 },
+      { singletonOrbits: 2, jointClasses: 7 },
+      { singletonOrbits: 4, jointClasses: 1 },
+    ]);
+    assert.deepEqual(refinement.asymmetryProvenance.classifications, [
+      { id: 'BASE_FORCED', jointClasses: 7 },
+      { id: 'REFINEMENT_PRESENT_NOT_BASE_FORCED', jointClasses: 5 },
+      { id: 'RELATIONAL_INTERACTION_ONLY', jointClasses: 1 },
+      { id: 'NO_SINGLETON_ORBIT', jointClasses: 20 },
+    ]);
+    assert.equal(
+      refinement.asymmetryProvenance.baseProjectionFibresWithBothOutcomes,
+      4,
+    );
+    assert.equal(
+      refinement.asymmetryProvenance.baseProjectionFibresForcingSingleton,
+      1,
+    );
+    assert.deepEqual(refinement.asymmetryProvenance.countermodel, {
+      normalizedReferencePartition: [0, 0, 1, 2],
+      referenceOccurrenceOrbitSizes: [2, 2],
+      withoutSingletonRefinement: {
+        normalizedPartition: [0, 0, 0, 0],
+        refinementOccurrenceOrbitSizes: [4],
+        jointOccurrenceOrbitSizes: [2, 2],
+      },
+      interactionOnlyRefinement: {
+        normalizedPartition: [0, 1, 0, 2],
+        refinementOccurrenceOrbitSizes: [2, 2],
+        jointOccurrenceOrbitSizes: [1, 1, 1, 1],
+      },
+    });
 
     assert.deepEqual(
       boundary.lossAudit.map(item => [item.distinction, item.classification]),
@@ -422,7 +490,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v6');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v7');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

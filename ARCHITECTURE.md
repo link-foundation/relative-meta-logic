@@ -220,7 +220,7 @@ separation as assumptions; it does not infer link ontology from them. The
 failed zero-transition experiment is likewise scoped to the current passive
 host model and finite workload.
 
-The v6 ontology investigation is separate from execution comparison. Its
+The v7 ontology investigation is separate from execution comparison. Its
 finite experiment quotients two unlabelled reference occurrences by every
 occurrence permutation and reference renaming. Equality coincidence is
 complete for that contract; no invariant singleton selects source or target,
@@ -230,9 +230,11 @@ claims but supply no execution law and do not make the contract exhaustive of
 links. Without adding a primitive, widths one through four derive 1, 2, 3,
 and 5 multiplicity classes, proving that fixed binary width loses information.
 A conditional second equivalence then yields 33 joint classes and 5–9
-refinements per reference-only fibre. Thirteen refined classes acquire an
-invariant singleton occurrence and 20 do not, so structural asymmetry can
-emerge but is not universal. The second relation remains
+refinements per reference-only fibre. The singleton-orbit histogram is
+20/5/7/1 classes with 0/1/2/4 singleton orbits, so only five classes select
+exactly one occurrence orbit. Provenance separates 7 base-forced, 5
+refinement-present, 1 interaction-only, and 20 symmetric classes; four base
+fibres admit both outcomes, while only `[3,1]` forces one. The second relation remains
 `CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED`, not an ontological commitment.
 Link ontology, primitive categories, the structure/transformation
 relation, intrinsic semantic authority, and comparative minimality therefore
