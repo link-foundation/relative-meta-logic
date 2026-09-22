@@ -201,12 +201,14 @@ reference-only multiplicity observation.
 | 3 | 3 | 7 | 3 | 4 | 2 fibres of size 2; 1 of size 3 |
 | 4 | 5 | 12 | 5 | 7 | 3 fibres of size 2; 2 of size 3 |
 
-The smallest explicit countermodel uses two reference occurrences. A
-direct-self link has normalized address pattern `[0,0,1]`; a link with a fresh
-external address has `[0,1,2]`. Both forget to the distinct-reference
-multiplicity spectrum `[1,1]`, but no allowed renaming or occurrence
-permutation changes whether a reference equals the link address. They are
-therefore inequivalent addressable links with the same starting projection.
+Within the original two-occurrence starting contract, an explicit countermodel
+compares a direct-self link with normalized address pattern `[0,0,1]` against a
+link with a fresh external address, `[0,1,2]`. Both forget to the
+distinct-reference multiplicity spectrum `[1,1]`, but no allowed renaming or
+occurrence permutation changes whether a reference equals the link address.
+They are therefore inequivalent addressable links with the same starting
+projection. The width-one row is already non-injective; the binary witness is
+used because it audits the original starting contract directly.
 
 The finite counts instantiate a general argument. Every nonempty reference
 multiplicity spectrum has one lift where the link address is fresh, plus one
