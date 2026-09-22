@@ -47,17 +47,18 @@ function variablesIn(term, output = new Set()) {
 // of S/K.  Its host boundary is measured separately; object-language names
 // remain opaque to it.
 function directMatchTerm(pattern, candidate, substitution = new Map(), observe = () => {}) {
-  observe('compare-link-structure');
-  observe('bind-pattern-variables');
   const variable = variableName(pattern);
   if (variable !== null) {
+    observe('bind-pattern-variables');
     const previous = substitution.get(variable);
     if (previous !== undefined) {
+      observe('compare-link-structure');
       return isStructurallySame(previous, candidate) ? substitution : null;
     }
     substitution.set(variable, cloneTerm(candidate));
     return substitution;
   }
+  observe('compare-link-structure');
   if (!Array.isArray(pattern) || !Array.isArray(candidate)) {
     return isStructurallySame(pattern, candidate) ? substitution : null;
   }
@@ -74,9 +75,9 @@ function directMatchTerm(pattern, candidate, substitution = new Map(), observe =
 }
 
 function directInstantiate(term, substitution, observe = () => {}) {
-  observe('substitute-bound-structures');
   const variable = variableName(term);
   if (variable !== null) {
+    observe('substitute-bound-structures');
     if (!substitution.has(variable)) throw new Error(`unbound variable ${variable}`);
     return cloneTerm(substitution.get(variable));
   }
@@ -1200,11 +1201,11 @@ class LinkedProgramRegistry {
         : 'saturate-inference-rules',
     );
     const known = new Map();
-    const add = (judgement, proof) => {
+    const add = (judgement, proof, derived = false) => {
       const normalized = this.reduce(name, judgement).term;
       const key = keyOf(normalized);
       if (known.has(key)) return false;
-      if (this.executionBasis === 'horn-relational') {
+      if (derived && this.executionBasis === 'horn-relational') {
         this.#observe(semanticPaths, 'insert-derived-fact');
       }
       known.set(key, { judgement: normalized, proof });
@@ -1268,7 +1269,7 @@ class LinkedProgramRegistry {
             rule: rule.name,
             premises: candidate.premises,
           };
-          if (add(judgement, proof)) {
+          if (add(judgement, proof, true)) {
             changed = true;
             if (known.has(goalKey)) {
               return { ok: true, proof: known.get(goalKey).proof };

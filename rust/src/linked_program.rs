@@ -406,15 +406,16 @@ fn direct_match_term<F>(
 where
     F: FnMut(&'static str) -> Result<(), String>,
 {
-    observe("compare-link-structure")?;
-    observe("bind-pattern-variables")?;
     if let Some(variable) = variable_name(pattern) {
+        observe("bind-pattern-variables")?;
         if let Some(previous) = substitution.get(variable) {
+            observe("compare-link-structure")?;
             return Ok(previous == candidate);
         }
         substitution.insert(variable.to_string(), candidate.clone());
         return Ok(true);
     }
+    observe("compare-link-structure")?;
     match (pattern, candidate) {
         (Node::Leaf(left), Node::Leaf(right)) => Ok(left == right),
         (Node::List(left), Node::List(right)) if left.len() == right.len() => {
@@ -437,8 +438,8 @@ fn direct_instantiate<F>(
 where
     F: FnMut(&'static str) -> Result<(), String>,
 {
-    observe("substitute-bound-structures")?;
     if let Some(variable) = variable_name(node) {
+        observe("substitute-bound-structures")?;
         return substitution
             .get(variable)
             .cloned()
@@ -2047,13 +2048,14 @@ impl LinkedProgramRegistry {
             proof: LinkedProof,
             max_facts: usize,
             semantic_paths: &[&str],
+            derived: bool,
         ) -> Option<bool> {
             let normalized = registry.reduce(program, judgement, 10_000).ok()?.term;
             let key = key_of(&normalized);
             if known.contains_key(&key) {
                 return Some(false);
             }
-            if registry.execution_basis == ExecutionBasis::HornRelational {
+            if derived && registry.execution_basis == ExecutionBasis::HornRelational {
                 registry
                     .observe(semantic_paths, "insert-derived-fact")
                     .ok()?;
@@ -2081,6 +2083,7 @@ impl LinkedProgramRegistry {
                 proof,
                 max_facts,
                 semantic_paths,
+                false,
             )?;
         }
         for (index, fact) in input_facts.iter().enumerate() {
@@ -2098,6 +2101,7 @@ impl LinkedProgramRegistry {
                 proof,
                 max_facts,
                 semantic_paths,
+                false,
             )?;
         }
         let goal_key = key_of(normalized_goal);
@@ -2155,6 +2159,7 @@ impl LinkedProgramRegistry {
                         proof,
                         max_facts,
                         semantic_paths,
+                        true,
                     )? {
                         changed = true;
                         if let Some((_, proof)) = known.get(&goal_key) {
