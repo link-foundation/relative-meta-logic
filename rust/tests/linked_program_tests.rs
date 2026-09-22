@@ -455,8 +455,9 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
         report.foundation_search_experiments[0].candidate,
         "zero-semantic-transition"
     );
+    assert_eq!(report.foundation_search_experiments[0].surface_law_count, 0);
     assert_eq!(
-        report.foundation_search_experiments[0].external_semantic_laws,
+        report.foundation_search_experiments[0].residual_external_semantic_law_count,
         0
     );
     assert_eq!(
@@ -469,6 +470,8 @@ fn measures_the_complete_host_semantic_surface_and_self_hosting_distance() {
     let iota = &report.foundation_search_experiments[2];
     assert_eq!(iota.candidate, "iota");
     assert_eq!(iota.classification, "EQUIVALENT_REENCODING");
+    assert_eq!(iota.surface_law_count, 1);
+    assert_eq!(iota.residual_external_semantic_law_count, 2);
     assert_eq!(iota.baseline_preserved, Some(true));
     assert_eq!(
         iota.experiment_scope,

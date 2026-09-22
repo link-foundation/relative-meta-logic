@@ -69,8 +69,10 @@ defines an addressed doublet network but no execution transition; the current
 S and K reductions are therefore recorded as two `externally-primitive` laws.
 The link source is `link-native`, while its six capabilities are
 `derived-inside-system`. The executable zero-law candidate fails the complete
-probe, and iota remains an equivalent re-encoding rather than a semantic
-reduction. The report continues to reject any claim of global irreducibility.
+probe. A separate iota witness preserves identity, discard, and duplication,
+but observes both S/K contractions; its single rule name is therefore an
+equivalent re-encoding rather than a semantic reduction. The report continues
+to reject any claim of global irreducibility.
 
 The follow-up quantitative review is captured in
 [`bootstrap-metrics.md`](./bootstrap-metrics.md). Mirrored executable probes

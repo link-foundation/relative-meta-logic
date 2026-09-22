@@ -39,17 +39,17 @@ both implementation and automated evidence.
 | R31 | Do not call the current K0 irreducible without proof. | Complete | Source and documentation consistently use “current bootstrap boundary,” expose `claimsIrreducible: false`, and state the criterion for any later removal. |
 | R32 | Give a structural reason for each primitive that remains. | Complete | Every bootstrap node contains a non-empty `primitiveReason` / `primitive_reason`; mirrored tests make missing justifications fail. |
 | R33 | Count the complete host semantic surface, not only K0 labels. | Complete | `bootstrapMetricsReport` / `bootstrap_metrics_report` executes a common probe and reports exactly two host semantic operations: S and K contraction. Parsing and bounds are visible but excluded from the semantic count. |
-| R34 | Classify primitive-removal experiments without hiding equivalent re-encodings. | Complete for measured candidates | Every boundary operation can be disabled at its execution point. S and K are `INDEPENDENT` relative to the current representation/probe, while the report names iota as an equivalent one-rule re-encoding and explicitly rejects a global irreducibility claim. |
+| R34 | Classify primitive-removal experiments without hiding equivalent re-encodings. | Complete for measured candidates | Every boundary operation can be disabled at its execution point. S and K are `INDEPENDENT` relative to the current representation/probe. An executable iota witness preserves identity, discard, and duplication, but records `surfaceLawCount: 1`, `residualExternalSemanticLawCount: 2`, and `semanticInformationReduced: false`; the report explicitly rejects a global irreducibility claim. |
 | R35 | Count host/linked semantic duplication. | Complete | Matching, substitution, traversal, import/rebinding, inference, and verification have only closed-term implementations, so observed host/linked semantic duplication is zero. |
 | R36 | Quantify self-hosting closure. | Complete for the declared probe | The linked-load/import/reduce/infer/self-verify task uses six links-defined semantic capabilities and zero host-defined counterparts, so closure is `6/6`, with every capability named. |
 | R37 | Separate host information by layer. | Complete | The report separates semantic bootstrap (2), derived host semantics (0), representation/parsing (1), resource control (1), debugging/observability (0), and object-specific host semantics (0). |
 | R38 | Compare runtime-observed semantics with the trust graph. | Complete | Operation hooks record four public paths and 10 path/operation segments. The audit computes reachability from those observations and CI requires 4/4 paths, 10/10 segments, and zero undocumented paths, operations, or segments. |
 | R39 | Publish a foundation compression experiment. | Complete for measured candidates | The executable semantic host surface falls from eight operations to the S/K basis, so the current ratio is `2/8`. The report scopes necessity to its representation/probe and does not extrapolate to global minimality. |
-| R40 | Publish previous/current metric deltas on every foundational iteration. | Complete | The versioned `rml-bootstrap-metrics/v2` comparison records known values from `8b39df5`, uses `null` for previously unmeasured values, and is printed in the bootstrap workflow. |
+| R40 | Publish previous/current metric deltas on every foundational iteration. | Complete | The versioned `rml-bootstrap-metrics/v3` comparison records known values from `8b39df5`, uses `null` for previously unmeasured values, and is printed in the bootstrap workflow. |
 | R41 | Remove the large host-language semantic description from the runtime. | Complete | The authoritative 1,446-node program is `fixed-point-source.lino`; the runtime no longer contains `buildSourceKernel`, and generator-consistency tests compile all 25 roots to the checked-in artifact. |
 | R42 | Anchor the bootstrap representation in upstream Links Theory. | Complete for representation | The source and artifact are addressed doublet networks tied to the upstream `network-duplet-function` model. The audit explicitly notes that upstream defines structure and self-definition, not an execution transition. |
 | R43 | Classify the provenance of every residual semantic contribution. | Complete | Mirrored reports distinguish `link-native`, `derived-inside-system`, `compiled-from-external-semantic-description`, and `externally-primitive`; S/K are explicitly external laws and the six higher capabilities are derived. |
-| R44 | Test whether link structure alone supplies execution. | Complete for the declared probe | The executable zero-transition experiment disables S and K together and fails the complete acceptance probe. S/K succeeds; iota is classified only as an equivalent re-encoding. |
+| R44 | Test whether link structure alone supplies execution. | Complete for the declared probe | The executable zero-transition experiment disables S and K together and fails the complete acceptance probe. S/K succeeds. The narrower iota witness executes separately and observes both external operations, classifying its one rule as surface re-encoding rather than reduced semantic information. |
 
 ## Reviewer acceptance test
 
@@ -88,9 +88,9 @@ The separate [bootstrap metrics report](./bootstrap-metrics.md) records the
 actual current distance from self-hosting: two external semantic laws, zero
 external semantic source descriptions, zero duplicated semantics, `6/6`
 closure, and `2/8` compression. Its zero-transition failure,
-representation-scoped S/K classifications, and explicit iota equivalence
-prevent experimental necessity from being mistaken for a global minimality
-proof.
+representation-scoped S/K classifications, and executable iota equivalence
+witness prevent experimental necessity or a smaller vocabulary from being
+mistaken for a global minimality proof.
 
 The pinned Lean/Rocq corpus remains useful evidence that RML can preserve and
 query the upstream development. It is deliberately outside the authorization

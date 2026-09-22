@@ -108,15 +108,18 @@ The fault-injection loop records an outcome for every boundary operation:
 The report's `derivedHostServices` and `objectSemantics` lists are empty. `K0`
 has no built-in matcher, substitution algorithm, traversal, linker, proof
 engine, `lambda`, set, graph, relation, type, truth, or confidence operation.
-The report still exposes `claimsIrreducible: false`: S/K can be re-encoded by
-a one-rule universal basis such as iota, and the experiment is not a proof
-that no different representation could use a smaller boundary.
+The report still exposes `claimsIrreducible: false`. Its executable iota
+witness reconstructs identity, K, and S with one surface equation while
+observing both residual S/K contractions. This establishes equivalent
+re-encoding, not less external semantic information, and does not prove that
+no different representation could use a smaller boundary.
 
 The foundation search also executes a zero-transition candidate by disabling
 S and K together. It fails the same complete acceptance probe. This shows that
 the upstream addressed-network structure alone is not yet an executable
-transition system. Iota is reported as an equivalent one-name re-encoding,
-not as evidence that the amount of external semantic information disappeared.
+transition system. The narrower iota witness preserves its identity, discard,
+and duplication cases but observes both S/K operations, so its one name is not
+counted as evidence that external semantic information disappeared.
 
 Every remaining boundary node has a structural `primitiveReason` /
 `primitive_reason`. The mirrored `auditBootstrapKernel` /

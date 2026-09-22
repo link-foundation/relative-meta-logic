@@ -380,6 +380,60 @@ pub(super) fn source_summary() -> Result<KernelSourceSummary, String> {
     })
 }
 
+/// Execute the one-name iota encoding and expose the residual operations used
+/// to recover I, K, and S. This distinguishes surface syntax compression from
+/// removal of external semantic information.
+pub(super) fn iota_equivalence_operations() -> Result<BTreeSet<&'static str>, String> {
+    let s = Arc::new(Term::S);
+    let k = Arc::new(Term::K);
+    let identity = apply_many(s.clone(), [k.clone(), k.clone()]);
+    let iota = apply_many(
+        s,
+        [
+            apply_many(
+                Arc::new(Term::S),
+                [identity.clone(), app(k.clone(), Arc::new(Term::S))],
+            ),
+            app(k.clone(), k.clone()),
+        ],
+    );
+    let derived_identity = app(iota.clone(), iota.clone());
+    let derived_k = app(iota.clone(), app(iota.clone(), derived_identity.clone()));
+    let derived_s = app(iota, derived_k.clone());
+    let disabled = BTreeSet::new();
+    let mut runner = Runner::new(&disabled);
+    let witnesses = [
+        (
+            "identity",
+            app(derived_identity, atom("iota-identity-value")),
+            "iota-identity-value",
+        ),
+        (
+            "discard",
+            apply_many(
+                derived_k.clone(),
+                [atom("iota-kept-value"), atom("iota-discarded-value")],
+            ),
+            "iota-kept-value",
+        ),
+        (
+            "duplicate",
+            apply_many(
+                derived_s,
+                [derived_k.clone(), derived_k, atom("iota-duplicated-value")],
+            ),
+            "iota-duplicated-value",
+        ),
+    ];
+    for (name, term, expected) in witnesses {
+        let observed = runner.head_normalize(term)?;
+        if !is_atom(&observed, expected) {
+            return Err(format!("iota {name} witness changed its baseline result"));
+        }
+    }
+    Ok(runner.observed)
+}
+
 pub(super) struct Runner {
     disabled: BTreeSet<String>,
     pub(super) observed: BTreeSet<&'static str>,

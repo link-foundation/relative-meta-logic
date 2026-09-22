@@ -465,6 +465,51 @@ class CombinatorRunner {
   }
 }
 
+/**
+ * Execute Barker's one-name iota encoding through the residual machine.
+ *
+ * Iota has one surface equation, but its meaning is `λf.f S K`. Reconstructing
+ * I, K, and S from iota therefore provides an executable check of expressive
+ * equivalence while the observed-operation set records whether any external
+ * semantic information actually disappeared.
+ */
+function combinatorIotaEquivalenceReport() {
+  const identity = applyMany(S, K, K);
+  const iota = applyMany(
+    S,
+    applyMany(S, identity, app(K, S)),
+    app(K, K),
+  );
+  const derivedIdentity = app(iota, iota);
+  const derivedK = app(iota, app(iota, derivedIdentity));
+  const derivedS = app(iota, derivedK);
+  const runner = new CombinatorRunner();
+  const witnesses = [
+    ['identity', app(derivedIdentity, 'iota-identity-value'), 'iota-identity-value'],
+    ['discard', applyMany(derivedK, 'iota-kept-value', 'iota-discarded-value'),
+      'iota-kept-value'],
+    ['duplicate', applyMany(derivedS, derivedK, derivedK, 'iota-duplicated-value'),
+      'iota-duplicated-value'],
+  ];
+  for (const [name, term, expected] of witnesses) {
+    const observed = runner.headNormalize(term);
+    if (observed !== expected) {
+      throw new Error(`iota ${name} witness changed its baseline result`);
+    }
+  }
+  const observedExternalOperations = [...runner.observedOperations].sort();
+  return {
+    schema: 'rml-basis-equivalence-witness/v1',
+    candidate: 'iota',
+    surfaceLaw: 'ι f -> f S K',
+    surfaceLawCount: 1,
+    witnessCases: witnesses.map(([name]) => name),
+    baselinePreserved: true,
+    observedExternalOperations,
+    semanticInformationReduced: observedExternalOperations.length < 2,
+  };
+}
+
 /** Execute one ordered, leftmost linked rewrite above the S/K residual basis. */
 function combinatorRewriteOnce(term, rules, options = {}) {
   const runner = new CombinatorRunner(options);
@@ -623,6 +668,7 @@ export {
   combinatorCreateProofState,
   combinatorFindProof,
   combinatorInferOnce,
+  combinatorIotaEquivalenceReport,
   combinatorKernelSourceReport,
   combinatorResolveRewrites,
   combinatorRewriteOnce,

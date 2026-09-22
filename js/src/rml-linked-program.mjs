@@ -9,6 +9,7 @@ import {
   combinatorCreateProofState,
   combinatorFindProof,
   combinatorInferOnce,
+  combinatorIotaEquivalenceReport,
   combinatorKernelSourceReport,
   combinatorResolveRewrites,
   combinatorRewriteOnce,
@@ -539,6 +540,7 @@ class LinkedProgramRegistry {
       throw new Error('zero-transition foundation unexpectedly preserved the baseline');
     }
     const semanticSource = combinatorKernelSourceReport();
+    const iotaEquivalence = combinatorIotaEquivalenceReport();
     const current = {
       totalHostSemanticOperations: totalOperations,
       independentHostPrimitives: {
@@ -566,7 +568,7 @@ class LinkedProgramRegistry {
       },
     };
     return cloneReportValue({
-      schema: 'rml-bootstrap-metrics/v2',
+      schema: 'rml-bootstrap-metrics/v3',
       previousRevision: PREVIOUS_METRIC_REVISION,
       measurementScope: 'The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, links-meta-foundation result verification, and a zero-transition fault injection. The addressed-link source is native to the upstream network-duplet structure; S/K remain externally primitive transition laws. Necessity is relative to this representation and probe, not a claim of global irreducibility.',
       provenanceClassifications: PROVENANCE_CLASSIFICATIONS,
@@ -588,23 +590,36 @@ class LinkedProgramRegistry {
         {
           candidate: 'zero-semantic-transition',
           classification: 'INSUFFICIENT',
-          externalSemanticLaws: 0,
+          surfaceLawCount: 0,
+          residualExternalSemanticLawCount: 0,
           baselinePreserved: false,
           observedFailure: zeroTransitionFailure,
+          experimentScope: 'complete-acceptance-probe',
+          observedExternalOperations: [],
+          semanticInformationReduced: null,
         },
         {
           candidate: 's-k-over-link-native-source',
           classification: 'CURRENT_SUFFICIENT',
-          externalSemanticLaws: 2,
+          surfaceLawCount: 2,
+          residualExternalSemanticLawCount: 2,
           baselinePreserved: true,
           observedFailure: '',
+          experimentScope: 'complete-acceptance-probe',
+          observedExternalOperations: ['contract-k-link', 'contract-s-link'],
+          semanticInformationReduced: null,
         },
         {
           candidate: 'iota',
           classification: 'EQUIVALENT_REENCODING',
-          externalSemanticLaws: 1,
-          baselinePreserved: null,
+          surfaceLawCount: iotaEquivalence.surfaceLawCount,
+          residualExternalSemanticLawCount:
+            iotaEquivalence.observedExternalOperations.length,
+          baselinePreserved: iotaEquivalence.baselinePreserved,
           observedFailure: '',
+          experimentScope: 'residual-basis-equivalence-witness',
+          observedExternalOperations: iotaEquivalence.observedExternalOperations,
+          semanticInformationReduced: iotaEquivalence.semanticInformationReduced,
         },
       ],
       hostSemanticLayers: HOST_SEMANTIC_LAYERS.map(layer => ({

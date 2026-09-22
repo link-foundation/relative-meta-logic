@@ -376,20 +376,26 @@ describe('links-defined universal program evaluator', () => {
       present: false,
     }]);
     assert.equal(report.foundationSearchExperiments[0].candidate, 'zero-semantic-transition');
-    assert.equal(report.foundationSearchExperiments[0].externalSemanticLaws, 0);
+    assert.equal(report.foundationSearchExperiments[0].surfaceLawCount, 0);
+    assert.equal(report.foundationSearchExperiments[0].residualExternalSemanticLawCount, 0);
     assert.equal(report.foundationSearchExperiments[0].baselinePreserved, false);
     assert.ok(report.foundationSearchExperiments[0].observedFailure.length > 0);
     assert.deepEqual(report.foundationSearchExperiments[1], {
       candidate: 's-k-over-link-native-source',
       classification: 'CURRENT_SUFFICIENT',
-      externalSemanticLaws: 2,
+      surfaceLawCount: 2,
+      residualExternalSemanticLawCount: 2,
       baselinePreserved: true,
       observedFailure: '',
+      experimentScope: 'complete-acceptance-probe',
+      observedExternalOperations: ['contract-k-link', 'contract-s-link'],
+      semanticInformationReduced: null,
     });
     assert.deepEqual(report.foundationSearchExperiments[2], {
       candidate: 'iota',
       classification: 'EQUIVALENT_REENCODING',
-      externalSemanticLaws: 1,
+      surfaceLawCount: 1,
+      residualExternalSemanticLawCount: 2,
       baselinePreserved: true,
       observedFailure: '',
       experimentScope: 'residual-basis-equivalence-witness',

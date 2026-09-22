@@ -347,9 +347,13 @@ pub struct BootstrapSemanticProvenance {
 pub struct BootstrapFoundationSearchExperiment {
     pub candidate: &'static str,
     pub classification: &'static str,
-    pub external_semantic_laws: usize,
+    pub surface_law_count: usize,
+    pub residual_external_semantic_law_count: usize,
     pub baseline_preserved: Option<bool>,
     pub observed_failure: String,
+    pub experiment_scope: Option<&'static str>,
+    pub observed_external_operations: Vec<&'static str>,
+    pub semantic_information_reduced: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -1170,8 +1174,9 @@ impl LinkedProgramRegistry {
                 delta: Some("-1".to_string()),
             },
         ];
+        let iota_operations = combinator_kernel::iota_equivalence_operations()?;
         Ok(BootstrapMetricsReport {
-            schema: "rml-bootstrap-metrics/v2",
+            schema: "rml-bootstrap-metrics/v3",
             previous_revision: PREVIOUS_METRIC_REVISION,
             measurement_scope: "The executable probe covers textual load, linked import/rebinding, reduction, inference saturation, links-meta-foundation result verification, and a zero-transition fault injection. The addressed-link source is native to the upstream network-duplet structure; S/K remain externally primitive transition laws. Necessity is relative to this representation and probe, not a claim of global irreducibility.",
             provenance_classifications: PROVENANCE_CLASSIFICATIONS.to_vec(),
@@ -1203,23 +1208,38 @@ impl LinkedProgramRegistry {
                 BootstrapFoundationSearchExperiment {
                     candidate: "zero-semantic-transition",
                     classification: "INSUFFICIENT",
-                    external_semantic_laws: 0,
+                    surface_law_count: 0,
+                    residual_external_semantic_law_count: 0,
                     baseline_preserved: Some(false),
                     observed_failure: zero_transition_failure,
+                    experiment_scope: Some("complete-acceptance-probe"),
+                    observed_external_operations: vec![],
+                    semantic_information_reduced: None,
                 },
                 BootstrapFoundationSearchExperiment {
                     candidate: "s-k-over-link-native-source",
                     classification: "CURRENT_SUFFICIENT",
-                    external_semantic_laws: 2,
+                    surface_law_count: 2,
+                    residual_external_semantic_law_count: 2,
                     baseline_preserved: Some(true),
                     observed_failure: String::new(),
+                    experiment_scope: Some("complete-acceptance-probe"),
+                    observed_external_operations: vec![
+                        "contract-k-link",
+                        "contract-s-link",
+                    ],
+                    semantic_information_reduced: None,
                 },
                 BootstrapFoundationSearchExperiment {
                     candidate: "iota",
                     classification: "EQUIVALENT_REENCODING",
-                    external_semantic_laws: 1,
-                    baseline_preserved: None,
+                    surface_law_count: 1,
+                    residual_external_semantic_law_count: iota_operations.len(),
+                    baseline_preserved: Some(true),
                     observed_failure: String::new(),
+                    experiment_scope: Some("residual-basis-equivalence-witness"),
+                    observed_external_operations: iota_operations.iter().copied().collect(),
+                    semantic_information_reduced: Some(iota_operations.len() < 2),
                 },
             ],
             host_semantic_layers,

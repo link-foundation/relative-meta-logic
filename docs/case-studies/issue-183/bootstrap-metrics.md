@@ -34,10 +34,19 @@ The residual semantic basis is `contract-s-link` and `contract-k-link`.
 Disabling either contraction while keeping the other makes the complete probe
 fail, so both are classified `INDEPENDENT` relative to this representation and
 probe. This is falsifiable experimental necessity, not global mathematical
-irreducibility. The report explicitly names iota as an equivalent one-rule
-re-encoding; moving to it would change representation, not erase universal
-computation. Disabling both contractions is the explicit zero-transition
-candidate. It fails the complete probe, recording the actual runtime error.
+irreducibility. The report also executes Barker's iota encoding. Its one
+surface equation reconstructs identity, K, and S and preserves identity,
+discard, and duplication witnesses, but the run observes both residual S/K
+contractions. This records an `EQUIVALENT_REENCODING`: changing the surface
+vocabulary does not remove external semantic information. Disabling both
+contractions is the explicit zero-transition candidate. It fails the complete
+probe, recording the actual runtime error.
+
+Schema v3 keeps those quantities separate: iota has `surfaceLawCount: 1` and
+`residualExternalSemanticLawCount: 2`. The S/K control has 2 and 2, while the
+failing zero-transition candidate has 0 and 0. A smaller first number is not
+reported as a smaller foundation unless the second number also decreases in a
+successful probe.
 
 The versioned schema publishes the complete classification vocabulary:
 `INDEPENDENT`, `DERIVABLE`, `EQUIVALENT_REENCODING`, and `UNKNOWN`. Parsing and
@@ -70,9 +79,10 @@ runtime therefore names both residual laws without hiding their provenance:
 | `K x y -> x` | `externally-primitive` |
 
 Matching, substitution, traversal, import/rebinding, inference, and result
-verification are each `derived-inside-system`. A one-symbol iota encoding
-would still carry equivalent transition information, so it is not reported as
-a deeper foundation.
+verification are each `derived-inside-system`. The executable one-symbol iota
+witness still exercises `contract-s-link` and `contract-k-link`, so the report
+sets `semanticInformationReduced` to `false` instead of presenting a shorter
+name as a deeper foundation.
 
 ## Host information by layer
 
@@ -128,7 +138,8 @@ data module with:
 node scripts/generate-combinator-kernel.mjs
 ```
 
-The output schema is `rml-bootstrap-metrics/v2`. The bootstrap workflow prints
+The output schema is `rml-bootstrap-metrics/v3`. The bootstrap workflow prints
 the full JSON report, while the JavaScript and Rust tests independently assert
 the counts, removal outcomes, closure, compression, runtime coverage, and
-generated-artifact parity.
+generated-artifact parity. Run the focused equivalence experiment with
+`node experiments/iota-bootstrap.mjs` from the repository root.

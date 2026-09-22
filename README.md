@@ -68,8 +68,10 @@ runtime paths. The authoritative semantic source is links-native rather than a
 host-language builder, but S/K are not presented as native Links Theory laws:
 the upstream addressed network supplies structure, not execution. An
 executable zero-transition candidate fails. This is not a claim of globally
-irreducible semantics: the same basis can be re-encoded with one universal
-combinator such as iota without reducing its semantic information.
+irreducible semantics: an executable iota witness reconstructs identity, K,
+and S with one surface equation, but observes both residual contractions. It
+therefore demonstrates vocabulary compression without claiming less external
+semantic information.
 Lambda, set, type, graph, relation, and RML semantics remain linked programs,
 not host callbacks or external-kernel decisions. Lean/Rocq artifacts are
 parity evidence only.

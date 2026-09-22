@@ -335,8 +335,9 @@ After reading the six files, you should be able to explain:
 - How `npm run test:bootstrap` catches divergence between encoded RML and host
   RML.
 - Why the measured semantic host surface is exactly S and K, why their
-  necessity is scoped to the current representation/probe, and why iota is an
-  equivalent re-encoding rather than additional compression evidence.
+  necessity is scoped to the current representation/probe, and how the
+  executable iota witness distinguishes one surface rule from a reduction in
+  external semantic information.
 
 That is the capstone claim of "RML in RML": the language now has a readable,
 test-backed description of its own core behavior, written in the same notation
