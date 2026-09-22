@@ -182,6 +182,16 @@ self-identifying lifts. This proves the weak projection is non-faithful for
 self-reference, not that a distinguished address supplies a complete ontology
 or semantics.
 
+The repaired quotient is audited in turn. Equality matrices completely
+classify ordered address patterns under bijective address renaming, making
+reference names a contract-derived equivalence. Permuting reference
+occurrences separately collapses `0/1/8/40` ordered classes at widths `1..4`;
+without an independently derived reason that slots lack identity, that step is
+`UNESTABLISHED_EQUIVALENCE`. For the explicitly unlabelled contract,
+reference multiplicity and direct-self multiplicity together classify all
+`2/4/7/12` addressable classes. This reduction does not claim that the
+addressable quotient exhausts link structure.
+
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,
 intrinsic semantic authority, and comparative minimality are five separate

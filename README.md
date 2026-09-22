@@ -106,7 +106,12 @@ boundaries. A further starting-representation audit compares direct-self
 forgetting the link address loses self-reference. It enumerates
 `2/4/7/12` addressable classes versus `1/2/3/5` reference-only classes at
 widths one through four and proves non-injectivity for every nonzero finite
-arity. These results do not complete link ontology or establish an unbounded
+arity. A quotient audit then derives address-renaming equivalence from the
+complete equality matrix but marks occurrence permutation
+`UNESTABLISHED_EQUIVALENCE`; that step collapses `0/1/8/40` ordered classes.
+Only after declaring unlabelled occurrences do reference multiplicity and
+direct-self multiplicity form a complete descriptor of the addressable
+classes. These results do not complete link ontology or establish an unbounded
 classification theorem. The report keeps link ontology,
 intrinsic authority, primitive categories, the structure/transformation
 relation, and comparative minimality unresolved; classifies all three

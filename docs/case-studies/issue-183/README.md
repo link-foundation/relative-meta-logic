@@ -140,6 +140,17 @@ general lift argument proves non-injectivity at every nonzero finite arity.
 This falsifies completeness of the starting projection for self-reference; it
 does not promote link identity to a complete ontology or execution law.
 
+The follow-up audits the repaired addressable quotient instead of assuming its
+equivalences. Full equality matrices derive global address-renaming
+equivalence within the address/equality contract. Reference-occurrence
+permutation, however, collapses `0/1/8/40` additional ordered classes at widths
+one through four and remains `UNESTABLISHED_EQUIVALENCE`: `[0,0,1]` and
+`[0,1,0]` isolate the unresolved reference-slot identity choice. Once the
+unlabelled premise is declared, reference multiplicity plus direct-self
+multiplicity is a complete descriptor of the `2/4/7/12` addressable classes.
+That is a smaller faithful representation for the stated contract, not a
+complete ontology of links.
+
 Those results are eliminations and a complete finite classification at the
 tested widths, not an unbounded theorem or positive execution law. Version 8
 still marks passivity and external

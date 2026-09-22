@@ -188,11 +188,12 @@ unavoidable for this scope: whether a reference occurrence has the same
 address as the link containing it. This introduces no endpoint order,
 membership relation, type judgement, evaluator, transition, or calculus.
 
-An addressable pattern records the link address first and then its unlabelled
-reference occurrences. The quotient permits every global address renaming and
-every permutation of reference occurrences, while keeping the link position
-distinguished. Forgetting the first position recovers the existing
-reference-only multiplicity observation.
+An addressable pattern records the link address first and then its reference
+occurrences. The provisional quotient applies global address renaming and
+reference-occurrence permutation while keeping the link position
+distinguished; the next audit tests those two transformations separately.
+Forgetting the first position recovers the existing reference-only
+multiplicity observation.
 
 | Reference occurrences | Reference-only classes | Addressable classes | No direct self-reference | With direct self-reference | Projection-fibre histogram |
 |---:|---:|---:|---:|---:|---|
@@ -222,6 +223,46 @@ This establishes
 projection already forgot information justified by the issue's link object.
 It does not prove that a distinguished address is the whole ontology of a
 link, assign source/target roles, or supply dynamics or execution semantics.
+
+### Quotient-assumption audit
+
+Retaining the link address repairs one demonstrated loss, but does not by
+itself justify the equivalences used to compare addressable patterns. The
+audit therefore enumerates ordered address/equality patterns before occurrence
+permutation and compares them with the unlabelled addressable quotient:
+
+| Reference occurrences | Ordered equality classes after address renaming | Unlabelled addressable classes | Classes collapsed by occurrence permutation |
+|---:|---:|---:|---:|
+| 1 | 2 | 2 | 0 |
+| 2 | 5 | 4 | 1 |
+| 3 | 15 | 7 | 8 |
+| 4 | 52 | 12 | 40 |
+
+Global bijective address renaming is derived within the declared
+address/equality contract. The full equality matrix is unchanged by every
+renaming, and two ordered patterns have the same matrix exactly when the
+correspondence between their used addresses defines a bijection. The finite
+enumeration verifies this complete invariant at widths `1..4`; the argument
+itself is not width-specific. Thus reference names are
+`DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT`, not a merely chosen
+quotient and not an absolute ontological result.
+
+Occurrence permutation has no such derivation from the current contract. The
+ordered patterns `[0,0,1]` and `[0,1,0]` are distinct under address renaming
+alone but become equal after swapping their two reference occurrences. They
+are distinguishable precisely if reference slots carry identity. Because no
+link-derived premise yet decides that question, occurrence permutation is
+`UNESTABLISHED_EQUIVALENCE`; the `0/1/8/40` collapsed-class counts quantify
+what that observer choice removes.
+
+After the unlabelled-occurrence premise is explicitly declared, the pair
+`(referenceMultiplicitySpectrum, directSelfReferenceMultiplicity)` agrees
+exactly with all `2/4/7/12` addressable quotient classes at widths `1..4`.
+It is therefore
+`COMPLETE_INVARIANT_FOR_DECLARED_UNLABELLED_ADDRESS_EQUALITY_CONTRACT`, a
+smaller faithful descriptor for that contract. It does not establish that
+reference slots intrinsically lack identity, that this quotient exhausts
+links, or that an evaluator, type, set, category, or calculus is forced.
 
 ### Conditional refinement probe
 
@@ -332,7 +373,8 @@ it does not establish that the base exhausts the intrinsic structure of links.
 
 The machine-readable loss audit distinguishes:
 
-- intentional quotienting of reference names and occurrence order;
+- contract-derived equivalence of raw reference names;
+- unestablished quotienting of reference-occurrence order;
 - demonstrated information loss from fixed binary width;
 - demonstrated non-recoverability of the conditional relation;
 - demonstrated direct-self-reference loss when an addressable link is
