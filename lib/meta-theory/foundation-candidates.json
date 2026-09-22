@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v4",
+  "schema": "rml-foundation-candidate-table/v5",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "foundationStatus": "OPEN",
@@ -94,6 +94,256 @@
     "existingCandidatesConstrainSearch": false,
     "targetArchitectureSelected": false,
     "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
+  },
+  "ontologyExperiment": {
+    "schema": "rml-link-ontology-symmetry-experiment/v1",
+    "question": "Which facts survive when a two-occurrence reference observation is quotiented by occurrence permutation, reference renaming, and representation change?",
+    "startingContract": {
+      "id": "unoriented-binary-reference-observation",
+      "occurrenceCount": 2,
+      "assumptions": [
+        {
+          "id": "two-unlabelled-reference-occurrences",
+          "provenance": "EXPERIMENTAL_OBSERVATION_CONTRACT",
+          "role": "fixes only the arity of the investigated observation"
+        },
+        {
+          "id": "reference-equality",
+          "provenance": "EXPERIMENTAL_OBSERVATION_CONTRACT",
+          "role": "permits observation of whether the two occurrences coincide"
+        }
+      ],
+      "deliberatelyAbsent": [
+        "link identity",
+        "endpoint order",
+        "source/target roles",
+        "passivity",
+        "time",
+        "execution law"
+      ]
+    },
+    "exhaustiveEnumeration": {
+      "carrierSizesExamined": [
+        1,
+        2
+      ],
+      "supportRestriction": "the carrier is exactly the set of observed references; unused references are discarded",
+      "assignmentsExamined": 3,
+      "groupActionsExamined": 6,
+      "actionApplicationsExamined": 10,
+      "canonicalClasses": [
+        {
+          "signature": "same-reference",
+          "representative": [
+            0,
+            0
+          ],
+          "orbit": [
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "signature": "distinct-references",
+          "representative": [
+            0,
+            1
+          ],
+          "orbit": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        }
+      ],
+      "completeInvariant": "equality partition of the two reference occurrences"
+    },
+    "representationAgreement": [
+      {
+        "encoding": "first-occurrence-normal-form",
+        "sameReference": "same-reference",
+        "distinctReferences": "distinct-references",
+        "invariantAcrossAllActions": true,
+        "canonicalOutputs": {
+          "sameReference": [
+            0,
+            0
+          ],
+          "distinctReferences": [
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "encoding": "occurrence-equality-matrix",
+        "sameReference": "same-reference",
+        "distinctReferences": "distinct-references",
+        "invariantAcrossAllActions": true,
+        "canonicalOutputs": {
+          "sameReference": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "distinctReferences": [
+            1,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "encoding": "reference-multiplicity-spectrum",
+        "sameReference": "same-reference",
+        "distinctReferences": "distinct-references",
+        "invariantAcrossAllActions": true,
+        "canonicalOutputs": {
+          "sameReference": [
+            2
+          ],
+          "distinctReferences": [
+            1,
+            1
+          ]
+        }
+      }
+    ],
+    "distinctReferenceSymmetry": {
+      "automorphisms": [
+        {
+          "occurrencePermutation": [
+            0,
+            1
+          ],
+          "referencePermutation": [
+            0,
+            1
+          ]
+        },
+        {
+          "occurrencePermutation": [
+            1,
+            0
+          ],
+          "referencePermutation": [
+            1,
+            0
+          ]
+        }
+      ],
+      "occurrenceOrbits": [
+        [
+          0,
+          1
+        ]
+      ],
+      "unarySelectorsExamined": 4,
+      "invariantUnarySelectors": [
+        [],
+        [
+          0,
+          1
+        ]
+      ],
+      "invariantSingletonSelectorExists": false,
+      "totalSelfMapsExamined": 4,
+      "equivariantSelfMaps": [
+        {
+          "id": "identity",
+          "mapping": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "swap",
+          "mapping": [
+            1,
+            0
+          ]
+        }
+      ],
+      "uniqueEquivariantSelfMap": false
+    },
+    "reificationCountermodels": [
+      {
+        "id": "unreified-occurrence-pair",
+        "hasLinkIdentity": false,
+        "occurrences": [
+          "alpha",
+          "beta"
+        ],
+        "projectedObservation": "distinct-references",
+        "projection": [
+          0,
+          1
+        ]
+      },
+      {
+        "id": "reified-incidence-star",
+        "hasLinkIdentity": true,
+        "linkIdentity": "link-identity",
+        "incidences": [
+          [
+            "link-identity",
+            "alpha"
+          ],
+          [
+            "link-identity",
+            "beta"
+          ]
+        ],
+        "projectedObservation": "distinct-references",
+        "projection": [
+          0,
+          1
+        ]
+      }
+    ],
+    "results": [
+      {
+        "id": "endpoint-direction",
+        "result": "NOT_DERIVABLE",
+        "evidence": "The distinct-reference class has one occurrence orbit and no automorphism-invariant singleton selector; choosing a source is changed by its occurrence-swap automorphism."
+      },
+      {
+        "id": "reified-link-identity",
+        "result": "REPRESENTATION_DEPENDENT",
+        "evidence": "Unreified and reified incidence representations project to the same observation while disagreeing about whether a distinct link identity exists."
+      },
+      {
+        "id": "reference-equality-pattern",
+        "result": "COMPLETE_INVARIANT_FOR_CONTRACT",
+        "evidence": "Exhaustive quotienting produces exactly the same-reference and distinct-references classes, and three independent encodings distinguish exactly those classes."
+      },
+      {
+        "id": "structure-transformation-separation",
+        "result": "NON_ABSOLUTE_FOR_SYMMETRIES",
+        "evidence": "Identity and endpoint swap are derived as automorphisms of the observation itself; they are structural symmetries, not imported execution steps."
+      },
+      {
+        "id": "representation-independent-authority",
+        "result": "NEGATIVE_CONSTRAINT_ONLY",
+        "evidence": "A representation-independent assertion must be constant on each computed orbit, which rejects an intrinsic source/target choice but supplies no positive execution law."
+      },
+      {
+        "id": "intrinsic-dynamics",
+        "result": "NOT_SELECTED",
+        "evidence": "Exactly two self-maps commute with every computed symmetry: identity and swap. The static contract does not select either as a dynamic law."
+      }
+    ],
+    "admissibleConclusion": "For the exhaustive two-occurrence contract, equality coincidence is the complete representation-independent invariant. The contract cannot select source versus target or a unique self-map, and reification does not survive the tested projection.",
+    "remainingBoundary": "This experiment eliminates properties from one minimal observational contract; it does not define a link ontology, prove that the contract is exhaustive of links, or turn a structural automorphism into execution semantics."
   },
   "acceptanceWorkload": [
     "load",
@@ -343,6 +593,10 @@
       "all three mechanisms execute the complete two-counter-machine instruction basis",
       "the linked JavaScript and Rust counter cores execute and the Lean and Rocq dependent cores check identity proofs",
       "the tested ordered-link host representation does not select between two witnessed transitions",
+      "the equality partition is the complete invariant of the exhaustive two-occurrence observation contract",
+      "no source or target selector is invariant under the distinct-reference observation's automorphisms",
+      "reified and unreified models project to the same observation while disagreeing about link identity",
+      "the observation derives identity and swap as structural automorphisms but selects neither as a unique dynamic law",
       "only Candidate A currently passes the symmetric execution-comparison eligibility gate"
     ],
     "notProved": [
@@ -353,7 +607,9 @@
       "that finite tests enumerate every formal system",
       "that these semantic cores replace production Lean, Rocq, Rust, or JavaScript toolchains",
       "that the tested host representation exhausts the ontology of links",
+      "that the two-occurrence observation contract exhausts the ontology of links",
       "that structure and transformation are intrinsically independent",
+      "that a structural automorphism is an execution step",
       "that transformation must be external to links",
       "that links have no intrinsic execution principle",
       "that the current candidates constrain the independent ontology search",

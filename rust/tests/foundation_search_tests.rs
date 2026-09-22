@@ -3,8 +3,8 @@ use std::fs;
 use std::path::PathBuf;
 
 use rml::linked_program::{
-    foundation_comparison_eligibility, link_representation_boundary_report, ExecutionBasis,
-    LinkedProgramRegistry,
+    foundation_comparison_eligibility, link_ontology_symmetry_report,
+    link_representation_boundary_report, ExecutionBasis, LinkedProgramRegistry,
 };
 use rml::{parse_one, tokenize_one, Node};
 
@@ -367,7 +367,10 @@ fn host_representation_witness_does_not_claim_link_ontology() {
         .contains(&"no execution principle can arise from links themselves"));
     assert!(!report.admissible_conclusion.contains("intrinsic to links"));
     assert_eq!(report.foundational_status, "OPEN");
-    assert_eq!(report.investigation_status, "OPEN_INDEPENDENT_INVESTIGATION");
+    assert_eq!(
+        report.investigation_status,
+        "OPEN_INDEPENDENT_INVESTIGATION"
+    );
     assert_eq!(
         report
             .open_questions
@@ -413,6 +416,129 @@ fn host_representation_witness_does_not_claim_link_ontology() {
         "EXECUTION_ARCHITECTURE_ONLY_NOT_ONTOLOGY"
     );
     assert!(report.provenance_questions.len() >= 3);
+}
+
+#[test]
+fn exhaustive_link_symmetries_derive_representation_independent_facts() {
+    let report = link_ontology_symmetry_report();
+
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v1");
+    assert_eq!(report.occurrence_count, 2);
+    assert_eq!(
+        report
+            .assumptions
+            .iter()
+            .map(|item| item.id)
+            .collect::<Vec<_>>(),
+        vec!["two-unlabelled-reference-occurrences", "reference-equality"]
+    );
+    assert_eq!(report.assignments_examined, 3);
+    assert_eq!(report.group_actions_examined, 6);
+    assert_eq!(report.action_applications_examined, 10);
+    assert!(report.support_restriction.contains("unused references"));
+    assert_eq!(
+        report
+            .canonical_classes
+            .iter()
+            .map(|item| (item.signature, item.orbit.clone()))
+            .collect::<Vec<_>>(),
+        vec![
+            ("same-reference", vec![vec![0, 0]]),
+            ("distinct-references", vec![vec![0, 1], vec![1, 0]]),
+        ]
+    );
+    assert_eq!(
+        report.complete_invariant,
+        "equality partition of the two reference occurrences"
+    );
+    assert!(report.representation_agreement.iter().all(|item| {
+        item.same_reference == "same-reference"
+            && item.distinct_references == "distinct-references"
+            && item.invariant_across_all_actions
+            && item.same_reference_output != item.distinct_references_output
+    }));
+
+    assert_eq!(report.distinct_reference_symmetry.automorphisms.len(), 2);
+    assert_eq!(
+        report.distinct_reference_symmetry.occurrence_orbits,
+        vec![vec![0, 1]]
+    );
+    assert_eq!(
+        report.distinct_reference_symmetry.unary_selectors_examined,
+        4
+    );
+    assert_eq!(
+        report.distinct_reference_symmetry.invariant_unary_selectors,
+        vec![Vec::<usize>::new(), vec![0, 1]]
+    );
+    assert!(
+        !report
+            .distinct_reference_symmetry
+            .invariant_singleton_selector_exists
+    );
+    assert_eq!(
+        report.distinct_reference_symmetry.total_self_maps_examined,
+        4
+    );
+    assert_eq!(
+        report
+            .distinct_reference_symmetry
+            .equivariant_self_maps
+            .iter()
+            .map(|item| (item.id, item.mapping.clone()))
+            .collect::<Vec<_>>(),
+        vec![("identity", vec![0, 1]), ("swap", vec![1, 0])]
+    );
+    assert!(
+        !report
+            .distinct_reference_symmetry
+            .unique_equivariant_self_map
+    );
+
+    assert_eq!(report.reification_countermodels.len(), 2);
+    assert!(report
+        .reification_countermodels
+        .iter()
+        .all(|model| model.projected_observation == "distinct-references"));
+    assert_eq!(
+        report
+            .reification_countermodels
+            .iter()
+            .map(|model| model.has_link_identity)
+            .collect::<Vec<_>>(),
+        vec![false, true]
+    );
+    assert_eq!(
+        report
+            .results
+            .iter()
+            .map(|item| (item.id, item.result))
+            .collect::<Vec<_>>(),
+        vec![
+            ("endpoint-direction", "NOT_DERIVABLE"),
+            ("reified-link-identity", "REPRESENTATION_DEPENDENT"),
+            (
+                "reference-equality-pattern",
+                "COMPLETE_INVARIANT_FOR_CONTRACT"
+            ),
+            (
+                "structure-transformation-separation",
+                "NON_ABSOLUTE_FOR_SYMMETRIES"
+            ),
+            (
+                "representation-independent-authority",
+                "NEGATIVE_CONSTRAINT_ONLY"
+            ),
+            ("intrinsic-dynamics", "NOT_SELECTED"),
+        ]
+    );
+    assert!(report.admissible_conclusion.contains("exhaustive"));
+    assert!(report
+        .admissible_conclusion
+        .contains("cannot select source"));
+    assert!(report
+        .remaining_boundary
+        .contains("does not define a link ontology"));
 }
 
 #[test]

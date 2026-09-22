@@ -395,6 +395,92 @@ pub struct ImportedPrimitiveCategory {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAssumption {
+    pub id: &'static str,
+    pub provenance: &'static str,
+    pub role: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyCanonicalClass {
+    pub signature: &'static str,
+    pub representative: Vec<usize>,
+    pub orbit: Vec<Vec<usize>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyRepresentationAgreement {
+    pub encoding: &'static str,
+    pub same_reference: &'static str,
+    pub distinct_references: &'static str,
+    pub invariant_across_all_actions: bool,
+    pub same_reference_output: Vec<usize>,
+    pub distinct_references_output: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAutomorphism {
+    pub occurrence_permutation: Vec<usize>,
+    pub reference_permutation: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySelfMap {
+    pub id: &'static str,
+    pub mapping: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyDistinctReferenceSymmetry {
+    pub automorphisms: Vec<LinkOntologyAutomorphism>,
+    pub occurrence_orbits: Vec<Vec<usize>>,
+    pub unary_selectors_examined: usize,
+    pub invariant_unary_selectors: Vec<Vec<usize>>,
+    pub invariant_singleton_selector_exists: bool,
+    pub total_self_maps_examined: usize,
+    pub equivariant_self_maps: Vec<LinkOntologySelfMap>,
+    pub unique_equivariant_self_map: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyReificationCountermodel {
+    pub id: &'static str,
+    pub has_link_identity: bool,
+    pub projected_observation: &'static str,
+    pub projection: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyResult {
+    pub id: &'static str,
+    pub result: &'static str,
+    pub evidence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySymmetryReport {
+    pub schema: &'static str,
+    pub question: &'static str,
+    pub starting_contract: &'static str,
+    pub occurrence_count: usize,
+    pub assumptions: Vec<LinkOntologyAssumption>,
+    pub deliberately_absent: Vec<&'static str>,
+    pub carrier_sizes_examined: Vec<usize>,
+    pub support_restriction: &'static str,
+    pub assignments_examined: usize,
+    pub group_actions_examined: usize,
+    pub action_applications_examined: usize,
+    pub canonical_classes: Vec<LinkOntologyCanonicalClass>,
+    pub complete_invariant: &'static str,
+    pub representation_agreement: Vec<LinkOntologyRepresentationAgreement>,
+    pub distinct_reference_symmetry: LinkOntologyDistinctReferenceSymmetry,
+    pub reification_countermodels: Vec<LinkOntologyReificationCountermodel>,
+    pub results: Vec<LinkOntologyResult>,
+    pub admissible_conclusion: &'static str,
+    pub remaining_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkRepresentationBoundaryReport {
     pub classification: &'static str,
     pub investigated_object: &'static str,
@@ -421,6 +507,380 @@ pub struct LinkRepresentationBoundaryReport {
     pub target_architecture_selected: bool,
     pub comparison_scope: &'static str,
     pub acceptance_criterion: &'static str,
+}
+
+fn finite_permutations(values: &[usize]) -> Vec<Vec<usize>> {
+    if values.is_empty() {
+        return vec![Vec::new()];
+    }
+    let mut output = Vec::new();
+    for (index, value) in values.iter().enumerate() {
+        let mut rest = values.to_vec();
+        rest.remove(index);
+        for permutation in finite_permutations(&rest) {
+            let mut result = vec![*value];
+            result.extend(permutation);
+            output.push(result);
+        }
+    }
+    output
+}
+
+fn finite_assignments(width: usize, carrier_size: usize) -> Vec<Vec<usize>> {
+    fn extend(
+        width: usize,
+        carrier_size: usize,
+        prefix: &mut Vec<usize>,
+        output: &mut Vec<Vec<usize>>,
+    ) {
+        if prefix.len() == width {
+            output.push(prefix.clone());
+            return;
+        }
+        for value in 0..carrier_size {
+            prefix.push(value);
+            extend(width, carrier_size, prefix, output);
+            prefix.pop();
+        }
+    }
+
+    let mut output = Vec::new();
+    extend(width, carrier_size, &mut Vec::new(), &mut output);
+    output
+}
+
+fn surjective_finite_assignments(width: usize, carrier_size: usize) -> Vec<Vec<usize>> {
+    finite_assignments(width, carrier_size)
+        .into_iter()
+        .filter(|assignment| {
+            assignment.iter().copied().collect::<BTreeSet<_>>().len() == carrier_size
+        })
+        .collect()
+}
+
+fn ontology_observation_actions(carrier_size: usize) -> Vec<LinkOntologyAutomorphism> {
+    let occurrence_permutations = finite_permutations(&[0, 1]);
+    let references = (0..carrier_size).collect::<Vec<_>>();
+    let reference_permutations = finite_permutations(&references);
+    let mut output = Vec::new();
+    for occurrence_permutation in occurrence_permutations {
+        for reference_permutation in &reference_permutations {
+            output.push(LinkOntologyAutomorphism {
+                occurrence_permutation: occurrence_permutation.clone(),
+                reference_permutation: reference_permutation.clone(),
+            });
+        }
+    }
+    output
+}
+
+fn apply_ontology_action(assignment: &[usize], action: &LinkOntologyAutomorphism) -> Vec<usize> {
+    action
+        .occurrence_permutation
+        .iter()
+        .map(|occurrence| action.reference_permutation[assignment[*occurrence]])
+        .collect()
+}
+
+fn ontology_observation_orbit(assignment: &[usize]) -> Vec<Vec<usize>> {
+    ontology_observation_actions(assignment.iter().copied().collect::<BTreeSet<_>>().len())
+        .iter()
+        .map(|action| apply_ontology_action(assignment, action))
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+fn first_occurrence_normal_form(assignment: &[usize]) -> Vec<usize> {
+    let mut names = BTreeMap::new();
+    let mut next_name = 0;
+    assignment
+        .iter()
+        .map(|reference| {
+            *names.entry(*reference).or_insert_with(|| {
+                let name = next_name;
+                next_name += 1;
+                name
+            })
+        })
+        .collect()
+}
+
+fn ontology_equality_matrix(assignment: &[usize]) -> Vec<usize> {
+    assignment
+        .iter()
+        .flat_map(|left| {
+            assignment
+                .iter()
+                .map(move |right| usize::from(left == right))
+        })
+        .collect()
+}
+
+fn ontology_multiplicity_spectrum(assignment: &[usize]) -> Vec<usize> {
+    let mut counts = BTreeMap::new();
+    for reference in assignment {
+        *counts.entry(reference).or_insert(0) += 1;
+    }
+    let mut output = counts.into_values().collect::<Vec<_>>();
+    output.sort_by(|left, right| right.cmp(left));
+    output
+}
+
+fn ontology_observation_signature(assignment: &[usize]) -> &'static str {
+    if assignment[0] == assignment[1] {
+        "same-reference"
+    } else {
+        "distinct-references"
+    }
+}
+
+fn ontology_encoding_is_invariant(
+    observations: &[Vec<usize>],
+    encode: fn(&[usize]) -> Vec<usize>,
+) -> bool {
+    observations.iter().all(|observation| {
+        ontology_observation_actions(observation.iter().copied().collect::<BTreeSet<_>>().len())
+            .iter()
+            .all(|action| {
+                encode(observation) == encode(&apply_ontology_action(observation, action))
+            })
+    })
+}
+
+fn finite_invariant_subsets(size: usize, permutations: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    (0..(1 << size))
+        .map(|mask| {
+            (0..size)
+                .filter(|index| mask & (1 << index) != 0)
+                .collect::<Vec<_>>()
+        })
+        .filter(|subset| {
+            permutations.iter().all(|permutation| {
+                let mut transformed = subset
+                    .iter()
+                    .map(|index| permutation[*index])
+                    .collect::<Vec<_>>();
+                transformed.sort_unstable();
+                transformed == *subset
+            })
+        })
+        .collect()
+}
+
+fn finite_maps_commute(left: &[usize], right: &[usize]) -> bool {
+    (0..left.len()).all(|index| left[right[index]] == right[left[index]])
+}
+
+/// Exhaust the representation-independent consequences of observing two
+/// unlabelled reference occurrences plus equality. This is not an evaluator
+/// or a fourth foundation architecture: it enumerates every finite assignment,
+/// quotients by occurrence permutations and reference renamings, and derives the
+/// surviving symmetry facts.
+pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
+    let occurrence_count = 2;
+    let observations = (1..=occurrence_count)
+        .flat_map(|carrier_size| surjective_finite_assignments(occurrence_count, carrier_size))
+        .collect::<Vec<_>>();
+    let mut classes = BTreeMap::new();
+    for observation in &observations {
+        let orbit = ontology_observation_orbit(observation);
+        let representative = orbit[0].clone();
+        classes
+            .entry(representative.clone())
+            .or_insert_with(|| LinkOntologyCanonicalClass {
+                signature: ontology_observation_signature(observation),
+                representative,
+                orbit,
+            });
+    }
+    let canonical_classes = classes.into_values().collect::<Vec<_>>();
+
+    let same_reference = vec![0, 0];
+    let distinct_references = vec![0, 1];
+    let representation_agreement = vec![
+        LinkOntologyRepresentationAgreement {
+            encoding: "first-occurrence-normal-form",
+            same_reference: ontology_observation_signature(&same_reference),
+            distinct_references: ontology_observation_signature(&distinct_references),
+            invariant_across_all_actions: ontology_encoding_is_invariant(
+                &observations,
+                first_occurrence_normal_form,
+            ),
+            same_reference_output: first_occurrence_normal_form(&same_reference),
+            distinct_references_output: first_occurrence_normal_form(&distinct_references),
+        },
+        LinkOntologyRepresentationAgreement {
+            encoding: "occurrence-equality-matrix",
+            same_reference: ontology_observation_signature(&same_reference),
+            distinct_references: ontology_observation_signature(&distinct_references),
+            invariant_across_all_actions: ontology_encoding_is_invariant(
+                &observations,
+                ontology_equality_matrix,
+            ),
+            same_reference_output: ontology_equality_matrix(&same_reference),
+            distinct_references_output: ontology_equality_matrix(&distinct_references),
+        },
+        LinkOntologyRepresentationAgreement {
+            encoding: "reference-multiplicity-spectrum",
+            same_reference: ontology_observation_signature(&same_reference),
+            distinct_references: ontology_observation_signature(&distinct_references),
+            invariant_across_all_actions: ontology_encoding_is_invariant(
+                &observations,
+                ontology_multiplicity_spectrum,
+            ),
+            same_reference_output: ontology_multiplicity_spectrum(&same_reference),
+            distinct_references_output: ontology_multiplicity_spectrum(&distinct_references),
+        },
+    ];
+
+    let automorphisms = ontology_observation_actions(2)
+        .into_iter()
+        .filter(|action| apply_ontology_action(&distinct_references, action) == distinct_references)
+        .collect::<Vec<_>>();
+    let occurrence_automorphisms = automorphisms
+        .iter()
+        .map(|action| action.occurrence_permutation.clone())
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let occurrence_orbit = occurrence_automorphisms
+        .iter()
+        .map(|permutation| permutation[0])
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let invariant_unary_selectors =
+        finite_invariant_subsets(occurrence_count, &occurrence_automorphisms);
+    let self_maps = finite_assignments(occurrence_count, occurrence_count);
+    let equivariant_self_maps = self_maps
+        .iter()
+        .filter(|mapping| {
+            occurrence_automorphisms
+                .iter()
+                .all(|automorphism| finite_maps_commute(mapping, automorphism))
+        })
+        .map(|mapping| LinkOntologySelfMap {
+            id: if mapping == &[0, 1] {
+                "identity"
+            } else {
+                "swap"
+            },
+            mapping: mapping.clone(),
+        })
+        .collect::<Vec<_>>();
+    let distinct_reference_symmetry = LinkOntologyDistinctReferenceSymmetry {
+        automorphisms,
+        occurrence_orbits: vec![occurrence_orbit],
+        unary_selectors_examined: 1 << occurrence_count,
+        invariant_singleton_selector_exists: invariant_unary_selectors
+            .iter()
+            .any(|selector| selector.len() == 1),
+        invariant_unary_selectors,
+        total_self_maps_examined: self_maps.len(),
+        unique_equivariant_self_map: equivariant_self_maps.len() == 1,
+        equivariant_self_maps,
+    };
+
+    let unreified_projection = first_occurrence_normal_form(&distinct_references);
+    let reified_incidence_references = vec![0, 1];
+    let reified_projection = first_occurrence_normal_form(&reified_incidence_references);
+    let reification_countermodels = vec![
+        LinkOntologyReificationCountermodel {
+            id: "unreified-occurrence-pair",
+            has_link_identity: false,
+            projected_observation: ontology_observation_signature(&unreified_projection),
+            projection: unreified_projection,
+        },
+        LinkOntologyReificationCountermodel {
+            id: "reified-incidence-star",
+            has_link_identity: true,
+            projected_observation: ontology_observation_signature(&reified_projection),
+            projection: reified_projection,
+        },
+    ];
+
+    LinkOntologySymmetryReport {
+        schema: "rml-link-ontology-symmetry-experiment/v1",
+        question: "Which facts survive when a two-occurrence reference observation is quotiented by occurrence permutation, reference renaming, and representation change?",
+        starting_contract: "unoriented-binary-reference-observation",
+        occurrence_count,
+        assumptions: vec![
+            LinkOntologyAssumption {
+                id: "two-unlabelled-reference-occurrences",
+                provenance: "EXPERIMENTAL_OBSERVATION_CONTRACT",
+                role: "fixes only the arity of the investigated observation",
+            },
+            LinkOntologyAssumption {
+                id: "reference-equality",
+                provenance: "EXPERIMENTAL_OBSERVATION_CONTRACT",
+                role: "permits observation of whether the two occurrences coincide",
+            },
+        ],
+        deliberately_absent: vec![
+            "link identity",
+            "endpoint order",
+            "source/target roles",
+            "passivity",
+            "time",
+            "execution law",
+        ],
+        carrier_sizes_examined: vec![1, 2],
+        support_restriction:
+            "the carrier is exactly the set of observed references; unused references are discarded",
+        assignments_examined: observations.len(),
+        group_actions_examined: (1..=occurrence_count)
+            .map(|carrier_size| ontology_observation_actions(carrier_size).len())
+            .sum(),
+        action_applications_examined: observations
+            .iter()
+            .map(|observation| {
+                ontology_observation_actions(
+                    observation.iter().copied().collect::<BTreeSet<_>>().len(),
+                )
+                .len()
+            })
+            .sum(),
+        canonical_classes,
+        complete_invariant: "equality partition of the two reference occurrences",
+        representation_agreement,
+        distinct_reference_symmetry,
+        reification_countermodels,
+        results: vec![
+            LinkOntologyResult {
+                id: "endpoint-direction",
+                result: "NOT_DERIVABLE",
+                evidence: "The distinct-reference class has one occurrence orbit and no automorphism-invariant singleton selector; choosing a source is changed by its occurrence-swap automorphism.",
+            },
+            LinkOntologyResult {
+                id: "reified-link-identity",
+                result: "REPRESENTATION_DEPENDENT",
+                evidence: "Unreified and reified incidence representations project to the same observation while disagreeing about whether a distinct link identity exists.",
+            },
+            LinkOntologyResult {
+                id: "reference-equality-pattern",
+                result: "COMPLETE_INVARIANT_FOR_CONTRACT",
+                evidence: "Exhaustive quotienting produces exactly the same-reference and distinct-references classes, and three independent encodings distinguish exactly those classes.",
+            },
+            LinkOntologyResult {
+                id: "structure-transformation-separation",
+                result: "NON_ABSOLUTE_FOR_SYMMETRIES",
+                evidence: "Identity and endpoint swap are derived as automorphisms of the observation itself; they are structural symmetries, not imported execution steps.",
+            },
+            LinkOntologyResult {
+                id: "representation-independent-authority",
+                result: "NEGATIVE_CONSTRAINT_ONLY",
+                evidence: "A representation-independent assertion must be constant on each computed orbit, which rejects an intrinsic source/target choice but supplies no positive execution law.",
+            },
+            LinkOntologyResult {
+                id: "intrinsic-dynamics",
+                result: "NOT_SELECTED",
+                evidence: "Exactly two self-maps commute with every computed symmetry: identity and swap. The static contract does not select either as a dynamic law.",
+            },
+        ],
+        admissible_conclusion: "For the exhaustive two-occurrence contract, equality coincidence is the complete representation-independent invariant. The contract cannot select source versus target or a unique self-map, and reification does not survive the tested projection.",
+        remaining_boundary: "This experiment eliminates properties from one minimal observational contract; it does not define a link ontology, prove that the contract is exhaustive of links, or turn a structural automorphism into execution semantics.",
+    }
 }
 
 /// Source-compatible name for the legacy intrinsic-authority report type.

@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
-import { foundationSearchReport } from '../js/src/rml-foundation-search.mjs';
+import {
+  foundationSearchReport,
+  linkOntologySymmetryExperiment,
+} from '../js/src/rml-foundation-search.mjs';
 
 const universalSource = readFileSync(
   new URL('../lib/meta-theory/universal.lino', import.meta.url),
@@ -20,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v4');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v5');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -159,6 +162,98 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.doesNotMatch(JSON.stringify(report), /link-native|links-native/i);
   });
 
+  it('derives representation-independent facts from exhaustive link symmetries', () => {
+    const experiment = linkOntologySymmetryExperiment();
+
+    assert.deepEqual(report.ontologyExperiment, experiment);
+    assert.equal(
+      experiment.schema,
+      'rml-link-ontology-symmetry-experiment/v1',
+    );
+    assert.equal(experiment.startingContract.occurrenceCount, 2);
+    assert.deepEqual(
+      experiment.startingContract.assumptions.map(item => item.id),
+      ['two-unlabelled-reference-occurrences', 'reference-equality'],
+    );
+    assert.deepEqual(experiment.startingContract.deliberatelyAbsent, [
+      'link identity',
+      'endpoint order',
+      'source/target roles',
+      'passivity',
+      'time',
+      'execution law',
+    ]);
+
+    assert.equal(experiment.exhaustiveEnumeration.assignmentsExamined, 3);
+    assert.equal(experiment.exhaustiveEnumeration.groupActionsExamined, 6);
+    assert.equal(experiment.exhaustiveEnumeration.actionApplicationsExamined, 10);
+    assert.match(experiment.exhaustiveEnumeration.supportRestriction, /unused references/i);
+    assert.deepEqual(
+      experiment.exhaustiveEnumeration.canonicalClasses.map(item => ({
+        signature: item.signature,
+        orbit: item.orbit,
+      })),
+      [
+        { signature: 'same-reference', orbit: [[0, 0]] },
+        { signature: 'distinct-references', orbit: [[0, 1], [1, 0]] },
+      ],
+    );
+    assert.equal(
+      experiment.exhaustiveEnumeration.completeInvariant,
+      'equality partition of the two reference occurrences',
+    );
+    assert.ok(experiment.representationAgreement.every(item =>
+      item.sameReference === 'same-reference' &&
+      item.distinctReferences === 'distinct-references' &&
+      item.invariantAcrossAllActions));
+    for (const encoding of experiment.representationAgreement) {
+      assert.notDeepEqual(
+        encoding.canonicalOutputs.sameReference,
+        encoding.canonicalOutputs.distinctReferences,
+      );
+    }
+
+    const symmetry = experiment.distinctReferenceSymmetry;
+    assert.equal(symmetry.automorphisms.length, 2);
+    assert.deepEqual(symmetry.occurrenceOrbits, [[0, 1]]);
+    assert.equal(symmetry.unarySelectorsExamined, 4);
+    assert.deepEqual(symmetry.invariantUnarySelectors, [[], [0, 1]]);
+    assert.equal(symmetry.invariantSingletonSelectorExists, false);
+    assert.equal(symmetry.totalSelfMapsExamined, 4);
+    assert.deepEqual(symmetry.equivariantSelfMaps, [
+      { id: 'identity', mapping: [0, 1] },
+      { id: 'swap', mapping: [1, 0] },
+    ]);
+    assert.equal(symmetry.uniqueEquivariantSelfMap, false);
+
+    assert.equal(experiment.reificationCountermodels.length, 2);
+    assert.ok(experiment.reificationCountermodels.every(model =>
+      model.projectedObservation === 'distinct-references'));
+    assert.deepEqual(
+      experiment.reificationCountermodels.map(model => model.hasLinkIdentity),
+      [false, true],
+    );
+
+    assert.deepEqual(
+      experiment.results.map(item => [item.id, item.result]),
+      [
+        ['endpoint-direction', 'NOT_DERIVABLE'],
+        ['reified-link-identity', 'REPRESENTATION_DEPENDENT'],
+        ['reference-equality-pattern', 'COMPLETE_INVARIANT_FOR_CONTRACT'],
+        ['structure-transformation-separation', 'NON_ABSOLUTE_FOR_SYMMETRIES'],
+        ['representation-independent-authority', 'NEGATIVE_CONSTRAINT_ONLY'],
+        ['intrinsic-dynamics', 'NOT_SELECTED'],
+      ],
+    );
+    assert.match(experiment.admissibleConclusion, /exhaustive/i);
+    assert.match(experiment.admissibleConclusion, /cannot select source/i);
+    assert.match(experiment.remainingBoundary, /does not define a link ontology/i);
+    assert.match(
+      report.conclusion.ontologyExperimentConclusion,
+      /equality coincidence is complete for the tested contract/i,
+    );
+  });
+
   it('fault-injects every residual semantic law instead of assuming it', () => {
     for (const candidate of report.candidates) {
       assert.equal(
@@ -202,7 +297,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v4');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v5');
     for (const row of expected.candidates) {
       const candidate = report.candidates.find(item => item.candidate === row.candidate);
       assert.ok(candidate, `missing executed candidate ${row.candidate}`);
@@ -268,9 +363,16 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.equal(report.foundationStatus, expected.foundationStatus);
     assert.equal(report.comparisonScope, expected.comparisonScope);
     assert.deepEqual(report.ontologySearch, expected.ontologySearch);
+    assert.deepEqual(report.ontologyExperiment, expected.ontologyExperiment);
     assert.equal(expected.claimBoundary.foundationStatus, 'OPEN');
     assert.equal(expected.claimBoundary.ontologyQuestionsResolved, false);
     assert.equal(expected.claimBoundary.existingCandidatesConstrainOntologySearch, false);
+    assert.ok(expected.claimBoundary.proved.includes(
+      'the equality partition is the complete invariant of the exhaustive two-occurrence observation contract',
+    ));
+    assert.ok(expected.claimBoundary.notProved.includes(
+      'that the two-occurrence observation contract exhausts the ontology of links',
+    ));
     assert.equal(report.conclusion.globallyMinimal, expected.claimBoundary.globallyMinimal);
     assert.equal(
       report.comparisonCohort.sufficient,

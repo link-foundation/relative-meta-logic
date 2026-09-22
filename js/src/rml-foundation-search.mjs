@@ -99,6 +99,294 @@ function ontologySearchAudit() {
   };
 }
 
+function permutations(values) {
+  if (values.length === 0) return [[]];
+  return values.flatMap((value, index) => {
+    const rest = values.filter((_, candidate) => candidate !== index);
+    return permutations(rest).map(permutation => [value, ...permutation]);
+  });
+}
+
+function assignments(width, carrierSize, prefix = []) {
+  if (prefix.length === width) return [prefix];
+  return Array.from({ length: carrierSize }, (_, value) => value)
+    .flatMap(value => assignments(width, carrierSize, [...prefix, value]));
+}
+
+function surjectiveAssignments(width, carrierSize) {
+  return assignments(width, carrierSize).filter(assignment =>
+    new Set(assignment).size === carrierSize);
+}
+
+function observationActions(carrierSize) {
+  const occurrencePermutations = permutations([0, 1]);
+  const referencePermutations = permutations(
+    Array.from({ length: carrierSize }, (_, index) => index),
+  );
+  return occurrencePermutations.flatMap(occurrencePermutation =>
+    referencePermutations.map(referencePermutation => ({
+      occurrencePermutation,
+      referencePermutation,
+    })));
+}
+
+function applyObservationAction(assignment, action) {
+  return action.occurrencePermutation.map(
+    occurrence => action.referencePermutation[assignment[occurrence]],
+  );
+}
+
+function uniqueVectors(vectors) {
+  const unique = new Map(vectors.map(vector => [JSON.stringify(vector), vector]));
+  return [...unique.values()].sort((left, right) =>
+    JSON.stringify(left).localeCompare(JSON.stringify(right)));
+}
+
+function observationOrbit(assignment) {
+  return uniqueVectors(
+    observationActions(new Set(assignment).size)
+      .map(action => applyObservationAction(assignment, action)),
+  );
+}
+
+function firstOccurrenceNormalForm(assignment) {
+  const names = new Map();
+  return assignment.map(reference => {
+    if (!names.has(reference)) names.set(reference, names.size);
+    return names.get(reference);
+  });
+}
+
+function equalityMatrix(assignment) {
+  return assignment.flatMap(left =>
+    assignment.map(right => Number(left === right)));
+}
+
+function multiplicitySpectrum(assignment) {
+  const counts = new Map();
+  for (const reference of assignment) {
+    counts.set(reference, (counts.get(reference) ?? 0) + 1);
+  }
+  return [...counts.values()].sort((left, right) => right - left);
+}
+
+function observationSignature(assignment) {
+  return assignment[0] === assignment[1]
+    ? 'same-reference'
+    : 'distinct-references';
+}
+
+function invariantSubsets(size, permutationsToCheck) {
+  return Array.from({ length: 2 ** size }, (_, mask) =>
+    Array.from({ length: size }, (_, index) => index)
+      .filter(index => (mask & (1 << index)) !== 0))
+    .filter(subset => permutationsToCheck.every(permutation => {
+      const transformed = subset.map(index => permutation[index])
+        .sort((left, right) => left - right);
+      return JSON.stringify(transformed) === JSON.stringify(subset);
+    }));
+}
+
+function mapsCommute(left, right) {
+  return left.every((_, index) => left[right[index]] === right[left[index]]);
+}
+
+/**
+ * Exhaust the finite consequences of a deliberately weaker observation than
+ * the upstream ordered/reified link model: two unlabelled reference
+ * occurrences and reference equality. No evaluator or candidate foundation
+ * participates. Quotienting every assignment by occurrence permutation and
+ * reference renaming discovers what survives representation changes instead
+ * of installing source/target roles in advance.
+ */
+function linkOntologySymmetryExperiment() {
+  const occurrenceCount = 2;
+  const observations = Array.from(
+    { length: occurrenceCount },
+    (_, index) => surjectiveAssignments(occurrenceCount, index + 1),
+  ).flat();
+  const classes = new Map();
+  for (const observation of observations) {
+    const orbit = observationOrbit(observation);
+    const key = JSON.stringify(orbit[0]);
+    if (!classes.has(key)) {
+      classes.set(key, {
+        signature: observationSignature(observation),
+        representative: orbit[0],
+        orbit,
+      });
+    }
+  }
+  const canonicalClasses = [...classes.values()].sort((left, right) =>
+    left.representative.join(',').localeCompare(right.representative.join(',')));
+
+  const encodings = [
+    {
+      id: 'first-occurrence-normal-form',
+      encode: firstOccurrenceNormalForm,
+    },
+    {
+      id: 'occurrence-equality-matrix',
+      encode: equalityMatrix,
+    },
+    {
+      id: 'reference-multiplicity-spectrum',
+      encode: multiplicitySpectrum,
+    },
+  ];
+  const representationAgreement = encodings.map(({ id, encode }) => ({
+    encoding: id,
+    sameReference: observationSignature([0, 0]),
+    distinctReferences: observationSignature([0, 1]),
+    invariantAcrossAllActions: observations.every(observation =>
+      observationActions(new Set(observation).size).every(action =>
+        JSON.stringify(encode(observation)) === JSON.stringify(
+          encode(applyObservationAction(observation, action)),
+        ))),
+    canonicalOutputs: {
+      sameReference: encode([0, 0]),
+      distinctReferences: encode([0, 1]),
+    },
+  }));
+
+  const distinctObservation = [0, 1];
+  const automorphisms = observationActions(2)
+    .filter(action => JSON.stringify(
+      applyObservationAction(distinctObservation, action),
+    ) === JSON.stringify(distinctObservation));
+  const occurrenceAutomorphisms = uniqueVectors(
+    automorphisms.map(action => action.occurrencePermutation),
+  );
+  const occurrenceOrbits = [uniqueVectors(
+    occurrenceAutomorphisms.map(permutation => [permutation[0]]),
+  ).flat()];
+  const selectors = invariantSubsets(occurrenceCount, occurrenceAutomorphisms);
+  const selfMaps = assignments(occurrenceCount, occurrenceCount);
+  const equivariantSelfMaps = selfMaps
+    .filter(mapping => occurrenceAutomorphisms.every(automorphism =>
+      mapsCommute(mapping, automorphism)))
+    .map(mapping => ({
+      id: mapping[0] === 0 && mapping[1] === 1 ? 'identity' : 'swap',
+      mapping,
+    }));
+
+  const reificationModels = [
+    {
+      id: 'unreified-occurrence-pair',
+      hasLinkIdentity: false,
+      occurrences: ['alpha', 'beta'],
+    },
+    {
+      id: 'reified-incidence-star',
+      hasLinkIdentity: true,
+      linkIdentity: 'link-identity',
+      incidences: [
+        ['link-identity', 'alpha'],
+        ['link-identity', 'beta'],
+      ],
+    },
+  ];
+  const reificationCountermodels = reificationModels.map(model => {
+    const projectedReferences = model.hasLinkIdentity
+      ? model.incidences.map(([, reference]) => reference)
+      : model.occurrences;
+    return {
+      ...model,
+      projectedObservation: observationSignature(projectedReferences),
+      projection: firstOccurrenceNormalForm(projectedReferences),
+    };
+  });
+
+  return {
+    schema: 'rml-link-ontology-symmetry-experiment/v1',
+    question: 'Which facts survive when a two-occurrence reference observation is quotiented by occurrence permutation, reference renaming, and representation change?',
+    startingContract: {
+      id: 'unoriented-binary-reference-observation',
+      occurrenceCount,
+      assumptions: [
+        {
+          id: 'two-unlabelled-reference-occurrences',
+          provenance: 'EXPERIMENTAL_OBSERVATION_CONTRACT',
+          role: 'fixes only the arity of the investigated observation',
+        },
+        {
+          id: 'reference-equality',
+          provenance: 'EXPERIMENTAL_OBSERVATION_CONTRACT',
+          role: 'permits observation of whether the two occurrences coincide',
+        },
+      ],
+      deliberatelyAbsent: [
+        'link identity',
+        'endpoint order',
+        'source/target roles',
+        'passivity',
+        'time',
+        'execution law',
+      ],
+    },
+    exhaustiveEnumeration: {
+      carrierSizesExamined: [1, 2],
+      supportRestriction: 'the carrier is exactly the set of observed references; unused references are discarded',
+      assignmentsExamined: observations.length,
+      groupActionsExamined: [1, 2]
+        .reduce((total, size) => total + observationActions(size).length, 0),
+      actionApplicationsExamined: observations.reduce(
+        (total, observation) =>
+          total + observationActions(new Set(observation).size).length,
+        0,
+      ),
+      canonicalClasses,
+      completeInvariant: 'equality partition of the two reference occurrences',
+    },
+    representationAgreement,
+    distinctReferenceSymmetry: {
+      automorphisms,
+      occurrenceOrbits,
+      unarySelectorsExamined: 2 ** occurrenceCount,
+      invariantUnarySelectors: selectors,
+      invariantSingletonSelectorExists: selectors.some(item => item.length === 1),
+      totalSelfMapsExamined: selfMaps.length,
+      equivariantSelfMaps,
+      uniqueEquivariantSelfMap: equivariantSelfMaps.length === 1,
+    },
+    reificationCountermodels,
+    results: [
+      {
+        id: 'endpoint-direction',
+        result: 'NOT_DERIVABLE',
+        evidence: 'The distinct-reference class has one occurrence orbit and no automorphism-invariant singleton selector; choosing a source is changed by its occurrence-swap automorphism.',
+      },
+      {
+        id: 'reified-link-identity',
+        result: 'REPRESENTATION_DEPENDENT',
+        evidence: 'Unreified and reified incidence representations project to the same observation while disagreeing about whether a distinct link identity exists.',
+      },
+      {
+        id: 'reference-equality-pattern',
+        result: 'COMPLETE_INVARIANT_FOR_CONTRACT',
+        evidence: 'Exhaustive quotienting produces exactly the same-reference and distinct-references classes, and three independent encodings distinguish exactly those classes.',
+      },
+      {
+        id: 'structure-transformation-separation',
+        result: 'NON_ABSOLUTE_FOR_SYMMETRIES',
+        evidence: 'Identity and endpoint swap are derived as automorphisms of the observation itself; they are structural symmetries, not imported execution steps.',
+      },
+      {
+        id: 'representation-independent-authority',
+        result: 'NEGATIVE_CONSTRAINT_ONLY',
+        evidence: 'A representation-independent assertion must be constant on each computed orbit, which rejects an intrinsic source/target choice but supplies no positive execution law.',
+      },
+      {
+        id: 'intrinsic-dynamics',
+        result: 'NOT_SELECTED',
+        evidence: 'Exactly two self-maps commute with every computed symmetry: identity and swap. The static contract does not select either as a dynamic law.',
+      },
+    ],
+    admissibleConclusion: 'For the exhaustive two-occurrence contract, equality coincidence is the complete representation-independent invariant. The contract cannot select source versus target or a unique self-map, and reification does not survive the tested projection.',
+    remainingBoundary: 'This experiment eliminates properties from one minimal observational contract; it does not define a link ontology, prove that the contract is exhaustive of links, or turn a structural automorphism into execution semantics.',
+  };
+}
+
 function renameAtoms(term, renaming) {
   if (Array.isArray(term)) return term.map(child => renameAtoms(child, renaming));
   return renaming.get(term) ?? term;
@@ -795,17 +1083,18 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v4',
+    schema: 'rml-alternative-foundation-search/v5',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
     ontologySearch: ontologySearchAudit(),
+    ontologyExperiment: linkOntologySymmetryExperiment(),
     acceptanceOperations: ACCEPTANCE_OPERATIONS,
     comparisonScope: 'EXECUTION_ARCHITECTURE_ONLY_NOT_ONTOLOGY',
     comparisonStatus: comparisonCohortSufficient
       ? 'COMPARABLE_COHORT_ESTABLISHED_NO_GLOBAL_MINIMALITY_CLAIM'
       : 'OPEN_NO_COMPARABLE_ALTERNATIVE',
-    proofBoundary: 'The report proves the finite acceptance workload and an instruction-by-instruction simulation of the complete two-counter-machine basis. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. It does not establish link ontology, identify the correct primitive categories, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
+    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, and the complete symmetry quotient of its stated two-occurrence observation contract. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The finite quotient does not establish link ontology, prove that its starting contract exhausts links, identify the correct primitive categories, turn a structural automorphism into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
     candidates,
     representationBoundaryWitness: linkRepresentationBoundaryWitness(),
     comparisonCohort: {
@@ -839,6 +1128,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       globallyMinimal: false,
       intrinsicTransitionAuthority: 'UNRESOLVED',
       representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
+      ontologyExperimentConclusion: 'Reference equality coincidence is complete for the tested contract; endpoint direction, reified link identity, and a unique dynamic law do not survive its tested symmetries and projections.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };
@@ -850,5 +1140,6 @@ export {
   HORN_SEMANTIC_OPERATIONS,
   foundationSearchReport,
   intrinsicLinkAuthorityWitness,
+  linkOntologySymmetryExperiment,
   linkRepresentationBoundaryWitness,
 };

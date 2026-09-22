@@ -15,6 +15,7 @@
     "test:bootstrap": "node --test --test-name-pattern \"replays self corpus|measures the complete host semantic surface\" tests/self-evaluator.test.mjs tests/linked-program.test.mjs",
     "report:bootstrap-metrics": "node ../scripts/report-bootstrap-metrics.mjs",
     "report:foundation-search": "node ../scripts/report-foundation-search.mjs",
+    "report:link-ontology": "node ../experiments/link-ontology-symmetry.mjs",
     "docs": "jsdoc -c ../docs/api/jsdoc.json",
     "build:playground": "node ../scripts/build-playground.mjs",
     "test:playground": "node --test ../scripts/playground.test.mjs",
