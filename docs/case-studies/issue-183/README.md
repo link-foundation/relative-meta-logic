@@ -54,23 +54,23 @@ every obligation. One generic verification path executes all 46 bundled
 cases, replays exact proof obligations, and checks the definition witness.
 Users can add an unknown logic without modifying either host runtime.
 
-The later foundation review is covered by an explicit `K0 -> K1 -> F -> T`
-split. `K0` is the six-operation boundary reached by the current experimental
-minimization loop and reports no object-theory semantics. Import linking and
-inference saturation are visible derived services above K0, but their host
-implementations have not disappeared: the complete host surface remains eight
-operations. The report does
-not claim irreducibility: it publishes the removal criterion, an experiment
-for every original host operation, a structural reason for each operation
-left in K0, and the complete dependency/trust graph.
+The later foundation review is covered by an explicit
+`S/K -> closed linked terms -> K1 -> F -> T` split. The residual semantic
+boundary contracts only S and K; matching, substitution, traversal,
+import/rebinding, inference, and verification are generated closed terms
+shared by JavaScript and Rust. Parsing and resource bounds remain explicit
+non-semantic layers. The report does not claim global irreducibility: it
+publishes the removal criterion, fault-injection evidence, the equivalent iota
+re-encoding, and the complete dependency/trust graph.
 
 The follow-up quantitative review is captured in
 [`bootstrap-metrics.md`](./bootstrap-metrics.md). Mirrored executable probes
-now report 0 confirmed independent/8 unknown operations, three observed
-host/linked duplications, 4/11 self-hosting closure, 8/8 foundation
-compression, and zero undocumented observations across 4/4 runtime paths and
-19/19 path segments. CI publishes the machine-readable previous/current
-comparison instead of inferring progress from labels or host line counts.
+now report two representation-scoped independent contractions, zero derived
+host semantics, zero host/linked duplication, 6/6 self-hosting closure, 2/8
+foundation compression, and zero undocumented observations across 4/4 runtime
+paths and 10/10 path segments. CI publishes the machine-readable
+previous/current comparison instead of inferring progress from labels or host
+line counts.
 
 `links-meta-foundation` is an executable, links-defined `K1` meta-interpreter
 for object-encoded binding, matching, substitution, rule
@@ -110,12 +110,12 @@ sequence observation.
 
 ## Verification boundary
 
-The host trusts only the operations and derived services enumerated by
-`bootstrapKernelReport` / `bootstrap_kernel_report`. The mirrored audit checks
-an independent implementation manifest, rejects unreported semantics, and
-requires every trust-graph branch to terminate in K0. The runtime metrics audit
-also checks observed paths and path/operation segments against graph
-reachability. Object-theory semantics
+The host trusts only the S/K contractions and non-semantic boundary operations
+enumerated by `bootstrapKernelReport` / `bootstrap_kernel_report`. The mirrored
+audit checks an independent implementation manifest, rejects unreported
+semantics, and requires every trust-graph branch to terminate in the declared
+boundary. The runtime metrics audit also checks observed paths and
+path/operation segments against graph reachability. Object-theory semantics
 are linked rules. Candidate sources cannot add
 their own contracts, conformance cases, proof rules, axioms, assumptions, or
 expected proof obligations.

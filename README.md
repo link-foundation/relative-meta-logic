@@ -54,19 +54,20 @@ For versioning, deprecations, and release expectations, see
 
 RML (Relative Meta-Logic, formerly Associative-Dependent Logic / ADL) is a minimal probabilistic logic system built on top of [LiNo (Links Notation)](https://github.com/link-foundation/links-notation). It supports [many-valued logics](https://en.wikipedia.org/wiki/Many-valued_logic) from unary (1-valued) through continuous probabilistic ([fuzzy](https://en.wikipedia.org/wiki/Fuzzy_logic)), allowing you to:
 
-Its executable meta-theory makes the bootstrap boundary explicit. An audited,
-theory-independent K0 machine executes the links-defined K1 meta-foundation;
-user-selected foundations then instantiate unchanged object theories through
-contextual import rebinding. K0 is the current boundary reached by the
-machine-checked minimization loop, not an unsupported claim of
-mathematical irreducibility. The measured host surface is still eight
-operations: all six K0 operations plus two host-implemented derived services.
-The executable metrics report currently records 0 confirmed independent/8
-unknown operations, three host/linked duplications, 4/11 self-hosting closure,
-8/8 foundation compression, and zero undocumented runtime paths. Lambda, set,
-type, graph, relation, and RML
-semantics are linked programs rather than host callbacks or external-kernel
-decisions. Lean/Rocq artifacts are parity evidence only.
+Its executable meta-theory makes the bootstrap boundary explicit. An audited
+S/K combinator machine executes closed linked terms for matching,
+substitution, traversal, import rebinding, inference, and verification;
+user-selected foundations then instantiate unchanged object theories. The
+measured semantic host surface is two contractions (`S` and `K`), both
+experimentally necessary for the current representation and probe. Parsing
+and resource bounds remain explicit non-semantic boundary layers. The report
+records zero derived host semantic services, zero host/linked duplication,
+6/6 self-hosting closure, 2/8 foundation compression, and zero undocumented
+runtime paths. This is not a claim of globally irreducible semantics: the
+same basis can be re-encoded with one universal combinator such as iota.
+Lambda, set, type, graph, relation, and RML semantics remain linked programs,
+not host callbacks or external-kernel decisions. Lean/Rocq artifacts are
+parity evidence only.
 
 - Define terms
 - Assign probabilities (truth values) to logical expressions

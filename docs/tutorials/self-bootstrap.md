@@ -218,11 +218,12 @@ is the CI gate for evaluator divergence and for the measured K0/K1 boundary.
 It executes the host-operation fault-injection test and prints the versioned
 bootstrap metrics report.
 
-The report intentionally distinguishes the six-operation K0 label from the
-complete eight-operation host surface. Import/rebind resolution and inference
-saturation are derived in structure but still implemented by the host. The
-current probe therefore reports an 8/8 compression ratio, not 6/8, as well as
-4/11 self-hosting closure and three duplicated host/linked capabilities.
+The report now exposes the residual S/K semantic basis directly. Matching,
+substitution, traversal, import/rebinding, inference saturation, and result
+verification are closed combinator terms shared by both runtimes. The probe
+therefore reports 2/8 foundation compression, 6/6 self-hosting closure, and no
+duplicated host/linked semantics. Parsing and resource bounds remain visible
+as non-semantic boundary layers.
 
 Inspect the machine-readable evidence locally:
 
@@ -328,8 +329,9 @@ After reading the six files, you should be able to explain:
 - Which metatheorem checks are encoded today, and which diagnostics they emit.
 - How `npm run test:bootstrap` catches divergence between encoded RML and host
   RML.
-- Why the measured host surface is eight operations even though K0 contains
-  six, and why failed removals remain classified `UNKNOWN`.
+- Why the measured semantic host surface is exactly S and K, why their
+  necessity is scoped to the current representation/probe, and why iota is an
+  equivalent re-encoding rather than additional compression evidence.
 
 That is the capstone claim of "RML in RML": the language now has a readable,
 test-backed description of its own core behavior, written in the same notation

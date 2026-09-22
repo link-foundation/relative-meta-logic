@@ -198,9 +198,10 @@ main parser and the `meta-language` bridge without changing evaluator state:
 Linked-program imports support
 `(rebind abstract-concept selected-concept)` for foundation polymorphism.
 `LinkedProgramRegistry.bootstrapKernelReport()` exposes the complete
-theory-independent K0 host boundary, the services derived above it, the
-minimization experiment for every host operation, and a dependency/trust
-graph with an empty object-semantics list.
+theory-independent boundary: `S` and `K` contraction, representation parsing,
+and external resource control. Matching, substitution, rule traversal,
+import/rebinding, inference saturation, and verification are closed combinator
+terms, so the derived-host-service and object-semantics lists are empty.
 `LinkedProgramRegistry.auditBootstrapKernel()` fails when the executable host
 operation manifest and that graph differ or when any dependency branch does
 not terminate in K0. The report calls K0 the current bootstrap boundary and
@@ -209,9 +210,11 @@ does not claim that it is irreducible.
 it observes actual load/reduce/prove/K1 execution, fault-injects every host
 operation, checks every observed path segment against trust-graph reachability,
 and publishes layer, duplication, closure, compression, and previous/current
-metrics under `rml-bootstrap-metrics/v1`. The current result counts all eight
-host implementations and reports `UNKNOWN` rather than claiming independence
-from a failed removal.
+metrics under `rml-bootstrap-metrics/v1`. The current result reports two host
+semantic operations, zero duplicated semantics, 6/6 linked closure, and 2/8
+compression. Fault injection classifies S and K as experimentally necessary
+for this representation and acceptance probe, without claiming global
+irreducibility.
 
 ```javascript
 import { readFileSync } from 'node:fs';

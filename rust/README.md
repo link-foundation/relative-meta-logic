@@ -145,18 +145,21 @@ same structural rewrite/inference machine; object theories are not Rust
 callbacks. Imports support `(rebind abstract-concept selected-concept)` for
 foundation polymorphism, and
 `LinkedProgramRegistry::bootstrap_kernel_report()` exposes the complete
-theory-independent K0 host boundary, derived services, per-operation
-minimization evidence, and a dependency/trust graph with no object semantics.
+theory-independent boundary: `S` and `K` contraction, representation parsing,
+and external resource control. Matching, substitution, rule traversal,
+import/rebinding, inference saturation, and verification execute as closed
+combinator terms, leaving no derived host semantic services or object
+semantics.
 `LinkedProgramRegistry::audit_bootstrap_kernel()` rejects an unreported host
 operation or a graph path that does not terminate in K0. The report identifies
 the current bootstrap boundary reached by the experiments; it does not call
 that boundary irreducible.
 `LinkedProgramRegistry::bootstrap_metrics_report(universal_source)` executes
-the mirrored runtime and removal probes. It counts all eight host
-implementations, checks observed paths against graph reachability, and reports
-layering, duplication, self-hosting closure, foundation compression, and the
-previous/current delta without treating a failed removal as proof of
-independence.
+the mirrored runtime and removal probes. It reports two semantic contractions,
+zero duplication, 6/6 linked closure, and 2/8 foundation compression, while
+checking observed paths against graph reachability. S/K necessity is scoped to
+the current representation and probe rather than presented as global
+irreducibility.
 `MembershipSetStore` provides addressed
 membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,

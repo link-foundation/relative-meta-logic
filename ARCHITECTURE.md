@@ -174,36 +174,40 @@ cannot authorize itself. The network then resolves or
 translates theory-local terms through shared concept addresses and performs
 cycle-safe shortest definition-chain searches.
 
-The executable meta-theory has an explicit `K0 -> K1 -> F -> T` structure.
-`K0` is the current bootstrap boundary reached by the minimization
-loop: parsing, structural identity, pattern binding, substitution, rewrite
-traversal, and resource/cycle enforcement. Generic inference saturation and
-rebound import linking are reported separately as services derived above K0,
-not smuggled into its primitive list. They nevertheless remain host
-implementations, so the complete measured host surface is eight rather than
-six. The mirrored public report includes a
-machine-readable dependency/trust graph, a structural reason for every
-remaining primitive, and the experiment performed for all eight original
-host operations. Its audit fails closed on an unreported operation or a path
-that does not terminate in K0. The boundary is not claimed to be irreducible.
+The executable meta-theory has an explicit
+`S/K -> closed linked terms -> K1 -> F -> T` structure. `K0` is the residual
+two-equation S/K machine reached by the minimization loop. Matching,
+substitution, ordered traversal, import rebinding, inference saturation, and
+result verification are closed combinator roots in one generated DAG shared
+by both runtimes; none has a second host implementation. Text parsing and
+resource/cycle enforcement remain visible boundary layers, but cannot create
+a semantic result. The mirrored public report includes a machine-readable
+dependency/trust graph, a structural reason for every boundary operation, and
+the experiment performed for all four semantic and non-semantic boundary
+operations. Its audit fails closed on an unreported operation or a path that
+does not terminate at an explicit boundary node. The boundary is not claimed
+to be globally irreducible.
 
 `bootstrapMetricsReport` / `bootstrap_metrics_report` runs the same acceptance
-probe with each actual operation disabled. No removal currently preserves the
-baseline, so the report conservatively says 0 confirmed independent and 8
-`UNKNOWN`, with an 8/8 compression ratio. Runtime hooks cover 4/4 observed
-semantic paths and 19/19 path/operation segments; the audit requires zero
-undocumented observations. The K1 trace supplies four of eleven capabilities
-on the measured task and duplicates three capabilities still present in the
-host. See
+probe with each actual operation disabled. S and K are experimentally
+necessary relative to the checked-in representation and probe; parsing and
+bounds remain `UNKNOWN` non-semantic boundary operations. The measured
+semantic surface falls from eight operations to two (`2/8`), all six named
+semantic capabilities execute above that basis (`6/6`), and host/linked
+semantic duplication is zero. Runtime hooks cover 4/4 observed semantic paths
+and 10/10 path/operation segments; the audit requires zero undocumented
+observations. The report names iota as an equivalent one-rule re-encoding and
+therefore does not turn the scoped fault-injection result into a global
+minimality claim. See
 [`docs/case-studies/issue-183/bootstrap-metrics.md`](./docs/case-studies/issue-183/bootstrap-metrics.md).
 
 The `links-meta-foundation` program is the links-defined `K1` interpreter for
 object-encoded matching, substitution, rule application, and verification.
 It executes an encoded copy of its own repeated-variable matching rule and
-must agree with direct K0 execution, providing a non-trivial
-self-interpretation witness. Import-level `rebind` clauses instantiate one
-unchanged theory over different foundation vocabularies and compose through
-transitive imports.
+must agree with direct execution through the closed combinator kernel,
+providing a non-trivial self-interpretation witness. Import-level `rebind`
+clauses instantiate one unchanged theory over different foundation
+vocabularies and compose through transitive imports.
 
 `MembershipSetStore` supplies addressed membership links and finite
 extensional equality plus finite subset, pairing, union, separation, and
