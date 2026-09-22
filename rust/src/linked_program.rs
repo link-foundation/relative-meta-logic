@@ -356,11 +356,20 @@ pub struct BootstrapFoundationSearchExperiment {
     pub semantic_information_reduced: Option<bool>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ExecutionBasis {
+    #[default]
+    ClosedSk,
+    DirectStructural,
+    HornRelational,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct LinkedProgramRegistry {
     programs: BTreeMap<String, LinkedProgram>,
     disabled_operations: BTreeSet<String>,
     runtime_trace: RefCell<BootstrapRuntimeTraceState>,
+    execution_basis: ExecutionBasis,
 }
 
 fn leaf<'a>(node: &'a Node, context: &str) -> Result<&'a str, String> {
@@ -386,6 +395,86 @@ fn variables_in(node: &Node, output: &mut BTreeSet<String>) {
             variables_in(child, output);
         }
     }
+}
+
+fn direct_match_term<F>(
+    pattern: &Node,
+    candidate: &Node,
+    substitution: &mut BTreeMap<String, Node>,
+    observe: &mut F,
+) -> Result<bool, String>
+where
+    F: FnMut(&'static str) -> Result<(), String>,
+{
+    observe("compare-link-structure")?;
+    observe("bind-pattern-variables")?;
+    if let Some(variable) = variable_name(pattern) {
+        if let Some(previous) = substitution.get(variable) {
+            return Ok(previous == candidate);
+        }
+        substitution.insert(variable.to_string(), candidate.clone());
+        return Ok(true);
+    }
+    match (pattern, candidate) {
+        (Node::Leaf(left), Node::Leaf(right)) => Ok(left == right),
+        (Node::List(left), Node::List(right)) if left.len() == right.len() => {
+            for (pattern, candidate) in left.iter().zip(right) {
+                if !direct_match_term(pattern, candidate, substitution, observe)? {
+                    return Ok(false);
+                }
+            }
+            Ok(true)
+        }
+        _ => Ok(false),
+    }
+}
+
+fn direct_instantiate<F>(
+    node: &Node,
+    substitution: &BTreeMap<String, Node>,
+    observe: &mut F,
+) -> Result<Node, String>
+where
+    F: FnMut(&'static str) -> Result<(), String>,
+{
+    observe("substitute-bound-structures")?;
+    if let Some(variable) = variable_name(node) {
+        return substitution
+            .get(variable)
+            .cloned()
+            .ok_or_else(|| format!("unbound variable {variable}"));
+    }
+    match node {
+        Node::Leaf(value) => Ok(Node::Leaf(value.clone())),
+        Node::List(children) => children
+            .iter()
+            .map(|child| direct_instantiate(child, substitution, observe))
+            .collect::<Result<Vec<_>, _>>()
+            .map(Node::List),
+    }
+}
+
+fn rebind_node(node: &Node, rebindings: &BTreeMap<String, String>) -> Node {
+    match node {
+        Node::Leaf(value) => Node::Leaf(
+            rebindings
+                .get(value)
+                .cloned()
+                .unwrap_or_else(|| value.clone()),
+        ),
+        Node::List(children) => Node::List(
+            children
+                .iter()
+                .map(|child| rebind_node(child, rebindings))
+                .collect(),
+        ),
+    }
+}
+
+fn apply_rebindings(node: &Node, rebindings: &[BTreeMap<String, String>]) -> Node {
+    rebindings.iter().fold(node.clone(), |current, bindings| {
+        rebind_node(&current, bindings)
+    })
 }
 
 fn form_children(form: &Node) -> Option<&[Node]> {
@@ -1255,6 +1344,26 @@ impl LinkedProgramRegistry {
         Self::from_rml_with_disabled(source, &[])
     }
 
+    /// Load the same linked source under an independently selected semantic
+    /// mechanism.  This is used by the alternative-foundation search; the
+    /// default public path remains the closed S/K basis.
+    pub fn from_rml_with_basis(
+        source: &str,
+        execution_basis: ExecutionBasis,
+        disabled_operations: &[&str],
+    ) -> Result<Self, String> {
+        if disabled_operations.contains(&"parse-linked-forms") {
+            return Err("disabled host semantic operation parse-linked-forms".to_string());
+        }
+        let forms = parse_lino(source)
+            .iter()
+            .map(|link| parse_one(&tokenize_one(link)))
+            .collect::<Result<Vec<_>, _>>()?;
+        let registry = Self::from_forms_with_basis(&forms, execution_basis, disabled_operations)?;
+        registry.observe(&["load-linked-program"], "parse-linked-forms")?;
+        Ok(registry)
+    }
+
     fn from_rml_with_disabled(source: &str, disabled_operations: &[&str]) -> Result<Self, String> {
         if disabled_operations.contains(&"parse-linked-forms") {
             return Err("disabled host semantic operation parse-linked-forms".to_string());
@@ -1276,11 +1385,20 @@ impl LinkedProgramRegistry {
         forms: &[Node],
         disabled_operations: &[&str],
     ) -> Result<Self, String> {
+        Self::from_forms_with_basis(forms, ExecutionBasis::ClosedSk, disabled_operations)
+    }
+
+    fn from_forms_with_basis(
+        forms: &[Node],
+        execution_basis: ExecutionBasis,
+        disabled_operations: &[&str],
+    ) -> Result<Self, String> {
         let mut registry = Self {
             disabled_operations: disabled_operations
                 .iter()
                 .map(|operation| (*operation).to_string())
                 .collect(),
+            execution_basis,
             ..Self::default()
         };
         registry.observe_path("load-linked-program");
@@ -1554,6 +1672,161 @@ impl LinkedProgramRegistry {
         self.programs.keys().map(String::as_str).collect()
     }
 
+    fn effective_rewrites(
+        &self,
+        name: &str,
+        paths: &[&str],
+        seen: &mut BTreeSet<String>,
+        rebindings: &[BTreeMap<String, String>],
+    ) -> Result<Vec<RewriteRule>, String> {
+        if self.execution_basis == ExecutionBasis::DirectStructural {
+            self.observe(paths, "resolve-and-rebind-program-imports")?;
+        }
+        let program = self
+            .programs
+            .get(name)
+            .ok_or_else(|| format!("direct execution references unknown linked-program {name}"))?;
+        let context = format!("{name}:{rebindings:?}");
+        if !seen.insert(context) {
+            return Ok(Vec::new());
+        }
+        let mut result = program
+            .rewrites
+            .iter()
+            .map(|rule| RewriteRule {
+                program: rule.program.clone(),
+                name: rule.name.clone(),
+                pattern: apply_rebindings(&rule.pattern, rebindings),
+                replacement: apply_rebindings(&rule.replacement, rebindings),
+            })
+            .collect::<Vec<_>>();
+        for dependency in &program.uses {
+            let nested = if dependency.rebindings.is_empty() {
+                rebindings.to_vec()
+            } else {
+                let mut nested = vec![dependency.rebindings.clone()];
+                nested.extend_from_slice(rebindings);
+                nested
+            };
+            result.extend(self.effective_rewrites(&dependency.program, paths, seen, &nested)?);
+        }
+        Ok(result)
+    }
+
+    fn effective_facts(
+        &self,
+        name: &str,
+        paths: &[&str],
+        seen: &mut BTreeSet<String>,
+        rebindings: &[BTreeMap<String, String>],
+    ) -> Result<Vec<LinkedFact>, String> {
+        if self.execution_basis == ExecutionBasis::DirectStructural {
+            self.observe(paths, "resolve-and-rebind-program-imports")?;
+        }
+        let program = self
+            .programs
+            .get(name)
+            .ok_or_else(|| format!("direct execution references unknown linked-program {name}"))?;
+        let context = format!("{name}:{rebindings:?}");
+        if !seen.insert(context) {
+            return Ok(Vec::new());
+        }
+        let mut result = program
+            .facts
+            .iter()
+            .map(|fact| LinkedFact {
+                program: fact.program.clone(),
+                name: fact.name.clone(),
+                judgement: apply_rebindings(&fact.judgement, rebindings),
+            })
+            .collect::<Vec<_>>();
+        for dependency in &program.uses {
+            let nested = if dependency.rebindings.is_empty() {
+                rebindings.to_vec()
+            } else {
+                let mut nested = vec![dependency.rebindings.clone()];
+                nested.extend_from_slice(rebindings);
+                nested
+            };
+            result.extend(self.effective_facts(&dependency.program, paths, seen, &nested)?);
+        }
+        Ok(result)
+    }
+
+    fn effective_inferences(
+        &self,
+        name: &str,
+        paths: &[&str],
+        seen: &mut BTreeSet<String>,
+        rebindings: &[BTreeMap<String, String>],
+    ) -> Result<Vec<InferenceRule>, String> {
+        if self.execution_basis == ExecutionBasis::DirectStructural {
+            self.observe(paths, "resolve-and-rebind-program-imports")?;
+        }
+        let program = self
+            .programs
+            .get(name)
+            .ok_or_else(|| format!("direct execution references unknown linked-program {name}"))?;
+        let context = format!("{name}:{rebindings:?}");
+        if !seen.insert(context) {
+            return Ok(Vec::new());
+        }
+        let mut result = program
+            .inferences
+            .iter()
+            .map(|rule| InferenceRule {
+                program: rule.program.clone(),
+                name: rule.name.clone(),
+                premises: rule
+                    .premises
+                    .iter()
+                    .map(|premise| apply_rebindings(premise, rebindings))
+                    .collect(),
+                conclusion: apply_rebindings(&rule.conclusion, rebindings),
+            })
+            .collect::<Vec<_>>();
+        for dependency in &program.uses {
+            let nested = if dependency.rebindings.is_empty() {
+                rebindings.to_vec()
+            } else {
+                let mut nested = vec![dependency.rebindings.clone()];
+                nested.extend_from_slice(rebindings);
+                nested
+            };
+            result.extend(self.effective_inferences(&dependency.program, paths, seen, &nested)?);
+        }
+        Ok(result)
+    }
+
+    fn direct_rewrite_once(
+        &self,
+        term: &Node,
+        rules: &[RewriteRule],
+        paths: &[&str],
+    ) -> Result<Option<(Node, usize)>, String> {
+        self.observe(paths, "select-and-traverse-rewrite-rules")?;
+        for (index, rule) in rules.iter().enumerate() {
+            let mut substitution = BTreeMap::new();
+            let mut observe = |operation| self.observe(paths, operation);
+            if direct_match_term(&rule.pattern, term, &mut substitution, &mut observe)? {
+                return direct_instantiate(&rule.replacement, &substitution, &mut observe)
+                    .map(|next| Some((next, index)));
+            }
+        }
+        if let Node::List(children) = term {
+            for (child_index, child) in children.iter().enumerate() {
+                if let Some((rewritten, rule_index)) =
+                    self.direct_rewrite_once(child, rules, paths)?
+                {
+                    let mut next = children.clone();
+                    next[child_index] = rewritten;
+                    return Ok(Some((Node::List(next), rule_index)));
+                }
+            }
+        }
+        Ok(None)
+    }
+
     pub fn reduce(
         &self,
         name: &str,
@@ -1567,6 +1840,48 @@ impl LinkedProgramRegistry {
         self.observe(&semantic_paths, "enforce-cycle-and-resource-bounds")?;
         if max_steps == 0 {
             return Err("max_steps must be positive".to_string());
+        }
+        if self.execution_basis == ExecutionBasis::HornRelational {
+            return Ok(ReductionResult {
+                term: input.clone(),
+                trace: Vec::new(),
+            });
+        }
+        if self.execution_basis == ExecutionBasis::DirectStructural {
+            let rules =
+                self.effective_rewrites(name, &semantic_paths, &mut BTreeSet::new(), &[])?;
+            let mut term = input.clone();
+            let mut trace = Vec::new();
+            let mut seen = BTreeSet::from([key_of(&term)]);
+            while trace.len() < max_steps {
+                let Some((next, rule_index)) =
+                    self.direct_rewrite_once(&term, &rules, &semantic_paths)?
+                else {
+                    return Ok(ReductionResult { term, trace });
+                };
+                let rule = &rules[rule_index];
+                if next == term {
+                    return Err(format!(
+                        "linked rewrite {}.{} made no progress",
+                        rule.program, rule.name
+                    ));
+                }
+                trace.push(RewriteTraceStep {
+                    program: rule.program.clone(),
+                    rule: rule.name.clone(),
+                    before: term,
+                    after: next.clone(),
+                });
+                term = next;
+                let key = key_of(&term);
+                if !seen.insert(key.clone()) {
+                    return Err(format!(
+                        "rewrite cycle after {} steps at {key}",
+                        trace.len()
+                    ));
+                }
+            }
+            return Err(format!("rewrite step limit {max_steps} exceeded"));
         }
         let rules =
             combinator_kernel::resolve_rewrites(&self.programs, name, &self.disabled_operations)?;
@@ -1631,6 +1946,16 @@ impl LinkedProgramRegistry {
             return None;
         }
         let normalized_goal = self.reduce(name, goal, 10_000).ok()?.term;
+        if self.execution_basis != ExecutionBasis::ClosedSk {
+            return self.direct_prove(
+                name,
+                &normalized_goal,
+                facts,
+                max_rounds,
+                max_facts,
+                &semantic_paths,
+            );
+        }
         let created = combinator_kernel::create_proof_state(
             &self.programs,
             name,
@@ -1688,6 +2013,158 @@ impl LinkedProgramRegistry {
                 .ok()?;
             if found.proof.is_some() {
                 return found.proof;
+            }
+        }
+        None
+    }
+
+    fn direct_prove(
+        &self,
+        name: &str,
+        normalized_goal: &Node,
+        input_facts: &[Node],
+        max_rounds: usize,
+        max_facts: usize,
+        semantic_paths: &[&str],
+    ) -> Option<LinkedProof> {
+        match self.execution_basis {
+            ExecutionBasis::DirectStructural => {
+                self.observe(semantic_paths, "saturate-inference-rules")
+                    .ok()?;
+            }
+            ExecutionBasis::HornRelational => {
+                self.observe(semantic_paths, "schedule-horn-saturation")
+                    .ok()?;
+            }
+            ExecutionBasis::ClosedSk => return None,
+        }
+
+        fn add_known(
+            registry: &LinkedProgramRegistry,
+            program: &str,
+            known: &mut BTreeMap<String, (Node, LinkedProof)>,
+            judgement: &Node,
+            proof: LinkedProof,
+            max_facts: usize,
+            semantic_paths: &[&str],
+        ) -> Option<bool> {
+            let normalized = registry.reduce(program, judgement, 10_000).ok()?.term;
+            let key = key_of(&normalized);
+            if known.contains_key(&key) {
+                return Some(false);
+            }
+            if registry.execution_basis == ExecutionBasis::HornRelational {
+                registry
+                    .observe(semantic_paths, "insert-derived-fact")
+                    .ok()?;
+            }
+            known.insert(key, (normalized, proof));
+            (known.len() <= max_facts).then_some(true)
+        }
+
+        let mut known = BTreeMap::new();
+        let declared = self
+            .effective_facts(name, semantic_paths, &mut BTreeSet::new(), &[])
+            .ok()?;
+        for fact in declared {
+            let proof = LinkedProof {
+                judgement: fact.judgement.clone(),
+                program: fact.program,
+                rule: fact.name,
+                premises: Vec::new(),
+            };
+            add_known(
+                self,
+                name,
+                &mut known,
+                &fact.judgement,
+                proof,
+                max_facts,
+                semantic_paths,
+            )?;
+        }
+        for (index, fact) in input_facts.iter().enumerate() {
+            let proof = LinkedProof {
+                judgement: fact.clone(),
+                program: "<input>".to_string(),
+                rule: format!("input-{}", index + 1),
+                premises: Vec::new(),
+            };
+            add_known(
+                self,
+                name,
+                &mut known,
+                fact,
+                proof,
+                max_facts,
+                semantic_paths,
+            )?;
+        }
+        let goal_key = key_of(normalized_goal);
+        if let Some((_, proof)) = known.get(&goal_key) {
+            return Some(proof.clone());
+        }
+
+        let rules = self
+            .effective_inferences(name, semantic_paths, &mut BTreeSet::new(), &[])
+            .ok()?;
+        for _ in 0..max_rounds {
+            let mut changed = false;
+            for rule in &rules {
+                let mut candidates = vec![(BTreeMap::new(), Vec::<LinkedProof>::new())];
+                for premise in &rule.premises {
+                    let mut next = Vec::new();
+                    for (candidate_substitution, candidate_premises) in &candidates {
+                        for (judgement, proof) in known.values() {
+                            let mut substitution = candidate_substitution.clone();
+                            let mut observe = |operation| self.observe(semantic_paths, operation);
+                            if direct_match_term(
+                                premise,
+                                judgement,
+                                &mut substitution,
+                                &mut observe,
+                            )
+                            .ok()?
+                            {
+                                let mut premises = candidate_premises.clone();
+                                premises.push(proof.clone());
+                                next.push((substitution, premises));
+                            }
+                        }
+                    }
+                    candidates = next;
+                    if candidates.is_empty() {
+                        break;
+                    }
+                }
+                for (substitution, premises) in candidates {
+                    let mut observe = |operation| self.observe(semantic_paths, operation);
+                    let judgement =
+                        direct_instantiate(&rule.conclusion, &substitution, &mut observe).ok()?;
+                    let proof = LinkedProof {
+                        judgement: judgement.clone(),
+                        program: rule.program.clone(),
+                        rule: rule.name.clone(),
+                        premises,
+                    };
+                    if add_known(
+                        self,
+                        name,
+                        &mut known,
+                        &judgement,
+                        proof,
+                        max_facts,
+                        semantic_paths,
+                    )? {
+                        changed = true;
+                        if let Some((_, proof)) = known.get(&goal_key) {
+                            return Some(proof.clone());
+                        }
+                    }
+                }
+            }
+            if !changed {
+                break;
             }
         }
         None

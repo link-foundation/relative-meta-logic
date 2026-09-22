@@ -41,6 +41,62 @@ function variablesIn(term, output = new Set()) {
   return output;
 }
 
+// This deliberately independent reference mechanism predates the closed S/K
+// backend.  Keeping it executable gives foundation searches a structurally
+// different control instead of comparing S/K only with alternative encodings
+// of S/K.  Its host boundary is measured separately; object-language names
+// remain opaque to it.
+function directMatchTerm(pattern, candidate, substitution = new Map(), observe = () => {}) {
+  observe('compare-link-structure');
+  observe('bind-pattern-variables');
+  const variable = variableName(pattern);
+  if (variable !== null) {
+    const previous = substitution.get(variable);
+    if (previous !== undefined) {
+      return isStructurallySame(previous, candidate) ? substitution : null;
+    }
+    substitution.set(variable, cloneTerm(candidate));
+    return substitution;
+  }
+  if (!Array.isArray(pattern) || !Array.isArray(candidate)) {
+    return isStructurallySame(pattern, candidate) ? substitution : null;
+  }
+  if (pattern.length !== candidate.length) return null;
+  for (let index = 0; index < pattern.length; index += 1) {
+    if (directMatchTerm(
+      pattern[index],
+      candidate[index],
+      substitution,
+      observe,
+    ) === null) return null;
+  }
+  return substitution;
+}
+
+function directInstantiate(term, substitution, observe = () => {}) {
+  observe('substitute-bound-structures');
+  const variable = variableName(term);
+  if (variable !== null) {
+    if (!substitution.has(variable)) throw new Error(`unbound variable ${variable}`);
+    return cloneTerm(substitution.get(variable));
+  }
+  return Array.isArray(term)
+    ? term.map(child => directInstantiate(child, substitution, observe))
+    : term;
+}
+
+function rebindTerm(term, rebindings) {
+  if (Array.isArray(term)) return term.map(child => rebindTerm(child, rebindings));
+  return rebindings.get(term) ?? term;
+}
+
+function applyRebindings(term, rebindings) {
+  return rebindings.reduce(
+    (current, bindings) => rebindTerm(current, bindings),
+    cloneTerm(term),
+  );
+}
+
 function singleClause(form, name, context) {
   const clauses = form.slice(3).filter(clause => Array.isArray(clause) && clause[0] === name);
   if (clauses.length !== 1 || clauses[0].length !== 2) {
@@ -294,8 +350,12 @@ class LinkedProgramRegistry {
   #observedLinkedCapabilities;
   #observedLinkedCapabilitySegments;
 
-  constructor({ disabledOperations = [] } = {}) {
+  constructor({ disabledOperations = [], executionBasis = 's-k' } = {}) {
+    if (!['s-k', 'direct-structural', 'horn-relational'].includes(executionBasis)) {
+      throw new Error(`unknown linked-program execution basis ${executionBasis}`);
+    }
     this.programs = new Map();
+    this.executionBasis = executionBasis;
     this.#disabledOperations = new Set(disabledOperations);
     this.#observedOperations = new Set();
     this.#observedPaths = new Set();
@@ -304,20 +364,23 @@ class LinkedProgramRegistry {
     this.#observedLinkedCapabilitySegments = new Set();
   }
 
-  static fromRml(source, { disabledOperations = [] } = {}) {
+  static fromRml(source, { disabledOperations = [], executionBasis = 's-k' } = {}) {
     const disabled = new Set(disabledOperations);
     const forms = parseForms(source, operation => {
       if (disabled.has(operation)) {
         throw new Error(`disabled host semantic operation ${operation}`);
       }
     });
-    const registry = LinkedProgramRegistry.fromForms(forms, { disabledOperations });
+    const registry = LinkedProgramRegistry.fromForms(forms, {
+      disabledOperations,
+      executionBasis,
+    });
     registry.#observe(['load-linked-program'], 'parse-linked-forms');
     return registry;
   }
 
-  static fromForms(forms, { disabledOperations = [] } = {}) {
-    const registry = new LinkedProgramRegistry({ disabledOperations });
+  static fromForms(forms, { disabledOperations = [], executionBasis = 's-k' } = {}) {
+    const registry = new LinkedProgramRegistry({ disabledOperations, executionBasis });
     registry.#observePath('load-linked-program');
     for (const form of forms) {
       if (!Array.isArray(form) || form[0] !== 'linked-program') continue;
@@ -930,7 +993,85 @@ class LinkedProgramRegistry {
     return [...this.programs.keys()].sort();
   }
 
+  #directEffective(name, field, semanticPaths, seen = new Set(), rebindings = []) {
+    if (this.executionBasis === 'direct-structural') {
+      this.#observe(semanticPaths, 'resolve-and-rebind-program-imports');
+    }
+    const program = this.#program(name, 'direct execution');
+    const context = JSON.stringify([
+      name,
+      ...rebindings.map(bindings => [...bindings.entries()]),
+    ]);
+    if (seen.has(context)) return [];
+    seen.add(context);
+    const result = program[field].map(item => {
+      if (field === 'rewrites') {
+        return {
+          ...item,
+          pattern: applyRebindings(item.pattern, rebindings),
+          replacement: applyRebindings(item.replacement, rebindings),
+        };
+      }
+      if (field === 'facts') {
+        return { ...item, judgement: applyRebindings(item.judgement, rebindings) };
+      }
+      return {
+        ...item,
+        premises: item.premises.map(premise => applyRebindings(premise, rebindings)),
+        conclusion: applyRebindings(item.conclusion, rebindings),
+      };
+    });
+    for (const dependency of program.uses) {
+      const nestedRebindings = dependency.rebindings.size === 0
+        ? rebindings
+        : [dependency.rebindings, ...rebindings];
+      result.push(...this.#directEffective(
+        dependency.program,
+        field,
+        semanticPaths,
+        seen,
+        nestedRebindings,
+      ));
+    }
+    return result;
+  }
+
+  #directRewriteOnce(term, rules, semanticPaths) {
+    this.#observe(semanticPaths, 'select-and-traverse-rewrite-rules');
+    for (const rule of rules) {
+      const substitution = directMatchTerm(
+        rule.pattern,
+        term,
+        new Map(),
+        operation => this.#observe(semanticPaths, operation),
+      );
+      if (substitution !== null) {
+        return {
+          term: directInstantiate(
+            rule.replacement,
+            substitution,
+            operation => this.#observe(semanticPaths, operation),
+          ),
+          rule,
+        };
+      }
+    }
+    if (!Array.isArray(term)) return null;
+    for (let index = 0; index < term.length; index += 1) {
+      const rewritten = this.#directRewriteOnce(term[index], rules, semanticPaths);
+      if (rewritten !== null) {
+        const result = term.map(cloneTerm);
+        result[index] = rewritten.term;
+        return { term: result, rule: rewritten.rule };
+      }
+    }
+    return null;
+  }
+
   #rewriteOnce(term, rules, semanticPaths) {
+    if (this.executionBasis === 'direct-structural') {
+      return this.#directRewriteOnce(term, rules, semanticPaths);
+    }
     const execution = combinatorRewriteOnce(term, rules, {
       disabledOperations: this.#disabledOperations,
     });
@@ -957,10 +1098,18 @@ class LinkedProgramRegistry {
     if (!Number.isSafeInteger(maxSteps) || maxSteps <= 0) {
       throw new Error('maxSteps must be a positive safe integer');
     }
-    const rules = combinatorResolveRewrites(this.programs, name, {
-      disabledOperations: this.#disabledOperations,
-    });
-    this.#observeExecution(semanticPaths, rules);
+    if (this.executionBasis === 'horn-relational') {
+      return { term: cloneTerm(input), trace: [], steps: 0 };
+    }
+    const resolved = this.executionBasis === 'direct-structural'
+      ? this.#directEffective(name, 'rewrites', semanticPaths)
+      : combinatorResolveRewrites(this.programs, name, {
+        disabledOperations: this.#disabledOperations,
+      });
+    if (this.executionBasis !== 'direct-structural') {
+      this.#observeExecution(semanticPaths, resolved);
+    }
+    const rules = resolved;
     let term = cloneTerm(input);
     const trace = [];
     const seen = new Set([keyOf(term)]);
@@ -993,6 +1142,16 @@ class LinkedProgramRegistry {
       throw new Error('proof bounds must be positive safe integers');
     }
     const normalizedGoal = this.reduce(name, goal).term;
+    if (this.executionBasis !== 's-k') {
+      return this.#directProve(
+        name,
+        normalizedGoal,
+        facts,
+        semanticPaths,
+        maxRounds,
+        maxFacts,
+      );
+    }
     let state = combinatorCreateProofState(
       this.programs,
       name,
@@ -1032,10 +1191,101 @@ class LinkedProgramRegistry {
     }
     return { ok: false, proof: null };
   }
+
+  #directProve(name, normalizedGoal, facts, semanticPaths, maxRounds, maxFacts) {
+    this.#observe(
+      semanticPaths,
+      this.executionBasis === 'horn-relational'
+        ? 'schedule-horn-saturation'
+        : 'saturate-inference-rules',
+    );
+    const known = new Map();
+    const add = (judgement, proof) => {
+      const normalized = this.reduce(name, judgement).term;
+      const key = keyOf(normalized);
+      if (known.has(key)) return false;
+      if (this.executionBasis === 'horn-relational') {
+        this.#observe(semanticPaths, 'insert-derived-fact');
+      }
+      known.set(key, { judgement: normalized, proof });
+      if (known.size > maxFacts) {
+        throw new Error(`proof fact limit ${maxFacts} exceeded`);
+      }
+      return true;
+    };
+    for (const fact of this.#directEffective(name, 'facts', semanticPaths)) {
+      add(fact.judgement, {
+        judgement: cloneTerm(fact.judgement),
+        program: fact.program,
+        rule: fact.name,
+        premises: [],
+      });
+    }
+    facts.forEach((fact, index) => add(fact, {
+      judgement: cloneTerm(fact),
+      program: '<input>',
+      rule: `input-${index + 1}`,
+      premises: [],
+    }));
+    const goalKey = keyOf(normalizedGoal);
+    if (known.has(goalKey)) return { ok: true, proof: known.get(goalKey).proof };
+
+    const rules = this.#directEffective(name, 'inferences', semanticPaths);
+    for (let round = 0; round < maxRounds; round += 1) {
+      let changed = false;
+      for (const rule of rules) {
+        let candidates = [{ substitution: new Map(), premises: [] }];
+        for (const premise of rule.premises) {
+          const next = [];
+          for (const candidate of candidates) {
+            for (const entry of known.values()) {
+              const substitution = new Map(candidate.substitution);
+              if (directMatchTerm(
+                premise,
+                entry.judgement,
+                substitution,
+                operation => this.#observe(semanticPaths, operation),
+              ) !== null) {
+                next.push({
+                  substitution,
+                  premises: [...candidate.premises, entry.proof],
+                });
+              }
+            }
+          }
+          candidates = next;
+          if (candidates.length === 0) break;
+        }
+        for (const candidate of candidates) {
+          const judgement = directInstantiate(
+            rule.conclusion,
+            candidate.substitution,
+            operation => this.#observe(semanticPaths, operation),
+          );
+          const proof = {
+            judgement: cloneTerm(judgement),
+            program: rule.program,
+            rule: rule.name,
+            premises: candidate.premises,
+          };
+          if (add(judgement, proof)) {
+            changed = true;
+            if (known.has(goalKey)) {
+              return { ok: true, proof: known.get(goalKey).proof };
+            }
+          }
+        }
+      }
+      if (!changed) break;
+    }
+    return { ok: false, proof: null };
+  }
 }
 
 export {
   LinkedProgramRegistry,
   cloneTerm,
+  directInstantiate,
+  directMatchTerm,
   variablesIn,
 };

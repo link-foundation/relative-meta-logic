@@ -1,0 +1,149 @@
+{
+  "schema": "rml-foundation-candidate-table/v1",
+  "generatedBy": "js/src/rml-foundation-search.mjs",
+  "semanticSource": "lib/meta-theory/alternative-foundations.lino",
+  "acceptanceWorkload": [
+    "load",
+    "import",
+    "rebind",
+    "match",
+    "substitute",
+    "rewrite",
+    "infer",
+    "verify",
+    "self-interpret"
+  ],
+  "candidates": [
+    {
+      "candidate": "candidate-a-closed-s-k",
+      "semanticMechanism": "normal-order contraction of closed binary-link terms",
+      "representation": "addressed-doublet S/K DAG compiled from link source",
+      "externalLaws": [
+        "contract-s-link",
+        "contract-k-link"
+      ],
+      "independentExternalInformation": 2,
+      "hostSemanticOperations": 2,
+      "selfHostingClosure": "9/9",
+      "sourceProvenance": "externally primitive equations over a link-native addressed source",
+      "transitionMechanism": "contract the leftmost S or K redex",
+      "transitionAuthority": "the two external contraction equations",
+      "hostRuntimeBoundary": "S/K contraction only; linked terms define all acceptance services",
+      "formationAdmissibilityBoundary": "closed generated term plus checked source/artifact parity",
+      "executionControlBoundary": "external contraction and resource bound",
+      "selfDescriptionMechanism": "meta-describe linked rewrite relation",
+      "selfInterpretationMechanism": "links-meta-foundation object matcher/substituter",
+      "selfGenerationMechanism": "meta-generate-and-apply linked rewrite relation",
+      "derivedSemanticInformation": 9,
+      "externalSemanticSourceDescriptions": 0,
+      "hostSelfSemanticDuplication": 0,
+      "runtimeTrustCoverage": "complete",
+      "objectSpecificHostKnowledge": [],
+      "undocumentedAuthorityPaths": [],
+      "eliminationResult": "both laws fail the complete workload when removed separately",
+      "equivalentTo": null,
+      "accepted": true,
+      "rejectedBecause": null,
+      "evidence": [
+        "lib/meta-theory/fixed-point-source.lino",
+        "lib/meta-theory/alternative-foundations.lino",
+        "scripts/foundation-search.test.mjs"
+      ]
+    },
+    {
+      "candidate": "candidate-b-direct-structural",
+      "semanticMechanism": "ordered structural pattern rewriting plus bounded saturation",
+      "representation": "LiNo pattern, replacement, import, fact, and inference links",
+      "externalLaws": [
+        "compare-link-structure",
+        "bind-pattern-variables",
+        "substitute-bound-structures",
+        "select-and-traverse-rewrite-rules",
+        "resolve-and-rebind-program-imports",
+        "saturate-inference-rules"
+      ],
+      "independentExternalInformation": 6,
+      "hostSemanticOperations": 6,
+      "selfHostingClosure": "9/15",
+      "sourceProvenance": "independent pre-S/K reference mechanism retained as a falsifiable control",
+      "transitionMechanism": "match a rule at the leftmost sublink and instantiate its replacement",
+      "transitionAuthority": "ordered linked rules interpreted by the direct structural transition",
+      "hostRuntimeBoundary": "matching, binding, instantiation, traversal, import resolution, and saturation",
+      "formationAdmissibilityBoundary": "well-bound replacement and conclusion variables; acyclic imports",
+      "executionControlBoundary": "external leftmost order, cycle detection, and resource bounds",
+      "selfDescriptionMechanism": "same meta-describe link rules, executed without combinators",
+      "selfInterpretationMechanism": "same links-meta-foundation object interpreter, executed directly",
+      "selfGenerationMechanism": "same meta-generate-and-apply link rules, executed directly",
+      "derivedSemanticInformation": 9,
+      "externalSemanticSourceDescriptions": 1,
+      "hostSelfSemanticDuplication": 6,
+      "runtimeTrustCoverage": "complete",
+      "objectSpecificHostKnowledge": [],
+      "undocumentedAuthorityPaths": [],
+      "eliminationResult": "all six laws fail the complete workload when removed separately",
+      "equivalentTo": null,
+      "accepted": true,
+      "rejectedBecause": null,
+      "evidence": [
+        "lib/meta-theory/alternative-foundations.lino",
+        "js/src/rml-linked-program.mjs",
+        "scripts/foundation-search.test.mjs"
+      ]
+    },
+    {
+      "candidate": "candidate-c-horn-relational",
+      "semanticMechanism": "premise unification and monotone fixed-point fact derivation",
+      "representation": "facts and Horn clauses whose predicates and terms are links",
+      "externalLaws": [
+        "compare-link-structure",
+        "bind-pattern-variables",
+        "substitute-bound-structures",
+        "insert-derived-fact",
+        "schedule-horn-saturation"
+      ],
+      "independentExternalInformation": 5,
+      "hostSemanticOperations": 5,
+      "selfHostingClosure": "9/14",
+      "sourceProvenance": "independently designed relational semantics with no S/K transition or bracket-abstraction machinery",
+      "transitionMechanism": "insert every novel instantiated conclusion whose premises unify",
+      "transitionAuthority": "the clause set and monotone saturation schedule",
+      "hostRuntimeBoundary": "unification, instantiation, novel-fact insertion, and fair finite saturation",
+      "formationAdmissibilityBoundary": "range-restricted Horn conclusions and explicit finite bounds",
+      "executionControlBoundary": "external saturation rounds and fact bound",
+      "selfDescriptionMechanism": "encoded-clause facts describe the active clause shape",
+      "selfInterpretationMechanism": "interpret-encoded-clause derives an encoded conclusion",
+      "selfGenerationMechanism": "clause-schema derives a new encoded clause description",
+      "derivedSemanticInformation": 9,
+      "externalSemanticSourceDescriptions": 1,
+      "hostSelfSemanticDuplication": 5,
+      "runtimeTrustCoverage": "complete",
+      "objectSpecificHostKnowledge": [],
+      "undocumentedAuthorityPaths": [],
+      "eliminationResult": "all five laws fail the complete workload when removed separately",
+      "equivalentTo": null,
+      "accepted": true,
+      "rejectedBecause": null,
+      "evidence": [
+        "lib/meta-theory/alternative-foundations.lino",
+        "js/src/rml-foundation-search.mjs",
+        "scripts/foundation-search.test.mjs"
+      ]
+    }
+  ],
+  "claimBoundary": {
+    "globallyMinimal": false,
+    "completeProductionLanguageImplementations": false,
+    "proved": [
+      "the same finite acceptance workload passes under three transition mechanisms",
+      "every measured residual semantic law has an executable removal experiment",
+      "all three mechanisms execute the complete two-counter-machine instruction basis",
+      "the linked JavaScript and Rust counter cores execute and the Lean and Rocq dependent cores check identity proofs"
+    ],
+    "notProved": [
+      "that S/K is globally minimal",
+      "that the three candidates are equivalent",
+      "that finite tests enumerate every formal system",
+      "that these semantic cores replace production Lean, Rocq, Rust, or JavaScript toolchains"
+    ]
+  }
+}
