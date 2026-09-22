@@ -10,6 +10,13 @@ const LEDGER_PATH = path.join(
   REPOSITORY_ROOT,
   'docs/case-studies/issue-183/requirements.md',
 );
+const ISSUE_183_CLOSING_DIRECTIVE =
+  /^\s*(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#183\b/im;
+
+function assertIssue183RemainsOpen(body) {
+  assert.match(body, /^\s*Advances #183\s*$/m);
+  assert.doesNotMatch(body, ISSUE_183_CLOSING_DIRECTIVE);
+}
 
 const REQUIREMENT_SOURCES = [
   'https://github.com/link-foundation/relative-meta-logic/issues/183',
@@ -45,6 +52,7 @@ const REQUIREMENT_SOURCES = [
     5778389052,
     5778625533,
     5780145503,
+    5781219145,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -67,7 +75,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = [...ledger.matchAll(/^\| R(\d+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)];
 
-    assert.ok(rows.length >= 87, `expected at least 87 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 91, `expected at least 91 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(match => Number(match[1])),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -106,7 +114,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v2',
+      'rml-link-ontology-symmetry-experiment/v3',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -115,9 +123,35 @@ describe('issue 183 requirement traceability', () => {
       'CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED',
       'PROVEN_INFORMATION_LOSS',
       'PROVEN_NOT_RECOVERABLE',
+      'BASE_FORCED',
+      'REFINEMENT_PRESENT_NOT_BASE_FORCED',
+      'RELATIONAL_INTERACTION_ONLY',
+      '20/5/7/1',
+      'GITHUB_EVENT_PATH',
       'Advances #183',
     ]) {
       assert.ok(ledger.includes(statement), `missing scope statement: ${statement}`);
     }
+  });
+
+  it('rejects issue-closing metadata while foundational requirements remain open', () => {
+    assert.doesNotThrow(() => assertIssue183RemainsOpen('Summary\n\nAdvances #183'));
+    for (const directive of ['Fixes #183', 'Closes #183', 'Resolved #183']) {
+      assert.throws(
+        () => assertIssue183RemainsOpen(`Advances #183\n\n${directive}`),
+        directive,
+      );
+    }
+  });
+
+  it('checks the live PR 184 body supplied by every GitHub PR event', () => {
+    const eventPath = process.env.GITHUB_EVENT_PATH;
+    if (!eventPath) return;
+
+    const event = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
+    if (event.number !== 184 || !event.pull_request) return;
+
+    assert.equal(event.pull_request.head.ref, 'issue-183-7fedfddffe9c');
+    assertIssue183RemainsOpen(event.pull_request.body ?? '');
   });
 });
