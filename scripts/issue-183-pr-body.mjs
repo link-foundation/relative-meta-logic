@@ -8,6 +8,7 @@ export const ISSUE_183_CLOSING_DIRECTIVE =
 
 const ISSUE_183_PR_NUMBER = 184;
 const ISSUE_183_BRANCH = 'issue-183-7fedfddffe9c';
+const REPAIRED_EVENT_ENVIRONMENT = 'ISSUE_183_REPAIRED_EVENT_PATH';
 
 export function removeIssue183ClosingDirectives(body) {
   if (!ISSUE_183_CLOSING_DIRECTIVE.test(body)) return body;
@@ -73,6 +74,8 @@ export async function preserveIssue183Open({
 
 export async function repairIssue183PrBody({
   eventPath,
+  outputEventPath = eventPath,
+  environmentFile,
   token,
   repository,
   apiUrl,
@@ -90,14 +93,25 @@ export async function repairIssue183PrBody({
   });
   if (result.action === 'updated') {
     event.pull_request.body = result.body;
-    fs.writeFileSync(eventPath, `${JSON.stringify(event)}\n`);
+    fs.writeFileSync(outputEventPath, `${JSON.stringify(event)}\n`);
+    if (environmentFile) {
+      fs.appendFileSync(
+        environmentFile,
+        `${REPAIRED_EVENT_ENVIRONMENT}=${outputEventPath}\n`,
+      );
+    }
   }
   return result;
 }
 
 async function main() {
+  const outputEventPath = process.env.RUNNER_TEMP
+    ? path.join(process.env.RUNNER_TEMP, 'issue-183-repaired-event.json')
+    : process.env.GITHUB_EVENT_PATH;
   const result = await repairIssue183PrBody({
     eventPath: process.env.GITHUB_EVENT_PATH,
+    outputEventPath,
+    environmentFile: process.env.GITHUB_ENV,
     token: process.env.GITHUB_TOKEN,
     repository: process.env.GITHUB_REPOSITORY,
     apiUrl: process.env.GITHUB_API_URL,

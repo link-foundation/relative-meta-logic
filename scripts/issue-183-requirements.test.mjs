@@ -204,6 +204,8 @@ describe('issue 183 requirement traceability', () => {
       fs.rmSync(temporaryDirectory, { recursive: true, force: true }),
     );
     const eventPath = path.join(temporaryDirectory, 'event.json');
+    const outputEventPath = path.join(temporaryDirectory, 'repaired-event.json');
+    const environmentFile = path.join(temporaryDirectory, 'github-env');
     fs.writeFileSync(
       eventPath,
       JSON.stringify({
@@ -218,6 +220,8 @@ describe('issue 183 requirement traceability', () => {
     let requestArguments;
     const result = await repairIssue183PrBody({
       eventPath,
+      outputEventPath,
+      environmentFile,
       token: 'test-token',
       repository: 'link-foundation/relative-meta-logic',
       request: async (...args) => {
@@ -234,13 +238,18 @@ describe('issue 183 requirement traceability', () => {
     assert.equal(requestArguments[1].method, 'PATCH');
     assert.deepEqual(JSON.parse(requestArguments[1].body), { body: updatedBody });
     assert.equal(
-      JSON.parse(fs.readFileSync(eventPath, 'utf8')).pull_request.body,
+      JSON.parse(fs.readFileSync(outputEventPath, 'utf8')).pull_request.body,
       updatedBody,
+    );
+    assert.equal(
+      fs.readFileSync(environmentFile, 'utf8'),
+      `ISSUE_183_REPAIRED_EVENT_PATH=${outputEventPath}\n`,
     );
   });
 
   it('checks the live PR 184 body supplied by every GitHub PR event', () => {
-    const eventPath = process.env.GITHUB_EVENT_PATH;
+    const eventPath =
+      process.env.ISSUE_183_REPAIRED_EVENT_PATH ?? process.env.GITHUB_EVENT_PATH;
     if (!eventPath) return;
 
     const event = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
