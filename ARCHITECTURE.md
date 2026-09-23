@@ -220,7 +220,7 @@ separation as assumptions; it does not infer link ontology from them. The
 failed zero-transition experiment is likewise scoped to the current passive
 host model and finite workload.
 
-The v8 ontology investigation is separate from execution comparison. Its
+The v9 ontology investigation is separate from execution comparison. Its
 finite experiment quotients two unlabelled reference occurrences by every
 occurrence permutation and reference renaming. Equality coincidence is
 complete for that contract; no invariant singleton selects source or target,
@@ -241,6 +241,15 @@ The interaction-only conditional breaks a relabelling that fixes its base, so
 its distinction requires information not derived from that base. The second
 relation remains `CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED`, not an ontological
 commitment.
+
+Before quotienting ordered reference slots, the addressable audit separately
+records a Boolean self-incidence mask. All `2/4/8/16` masks occur at widths
+one through four. The mask is invariant under address renaming and equivariant
+under slot permutation; together with the reference-equality matrix it
+classifies the tested ordered address/equality patterns. This preserves the
+possible slot distinction without claiming that slot identity or an endpoint
+role is intrinsic.
+
 Link ontology, primitive categories, the structure/transformation
 relation, intrinsic semantic authority, and comparative minimality therefore
 remain `UNRESOLVED` under `OPEN_INDEPENDENT_INVESTIGATION`. A/B/C are

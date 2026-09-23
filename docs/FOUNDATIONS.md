@@ -20,7 +20,7 @@ host/self duplication. The report names no winner. Its two-model witness shows
 only that the tested ordered-link host signature does not select between two
 functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
-documented on this page. The v8 report additionally performs an independent
+documented on this page. The v9 report additionally performs an independent
 finite symmetry experiment over two unlabelled reference occurrences. It
 derives equality coincidence as complete for that contract while eliminating
 an invariant source/target selector, unique dynamics, and
@@ -38,6 +38,13 @@ fails that criterion. All three execution bases remain
 controls that cannot constrain the independent ontology investigation;
 primitive categories, the structure/transformation relation, intrinsic
 authority, and comparative minimality remain explicitly unresolved.
+
+The addressable part of that investigation also classifies self-incidence per
+ordered reference slot. Its Boolean mask realizes all `2/4/8/16` patterns at
+widths one through four, is invariant under address renaming, and is
+equivariant under slot permutation. Combined with the reference-equality
+matrix it is complete for the tested ordered address/equality contract, but it
+does not establish intrinsic slot identity or endpoint semantics.
 
 The headline guarantee is backward compatibility:
 

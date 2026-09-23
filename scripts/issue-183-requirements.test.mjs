@@ -68,6 +68,7 @@ const REQUIREMENT_SOURCES = [
     5785148374,
     5786000580,
     5791257637,
+    5796435750,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -90,7 +91,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 137, `expected at least 137 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 138, `expected at least 138 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -139,7 +140,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v5',
+      'rml-link-ontology-symmetry-experiment/v6',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -162,6 +163,9 @@ describe('issue 183 requirement traceability', () => {
       'UNESTABLISHED_EQUIVALENCE',
       '0/1/8/40',
       'COMPLETE_INVARIANT_FOR_DECLARED_UNLABELLED_ADDRESS_EQUALITY_CONTRACT',
+      'CLASSIFIED_PER_ORDERED_REFERENCE_SLOT',
+      'RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT',
+      '2/4/8/16',
       'The result uses no set,',
       'category, or type-theory axiom',
       'GITHUB_EVENT_PATH',

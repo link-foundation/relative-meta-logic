@@ -85,7 +85,7 @@ Horn implementations remain executable controls, but their host/self
 duplication excludes them from ranking against the fully reduced S/K
 candidate. The report therefore names no winner. An executable two-model
 witness shows only that one ordered-link host representation does not select
-between two tested transition functions. A separate v8 experiment starts from
+between two tested transition functions. A separate v9 experiment starts from
 two unlabelled reference occurrences plus equality and exhausts their finite
 symmetries. It derives exactly the same-reference/distinct-reference quotient,
 no invariant source/target selector, no unique equivariant dynamics, and
@@ -111,8 +111,14 @@ complete equality matrix but marks occurrence permutation
 `UNESTABLISHED_EQUIVALENCE`; that step collapses `0/1/8/40` ordered classes.
 Only after declaring unlabelled occurrences do reference multiplicity and
 direct-self multiplicity form a complete descriptor of the addressable
-classes. These results do not complete link ontology or establish an unbounded
-classification theorem. The report keeps link ontology,
+classes. Before that quotient, an explicit Boolean mask classifies
+self-incidence per ordered reference slot: all `2/4/8/16` masks occur at
+widths one through four, address renaming preserves them, and slot permutation
+transports them equivariantly. The reference-equality matrix plus this mask is
+complete for the tested ordered address/equality patterns, without proving
+that slot identity or endpoint meaning is intrinsic. These results do not
+complete link ontology or establish an unbounded classification theorem. The
+report keeps link ontology,
 intrinsic authority, primitive categories, the structure/transformation
 relation, and comparative minimality unresolved; classifies all three
 implementations as executable controls that cannot constrain the ontology

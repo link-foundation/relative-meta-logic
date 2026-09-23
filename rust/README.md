@@ -178,12 +178,16 @@ refinement-present, 1 interaction-only, and 20 symmetric classes. All 73
 candidate observations at widths one through four that preserve their base
 symmetries leave the base occurrence orbits unchanged. The interaction-only
 conditional breaks a relabelling that fixes its base, so it requires
-information not derived from that base. The v5 starting-representation audit
+information not derived from that base. The v6 starting-representation audit
 also shows that direct-self `[0,0,1]` and fresh-external `[0,1,2]` links share
 the `[1,1]` reference-only projection. Forgetting the link address collapses
 `2/4/7/12` addressable classes to `1/2/3/5` at widths one through four and is
-non-injective at every nonzero finite arity. The v8 report treats these as
-finite, provenance-labelled constraints,
+non-injective at every nonzero finite arity. Before occurrence permutation,
+all `2/4/8/16` slotwise self-incidence masks occur at widths one through four;
+they are invariant under address renaming and equivariant under slot
+permutation. Together with the reference-equality matrix they classify the
+tested ordered patterns without assigning intrinsic endpoint meaning. The v9
+report treats these as finite, provenance-labelled constraints,
 not a link ontology or execution law. Primitive categories, the
 structure/transformation relation, intrinsic
 authority, and comparative minimality remain unresolved; A/B/C cannot

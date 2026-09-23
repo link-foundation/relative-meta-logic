@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v8`. Run it with:
+`rml-alternative-foundation-search/v9`. Run it with:
 
 ```bash
 cd js
@@ -70,7 +70,7 @@ No candidate is declared equivalent to another. Equivalence remains
 
 ## Independent ontology investigation
 
-Version 8 extends a falsifiable ontology experiment rather than converting a
+Version 9 extends a falsifiable ontology experiment rather than converting a
 correctly documented boundary into a completed foundational result. The report
 sets `foundationStatus: OPEN` and
 `ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v5` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v6` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v5 follow-up first changes no primitive vocabulary at all. It retains only
+The v6 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -263,6 +263,38 @@ It is therefore
 smaller faithful descriptor for that contract. It does not establish that
 reference slots intrinsically lack identity, that this quotient exhausts
 links, or that an evaluator, type, set, category, or calculus is forced.
+
+### Slotwise self-incidence
+
+Before imposing the unlabelled-occurrence quotient, self-incidence has a
+strictly more precise classification. For an addressed pattern
+`[address, reference₀, …]`, the Boolean mask records whether each ordered
+reference equals the link address.
+
+| Reference width | Masks realized | Ordered classes for each exact mask |
+|---:|---:|---|
+| 1 | 2 | `0 → 1`, `1 → 1` |
+| 2 | 4 | `00 → 2`; every other mask `→ 1` |
+| 3 | 8 | `000 → 5`; each one-hot mask `→ 2`; every other mask `→ 1` |
+| 4 | 16 | `0000 → 15`; each one-hot mask `→ 5`; each two-hot mask `→ 2`; every other mask `→ 1` |
+
+All `2/4/8/16` possible masks occur at widths `1..4`. More generally, an
+exact width-`n` mask with `k` true entries admits `B(n)` reference-equality
+classes when `k = 0` and `B(n-k)` when `k > 0`, where `B` is the Bell number:
+all self-incident slots must share the link-address class, while the remaining
+references partition freely.
+
+The mask is invariant under global address renaming. Under reference-slot
+permutation it is equivariant, not invariant: the same permutation transports
+its entries. For example, `[0,0,1]` has mask `[true,false]`, while `[0,1,0]`
+has `[false,true]`. Both have direct-self multiplicity one and become equal
+only after the occurrence-permutation quotient.
+
+Together, the ordered reference-equality matrix and slotwise self-incidence
+mask completely classify the tested ordered address/equality patterns. After
+the unlabelled quotient only the number of true entries remains. This
+classification does not prove that slot identity is intrinsic to links or
+assign a source, target, endpoint, or execution role to a self-incident slot.
 
 ### Conditional refinement probe
 
@@ -402,7 +434,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 8 makes
+That experiment does **not** identify the ontology of a link. Version 9 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -467,7 +499,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v8 execution-comparison gate admits a candidate only if it passes the common
+The v9 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.

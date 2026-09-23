@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v8",
+  "schema": "rml-foundation-candidate-table/v9",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "foundationStatus": "OPEN",
@@ -96,8 +96,8 @@
     "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
   },
   "ontologyExperiment": {
-    "schema": "rml-link-ontology-symmetry-experiment/v5",
-    "question": "Which facts survive the binary reference observation, what does its fixed width erase, can it represent direct self-reference, and can an observation derived from that base create new distinctions?",
+    "schema": "rml-link-ontology-symmetry-experiment/v6",
+    "question": "Which facts survive the binary reference observation, what does its fixed width erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?",
     "startingContract": {
       "id": "unoriented-binary-reference-observation",
       "occurrenceCount": 2,
@@ -514,6 +514,327 @@
           ],
           "exactFibreCardinality": "one fresh-address lift plus one self-identifying lift for each distinct reference multiplicity",
           "consequence": "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY"
+        },
+        "slotwiseSelfIncidence": {
+          "status": "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT",
+          "provenance": "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT",
+          "predicate": "selfIncidenceByReferenceSlot[i] = (referenceAddress[i] === linkAddress)",
+          "finiteEnumeration": [
+            {
+              "occurrenceCount": 1,
+              "selfIncidencePatterns": 2,
+              "orderedEqualityClasses": 2,
+              "classesBySelfIncidence": [
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                }
+              ]
+            },
+            {
+              "occurrenceCount": 2,
+              "selfIncidencePatterns": 4,
+              "orderedEqualityClasses": 5,
+              "classesBySelfIncidence": [
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                }
+              ]
+            },
+            {
+              "occurrenceCount": 3,
+              "selfIncidencePatterns": 8,
+              "orderedEqualityClasses": 15,
+              "classesBySelfIncidence": [
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                }
+              ]
+            },
+            {
+              "occurrenceCount": 4,
+              "selfIncidencePatterns": 16,
+              "orderedEqualityClasses": 52,
+              "classesBySelfIncidence": [
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 15
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                }
+              ]
+            }
+          ],
+          "everyBooleanSlotPatternRealized": true,
+          "addressRenamingInvariantVerified": true,
+          "occurrencePermutationEquivariantVerified": true,
+          "occurrencePermutationInvariant": false,
+          "countermodel": {
+            "firstOrderedPattern": [
+              0,
+              0,
+              1
+            ],
+            "secondOrderedPattern": [
+              0,
+              1,
+              0
+            ],
+            "firstSelfIncidenceByReferenceSlot": [
+              true,
+              false
+            ],
+            "secondSelfIncidenceByReferenceSlot": [
+              false,
+              true
+            ],
+            "sameSelfIncidenceMultiplicity": true,
+            "sameSlotwiseSelfIncidence": false,
+            "sameAfterOccurrencePermutation": true
+          },
+          "orderedFaithfulDescriptor": {
+            "status": "COMPLETE_INVARIANT_FOR_ORDERED_ADDRESS_EQUALITY_CONTRACT",
+            "fields": [
+              "referenceEqualityMatrix",
+              "selfIncidenceByReferenceSlot"
+            ],
+            "finiteEnumerationAgreement": true,
+            "generalArgument": "Reference equality classifies the ordered references up to address renaming, while the slotwise self-incidence mask identifies exactly which reference class, if any, is the link address."
+          },
+          "quotientConsequence": "Occurrence permutation preserves the slotwise mask only equivariantly; the unlabelled quotient retains its number of true entries but forgets their ordered positions.",
+          "claimBoundary": "This classifies address/reference equality per ordered slot. It does not establish that reference-slot identity is intrinsic, assign endpoint roles to slots, or supply dynamics or execution semantics."
         },
         "quotientAudit": {
           "finiteEnumeration": [
@@ -991,6 +1312,11 @@
           "evidence": "At widths one through four, forgetting the link address maps 2/4/7/12 addressable classes to 1/2/3/5 reference-only classes; every coarse fibre contains both fresh-address and self-identifying lifts."
         },
         {
+          "distinction": "self-incidence reference slot",
+          "classification": "RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT",
+          "evidence": "All 2/4/8/16 Boolean self-incidence masks occur at widths one through four. Each mask is invariant under address renaming and moves equivariantly, rather than remaining fixed, under reference-slot permutation."
+        },
+        {
           "distinction": "endpoint direction",
           "classification": "NOT_OBSERVED_NOT_DISPROVED",
           "evidence": "Neither the base family nor the conditional refinement names or measures endpoint order."
@@ -1064,6 +1390,11 @@
         "evidence": "Direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but cannot be related by address renaming or occurrence permutation. At widths one through four, 2/4/7/12 addressable classes collapse to 1/2/3/5 reference-only classes."
       },
       {
+        "id": "slotwise-self-incidence",
+        "result": "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT",
+        "evidence": "The slotwise Boolean mask realizes 2/4/8/16 patterns at widths one through four, is invariant under global address renaming, and is equivariant but not invariant under slot permutation. Together with the ordered reference-equality matrix it completely classifies the tested ordered address/equality patterns."
+      },
+      {
         "id": "addressable-quotient-assumptions",
         "result": "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
         "evidence": "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract."
@@ -1074,8 +1405,8 @@
         "evidence": "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved."
       }
     ],
-    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. For the repaired address/equality representation, bijective address renaming is derived from the complete equality invariant, while occurrence permutation remains an unestablished observer choice. Multiplicity spectrum plus self-reference multiplicity is a complete invariant only after the unlabelled-occurrence premise is declared. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.",
-    "remainingBoundary": "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, and that raw address names add no information within the address/equality contract. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, claim the addressable quotient is complete, derive endpoint roles, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics."
+    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot: every mask occurs, address renaming preserves it, and slot permutation transports it equivariantly. The ordered reference-equality matrix plus this mask is complete for the tested ordered address/equality contract. Occurrence permutation remains an unestablished observer choice; after imposing it, only self-reference multiplicity remains. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.",
+    "remainingBoundary": "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, assign endpoint meaning to a self-incident slot, claim the addressable quotient is complete, derive dynamics, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics."
   },
   "acceptanceWorkload": [
     "load",
@@ -1343,7 +1674,10 @@
       "every nonempty finite reference-only class has a fresh-address lift and at least one inequivalent self-identifying lift",
       "full equality matrices completely classify ordered address patterns under bijective address renaming",
       "reference-occurrence permutation collapses 0, 1, 8, and 40 additional ordered classes at widths one through four",
-      "reference multiplicity plus direct-self-reference multiplicity classifies the declared unlabelled addressable quotient at widths one through four"
+      "reference multiplicity plus direct-self-reference multiplicity classifies the declared unlabelled addressable quotient at widths one through four",
+      "all 2, 4, 8, and 16 slotwise self-incidence masks occur at widths one through four",
+      "slotwise self-incidence is invariant under address renaming and equivariant under reference-slot permutation",
+      "reference equality plus the slotwise self-incidence mask classifies ordered address/equality patterns at widths one through four"
     ],
     "notProved": [
       "that S/K is globally minimal",
@@ -1369,7 +1703,9 @@
       "that retaining the link address defines a complete link ontology",
       "that direct self-reference supplies endpoint roles, dynamics, or an execution law",
       "that reference occurrences intrinsically lack slot identity",
-      "that the declared unlabelled addressable quotient is a complete representation of links"
+      "that the declared unlabelled addressable quotient is a complete representation of links",
+      "that reference-slot identity is intrinsic to links",
+      "that a self-incident slot is a source, target, or execution role"
     ]
   }
 }

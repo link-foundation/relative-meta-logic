@@ -105,7 +105,7 @@ smallest candidate, and keeps the comparative search open. Its executable
 two-model witness establishes only that the tested ordered-link host value
 does not select between two transition functions.
 
-Version 8 advances the separate ontology investigation with an exhaustive
+Version 9 advances the separate ontology investigation with an exhaustive
 finite symmetry experiment that does not use A/B/C. Starting only with two
 unlabelled reference occurrences and equality, it enumerates three surjective
 observations on their used support, six group elements, and ten action
@@ -137,7 +137,7 @@ relabelling that leaves its base fixed, so its distinctions require information
 not derived from that base. This is conditional structural evidence, not an
 endpoint direction or a justified ontology.
 
-The v5 starting-representation audit then uses the issue's independent
+The v6 starting-representation audit then uses the issue's independent
 requirement that addressed links may refer to themselves. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` links have the same reference-only
 `[1,1]` projection but remain inequivalent under global address renaming and
@@ -158,11 +158,21 @@ multiplicity is a complete descriptor of the `2/4/7/12` addressable classes.
 That is a smaller faithful representation for the stated contract, not a
 complete ontology of links.
 
+The latest classification keeps those ordered slots visible. A Boolean mask
+records which reference positions equal the link address; all `2/4/8/16`
+possible masks occur at widths one through four. Address renaming leaves the
+mask unchanged, while slot permutation transports it equivariantly. The
+reference-equality matrix plus this mask completely classifies the tested
+ordered address/equality patterns. In particular, `[0,0,1]` and `[0,1,0]`
+have masks `[true,false]` and `[false,true]` despite sharing direct-self count
+one. This preserves the requested per-slot distinction without declaring
+slot identity, endpoint meaning, or execution authority intrinsic.
+
 Those results are eliminations and a complete finite classification at the
-tested widths, not an unbounded theorem or positive execution law. Version 8
+tested widths, not an unbounded theorem or positive execution law. Version 9
 still marks passivity and external
 transition as experimental assumptions of the older host witness, and it
-leaves link ontology and intrinsic authority unresolved. The v8 result does
+leaves link ontology and intrinsic authority unresolved. The v9 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v5");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v6");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -553,6 +553,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "starting-representation-faithfulness",
                 "REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE",
+            ),
+            (
+                "slotwise-self-incidence",
+                "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT",
             ),
             (
                 "addressable-quotient-assumptions",
@@ -876,6 +880,137 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
         starting_representation.general_argument.consequence,
         "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY"
     );
+    let slotwise_incidence = &starting_representation.slotwise_self_incidence;
+    assert_eq!(
+        slotwise_incidence.status,
+        "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT"
+    );
+    assert_eq!(
+        slotwise_incidence.provenance,
+        "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT"
+    );
+    assert_eq!(
+        slotwise_incidence.predicate,
+        "selfIncidenceByReferenceSlot[i] = (referenceAddress[i] === linkAddress)"
+    );
+    assert_eq!(
+        slotwise_incidence
+            .finite_enumeration
+            .iter()
+            .map(|item| (
+                item.occurrence_count,
+                item.self_incidence_patterns,
+                item.ordered_equality_classes,
+                item.classes_by_self_incidence
+                    .iter()
+                    .map(|row| (
+                        row.self_incidence_by_reference_slot.clone(),
+                        row.ordered_equality_classes,
+                    ))
+                    .collect::<Vec<_>>(),
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (1, 2, 2, vec![(vec![false], 1), (vec![true], 1)]),
+            (
+                2,
+                4,
+                5,
+                vec![
+                    (vec![false, false], 2),
+                    (vec![false, true], 1),
+                    (vec![true, false], 1),
+                    (vec![true, true], 1),
+                ],
+            ),
+            (
+                3,
+                8,
+                15,
+                vec![
+                    (vec![false, false, false], 5),
+                    (vec![false, false, true], 2),
+                    (vec![false, true, false], 2),
+                    (vec![false, true, true], 1),
+                    (vec![true, false, false], 2),
+                    (vec![true, false, true], 1),
+                    (vec![true, true, false], 1),
+                    (vec![true, true, true], 1),
+                ],
+            ),
+            (
+                4,
+                16,
+                52,
+                vec![
+                    (vec![false, false, false, false], 15),
+                    (vec![false, false, false, true], 5),
+                    (vec![false, false, true, false], 5),
+                    (vec![false, false, true, true], 2),
+                    (vec![false, true, false, false], 5),
+                    (vec![false, true, false, true], 2),
+                    (vec![false, true, true, false], 2),
+                    (vec![false, true, true, true], 1),
+                    (vec![true, false, false, false], 5),
+                    (vec![true, false, false, true], 2),
+                    (vec![true, false, true, false], 2),
+                    (vec![true, false, true, true], 1),
+                    (vec![true, true, false, false], 2),
+                    (vec![true, true, false, true], 1),
+                    (vec![true, true, true, false], 1),
+                    (vec![true, true, true, true], 1),
+                ],
+            ),
+        ]
+    );
+    assert!(slotwise_incidence.every_boolean_slot_pattern_realized);
+    assert!(slotwise_incidence.address_renaming_invariant_verified);
+    assert!(slotwise_incidence.occurrence_permutation_equivariant_verified);
+    assert!(!slotwise_incidence.occurrence_permutation_invariant);
+    assert_eq!(
+        slotwise_incidence.countermodel.first_ordered_pattern,
+        vec![0, 0, 1]
+    );
+    assert_eq!(
+        slotwise_incidence.countermodel.second_ordered_pattern,
+        vec![0, 1, 0]
+    );
+    assert_eq!(
+        slotwise_incidence
+            .countermodel
+            .first_self_incidence_by_reference_slot,
+        vec![true, false]
+    );
+    assert_eq!(
+        slotwise_incidence
+            .countermodel
+            .second_self_incidence_by_reference_slot,
+        vec![false, true]
+    );
+    assert!(
+        slotwise_incidence
+            .countermodel
+            .same_self_incidence_multiplicity
+    );
+    assert!(!slotwise_incidence.countermodel.same_slotwise_self_incidence);
+    assert!(
+        slotwise_incidence
+            .countermodel
+            .same_after_occurrence_permutation
+    );
+    assert_eq!(
+        slotwise_incidence.ordered_faithful_descriptor.fields,
+        vec!["referenceEqualityMatrix", "selfIncidenceByReferenceSlot"]
+    );
+    assert_eq!(
+        slotwise_incidence.ordered_faithful_descriptor.status,
+        "COMPLETE_INVARIANT_FOR_ORDERED_ADDRESS_EQUALITY_CONTRACT"
+    );
+    assert!(
+        slotwise_incidence
+            .ordered_faithful_descriptor
+            .finite_enumeration_agreement
+    );
     assert_eq!(
         starting_representation
             .quotient_audit
@@ -976,6 +1111,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "direct self-reference",
                 "PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS"
+            ),
+            (
+                "self-incidence reference slot",
+                "RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT"
             ),
             ("endpoint direction", "NOT_OBSERVED_NOT_DISPROVED"),
             ("dynamics and time", "NOT_OBSERVED_NOT_DISPROVED"),

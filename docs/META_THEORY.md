@@ -141,7 +141,7 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 8 also performs an independent finite symmetry experiment without
+Version 9 also performs an independent finite symmetry experiment without
 using A/B/C. It begins with two unlabelled reference occurrences and equality,
 then exhausts all three surjective observations on their used support, six
 occurrence-permutation/reference-renaming group elements, and ten action
@@ -171,7 +171,7 @@ the base occurrence orbits. The interaction-only conditional instead breaks a
 base-preserving relabelling, so its distinction uses information not derived
 from the tested base. Completeness remains bounded to widths one through four.
 
-The v5 audit also tests the starting projection against the independently
+The v6 audit also tests the starting projection against the independently
 required ability of an addressed link to refer to itself. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` patterns have the same reference-only
 `[1,1]` projection but are inequivalent under address renaming and
@@ -191,6 +191,14 @@ without an independently derived reason that slots lack identity, that step is
 reference multiplicity and direct-self multiplicity together classify all
 `2/4/7/12` addressable classes. This reduction does not claim that the
 addressable quotient exhausts link structure.
+
+Before the unlabelled quotient, the ordered addressable audit records a
+Boolean self-incidence mask per reference slot. All `2/4/8/16` masks occur at
+widths `1..4`; address renaming preserves them and slot permutation transports
+them equivariantly. The reference-equality matrix plus this mask completely
+classifies the tested ordered address/equality patterns. This preserves the
+per-slot distinction without asserting that slot identity or endpoint meaning
+is intrinsic.
 
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,

@@ -634,6 +634,47 @@ pub struct LinkOntologyGeneralProjectionArgument {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySlotwiseSelfIncidenceClass {
+    pub self_incidence_by_reference_slot: Vec<bool>,
+    pub ordered_equality_classes: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySlotwiseSelfIncidenceEnumeration {
+    pub occurrence_count: usize,
+    pub self_incidence_patterns: usize,
+    pub ordered_equality_classes: usize,
+    pub classes_by_self_incidence: Vec<LinkOntologySlotwiseSelfIncidenceClass>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySlotwiseSelfIncidenceCountermodel {
+    pub first_ordered_pattern: Vec<usize>,
+    pub second_ordered_pattern: Vec<usize>,
+    pub first_self_incidence_by_reference_slot: Vec<bool>,
+    pub second_self_incidence_by_reference_slot: Vec<bool>,
+    pub same_self_incidence_multiplicity: bool,
+    pub same_slotwise_self_incidence: bool,
+    pub same_after_occurrence_permutation: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySlotwiseSelfIncidenceAudit {
+    pub status: &'static str,
+    pub provenance: &'static str,
+    pub predicate: &'static str,
+    pub finite_enumeration: Vec<LinkOntologySlotwiseSelfIncidenceEnumeration>,
+    pub every_boolean_slot_pattern_realized: bool,
+    pub address_renaming_invariant_verified: bool,
+    pub occurrence_permutation_equivariant_verified: bool,
+    pub occurrence_permutation_invariant: bool,
+    pub countermodel: LinkOntologySlotwiseSelfIncidenceCountermodel,
+    pub ordered_faithful_descriptor: LinkOntologyMinimalFaithfulDescriptor,
+    pub quotient_consequence: &'static str,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyQuotientEnumeration {
     pub occurrence_count: usize,
     pub ordered_equality_classes_after_address_renaming: usize,
@@ -688,6 +729,7 @@ pub struct LinkOntologyStartingRepresentationAudit {
     pub reference_only_projection_faithful: bool,
     pub countermodel: LinkOntologyAddressableCountermodel,
     pub general_argument: LinkOntologyGeneralProjectionArgument,
+    pub slotwise_self_incidence: LinkOntologySlotwiseSelfIncidenceAudit,
     pub quotient_audit: LinkOntologyQuotientAudit,
     pub claim_boundary: &'static str,
 }
@@ -1190,6 +1232,151 @@ fn addressable_link_descriptor(address_pattern: &[usize]) -> (Vec<usize>, usize)
     )
 }
 
+fn self_incidence_by_reference_slot(address_pattern: &[usize]) -> Vec<bool> {
+    address_pattern[1..]
+        .iter()
+        .map(|reference_address| *reference_address == address_pattern[0])
+        .collect()
+}
+
+fn ordered_addressable_link_descriptor(address_pattern: &[usize]) -> (Vec<usize>, Vec<bool>) {
+    (
+        ontology_equality_matrix(&address_pattern[1..]),
+        self_incidence_by_reference_slot(address_pattern),
+    )
+}
+
+fn link_ontology_slotwise_self_incidence_audit() -> LinkOntologySlotwiseSelfIncidenceAudit {
+    let finite_enumeration = (1..=4)
+        .map(|occurrence_count| {
+            let ordered_patterns = ontology_set_partitions(occurrence_count + 1);
+            let mut classes = BTreeMap::<Vec<bool>, usize>::new();
+            for address_pattern in &ordered_patterns {
+                *classes
+                    .entry(self_incidence_by_reference_slot(address_pattern))
+                    .or_insert(0) += 1;
+            }
+            LinkOntologySlotwiseSelfIncidenceEnumeration {
+                occurrence_count,
+                self_incidence_patterns: classes.len(),
+                ordered_equality_classes: ordered_patterns.len(),
+                classes_by_self_incidence: classes
+                    .into_iter()
+                    .map(
+                        |(self_incidence_by_reference_slot, ordered_equality_classes)| {
+                            LinkOntologySlotwiseSelfIncidenceClass {
+                                self_incidence_by_reference_slot,
+                                ordered_equality_classes,
+                            }
+                        },
+                    )
+                    .collect(),
+            }
+        })
+        .collect::<Vec<_>>();
+    let ordered_patterns = (1..=4)
+        .flat_map(|occurrence_count| ontology_set_partitions(occurrence_count + 1))
+        .collect::<Vec<_>>();
+    let address_renaming_invariant_verified = ordered_patterns.iter().all(|address_pattern| {
+        let addresses = address_pattern
+            .iter()
+            .copied()
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect::<Vec<_>>();
+        let expected = self_incidence_by_reference_slot(address_pattern);
+        finite_permutations(&addresses)
+            .into_iter()
+            .all(|permuted_addresses| {
+                let renaming = addresses
+                    .iter()
+                    .copied()
+                    .zip(permuted_addresses)
+                    .collect::<BTreeMap<_, _>>();
+                let renamed_pattern = address_pattern
+                    .iter()
+                    .map(|address| renaming[address])
+                    .collect::<Vec<_>>();
+                self_incidence_by_reference_slot(&renamed_pattern) == expected
+            })
+    });
+    let mut occurrence_permutation_equivariant_verified = true;
+    let mut occurrence_permutation_invariant = true;
+    for address_pattern in &ordered_patterns {
+        let references = &address_pattern[1..];
+        let self_incidence = self_incidence_by_reference_slot(address_pattern);
+        for permutation in finite_permutations(&(0..references.len()).collect::<Vec<_>>()) {
+            let mut permuted_pattern = vec![address_pattern[0]];
+            permuted_pattern.extend(permutation.iter().map(|index| references[*index]));
+            let permuted_incidence = self_incidence_by_reference_slot(&permuted_pattern);
+            let expected = permutation
+                .iter()
+                .map(|index| self_incidence[*index])
+                .collect::<Vec<_>>();
+            occurrence_permutation_equivariant_verified &= permuted_incidence == expected;
+            occurrence_permutation_invariant &= permuted_incidence == self_incidence;
+        }
+    }
+    let mut descriptor_to_signatures =
+        BTreeMap::<(Vec<usize>, Vec<bool>), BTreeSet<Vec<usize>>>::new();
+    for address_pattern in &ordered_patterns {
+        descriptor_to_signatures
+            .entry(ordered_addressable_link_descriptor(address_pattern))
+            .or_default()
+            .insert(first_occurrence_normal_form(address_pattern));
+    }
+    let first_ordered_pattern = vec![0, 0, 1];
+    let second_ordered_pattern = vec![0, 1, 0];
+    let first_self_incidence = self_incidence_by_reference_slot(&first_ordered_pattern);
+    let second_self_incidence = self_incidence_by_reference_slot(&second_ordered_pattern);
+
+    LinkOntologySlotwiseSelfIncidenceAudit {
+        status: "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT",
+        provenance: "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT",
+        predicate:
+            "selfIncidenceByReferenceSlot[i] = (referenceAddress[i] === linkAddress)",
+        every_boolean_slot_pattern_realized: finite_enumeration
+            .iter()
+            .all(|item| item.self_incidence_patterns == 2usize.pow(item.occurrence_count as u32)),
+        finite_enumeration,
+        address_renaming_invariant_verified,
+        occurrence_permutation_equivariant_verified,
+        occurrence_permutation_invariant,
+        countermodel: LinkOntologySlotwiseSelfIncidenceCountermodel {
+            first_ordered_pattern: first_ordered_pattern.clone(),
+            second_ordered_pattern: second_ordered_pattern.clone(),
+            first_self_incidence_by_reference_slot: first_self_incidence.clone(),
+            second_self_incidence_by_reference_slot: second_self_incidence.clone(),
+            same_self_incidence_multiplicity: first_self_incidence
+                .iter()
+                .filter(|incident| **incident)
+                .count()
+                == second_self_incidence
+                    .iter()
+                    .filter(|incident| **incident)
+                    .count(),
+            same_slotwise_self_incidence: first_self_incidence == second_self_incidence,
+            same_after_occurrence_permutation: canonical_addressable_link_signature(
+                &first_ordered_pattern,
+            ) == canonical_addressable_link_signature(&second_ordered_pattern),
+        },
+        ordered_faithful_descriptor: LinkOntologyMinimalFaithfulDescriptor {
+            status: "COMPLETE_INVARIANT_FOR_ORDERED_ADDRESS_EQUALITY_CONTRACT",
+            fields: vec![
+                "referenceEqualityMatrix",
+                "selfIncidenceByReferenceSlot",
+            ],
+            finite_enumeration_agreement: descriptor_to_signatures
+                .values()
+                .all(|signatures| signatures.len() == 1)
+                && descriptor_to_signatures.len() == ordered_patterns.len(),
+            general_argument: "Reference equality classifies the ordered references up to address renaming, while the slotwise self-incidence mask identifies exactly which reference class, if any, is the link address.",
+        },
+        quotient_consequence: "Occurrence permutation preserves the slotwise mask only equivariantly; the unlabelled quotient retains its number of true entries but forgets their ordered positions.",
+        claim_boundary: "This classifies address/reference equality per ordered slot. It does not establish that reference-slot identity is intrinsic, assign endpoint roles to slots, or supply dynamics or execution semantics.",
+    }
+}
+
 fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresentationAudit {
     let finite_enumeration = (1..=4)
         .map(|occurrence_count| {
@@ -1339,6 +1526,7 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
             exact_fibre_cardinality: "one fresh-address lift plus one self-identifying lift for each distinct reference multiplicity",
             consequence: "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY",
         },
+        slotwise_self_incidence: link_ontology_slotwise_self_incidence_audit(),
         quotient_audit: LinkOntologyQuotientAudit {
             finite_enumeration: quotient_finite_enumeration,
             address_renaming_complete_invariant_verified,
@@ -1746,6 +1934,11 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                 evidence: "At widths one through four, forgetting the link address maps 2/4/7/12 addressable classes to 1/2/3/5 reference-only classes; every coarse fibre contains both fresh-address and self-identifying lifts.",
             },
             LinkOntologyLossAudit {
+                distinction: "self-incidence reference slot",
+                classification: "RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT",
+                evidence: "All 2/4/8/16 Boolean self-incidence masks occur at widths one through four. Each mask is invariant under address renaming and moves equivariantly, rather than remaining fixed, under reference-slot permutation.",
+            },
+            LinkOntologyLossAudit {
                 distinction: "endpoint direction",
                 classification: "NOT_OBSERVED_NOT_DISPROVED",
                 evidence: "Neither the base family nor the conditional refinement names or measures endpoint order.",
@@ -1889,8 +2082,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v5",
-        question: "Which facts survive the binary reference observation, what does its fixed width erase, can it represent direct self-reference, and can an observation derived from that base create new distinctions?",
+        schema: "rml-link-ontology-symmetry-experiment/v6",
+        question: "Which facts survive the binary reference observation, what does its fixed width erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -1997,6 +2190,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "Direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but cannot be related by address renaming or occurrence permutation. At widths one through four, 2/4/7/12 addressable classes collapse to 1/2/3/5 reference-only classes.",
             },
             LinkOntologyResult {
+                id: "slotwise-self-incidence",
+                result: "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT",
+                evidence: "The slotwise Boolean mask realizes 2/4/8/16 patterns at widths one through four, is invariant under global address renaming, and is equivariant but not invariant under slot permutation. Together with the ordered reference-equality matrix it completely classifies the tested ordered address/equality patterns.",
+            },
+            LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
                 result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
                 evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
@@ -2007,8 +2205,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. For the repaired address/equality representation, bijective address renaming is derived from the complete equality invariant, while occurrence permutation remains an unestablished observer choice. Multiplicity spectrum plus self-reference multiplicity is a complete invariant only after the unlabelled-occurrence premise is declared. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.",
-        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, and that raw address names add no information within the address/equality contract. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, claim the addressable quotient is complete, derive endpoint roles, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot: every mask occurs, address renaming preserves it, and slot permutation transports it equivariantly. The ordered reference-equality matrix plus this mask is complete for the tested ordered address/equality contract. Occurrence permutation remains an unestablished observer choice; after imposing it, only self-reference multiplicity remains. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, assign endpoint meaning to a self-incident slot, claim the addressable quotient is complete, derive dynamics, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics.",
     }
 }
 

@@ -429,6 +429,142 @@ function addressableLinkDescriptor(addressPattern) {
   };
 }
 
+function selfIncidenceByReferenceSlot(addressPattern) {
+  return addressPattern.slice(1)
+    .map(referenceAddress => referenceAddress === addressPattern[0]);
+}
+
+function orderedAddressableLinkDescriptor(addressPattern) {
+  const references = addressPattern.slice(1);
+  return {
+    referenceEqualityMatrix: equalityMatrix(references),
+    selfIncidenceByReferenceSlot:
+      selfIncidenceByReferenceSlot(addressPattern),
+  };
+}
+
+function slotwiseSelfIncidenceAudit() {
+  const finiteEnumeration = [1, 2, 3, 4].map(occurrenceCount => {
+    const orderedPatterns = setPartitions(occurrenceCount + 1);
+    const classes = new Map();
+    for (const addressPattern of orderedPatterns) {
+      const selfIncidence = selfIncidenceByReferenceSlot(addressPattern);
+      const key = JSON.stringify(selfIncidence);
+      if (!classes.has(key)) {
+        classes.set(key, {
+          selfIncidenceByReferenceSlot: selfIncidence,
+          orderedEqualityClasses: 0,
+        });
+      }
+      classes.get(key).orderedEqualityClasses += 1;
+    }
+    return {
+      occurrenceCount,
+      selfIncidencePatterns: classes.size,
+      orderedEqualityClasses: orderedPatterns.length,
+      classesBySelfIncidence: [...classes.values()]
+        .sort((left, right) => compareVectors(
+          left.selfIncidenceByReferenceSlot,
+          right.selfIncidenceByReferenceSlot,
+        )),
+    };
+  });
+  const orderedPatterns = [1, 2, 3, 4]
+    .flatMap(occurrenceCount => setPartitions(occurrenceCount + 1));
+  const addressRenamingInvariantVerified = orderedPatterns.every(addressPattern => {
+    const addresses = [...new Set(addressPattern)];
+    const expected = selfIncidenceByReferenceSlot(addressPattern);
+    return permutations(addresses).every(permutedAddresses => {
+      const renaming = new Map(addresses.map(
+        (address, index) => [address, permutedAddresses[index]],
+      ));
+      return JSON.stringify(selfIncidenceByReferenceSlot(
+        addressPattern.map(address => renaming.get(address)),
+      )) === JSON.stringify(expected);
+    });
+  });
+  const permutationChecks = orderedPatterns.flatMap(addressPattern => {
+    const references = addressPattern.slice(1);
+    const selfIncidence = selfIncidenceByReferenceSlot(addressPattern);
+    return permutations(references.map((_, index) => index))
+      .map(permutation => {
+        const permutedPattern = [
+          addressPattern[0],
+          ...permutation.map(index => references[index]),
+        ];
+        const permutedIncidence = selfIncidenceByReferenceSlot(permutedPattern);
+        const expected = permutation.map(index => selfIncidence[index]);
+        return {
+          equivariant:
+            JSON.stringify(permutedIncidence) === JSON.stringify(expected),
+          invariant:
+            JSON.stringify(permutedIncidence) === JSON.stringify(selfIncidence),
+        };
+      });
+  });
+  const descriptorToSignatures = new Map();
+  for (const addressPattern of orderedPatterns) {
+    const descriptor = JSON.stringify(
+      orderedAddressableLinkDescriptor(addressPattern),
+    );
+    if (!descriptorToSignatures.has(descriptor)) {
+      descriptorToSignatures.set(descriptor, new Set());
+    }
+    descriptorToSignatures.get(descriptor).add(
+      JSON.stringify(firstOccurrenceNormalForm(addressPattern)),
+    );
+  }
+  const firstOrderedPattern = [0, 0, 1];
+  const secondOrderedPattern = [0, 1, 0];
+  const firstSelfIncidence = selfIncidenceByReferenceSlot(firstOrderedPattern);
+  const secondSelfIncidence = selfIncidenceByReferenceSlot(secondOrderedPattern);
+
+  return {
+    status: 'CLASSIFIED_PER_ORDERED_REFERENCE_SLOT',
+    provenance: 'ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT',
+    predicate:
+      'selfIncidenceByReferenceSlot[i] = (referenceAddress[i] === linkAddress)',
+    finiteEnumeration,
+    everyBooleanSlotPatternRealized: finiteEnumeration.every(item =>
+      item.selfIncidencePatterns === 2 ** item.occurrenceCount),
+    addressRenamingInvariantVerified,
+    occurrencePermutationEquivariantVerified:
+      permutationChecks.every(check => check.equivariant),
+    occurrencePermutationInvariant:
+      permutationChecks.every(check => check.invariant),
+    countermodel: {
+      firstOrderedPattern,
+      secondOrderedPattern,
+      firstSelfIncidenceByReferenceSlot: firstSelfIncidence,
+      secondSelfIncidenceByReferenceSlot: secondSelfIncidence,
+      sameSelfIncidenceMultiplicity:
+        firstSelfIncidence.filter(Boolean).length ===
+          secondSelfIncidence.filter(Boolean).length,
+      sameSlotwiseSelfIncidence:
+        JSON.stringify(firstSelfIncidence) === JSON.stringify(secondSelfIncidence),
+      sameAfterOccurrencePermutation:
+        canonicalAddressableLinkSignature(firstOrderedPattern) ===
+          canonicalAddressableLinkSignature(secondOrderedPattern),
+    },
+    orderedFaithfulDescriptor: {
+      status: 'COMPLETE_INVARIANT_FOR_ORDERED_ADDRESS_EQUALITY_CONTRACT',
+      fields: [
+        'referenceEqualityMatrix',
+        'selfIncidenceByReferenceSlot',
+      ],
+      finiteEnumerationAgreement: [...descriptorToSignatures.values()]
+        .every(signatures => signatures.size === 1) &&
+          descriptorToSignatures.size === orderedPatterns.length,
+      generalArgument:
+        'Reference equality classifies the ordered references up to address renaming, while the slotwise self-incidence mask identifies exactly which reference class, if any, is the link address.',
+    },
+    quotientConsequence:
+      'Occurrence permutation preserves the slotwise mask only equivariantly; the unlabelled quotient retains its number of true entries but forgets their ordered positions.',
+    claimBoundary:
+      'This classifies address/reference equality per ordered slot. It does not establish that reference-slot identity is intrinsic, assign endpoint roles to slots, or supply dynamics or execution semantics.',
+  };
+}
+
 function startingRepresentationAudit() {
   const finiteEnumeration = Array.from({ length: 4 }, (_, index) => index + 1)
     .map(occurrenceCount => {
@@ -557,6 +693,7 @@ function startingRepresentationAudit() {
       exactFibreCardinality: 'one fresh-address lift plus one self-identifying lift for each distinct reference multiplicity',
       consequence: 'REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY',
     },
+    slotwiseSelfIncidence: slotwiseSelfIncidenceAudit(),
     quotientAudit: {
       finiteEnumeration: quotientFiniteEnumeration,
       addressRenamingCompleteInvariantVerified: [1, 2, 3, 4]
@@ -886,6 +1023,11 @@ function observationBoundaryExperiment() {
         evidence: 'At widths one through four, forgetting the link address maps 2/4/7/12 addressable classes to 1/2/3/5 reference-only classes; every coarse fibre contains both fresh-address and self-identifying lifts.',
       },
       {
+        distinction: 'self-incidence reference slot',
+        classification: 'RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT',
+        evidence: 'All 2/4/8/16 Boolean self-incidence masks occur at widths one through four. Each mask is invariant under address renaming and moves equivariantly, rather than remaining fixed, under reference-slot permutation.',
+      },
+      {
         distinction: 'endpoint direction',
         classification: 'NOT_OBSERVED_NOT_DISPROVED',
         evidence: 'Neither the base family nor the conditional refinement names or measures endpoint order.',
@@ -1007,8 +1149,8 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v5',
-    question: 'Which facts survive the binary reference observation, what does its fixed width erase, can it represent direct self-reference, and can an observation derived from that base create new distinctions?',
+    schema: 'rml-link-ontology-symmetry-experiment/v6',
+    question: 'Which facts survive the binary reference observation, what does its fixed width erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
       occurrenceCount,
@@ -1122,6 +1264,11 @@ function linkOntologySymmetryExperiment() {
         evidence: 'Direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but cannot be related by address renaming or occurrence permutation. At widths one through four, 2/4/7/12 addressable classes collapse to 1/2/3/5 reference-only classes.',
       },
       {
+        id: 'slotwise-self-incidence',
+        result: 'CLASSIFIED_PER_ORDERED_REFERENCE_SLOT',
+        evidence: 'The slotwise Boolean mask realizes 2/4/8/16 patterns at widths one through four, is invariant under global address renaming, and is equivariant but not invariant under slot permutation. Together with the ordered reference-equality matrix it completely classifies the tested ordered address/equality patterns.',
+      },
+      {
         id: 'addressable-quotient-assumptions',
         result: 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED',
         evidence: 'Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.',
@@ -1132,8 +1279,8 @@ function linkOntologySymmetryExperiment() {
         evidence: 'The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.',
       },
     ],
-    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. For the repaired address/equality representation, bijective address renaming is derived from the complete equality invariant, while occurrence permutation remains an unestablished observer choice. Multiplicity spectrum plus self-reference multiplicity is a complete invariant only after the unlabelled-occurrence premise is declared. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.',
-    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, and that raw address names add no information within the address/equality contract. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, claim the addressable quotient is complete, derive endpoint roles, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics.',
+    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot: every mask occurs, address renaming preserves it, and slot permutation transports it equivariantly. The ordered reference-equality matrix plus this mask is complete for the tested ordered address/equality contract. Occurrence permutation remains an unestablished observer choice; after imposing it, only self-reference multiplicity remains. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.',
+    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, assign endpoint meaning to a self-incident slot, claim the addressable quotient is complete, derive dynamics, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics.',
   };
 }
 
@@ -1833,7 +1980,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v8',
+    schema: 'rml-alternative-foundation-search/v9',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
@@ -1844,7 +1991,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     comparisonStatus: comparisonCohortSufficient
       ? 'COMPARABLE_COHORT_ESTABLISHED_NO_GLOBAL_MINIMALITY_CLAIM'
       : 'OPEN_NO_COMPARABLE_ALTERNATIVE',
-    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, the binary symmetry quotient, the width-one-through-four multiplicity quotients, the conditional width-four refinement fibres, and the symmetry non-creation result for observations derived from the tested base. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The observation evidence does not establish link ontology, identify richer intrinsic link structure, turn a structural symmetry into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
+    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, the binary symmetry quotient, the width-one-through-four multiplicity quotients, the slotwise self-incidence classification, the conditional width-four refinement fibres, and the symmetry non-creation result for observations derived from the tested base. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The observation evidence does not establish link ontology, intrinsic slot identity, richer intrinsic link structure, turn a structural symmetry into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
     candidates,
     representationBoundaryWitness: linkRepresentationBoundaryWitness(),
     comparisonCohort: {
@@ -1878,7 +2025,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       globallyMinimal: false,
       intrinsicTransitionAuthority: 'UNRESOLVED',
       representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
-      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base. The reference-only projection is non-faithful for required direct self-reference. Within the repaired address/equality representation, equality matrices derive address-renaming equivalence, but occurrence permutation remains unestablished; multiplicity plus self-reference multiplicity is complete only for the declared unlabelled contract.',
+      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base. The reference-only projection is non-faithful for required direct self-reference. Before occurrence permutation, 2/4/8/16 Boolean masks classify self-incidence per ordered slot and, with reference equality, completely classify the tested ordered contract. Address renaming preserves the mask while occurrence permutation transports it; slot identity therefore remains unestablished, and only self-reference multiplicity survives the declared unlabelled quotient.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };

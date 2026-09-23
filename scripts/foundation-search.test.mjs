@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v8');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v9');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v5',
+      'rml-link-ontology-symmetry-experiment/v6',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -249,6 +249,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['conditional-asymmetry-provenance', 'BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED'],
         ['conditional-interaction-forcedness', 'SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE'],
         ['starting-representation-faithfulness', 'REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE'],
+        ['slotwise-self-incidence', 'CLASSIFIED_PER_ORDERED_REFERENCE_SLOT'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
@@ -559,6 +560,94 @@ describe('architecture-neutral alternative-foundation search', () => {
       startingRepresentation.generalArgument.consequence,
       'REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY',
     );
+    const slotwiseIncidence = startingRepresentation.slotwiseSelfIncidence;
+    assert.equal(
+      slotwiseIncidence.status,
+      'CLASSIFIED_PER_ORDERED_REFERENCE_SLOT',
+    );
+    assert.equal(
+      slotwiseIncidence.provenance,
+      'ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT',
+    );
+    assert.equal(
+      slotwiseIncidence.predicate,
+      'selfIncidenceByReferenceSlot[i] = (referenceAddress[i] === linkAddress)',
+    );
+    assert.deepEqual(
+      slotwiseIncidence.finiteEnumeration.map(item => ({
+        occurrenceCount: item.occurrenceCount,
+        selfIncidencePatterns: item.selfIncidencePatterns,
+        orderedEqualityClasses: item.orderedEqualityClasses,
+        classesBySelfIncidence: item.classesBySelfIncidence.map(row => [
+          row.selfIncidenceByReferenceSlot.map(Number).join(''),
+          row.orderedEqualityClasses,
+        ]),
+      })),
+      [
+        {
+          occurrenceCount: 1,
+          selfIncidencePatterns: 2,
+          orderedEqualityClasses: 2,
+          classesBySelfIncidence: [['0', 1], ['1', 1]],
+        },
+        {
+          occurrenceCount: 2,
+          selfIncidencePatterns: 4,
+          orderedEqualityClasses: 5,
+          classesBySelfIncidence: [
+            ['00', 2], ['01', 1], ['10', 1], ['11', 1],
+          ],
+        },
+        {
+          occurrenceCount: 3,
+          selfIncidencePatterns: 8,
+          orderedEqualityClasses: 15,
+          classesBySelfIncidence: [
+            ['000', 5], ['001', 2], ['010', 2], ['011', 1],
+            ['100', 2], ['101', 1], ['110', 1], ['111', 1],
+          ],
+        },
+        {
+          occurrenceCount: 4,
+          selfIncidencePatterns: 16,
+          orderedEqualityClasses: 52,
+          classesBySelfIncidence: [
+            ['0000', 15], ['0001', 5], ['0010', 5], ['0011', 2],
+            ['0100', 5], ['0101', 2], ['0110', 2], ['0111', 1],
+            ['1000', 5], ['1001', 2], ['1010', 2], ['1011', 1],
+            ['1100', 2], ['1101', 1], ['1110', 1], ['1111', 1],
+          ],
+        },
+      ],
+    );
+    assert.equal(slotwiseIncidence.everyBooleanSlotPatternRealized, true);
+    assert.equal(slotwiseIncidence.addressRenamingInvariantVerified, true);
+    assert.equal(
+      slotwiseIncidence.occurrencePermutationEquivariantVerified,
+      true,
+    );
+    assert.equal(slotwiseIncidence.occurrencePermutationInvariant, false);
+    assert.deepEqual(slotwiseIncidence.countermodel, {
+      firstOrderedPattern: [0, 0, 1],
+      secondOrderedPattern: [0, 1, 0],
+      firstSelfIncidenceByReferenceSlot: [true, false],
+      secondSelfIncidenceByReferenceSlot: [false, true],
+      sameSelfIncidenceMultiplicity: true,
+      sameSlotwiseSelfIncidence: false,
+      sameAfterOccurrencePermutation: true,
+    });
+    assert.deepEqual(
+      slotwiseIncidence.orderedFaithfulDescriptor.fields,
+      ['referenceEqualityMatrix', 'selfIncidenceByReferenceSlot'],
+    );
+    assert.equal(
+      slotwiseIncidence.orderedFaithfulDescriptor.status,
+      'COMPLETE_INVARIANT_FOR_ORDERED_ADDRESS_EQUALITY_CONTRACT',
+    );
+    assert.equal(
+      slotwiseIncidence.orderedFaithfulDescriptor.finiteEnumerationAgreement,
+      true,
+    );
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -645,6 +734,10 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['width beyond two occurrences', 'PROVEN_INFORMATION_LOSS'],
         ['second equivalence observation', 'PROVEN_NOT_RECOVERABLE'],
         ['direct self-reference', 'PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS'],
+        [
+          'self-incidence reference slot',
+          'RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT',
+        ],
         ['endpoint direction', 'NOT_OBSERVED_NOT_DISPROVED'],
         ['dynamics and time', 'NOT_OBSERVED_NOT_DISPROVED'],
       ],
@@ -710,7 +803,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v8');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v9');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,
@@ -796,11 +889,17 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.ok(expected.claimBoundary.proved.includes(
       'a conditional second equivalence observation produces 33 joint classes whose reference-only projection has five to nine refinements per fibre',
     ));
+    assert.ok(expected.claimBoundary.proved.includes(
+      'slotwise self-incidence is invariant under address renaming and equivariant under reference-slot permutation',
+    ));
     assert.ok(expected.claimBoundary.notProved.includes(
       'that the two-occurrence observation contract exhausts the ontology of links',
     ));
     assert.ok(expected.claimBoundary.notProved.includes(
       'that the conditional second equivalence observation is fundamental to links',
+    ));
+    assert.ok(expected.claimBoundary.notProved.includes(
+      'that a self-incident slot is a source, target, or execution role',
     ));
     assert.equal(report.conclusion.globallyMinimal, expected.claimBoundary.globallyMinimal);
     assert.equal(

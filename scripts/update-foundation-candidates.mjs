@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v8';
+table.schema = 'rml-foundation-candidate-table/v9';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -41,6 +41,9 @@ table.claimBoundary.proved = [...new Set([
   'full equality matrices completely classify ordered address patterns under bijective address renaming',
   'reference-occurrence permutation collapses 0, 1, 8, and 40 additional ordered classes at widths one through four',
   'reference multiplicity plus direct-self-reference multiplicity classifies the declared unlabelled addressable quotient at widths one through four',
+  'all 2, 4, 8, and 16 slotwise self-incidence masks occur at widths one through four',
+  'slotwise self-incidence is invariant under address renaming and equivariant under reference-slot permutation',
+  'reference equality plus the slotwise self-incidence mask classifies ordered address/equality patterns at widths one through four',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -54,6 +57,8 @@ table.claimBoundary.notProved = [...new Set([
   'that direct self-reference supplies endpoint roles, dynamics, or an execution law',
   'that reference occurrences intrinsically lack slot identity',
   'that the declared unlabelled addressable quotient is a complete representation of links',
+  'that reference-slot identity is intrinsic to links',
+  'that a self-incident slot is a source, target, or execution role',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);
