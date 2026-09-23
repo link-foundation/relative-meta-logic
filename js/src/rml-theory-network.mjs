@@ -789,6 +789,46 @@ class TypedLinkNetwork {
     return { closed: missingReferences.length === 0, missingReferences };
   }
 
+  /**
+   * Compare this ontology with link-cli's pinned construction without
+   * assuming that symbolic names and reserved numeric identities coincide.
+   */
+  linkCliInteropProfile() {
+    const numericAddresses = new Map([['Type', 1], ['SubType', 2], ['Value', 3]]);
+    const pinnedTypes = [...numericAddresses].map(([rmlAddress, address]) => {
+      const link = this.doublet(rmlAddress);
+      const source = numericAddresses.get(link?.source);
+      const target = numericAddresses.get(link?.target);
+      const mappedRmlShape = source === undefined || target === undefined
+        ? null
+        : { address, source, target };
+      const linkCliShape = { address, source: 1, target: address };
+      return {
+        rmlAddress,
+        mappedRmlShape,
+        linkCliShape,
+        exactShape: mappedRmlShape !== null &&
+          mappedRmlShape.source === linkCliShape.source &&
+          mappedRmlShape.target === linkCliShape.target,
+      };
+    });
+
+    return {
+      revision: 'e801cb877f8ed90a103ee253add6f702da89ee40',
+      pinnedTypes,
+      unicode: {
+        linkCliShape: ['raw-number', 'unicode-symbol-type'],
+        mapsToRml: ['type-fact-subject', 'type-fact-type'],
+        typeFactOrientationCompatible: true,
+        canonicalDefinitionOrientationCompatible: false,
+      },
+      names: {
+        storage: 'separate-names-link-database',
+        numericIdentityRequired: false,
+      },
+    };
+  }
+
   #requireType(address, expected, role) {
     const declared = this.typesOf(address);
     if (declared.length === 0) {

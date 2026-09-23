@@ -43,9 +43,35 @@ promoted to an impredicative logical `Type : Type` rule. A logical foundation
 must separately declare its universes, inference rules, assumptions, and
 soundness conditions.
 
+## link-cli interoperability
+
+The comparison is pinned to link-cli revision
+[`e801cb8`](https://github.com/link-foundation/link-cli/tree/e801cb877f8ed90a103ee253add6f702da89ee40).
+Its `PinnedTypes::next_type` reserves numeric address `n` with shape
+`n: (1, n)`. Applying the explicit symbolic mapping `Type = 1`, `SubType = 2`,
+and `Value = 3` gives:
+
+| RML term | Mapped RML shape | link-cli pinned shape | Exact |
+| --- | --- | --- | --- |
+| `Type` | `1: (1, 1)` | `1: (1, 1)` | yes |
+| `SubType` | `2: (1, 2)` | `2: (1, 2)` | yes |
+| `Value` | `3: (2, 3)` | `3: (1, 3)` | no |
+
+The third pinned identity therefore cannot be copied as RML `Value`. An
+adapter must create the `(2, 3)` definition at a non-conflicting address or
+retain a separate name-to-address binding. link-cli's named-type decorator
+stores names in a separate links database, so no RML symbolic name implies a
+numeric identity.
+
+link-cli encodes a Unicode code unit as `(raw-number,
+unicode-symbol-type)`. That instance-first shape agrees with RML's linked type
+facts `(subject, type)`, but not with the canonical ontology-definition links,
+which are classifier-first. The interop profile exposes both booleans so an
+adapter cannot silently reverse endpoints. `linkCliInteropProfile` and
+`link_cli_interop_profile` compute and test this mapping in both runtimes.
+
 This finite ontology does not yet recursively close every RML rule,
 substitution, judgement, proof, foundation, or physical encoding. Pair types
 created by general typed networks are still textual references until their
 own links are supplied. Identity- and cycle-preserving serialization of the
-entire semantic surface, and the explicit link-cli interoperability mapping,
-remain separate open requirements.
+entire semantic surface remains a separate open requirement.

@@ -1020,6 +1020,23 @@ pub struct LinkClosureReport {
     pub missing_references: Vec<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkCliPinnedTypeMapping {
+    pub rml_address: String,
+    pub mapped_rml_shape: Option<(u32, u32, u32)>,
+    pub link_cli_shape: (u32, u32, u32),
+    pub exact_shape: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkCliTypeInteropProfile {
+    pub revision: &'static str,
+    pub pinned_types: Vec<LinkCliPinnedTypeMapping>,
+    pub unicode_type_fact_orientation_compatible: bool,
+    pub unicode_canonical_definition_orientation_compatible: bool,
+    pub names_require_numeric_identity: bool,
+}
+
 /// A link network whose references and ordered-pair endpoints are type checked.
 #[derive(Debug, Clone, Default)]
 pub struct TypedLinkNetwork {
@@ -1198,6 +1215,39 @@ impl TypedLinkNetwork {
         LinkClosureReport {
             closed: missing_references.is_empty(),
             missing_references,
+        }
+    }
+
+    /// Compare this ontology with link-cli's pinned construction without
+    /// assuming that symbolic names and reserved numeric identities coincide.
+    pub fn link_cli_interop_profile(&self) -> LinkCliTypeInteropProfile {
+        let ordered_addresses = [("Type", 1), ("SubType", 2), ("Value", 3)];
+        let numeric_addresses = BTreeMap::from(ordered_addresses);
+        let pinned_types = ordered_addresses
+            .iter()
+            .map(|(rml_address, address)| {
+                let mapped_rml_shape = self.doublet(rml_address).and_then(|(source, target)| {
+                    Some((
+                        *address,
+                        *numeric_addresses.get(source)?,
+                        *numeric_addresses.get(target)?,
+                    ))
+                });
+                let link_cli_shape = (*address, 1, *address);
+                LinkCliPinnedTypeMapping {
+                    rml_address: (*rml_address).to_string(),
+                    mapped_rml_shape,
+                    link_cli_shape,
+                    exact_shape: mapped_rml_shape == Some(link_cli_shape),
+                }
+            })
+            .collect();
+        LinkCliTypeInteropProfile {
+            revision: "e801cb877f8ed90a103ee253add6f702da89ee40",
+            pinned_types,
+            unicode_type_fact_orientation_compatible: true,
+            unicode_canonical_definition_orientation_compatible: false,
+            names_require_numeric_identity: false,
         }
     }
 

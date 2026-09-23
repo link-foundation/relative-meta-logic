@@ -814,6 +814,22 @@ fn provides_a_selectable_recursively_linked_default_type_ontology() {
             missing_references: Vec::new(),
         }
     );
+
+    let interop = links.link_cli_interop_profile();
+    assert_eq!(interop.revision, "e801cb877f8ed90a103ee253add6f702da89ee40");
+    assert_eq!(
+        interop
+            .pinned_types
+            .iter()
+            .map(|mapping| (mapping.rml_address.as_str(), mapping.exact_shape))
+            .collect::<Vec<_>>(),
+        vec![("Type", true), ("SubType", true), ("Value", false)]
+    );
+    assert_eq!(interop.pinned_types[2].mapped_rml_shape, Some((3, 2, 3)));
+    assert_eq!(interop.pinned_types[2].link_cli_shape, (3, 1, 3));
+    assert!(interop.unicode_type_fact_orientation_compatible);
+    assert!(!interop.unicode_canonical_definition_orientation_compatible);
+    assert!(!interop.names_require_numeric_identity);
 }
 
 #[test]

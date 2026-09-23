@@ -643,6 +643,26 @@ describe('graph theory as a constrained links-network subset', () => {
       closed: true,
       missingReferences: [],
     });
+
+    const interop = links.linkCliInteropProfile();
+    assert.strictEqual(interop.revision, 'e801cb877f8ed90a103ee253add6f702da89ee40');
+    assert.deepStrictEqual(
+      interop.pinnedTypes.map(mapping => [mapping.rmlAddress, mapping.exactShape]),
+      [['Type', true], ['SubType', true], ['Value', false]],
+    );
+    assert.deepStrictEqual(interop.pinnedTypes[2], {
+      rmlAddress: 'Value',
+      mappedRmlShape: { address: 3, source: 2, target: 3 },
+      linkCliShape: { address: 3, source: 1, target: 3 },
+      exactShape: false,
+    });
+    assert.deepStrictEqual(interop.unicode, {
+      linkCliShape: ['raw-number', 'unicode-symbol-type'],
+      mapsToRml: ['type-fact-subject', 'type-fact-type'],
+      typeFactOrientationCompatible: true,
+      canonicalDefinitionOrientationCompatible: false,
+    });
+    assert.strictEqual(interop.names.numericIdentityRequired, false);
   });
 
   it('stores directed graphs as vertex-membership and typed edge links', () => {
