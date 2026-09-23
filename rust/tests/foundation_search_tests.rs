@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v8");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v9");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -565,6 +565,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "structural-application-composition",
                 "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION",
+            ),
+            (
+                "link-carried-selection-authority",
+                "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",
             ),
             (
                 "addressable-quotient-assumptions",
@@ -1304,6 +1308,167 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(structural_probe
         .claim_boundary
         .contains("additional selection/closure law"));
+    let authority_probe = &starting_representation.link_carried_selection_authority;
+    assert_eq!(
+        authority_probe.status,
+        "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY"
+    );
+    assert_eq!(
+        authority_probe.records.premises,
+        vec![vec![3, 0, 1], vec![4, 1, 2]]
+    );
+    assert_eq!(
+        authority_probe.records.candidates,
+        vec![vec![7, 0, 2], vec![8, 0, 2]]
+    );
+    assert_eq!(authority_probe.records.additional_link, vec![9, 7, 7]);
+    assert_eq!(
+        authority_probe.records.incidence_readout_provenance,
+        "EXPERIMENTAL_EQUAL-REFERENCE_OBSERVATION_NOT_INTRINSIC_AUTHORITY"
+    );
+    assert_eq!(
+        authority_probe
+            .equivariant_selection_constraint
+            .without_additional_link
+            .candidate_automorphisms,
+        vec![vec![0, 1], vec![1, 0]]
+    );
+    assert_eq!(
+        authority_probe
+            .equivariant_selection_constraint
+            .without_additional_link
+            .candidate_orbit_sizes,
+        vec![2]
+    );
+    assert_eq!(
+        authority_probe
+            .equivariant_selection_constraint
+            .without_additional_link
+            .invariant_candidate_subsets,
+        vec![vec![], vec![7, 8]]
+    );
+    assert_eq!(
+        authority_probe
+            .equivariant_selection_constraint
+            .without_additional_link
+            .invariant_singleton_selections,
+        0
+    );
+    assert_eq!(
+        authority_probe
+            .equivariant_selection_constraint
+            .with_additional_link
+            .candidate_automorphisms,
+        vec![vec![0, 1]]
+    );
+    assert_eq!(
+        authority_probe
+            .equivariant_selection_constraint
+            .with_additional_link
+            .candidate_orbit_sizes,
+        vec![1, 1]
+    );
+    assert_eq!(
+        authority_probe
+            .equivariant_selection_constraint
+            .with_additional_link
+            .invariant_candidate_subsets,
+        vec![vec![], vec![7], vec![8], vec![7, 8]]
+    );
+    assert_eq!(
+        authority_probe
+            .equivariant_selection_constraint
+            .with_additional_link
+            .invariant_singleton_selections,
+        2
+    );
+    assert!(
+        authority_probe
+            .equivariant_selection_constraint
+            .singleton_selection_made_possible
+    );
+    assert!(
+        !authority_probe
+            .equivariant_selection_constraint
+            .singleton_selection_forced
+    );
+    assert_eq!(
+        authority_probe
+            .opposite_equivariant_readings
+            .iter()
+            .map(|reading| (
+                reading.id,
+                reading.selected_candidates.clone(),
+                reading.address_renaming_equivariant,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("referenced-candidate", vec![7], true),
+            ("unreferenced-candidate", vec![8], true),
+        ]
+    );
+    assert!(authority_probe
+        .perturbations
+        .removal
+        .marked_candidates
+        .is_empty());
+    assert_eq!(
+        authority_probe.perturbations.replacement.marked_candidates,
+        vec![8]
+    );
+    assert_eq!(
+        authority_probe.perturbations.duplication.marked_candidates,
+        vec![7, 8]
+    );
+    assert!(!authority_probe.perturbations.duplication.unique);
+    assert!(!authority_probe.perturbations.forgery.structurally_rejected);
+    assert!(
+        authority_probe
+            .perturbations
+            .context_relocation
+            .same_under_context_address_renaming
+    );
+    assert!(
+        authority_probe
+            .recursive_authority
+            .finite_chain_candidate_swap_preserves_shape
+    );
+    assert!(
+        authority_probe
+            .recursive_authority
+            .self_reference_closes_address_cycle
+    );
+    assert!(
+        authority_probe
+            .recursive_authority
+            .self_referential_candidate_swap_preserves_shape
+    );
+    assert!(
+        authority_probe
+            .recursive_authority
+            .selection_polarity_still_underdetermined
+    );
+    assert_eq!(
+        (
+            authority_probe.distinctions.formation,
+            authority_probe.distinctions.selection,
+            authority_probe.distinctions.justification,
+            authority_probe.distinctions.activation,
+            authority_probe.distinctions.applicability,
+            authority_probe.distinctions.execution,
+        ),
+        (
+            "BOTH_CANDIDATE_LINKS_EXIST",
+            "NOT_FORCED_TWO_OPPOSITE_EQUIVARIANT_READINGS",
+            "ISOMORPHIC_FORGERY_NOT_REJECTED",
+            "NO_LINK_DERIVED_ADMISSION_VALIDATION_OR_ACTIVATION",
+            "AMBIENT_EXISTENCE_DOES_NOT_SELECT_APPLICABILITY",
+            "NO_TRANSITION_CREATION_OR_PUBLICATION_EVENT",
+        )
+    );
+    assert!(authority_probe
+        .claim_boundary
+        .contains("does not prove that external authority is irreducible"));
     assert_eq!(
         starting_representation
             .quotient_audit
@@ -1417,6 +1582,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
                 "application and composition meaning",
                 "PROVEN_NOT_ENTAILED_BY_TESTED_LINK_STRUCTURE"
             ),
+            (
+                "selection authority from additional linked incidence",
+                "ASYMMETRY_PERMITS_BUT_DOES_NOT_FORCE_SELECTION"
+            ),
             ("endpoint direction", "NOT_OBSERVED_NOT_DISPROVED"),
             ("dynamics and time", "NOT_OBSERVED_NOT_DISPROVED"),
         ]
@@ -1444,6 +1613,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(report.results.iter().any(|item| {
         item.id == "structural-application-composition"
             && item.result == "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION"
+    }));
+    assert!(report.results.iter().any(|item| {
+        item.id == "link-carried-selection-authority"
+            && item.result == "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY"
     }));
 }
 

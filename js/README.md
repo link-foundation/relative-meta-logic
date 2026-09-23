@@ -237,7 +237,7 @@ histogram is 20/5/7/1 for 0/1/2/4 singleton orbits, and provenance separates
 classes. All 73 candidate observations at widths one through four that preserve
 their base symmetries leave the base occurrence orbits unchanged. The
 interaction-only conditional breaks a relabelling that fixes its base, so it
-requires information not derived from that base. The v8 starting-representation
+requires information not derived from that base. The v9 starting-representation
 audit additionally shows that direct-self `[0,0,1]` and fresh-external
 `[0,1,2]` links share the `[1,1]` reference-only projection. Forgetting the
 link address collapses `2/4/7/12` addressable classes to `1/2/3/5` at widths
@@ -261,7 +261,14 @@ Binary formation permits all `49` ordered pairs on the seven addresses but
 selects none, and the recursive candidates
 recover no unique function/argument/result roles. A positive application or
 composition semantics therefore requires an additional selection/closure law.
-The v11 report treats these as finite, provenance-labelled constraints,
+Adding ordinary evidence link `[9,7,7]` to duplicate candidates `[7,0,2]` and
+`[8,0,2]` breaks their swap symmetry but leaves both opposite singleton
+readings equivariant. Removal, replacement, duplication, isomorphic forgery,
+context relocation, and finite/self-referential authority variants do not
+confer authenticity, activation, or execution. Link-carried incidence can
+therefore permit selection without forcing authority, and the probe does not
+prove that external authority is irreducible.
+The v12 report treats these as finite, provenance-labelled constraints,
 not a link ontology or execution law. Primitive
 categories, the structure/transformation relation, intrinsic authority, and
 comparative minimality remain unresolved. All three implementations are

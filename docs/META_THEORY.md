@@ -141,7 +141,7 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 11 also performs an independent finite symmetry experiment without
+Version 12 also performs an independent finite symmetry experiment without
 using A/B/C. It begins with two unlabelled reference occurrences and equality,
 then exhausts all three surjective observations on their used support, six
 occurrence-permutation/reference-renaming group elements, and ten action
@@ -171,7 +171,7 @@ the base occurrence orbits. The interaction-only conditional instead breaks a
 base-preserving relabelling, so its distinction uses information not derived
 from the tested base. Completeness remains bounded to widths one through four.
 
-The v8 audit also tests the starting projection against the independently
+The v9 audit also tests the starting projection against the independently
 required ability of an addressed link to refer to itself. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` patterns have the same reference-only
 `[1,1]` projection but are inequivalent under address renaming and
@@ -226,6 +226,17 @@ ordered pairs on the seven existing addresses, but selects none as
 composition. Thus `K ⟼ B` is structurally formable, not structurally entailed;
 a positive application or composition semantics requires an additional
 selection/closure law.
+
+The next probe tests whether that selection law can be represented as ordinary
+linked incidence. Duplicate candidates `[7,0,2]` and `[8,0,2]` are exchanged
+by an automorphism until `[9,7,7]` is added. The added link splits the orbit,
+so singleton choice becomes structurally possible, but it leaves both `{7}`
+and `{8}` invariant. Opposite referenced/unreferenced readings commute with
+renaming, while removal, replacement, duplication, isomorphic forgery,
+context relocation, finite meta-authority, and self-reference do not select a
+polarity or confer authenticity, activation, or execution. Formation,
+selection, justification, and execution therefore remain distinct. This
+finite countermodel does not prove that external authority is irreducible.
 
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,

@@ -20,7 +20,7 @@ host/self duplication. The report names no winner. Its two-model witness shows
 only that the tested ordered-link host signature does not select between two
 functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
-documented on this page. The v11 report additionally performs an independent
+documented on this page. The v12 report additionally performs an independent
 finite symmetry experiment over two unlabelled reference occurrences. It
 derives equality coincidence as complete for that contract while eliminating
 an invariant source/target selector, unique dynamics, and
@@ -52,7 +52,7 @@ classes to `4/8/16`. Cross-reference equality plus reference-to-link-address
 incidence recovers a complete descriptor for the tested shared-address
 contract, without assigning semantic roles to incidence.
 
-The embedded v8 probe keeps logical implication, binary link structure,
+The embedded v9 probe keeps logical implication, binary link structure,
 composition, and execution separate. Its connected
 `[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` countermodel keeps the `P`/`Q` link
 identities distinct from the pairwise-distinct `K`/`A`/`B` addresses and has
@@ -61,6 +61,13 @@ but no proposed `[0,2]`. The conservative extension adding `[7,0,2]` preserves
 every premise. Since raw formation admits all 49 ordered pairs over the seven
 existing addresses, it provides no composition-specific selection law or
 semantic role assignment.
+
+Its authority follow-up adds ordinary link `[9,7,7]` to duplicate candidates
+`[7,0,2]` and `[8,0,2]`. The added incidence breaks the candidate-swap
+symmetry, but both opposite singleton readings remain equivariant. The tested
+removal, replacement, duplication, forgery, context, and recursive variants
+therefore distinguish structural selection from justification, activation,
+and execution; they do not establish that external authority is irreducible.
 
 The headline guarantee is backward compatibility:
 

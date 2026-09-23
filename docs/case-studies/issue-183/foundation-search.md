@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v11`. Run it with:
+`rml-alternative-foundation-search/v12`. Run it with:
 
 ```bash
 cd js
@@ -70,7 +70,7 @@ No candidate is declared equivalent to another. Equivalence remains
 
 ## Independent ontology investigation
 
-Version 11 extends a falsifiable ontology experiment rather than converting a
+Version 12 extends a falsifiable ontology experiment rather than converting a
 correctly documented boundary into a completed foundational result. The report
 sets `foundationStatus: OPEN` and
 `ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v8` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v9` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v8 follow-up first changes no primitive vocabulary at all. It retains only
+The v9 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -392,6 +392,47 @@ law and a separate justification of its authority. The probe assigns no
 logical implication, function role, composition, transformation, or execution
 meaning to the links themselves.
 
+### Link-carried selection-authority probe
+
+The next probe asks whether the missing selection authority can itself be
+ordinary linked structure. It begins with the same premise links and two
+duplicate candidates:
+
+```text
+premises   = [[3,0,1],[4,1,2]]
+candidates = [[7,0,2],[8,0,2]]
+S          = [9,7,7]
+```
+
+Without `S`, swapping addresses `7` and `8` is an automorphism. The candidates
+form one orbit, so the only invariant subsets are the empty set and both
+candidates: no invariant singleton selection exists. Adding `S` destroys that
+swap. Both candidates then form singleton orbits, making both `{7}` and `{8}`
+invariant. This removes a symmetry obstruction to selection, but it does not
+force which singleton is authoritative. “Select the referenced candidate” and
+“select the unreferenced candidate” are opposite, renaming-equivariant
+readings of exactly the same structure.
+
+Perturbations make the boundary falsifiable:
+
+- removing `S` marks no candidate;
+- replacing its reference `7` with `8` flips the mark;
+- duplicating evidence for both candidates marks two rather than one;
+- an isomorphic replacement cannot be rejected as a forgery by the declared
+  equality/incidence contract;
+- relocating the same evidence through isomorphic context links changes no
+  structural fact; and
+- finite meta-authority and self-referential authority links close address
+  chains but do not choose a reading polarity or supply execution.
+
+The result is
+`LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY`.
+Formation permits the records, structural selection becomes possible once
+the orbit splits, justification/authenticity remains absent, and execution is
+still a separate question. This is not a proof that authority must be
+external or is irreducible; it identifies the exact gap that remains after
+authority-shaped information is encoded as ordinary links.
+
 ### Conditional refinement probe
 
 The second follow-up asks what a reference-only projection would lose if an
@@ -530,7 +571,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 11 makes
+That experiment does **not** identify the ontology of a link. Version 12 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -595,7 +636,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v11 execution-comparison gate admits a candidate only if it passes the common
+The v12 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.

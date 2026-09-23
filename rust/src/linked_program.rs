@@ -805,6 +805,125 @@ pub struct LinkOntologyStructuralApplicationCompositionProbe {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityRecords {
+    pub interpretation: &'static str,
+    pub records_treated_as_unordered: bool,
+    pub incidence_readout_provenance: &'static str,
+    pub premises: Vec<Vec<usize>>,
+    pub candidates: Vec<Vec<usize>>,
+    pub additional_link: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyCandidateSymmetry {
+    pub candidate_automorphisms: Vec<Vec<usize>>,
+    pub candidate_orbit_sizes: Vec<usize>,
+    pub invariant_candidate_subsets: Vec<Vec<usize>>,
+    pub invariant_singleton_selections: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyEquivariantSelectionConstraint {
+    pub criterion: &'static str,
+    pub without_additional_link: LinkOntologyCandidateSymmetry,
+    pub with_additional_link: LinkOntologyCandidateSymmetry,
+    pub singleton_selection_made_possible: bool,
+    pub singleton_selection_forced: bool,
+    pub general_argument: Vec<&'static str>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyEquivariantReading {
+    pub id: &'static str,
+    pub selected_candidates: Vec<usize>,
+    pub address_renaming_equivariant: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityRemoval {
+    pub records: Vec<Vec<usize>>,
+    pub marked_candidates: Vec<usize>,
+    pub unique: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityReplacement {
+    pub replacement_link: Vec<usize>,
+    pub marked_candidates: Vec<usize>,
+    pub unique: bool,
+    pub same_under_candidate_address_renaming: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityDuplication {
+    pub additional_links: Vec<Vec<usize>>,
+    pub marked_candidates: Vec<usize>,
+    pub unique: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityForgery {
+    pub original_link: Vec<usize>,
+    pub forged_link: Vec<usize>,
+    pub same_local_equality_pattern: bool,
+    pub whole_structures_related_by_candidate_renaming: bool,
+    pub structurally_rejected: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityContextRelocation {
+    pub first_context_relation: Vec<usize>,
+    pub second_context_relation: Vec<usize>,
+    pub authority_link_exists_in_both: bool,
+    pub relation_changes_observed_context: bool,
+    pub same_under_context_address_renaming: bool,
+    pub ambient_existence_selects_active_context: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityPerturbations {
+    pub removal: LinkOntologyAuthorityRemoval,
+    pub replacement: LinkOntologyAuthorityReplacement,
+    pub duplication: LinkOntologyAuthorityDuplication,
+    pub forgery: LinkOntologyAuthorityForgery,
+    pub context_relocation: LinkOntologyAuthorityContextRelocation,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyRecursiveAuthority {
+    pub finite_ordinary_link_chain: Vec<Vec<usize>>,
+    pub finite_chain_candidate_swap_preserves_shape: bool,
+    pub self_referential_link: Vec<usize>,
+    pub self_reference_closes_address_cycle: bool,
+    pub self_referential_candidate_swap_preserves_shape: bool,
+    pub selection_polarity_still_underdetermined: bool,
+    pub consequence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityDistinctions {
+    pub formation: &'static str,
+    pub selection: &'static str,
+    pub justification: &'static str,
+    pub activation: &'static str,
+    pub applicability: &'static str,
+    pub execution: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyLinkCarriedSelectionAuthorityProbe {
+    pub status: &'static str,
+    pub records: LinkOntologyAuthorityRecords,
+    pub equivariant_selection_constraint: LinkOntologyEquivariantSelectionConstraint,
+    pub opposite_equivariant_readings: Vec<LinkOntologyEquivariantReading>,
+    pub perturbations: LinkOntologyAuthorityPerturbations,
+    pub recursive_authority: LinkOntologyRecursiveAuthority,
+    pub distinctions: LinkOntologyAuthorityDistinctions,
+    pub conclusion: &'static str,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyQuotientEnumeration {
     pub occurrence_count: usize,
     pub ordered_equality_classes_after_address_renaming: usize,
@@ -862,6 +981,7 @@ pub struct LinkOntologyStartingRepresentationAudit {
     pub slotwise_self_incidence: LinkOntologySlotwiseSelfIncidenceAudit,
     pub shared_address_composition: LinkOntologySharedAddressCompositionAudit,
     pub structural_application_composition: LinkOntologyStructuralApplicationCompositionProbe,
+    pub link_carried_selection_authority: LinkOntologyLinkCarriedSelectionAuthorityProbe,
     pub quotient_audit: LinkOntologyQuotientAudit,
     pub claim_boundary: &'static str,
 }
@@ -1928,6 +2048,357 @@ fn link_ontology_structural_application_composition_probe(
     }
 }
 
+fn unordered_record_set_signature(records: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    let mut signature = records.to_vec();
+    signature.sort();
+    signature
+}
+
+fn rename_record_addresses(
+    records: &[Vec<usize>],
+    renaming: &BTreeMap<usize, usize>,
+) -> Vec<Vec<usize>> {
+    records
+        .iter()
+        .map(|record| {
+            record
+                .iter()
+                .map(|address| renaming.get(address).copied().unwrap_or(*address))
+                .collect()
+        })
+        .collect()
+}
+
+fn candidate_address_automorphisms(
+    records: &[Vec<usize>],
+    candidate_addresses: &[usize],
+) -> Vec<Vec<usize>> {
+    let candidate_set = candidate_addresses.iter().copied().collect::<BTreeSet<_>>();
+    let background_addresses = records
+        .iter()
+        .flatten()
+        .filter(|address| !candidate_set.contains(address))
+        .copied()
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    finite_permutations(&(0..candidate_addresses.len()).collect::<Vec<_>>())
+        .into_iter()
+        .filter(|permutation| {
+            let candidate_renaming = candidate_addresses
+                .iter()
+                .enumerate()
+                .map(|(index, address)| (*address, candidate_addresses[permutation[index]]))
+                .collect::<BTreeMap<_, _>>();
+            finite_permutations(&background_addresses)
+                .into_iter()
+                .any(|background_permutation| {
+                    let mut renaming = candidate_renaming.clone();
+                    renaming.extend(
+                        background_addresses
+                            .iter()
+                            .copied()
+                            .zip(background_permutation),
+                    );
+                    unordered_record_set_signature(&rename_record_addresses(records, &renaming))
+                        == unordered_record_set_signature(records)
+                })
+        })
+        .collect()
+}
+
+fn finite_orbit_sizes(size: usize, automorphisms: &[Vec<usize>]) -> Vec<usize> {
+    let mut unseen = (0..size).collect::<BTreeSet<_>>();
+    let mut sizes = Vec::new();
+    while let Some(seed) = unseen.iter().next().copied() {
+        let orbit = automorphisms
+            .iter()
+            .map(|permutation| permutation[seed])
+            .collect::<BTreeSet<_>>();
+        sizes.push(orbit.len());
+        for member in orbit {
+            unseen.remove(&member);
+        }
+    }
+    sizes.sort_unstable();
+    sizes
+}
+
+fn marked_candidates(records: &[Vec<usize>], candidate_addresses: &[usize]) -> Vec<usize> {
+    let candidates = candidate_addresses.iter().copied().collect::<BTreeSet<_>>();
+    records
+        .iter()
+        .filter_map(|record| {
+            if record.len() == 3 && record[1] == record[2] && candidates.contains(&record[1]) {
+                Some(record[1])
+            } else {
+                None
+            }
+        })
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+fn link_ontology_link_carried_selection_authority_probe(
+) -> LinkOntologyLinkCarriedSelectionAuthorityProbe {
+    // These names describe the experiment, not roles encoded in the records.
+    // Every record remains only [address, first reference, second reference].
+    let premises = vec![vec![3, 0, 1], vec![4, 1, 2]];
+    let candidates = vec![vec![7, 0, 2], vec![8, 0, 2]];
+    let candidate_addresses = candidates
+        .iter()
+        .map(|record| record[0])
+        .collect::<Vec<_>>();
+    let without_additional_link = premises
+        .iter()
+        .chain(candidates.iter())
+        .cloned()
+        .collect::<Vec<_>>();
+    let additional_link = vec![9, 7, 7];
+    let mut with_additional_link = without_additional_link.clone();
+    with_additional_link.push(additional_link.clone());
+    let replacement_link = vec![9, 8, 8];
+    let mut with_replacement_link = without_additional_link.clone();
+    with_replacement_link.push(replacement_link.clone());
+    let without_automorphisms =
+        candidate_address_automorphisms(&without_additional_link, &candidate_addresses);
+    let with_automorphisms =
+        candidate_address_automorphisms(&with_additional_link, &candidate_addresses);
+    let invariant_candidate_subsets = |automorphisms: &[Vec<usize>]| {
+        finite_invariant_subsets(candidate_addresses.len(), automorphisms)
+            .into_iter()
+            .map(|subset| {
+                subset
+                    .into_iter()
+                    .map(|index| candidate_addresses[index])
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>()
+    };
+    let without_invariant_subsets = invariant_candidate_subsets(&without_automorphisms);
+    let with_invariant_subsets = invariant_candidate_subsets(&with_automorphisms);
+    let candidate_swap = BTreeMap::from([(7, 8), (8, 7)]);
+    let swapped_with_additional_link =
+        rename_record_addresses(&with_additional_link, &candidate_swap);
+    let referenced = marked_candidates(&with_additional_link, &candidate_addresses);
+    let unreferenced = candidate_addresses
+        .iter()
+        .filter(|address| !referenced.contains(address))
+        .copied()
+        .collect::<Vec<_>>();
+    let replacement_referenced = marked_candidates(&with_replacement_link, &candidate_addresses);
+    let replacement_unreferenced = candidate_addresses
+        .iter()
+        .filter(|address| !replacement_referenced.contains(address))
+        .copied()
+        .collect::<Vec<_>>();
+    let swap_selection = |selected: &[usize]| {
+        let mut swapped = selected
+            .iter()
+            .map(|address| candidate_swap.get(address).copied().unwrap_or(*address))
+            .collect::<Vec<_>>();
+        swapped.sort_unstable();
+        swapped
+    };
+
+    let context_identities = vec![vec![10, 10, 10], vec![11, 11, 11]];
+    let first_context_relation = vec![12, 10, 9];
+    let second_context_relation = vec![12, 11, 9];
+    let first_context_structure = with_additional_link
+        .iter()
+        .chain(context_identities.iter())
+        .cloned()
+        .chain(std::iter::once(first_context_relation.clone()))
+        .collect::<Vec<_>>();
+    let second_context_structure = with_additional_link
+        .iter()
+        .chain(context_identities.iter())
+        .cloned()
+        .chain(std::iter::once(second_context_relation.clone()))
+        .collect::<Vec<_>>();
+    let context_swap = BTreeMap::from([(10, 11), (11, 10)]);
+    let duplicated_links = vec![vec![9, 7, 7], vec![10, 8, 8]];
+    let duplicated_structure = without_additional_link
+        .iter()
+        .chain(duplicated_links.iter())
+        .cloned()
+        .collect::<Vec<_>>();
+    let duplicated_marked = marked_candidates(&duplicated_structure, &candidate_addresses);
+    let finite_ordinary_link_chain = vec![vec![9, 7, 7], vec![10, 9, 9], vec![11, 10, 10]];
+    let replacement_finite_ordinary_link_chain =
+        vec![vec![9, 8, 8], vec![10, 9, 9], vec![11, 10, 10]];
+    let recursive_link = vec![9, 9, 7];
+    let replacement_recursive_link = vec![9, 9, 8];
+    let same_local_equality_pattern =
+        first_occurrence_normal_form(&additional_link) == first_occurrence_normal_form(&[9, 8, 8]);
+    let whole_structures_related_by_candidate_renaming =
+        unordered_record_set_signature(&swapped_with_additional_link)
+            == unordered_record_set_signature(&with_replacement_link);
+    let same_under_context_address_renaming = unordered_record_set_signature(
+        &rename_record_addresses(&first_context_structure, &context_swap),
+    ) == unordered_record_set_signature(
+        &second_context_structure,
+    );
+    let finite_chain_candidate_swap_preserves_shape =
+        unordered_record_set_signature(&rename_record_addresses(
+            &without_additional_link
+                .iter()
+                .chain(finite_ordinary_link_chain.iter())
+                .cloned()
+                .collect::<Vec<_>>(),
+            &candidate_swap,
+        )) == unordered_record_set_signature(
+            &without_additional_link
+                .iter()
+                .chain(replacement_finite_ordinary_link_chain.iter())
+                .cloned()
+                .collect::<Vec<_>>(),
+        );
+    let self_referential_candidate_swap_preserves_shape =
+        unordered_record_set_signature(&rename_record_addresses(
+            &without_additional_link
+                .iter()
+                .cloned()
+                .chain(std::iter::once(recursive_link.clone()))
+                .collect::<Vec<_>>(),
+            &candidate_swap,
+        )) == unordered_record_set_signature(
+            &without_additional_link
+                .iter()
+                .cloned()
+                .chain(std::iter::once(replacement_recursive_link))
+                .collect::<Vec<_>>(),
+        );
+    let without_singletons = without_invariant_subsets
+        .iter()
+        .filter(|subset| subset.len() == 1)
+        .count();
+    let with_singletons = with_invariant_subsets
+        .iter()
+        .filter(|subset| subset.len() == 1)
+        .count();
+
+    LinkOntologyLinkCarriedSelectionAuthorityProbe {
+        status: "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",
+        records: LinkOntologyAuthorityRecords {
+            interpretation: "each vector is only [address, first reference, second reference]",
+            records_treated_as_unordered: true,
+            incidence_readout_provenance:
+                "EXPERIMENTAL_EQUAL-REFERENCE_OBSERVATION_NOT_INTRINSIC_AUTHORITY",
+            premises,
+            candidates,
+            additional_link: additional_link.clone(),
+        },
+        equivariant_selection_constraint: LinkOntologyEquivariantSelectionConstraint {
+            criterion: "a selection derived only from the record structure must be invariant under every address automorphism that preserves the candidate domain",
+            without_additional_link: LinkOntologyCandidateSymmetry {
+                candidate_automorphisms: without_automorphisms.clone(),
+                candidate_orbit_sizes: finite_orbit_sizes(
+                    candidate_addresses.len(),
+                    &without_automorphisms,
+                ),
+                invariant_candidate_subsets: without_invariant_subsets.clone(),
+                invariant_singleton_selections: without_singletons,
+            },
+            with_additional_link: LinkOntologyCandidateSymmetry {
+                candidate_automorphisms: with_automorphisms.clone(),
+                candidate_orbit_sizes: finite_orbit_sizes(
+                    candidate_addresses.len(),
+                    &with_automorphisms,
+                ),
+                invariant_candidate_subsets: with_invariant_subsets.clone(),
+                invariant_singleton_selections: with_singletons,
+            },
+            singleton_selection_made_possible: without_singletons == 0 && with_singletons > 0,
+            singleton_selection_forced: with_singletons == 1,
+            general_argument: vec![
+                "an equivariant selected subset must be a union of candidate orbits under every automorphism of the containing structure",
+                "before the additional link, swapping candidate addresses 7 and 8 preserves the unordered record collection, so neither singleton is invariant",
+                "the additional link [9,7,7] breaks that swap and splits the candidate orbit into two singleton orbits",
+                "both singleton subsets then become invariant, so symmetry breaking permits but does not force one selection",
+            ],
+        },
+        opposite_equivariant_readings: vec![
+            LinkOntologyEquivariantReading {
+                id: "referenced-candidate",
+                selected_candidates: referenced.clone(),
+                address_renaming_equivariant: swap_selection(&referenced)
+                    == replacement_referenced,
+            },
+            LinkOntologyEquivariantReading {
+                id: "unreferenced-candidate",
+                selected_candidates: unreferenced.clone(),
+                address_renaming_equivariant: swap_selection(&unreferenced)
+                    == replacement_unreferenced,
+            },
+        ],
+        perturbations: LinkOntologyAuthorityPerturbations {
+            removal: LinkOntologyAuthorityRemoval {
+                records: without_additional_link.clone(),
+                marked_candidates: marked_candidates(
+                    &without_additional_link,
+                    &candidate_addresses,
+                ),
+                unique: marked_candidates(&without_additional_link, &candidate_addresses).len()
+                    == 1,
+            },
+            replacement: LinkOntologyAuthorityReplacement {
+                replacement_link: replacement_link.clone(),
+                marked_candidates: replacement_referenced.clone(),
+                unique: replacement_referenced.len() == 1,
+                same_under_candidate_address_renaming: unordered_record_set_signature(
+                    &swapped_with_additional_link,
+                ) == unordered_record_set_signature(&with_replacement_link),
+            },
+            duplication: LinkOntologyAuthorityDuplication {
+                additional_links: duplicated_links,
+                marked_candidates: duplicated_marked.clone(),
+                unique: duplicated_marked.len() == 1,
+            },
+            forgery: LinkOntologyAuthorityForgery {
+                original_link: additional_link.clone(),
+                forged_link: replacement_link,
+                same_local_equality_pattern,
+                whole_structures_related_by_candidate_renaming,
+                structurally_rejected: !(same_local_equality_pattern
+                    && whole_structures_related_by_candidate_renaming),
+            },
+            context_relocation: LinkOntologyAuthorityContextRelocation {
+                first_context_relation: first_context_relation.clone(),
+                second_context_relation: second_context_relation.clone(),
+                authority_link_exists_in_both: [&first_context_structure, &second_context_structure]
+                    .iter()
+                    .all(|records| has_link_record(records, &additional_link)),
+                relation_changes_observed_context: first_context_relation[1]
+                    != second_context_relation[1],
+                same_under_context_address_renaming,
+                ambient_existence_selects_active_context: !same_under_context_address_renaming,
+            },
+        },
+        recursive_authority: LinkOntologyRecursiveAuthority {
+            finite_ordinary_link_chain,
+            finite_chain_candidate_swap_preserves_shape,
+            self_referential_link: recursive_link.clone(),
+            self_reference_closes_address_cycle: recursive_link.contains(&recursive_link[0]),
+            self_referential_candidate_swap_preserves_shape,
+            selection_polarity_still_underdetermined: finite_chain_candidate_swap_preserves_shape
+                && self_referential_candidate_swap_preserves_shape,
+            consequence: "finite chains and self-incidence can represent authority-about-authority and close an address cycle, but neither structure chooses how its terminal candidate incidence is to be read",
+        },
+        distinctions: LinkOntologyAuthorityDistinctions {
+            formation: "BOTH_CANDIDATE_LINKS_EXIST",
+            selection: "NOT_FORCED_TWO_OPPOSITE_EQUIVARIANT_READINGS",
+            justification: "ISOMORPHIC_FORGERY_NOT_REJECTED",
+            activation: "NO_LINK_DERIVED_ADMISSION_VALIDATION_OR_ACTIVATION",
+            applicability: "AMBIENT_EXISTENCE_DOES_NOT_SELECT_APPLICABILITY",
+            execution: "NO_TRANSITION_CREATION_OR_PUBLICATION_EVENT",
+        },
+        conclusion: "An ordinary additional link can carry enough incidence to remove a symmetry obstruction and make a singleton candidate structurally expressible. The same extension admits opposite equivariant readings, while removal, replacement, duplication, forgery, context relocation, finite meta-chains, and self-reference supply no structural authenticity or activation criterion.",
+        claim_boundary: "This refutes both the claim that linked structure cannot carry selection-relevant information and the claim that asymmetric incidence alone supplies authority. It does not prove that external authority is irreducible, rule out richer link-carried justification, interpret the additional link as a rule or witness, or derive execution.",
+    }
+}
+
 fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresentationAudit {
     let finite_enumeration = (1..=4)
         .map(|occurrence_count| {
@@ -2081,6 +2552,8 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
         shared_address_composition: link_ontology_shared_address_composition_audit(),
         structural_application_composition:
             link_ontology_structural_application_composition_probe(),
+        link_carried_selection_authority:
+            link_ontology_link_carried_selection_authority_probe(),
         quotient_audit: LinkOntologyQuotientAudit {
             finite_enumeration: quotient_finite_enumeration,
             address_renaming_complete_invariant_verified,
@@ -2503,6 +2976,11 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                 evidence: "A connected countermodel keeps the P/Q link identities distinct from the pairwise-distinct K/A/B addresses and has direct self-incidence, a shared address, and recursive link references while containing [2,0] but not the proposed [0,2]. Adding [0,2] preserves every premise. Formation admits all 49 ordered pairs over the seven existing addresses and selects none.",
             },
             LinkOntologyLossAudit {
+                distinction: "selection authority from additional linked incidence",
+                classification: "ASYMMETRY_PERMITS_BUT_DOES_NOT_FORCE_SELECTION",
+                evidence: "Two duplicate candidates form one orbit and admit no invariant singleton. Adding ordinary link [9,7,7] splits them into singleton orbits, but both {7} and {8} are invariant. Opposite referenced/unreferenced readings are equivariant, and isomorphic replacement evidence cannot be rejected by the equality/incidence contract.",
+            },
+            LinkOntologyLossAudit {
                 distinction: "endpoint direction",
                 classification: "NOT_OBSERVED_NOT_DISPROVED",
                 evidence: "Neither the base family nor the conditional refinement names or measures endpoint order.",
@@ -2646,8 +3124,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v8",
-        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, and do identity, incidence, shared address, and recursion entail application or composition?",
+        schema: "rml-link-ontology-symmetry-experiment/v9",
+        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, and can an additional link carry selection authority?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -2769,6 +3247,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The premise-only [[3,0,1],[4,1,2],[5,2,0],[6,6,3]] and result-bearing extension with [7,0,2] both keep P/Q distinct from K/A/B and preserve distinct identities, self-incidence, shared address, and recursive reference. The first already contains reverse references [2,0] but no [0,2]. Recursive association candidates coincide after the still-unestablished uniform slot reversal plus address renaming; semantic roles and a creation law require additional authority.",
             },
             LinkOntologyResult {
+                id: "link-carried-selection-authority",
+                result: "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",
+                evidence: "Duplicate candidate links [7,0,2] and [8,0,2] form one automorphism orbit and admit no invariant singleton. Ordinary link [9,7,7] splits the orbit, making both singleton subsets invariant rather than forcing either one. Removal gives zero marked candidates, replacement flips the mark, duplication gives two, an isomorphic forgery is not rejected, context relocation remains a relabelling, and finite or self-referential authority chains do not determine selection polarity or execution.",
+            },
+            LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
                 result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
                 evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
@@ -2779,8 +3262,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel then proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning.",
-        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, and that the tested raw structure has models both without and with the proposed composition result. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive an additional selection/closure law, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection, justification, applicability, or execution.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, and that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, prove that external authority is irreducible, derive linked authenticity or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
     }
 }
 

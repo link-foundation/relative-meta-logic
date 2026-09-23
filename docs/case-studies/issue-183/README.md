@@ -105,7 +105,7 @@ smallest candidate, and keeps the comparative search open. Its executable
 two-model witness establishes only that the tested ordered-link host value
 does not select between two transition functions.
 
-Version 11 advances the separate ontology investigation with an exhaustive
+Version 12 advances the separate ontology investigation with an exhaustive
 finite symmetry experiment that does not use A/B/C. Starting only with two
 unlabelled reference occurrences and equality, it enumerates three surjective
 observations on their used support, six group elements, and ten action
@@ -137,7 +137,7 @@ relabelling that leaves its base fixed, so its distinctions require information
 not derived from that base. This is conditional structural evidence, not an
 endpoint direction or a justified ontology.
 
-The v8 starting-representation audit then uses the issue's independent
+The v9 starting-representation audit then uses the issue's independent
 requirement that addressed links may refer to themselves. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` links have the same reference-only
 `[1,1]` projection but remain inequivalent under global address renaming and
@@ -193,11 +193,21 @@ and recursion without containing `K ⟼ B`. Binary formation permits `K ⟼ B`
 among `49` ordered pairs, but does not select it. Application
 or composition therefore needs an additional selection/closure law.
 
+The authority follow-up represents candidate evidence as an ordinary link.
+Two duplicate candidates form one automorphism orbit; `[9,7,7]` breaks their
+swap symmetry, but makes both singleton subsets invariant. Referenced and
+unreferenced readings are both equivariant. Removing, replacing, duplicating,
+forging, or relocating the evidence, and extending it with finite or
+self-referential meta-authority, fails to derive authenticity, polarity,
+activation, or execution. Link-carried incidence can therefore permit a
+structural choice without forcing its authority; the probe does not prove
+that external authority is irreducible.
+
 Those results are eliminations and complete finite classifications at the
-tested widths, not unbounded theorems or positive execution laws. Version 11
+tested widths, not unbounded theorems or positive execution laws. Version 12
 still marks passivity and external
 transition as experimental assumptions of the older host witness, and it
-leaves link ontology and intrinsic authority unresolved. The v11 result does
+leaves link ontology and intrinsic authority unresolved. The v12 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

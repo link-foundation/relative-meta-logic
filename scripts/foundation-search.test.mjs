@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v11');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v12');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v8',
+      'rml-link-ontology-symmetry-experiment/v9',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -252,6 +252,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['slotwise-self-incidence', 'CLASSIFIED_PER_ORDERED_REFERENCE_SLOT'],
         ['shared-address-composition', 'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL'],
         ['structural-application-composition', 'RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION'],
+        ['link-carried-selection-authority', 'LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
@@ -898,6 +899,105 @@ describe('architecture-neutral alternative-foundation search', () => {
       structuralProbe.claimBoundary,
       /additional selection\/closure law/,
     );
+    const authorityProbe =
+      startingRepresentation.linkCarriedSelectionAuthority;
+    assert.equal(
+      authorityProbe.status,
+      'LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY',
+    );
+    assert.deepEqual(authorityProbe.records.premises, [
+      [3, 0, 1],
+      [4, 1, 2],
+    ]);
+    assert.deepEqual(authorityProbe.records.candidates, [
+      [7, 0, 2],
+      [8, 0, 2],
+    ]);
+    assert.deepEqual(authorityProbe.records.additionalLink, [9, 7, 7]);
+    assert.equal(
+      authorityProbe.records.incidenceReadoutProvenance,
+      'EXPERIMENTAL_EQUAL-REFERENCE_OBSERVATION_NOT_INTRINSIC_AUTHORITY',
+    );
+    assert.deepEqual(
+      authorityProbe.equivariantSelectionConstraint.withoutAdditionalLink,
+      {
+        candidateAutomorphisms: [[0, 1], [1, 0]],
+        candidateOrbitSizes: [2],
+        invariantCandidateSubsets: [[], [7, 8]],
+        invariantSingletonSelections: 0,
+      },
+    );
+    assert.deepEqual(
+      authorityProbe.equivariantSelectionConstraint.withAdditionalLink,
+      {
+        candidateAutomorphisms: [[0, 1]],
+        candidateOrbitSizes: [1, 1],
+        invariantCandidateSubsets: [[], [7], [8], [7, 8]],
+        invariantSingletonSelections: 2,
+      },
+    );
+    assert.equal(
+      authorityProbe.equivariantSelectionConstraint
+        .singletonSelectionMadePossible,
+      true,
+    );
+    assert.equal(
+      authorityProbe.equivariantSelectionConstraint.singletonSelectionForced,
+      false,
+    );
+    assert.deepEqual(
+      authorityProbe.oppositeEquivariantReadings.map(reading => [
+        reading.id,
+        reading.selectedCandidates,
+        reading.addressRenamingEquivariant,
+      ]),
+      [
+        ['referenced-candidate', [7], true],
+        ['unreferenced-candidate', [8], true],
+      ],
+    );
+    assert.deepEqual(authorityProbe.perturbations.removal.markedCandidates, []);
+    assert.deepEqual(authorityProbe.perturbations.replacement.markedCandidates, [8]);
+    assert.deepEqual(authorityProbe.perturbations.duplication.markedCandidates, [7, 8]);
+    assert.equal(authorityProbe.perturbations.duplication.unique, false);
+    assert.equal(
+      authorityProbe.perturbations.forgery.structurallyRejected,
+      false,
+    );
+    assert.equal(
+      authorityProbe.perturbations.contextRelocation
+        .sameUnderContextAddressRenaming,
+      true,
+    );
+    assert.equal(
+      authorityProbe.recursiveAuthority.finiteChainCandidateSwapPreservesShape,
+      true,
+    );
+    assert.equal(
+      authorityProbe.recursiveAuthority.selfReferenceClosesAddressCycle,
+      true,
+    );
+    assert.equal(
+      authorityProbe.recursiveAuthority
+        .selfReferentialCandidateSwapPreservesShape,
+      true,
+    );
+    assert.equal(
+      authorityProbe.recursiveAuthority.selectionPolarityStillUnderdetermined,
+      true,
+    );
+    assert.deepEqual(authorityProbe.distinctions, {
+      formation: 'BOTH_CANDIDATE_LINKS_EXIST',
+      selection: 'NOT_FORCED_TWO_OPPOSITE_EQUIVARIANT_READINGS',
+      justification: 'ISOMORPHIC_FORGERY_NOT_REJECTED',
+      activation: 'NO_LINK_DERIVED_ADMISSION_VALIDATION_OR_ACTIVATION',
+      applicability: 'AMBIENT_EXISTENCE_DOES_NOT_SELECT_APPLICABILITY',
+      execution: 'NO_TRANSITION_CREATION_OR_PUBLICATION_EVENT',
+    });
+    assert.match(
+      authorityProbe.claimBoundary,
+      /does not prove that external authority is irreducible/,
+    );
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -996,6 +1096,10 @@ describe('architecture-neutral alternative-foundation search', () => {
           'application and composition meaning',
           'PROVEN_NOT_ENTAILED_BY_TESTED_LINK_STRUCTURE',
         ],
+        [
+          'selection authority from additional linked incidence',
+          'ASYMMETRY_PERMITS_BUT_DOES_NOT_FORCE_SELECTION',
+        ],
         ['endpoint direction', 'NOT_OBSERVED_NOT_DISPROVED'],
         ['dynamics and time', 'NOT_OBSERVED_NOT_DISPROVED'],
       ],
@@ -1020,9 +1124,17 @@ describe('architecture-neutral alternative-foundation search', () => {
       item.id === 'structural-application-composition' &&
       item.result ===
         'RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION'));
+    assert.ok(experiment.results.some(item =>
+      item.id === 'link-carried-selection-authority' &&
+      item.result ===
+        'LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY'));
     assert.match(
       report.conclusion.ontologyExperimentConclusion,
       /binary equality coincidence is complete only at fixed width two/i,
+    );
+    assert.match(
+      report.conclusion.ontologyExperimentConclusion,
+      /two opposite equivariant singleton readings/i,
     );
   });
 
@@ -1069,7 +1181,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v11');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v12');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

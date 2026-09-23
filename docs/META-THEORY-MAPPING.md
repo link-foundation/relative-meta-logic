@@ -19,7 +19,7 @@ executable, see the
 It executes three mechanisms without treating S/K as a native Links Theory
 law or ranking unequally reduced controls. Its two-model witness establishes
 only that the tested ordered-link host signature does not select between two
-transition functions. Its v11 finite symmetry experiment independently derives
+transition functions. Its v12 finite symmetry experiment independently derives
 the equality partition of two unlabelled reference occurrences, eliminates an
 invariant source/target selector and unique dynamics for that contract, and
 makes reification representation-dependent at the tested projection. The same
@@ -44,7 +44,7 @@ link ontology, intrinsic authority, primitive categories, the
 structure/transformation relation, and comparative minimality open; the three
 executed mechanisms are controls and do not define the ontology search space.
 
-The v8 structural probe additionally shows that the two proposed recursive
+The v9 structural probe additionally shows that the two proposed recursive
 application shapes coincide only after the still-unestablished uniform slot
 reversal. Its connected identity/self-incidence/shared-address/recursion
 countermodel keeps `P`/`Q` distinct from `K`/`A`/`B`, contains `[2,0]` but not
@@ -53,6 +53,14 @@ formation admits all 49 pairs over the seven existing addresses and selects
 none. Accordingly, no function role,
 composition rule, logical implication, or execution authority is inferred
 from the raw structure.
+
+An additional ordinary link can distinguish duplicate candidate links by
+incidence, but it does not uniquely interpret that distinction. Both the
+referenced and unreferenced singleton readings are equivariant, and the tested
+removal, replacement, duplication, forgery, context-relocation, and recursive
+variants supply no authenticity, activation, or execution law. The result is
+a boundary on link-carried authority, not a proof that authority must remain
+external.
 
 If you have not read it yet, the companion piece is
 [`case-studies/issue-13/README.md`](./case-studies/issue-13/README.md),

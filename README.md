@@ -85,7 +85,7 @@ Horn implementations remain executable controls, but their host/self
 duplication excludes them from ranking against the fully reduced S/K
 candidate. The report therefore names no winner. An executable two-model
 witness shows only that one ordered-link host representation does not select
-between two tested transition functions. A separate v11 experiment starts from
+between two tested transition functions. A separate v12 experiment starts from
 two unlabelled reference occurrences plus equality and exhausts their finite
 symmetries. It derives exactly the same-reference/distinct-reference quotient,
 no invariant source/target selector, no unique equivariant dynamics, and
@@ -126,7 +126,7 @@ reference-to-link-address
 incidence restores a complete descriptor for the tested contract, without
 calling that incidence a source, target, dependency, transition, or execution
 edge. These results do not complete link ontology or establish an unbounded
-classification theorem. A v8 structural probe also keeps mathematical
+classification theorem. A v9 structural probe also keeps mathematical
 implication separate from binary links. The recursive candidates
 `[[3,0,1],[4,3,2]]` and `[[3,1,2],[4,0,3]]` coincide only after the
 still-unestablished uniform slot reversal. The connected raw structure
@@ -136,7 +136,13 @@ and has self-incidence, shared address, recursion, and `[2,0]`, but no proposed
 admits all 49 ordered pairs over the existing addresses. Thus the result is
 formable but not entailed or selected;
 function roles, composition, and execution require additional justified
-structure. The report keeps link ontology,
+structure. The v9 authority follow-up adds one ordinary incidence link to two
+duplicate result candidates. That link breaks their swap symmetry, making
+singleton selection expressible, but both opposite singleton readings remain
+equivariant. Removal, replacement, duplication, isomorphic forgery, context
+relocation, and finite/self-referential authority chains show that incidence
+can carry a distinction without authenticating or activating it. This does not
+prove that external authority is irreducible. The report keeps link ontology,
 intrinsic authority, primitive categories, the structure/transformation
 relation, and comparative minimality unresolved; classifies all three
 implementations as executable controls that cannot constrain the ontology

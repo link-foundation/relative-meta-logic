@@ -71,6 +71,7 @@ const REQUIREMENT_SOURCES = [
     5796435750,
     5799100000,
     5800815386,
+    5802303479,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -93,7 +94,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 140, `expected at least 140 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 141, `expected at least 141 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -142,7 +143,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v8',
+      'rml-link-ontology-symmetry-experiment/v9',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -170,6 +171,7 @@ describe('issue 183 requirement traceability', () => {
       '2/4/8/16',
       '5799100000',
       '5800815386',
+      '5802303479',
       'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL',
       '2/10/77/799',
       'PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION',
@@ -178,6 +180,16 @@ describe('issue 183 requirement traceability', () => {
       '[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]',
       '49 ordered',
       'additional selection/closure law',
+      'LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY',
+      'ASYMMETRY_PERMITS_BUT_DOES_NOT_FORCE_SELECTION',
+      'EXPERIMENTAL_EQUAL-REFERENCE_OBSERVATION_NOT_INTRINSIC_AUTHORITY',
+      'opposite equivariant',
+      'isomorphic forgery',
+      'Formation, selection, justification, and execution',
+      'NO_LINK_DERIVED_ADMISSION_VALIDATION_OR_ACTIVATION',
+      'AMBIENT_EXISTENCE_DOES_NOT_SELECT_APPLICABILITY',
+      'NO_TRANSITION_CREATION_OR_PUBLICATION_EVENT',
+      'does not prove that external authority is irreducible',
       'logical implication',
       'contract-forced, representation-stable, observer-added',
       'The result uses no set,',
