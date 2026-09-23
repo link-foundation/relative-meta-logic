@@ -50,6 +50,20 @@ fn rewrites_javascript_identifiers_through_meta_language_query_and_replace() {
 }
 
 #[test]
+fn does_not_rewrite_identifier_spellings_inside_javascript_strings_or_comments() {
+    let rewritten = rewrite_javascript_identifier_via_meta_language(
+        "const x = 1; const s = \"x\"; // x\n",
+        "x",
+        "y",
+    )
+    .expect("valid identifier rewrite should succeed");
+
+    assert_eq!(rewritten.match_count, 1);
+    assert!(rewritten.changed);
+    assert_eq!(rewritten.source, "const y = 1; const s = \"x\"; // x\n");
+}
+
+#[test]
 fn exposes_structural_substitution_support_from_meta_language() {
     let report = meta_language_substitution_smoke();
 

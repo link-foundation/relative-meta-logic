@@ -12,11 +12,14 @@ import {
   TranslationRuleSet,
   TruthValue,
 } from 'meta-language';
+import { leaves } from './cst.mjs';
+import { parseJs, printJs } from './cst-js.mjs';
 import { evaluate, parseLino } from './rml-links.mjs';
 
 const RML_META_LANGUAGE = 'RML';
 const JAVA_SCRIPT_LANGUAGE = 'JavaScript';
-const JS_IDENTIFIER_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+const JS_IDENTIFIER_RE = /^[$_\p{ID_Start}][$\u200C\u200D_\p{ID_Continue}]*$/u;
+const JS_IDENTIFIER_TAG = 'lino-cst.js.ident';
 
 function sameJson(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
@@ -34,6 +37,32 @@ function defaultConfiguration(configuration) {
 
 function linkIdValue(id) {
   return typeof id?.asU64 === 'function' ? id.asU64() : Number(id);
+}
+
+function advanceSourceLocation(location, text) {
+  const next = { ...location };
+
+  for (let index = 0; index < text.length; index += 1) {
+    const codePoint = text.codePointAt(index);
+    const character = String.fromCodePoint(codePoint);
+
+    if (character === '\r' && text[index + 1] === '\n') {
+      next.offset += 2;
+      next.line += 1;
+      next.column = 1;
+      index += 1;
+    } else if (character === '\r' || character === '\n') {
+      next.offset += 1;
+      next.line += 1;
+      next.column = 1;
+    } else {
+      next.offset += character.length;
+      next.column += 1;
+      index += character.length - 1;
+    }
+  }
+
+  return next;
 }
 
 /**
@@ -86,19 +115,46 @@ function rewriteJavaScriptIdentifierViaMetaLanguage(source, from, to) {
   assertJavaScriptIdentifier(from, 'from');
   assertJavaScriptIdentifier(to, 'to');
 
+  // Keep the package boundary explicit: meta-language owns the lossless
+  // source network, while RML's JavaScript CST supplies the lexical precision
+  // that meta-language 0.46 does not yet expose for strings and comments.
   const network = LinkNetwork.parse(
     String(source),
     JAVA_SCRIPT_LANGUAGE,
     ParseConfiguration.default(),
   );
-  const query = LinkQuery.fromSexpression(`(identifier) @target\n(#eq? @target "${from}")`);
-  const matches = network.find(query);
-  const report = network.replace(matches, ReplacementRule.capturedText('target', to));
+  const cst = parseJs(network.reconstructText());
+  const matches = [];
+  let location = { offset: 0, line: 1, column: 1 };
+
+  for (const leaf of leaves(cst)) {
+    const originalText = leaf.text;
+
+    if (leaf.kind === 'token' && leaf.tag === JS_IDENTIFIER_TAG && originalText === from) {
+      const start = { ...location };
+      const end = advanceSourceLocation(start, originalText);
+      matches.push({ from, to, start, end });
+      leaf.text = to;
+    }
+
+    location = advanceSourceLocation(location, originalText);
+  }
+
+  const report = {
+    replacements: matches,
+    isEmpty() {
+      return this.replacements.length === 0;
+    },
+    substitution() {
+      return undefined;
+    },
+  };
 
   return {
-    source: network.reconstructText(),
+    source: printJs(cst),
     matchCount: matches.length,
-    changed: !report.isEmpty(),
+    changed: matches.length > 0,
+    matches,
     report,
   };
 }

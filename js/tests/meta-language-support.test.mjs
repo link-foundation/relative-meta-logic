@@ -55,6 +55,44 @@ describe('meta-language support', () => {
     assert.strictEqual(rewritten.source, 'const newName = call(newName);\n');
   });
 
+  it('does not rewrite identifier spellings inside JavaScript strings or comments', () => {
+    const rewritten = rewriteJavaScriptIdentifierViaMetaLanguage(
+      'const x = 1; const s = "x"; // x\n',
+      'x',
+      'y',
+    );
+
+    assert.strictEqual(rewritten.matchCount, 1);
+    assert.strictEqual(rewritten.changed, true);
+    assert.strictEqual(rewritten.report.isEmpty(), false);
+    assert.strictEqual(rewritten.source, 'const y = 1; const s = "x"; // x\n');
+    assert.deepStrictEqual(rewritten.matches, [{
+      from: 'x',
+      to: 'y',
+      start: { offset: 6, line: 1, column: 7 },
+      end: { offset: 7, line: 1, column: 8 },
+    }]);
+  });
+
+  it('rewrites Unicode JavaScript identifiers and preserves literal spellings', () => {
+    const rewritten = rewriteJavaScriptIdentifierViaMetaLanguage(
+      'const α = α + 1; const literal = "α";\n',
+      'α',
+      'β',
+    );
+
+    assert.strictEqual(rewritten.matchCount, 2);
+    assert.strictEqual(rewritten.changed, true);
+    assert.strictEqual(
+      rewritten.source,
+      'const β = β + 1; const literal = "α";\n',
+    );
+    assert.deepStrictEqual(rewritten.matches.map(match => match.start), [
+      { offset: 6, line: 1, column: 7 },
+      { offset: 10, line: 1, column: 11 },
+    ]);
+  });
+
   it('exposes structural substitution support from meta-language', () => {
     const report = metaLanguageSubstitutionSmoke();
 
