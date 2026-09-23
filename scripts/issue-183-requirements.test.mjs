@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +10,11 @@ import {
   incompleteIssue183Requirements,
   parseIssue183Requirements,
 } from './issue-183-requirements.mjs';
+import {
+  ISSUE_183_CLOSING_DIRECTIVE,
+  repairIssue183PrBody,
+  removeIssue183ClosingDirectives,
+} from './issue-183-pr-body.mjs';
 
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, '..');
@@ -16,9 +22,6 @@ const LEDGER_PATH = path.join(
   REPOSITORY_ROOT,
   'docs/case-studies/issue-183/requirements.md',
 );
-const ISSUE_183_CLOSING_DIRECTIVE =
-  /^\s*(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#183\b/im;
-
 function assertIssue183RemainsOpen(body) {
   assert.match(body, /^\s*Advances #183\s*$/m);
   assert.doesNotMatch(body, ISSUE_183_CLOSING_DIRECTIVE);
@@ -176,6 +179,64 @@ describe('issue 183 requirement traceability', () => {
         directive,
       );
     }
+  });
+
+  it('repairs a premature closing directive without weakening the live guard', async context => {
+    const body = [
+      'This PR does not complete or close the issue.',
+      '',
+      'Advances #183',
+      '',
+      'Fixes #183',
+    ].join('\n');
+    const updatedBody = removeIssue183ClosingDirectives(body);
+
+    assert.equal(
+      updatedBody,
+      'This PR does not complete or close the issue.\n\nAdvances #183',
+    );
+    assertIssue183RemainsOpen(updatedBody);
+
+    const temporaryDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'rml-issue-183-pr-body-'),
+    );
+    context.after(() =>
+      fs.rmSync(temporaryDirectory, { recursive: true, force: true }),
+    );
+    const eventPath = path.join(temporaryDirectory, 'event.json');
+    fs.writeFileSync(
+      eventPath,
+      JSON.stringify({
+        number: 184,
+        pull_request: {
+          body,
+          head: { ref: 'issue-183-7fedfddffe9c' },
+        },
+      }),
+    );
+
+    let requestArguments;
+    const result = await repairIssue183PrBody({
+      eventPath,
+      token: 'test-token',
+      repository: 'link-foundation/relative-meta-logic',
+      request: async (...args) => {
+        requestArguments = args;
+        return { ok: true, status: 200 };
+      },
+    });
+
+    assert.equal(result.action, 'updated');
+    assert.equal(
+      requestArguments[0],
+      'https://api.github.com/repos/link-foundation/relative-meta-logic/pulls/184',
+    );
+    assert.equal(requestArguments[1].method, 'PATCH');
+    assert.deepEqual(JSON.parse(requestArguments[1].body), { body: updatedBody });
+    assert.equal(
+      JSON.parse(fs.readFileSync(eventPath, 'utf8')).pull_request.body,
+      updatedBody,
+    );
   });
 
   it('checks the live PR 184 body supplied by every GitHub PR event', () => {

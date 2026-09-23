@@ -24,6 +24,9 @@ jobs:
     name: JS (node --test)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -31,6 +34,15 @@ jobs:
           node-version: '20'
           cache: npm
           cache-dependency-path: js/package-lock.json
+      - name: Remove premature issue-closing metadata
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.action == 'edited' &&
+          github.event.number == 184 &&
+          github.event.pull_request.head.ref == 'issue-183-7fedfddffe9c'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/issue-183-pr-body.mjs
       - name: Install JavaScript dependencies
         working-directory: js
         run: npm ci
