@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v9`. Run it with:
+`rml-alternative-foundation-search/v10`. Run it with:
 
 ```bash
 cd js
@@ -70,7 +70,7 @@ No candidate is declared equivalent to another. Equivalence remains
 
 ## Independent ontology investigation
 
-Version 9 extends a falsifiable ontology experiment rather than converting a
+Version 10 extends a falsifiable ontology experiment rather than converting a
 correctly documented boundary into a completed foundational result. The report
 sets `foundationStatus: OPEN` and
 `ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v6` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v7` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v6 follow-up first changes no primitive vocabulary at all. It retains only
+The v7 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -295,6 +295,44 @@ mask completely classify the tested ordered address/equality patterns. After
 the unlabelled quotient only the number of true entries remains. This
 classification does not prove that slot identity is intrinsic to links or
 assign a source, target, endpoint, or execution role to a self-incident slot.
+
+### Shared-address composition
+
+The next experiment removes only the assumption that a link can be classified
+in isolation. It retains finite ordered link records, exactly one ordered
+reference slot per link, distinct link addresses in a shared address space,
+and address equality as the only observable. The exact enumeration is:
+
+| Links | Shared-address classes | Products of local descriptors | Local-fibre histogram | Shared descriptor faithful |
+|---:|---:|---:|---|---|
+| 1 | 2 | 2 | `1 → 2` | yes |
+| 2 | 10 | 4 | `1 → 1; 2 → 2; 5 → 1` | yes |
+| 3 | 77 | 8 | `1 → 1; 3 → 3; 10 → 3; 37 → 1` | yes |
+| 4 | 799 | 16 | `1 → 1; 4 → 4; 17 → 6; 77 → 4; 372 → 1` | yes |
+
+Here each histogram entry is `shared classes in a local fibre → number of
+local descriptor values`. The local product is faithful for one isolated link
+and non-faithful at every tested multi-link width. The smallest explicit
+countermodel compares the external-reference pair `[[0,1],[2,3]]` with the
+two-link incidence cycle `[[0,2],[2,0]]`. Each link has the same local
+descriptor in both configurations, but the first has no incidence cycle and
+the second has a cycle of length two; no global address renaming relates them.
+
+The ordered cross-reference equality matrix together with the
+reference-to-link-address incidence matrix gives one class per shared-address
+class at all four tested widths. More generally, incidence identifies every
+reference equal to a distinct link address, while reference equality
+partitions the remaining external addresses; equal descriptors therefore
+induce a global address bijection. This is a complete invariant for the
+declared ordered one-reference shared-address equality contract, not for link
+ontology.
+
+The report records the assumption provenance explicitly. Indirect
+self-reference forces comparison in a shared address space. The countermodel
+survives global address renaming. Ordered record identity, a fixed finite link
+count, and one reference slot remain observer choices. Incidence is not named
+a source, target, dependency, transition, or execution edge, and no dynamics
+are inferred from the two-cycle.
 
 ### Conditional refinement probe
 
@@ -434,7 +472,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 9 makes
+That experiment does **not** identify the ontology of a link. Version 10 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -499,7 +537,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v9 execution-comparison gate admits a candidate only if it passes the common
+The v10 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.

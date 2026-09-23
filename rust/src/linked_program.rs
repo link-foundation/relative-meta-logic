@@ -675,6 +675,58 @@ pub struct LinkOntologySlotwiseSelfIncidenceAudit {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySharedCompositionFibreHistogram {
+    pub shared_address_classes: usize,
+    pub local_descriptor_classes: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySharedCompositionEnumeration {
+    pub link_count: usize,
+    pub reference_slots_per_link: usize,
+    pub shared_address_classes: usize,
+    pub local_descriptor_classes: usize,
+    pub local_descriptor_fibre_histogram: Vec<LinkOntologySharedCompositionFibreHistogram>,
+    pub local_descriptors_faithful: bool,
+    pub shared_descriptor_classes: usize,
+    pub shared_descriptor_faithful: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySharedCompositionCountermodel {
+    pub external_references: Vec<Vec<usize>>,
+    pub two_link_cycle: Vec<Vec<usize>>,
+    pub same_local_descriptors: bool,
+    pub same_shared_address_class: bool,
+    pub external_references_cycle_length: usize,
+    pub two_link_cycle_length: usize,
+    pub distinguishing_observation: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySharedCompositionClassification {
+    pub forced_by_issue_contract: &'static str,
+    pub survives_representation_change: &'static str,
+    pub introduced_by_observer: &'static str,
+    pub semantics_not_assigned: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySharedAddressCompositionAudit {
+    pub status: &'static str,
+    pub provenance: &'static str,
+    pub removed_assumption: &'static str,
+    pub retained_assumptions: Vec<&'static str>,
+    pub finite_enumeration: Vec<LinkOntologySharedCompositionEnumeration>,
+    pub local_descriptors_faithful_at_every_tested_multi_link_width: bool,
+    pub countermodel: LinkOntologySharedCompositionCountermodel,
+    pub shared_faithful_descriptor: LinkOntologyMinimalFaithfulDescriptor,
+    pub general_consequence: &'static str,
+    pub assumption_classification: LinkOntologySharedCompositionClassification,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyQuotientEnumeration {
     pub occurrence_count: usize,
     pub ordered_equality_classes_after_address_renaming: usize,
@@ -730,6 +782,7 @@ pub struct LinkOntologyStartingRepresentationAudit {
     pub countermodel: LinkOntologyAddressableCountermodel,
     pub general_argument: LinkOntologyGeneralProjectionArgument,
     pub slotwise_self_incidence: LinkOntologySlotwiseSelfIncidenceAudit,
+    pub shared_address_composition: LinkOntologySharedAddressCompositionAudit,
     pub quotient_audit: LinkOntologyQuotientAudit,
     pub claim_boundary: &'static str,
 }
@@ -970,12 +1023,29 @@ fn finite_maps_commute(left: &[usize], right: &[usize]) -> bool {
 }
 
 fn ontology_set_partitions(width: usize) -> Vec<Vec<usize>> {
-    (1..=width)
-        .flat_map(|carrier_size| surjective_finite_assignments(width, carrier_size))
-        .map(|assignment| first_occurrence_normal_form(&assignment))
-        .collect::<BTreeSet<_>>()
-        .into_iter()
-        .collect()
+    fn visit(
+        width: usize,
+        partition: &mut Vec<usize>,
+        maximum: usize,
+        partitions: &mut Vec<Vec<usize>>,
+    ) {
+        if partition.len() == width {
+            partitions.push(partition.clone());
+            return;
+        }
+        for value in 0..=maximum + 1 {
+            partition.push(value);
+            visit(width, partition, maximum.max(value), partitions);
+            partition.pop();
+        }
+    }
+
+    if width == 0 {
+        return vec![Vec::new()];
+    }
+    let mut partitions = Vec::new();
+    visit(width, &mut vec![0], 0, &mut partitions);
+    partitions
 }
 
 fn permute_ontology_partition(partition: &[usize], permutation: &[usize]) -> Vec<usize> {
@@ -1377,6 +1447,179 @@ fn link_ontology_slotwise_self_incidence_audit() -> LinkOntologySlotwiseSelfInci
     }
 }
 
+fn ordered_shared_address_configurations(link_count: usize) -> Vec<Vec<usize>> {
+    ontology_set_partitions(link_count * 2)
+        .into_iter()
+        .filter(|configuration| {
+            (0..link_count)
+                .map(|link_index| configuration[link_index * 2])
+                .collect::<BTreeSet<_>>()
+                .len()
+                == link_count
+        })
+        .collect()
+}
+
+fn local_single_link_descriptors(configuration: &[usize]) -> Vec<(Vec<usize>, Vec<bool>)> {
+    (0..configuration.len() / 2)
+        .map(|link_index| {
+            ordered_addressable_link_descriptor(&[
+                configuration[link_index * 2],
+                configuration[(link_index * 2) + 1],
+            ])
+        })
+        .collect()
+}
+
+fn shared_address_descriptor(configuration: &[usize]) -> (Vec<usize>, Vec<usize>) {
+    let link_count = configuration.len() / 2;
+    let link_addresses = (0..link_count)
+        .map(|link_index| configuration[link_index * 2])
+        .collect::<Vec<_>>();
+    let references = (0..link_count)
+        .map(|link_index| configuration[(link_index * 2) + 1])
+        .collect::<Vec<_>>();
+    let incidence = references
+        .iter()
+        .flat_map(|reference| {
+            link_addresses
+                .iter()
+                .map(move |link_address| usize::from(reference == link_address))
+        })
+        .collect::<Vec<_>>();
+    (ontology_equality_matrix(&references), incidence)
+}
+
+fn link_incidence_cycle_length(configuration: &[usize], starting_link_index: usize) -> usize {
+    let link_count = configuration.len() / 2;
+    let link_addresses = (0..link_count)
+        .map(|link_index| configuration[link_index * 2])
+        .collect::<Vec<_>>();
+    let mut visited_at = BTreeMap::new();
+    let mut link_index = starting_link_index;
+    while !visited_at.contains_key(&link_index) {
+        visited_at.insert(link_index, visited_at.len());
+        let reference_address = configuration[(link_index * 2) + 1];
+        let Some(next_link_index) = link_addresses
+            .iter()
+            .position(|link_address| *link_address == reference_address)
+        else {
+            return 0;
+        };
+        link_index = next_link_index;
+    }
+    if link_index == starting_link_index {
+        visited_at.len() - visited_at[&link_index]
+    } else {
+        0
+    }
+}
+
+fn link_ontology_shared_address_composition_audit() -> LinkOntologySharedAddressCompositionAudit {
+    let finite_enumeration = (1..=4)
+        .map(|link_count| {
+            let configurations = ordered_shared_address_configurations(link_count);
+            let mut local_descriptor_fibres =
+                BTreeMap::<Vec<(Vec<usize>, Vec<bool>)>, usize>::new();
+            let mut shared_descriptor_to_signatures =
+                BTreeMap::<(Vec<usize>, Vec<usize>), BTreeSet<Vec<usize>>>::new();
+            for configuration in &configurations {
+                *local_descriptor_fibres
+                    .entry(local_single_link_descriptors(configuration))
+                    .or_insert(0) += 1;
+                shared_descriptor_to_signatures
+                    .entry(shared_address_descriptor(configuration))
+                    .or_default()
+                    .insert(first_occurrence_normal_form(configuration));
+            }
+            let local_descriptor_fibre_histogram = local_descriptor_fibres
+                .values()
+                .fold(BTreeMap::new(), |mut histogram, shared_address_classes| {
+                    *histogram.entry(*shared_address_classes).or_insert(0) += 1;
+                    histogram
+                })
+                .into_iter()
+                .map(|(shared_address_classes, local_descriptor_classes)| {
+                    LinkOntologySharedCompositionFibreHistogram {
+                        shared_address_classes,
+                        local_descriptor_classes,
+                    }
+                })
+                .collect::<Vec<_>>();
+            LinkOntologySharedCompositionEnumeration {
+                link_count,
+                reference_slots_per_link: 1,
+                shared_address_classes: configurations.len(),
+                local_descriptor_classes: local_descriptor_fibres.len(),
+                local_descriptor_fibre_histogram,
+                local_descriptors_faithful: local_descriptor_fibres
+                    .values()
+                    .all(|fibre_size| *fibre_size == 1),
+                shared_descriptor_classes: shared_descriptor_to_signatures.len(),
+                shared_descriptor_faithful: shared_descriptor_to_signatures
+                    .values()
+                    .all(|signatures| signatures.len() == 1)
+                    && shared_descriptor_to_signatures.len() == configurations.len(),
+            }
+        })
+        .collect::<Vec<_>>();
+    let external_references = vec![vec![0, 1], vec![2, 3]];
+    let two_link_cycle = vec![vec![0, 2], vec![2, 0]];
+    let external_pattern = external_references.concat();
+    let cycle_pattern = two_link_cycle.concat();
+
+    LinkOntologySharedAddressCompositionAudit {
+        status: "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL",
+        provenance: "ISSUE_183_INDIRECT_SELF_REFERENCE_REQUIREMENT",
+        removed_assumption: "single addressed link considered in isolation",
+        retained_assumptions: vec![
+            "finite ordered link records",
+            "one ordered reference slot per link",
+            "distinct link addresses in one shared address space",
+            "address equality is the only observation",
+        ],
+        local_descriptors_faithful_at_every_tested_multi_link_width:
+            finite_enumeration
+                .iter()
+                .filter(|item| item.link_count > 1)
+                .all(|item| item.local_descriptors_faithful),
+        countermodel: LinkOntologySharedCompositionCountermodel {
+            external_references: external_references.clone(),
+            two_link_cycle: two_link_cycle.clone(),
+            same_local_descriptors: local_single_link_descriptors(&external_pattern)
+                == local_single_link_descriptors(&cycle_pattern),
+            same_shared_address_class: first_occurrence_normal_form(&external_pattern)
+                == first_occurrence_normal_form(&cycle_pattern),
+            external_references_cycle_length: link_incidence_cycle_length(
+                &external_pattern,
+                0,
+            ),
+            two_link_cycle_length: link_incidence_cycle_length(&cycle_pattern, 0),
+            distinguishing_observation: "whether each reference address equals another link address in the same configuration",
+        },
+        shared_faithful_descriptor: LinkOntologyMinimalFaithfulDescriptor {
+            status: "COMPLETE_INVARIANT_FOR_ORDERED_SHARED_ADDRESS_EQUALITY_CONTRACT",
+            fields: vec![
+                "referenceEqualityMatrixAcrossLinks",
+                "referenceToLinkAddressIncidenceMatrix",
+            ],
+            finite_enumeration_agreement: finite_enumeration
+                .iter()
+                .all(|item| item.shared_descriptor_faithful),
+            general_argument: "With distinct ordered link addresses, incidence identifies every reference equal to a link address; the reference equality matrix partitions all remaining external references. Equal descriptors therefore induce a global bijection of every used address.",
+        },
+        finite_enumeration,
+        general_consequence: "For any finite ordered collection of distinct link addresses with one reference each, the product of local single-link descriptors retains only the diagonal of cross-link incidence and is non-faithful from two links onward.",
+        assumption_classification: LinkOntologySharedCompositionClassification {
+            forced_by_issue_contract: "indirect self-reference requires comparing references with other link addresses in a shared address space",
+            survives_representation_change: "the external-reference and two-link-cycle configurations remain distinct under every global address renaming",
+            introduced_by_observer: "link-record order, fixed finite link count, and one reference slot are retained experimental restrictions",
+            semantics_not_assigned: "cross-link incidence is only address equality; it is not a source, target, transition, dependency, or execution edge",
+        },
+        claim_boundary: "This removes single-link isolation and proves a compositional information loss for the declared equality contract. It does not establish that ordered link records or one-slot links are intrinsic, interpret an incidence cycle dynamically, or define a complete link ontology.",
+    }
+}
+
 fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresentationAudit {
     let finite_enumeration = (1..=4)
         .map(|occurrence_count| {
@@ -1527,6 +1770,7 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
             consequence: "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY",
         },
         slotwise_self_incidence: link_ontology_slotwise_self_incidence_audit(),
+        shared_address_composition: link_ontology_shared_address_composition_audit(),
         quotient_audit: LinkOntologyQuotientAudit {
             finite_enumeration: quotient_finite_enumeration,
             address_renaming_complete_invariant_verified,
@@ -1939,6 +2183,11 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                 evidence: "All 2/4/8/16 Boolean self-incidence masks occur at widths one through four. Each mask is invariant under address renaming and moves equivariantly, rather than remaining fixed, under reference-slot permutation.",
             },
             LinkOntologyLossAudit {
+                distinction: "cross-link address incidence",
+                classification: "PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION",
+                evidence: "For two through four ordered one-reference links, products of local descriptors collapse 10/77/799 shared-address classes to 4/8/16 classes. A fresh-external pair and a two-link incidence cycle have identical local descriptors but inequivalent global equality patterns.",
+            },
+            LinkOntologyLossAudit {
                 distinction: "endpoint direction",
                 classification: "NOT_OBSERVED_NOT_DISPROVED",
                 evidence: "Neither the base family nor the conditional refinement names or measures endpoint order.",
@@ -2082,8 +2331,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v6",
-        question: "Which facts survive the binary reference observation, what does its fixed width erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?",
+        schema: "rml-link-ontology-symmetry-experiment/v7",
+        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -2195,6 +2444,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The slotwise Boolean mask realizes 2/4/8/16 patterns at widths one through four, is invariant under global address renaming, and is equivariant but not invariant under slot permutation. Together with the ordered reference-equality matrix it completely classifies the tested ordered address/equality patterns.",
             },
             LinkOntologyResult {
+                id: "shared-address-composition",
+                result: "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL",
+                evidence: "At two through four ordered one-reference links, 10/77/799 shared-address equality classes collapse to 4/8/16 products of local descriptors. [[0,1],[2,3]] and [[0,2],[2,0]] have identical local descriptors, but only the latter is a two-link incidence cycle.",
+            },
+            LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
                 result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
                 evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
@@ -2205,8 +2459,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot: every mask occurs, address renaming preserves it, and slot permutation transports it equivariantly. The ordered reference-equality matrix plus this mask is complete for the tested ordered address/equality contract. Occurrence permutation remains an unestablished observer choice; after imposing it, only self-reference multiplicity remains. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.",
-        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, assign endpoint meaning to a self-incident slot, claim the addressable quotient is complete, derive dynamics, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. These equality results cannot assign source, target, dependency, dynamics, or execution meaning.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
     }
 }
 

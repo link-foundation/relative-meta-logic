@@ -105,7 +105,7 @@ smallest candidate, and keeps the comparative search open. Its executable
 two-model witness establishes only that the tested ordered-link host value
 does not select between two transition functions.
 
-Version 9 advances the separate ontology investigation with an exhaustive
+Version 10 advances the separate ontology investigation with an exhaustive
 finite symmetry experiment that does not use A/B/C. Starting only with two
 unlabelled reference occurrences and equality, it enumerates three surjective
 observations on their used support, six group elements, and ten action
@@ -137,7 +137,7 @@ relabelling that leaves its base fixed, so its distinctions require information
 not derived from that base. This is conditional structural evidence, not an
 endpoint direction or a justified ontology.
 
-The v6 starting-representation audit then uses the issue's independent
+The v7 starting-representation audit then uses the issue's independent
 requirement that addressed links may refer to themselves. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` links have the same reference-only
 `[1,1]` projection but remain inequivalent under global address renaming and
@@ -168,11 +168,22 @@ have masks `[true,false]` and `[false,true]` despite sharing direct-self count
 one. This preserves the requested per-slot distinction without declaring
 slot identity, endpoint meaning, or execution authority intrinsic.
 
-Those results are eliminations and a complete finite classification at the
-tested widths, not an unbounded theorem or positive execution law. Version 9
+The next audit removes only single-link isolation while retaining ordered
+records, one reference slot per link, distinct link addresses in one shared
+address space, and equality as the sole observation. At one through four
+links there are `2/10/77/799` shared-address classes but only `2/4/8/16`
+products of local descriptors. In particular, the external-reference pair
+`[[0,1],[2,3]]` and the two-link incidence cycle `[[0,2],[2,0]]` have the
+same local descriptors but are inequivalent under global address renaming.
+Cross-reference equality plus reference-to-link-address incidence is complete
+for the tested contract. That matrix is not interpreted as a source, target,
+dependency, transition, or execution edge.
+
+Those results are eliminations and complete finite classifications at the
+tested widths, not unbounded theorems or positive execution laws. Version 10
 still marks passivity and external
 transition as experimental assumptions of the older host witness, and it
-leaves link ontology and intrinsic authority unresolved. The v9 result does
+leaves link ontology and intrinsic authority unresolved. The v10 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

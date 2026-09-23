@@ -141,7 +141,7 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 9 also performs an independent finite symmetry experiment without
+Version 10 also performs an independent finite symmetry experiment without
 using A/B/C. It begins with two unlabelled reference occurrences and equality,
 then exhausts all three surjective observations on their used support, six
 occurrence-permutation/reference-renaming group elements, and ten action
@@ -171,7 +171,7 @@ the base occurrence orbits. The interaction-only conditional instead breaks a
 base-preserving relabelling, so its distinction uses information not derived
 from the tested base. Completeness remains bounded to widths one through four.
 
-The v6 audit also tests the starting projection against the independently
+The v7 audit also tests the starting projection against the independently
 required ability of an addressed link to refer to itself. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` patterns have the same reference-only
 `[1,1]` projection but are inequivalent under address renaming and
@@ -199,6 +199,15 @@ them equivariantly. The reference-equality matrix plus this mask completely
 classifies the tested ordered address/equality patterns. This preserves the
 per-slot distinction without asserting that slot identity or endpoint meaning
 is intrinsic.
+
+The next audit removes only single-link isolation. At two through four
+ordered one-reference links, products of the local descriptors collapse
+`10/77/799` shared-address classes to `4/8/16`. The external-reference pair
+`[[0,1],[2,3]]` and two-link incidence cycle `[[0,2],[2,0]]` have identical
+local descriptors but inequivalent global address-equality patterns.
+Cross-reference equality plus reference-to-link-address incidence is complete
+for the tested shared contract. The audit does not interpret that incidence
+as an endpoint, dependency, transition, or execution edge.
 
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,

@@ -85,7 +85,7 @@ Horn implementations remain executable controls, but their host/self
 duplication excludes them from ranking against the fully reduced S/K
 candidate. The report therefore names no winner. An executable two-model
 witness shows only that one ordered-link host representation does not select
-between two tested transition functions. A separate v9 experiment starts from
+between two tested transition functions. A separate v10 experiment starts from
 two unlabelled reference occurrences plus equality and exhausts their finite
 symmetries. It derives exactly the same-reference/distinct-reference quotient,
 no invariant source/target selector, no unique equivariant dynamics, and
@@ -116,9 +116,17 @@ self-incidence per ordered reference slot: all `2/4/8/16` masks occur at
 widths one through four, address renaming preserves them, and slot permutation
 transports them equivariantly. The reference-equality matrix plus this mask is
 complete for the tested ordered address/equality patterns, without proving
-that slot identity or endpoint meaning is intrinsic. These results do not
-complete link ontology or establish an unbounded classification theorem. The
-report keeps link ontology,
+that slot identity or endpoint meaning is intrinsic. That local descriptor
+does not compose across multiple links: at two through four ordered
+one-reference links, products of the local descriptors collapse
+`10/77/799` shared-address classes to `4/8/16`. An external-reference pair
+and a two-link incidence cycle have the same local descriptors but are
+inequivalent in the shared address space. Cross-reference equality plus
+reference-to-link-address
+incidence restores a complete descriptor for the tested contract, without
+calling that incidence a source, target, dependency, transition, or execution
+edge. These results do not complete link ontology or establish an unbounded
+classification theorem. The report keeps link ontology,
 intrinsic authority, primitive categories, the structure/transformation
 relation, and comparative minimality unresolved; classifies all three
 implementations as executable controls that cannot constrain the ontology

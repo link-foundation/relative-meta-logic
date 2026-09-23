@@ -19,7 +19,7 @@ executable, see the
 It executes three mechanisms without treating S/K as a native Links Theory
 law or ranking unequally reduced controls. Its two-model witness establishes
 only that the tested ordered-link host signature does not select between two
-transition functions. Its v9 finite symmetry experiment independently derives
+transition functions. Its v10 finite symmetry experiment independently derives
 the equality partition of two unlabelled reference occurrences, eliminates an
 invariant source/target selector and unique dynamics for that contract, and
 makes reification representation-dependent at the tested projection. The same
@@ -35,8 +35,12 @@ The audit also classifies self-incidence per ordered reference slot: all `2/4/8/
 masks occur at widths one through four, remain fixed under address renaming,
 and move equivariantly under slot permutation. The equality matrix plus that
 mask classifies the tested ordered address/equality patterns without assigning
-endpoint semantics. The report leaves link ontology, intrinsic authority,
-primitive categories, the
+endpoint semantics. The local descriptor nevertheless collapses
+`10/77/799` shared-address classes to `4/8/16` products at two through four
+ordered one-reference links. Cross-reference equality plus
+reference-to-link-address incidence restores completeness for that tested
+shared contract without giving incidence a semantic role. The report leaves
+link ontology, intrinsic authority, primitive categories, the
 structure/transformation relation, and comparative minimality open; the three
 executed mechanisms are controls and do not define the ontology search space.
 

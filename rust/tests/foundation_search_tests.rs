@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v6");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v7");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -559,6 +559,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
                 "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT",
             ),
             (
+                "shared-address-composition",
+                "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL",
+            ),
+            (
                 "addressable-quotient-assumptions",
                 "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
             ),
@@ -571,7 +575,7 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
         .contains("exhaustive"));
     assert!(report
         .admissible_conclusion
-        .contains("cannot select source"));
+        .contains("cannot assign source"));
     assert!(report
         .remaining_boundary
         .contains("does not define a link ontology"));
@@ -1011,6 +1015,111 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             .ordered_faithful_descriptor
             .finite_enumeration_agreement
     );
+    let shared_address_composition = &starting_representation.shared_address_composition;
+    assert_eq!(
+        shared_address_composition.status,
+        "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL"
+    );
+    assert_eq!(
+        shared_address_composition.provenance,
+        "ISSUE_183_INDIRECT_SELF_REFERENCE_REQUIREMENT"
+    );
+    assert_eq!(
+        shared_address_composition
+            .finite_enumeration
+            .iter()
+            .map(|item| (
+                item.link_count,
+                item.reference_slots_per_link,
+                item.shared_address_classes,
+                item.local_descriptor_classes,
+                item.local_descriptor_fibre_histogram
+                    .iter()
+                    .map(|row| (row.shared_address_classes, row.local_descriptor_classes))
+                    .collect::<Vec<_>>(),
+                item.local_descriptors_faithful,
+                item.shared_descriptor_classes,
+                item.shared_descriptor_faithful,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (1, 1, 2, 2, vec![(1, 2)], true, 2, true),
+            (2, 1, 10, 4, vec![(1, 1), (2, 2), (5, 1)], false, 10, true),
+            (
+                3,
+                1,
+                77,
+                8,
+                vec![(1, 1), (3, 3), (10, 3), (37, 1)],
+                false,
+                77,
+                true,
+            ),
+            (
+                4,
+                1,
+                799,
+                16,
+                vec![(1, 1), (4, 4), (17, 6), (77, 4), (372, 1)],
+                false,
+                799,
+                true,
+            ),
+        ]
+    );
+    assert!(
+        !shared_address_composition.local_descriptors_faithful_at_every_tested_multi_link_width
+    );
+    assert_eq!(
+        shared_address_composition.countermodel.external_references,
+        vec![vec![0, 1], vec![2, 3]]
+    );
+    assert_eq!(
+        shared_address_composition.countermodel.two_link_cycle,
+        vec![vec![0, 2], vec![2, 0]]
+    );
+    assert!(
+        shared_address_composition
+            .countermodel
+            .same_local_descriptors
+    );
+    assert!(
+        !shared_address_composition
+            .countermodel
+            .same_shared_address_class
+    );
+    assert_eq!(
+        shared_address_composition
+            .countermodel
+            .external_references_cycle_length,
+        0
+    );
+    assert_eq!(
+        shared_address_composition
+            .countermodel
+            .two_link_cycle_length,
+        2
+    );
+    assert_eq!(
+        shared_address_composition.shared_faithful_descriptor.status,
+        "COMPLETE_INVARIANT_FOR_ORDERED_SHARED_ADDRESS_EQUALITY_CONTRACT"
+    );
+    assert_eq!(
+        shared_address_composition.shared_faithful_descriptor.fields,
+        vec![
+            "referenceEqualityMatrixAcrossLinks",
+            "referenceToLinkAddressIncidenceMatrix",
+        ]
+    );
+    assert!(
+        shared_address_composition
+            .shared_faithful_descriptor
+            .finite_enumeration_agreement
+    );
+    assert!(shared_address_composition
+        .assumption_classification
+        .semantics_not_assigned
+        .contains("not a source, target, transition, dependency, or execution edge"));
     assert_eq!(
         starting_representation
             .quotient_audit
@@ -1116,6 +1225,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
                 "self-incidence reference slot",
                 "RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT"
             ),
+            (
+                "cross-link address incidence",
+                "PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION"
+            ),
             ("endpoint direction", "NOT_OBSERVED_NOT_DISPROVED"),
             ("dynamics and time", "NOT_OBSERVED_NOT_DISPROVED"),
         ]
@@ -1135,6 +1248,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(report.results.iter().any(|item| {
         item.id == "addressable-quotient-assumptions"
             && item.result == "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED"
+    }));
+    assert!(report.results.iter().any(|item| {
+        item.id == "shared-address-composition"
+            && item.result == "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL"
     }));
 }
 

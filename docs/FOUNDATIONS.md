@@ -20,7 +20,7 @@ host/self duplication. The report names no winner. Its two-model witness shows
 only that the tested ordered-link host signature does not select between two
 functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
-documented on this page. The v9 report additionally performs an independent
+documented on this page. The v10 report additionally performs an independent
 finite symmetry experiment over two unlabelled reference occurrences. It
 derives equality coincidence as complete for that contract while eliminating
 an invariant source/target selector, unique dynamics, and
@@ -45,6 +45,12 @@ widths one through four, is invariant under address renaming, and is
 equivariant under slot permutation. Combined with the reference-equality
 matrix it is complete for the tested ordered address/equality contract, but it
 does not establish intrinsic slot identity or endpoint semantics.
+
+Those local descriptors are not compositionally faithful: for two through
+four ordered one-reference links they collapse `10/77/799` shared-address
+classes to `4/8/16`. Cross-reference equality plus reference-to-link-address
+incidence recovers a complete descriptor for the tested shared-address
+contract, without assigning semantic roles to incidence.
 
 The headline guarantee is backward compatibility:
 

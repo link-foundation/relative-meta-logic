@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v9');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v10');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v6',
+      'rml-link-ontology-symmetry-experiment/v7',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -250,12 +250,13 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['conditional-interaction-forcedness', 'SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE'],
         ['starting-representation-faithfulness', 'REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE'],
         ['slotwise-self-incidence', 'CLASSIFIED_PER_ORDERED_REFERENCE_SLOT'],
+        ['shared-address-composition', 'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
     );
     assert.match(experiment.admissibleConclusion, /exhaustive/i);
-    assert.match(experiment.admissibleConclusion, /cannot select source/i);
+    assert.match(experiment.admissibleConclusion, /cannot assign source/i);
     assert.match(experiment.remainingBoundary, /does not define a link ontology/i);
     const boundary = experiment.observationBoundary;
     assert.equal(boundary.status, 'BINARY_CONTRACT_NOT_EXHAUSTIVE');
@@ -648,6 +649,136 @@ describe('architecture-neutral alternative-foundation search', () => {
       slotwiseIncidence.orderedFaithfulDescriptor.finiteEnumerationAgreement,
       true,
     );
+    const sharedAddressComposition =
+      startingRepresentation.sharedAddressComposition;
+    assert.equal(
+      sharedAddressComposition.status,
+      'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL',
+    );
+    assert.equal(
+      sharedAddressComposition.provenance,
+      'ISSUE_183_INDIRECT_SELF_REFERENCE_REQUIREMENT',
+    );
+    assert.deepEqual(
+      sharedAddressComposition.finiteEnumeration.map(item => ({
+        linkCount: item.linkCount,
+        referenceSlotsPerLink: item.referenceSlotsPerLink,
+        sharedAddressClasses: item.sharedAddressClasses,
+        localDescriptorClasses: item.localDescriptorClasses,
+        localDescriptorFibreHistogram: item.localDescriptorFibreHistogram,
+        localDescriptorsFaithful: item.localDescriptorsFaithful,
+        sharedDescriptorClasses: item.sharedDescriptorClasses,
+        sharedDescriptorFaithful: item.sharedDescriptorFaithful,
+      })),
+      [
+        {
+          linkCount: 1,
+          referenceSlotsPerLink: 1,
+          sharedAddressClasses: 2,
+          localDescriptorClasses: 2,
+          localDescriptorFibreHistogram: [
+            { sharedAddressClasses: 1, localDescriptorClasses: 2 },
+          ],
+          localDescriptorsFaithful: true,
+          sharedDescriptorClasses: 2,
+          sharedDescriptorFaithful: true,
+        },
+        {
+          linkCount: 2,
+          referenceSlotsPerLink: 1,
+          sharedAddressClasses: 10,
+          localDescriptorClasses: 4,
+          localDescriptorFibreHistogram: [
+            { sharedAddressClasses: 1, localDescriptorClasses: 1 },
+            { sharedAddressClasses: 2, localDescriptorClasses: 2 },
+            { sharedAddressClasses: 5, localDescriptorClasses: 1 },
+          ],
+          localDescriptorsFaithful: false,
+          sharedDescriptorClasses: 10,
+          sharedDescriptorFaithful: true,
+        },
+        {
+          linkCount: 3,
+          referenceSlotsPerLink: 1,
+          sharedAddressClasses: 77,
+          localDescriptorClasses: 8,
+          localDescriptorFibreHistogram: [
+            { sharedAddressClasses: 1, localDescriptorClasses: 1 },
+            { sharedAddressClasses: 3, localDescriptorClasses: 3 },
+            { sharedAddressClasses: 10, localDescriptorClasses: 3 },
+            { sharedAddressClasses: 37, localDescriptorClasses: 1 },
+          ],
+          localDescriptorsFaithful: false,
+          sharedDescriptorClasses: 77,
+          sharedDescriptorFaithful: true,
+        },
+        {
+          linkCount: 4,
+          referenceSlotsPerLink: 1,
+          sharedAddressClasses: 799,
+          localDescriptorClasses: 16,
+          localDescriptorFibreHistogram: [
+            { sharedAddressClasses: 1, localDescriptorClasses: 1 },
+            { sharedAddressClasses: 4, localDescriptorClasses: 4 },
+            { sharedAddressClasses: 17, localDescriptorClasses: 6 },
+            { sharedAddressClasses: 77, localDescriptorClasses: 4 },
+            { sharedAddressClasses: 372, localDescriptorClasses: 1 },
+          ],
+          localDescriptorsFaithful: false,
+          sharedDescriptorClasses: 799,
+          sharedDescriptorFaithful: true,
+        },
+      ],
+    );
+    assert.equal(
+      sharedAddressComposition
+        .localDescriptorsFaithfulAtEveryTestedMultiLinkWidth,
+      false,
+    );
+    assert.deepEqual(
+      sharedAddressComposition.countermodel.externalReferences,
+      [[0, 1], [2, 3]],
+    );
+    assert.deepEqual(
+      sharedAddressComposition.countermodel.twoLinkCycle,
+      [[0, 2], [2, 0]],
+    );
+    assert.equal(
+      sharedAddressComposition.countermodel.sameLocalDescriptors,
+      true,
+    );
+    assert.equal(
+      sharedAddressComposition.countermodel.sameSharedAddressClass,
+      false,
+    );
+    assert.equal(
+      sharedAddressComposition.countermodel.externalReferencesCycleLength,
+      0,
+    );
+    assert.equal(
+      sharedAddressComposition.countermodel.twoLinkCycleLength,
+      2,
+    );
+    assert.equal(
+      sharedAddressComposition.sharedFaithfulDescriptor.status,
+      'COMPLETE_INVARIANT_FOR_ORDERED_SHARED_ADDRESS_EQUALITY_CONTRACT',
+    );
+    assert.deepEqual(
+      sharedAddressComposition.sharedFaithfulDescriptor.fields,
+      [
+        'referenceEqualityMatrixAcrossLinks',
+        'referenceToLinkAddressIncidenceMatrix',
+      ],
+    );
+    assert.equal(
+      sharedAddressComposition.sharedFaithfulDescriptor
+        .finiteEnumerationAgreement,
+      true,
+    );
+    assert.match(
+      sharedAddressComposition.assumptionClassification.semanticsNotAssigned,
+      /not a source, target, transition, dependency, or execution edge/,
+    );
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -738,6 +869,10 @@ describe('architecture-neutral alternative-foundation search', () => {
           'self-incidence reference slot',
           'RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT',
         ],
+        [
+          'cross-link address incidence',
+          'PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION',
+        ],
         ['endpoint direction', 'NOT_OBSERVED_NOT_DISPROVED'],
         ['dynamics and time', 'NOT_OBSERVED_NOT_DISPROVED'],
       ],
@@ -754,6 +889,10 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.ok(experiment.results.some(item =>
       item.id === 'addressable-quotient-assumptions' &&
       item.result === 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'));
+    assert.ok(experiment.results.some(item =>
+      item.id === 'shared-address-composition' &&
+      item.result ===
+        'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL'));
     assert.match(
       report.conclusion.ontologyExperimentConclusion,
       /binary equality coincidence is complete only at fixed width two/i,
@@ -803,7 +942,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v9');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v10');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

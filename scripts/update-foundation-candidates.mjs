@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v9';
+table.schema = 'rml-foundation-candidate-table/v10';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -44,6 +44,9 @@ table.claimBoundary.proved = [...new Set([
   'all 2, 4, 8, and 16 slotwise self-incidence masks occur at widths one through four',
   'slotwise self-incidence is invariant under address renaming and equivariant under reference-slot permutation',
   'reference equality plus the slotwise self-incidence mask classifies ordered address/equality patterns at widths one through four',
+  'products of local single-link descriptors collapse 10, 77, and 799 shared-address classes to 4, 8, and 16 classes at two through four ordered one-reference links',
+  'the external-reference pair [[0,1],[2,3]] and two-link incidence cycle [[0,2],[2,0]] have identical local descriptors but inequivalent shared-address equality patterns',
+  'cross-reference equality plus reference-to-link-address incidence classifies the ordered one-reference shared-address contract at one through four links',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -59,6 +62,8 @@ table.claimBoundary.notProved = [...new Set([
   'that the declared unlabelled addressable quotient is a complete representation of links',
   'that reference-slot identity is intrinsic to links',
   'that a self-incident slot is a source, target, or execution role',
+  'that cross-link incidence is a source, target, dependency, transition, or execution edge',
+  'that ordered link records or one-reference links are intrinsic to links',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);

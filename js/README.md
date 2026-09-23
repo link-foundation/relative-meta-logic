@@ -237,7 +237,7 @@ histogram is 20/5/7/1 for 0/1/2/4 singleton orbits, and provenance separates
 classes. All 73 candidate observations at widths one through four that preserve
 their base symmetries leave the base occurrence orbits unchanged. The
 interaction-only conditional breaks a relabelling that fixes its base, so it
-requires information not derived from that base. The v6 starting-representation
+requires information not derived from that base. The v7 starting-representation
 audit additionally shows that direct-self `[0,0,1]` and fresh-external
 `[0,1,2]` links share the `[1,1]` reference-only projection. Forgetting the
 link address collapses `2/4/7/12` addressable classes to `1/2/3/5` at widths
@@ -246,8 +246,14 @@ slot permutation, all `2/4/8/16` self-incidence masks occur at those widths;
 address renaming preserves the mask, and slot permutation transports it
 equivariantly. Combined with the reference-equality matrix, it classifies the
 tested ordered address/equality patterns without assigning endpoint meaning.
-The v9 report treats these as finite, provenance-labelled constraints, not a
-link ontology or execution law. Primitive
+Across two through four ordered one-reference links, those local descriptors
+collapse `10/77/799` shared-address classes to `4/8/16`. The
+external-reference pair `[[0,1],[2,3]]` and two-link incidence cycle
+`[[0,2],[2,0]]` are a concrete countermodel. Cross-reference equality plus
+reference-to-link-address incidence classifies the tested shared contract
+without assigning incidence an endpoint, dependency, transition, or execution
+role. The v10 report treats these as finite, provenance-labelled constraints,
+not a link ontology or execution law. Primitive
 categories, the structure/transformation relation, intrinsic authority, and
 comparative minimality remain unresolved. All three implementations are
 executable controls and cannot constrain the independent search or select a

@@ -198,12 +198,19 @@ function compareVectors(left, right) {
 }
 
 function setPartitions(width) {
-  return uniqueVectors(
-    Array.from({ length: width }, (_, index) =>
-      surjectiveAssignments(width, index + 1))
-      .flat()
-      .map(firstOccurrenceNormalForm),
-  );
+  if (width === 0) return [[]];
+  const partitions = [];
+  const visit = (partition, maximum) => {
+    if (partition.length === width) {
+      partitions.push(partition);
+      return;
+    }
+    for (let value = 0; value <= maximum + 1; value += 1) {
+      visit([...partition, value], Math.max(maximum, value));
+    }
+  };
+  visit([0], 0);
+  return partitions;
 }
 
 function permutePartition(partition, permutation) {
@@ -565,6 +572,176 @@ function slotwiseSelfIncidenceAudit() {
   };
 }
 
+function orderedSharedAddressConfigurations(linkCount) {
+  return setPartitions(linkCount * 2).filter(configuration => {
+    const linkAddresses = Array.from(
+      { length: linkCount },
+      (_, linkIndex) => configuration[linkIndex * 2],
+    );
+    return new Set(linkAddresses).size === linkCount;
+  });
+}
+
+function localSingleLinkDescriptors(configuration) {
+  return Array.from(
+    { length: configuration.length / 2 },
+    (_, linkIndex) => orderedAddressableLinkDescriptor([
+      configuration[linkIndex * 2],
+      configuration[(linkIndex * 2) + 1],
+    ]),
+  );
+}
+
+function sharedAddressDescriptor(configuration) {
+  const linkCount = configuration.length / 2;
+  const linkAddresses = Array.from(
+    { length: linkCount },
+    (_, linkIndex) => configuration[linkIndex * 2],
+  );
+  const references = Array.from(
+    { length: linkCount },
+    (_, linkIndex) => configuration[(linkIndex * 2) + 1],
+  );
+  return {
+    referenceEqualityMatrixAcrossLinks: equalityMatrix(references),
+    referenceToLinkAddressIncidenceMatrix: references.flatMap(reference =>
+      linkAddresses.map(linkAddress => Number(reference === linkAddress))),
+  };
+}
+
+function linkIncidenceCycleLength(configuration, startingLinkIndex) {
+  const linkCount = configuration.length / 2;
+  const linkAddresses = Array.from(
+    { length: linkCount },
+    (_, linkIndex) => configuration[linkIndex * 2],
+  );
+  const visitedAt = new Map();
+  let linkIndex = startingLinkIndex;
+  while (!visitedAt.has(linkIndex)) {
+    visitedAt.set(linkIndex, visitedAt.size);
+    const referenceAddress = configuration[(linkIndex * 2) + 1];
+    linkIndex = linkAddresses.indexOf(referenceAddress);
+    if (linkIndex === -1) return 0;
+  }
+  return linkIndex === startingLinkIndex
+    ? visitedAt.size - visitedAt.get(linkIndex)
+    : 0;
+}
+
+function sharedAddressCompositionAudit() {
+  const finiteEnumeration = [1, 2, 3, 4].map(linkCount => {
+    const configurations = orderedSharedAddressConfigurations(linkCount);
+    const localDescriptorFibres = new Map();
+    const sharedDescriptorToSignatures = new Map();
+    for (const configuration of configurations) {
+      const localDescriptor = JSON.stringify(
+        localSingleLinkDescriptors(configuration),
+      );
+      localDescriptorFibres.set(
+        localDescriptor,
+        (localDescriptorFibres.get(localDescriptor) ?? 0) + 1,
+      );
+      const sharedDescriptor = JSON.stringify(
+        sharedAddressDescriptor(configuration),
+      );
+      if (!sharedDescriptorToSignatures.has(sharedDescriptor)) {
+        sharedDescriptorToSignatures.set(sharedDescriptor, new Set());
+      }
+      sharedDescriptorToSignatures.get(sharedDescriptor).add(
+        JSON.stringify(firstOccurrenceNormalForm(configuration)),
+      );
+    }
+    const localDescriptorFibreHistogram = [...localDescriptorFibres.values()]
+      .reduce((histogram, sharedAddressClasses) => {
+        histogram.set(
+          sharedAddressClasses,
+          (histogram.get(sharedAddressClasses) ?? 0) + 1,
+        );
+        return histogram;
+      }, new Map());
+    return {
+      linkCount,
+      referenceSlotsPerLink: 1,
+      sharedAddressClasses: configurations.length,
+      localDescriptorClasses: localDescriptorFibres.size,
+      localDescriptorFibreHistogram: [...localDescriptorFibreHistogram]
+        .sort(([left], [right]) => left - right)
+        .map(([sharedAddressClasses, localDescriptorClasses]) => ({
+          sharedAddressClasses,
+          localDescriptorClasses,
+        })),
+      localDescriptorsFaithful: [...localDescriptorFibres.values()]
+        .every(fibreSize => fibreSize === 1),
+      sharedDescriptorClasses: sharedDescriptorToSignatures.size,
+      sharedDescriptorFaithful: [...sharedDescriptorToSignatures.values()]
+        .every(signatures => signatures.size === 1) &&
+          sharedDescriptorToSignatures.size === configurations.length,
+    };
+  });
+  const externalReferences = [[0, 1], [2, 3]];
+  const twoLinkCycle = [[0, 2], [2, 0]];
+  const flatten = configuration => configuration.flat();
+  const externalPattern = flatten(externalReferences);
+  const cyclePattern = flatten(twoLinkCycle);
+
+  return {
+    status: 'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL',
+    provenance: 'ISSUE_183_INDIRECT_SELF_REFERENCE_REQUIREMENT',
+    removedAssumption: 'single addressed link considered in isolation',
+    retainedAssumptions: [
+      'finite ordered link records',
+      'one ordered reference slot per link',
+      'distinct link addresses in one shared address space',
+      'address equality is the only observation',
+    ],
+    finiteEnumeration,
+    localDescriptorsFaithfulAtEveryTestedMultiLinkWidth:
+      finiteEnumeration.filter(item => item.linkCount > 1)
+        .every(item => item.localDescriptorsFaithful),
+    countermodel: {
+      externalReferences,
+      twoLinkCycle,
+      sameLocalDescriptors:
+        JSON.stringify(localSingleLinkDescriptors(externalPattern)) ===
+          JSON.stringify(localSingleLinkDescriptors(cyclePattern)),
+      sameSharedAddressClass:
+        JSON.stringify(firstOccurrenceNormalForm(externalPattern)) ===
+          JSON.stringify(firstOccurrenceNormalForm(cyclePattern)),
+      externalReferencesCycleLength:
+        linkIncidenceCycleLength(externalPattern, 0),
+      twoLinkCycleLength: linkIncidenceCycleLength(cyclePattern, 0),
+      distinguishingObservation:
+        'whether each reference address equals another link address in the same configuration',
+    },
+    sharedFaithfulDescriptor: {
+      status:
+        'COMPLETE_INVARIANT_FOR_ORDERED_SHARED_ADDRESS_EQUALITY_CONTRACT',
+      fields: [
+        'referenceEqualityMatrixAcrossLinks',
+        'referenceToLinkAddressIncidenceMatrix',
+      ],
+      finiteEnumerationAgreement: finiteEnumeration.every(item =>
+        item.sharedDescriptorFaithful),
+      generalArgument:
+        'With distinct ordered link addresses, incidence identifies every reference equal to a link address; the reference equality matrix partitions all remaining external references. Equal descriptors therefore induce a global bijection of every used address.',
+    },
+    generalConsequence:
+      'For any finite ordered collection of distinct link addresses with one reference each, the product of local single-link descriptors retains only the diagonal of cross-link incidence and is non-faithful from two links onward.',
+    assumptionClassification: {
+      forcedByIssueContract:
+        'indirect self-reference requires comparing references with other link addresses in a shared address space',
+      survivesRepresentationChange:
+        'the external-reference and two-link-cycle configurations remain distinct under every global address renaming',
+      introducedByObserver:
+        'link-record order, fixed finite link count, and one reference slot are retained experimental restrictions',
+      semanticsNotAssigned:
+        'cross-link incidence is only address equality; it is not a source, target, transition, dependency, or execution edge',
+    },
+    claimBoundary:
+      'This removes single-link isolation and proves a compositional information loss for the declared equality contract. It does not establish that ordered link records or one-slot links are intrinsic, interpret an incidence cycle dynamically, or define a complete link ontology.',
+  };
+}
+
 function startingRepresentationAudit() {
   const finiteEnumeration = Array.from({ length: 4 }, (_, index) => index + 1)
     .map(occurrenceCount => {
@@ -694,6 +871,7 @@ function startingRepresentationAudit() {
       consequence: 'REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY',
     },
     slotwiseSelfIncidence: slotwiseSelfIncidenceAudit(),
+    sharedAddressComposition: sharedAddressCompositionAudit(),
     quotientAudit: {
       finiteEnumeration: quotientFiniteEnumeration,
       addressRenamingCompleteInvariantVerified: [1, 2, 3, 4]
@@ -1028,6 +1206,11 @@ function observationBoundaryExperiment() {
         evidence: 'All 2/4/8/16 Boolean self-incidence masks occur at widths one through four. Each mask is invariant under address renaming and moves equivariantly, rather than remaining fixed, under reference-slot permutation.',
       },
       {
+        distinction: 'cross-link address incidence',
+        classification: 'PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION',
+        evidence: 'For two through four ordered one-reference links, products of local descriptors collapse 10/77/799 shared-address classes to 4/8/16 classes. A fresh-external pair and a two-link incidence cycle have identical local descriptors but inequivalent global equality patterns.',
+      },
+      {
         distinction: 'endpoint direction',
         classification: 'NOT_OBSERVED_NOT_DISPROVED',
         evidence: 'Neither the base family nor the conditional refinement names or measures endpoint order.',
@@ -1149,8 +1332,8 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v6',
-    question: 'Which facts survive the binary reference observation, what does its fixed width erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?',
+    schema: 'rml-link-ontology-symmetry-experiment/v7',
+    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
       occurrenceCount,
@@ -1269,6 +1452,11 @@ function linkOntologySymmetryExperiment() {
         evidence: 'The slotwise Boolean mask realizes 2/4/8/16 patterns at widths one through four, is invariant under global address renaming, and is equivariant but not invariant under slot permutation. Together with the ordered reference-equality matrix it completely classifies the tested ordered address/equality patterns.',
       },
       {
+        id: 'shared-address-composition',
+        result: 'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL',
+        evidence: 'At two through four ordered one-reference links, 10/77/799 shared-address equality classes collapse to 4/8/16 products of local descriptors. [[0,1],[2,3]] and [[0,2],[2,0]] have identical local descriptors, but only the latter is a two-link incidence cycle.',
+      },
+      {
         id: 'addressable-quotient-assumptions',
         result: 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED',
         evidence: 'Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.',
@@ -1279,8 +1467,8 @@ function linkOntologySymmetryExperiment() {
         evidence: 'The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.',
       },
     ],
-    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot: every mask occurs, address renaming preserves it, and slot permutation transports it equivariantly. The ordered reference-equality matrix plus this mask is complete for the tested ordered address/equality contract. Occurrence permutation remains an unestablished observer choice; after imposing it, only self-reference multiplicity remains. The conditional interaction can break symmetries, but every candidate observation preserving all base symmetries leaves the base occurrence orbits unchanged; these results cannot select source, target, dynamics, or an execution law.',
-    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that the reference-only projection loses required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences intrinsically have slot identity, assign endpoint meaning to a self-incident slot, claim the addressable quotient is complete, derive dynamics, generalize every finite enumeration into an unbounded classification theorem, or turn a structural symmetry into execution semantics.',
+    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. These equality results cannot assign source, target, dependency, dynamics, or execution meaning.',
+    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive execution semantics, or generalize every finite enumeration beyond its stated argument.',
   };
 }
 
@@ -1980,7 +2168,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v9',
+    schema: 'rml-alternative-foundation-search/v10',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
@@ -1991,7 +2179,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     comparisonStatus: comparisonCohortSufficient
       ? 'COMPARABLE_COHORT_ESTABLISHED_NO_GLOBAL_MINIMALITY_CLAIM'
       : 'OPEN_NO_COMPARABLE_ALTERNATIVE',
-    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, the binary symmetry quotient, the width-one-through-four multiplicity quotients, the slotwise self-incidence classification, the conditional width-four refinement fibres, and the symmetry non-creation result for observations derived from the tested base. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The observation evidence does not establish link ontology, intrinsic slot identity, richer intrinsic link structure, turn a structural symmetry into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
+    proofBoundary: 'The report proves the finite acceptance workload, an instruction-by-instruction simulation of the complete two-counter-machine basis, the binary symmetry quotient, the width-one-through-four multiplicity quotients, the slotwise self-incidence classification, the one-through-four-link shared-address composition audit, the conditional width-four refinement fibres, and the symmetry non-creation result for observations derived from the tested base. Turing completeness additionally uses the standard universality theorem for unbounded deterministic two-counter machines. The observation evidence does not establish link ontology, intrinsic slot or link-record order, richer intrinsic link structure, turn a structural incidence cycle into execution semantics, permit the executable controls to constrain ontology, or claim complete Lean, Rocq, Rust, or JavaScript production implementations.',
     candidates,
     representationBoundaryWitness: linkRepresentationBoundaryWitness(),
     comparisonCohort: {
@@ -2025,7 +2213,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       globallyMinimal: false,
       intrinsicTransitionAuthority: 'UNRESOLVED',
       representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
-      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base. The reference-only projection is non-faithful for required direct self-reference. Before occurrence permutation, 2/4/8/16 Boolean masks classify self-incidence per ordered slot and, with reference equality, completely classify the tested ordered contract. Address renaming preserves the mask while occurrence permutation transports it; slot identity therefore remains unestablished, and only self-reference multiplicity survives the declared unlabelled quotient.',
+      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base. The reference-only projection is non-faithful for required direct self-reference. Before occurrence permutation, 2/4/8/16 Boolean masks classify self-incidence per ordered slot. Removing single-link isolation yields 10/77/799 shared-address classes at two through four links but only 4/8/16 local-descriptor products; an external-reference pair and a two-link incidence cycle are the explicit countermodel. Cross-reference equality plus reference-to-link-address incidence is complete for the ordered one-reference shared-address contract, without assigning semantic meaning to that incidence.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };

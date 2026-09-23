@@ -220,7 +220,7 @@ separation as assumptions; it does not infer link ontology from them. The
 failed zero-transition experiment is likewise scoped to the current passive
 host model and finite workload.
 
-The v9 ontology investigation is separate from execution comparison. Its
+The v10 ontology investigation is separate from execution comparison. Its
 finite experiment quotients two unlabelled reference occurrences by every
 occurrence permutation and reference renaming. Equality coincidence is
 complete for that contract; no invariant singleton selects source or target,
@@ -249,6 +249,15 @@ under slot permutation; together with the reference-equality matrix it
 classifies the tested ordered address/equality patterns. This preserves the
 possible slot distinction without claiming that slot identity or an endpoint
 role is intrinsic.
+
+That local ordered descriptor is not compositionally faithful. With two,
+three, and four ordered one-reference links, it collapses `10/77/799`
+shared-address classes to `4/8/16` local products. An external-reference pair
+and a two-link incidence cycle are the minimal concrete countermodel. Adding
+cross-reference equality and reference-to-link-address incidence completely
+classifies the tested shared-address contract. This retains record order and
+one reference slot as observer choices and assigns no endpoint, dependency,
+transition, or execution semantics to incidence.
 
 Link ontology, primitive categories, the structure/transformation
 relation, intrinsic semantic authority, and comparative minimality therefore
