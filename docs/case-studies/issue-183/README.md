@@ -54,6 +54,13 @@ every obligation. One generic verification path executes all 46 bundled
 cases, replays exact proof obligations, and checks the definition witness.
 Users can add an unknown logic without modifying either host runtime.
 
+The selectable [recursive type ontology](./recursive-type-ontology.md) now
+represents the `Type -> Type`, `Type -> SubType`, and `SubType -> Value`
+construction and all of its type declarations as addressed doublets. Its host
+index is disposable and rebuildable from those facts. The document also fixes
+the orientation and scope: this finite cyclic graph is an opt-in experimental
+default, not a global logical `Type : Type` rule.
+
 The later foundation review is covered by an explicit
 `external S/K laws -> addressed-link semantic program -> K1 -> F -> T` split.
 The authoritative 1,446-node program is now checked in as

@@ -578,6 +578,38 @@ describe('graph theory as a constrained links-network subset', () => {
     });
     assert.strictEqual(links.typeOf('typed.link'), '(Pair Reference Reference)');
     assert.deepStrictEqual(links.typesOf('source.reference'), ['Entity', 'Reference']);
+    assert.deepStrictEqual(links.typeFacts(), [
+      {
+        address: 'rml.type-fact.0',
+        subject: 'source.reference',
+        type: 'Reference',
+      },
+      {
+        address: 'rml.type-fact.1',
+        subject: 'source.reference',
+        type: 'Entity',
+      },
+      {
+        address: 'rml.type-fact.2',
+        subject: 'target.reference',
+        type: 'Reference',
+      },
+      {
+        address: 'rml.type-fact.3',
+        subject: 'wrong.reference',
+        type: 'Natural',
+      },
+      {
+        address: 'rml.type-fact.4',
+        subject: 'typed.link',
+        type: '(Pair Reference Reference)',
+      },
+    ]);
+    const snapshot = links.snapshot();
+    links.clearTypeIndex();
+    assert.deepStrictEqual(links.typesOf('source.reference'), ['Entity', 'Reference']);
+    links.rebuildTypeIndex();
+    assert.deepStrictEqual(links.snapshot(), snapshot);
     assert.throws(
       () => links.define(
         'invalid.typed.link',
@@ -588,6 +620,29 @@ describe('graph theory as a constrained links-network subset', () => {
       ),
       /typed link source wrong\.reference has type Natural; expected Reference/,
     );
+  });
+
+  it('provides a selectable recursively linked default type ontology', () => {
+    const bare = new TypedLinkNetwork();
+    assert.strictEqual(bare.doublet('Type'), null);
+
+    const links = TypedLinkNetwork.withDefaultOntology();
+    assert.deepStrictEqual(links.doublet('Type'), { source: 'Type', target: 'Type' });
+    assert.deepStrictEqual(
+      links.doublet('SubType'),
+      { source: 'Type', target: 'SubType' },
+    );
+    assert.deepStrictEqual(
+      links.doublet('Value'),
+      { source: 'SubType', target: 'Value' },
+    );
+    assert.deepStrictEqual(links.typesOf('Type'), ['Type']);
+    assert.deepStrictEqual(links.typesOf('SubType'), ['Type']);
+    assert.deepStrictEqual(links.typesOf('Value'), ['SubType']);
+    assert.deepStrictEqual(links.validateClosure(), {
+      closed: true,
+      missingReferences: [],
+    });
   });
 
   it('stores directed graphs as vertex-membership and typed edge links', () => {

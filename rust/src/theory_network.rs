@@ -999,27 +999,105 @@ impl LinkNetwork {
             .get(address)
             .map(|link| (link.source.as_str(), link.target.as_str()))
     }
+
+    fn snapshot(&self) -> Vec<(String, String, String)> {
+        self.links
+            .iter()
+            .map(|(address, link)| (address.clone(), link.source.clone(), link.target.clone()))
+            .collect()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedLinkNetworkSnapshot {
+    pub links: Vec<(String, String, String)>,
+    pub type_facts: Vec<(String, String, String)>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkClosureReport {
+    pub closed: bool,
+    pub missing_references: Vec<String>,
 }
 
 /// A link network whose references and ordered-pair endpoints are type checked.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default)]
 pub struct TypedLinkNetwork {
     links: LinkNetwork,
-    types: BTreeMap<String, BTreeSet<String>>,
+    type_fact_links: LinkNetwork,
+    type_index: Option<BTreeMap<String, BTreeSet<String>>>,
 }
+
+impl PartialEq for TypedLinkNetwork {
+    fn eq(&self, other: &Self) -> bool {
+        self.links == other.links && self.type_fact_links == other.type_fact_links
+    }
+}
+
+impl Eq for TypedLinkNetwork {}
 
 impl TypedLinkNetwork {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            links: LinkNetwork::new(),
+            type_fact_links: LinkNetwork::new(),
+            type_index: Some(BTreeMap::new()),
+        }
+    }
+
+    /// Construct the selectable recursively linked default ontology.
+    ///
+    /// A canonical link's address is also its target. Its source is the
+    /// classifier: Type classifies itself and SubType; SubType classifies Value.
+    pub fn with_default_ontology() -> Self {
+        let mut network = Self::new();
+        network
+            .links
+            .define("Type", "Type", "Type")
+            .expect("default Type link is valid");
+        network
+            .links
+            .define("SubType", "Type", "SubType")
+            .expect("default SubType link is valid");
+        network
+            .links
+            .define("Value", "SubType", "Value")
+            .expect("default Value link is valid");
+        network
+            .declare("Type", "Type")
+            .expect("default Type fact is valid");
+        network
+            .declare("SubType", "Type")
+            .expect("default SubType fact is valid");
+        network
+            .declare("Value", "SubType")
+            .expect("default Value fact is valid");
+        network
     }
 
     pub fn declare(&mut self, address: &str, r#type: &str) -> Result<String, String> {
         require_reference(address, "typed reference address")?;
         require_reference(r#type, "typed reference type")?;
-        self.types
-            .entry(address.to_string())
-            .or_default()
-            .insert(r#type.to_string());
+        if self.types_of(address).contains(&r#type) {
+            return Ok(address.to_string());
+        }
+
+        let mut fact_index = 0;
+        let fact_address = loop {
+            let candidate = format!("rml.type-fact.{fact_index}");
+            if self.type_fact_links.doublet(&candidate).is_none() {
+                break candidate;
+            }
+            fact_index += 1;
+        };
+        self.type_fact_links
+            .define(&fact_address, address, r#type)?;
+        if let Some(index) = &mut self.type_index {
+            index
+                .entry(address.to_string())
+                .or_default()
+                .insert(r#type.to_string());
+        }
         Ok(address.to_string())
     }
 
@@ -1036,10 +1114,7 @@ impl TypedLinkNetwork {
         self.require_type(source, source_type, "source")?;
         self.require_type(target, target_type, "target")?;
         let address = self.links.define(address, source, target)?;
-        self.types.insert(
-            address.clone(),
-            BTreeSet::from([format!("(Pair {source_type} {target_type})")]),
-        );
+        self.declare(&address, &format!("(Pair {source_type} {target_type})"))?;
         Ok(address)
     }
 
@@ -1048,26 +1123,91 @@ impl TypedLinkNetwork {
     }
 
     pub fn type_of(&self, address: &str) -> Option<&str> {
-        let declared = self.types.get(address)?;
-        (declared.len() == 1)
-            .then(|| declared.first().map(String::as_str))
-            .flatten()
+        let declared = self.types_of(address);
+        (declared.len() == 1).then_some(declared[0])
     }
 
     pub fn types_of(&self, address: &str) -> Vec<&str> {
-        self.types
-            .get(address)
+        if let Some(index) = &self.type_index {
+            return index
+                .get(address)
+                .into_iter()
+                .flat_map(|declared| declared.iter().map(String::as_str))
+                .collect();
+        }
+        self.type_fact_links
+            .links
+            .values()
+            .filter_map(|fact| (fact.source == address).then_some(fact.target.as_str()))
+            .collect::<BTreeSet<_>>()
             .into_iter()
-            .flat_map(|declared| declared.iter().map(String::as_str))
             .collect()
     }
 
-    fn require_type(&self, address: &str, expected: &str, role: &str) -> Result<(), String> {
-        let Some(declared) = self.types.get(address) else {
-            return Err(format!("typed link {role} {address} has no declared type"));
+    /// The authoritative type relation, represented as addressed doublets.
+    pub fn type_facts(&self) -> Vec<(&str, &str, &str)> {
+        self.type_fact_links
+            .links
+            .iter()
+            .map(|(address, fact)| (address.as_str(), fact.source.as_str(), fact.target.as_str()))
+            .collect()
+    }
+
+    /// Discard the derived host index; subsequent queries read linked facts.
+    pub fn clear_type_index(&mut self) {
+        self.type_index = None;
+    }
+
+    /// Rebuild the optional acceleration index solely from linked facts.
+    pub fn rebuild_type_index(&mut self) {
+        let mut rebuilt = BTreeMap::<String, BTreeSet<String>>::new();
+        for fact in self.type_fact_links.links.values() {
+            rebuilt
+                .entry(fact.source.clone())
+                .or_default()
+                .insert(fact.target.clone());
+        }
+        self.type_index = Some(rebuilt);
+    }
+
+    /// Return the semantic network state without its disposable cache.
+    pub fn snapshot(&self) -> TypedLinkNetworkSnapshot {
+        TypedLinkNetworkSnapshot {
+            links: self.links.snapshot(),
+            type_facts: self.type_fact_links.snapshot(),
+        }
+    }
+
+    /// Check whether every endpoint and every type fact resolves to a link.
+    pub fn validate_closure(&self) -> LinkClosureReport {
+        let mut missing = BTreeSet::new();
+        let mut require_defined = |reference: &str| {
+            if self.links.doublet(reference).is_none() {
+                missing.insert(reference.to_string());
+            }
         };
-        if !declared.contains(expected) {
-            let actual = declared.iter().cloned().collect::<Vec<_>>().join(", ");
+        for link in self.links.links.values() {
+            require_defined(&link.source);
+            require_defined(&link.target);
+        }
+        for fact in self.type_fact_links.links.values() {
+            require_defined(&fact.source);
+            require_defined(&fact.target);
+        }
+        let missing_references = missing.into_iter().collect::<Vec<_>>();
+        LinkClosureReport {
+            closed: missing_references.is_empty(),
+            missing_references,
+        }
+    }
+
+    fn require_type(&self, address: &str, expected: &str, role: &str) -> Result<(), String> {
+        let declared = self.types_of(address);
+        if declared.is_empty() {
+            return Err(format!("typed link {role} {address} has no declared type"));
+        }
+        if !declared.contains(&expected) {
+            let actual = declared.join(", ");
             return Err(format!(
                 "typed link {role} {address} has type {actual}; expected {expected}"
             ));

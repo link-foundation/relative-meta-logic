@@ -652,21 +652,57 @@ class LinkNetwork {
     const node = this.nodes.get(address);
     return node ? { ...node } : null;
   }
+
+  /** Return a deterministic immutable view of every addressed doublet. */
+  entries() {
+    return [...this.nodes.entries()]
+      .map(([address, node]) => ({ address, ...node }))
+      .sort((left, right) => compareReferences(left.address, right.address));
+  }
 }
 
 /** A link network whose references and ordered-pair endpoints are type checked. */
 class TypedLinkNetwork {
   constructor() {
     this.links = new LinkNetwork();
-    this.types = new Map();
+    this.typeFactLinks = new LinkNetwork();
+    this.typeIndex = new Map();
+  }
+
+  /**
+   * Construct the selectable recursively linked default ontology.
+   *
+   * Each canonical link's address is also its target. The source is its
+   * classifier: Type classifies itself and SubType; SubType classifies Value.
+   */
+  static withDefaultOntology() {
+    const network = new TypedLinkNetwork();
+    network.links.define('Type', 'Type', 'Type');
+    network.links.define('SubType', 'Type', 'SubType');
+    network.links.define('Value', 'SubType', 'Value');
+    network.declare('Type', 'Type');
+    network.declare('SubType', 'Type');
+    network.declare('Value', 'SubType');
+    return network;
   }
 
   declare(address, type) {
     requireLeaf(address, 'typed reference address');
     requireLeaf(type, 'typed reference type');
-    const declared = this.types.get(address) ?? new Set();
-    declared.add(type);
-    this.types.set(address, declared);
+    if (this.typesOf(address).includes(type)) return address;
+
+    let factIndex = 0;
+    let factAddress = `rml.type-fact.${factIndex}`;
+    while (this.typeFactLinks.doublet(factAddress) !== null) {
+      factAddress = `rml.type-fact.${++factIndex}`;
+    }
+    this.typeFactLinks.define(factAddress, address, type);
+
+    if (this.typeIndex !== null) {
+      const declared = this.typeIndex.get(address) ?? new Set();
+      declared.add(type);
+      this.typeIndex.set(address, declared);
+    }
     return address;
   }
 
@@ -676,7 +712,7 @@ class TypedLinkNetwork {
     this.#requireType(source, sourceType, 'source');
     this.#requireType(target, targetType, 'target');
     this.links.define(address, source, target);
-    this.types.set(address, new Set([`(Pair ${sourceType} ${targetType})`]));
+    this.declare(address, `(Pair ${sourceType} ${targetType})`);
     return address;
   }
 
@@ -690,16 +726,76 @@ class TypedLinkNetwork {
   }
 
   typesOf(address) {
-    return [...(this.types.get(address) ?? [])].sort(compareReferences);
+    if (this.typeIndex !== null) {
+      return [...(this.typeIndex.get(address) ?? [])].sort(compareReferences);
+    }
+    return this.typeFacts()
+      .filter(fact => fact.subject === address)
+      .map(fact => fact.type)
+      .sort(compareReferences);
+  }
+
+  /** The authoritative type relation, represented as addressed doublets. */
+  typeFacts() {
+    return this.typeFactLinks.entries().map(({ address, source, target }) => ({
+      address,
+      subject: source,
+      type: target,
+    }));
+  }
+
+  /** Discard the derived host index; subsequent queries read linked facts. */
+  clearTypeIndex() {
+    this.typeIndex = null;
+  }
+
+  /** Rebuild the optional acceleration index solely from linked facts. */
+  rebuildTypeIndex() {
+    const rebuilt = new Map();
+    for (const { subject, type } of this.typeFacts()) {
+      const declared = rebuilt.get(subject) ?? new Set();
+      declared.add(type);
+      rebuilt.set(subject, declared);
+    }
+    this.typeIndex = rebuilt;
+  }
+
+  /** Return the semantic network state without its disposable cache. */
+  snapshot() {
+    return {
+      links: this.links.entries(),
+      typeFacts: this.typeFacts(),
+    };
+  }
+
+  /**
+   * Check whether every endpoint and every type fact resolves to a link.
+   * General typed networks may intentionally be open; the default is closed.
+   */
+  validateClosure() {
+    const missing = new Set();
+    const requireDefined = reference => {
+      if (this.links.doublet(reference) === null) missing.add(reference);
+    };
+    for (const { source, target } of this.links.entries()) {
+      requireDefined(source);
+      requireDefined(target);
+    }
+    for (const { subject, type } of this.typeFacts()) {
+      requireDefined(subject);
+      requireDefined(type);
+    }
+    const missingReferences = [...missing].sort(compareReferences);
+    return { closed: missingReferences.length === 0, missingReferences };
   }
 
   #requireType(address, expected, role) {
-    const declared = this.types.get(address);
-    if (declared === undefined) {
+    const declared = this.typesOf(address);
+    if (declared.length === 0) {
       throw new Error(`typed link ${role} ${address} has no declared type`);
     }
-    if (!declared.has(expected)) {
-      const actual = [...declared].sort(compareReferences).join(', ');
+    if (!declared.includes(expected)) {
+      const actual = declared.join(', ');
       throw new Error(
         `typed link ${role} ${address} has type ${actual}; expected ${expected}`,
       );

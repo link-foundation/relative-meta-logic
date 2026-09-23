@@ -4,8 +4,8 @@
 
 use rml::formal_corpus::FormalCorpus;
 use rml::theory_network::{
-    DoubletSequenceStore, FiniteRelation, LinkGraph, LinkNetwork, MembershipSetStore,
-    SequenceLayout, TheoryNetwork, TypedLinkNetwork,
+    DoubletSequenceStore, FiniteRelation, LinkClosureReport, LinkGraph, LinkNetwork,
+    MembershipSetStore, SequenceLayout, TheoryNetwork, TypedLinkNetwork,
 };
 use rml::{evaluate, RunResult};
 use std::collections::BTreeSet;
@@ -762,6 +762,28 @@ fn enforces_typed_doublet_endpoints_and_records_dependent_pair_type() {
         vec!["Entity", "Reference"]
     );
     assert_eq!(
+        links.type_facts(),
+        vec![
+            ("rml.type-fact.0", "source.reference", "Reference"),
+            ("rml.type-fact.1", "source.reference", "Entity"),
+            ("rml.type-fact.2", "target.reference", "Reference"),
+            ("rml.type-fact.3", "wrong.reference", "Natural"),
+            (
+                "rml.type-fact.4",
+                "typed.link",
+                "(Pair Reference Reference)"
+            ),
+        ]
+    );
+    let snapshot = links.snapshot();
+    links.clear_type_index();
+    assert_eq!(
+        links.types_of("source.reference"),
+        vec!["Entity", "Reference"]
+    );
+    links.rebuild_type_index();
+    assert_eq!(links.snapshot(), snapshot);
+    assert_eq!(
         links.define(
             "invalid.typed.link",
             "wrong.reference",
@@ -770,6 +792,27 @@ fn enforces_typed_doublet_endpoints_and_records_dependent_pair_type() {
             "Reference",
         ),
         Err("typed link source wrong.reference has type Natural; expected Reference".to_string())
+    );
+}
+
+#[test]
+fn provides_a_selectable_recursively_linked_default_type_ontology() {
+    let bare = TypedLinkNetwork::new();
+    assert_eq!(bare.doublet("Type"), None);
+
+    let links = TypedLinkNetwork::with_default_ontology();
+    assert_eq!(links.doublet("Type"), Some(("Type", "Type")));
+    assert_eq!(links.doublet("SubType"), Some(("Type", "SubType")));
+    assert_eq!(links.doublet("Value"), Some(("SubType", "Value")));
+    assert_eq!(links.types_of("Type"), vec!["Type"]);
+    assert_eq!(links.types_of("SubType"), vec!["Type"]);
+    assert_eq!(links.types_of("Value"), vec!["SubType"]);
+    assert_eq!(
+        links.validate_closure(),
+        LinkClosureReport {
+            closed: true,
+            missing_references: Vec::new(),
+        }
     );
 }
 
