@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v10');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v11');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v7',
+      'rml-link-ontology-symmetry-experiment/v8',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -251,6 +251,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['starting-representation-faithfulness', 'REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE'],
         ['slotwise-self-incidence', 'CLASSIFIED_PER_ORDERED_REFERENCE_SLOT'],
         ['shared-address-composition', 'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL'],
+        ['structural-application-composition', 'RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
@@ -779,6 +780,124 @@ describe('architecture-neutral alternative-foundation search', () => {
       sharedAddressComposition.assumptionClassification.semanticsNotAssigned,
       /not a source, target, transition, dependency, or execution edge/,
     );
+    const structuralProbe =
+      startingRepresentation.structuralApplicationComposition;
+    assert.equal(
+      structuralProbe.status,
+      'RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION',
+    );
+    assert.deepEqual(structuralProbe.semanticSeparation, {
+      logicalImplication: 'NOT_IDENTIFIED_WITH_LINK_STRUCTURE',
+      linkStructure: 'ADDRESS_REFERENCE_INCIDENCE_ONLY',
+      composition: 'PROPOSED_LINK_NOT_FORCED',
+      execution: 'NO_TRANSFORMATION_OR_CREATION_LAW_PRESENT',
+    });
+    assert.deepEqual(
+      structuralProbe.candidateEncodings.leftAssociated,
+      [[3, 0, 1], [4, 3, 2]],
+    );
+    assert.deepEqual(
+      structuralProbe.candidateEncodings.rightAssociated,
+      [[3, 1, 2], [4, 0, 3]],
+    );
+    assert.equal(
+      structuralProbe.candidateEncodings.sameUnderAddressRenamingAlone,
+      false,
+    );
+    assert.equal(
+      structuralProbe.candidateEncodings
+        .sameAfterUniformSlotReversalAndAddressRenaming,
+      true,
+    );
+    assert.equal(
+      structuralProbe.candidateEncodings.recursiveAddressReferencesPresent,
+      true,
+    );
+    assert.equal(
+      structuralProbe.roleRecovery.semanticAssignmentsForThreeLeaves,
+      6,
+    );
+    assert.equal(
+      structuralProbe.roleRecovery.unorderedStructureAutomorphisms,
+      2,
+    );
+    assert.deepEqual(
+      structuralProbe.roleRecovery.unorderedLeafOrbitSizes,
+      [1, 2],
+    );
+    assert.equal(
+      structuralProbe.roleRecovery.allFourSemanticRolesRecovered,
+      false,
+    );
+    assert.equal(
+      structuralProbe.roleRecovery.status,
+      'ADDITIONAL_ROLE_ASSIGNMENT_REQUIRED',
+    );
+    assert.deepEqual(
+      structuralProbe.compositionCountermodel.withoutProposedResult,
+      [[3, 0, 1], [4, 1, 2], [5, 2, 0], [6, 6, 3]],
+    );
+    assert.deepEqual(
+      structuralProbe.compositionCountermodel.withProposedResult,
+      [[3, 0, 1], [4, 1, 2], [5, 2, 0], [6, 6, 3], [7, 0, 2]],
+    );
+    assert.deepEqual(structuralProbe.compositionCountermodel.premiseP, [3, 0, 1]);
+    assert.deepEqual(structuralProbe.compositionCountermodel.premiseQ, [4, 1, 2]);
+    assert.deepEqual(
+      structuralProbe.compositionCountermodel.proposedResult,
+      [7, 0, 2],
+    );
+    assert.deepEqual(
+      structuralProbe.compositionCountermodel.commonFacts,
+      {
+        distinctLinkIdentities: true,
+        premiseLinkIdentitiesDistinctFromReferences: true,
+        premiseReferenceAddressesPairwiseDistinct: true,
+        directSelfIncidence: true,
+        sharedAddressIncidence: true,
+        recursiveLinkReferences: true,
+      },
+    );
+    assert.equal(
+      structuralProbe.compositionCountermodel.premisesHoldInBoth,
+      true,
+    );
+    assert.equal(
+      structuralProbe.compositionCountermodel.reversePairAlreadyPresent,
+      true,
+    );
+    assert.equal(
+      structuralProbe.compositionCountermodel.proposedResultAbsentInFirst,
+      true,
+    );
+    assert.equal(
+      structuralProbe.compositionCountermodel.proposedResultPresentInSecond,
+      true,
+    );
+    assert.equal(
+      structuralProbe.formationProbe.orderedPairsUsingExistingAddresses,
+      49,
+    );
+    assert.deepEqual(
+      structuralProbe.formationProbe.existingAddresses,
+      [0, 1, 2, 3, 4, 5, 6],
+    );
+    assert.deepEqual(
+      structuralProbe.formationProbe.proposedReferencePair,
+      [0, 2],
+    );
+    assert.equal(
+      structuralProbe.formationProbe.everyFormationExtensionPreservesPremises,
+      true,
+    );
+    assert.equal(
+      structuralProbe.formationProbe.compositionSpecificSelectionFromFormationOnly,
+      false,
+    );
+    assert.match(
+      structuralProbe.claimBoundary,
+      /additional selection\/closure law/,
+    );
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -873,6 +992,10 @@ describe('architecture-neutral alternative-foundation search', () => {
           'cross-link address incidence',
           'PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION',
         ],
+        [
+          'application and composition meaning',
+          'PROVEN_NOT_ENTAILED_BY_TESTED_LINK_STRUCTURE',
+        ],
         ['endpoint direction', 'NOT_OBSERVED_NOT_DISPROVED'],
         ['dynamics and time', 'NOT_OBSERVED_NOT_DISPROVED'],
       ],
@@ -893,6 +1016,10 @@ describe('architecture-neutral alternative-foundation search', () => {
       item.id === 'shared-address-composition' &&
       item.result ===
         'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL'));
+    assert.ok(experiment.results.some(item =>
+      item.id === 'structural-application-composition' &&
+      item.result ===
+        'RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION'));
     assert.match(
       report.conclusion.ontologyExperimentConclusion,
       /binary equality coincidence is complete only at fixed width two/i,
@@ -942,7 +1069,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v10');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v11');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

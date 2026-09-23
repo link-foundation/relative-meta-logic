@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v7");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v8");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -561,6 +561,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "shared-address-composition",
                 "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL",
+            ),
+            (
+                "structural-application-composition",
+                "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION",
             ),
             (
                 "addressable-quotient-assumptions",
@@ -1120,6 +1124,186 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
         .assumption_classification
         .semantics_not_assigned
         .contains("not a source, target, transition, dependency, or execution edge"));
+    let structural_probe = &starting_representation.structural_application_composition;
+    assert_eq!(
+        structural_probe.status,
+        "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION"
+    );
+    assert_eq!(
+        (
+            structural_probe.semantic_separation.logical_implication,
+            structural_probe.semantic_separation.link_structure,
+            structural_probe.semantic_separation.composition,
+            structural_probe.semantic_separation.execution,
+        ),
+        (
+            "NOT_IDENTIFIED_WITH_LINK_STRUCTURE",
+            "ADDRESS_REFERENCE_INCIDENCE_ONLY",
+            "PROPOSED_LINK_NOT_FORCED",
+            "NO_TRANSFORMATION_OR_CREATION_LAW_PRESENT",
+        )
+    );
+    assert_eq!(
+        structural_probe.candidate_encodings.left_associated,
+        vec![vec![3, 0, 1], vec![4, 3, 2]]
+    );
+    assert_eq!(
+        structural_probe.candidate_encodings.right_associated,
+        vec![vec![3, 1, 2], vec![4, 0, 3]]
+    );
+    assert!(
+        !structural_probe
+            .candidate_encodings
+            .same_under_address_renaming_alone
+    );
+    assert!(
+        structural_probe
+            .candidate_encodings
+            .same_after_uniform_slot_reversal_and_address_renaming
+    );
+    assert!(
+        structural_probe
+            .candidate_encodings
+            .recursive_address_references_present
+    );
+    assert_eq!(
+        structural_probe
+            .role_recovery
+            .semantic_assignments_for_three_leaves,
+        6
+    );
+    assert_eq!(
+        structural_probe
+            .role_recovery
+            .unordered_structure_automorphisms,
+        2
+    );
+    assert_eq!(
+        structural_probe.role_recovery.unordered_leaf_orbit_sizes,
+        vec![1, 2]
+    );
+    assert!(
+        !structural_probe
+            .role_recovery
+            .all_four_semantic_roles_recovered
+    );
+    assert_eq!(
+        structural_probe.role_recovery.status,
+        "ADDITIONAL_ROLE_ASSIGNMENT_REQUIRED"
+    );
+    assert_eq!(
+        structural_probe
+            .composition_countermodel
+            .without_proposed_result,
+        vec![vec![3, 0, 1], vec![4, 1, 2], vec![5, 2, 0], vec![6, 6, 3]]
+    );
+    assert_eq!(
+        structural_probe
+            .composition_countermodel
+            .with_proposed_result,
+        vec![
+            vec![3, 0, 1],
+            vec![4, 1, 2],
+            vec![5, 2, 0],
+            vec![6, 6, 3],
+            vec![7, 0, 2],
+        ]
+    );
+    assert_eq!(
+        structural_probe.composition_countermodel.premise_p,
+        vec![3, 0, 1]
+    );
+    assert_eq!(
+        structural_probe.composition_countermodel.premise_q,
+        vec![4, 1, 2]
+    );
+    assert_eq!(
+        structural_probe.composition_countermodel.proposed_result,
+        vec![7, 0, 2]
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .common_facts
+            .distinct_link_identities
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .common_facts
+            .premise_link_identities_distinct_from_references
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .common_facts
+            .premise_reference_addresses_pairwise_distinct
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .common_facts
+            .direct_self_incidence
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .common_facts
+            .shared_address_incidence
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .common_facts
+            .recursive_link_references
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .premises_hold_in_both
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .reverse_pair_already_present
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .proposed_result_absent_in_first
+    );
+    assert!(
+        structural_probe
+            .composition_countermodel
+            .proposed_result_present_in_second
+    );
+    assert_eq!(
+        structural_probe
+            .formation_probe
+            .ordered_pairs_using_existing_addresses,
+        49
+    );
+    assert_eq!(
+        structural_probe.formation_probe.existing_addresses,
+        vec![0, 1, 2, 3, 4, 5, 6]
+    );
+    assert_eq!(
+        structural_probe.formation_probe.proposed_reference_pair,
+        vec![0, 2]
+    );
+    assert!(
+        structural_probe
+            .formation_probe
+            .every_formation_extension_preserves_premises
+    );
+    assert!(
+        !structural_probe
+            .formation_probe
+            .composition_specific_selection_from_formation_only
+    );
+    assert!(structural_probe
+        .claim_boundary
+        .contains("additional selection/closure law"));
     assert_eq!(
         starting_representation
             .quotient_audit
@@ -1229,6 +1413,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
                 "cross-link address incidence",
                 "PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION"
             ),
+            (
+                "application and composition meaning",
+                "PROVEN_NOT_ENTAILED_BY_TESTED_LINK_STRUCTURE"
+            ),
             ("endpoint direction", "NOT_OBSERVED_NOT_DISPROVED"),
             ("dynamics and time", "NOT_OBSERVED_NOT_DISPROVED"),
         ]
@@ -1252,6 +1440,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(report.results.iter().any(|item| {
         item.id == "shared-address-composition"
             && item.result == "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL"
+    }));
+    assert!(report.results.iter().any(|item| {
+        item.id == "structural-application-composition"
+            && item.result == "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION"
     }));
 }
 

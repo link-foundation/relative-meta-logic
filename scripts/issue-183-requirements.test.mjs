@@ -70,6 +70,7 @@ const REQUIREMENT_SOURCES = [
     5791257637,
     5796435750,
     5799100000,
+    5800815386,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -92,7 +93,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 139, `expected at least 139 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 140, `expected at least 140 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -141,7 +142,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v7',
+      'rml-link-ontology-symmetry-experiment/v8',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -168,9 +169,16 @@ describe('issue 183 requirement traceability', () => {
       'RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT',
       '2/4/8/16',
       '5799100000',
+      '5800815386',
       'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL',
       '2/10/77/799',
       'PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION',
+      'RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION',
+      'PROVEN_NOT_ENTAILED_BY_TESTED_LINK_STRUCTURE',
+      '[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]',
+      '49 ordered',
+      'additional selection/closure law',
+      'logical implication',
       'contract-forced, representation-stable, observer-added',
       'The result uses no set,',
       'category, or type-theory axiom',

@@ -220,7 +220,7 @@ separation as assumptions; it does not infer link ontology from them. The
 failed zero-transition experiment is likewise scoped to the current passive
 host model and finite workload.
 
-The v10 ontology investigation is separate from execution comparison. Its
+The v11 ontology investigation is separate from execution comparison. Its
 finite experiment quotients two unlabelled reference occurrences by every
 occurrence permutation and reference renaming. Equality coincidence is
 complete for that contract; no invariant singleton selects source or target,
@@ -258,6 +258,19 @@ cross-reference equality and reference-to-link-address incidence completely
 classifies the tested shared-address contract. This retains record order and
 one reference slot as observer choices and assigns no endpoint, dependency,
 transition, or execution semantics to incidence.
+
+The v8 structural application/composition probe then keeps mathematical
+implication separate from binary link notation. The recursive candidates
+`[[3,0,1],[4,3,2]]` and `[[3,1,2],[4,0,3]]` differ under the retained ordered
+slots but coincide after uniform slot reversal and address renaming; that
+equivalence remains conditional because slot permutation is not derived. A
+connected countermodel `[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` keeps the `P`/`Q`
+link identities distinct from the pairwise-distinct `K`/`A`/`B` addresses and
+contains self-incidence, shared address, recursive reference, and the reverse
+pair `[2,0]`, but not proposed `[0,2]`. Adding `[7,0,2]` preserves every
+premise, while formation admits all 49 ordered pairs over the seven existing
+addresses. Raw structure therefore neither recovers function/application
+roles nor supplies a composition-selection or execution law.
 
 Link ontology, primitive categories, the structure/transformation
 relation, intrinsic semantic authority, and comparative minimality therefore

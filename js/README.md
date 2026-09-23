@@ -237,7 +237,7 @@ histogram is 20/5/7/1 for 0/1/2/4 singleton orbits, and provenance separates
 classes. All 73 candidate observations at widths one through four that preserve
 their base symmetries leave the base occurrence orbits unchanged. The
 interaction-only conditional breaks a relabelling that fixes its base, so it
-requires information not derived from that base. The v7 starting-representation
+requires information not derived from that base. The v8 starting-representation
 audit additionally shows that direct-self `[0,0,1]` and fresh-external
 `[0,1,2]` links share the `[1,1]` reference-only projection. Forgetting the
 link address collapses `2/4/7/12` addressable classes to `1/2/3/5` at widths
@@ -252,7 +252,16 @@ external-reference pair `[[0,1],[2,3]]` and two-link incidence cycle
 `[[0,2],[2,0]]` are a concrete countermodel. Cross-reference equality plus
 reference-to-link-address incidence classifies the tested shared contract
 without assigning incidence an endpoint, dependency, transition, or execution
-role. The v10 report treats these as finite, provenance-labelled constraints,
+role. The structural application/composition probe keeps `→`, `⟼`,
+composition, and execution distinct. Its connected
+`[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` countermodel keeps `P`/`Q` distinct from
+`K`/`A`/`B` and has `K ⟼ A`, `A ⟼ B`, direct self-incidence, a shared address,
+and recursion without `K ⟼ B`; adding `K ⟼ B` preserves those premises.
+Binary formation permits all `49` ordered pairs on the seven addresses but
+selects none, and the recursive candidates
+recover no unique function/argument/result roles. A positive application or
+composition semantics therefore requires an additional selection/closure law.
+The v11 report treats these as finite, provenance-labelled constraints,
 not a link ontology or execution law. Primitive
 categories, the structure/transformation relation, intrinsic authority, and
 comparative minimality remain unresolved. All three implementations are

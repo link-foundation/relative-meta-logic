@@ -105,7 +105,7 @@ smallest candidate, and keeps the comparative search open. Its executable
 two-model witness establishes only that the tested ordered-link host value
 does not select between two transition functions.
 
-Version 10 advances the separate ontology investigation with an exhaustive
+Version 11 advances the separate ontology investigation with an exhaustive
 finite symmetry experiment that does not use A/B/C. Starting only with two
 unlabelled reference occurrences and equality, it enumerates three surjective
 observations on their used support, six group elements, and ten action
@@ -137,7 +137,7 @@ relabelling that leaves its base fixed, so its distinctions require information
 not derived from that base. This is conditional structural evidence, not an
 endpoint direction or a justified ontology.
 
-The v7 starting-representation audit then uses the issue's independent
+The v8 starting-representation audit then uses the issue's independent
 requirement that addressed links may refer to themselves. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` links have the same reference-only
 `[1,1]` projection but remain inequivalent under global address renaming and
@@ -179,11 +179,25 @@ Cross-reference equality plus reference-to-link-address incidence is complete
 for the tested contract. That matrix is not interpreted as a source, target,
 dependency, transition, or execution edge.
 
+The next constructive probe keeps mathematical implication `→`, structural
+linking `⟼`, composition, and execution separate and imports no calculus,
+evaluator, rewrite relation, type theory, or graph semantics. The recursive
+candidates `(f ⟼ x) ⟼ y` and `f ⟼ (x ⟼ y)` differ under address renaming but
+coincide only if the still-unestablished uniform slot-reversal quotient is
+added. Two automorphisms of the unordered candidate leave its leaves in
+orbits of sizes `1` and `2`, so three unique semantic roles are not recoverable
+from that structure. More directly, the connected countermodel
+`[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` keeps `P`/`Q` distinct from
+`K`/`A`/`B` and realizes `K ⟼ A` and `A ⟼ B`, self-incidence, shared address,
+and recursion without containing `K ⟼ B`. Binary formation permits `K ⟼ B`
+among `49` ordered pairs, but does not select it. Application
+or composition therefore needs an additional selection/closure law.
+
 Those results are eliminations and complete finite classifications at the
-tested widths, not unbounded theorems or positive execution laws. Version 10
+tested widths, not unbounded theorems or positive execution laws. Version 11
 still marks passivity and external
 transition as experimental assumptions of the older host witness, and it
-leaves link ontology and intrinsic authority unresolved. The v10 result does
+leaves link ontology and intrinsic authority unresolved. The v11 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v10",
+  "schema": "rml-foundation-candidate-table/v11",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "foundationStatus": "OPEN",
@@ -96,8 +96,8 @@
     "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
   },
   "ontologyExperiment": {
-    "schema": "rml-link-ontology-symmetry-experiment/v7",
-    "question": "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?",
+    "schema": "rml-link-ontology-symmetry-experiment/v8",
+    "question": "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, and do identity, incidence, shared address, and recursion entail application or composition?",
     "startingContract": {
       "id": "unoriented-binary-reference-observation",
       "occurrenceCount": 2,
@@ -990,6 +990,170 @@
           },
           "claimBoundary": "This removes single-link isolation and proves a compositional information loss for the declared equality contract. It does not establish that ordered link records or one-slot links are intrinsic, interpret an incidence cycle dynamically, or define a complete link ontology."
         },
+        "structuralApplicationComposition": {
+          "status": "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION",
+          "premiseVocabulary": [
+            "link identity",
+            "reference-address equality",
+            "self-incidence",
+            "shared-address incidence",
+            "recursive reference to a link address"
+          ],
+          "semanticSeparation": {
+            "logicalImplication": "NOT_IDENTIFIED_WITH_LINK_STRUCTURE",
+            "linkStructure": "ADDRESS_REFERENCE_INCIDENCE_ONLY",
+            "composition": "PROPOSED_LINK_NOT_FORCED",
+            "execution": "NO_TRANSFORMATION_OR_CREATION_LAW_PRESENT"
+          },
+          "candidateEncodings": {
+            "leftAssociated": [
+              [
+                3,
+                0,
+                1
+              ],
+              [
+                4,
+                3,
+                2
+              ]
+            ],
+            "rightAssociated": [
+              [
+                3,
+                1,
+                2
+              ],
+              [
+                4,
+                0,
+                3
+              ]
+            ],
+            "sameUnderAddressRenamingAlone": false,
+            "sameAfterUniformSlotReversalAndAddressRenaming": true,
+            "recursiveAddressReferencesPresent": true,
+            "orderedSlotContractConsequence": "the two association candidates occupy different ordered reference positions",
+            "unorderedSlotContractConsequence": "uniform reference-slot reversal plus address renaming identifies the two candidates"
+          },
+          "roleRecovery": {
+            "investigatedRoles": [
+              "function",
+              "argument",
+              "result",
+              "application"
+            ],
+            "semanticAssignmentsForThreeLeaves": 6,
+            "unorderedStructureAutomorphisms": 2,
+            "unorderedLeafOrbitSizes": [
+              1,
+              2
+            ],
+            "orderedPositionsSelectSemanticRoles": false,
+            "allFourSemanticRolesRecovered": false,
+            "status": "ADDITIONAL_ROLE_ASSIGNMENT_REQUIRED",
+            "evidence": "Ordered slots distinguish three leaf positions but do not name their meaning. Without slot order, the two leaves of the nested link form one orbit, so the raw structure does not even separate all three leaf positions."
+          },
+          "compositionCountermodel": {
+            "withoutProposedResult": [
+              [
+                3,
+                0,
+                1
+              ],
+              [
+                4,
+                1,
+                2
+              ],
+              [
+                5,
+                2,
+                0
+              ],
+              [
+                6,
+                6,
+                3
+              ]
+            ],
+            "withProposedResult": [
+              [
+                3,
+                0,
+                1
+              ],
+              [
+                4,
+                1,
+                2
+              ],
+              [
+                5,
+                2,
+                0
+              ],
+              [
+                6,
+                6,
+                3
+              ],
+              [
+                7,
+                0,
+                2
+              ]
+            ],
+            "premiseP": [
+              3,
+              0,
+              1
+            ],
+            "premiseQ": [
+              4,
+              1,
+              2
+            ],
+            "proposedResult": [
+              7,
+              0,
+              2
+            ],
+            "commonFacts": {
+              "distinctLinkIdentities": true,
+              "premiseLinkIdentitiesDistinctFromReferences": true,
+              "premiseReferenceAddressesPairwiseDistinct": true,
+              "directSelfIncidence": true,
+              "sharedAddressIncidence": true,
+              "recursiveLinkReferences": true
+            },
+            "premisesHoldInBoth": true,
+            "reversePairAlreadyPresent": true,
+            "proposedResultAbsentInFirst": true,
+            "proposedResultPresentInSecond": true
+          },
+          "formationProbe": {
+            "existingAddresses": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "orderedPairsUsingExistingAddresses": 49,
+            "proposedReferencePair": [
+              0,
+              2
+            ],
+            "everyFormationExtensionPreservesPremises": true,
+            "compositionSpecificSelectionFromFormationOnly": false,
+            "consequence": "Binary link formation admits every ordered pair of the seven existing addresses; it does not uniquely select [0,2]."
+          },
+          "conclusion": "The proposed result is structurally formable but is neither unavoidable nor selected. The premise-only structure and its result-bearing conservative extension satisfy the same stated structural conditions.",
+          "claimBoundary": "This countermodel refutes entailment from the tested identity/equality/incidence/recursion structure. It does not refute a future links-derived composition, but such a result needs an additional selection/closure law and an explicit account of its authority; no logical implication, function role, or execution meaning is assigned here."
+        },
         "quotientAudit": {
           "finiteEnumeration": [
             {
@@ -1476,6 +1640,11 @@
           "evidence": "For two through four ordered one-reference links, products of local descriptors collapse 10/77/799 shared-address classes to 4/8/16 classes. A fresh-external pair and a two-link incidence cycle have identical local descriptors but inequivalent global equality patterns."
         },
         {
+          "distinction": "application and composition meaning",
+          "classification": "PROVEN_NOT_ENTAILED_BY_TESTED_LINK_STRUCTURE",
+          "evidence": "A connected countermodel keeps the P/Q link identities distinct from the pairwise-distinct K/A/B addresses and has direct self-incidence, a shared address, and recursive link references while containing [2,0] but not the proposed [0,2]. Adding [0,2] preserves every premise. Formation admits all 49 ordered pairs over the seven existing addresses and selects none."
+        },
+        {
           "distinction": "endpoint direction",
           "classification": "NOT_OBSERVED_NOT_DISPROVED",
           "evidence": "Neither the base family nor the conditional refinement names or measures endpoint order."
@@ -1559,6 +1728,11 @@
         "evidence": "At two through four ordered one-reference links, 10/77/799 shared-address equality classes collapse to 4/8/16 products of local descriptors. [[0,1],[2,3]] and [[0,2],[2,0]] have identical local descriptors, but only the latter is a two-link incidence cycle."
       },
       {
+        "id": "structural-application-composition",
+        "result": "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION",
+        "evidence": "The premise-only [[3,0,1],[4,1,2],[5,2,0],[6,6,3]] and result-bearing extension with [7,0,2] both keep P/Q distinct from K/A/B and preserve distinct identities, self-incidence, shared address, and recursive reference. The first already contains reverse references [2,0] but no [0,2]. Recursive association candidates coincide after the still-unestablished uniform slot reversal plus address renaming; semantic roles and a creation law require additional authority."
+      },
+      {
         "id": "addressable-quotient-assumptions",
         "result": "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
         "evidence": "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract."
@@ -1569,8 +1743,8 @@
         "evidence": "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved."
       }
     ],
-    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. These equality results cannot assign source, target, dependency, dynamics, or execution meaning.",
-    "remainingBoundary": "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive execution semantics, or generalize every finite enumeration beyond its stated argument."
+    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel then proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning.",
+    "remainingBoundary": "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, and that the tested raw structure has models both without and with the proposed composition result. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive an additional selection/closure law, derive execution semantics, or generalize every finite enumeration beyond its stated argument."
   },
   "acceptanceWorkload": [
     "load",
@@ -1844,7 +2018,11 @@
       "reference equality plus the slotwise self-incidence mask classifies ordered address/equality patterns at widths one through four",
       "products of local single-link descriptors collapse 10, 77, and 799 shared-address classes to 4, 8, and 16 classes at two through four ordered one-reference links",
       "the external-reference pair [[0,1],[2,3]] and two-link incidence cycle [[0,2],[2,0]] have identical local descriptors but inequivalent shared-address equality patterns",
-      "cross-reference equality plus reference-to-link-address incidence classifies the ordered one-reference shared-address contract at one through four links"
+      "cross-reference equality plus reference-to-link-address incidence classifies the ordered one-reference shared-address contract at one through four links",
+      "the recursive association candidates [[3,0,1],[4,3,2]] and [[3,1,2],[4,0,3]] differ with ordered slots but coincide after uniform slot reversal and address renaming",
+      "the unordered recursive candidate has two leaf orbits of sizes one and two, so it cannot structurally distinguish all three investigated leaf positions",
+      "the connected [[3,0,1],[4,1,2],[5,2,0],[6,6,3]] structure keeps P/Q distinct from K/A/B and has identity, self-incidence, shared address, recursive references, and the reverse [2,0] pair but not proposed [0,2]",
+      "adding [7,0,2] preserves every composition premise, while binary formation admits all 49 ordered pairs over the seven existing addresses and selects none"
     ],
     "notProved": [
       "that S/K is globally minimal",
@@ -1874,7 +2052,11 @@
       "that reference-slot identity is intrinsic to links",
       "that a self-incident slot is a source, target, or execution role",
       "that cross-link incidence is a source, target, dependency, transition, or execution edge",
-      "that ordered link records or one-reference links are intrinsic to links"
+      "that ordered link records or one-reference links are intrinsic to links",
+      "that ordered structural positions intrinsically mean function, argument, result, or application",
+      "that shared-address incidence entails creation of a composed link",
+      "that binary link formation supplies a composition-selection or execution law",
+      "that uniform reference-slot reversal is an intrinsic equivalence rather than an observer quotient"
     ]
   }
 }

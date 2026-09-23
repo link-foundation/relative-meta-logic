@@ -20,7 +20,7 @@ host/self duplication. The report names no winner. Its two-model witness shows
 only that the tested ordered-link host signature does not select between two
 functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
-documented on this page. The v10 report additionally performs an independent
+documented on this page. The v11 report additionally performs an independent
 finite symmetry experiment over two unlabelled reference occurrences. It
 derives equality coincidence as complete for that contract while eliminating
 an invariant source/target selector, unique dynamics, and
@@ -51,6 +51,16 @@ four ordered one-reference links they collapse `10/77/799` shared-address
 classes to `4/8/16`. Cross-reference equality plus reference-to-link-address
 incidence recovers a complete descriptor for the tested shared-address
 contract, without assigning semantic roles to incidence.
+
+The embedded v8 probe keeps logical implication, binary link structure,
+composition, and execution separate. Its connected
+`[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` countermodel keeps the `P`/`Q` link
+identities distinct from the pairwise-distinct `K`/`A`/`B` addresses and has
+self-incidence, shared-address incidence, recursive references, and `[2,0]`,
+but no proposed `[0,2]`. The conservative extension adding `[7,0,2]` preserves
+every premise. Since raw formation admits all 49 ordered pairs over the seven
+existing addresses, it provides no composition-specific selection law or
+semantic role assignment.
 
 The headline guarantee is backward compatibility:
 

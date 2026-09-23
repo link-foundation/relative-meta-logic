@@ -141,7 +141,7 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 10 also performs an independent finite symmetry experiment without
+Version 11 also performs an independent finite symmetry experiment without
 using A/B/C. It begins with two unlabelled reference occurrences and equality,
 then exhausts all three surjective observations on their used support, six
 occurrence-permutation/reference-renaming group elements, and ten action
@@ -171,7 +171,7 @@ the base occurrence orbits. The interaction-only conditional instead breaks a
 base-preserving relabelling, so its distinction uses information not derived
 from the tested base. Completeness remains bounded to widths one through four.
 
-The v7 audit also tests the starting projection against the independently
+The v8 audit also tests the starting projection against the independently
 required ability of an addressed link to refer to itself. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` patterns have the same reference-only
 `[1,1]` projection but are inequivalent under address renaming and
@@ -208,6 +208,24 @@ local descriptors but inequivalent global address-equality patterns.
 Cross-reference equality plus reference-to-link-address incidence is complete
 for the tested shared contract. The audit does not interpret that incidence
 as an endpoint, dependency, transition, or execution edge.
+
+The structural application/composition probe adds no calculus, evaluator,
+rewrite relation, type theory, or graph semantics. It keeps mathematical
+implication `→`, structural linking `⟼`, composition, and execution distinct.
+The recursive records for `(f ⟼ x) ⟼ y` and `f ⟼ (x ⟼ y)` are inequivalent
+under address renaming, but become equivalent if uniform reference-slot
+reversal is also admitted; that extra quotient remains unestablished. In the
+unordered view, two automorphisms leave the three leaves in orbits of sizes
+`1` and `2`, so the structure cannot recover three unique semantic roles.
+For `P = K ⟼ A` and `Q = A ⟼ B`, the connected record
+`[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` keeps `P`/`Q` distinct from
+`K`/`A`/`B` and preserves link identity, direct self-incidence, the shared
+address, and cross-link recursion while omitting `K ⟼ B`. Adding `[7,0,2]`
+preserves the same premises. Ordinary binary formation permits all `49`
+ordered pairs on the seven existing addresses, but selects none as
+composition. Thus `K ⟼ B` is structurally formable, not structurally entailed;
+a positive application or composition semantics requires an additional
+selection/closure law.
 
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,

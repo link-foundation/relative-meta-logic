@@ -727,6 +727,84 @@ pub struct LinkOntologySharedAddressCompositionAudit {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySemanticSeparation {
+    pub logical_implication: &'static str,
+    pub link_structure: &'static str,
+    pub composition: &'static str,
+    pub execution: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyCandidateEncodings {
+    pub left_associated: Vec<Vec<usize>>,
+    pub right_associated: Vec<Vec<usize>>,
+    pub same_under_address_renaming_alone: bool,
+    pub same_after_uniform_slot_reversal_and_address_renaming: bool,
+    pub recursive_address_references_present: bool,
+    pub ordered_slot_contract_consequence: &'static str,
+    pub unordered_slot_contract_consequence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyRoleRecovery {
+    pub investigated_roles: Vec<&'static str>,
+    pub semantic_assignments_for_three_leaves: usize,
+    pub unordered_structure_automorphisms: usize,
+    pub unordered_leaf_orbit_sizes: Vec<usize>,
+    pub ordered_positions_select_semantic_roles: bool,
+    pub all_four_semantic_roles_recovered: bool,
+    pub status: &'static str,
+    pub evidence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyCompositionCommonFacts {
+    pub distinct_link_identities: bool,
+    pub premise_link_identities_distinct_from_references: bool,
+    pub premise_reference_addresses_pairwise_distinct: bool,
+    pub direct_self_incidence: bool,
+    pub shared_address_incidence: bool,
+    pub recursive_link_references: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyCompositionCountermodel {
+    pub without_proposed_result: Vec<Vec<usize>>,
+    pub with_proposed_result: Vec<Vec<usize>>,
+    pub premise_p: Vec<usize>,
+    pub premise_q: Vec<usize>,
+    pub proposed_result: Vec<usize>,
+    pub common_facts: LinkOntologyCompositionCommonFacts,
+    pub premises_hold_in_both: bool,
+    pub reverse_pair_already_present: bool,
+    pub proposed_result_absent_in_first: bool,
+    pub proposed_result_present_in_second: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyFormationProbe {
+    pub existing_addresses: Vec<usize>,
+    pub ordered_pairs_using_existing_addresses: usize,
+    pub proposed_reference_pair: Vec<usize>,
+    pub every_formation_extension_preserves_premises: bool,
+    pub composition_specific_selection_from_formation_only: bool,
+    pub consequence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyStructuralApplicationCompositionProbe {
+    pub status: &'static str,
+    pub premise_vocabulary: Vec<&'static str>,
+    pub semantic_separation: LinkOntologySemanticSeparation,
+    pub candidate_encodings: LinkOntologyCandidateEncodings,
+    pub role_recovery: LinkOntologyRoleRecovery,
+    pub composition_countermodel: LinkOntologyCompositionCountermodel,
+    pub formation_probe: LinkOntologyFormationProbe,
+    pub conclusion: &'static str,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyQuotientEnumeration {
     pub occurrence_count: usize,
     pub ordered_equality_classes_after_address_renaming: usize,
@@ -783,6 +861,7 @@ pub struct LinkOntologyStartingRepresentationAudit {
     pub general_argument: LinkOntologyGeneralProjectionArgument,
     pub slotwise_self_incidence: LinkOntologySlotwiseSelfIncidenceAudit,
     pub shared_address_composition: LinkOntologySharedAddressCompositionAudit,
+    pub structural_application_composition: LinkOntologyStructuralApplicationCompositionProbe,
     pub quotient_audit: LinkOntologyQuotientAudit,
     pub claim_boundary: &'static str,
 }
@@ -1620,6 +1699,235 @@ fn link_ontology_shared_address_composition_audit() -> LinkOntologySharedAddress
     }
 }
 
+fn binary_link_record_signature(records: &[Vec<usize>]) -> Vec<usize> {
+    first_occurrence_normal_form(&records.concat())
+}
+
+fn reverse_binary_reference_slots(records: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    records
+        .iter()
+        .map(|record| vec![record[0], record[2], record[1]])
+        .collect()
+}
+
+fn unordered_binary_link_record_signature(records: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    records
+        .iter()
+        .map(|record| {
+            let mut references = vec![record[1], record[2]];
+            references.sort_unstable();
+            vec![record[0], references[0], references[1]]
+        })
+        .collect()
+}
+
+fn rename_candidate_leaves(records: &[Vec<usize>], permutation: &[usize]) -> Vec<Vec<usize>> {
+    records
+        .iter()
+        .map(|record| {
+            let mut renamed = vec![record[0]];
+            renamed.extend(record[1..].iter().map(|reference| {
+                if *reference < permutation.len() {
+                    permutation[*reference]
+                } else {
+                    *reference
+                }
+            }));
+            renamed
+        })
+        .collect()
+}
+
+fn has_reference_pair(records: &[Vec<usize>], pair: &[usize]) -> bool {
+    records
+        .iter()
+        .any(|record| record.len() == 3 && record[1..] == *pair)
+}
+
+fn has_link_record(records: &[Vec<usize>], expected: &[usize]) -> bool {
+    records.iter().any(|record| record == expected)
+}
+
+fn link_ontology_structural_application_composition_probe(
+) -> LinkOntologyStructuralApplicationCompositionProbe {
+    // Each record is [link address, first reference, second reference]. The
+    // numbers are addresses only: none is assigned a semantic role here.
+    let left_associated = vec![vec![3, 0, 1], vec![4, 3, 2]];
+    let right_associated = vec![vec![3, 1, 2], vec![4, 0, 3]];
+    let candidate_link_addresses = left_associated
+        .iter()
+        .map(|record| record[0])
+        .collect::<BTreeSet<_>>();
+    let recursive_address_references_present =
+        [&left_associated, &right_associated].iter().all(|records| {
+            records.iter().any(|record| {
+                record[1..].iter().any(|reference| {
+                    *reference != record[0] && candidate_link_addresses.contains(reference)
+                })
+            })
+        });
+
+    let leaf_addresses = vec![0, 1, 2];
+    let left_unordered_signature = unordered_binary_link_record_signature(&left_associated);
+    let unordered_automorphisms = finite_permutations(&leaf_addresses)
+        .into_iter()
+        .filter(|permutation| {
+            unordered_binary_link_record_signature(&rename_candidate_leaves(
+                &left_associated,
+                permutation,
+            )) == left_unordered_signature
+        })
+        .collect::<Vec<_>>();
+    let mut unseen_leaves = leaf_addresses.iter().copied().collect::<BTreeSet<_>>();
+    let mut unordered_leaf_orbit_sizes = Vec::new();
+    while let Some(leaf) = unseen_leaves.iter().next().copied() {
+        let orbit = unordered_automorphisms
+            .iter()
+            .map(|permutation| permutation[leaf])
+            .collect::<BTreeSet<_>>();
+        unordered_leaf_orbit_sizes.push(orbit.len());
+        for member in orbit {
+            unseen_leaves.remove(&member);
+        }
+    }
+    unordered_leaf_orbit_sizes.sort_unstable();
+
+    // P and Q have identities 3 and 4, their K/A/B references are the distinct
+    // addresses 0/1/2, and they share only A. A third link contains the reverse
+    // B/K pair. A fourth is directly self-incident and recursively refers to P.
+    // Thus all requested structural phenomena are present without a record whose
+    // references are [0, 2].
+    let without_proposed_result = vec![vec![3, 0, 1], vec![4, 1, 2], vec![5, 2, 0], vec![6, 6, 3]];
+    let proposed_result = vec![7, 0, 2];
+    let mut with_proposed_result = without_proposed_result.clone();
+    with_proposed_result.push(proposed_result.clone());
+    let premise_p = vec![3, 0, 1];
+    let premise_q = vec![4, 1, 2];
+    let premise_reference_addresses = premise_p[1..]
+        .iter()
+        .chain(premise_q[1..].iter())
+        .copied()
+        .collect::<BTreeSet<_>>();
+    let used_addresses = without_proposed_result
+        .iter()
+        .flatten()
+        .copied()
+        .collect::<BTreeSet<_>>();
+    let structural_facts = |records: &[Vec<usize>]| {
+        let link_addresses = records
+            .iter()
+            .map(|record| record[0])
+            .collect::<BTreeSet<_>>();
+        LinkOntologyCompositionCommonFacts {
+            distinct_link_identities: link_addresses.len() == records.len(),
+            premise_link_identities_distinct_from_references: [premise_p[0], premise_q[0]]
+                .iter()
+                .all(|address| !premise_reference_addresses.contains(address)),
+            premise_reference_addresses_pairwise_distinct: premise_reference_addresses.len() == 3,
+            direct_self_incidence: records
+                .iter()
+                .any(|record| record[1..].contains(&record[0])),
+            shared_address_incidence: premise_p[2] == premise_q[1],
+            recursive_link_references: records.iter().any(|record| {
+                record[1..]
+                    .iter()
+                    .any(|reference| *reference != record[0] && link_addresses.contains(reference))
+            }),
+        }
+    };
+    let common_facts_hold = |facts: &LinkOntologyCompositionCommonFacts| {
+        facts.distinct_link_identities
+            && facts.premise_link_identities_distinct_from_references
+            && facts.premise_reference_addresses_pairwise_distinct
+            && facts.direct_self_incidence
+            && facts.shared_address_incidence
+            && facts.recursive_link_references
+    };
+    let common_facts = structural_facts(&without_proposed_result);
+    let premises_hold = |records: &[Vec<usize>]| {
+        has_link_record(records, &premise_p)
+            && has_link_record(records, &premise_q)
+            && common_facts_hold(&structural_facts(records))
+    };
+    let every_formation_extension_preserves_premises = used_addresses.iter().all(|left| {
+        used_addresses.iter().all(|right| {
+            let mut extension = without_proposed_result.clone();
+            extension.push(vec![proposed_result[0], *left, *right]);
+            premises_hold(&extension)
+        })
+    });
+
+    LinkOntologyStructuralApplicationCompositionProbe {
+        status: "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION",
+        premise_vocabulary: vec![
+            "link identity",
+            "reference-address equality",
+            "self-incidence",
+            "shared-address incidence",
+            "recursive reference to a link address",
+        ],
+        semantic_separation: LinkOntologySemanticSeparation {
+            logical_implication: "NOT_IDENTIFIED_WITH_LINK_STRUCTURE",
+            link_structure: "ADDRESS_REFERENCE_INCIDENCE_ONLY",
+            composition: "PROPOSED_LINK_NOT_FORCED",
+            execution: "NO_TRANSFORMATION_OR_CREATION_LAW_PRESENT",
+        },
+        candidate_encodings: LinkOntologyCandidateEncodings {
+            left_associated: left_associated.clone(),
+            right_associated: right_associated.clone(),
+            same_under_address_renaming_alone: binary_link_record_signature(&left_associated)
+                == binary_link_record_signature(&right_associated),
+            same_after_uniform_slot_reversal_and_address_renaming:
+                binary_link_record_signature(&reverse_binary_reference_slots(&left_associated))
+                    == binary_link_record_signature(&right_associated),
+            recursive_address_references_present,
+            ordered_slot_contract_consequence:
+                "the two association candidates occupy different ordered reference positions",
+            unordered_slot_contract_consequence:
+                "uniform reference-slot reversal plus address renaming identifies the two candidates",
+        },
+        role_recovery: LinkOntologyRoleRecovery {
+            investigated_roles: vec!["function", "argument", "result", "application"],
+            semantic_assignments_for_three_leaves: finite_permutations(&leaf_addresses).len(),
+            unordered_structure_automorphisms: unordered_automorphisms.len(),
+            unordered_leaf_orbit_sizes,
+            ordered_positions_select_semantic_roles: false,
+            all_four_semantic_roles_recovered: false,
+            status: "ADDITIONAL_ROLE_ASSIGNMENT_REQUIRED",
+            evidence: "Ordered slots distinguish three leaf positions but do not name their meaning. Without slot order, the two leaves of the nested link form one orbit, so the raw structure does not even separate all three leaf positions.",
+        },
+        composition_countermodel: LinkOntologyCompositionCountermodel {
+            without_proposed_result: without_proposed_result.clone(),
+            with_proposed_result: with_proposed_result.clone(),
+            premise_p: premise_p.clone(),
+            premise_q: premise_q.clone(),
+            proposed_result: proposed_result.clone(),
+            common_facts,
+            premises_hold_in_both: premises_hold(&without_proposed_result)
+                && premises_hold(&with_proposed_result),
+            reverse_pair_already_present: has_reference_pair(&without_proposed_result, &[2, 0]),
+            proposed_result_absent_in_first: !has_reference_pair(
+                &without_proposed_result,
+                &proposed_result[1..],
+            ),
+            proposed_result_present_in_second: has_reference_pair(
+                &with_proposed_result,
+                &proposed_result[1..],
+            ),
+        },
+        formation_probe: LinkOntologyFormationProbe {
+            existing_addresses: used_addresses.iter().copied().collect(),
+            ordered_pairs_using_existing_addresses: used_addresses.len() * used_addresses.len(),
+            proposed_reference_pair: proposed_result[1..].to_vec(),
+            every_formation_extension_preserves_premises,
+            composition_specific_selection_from_formation_only: false,
+            consequence: "Binary link formation admits every ordered pair of the seven existing addresses; it does not uniquely select [0,2].",
+        },
+        conclusion: "The proposed result is structurally formable but is neither unavoidable nor selected. The premise-only structure and its result-bearing conservative extension satisfy the same stated structural conditions.",
+        claim_boundary: "This countermodel refutes entailment from the tested identity/equality/incidence/recursion structure. It does not refute a future links-derived composition, but such a result needs an additional selection/closure law and an explicit account of its authority; no logical implication, function role, or execution meaning is assigned here.",
+    }
+}
+
 fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresentationAudit {
     let finite_enumeration = (1..=4)
         .map(|occurrence_count| {
@@ -1771,6 +2079,8 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
         },
         slotwise_self_incidence: link_ontology_slotwise_self_incidence_audit(),
         shared_address_composition: link_ontology_shared_address_composition_audit(),
+        structural_application_composition:
+            link_ontology_structural_application_composition_probe(),
         quotient_audit: LinkOntologyQuotientAudit {
             finite_enumeration: quotient_finite_enumeration,
             address_renaming_complete_invariant_verified,
@@ -2188,6 +2498,11 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                 evidence: "For two through four ordered one-reference links, products of local descriptors collapse 10/77/799 shared-address classes to 4/8/16 classes. A fresh-external pair and a two-link incidence cycle have identical local descriptors but inequivalent global equality patterns.",
             },
             LinkOntologyLossAudit {
+                distinction: "application and composition meaning",
+                classification: "PROVEN_NOT_ENTAILED_BY_TESTED_LINK_STRUCTURE",
+                evidence: "A connected countermodel keeps the P/Q link identities distinct from the pairwise-distinct K/A/B addresses and has direct self-incidence, a shared address, and recursive link references while containing [2,0] but not the proposed [0,2]. Adding [0,2] preserves every premise. Formation admits all 49 ordered pairs over the seven existing addresses and selects none.",
+            },
+            LinkOntologyLossAudit {
                 distinction: "endpoint direction",
                 classification: "NOT_OBSERVED_NOT_DISPROVED",
                 evidence: "Neither the base family nor the conditional refinement names or measures endpoint order.",
@@ -2331,8 +2646,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v7",
-        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, and can an observation derived from that base create new distinctions?",
+        schema: "rml-link-ontology-symmetry-experiment/v8",
+        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, and do identity, incidence, shared address, and recursion entail application or composition?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -2449,6 +2764,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "At two through four ordered one-reference links, 10/77/799 shared-address equality classes collapse to 4/8/16 products of local descriptors. [[0,1],[2,3]] and [[0,2],[2,0]] have identical local descriptors, but only the latter is a two-link incidence cycle.",
             },
             LinkOntologyResult {
+                id: "structural-application-composition",
+                result: "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION",
+                evidence: "The premise-only [[3,0,1],[4,1,2],[5,2,0],[6,6,3]] and result-bearing extension with [7,0,2] both keep P/Q distinct from K/A/B and preserve distinct identities, self-incidence, shared address, and recursive reference. The first already contains reverse references [2,0] but no [0,2]. Recursive association candidates coincide after the still-unestablished uniform slot reversal plus address renaming; semantic roles and a creation law require additional authority.",
+            },
+            LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
                 result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
                 evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
@@ -2459,8 +2779,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. These equality results cannot assign source, target, dependency, dynamics, or execution meaning.",
-        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, and that self-incidence has an explicit slotwise invariant before the permutation quotient. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel then proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, and that the tested raw structure has models both without and with the proposed composition result. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive an additional selection/closure law, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
     }
 }
 

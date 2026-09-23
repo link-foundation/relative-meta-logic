@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v10`. Run it with:
+`rml-alternative-foundation-search/v11`. Run it with:
 
 ```bash
 cd js
@@ -70,7 +70,7 @@ No candidate is declared equivalent to another. Equivalence remains
 
 ## Independent ontology investigation
 
-Version 10 extends a falsifiable ontology experiment rather than converting a
+Version 11 extends a falsifiable ontology experiment rather than converting a
 correctly documented boundary into a completed foundational result. The report
 sets `foundationStatus: OPEN` and
 `ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v7` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v8` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v7 follow-up first changes no primitive vocabulary at all. It retains only
+The v8 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -334,6 +334,64 @@ count, and one reference slot remain observer choices. Incidence is not named
 a source, target, dependency, transition, or execution edge, and no dynamics
 are inferred from the two-cycle.
 
+### Structural application and composition probe
+
+The next probe adds no type theory, lambda calculus, evaluator, rewrite
+calculus, or graph semantics. It keeps mathematical implication `→` separate
+from the notation `⟼` for a raw binary link. In the executable representation,
+each record is only `[link address, first reference, second reference]`.
+
+The two suggested recursive shapes are represented without semantic labels:
+
+```text
+(f ⟼ x) ⟼ y   [[3,0,1],[4,3,2]]
+f ⟼ (x ⟼ y)   [[3,1,2],[4,0,3]]
+```
+
+They are inequivalent under address renaming while ordered reference slots are
+retained: the nested link address occurs in a different outer slot. Reversing
+both reference slots uniformly and then renaming addresses maps the first
+shape to the second. This is a conditional equivalence, not an ontological
+claim, because the preceding audit still classifies reference-slot permutation
+as `UNESTABLISHED_EQUIVALENCE`.
+
+Even the ordered structure supplies only three distinguishable positions; it
+does not name those positions `function`, `argument`, or `result`, nor does it
+identify either link record as `application`. After forgetting slot order, the
+recursive shape has two structure-preserving leaf automorphisms and leaf-orbit
+sizes `1` and `2`: the two references of the nested link cannot be
+distinguished at all. Thus raw structure does not recover all four proposed
+semantic roles under either contract.
+
+Composition has a connected countermodel. Read the letters below only as an
+external description of the proposed interpretation, not as data in the
+records:
+
+```text
+P = [3,0,1]   proposed K=0, shared A=1
+Q = [4,1,2]   shared A=1, proposed B=2
+T = [5,2,0]   references [B,K]
+U = [6,6,3]   directly self-incident; recursively references P
+```
+
+The records have four distinct link identities, all separate from the
+pairwise-distinct proposed `K`, `A`, and `B` addresses. `P` and `Q` share only
+address `1`; `U` is directly self-incident and recursively refers to `P`. The
+structure therefore contains link identity, self-incidence, shared-address
+incidence, and recursive link structure. It already contains the reverse
+reference pair `[2,0]`, but no link has the proposed result pair `[0,2]`.
+
+Adding `[7,0,2]` creates a second structure in which the proposed result is
+present without changing any premise. Conversely, binary formation over the
+seven existing addresses admits all `7² = 49` ordered reference pairs, so
+formation alone does not select `[0,2]`. The result is therefore
+`RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION`: the proposed
+link is formable but neither unavoidable nor composition-specifically
+admissible. A positive result would require an additional selection/closure
+law and a separate justification of its authority. The probe assigns no
+logical implication, function role, composition, transformation, or execution
+meaning to the links themselves.
+
 ### Conditional refinement probe
 
 The second follow-up asks what a reference-only projection would lose if an
@@ -472,7 +530,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 10 makes
+That experiment does **not** identify the ontology of a link. Version 11 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -537,7 +595,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v10 execution-comparison gate admits a candidate only if it passes the common
+The v11 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.

@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v10';
+table.schema = 'rml-foundation-candidate-table/v11';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -25,6 +25,8 @@ table.claimBoundary.proved = [...new Set([
     ![
       'the equality partition is the complete invariant of the exhaustive two-occurrence observation contract',
       'structural singleton occurrences emerge in 13 conditional refinements but remain absent in 20',
+      'the connected [[0,0,1],[2,1,3],[3,3,0]] structure has identity, self-incidence, shared address, recursive references, and the reverse [3,0] pair but not proposed [0,3]',
+      'adding [4,0,3] preserves every composition premise, while binary formation admits all 16 ordered pairs over the four existing addresses and selects none',
     ].includes(statement)),
   'binary equality coincidence is complete for the exhaustive fixed-width-two observation contract',
   'the same unlabelled-occurrence and equality vocabulary yields 1, 2, 3, and 5 multiplicity classes at widths one through four',
@@ -47,6 +49,10 @@ table.claimBoundary.proved = [...new Set([
   'products of local single-link descriptors collapse 10, 77, and 799 shared-address classes to 4, 8, and 16 classes at two through four ordered one-reference links',
   'the external-reference pair [[0,1],[2,3]] and two-link incidence cycle [[0,2],[2,0]] have identical local descriptors but inequivalent shared-address equality patterns',
   'cross-reference equality plus reference-to-link-address incidence classifies the ordered one-reference shared-address contract at one through four links',
+  'the recursive association candidates [[3,0,1],[4,3,2]] and [[3,1,2],[4,0,3]] differ with ordered slots but coincide after uniform slot reversal and address renaming',
+  'the unordered recursive candidate has two leaf orbits of sizes one and two, so it cannot structurally distinguish all three investigated leaf positions',
+  'the connected [[3,0,1],[4,1,2],[5,2,0],[6,6,3]] structure keeps P/Q distinct from K/A/B and has identity, self-incidence, shared address, recursive references, and the reverse [2,0] pair but not proposed [0,2]',
+  'adding [7,0,2] preserves every composition premise, while binary formation admits all 49 ordered pairs over the seven existing addresses and selects none',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -64,6 +70,10 @@ table.claimBoundary.notProved = [...new Set([
   'that a self-incident slot is a source, target, or execution role',
   'that cross-link incidence is a source, target, dependency, transition, or execution edge',
   'that ordered link records or one-reference links are intrinsic to links',
+  'that ordered structural positions intrinsically mean function, argument, result, or application',
+  'that shared-address incidence entails creation of a composed link',
+  'that binary link formation supplies a composition-selection or execution law',
+  'that uniform reference-slot reversal is an intrinsic equivalence rather than an observer quotient',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);
