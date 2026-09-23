@@ -16,6 +16,7 @@
     "report:bootstrap-metrics": "node ../scripts/report-bootstrap-metrics.mjs",
     "report:foundation-search": "node ../scripts/report-foundation-search.mjs",
     "report:link-ontology": "node ../experiments/link-ontology-symmetry.mjs",
+    "check:issue-183-final": "node ../scripts/check-issue-183-completion.mjs",
     "docs": "jsdoc -c ../docs/api/jsdoc.json",
     "build:playground": "node ../scripts/build-playground.mjs",
     "test:playground": "node --test ../scripts/playground.test.mjs",

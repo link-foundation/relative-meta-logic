@@ -3,6 +3,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import {
+  assertIssue183Complete,
+  assertTrackedIssue183Status,
+  incompleteIssue183Requirements,
+  parseIssue183Requirements,
+} from './issue-183-requirements.mjs';
 
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, '..');
@@ -57,6 +63,8 @@ const REQUIREMENT_SOURCES = [
     5783034346,
     5784120161,
     5785148374,
+    5786000580,
+    5791257637,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -75,27 +83,37 @@ describe('issue 183 requirement traceability', () => {
     }
   });
 
-  it('tracks a contiguous atomic requirement set without relabelling open research as complete', () => {
+  it('tracks a contiguous atomic requirement set with truthful status and evidence', () => {
     const ledger = readLedger();
-    const rows = [...ledger.matchAll(/^\| R(\d+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)];
+    const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 95, `expected at least 95 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 137, `expected at least 137 requirements, found ${rows.length}`);
     assert.deepEqual(
-      rows.map(match => Number(match[1])),
+      rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
       'requirement identifiers must be unique and contiguous',
     );
 
-    const openRequirements = new Set(['71', '73', '74']);
-    for (const [, id, requirement, status, evidence] of rows) {
-      if (openRequirements.has(id)) {
-        assert.match(status, /^Open(?: |$)/, `R${id} must remain open`);
-      } else {
-        assert.match(status, /^Complete(?: |$)/, `R${id} is not complete`);
-      }
-      assert.ok(requirement.trim().length > 0, `R${id} has no requirement text`);
-      assert.ok(evidence.includes('`'), `R${id} has no concrete repository evidence`);
+    for (const { id, requirement, status, evidence } of rows) {
+      assert.doesNotThrow(() => assertTrackedIssue183Status(status), `R${id}`);
+      assert.ok(requirement.length > 0, `R${id} has no requirement text`);
+      assert.ok(evidence.includes('`'), `R${id} has no concrete repository evidence or gap`);
     }
+
+    for (const id of [11, 18, 21, 47, 49, 51, 52, 55, 56, 62, 63, 64, 66, 71, 73, 74]) {
+      const row = rows.find(candidate => candidate.id === id);
+      assert.ok(row, `R${id} is missing`);
+      assert.doesNotMatch(row.status, /^Complete(?: |$)/, `R${id} must retain its audited gap`);
+    }
+  });
+
+  it('keeps traceability validation separate from the deliberately failing final gate', () => {
+    const ledger = readLedger();
+    const incomplete = incompleteIssue183Requirements(ledger);
+
+    assert.ok(incomplete.length > 0);
+    assert.ok(incomplete.some(row => row.id === 137));
+    assert.throws(() => assertIssue183Complete(ledger), /issue 183 is not complete/);
   });
 
   it('states the claim boundary without hiding the external semantic laws', () => {
