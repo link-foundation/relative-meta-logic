@@ -20,7 +20,7 @@ host/self duplication. The report names no winner. Its two-model witness shows
 only that the tested ordered-link host signature does not select between two
 functions; it does not make a claim about link ontology. These measured
 execution bases are distinct from the legacy configurable operator registry
-documented on this page. The v12 report additionally performs an independent
+documented on this page. The v13 report additionally performs an independent
 finite symmetry experiment over two unlabelled reference occurrences. It
 derives equality coincidence as complete for that contract while eliminating
 an invariant source/target selector, unique dynamics, and
@@ -52,7 +52,7 @@ classes to `4/8/16`. Cross-reference equality plus reference-to-link-address
 incidence recovers a complete descriptor for the tested shared-address
 contract, without assigning semantic roles to incidence.
 
-The embedded v9 probe keeps logical implication, binary link structure,
+The embedded v10 probe keeps logical implication, binary link structure,
 composition, and execution separate. Its connected
 `[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` countermodel keeps the `P`/`Q` link
 identities distinct from the pairwise-distinct `K`/`A`/`B` addresses and has
@@ -68,6 +68,13 @@ symmetry, but both opposite singleton readings remain equivariant. The tested
 removal, replacement, duplication, forgery, context, and recursive variants
 therefore distinguish structural selection from justification, activation,
 and execution; they do not establish that external authority is irreducible.
+
+The structural-admissibility follow-up represents descriptions, mapping
+certificates, candidates, and contexts with the same ordinary records. An
+external exact-cover verifier rejects incomplete or inconsistent certificates
+and enumerates `ZERO`/`ONE`/`MANY` admissible candidates without choosing from
+the `MANY` case. A locally isomorphic second candidate still passes, and the
+records do not authorize the verifier or their assigned roles.
 
 The headline guarantee is backward compatibility:
 

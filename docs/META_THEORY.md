@@ -141,7 +141,7 @@ transitions. It does not establish that this representation exhausts links or
 that structure and transformation are intrinsically separate; intrinsic
 transition authority remains unresolved.
 
-Version 12 also performs an independent finite symmetry experiment without
+Version 13 also performs an independent finite symmetry experiment without
 using A/B/C. It begins with two unlabelled reference occurrences and equality,
 then exhausts all three surjective observations on their used support, six
 occurrence-permutation/reference-renaming group elements, and ten action
@@ -171,7 +171,7 @@ the base occurrence orbits. The interaction-only conditional instead breaks a
 base-preserving relabelling, so its distinction uses information not derived
 from the tested base. Completeness remains bounded to widths one through four.
 
-The v9 audit also tests the starting projection against the independently
+The v10 audit also tests the starting projection against the independently
 required ability of an addressed link to refer to itself. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` patterns have the same reference-only
 `[1,1]` projection but are inequivalent under address renaming and
@@ -237,6 +237,14 @@ context relocation, finite meta-authority, and self-reference do not select a
 polarity or confer authenticity, activation, or execution. Formation,
 selection, justification, and execution therefore remain distinct. This
 finite countermodel does not prove that external authority is irreducible.
+
+The structural-admissibility follow-up encodes its description, exact-cover
+mapping certificate, candidate, and context as ordinary links. A declared
+external finite verifier rejects missing, duplicate, foreign, and wrong
+evidence and enumerates `ZERO`/`ONE`/`MANY`, but an equally supported locally
+isomorphic candidate remains admissible. The links therefore carry a
+conditionally checkable certificate without authenticating the description,
+the experimental roles, the verifier, admission, activation, or execution.
 
 The report consequently keeps the entire foundational investigation `OPEN`.
 Link ontology, primitive categories, the structure/transformation relation,

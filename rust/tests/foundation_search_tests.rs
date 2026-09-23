@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v9");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v10");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -569,6 +569,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "link-carried-selection-authority",
                 "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",
+            ),
+            (
+                "linked-structural-admissibility",
+                "LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING",
             ),
             (
                 "addressable-quotient-assumptions",
@@ -1469,6 +1473,62 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(authority_probe
         .claim_boundary
         .contains("does not prove that external authority is irreducible"));
+    let admissibility_probe = &starting_representation.linked_structural_admissibility;
+    assert_eq!(
+        admissibility_probe.status,
+        "LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING"
+    );
+    assert_eq!(
+        admissibility_probe.contract.verification_provenance,
+        "EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY"
+    );
+    assert_eq!(
+        admissibility_probe
+            .cases
+            .iter()
+            .map(|item| (
+                item.id,
+                item.cardinality,
+                item.admissible_candidates.clone(),
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("valid-complete-evidence", "ONE", vec![7]),
+            ("missing-evidence", "ZERO", vec![]),
+            ("duplicate-evidence", "ZERO", vec![]),
+            ("foreign-evidence", "ZERO", vec![]),
+            ("wrong-decomposition", "ZERO", vec![]),
+            ("two-equally-admissible-candidates", "MANY", vec![7, 8]),
+            ("zero-admissible-candidates", "ZERO", vec![]),
+            ("same-candidate-other-context", "ZERO", vec![]),
+            ("context-relocated-evidence", "ONE", vec![7]),
+            ("replacement-description", "ONE", vec![8]),
+        ]
+    );
+    assert_eq!(
+        admissibility_probe
+            .cardinality_audit
+            .observed_classifications,
+        vec!["ZERO", "ONE", "MANY"]
+    );
+    assert!(
+        !admissibility_probe
+            .adversarial_boundary
+            .forged_locally_isomorphic_candidate_rejected
+    );
+    assert!(
+        admissibility_probe
+            .authority_regress
+            .description_represented_as_links
+    );
+    assert!(
+        !admissibility_probe
+            .authority_regress
+            .description_authenticated_by_structure
+    );
+    assert!(admissibility_probe
+        .claim_boundary
+        .contains("conditional on the observer-supplied verifier and role assignment"));
     assert_eq!(
         starting_representation
             .quotient_audit
@@ -1586,6 +1646,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
                 "selection authority from additional linked incidence",
                 "ASYMMETRY_PERMITS_BUT_DOES_NOT_FORCE_SELECTION"
             ),
+            (
+                "admissibility from linked descriptions and evidence",
+                "STRUCTURAL_CERTIFICATES_FILTER_RELATIVE_TO_EXTERNAL_VERIFIER"
+            ),
             ("endpoint direction", "NOT_OBSERVED_NOT_DISPROVED"),
             ("dynamics and time", "NOT_OBSERVED_NOT_DISPROVED"),
         ]
@@ -1617,6 +1681,11 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(report.results.iter().any(|item| {
         item.id == "link-carried-selection-authority"
             && item.result == "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY"
+    }));
+    assert!(report.results.iter().any(|item| {
+        item.id == "linked-structural-admissibility"
+            && item.result
+                == "LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING"
     }));
 }
 

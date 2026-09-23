@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v12`. Run it with:
+`rml-alternative-foundation-search/v13`. Run it with:
 
 ```bash
 cd js
@@ -70,7 +70,7 @@ No candidate is declared equivalent to another. Equivalence remains
 
 ## Independent ontology investigation
 
-Version 12 extends a falsifiable ontology experiment rather than converting a
+Version 13 extends a falsifiable ontology experiment rather than converting a
 correctly documented boundary into a completed foundational result. The report
 sets `foundationStatus: OPEN` and
 `ontologySearch.status: OPEN_INDEPENDENT_INVESTIGATION`. It keeps five
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v9` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v10` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v9 follow-up first changes no primitive vocabulary at all. It retains only
+The v10 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -433,6 +433,47 @@ still a separate question. This is not a proof that authority must be
 external or is irreducible; it identifies the exact gap that remains after
 authority-shaped information is encoded as ordinary links.
 
+### Linked structural-admissibility probe
+
+The next probe moves from a single mark to a finite certificate. Its external
+vocabulary calls four groups of ordinary addressed records a description,
+candidate, evidence, and context, but those names are not intrinsic roles. A
+declared verifier treats the description as a three-record pattern, requires
+an injective linked mapping that covers every description address exactly
+once, reconstructs every concrete record from that mapping, and requires one
+explicit context-to-certificate incidence link. The verifier enumerates every
+certificate bundle and does not choose among passing candidates.
+
+The adversarial cases produce these conditional results:
+
+| Case | Cardinality | Candidates |
+|---|---|---|
+| valid candidate + complete evidence | `ONE` | `[7]` |
+| missing, duplicate, foreign, or wrong-decomposition evidence | `ZERO` | `[]` |
+| two locally isomorphic candidates with complete evidence | `MANY` | `[7,8]` |
+| zero supplied admissible candidates | `ZERO` | `[]` |
+| same evidence in an unlinked context | `ZERO` | `[]` |
+| relocated context incidence | `ONE` | `[7]` |
+| replacement description | `ONE` | `[8]` |
+
+This rejects structurally incomplete certificates relative to the declared
+check and exposes `ZERO`/`ONE`/`MANY` without selecting inside the `MANY` case.
+It does not reject the second locally isomorphic candidate as a forgery. The
+cardinality classification is observer-computed rather than derived or
+executed inside the link substrate, and the exact-cover operation is recorded
+as `EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY`.
+
+The result is
+`LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING`.
+Formation, matching, conditional admissibility, observed uniqueness,
+justification, applicability, admission, activation, and execution remain
+separate fields. In particular, the records do not authenticate the
+description, authorize the experimental role assignment or verifier, publish
+or admit a candidate, activate it, or execute a transition. Adding further
+authority-shaped links therefore has not closed the regress: the finite
+certificate is checkable relative to a stated observer contract, not
+self-authorizing.
+
 ### Conditional refinement probe
 
 The second follow-up asks what a reference-only projection would lose if an
@@ -571,7 +612,7 @@ and both functions commute with an atom renaming, but their results differ.
 The admissible result is deliberately narrow: this host representation
 signature does not select between those two tested functions.
 
-That experiment does **not** identify the ontology of a link. Version 12 makes
+That experiment does **not** identify the ontology of a link. Version 13 makes
 its starting assumptions machine-readable:
 
 | Model choice | Status |
@@ -636,7 +677,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v12 execution-comparison gate admits a candidate only if it passes the common
+The v13 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.

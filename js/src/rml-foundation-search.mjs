@@ -1222,6 +1222,277 @@ function linkCarriedSelectionAuthorityProbe() {
   };
 }
 
+function linkedCertificateRecords({
+  bundleAddress,
+  contextAddress,
+  mappingPairs,
+  mappingAddressStart,
+  membershipAddressStart,
+  applicabilityAddress,
+}) {
+  const mappings = mappingPairs.map(([descriptionAddress, concreteAddress], index) =>
+    [mappingAddressStart + index, descriptionAddress, concreteAddress]);
+  return [
+    [bundleAddress, bundleAddress, bundleAddress],
+    ...mappings,
+    ...mappings.map(([mappingAddress], index) =>
+      [membershipAddressStart + index, bundleAddress, mappingAddress]),
+    [applicabilityAddress, contextAddress, bundleAddress],
+  ];
+}
+
+function linkedCertificateCandidates({
+  description,
+  records,
+  candidateAddresses,
+  contextAddress,
+}) {
+  const descriptionAddresses = [...new Set(description.flat())]
+    .sort((left, right) => left - right);
+  const descriptionRecordAddresses = description.map(([address]) => address);
+  const candidateDescriptionAddress = description.at(-1)[0];
+  const candidateSet = new Set(candidateAddresses);
+  const recordByAddress = new Map();
+  for (const record of records) {
+    if (!recordByAddress.has(record[0])) recordByAddress.set(record[0], []);
+    recordByAddress.get(record[0]).push(record);
+  }
+  const bundleAddresses = records
+    .filter(([address, first, second]) =>
+      address === first && first === second)
+    .map(([address]) => address);
+  const accepted = [];
+
+  for (const bundleAddress of bundleAddresses) {
+    const applicabilityLinks = records.filter(([, first, second]) =>
+      first === contextAddress && second === bundleAddress);
+    if (applicabilityLinks.length !== 1) continue;
+    const membershipLinks = records.filter(([address, first]) =>
+      address !== bundleAddress && first === bundleAddress);
+    const mappingRecords = membershipLinks.flatMap(([, , mappingAddress]) => {
+      const addressed = recordByAddress.get(mappingAddress) ?? [];
+      return addressed.length === 1 ? addressed : [];
+    });
+    if (mappingRecords.length !== descriptionAddresses.length) continue;
+    const mappedSources = mappingRecords.map(([, source]) => source);
+    if (new Set(mappedSources).size !== descriptionAddresses.length) continue;
+    if (!descriptionAddresses.every(address => mappedSources.includes(address))) {
+      continue;
+    }
+    const concreteTargets = mappingRecords.map(([, , target]) => target);
+    if (new Set(concreteTargets).size !== concreteTargets.length) continue;
+    const mapping = new Map(mappingRecords.map(([, source, target]) =>
+      [source, target]));
+    const reconstructedRecords = description.map(record =>
+      record.map(address => mapping.get(address)));
+    if (!reconstructedRecords.every(record => hasRecord(records, record))) continue;
+    const contextRecord = [
+      contextAddress,
+      mapping.get(descriptionRecordAddresses[0]),
+      mapping.get(descriptionRecordAddresses[1]),
+    ];
+    if (!hasRecord(records, contextRecord)) continue;
+    const candidateAddress = mapping.get(candidateDescriptionAddress);
+    if (!candidateSet.has(candidateAddress)) continue;
+    accepted.push(candidateAddress);
+  }
+  return [...new Set(accepted)].sort((left, right) => left - right);
+}
+
+function linkedStructuralAdmissibilityProbe() {
+  // The descriptive names and verifier are experimental observer vocabulary.
+  // Every represented object below remains an ordinary addressed record.
+  const description = [[40, 30, 31], [41, 31, 32], [42, 30, 32]];
+  const replacementDescription = [
+    [40, 30, 31],
+    [41, 31, 32],
+    [42, 32, 30],
+  ];
+  const premises = [[3, 0, 1], [4, 1, 2]];
+  const validCandidate = [7, 0, 2];
+  const reverseCandidate = [8, 2, 0];
+  const duplicateCandidate = [8, 0, 2];
+  const contexts = [[60, 3, 4], [61, 3, 4]];
+  const baseMapping = [[40, 3], [41, 4], [42, 7], [30, 0], [31, 1], [32, 2]];
+  const secondMapping = [[40, 3], [41, 4], [42, 8], [30, 0], [31, 1], [32, 2]];
+  const firstCertificate = linkedCertificateRecords({
+    bundleAddress: 49,
+    contextAddress: 60,
+    mappingPairs: baseMapping,
+    mappingAddressStart: 50,
+    membershipAddressStart: 100,
+    applicabilityAddress: 70,
+  });
+  const secondCertificate = linkedCertificateRecords({
+    bundleAddress: 79,
+    contextAddress: 60,
+    mappingPairs: secondMapping,
+    mappingAddressStart: 80,
+    membershipAddressStart: 110,
+    applicabilityAddress: 71,
+  });
+  const commonRecords = [
+    ...description,
+    ...premises,
+    validCandidate,
+    reverseCandidate,
+    ...contexts,
+  ];
+  const baselineRecords = [...commonRecords, ...firstCertificate];
+  const evaluate = ({
+    id,
+    records = baselineRecords,
+    selectedDescription = description,
+    candidateAddresses = [7, 8],
+    contextAddress = 60,
+  }) => {
+    const admissibleCandidates = linkedCertificateCandidates({
+      description: selectedDescription,
+      records,
+      candidateAddresses,
+      contextAddress,
+    });
+    return {
+      id,
+      admissibleCandidates,
+      admissibleCandidateCount: admissibleCandidates.length,
+      cardinality: admissibleCandidates.length === 0
+        ? 'ZERO'
+        : admissibleCandidates.length === 1 ? 'ONE' : 'MANY',
+    };
+  };
+  const missingEvidenceRecords = baselineRecords.filter(([address]) =>
+    ![55, 105].includes(address));
+  const duplicateEvidenceRecords = [
+    ...baselineRecords,
+    [56, 42, 7],
+    [106, 49, 56],
+  ];
+  const foreignEvidenceRecords = baselineRecords.map(record =>
+    record[0] === 55 ? [55, 99, 2] : record);
+  const wrongDecompositionRecords = [
+    ...commonRecords,
+    ...linkedCertificateRecords({
+      bundleAddress: 79,
+      contextAddress: 60,
+      mappingPairs: secondMapping,
+      mappingAddressStart: 80,
+      membershipAddressStart: 110,
+      applicabilityAddress: 71,
+    }),
+  ];
+  const twoCandidateRecords = [
+    ...description,
+    ...premises,
+    validCandidate,
+    duplicateCandidate,
+    ...contexts,
+    ...firstCertificate,
+    ...secondCertificate,
+  ];
+  const relocatedCertificate = firstCertificate.map(record =>
+    record[0] === 70 ? [70, 61, 49] : record);
+  const replacementRecords = [
+    ...replacementDescription,
+    ...premises,
+    validCandidate,
+    reverseCandidate,
+    ...contexts,
+    ...secondCertificate,
+  ];
+  const cases = [
+    evaluate({ id: 'valid-complete-evidence' }),
+    evaluate({ id: 'missing-evidence', records: missingEvidenceRecords }),
+    evaluate({ id: 'duplicate-evidence', records: duplicateEvidenceRecords }),
+    evaluate({ id: 'foreign-evidence', records: foreignEvidenceRecords }),
+    evaluate({ id: 'wrong-decomposition', records: wrongDecompositionRecords }),
+    evaluate({
+      id: 'two-equally-admissible-candidates',
+      records: twoCandidateRecords,
+    }),
+    evaluate({
+      id: 'zero-admissible-candidates',
+      records: wrongDecompositionRecords,
+      candidateAddresses: [8],
+    }),
+    evaluate({ id: 'same-candidate-other-context', contextAddress: 61 }),
+    evaluate({
+      id: 'context-relocated-evidence',
+      records: [...commonRecords, ...relocatedCertificate],
+      contextAddress: 61,
+    }),
+    evaluate({
+      id: 'replacement-description',
+      records: replacementRecords,
+      selectedDescription: replacementDescription,
+    }),
+  ];
+
+  return {
+    status:
+      'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING',
+    contract: {
+      recordEncoding: 'each vector is only [address, first reference, second reference]',
+      description,
+      verificationOperation:
+        'exactly cover every description address with an injective linked mapping, reconstruct every described record, and require explicit context-to-bundle incidence',
+      verificationProvenance:
+        'EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY',
+      roleNamesIntrinsicToRecords: false,
+    },
+    cases,
+    cardinalityAudit: {
+      method:
+        'exhaustively enumerate the supplied finite certificate bundles; do not choose a candidate inside the verifier',
+      observedClassifications: ['ZERO', 'ONE', 'MANY'],
+      classificationDerivedInsideLinkSubstrate: false,
+    },
+    adversarialBoundary: {
+      completeEvidenceAcceptsReconstructedCandidate:
+        cases[0].cardinality === 'ONE',
+      missingDuplicateForeignAndWrongEvidenceRejected:
+        cases.slice(1, 5).every(item => item.cardinality === 'ZERO'),
+      forgedLocallyIsomorphicCandidateRejected:
+        cases.find(item => item.id === 'two-equally-admissible-candidates')
+          .cardinality !== 'MANY',
+      contextIncidenceChangesApplicability:
+        cases.find(item => item.id === 'same-candidate-other-context')
+          .cardinality === 'ZERO' &&
+        cases.find(item => item.id === 'context-relocated-evidence')
+          .cardinality === 'ONE',
+      descriptionReplacementChangesAdmissibility:
+        cases.find(item => item.id === 'replacement-description')
+          .admissibleCandidates[0] === 8,
+    },
+    authorityRegress: {
+      descriptionRepresentedAsLinks:
+        description.every(record => hasRecord(baselineRecords, record)),
+      evidenceAndContextRepresentedAsLinks: true,
+      descriptionAuthenticatedByStructure: false,
+      observerRoleAssignmentAuthorizedByStructure: false,
+      verifierRepresentedOrExecutedByTestedRecords: false,
+      finiteLinkedMetaChainClosesAuthorityRegress: false,
+      consequence:
+        'ordinary links can carry a checkable finite certificate relative to a declared verifier, but the same records do not establish why that verifier, description, context, or role assignment is authoritative',
+    },
+    distinctions: {
+      formation: 'ALL_CASE_RECORDS_ARE_STRUCTURALLY_FORMABLE',
+      matching: 'CONDITIONAL_EXACT_COVER_RECONSTRUCTION',
+      admissibility: 'FILTERED_RELATIVE_TO_DECLARED_DESCRIPTION_AND_VERIFIER',
+      uniqueness: 'FINITE_ENUMERATION_OBSERVES_ZERO_ONE_OR_MANY',
+      justification: 'CERTIFICATE_IS_CHECKABLE_BUT_NOT_SELF_AUTHORIZING',
+      applicability: 'EXPLICIT_CONTEXT_INCIDENCE_REQUIRED_BY_DECLARED_VERIFIER',
+      admission: 'NO_LINK_DERIVED_PUBLICATION_OR_ADMISSION',
+      activation: 'NO_LINK_DERIVED_ACTIVATION',
+      execution: 'NO_TRANSITION_CREATION_OR_EXECUTION_EVENT',
+    },
+    conclusion:
+      'For the declared finite exact-cover verifier, linked descriptions, mappings, and context incidence distinguish complete evidence from missing, duplicated, foreign, and wrong evidence and expose ZERO/ONE/MANY admissible candidates. A second isomorphic candidate remains equally admissible, while replacing or relocating ordinary links changes the conditional result.',
+    claimBoundary:
+      'The filtering result is conditional on the observer-supplied verifier and role assignment. It does not make the description self-authenticating, derive the verifier from link structure, reject a locally isomorphic forgery, close the authority regress, admit or activate a candidate, or execute a transition.',
+  };
+}
+
 function startingRepresentationAudit() {
   const finiteEnumeration = Array.from({ length: 4 }, (_, index) => index + 1)
     .map(occurrenceCount => {
@@ -1354,6 +1625,7 @@ function startingRepresentationAudit() {
     sharedAddressComposition: sharedAddressCompositionAudit(),
     structuralApplicationComposition: structuralApplicationCompositionProbe(),
     linkCarriedSelectionAuthority: linkCarriedSelectionAuthorityProbe(),
+    linkedStructuralAdmissibility: linkedStructuralAdmissibilityProbe(),
     quotientAudit: {
       finiteEnumeration: quotientFiniteEnumeration,
       addressRenamingCompleteInvariantVerified: [1, 2, 3, 4]
@@ -1703,6 +1975,12 @@ function observationBoundaryExperiment() {
         evidence: 'Two duplicate candidates form one orbit and admit no invariant singleton. Adding ordinary link [9,7,7] splits them into singleton orbits, but both {7} and {8} are invariant. Opposite referenced/unreferenced readings are equivariant, and isomorphic replacement evidence cannot be rejected by the equality/incidence contract.',
       },
       {
+        distinction: 'admissibility from linked descriptions and evidence',
+        classification:
+          'STRUCTURAL_CERTIFICATES_FILTER_RELATIVE_TO_EXTERNAL_VERIFIER',
+        evidence: 'A declared finite exact-cover check over ordinary linked descriptions, mappings, and context incidence rejects missing, duplicate, foreign, and wrong evidence and observes ZERO/ONE/MANY candidates. A locally isomorphic second candidate remains admissible, and the records do not authenticate the description, role assignment, or verifier.',
+      },
+      {
         distinction: 'endpoint direction',
         classification: 'NOT_OBSERVED_NOT_DISPROVED',
         evidence: 'Neither the base family nor the conditional refinement names or measures endpoint order.',
@@ -1824,8 +2102,8 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v9',
-    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, and can an additional link carry selection authority?',
+    schema: 'rml-link-ontology-symmetry-experiment/v10',
+    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and what can linked exact-cover evidence justify before its verifier is itself authorized?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
       occurrenceCount,
@@ -1960,6 +2238,12 @@ function linkOntologySymmetryExperiment() {
         evidence: 'Duplicate candidate links [7,0,2] and [8,0,2] form one automorphism orbit and admit no invariant singleton. Ordinary link [9,7,7] splits the orbit, making both singleton subsets invariant rather than forcing either one. Removal gives zero marked candidates, replacement flips the mark, duplication gives two, an isomorphic forgery is not rejected, context relocation remains a relabelling, and finite or self-referential authority chains do not determine selection polarity or execution.',
       },
       {
+        id: 'linked-structural-admissibility',
+        result:
+          'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING',
+        evidence: 'Under an explicitly external finite relational check, ordinary linked descriptions, exact-cover mappings, and context incidence accept one complete reconstruction; reject missing, duplicate, foreign, and wrong evidence; distinguish ZERO, ONE, and MANY; and change under context or description replacement. A second locally isomorphic candidate still passes, and no tested record authorizes the description, verifier, admission, activation, or execution.',
+      },
+      {
         id: 'addressable-quotient-assumptions',
         result: 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED',
         evidence: 'Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.',
@@ -1970,8 +2254,8 @@ function linkOntologySymmetryExperiment() {
         evidence: 'The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.',
       },
     ],
-    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection, justification, applicability, or execution.',
-    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, and that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, prove that external authority is irreducible, derive linked authenticity or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.',
+    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution.',
+    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.',
   };
 }
 
@@ -2671,7 +2955,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v12',
+    schema: 'rml-alternative-foundation-search/v13',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
@@ -2716,7 +3000,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       globallyMinimal: false,
       intrinsicTransitionAuthority: 'UNRESOLVED',
       representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
-      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base. The reference-only projection is non-faithful for required direct self-reference. Before occurrence permutation, 2/4/8/16 Boolean masks classify self-incidence per ordered slot. Removing single-link isolation yields 10/77/799 shared-address classes at two through four links but only 4/8/16 local-descriptor products; an external-reference pair and a two-link incidence cycle are the explicit countermodel. Cross-reference equality plus reference-to-link-address incidence is complete for the ordered one-reference shared-address contract, without assigning semantic meaning to that incidence. A connected identity/self-incidence/shared-address/recursion structure keeps P/Q distinct from K/A/B and contains the reverse [2,0] reference pair but not proposed [0,2]; its conservative extension adds [0,2] without changing the premises. Binary formation admits all 49 pairs over the seven existing addresses, so application roles and composition/execution authority require an additional distinction or law. Adding an ordinary link to duplicate candidates breaks their swap symmetry but leaves two opposite equivariant singleton readings; removal, replacement, duplication, isomorphic forgery, context relocation, and recursive authority therefore do not force authenticity, applicability, activation, or execution.',
+      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base. The reference-only projection is non-faithful for required direct self-reference. Before occurrence permutation, 2/4/8/16 Boolean masks classify self-incidence per ordered slot. Removing single-link isolation yields 10/77/799 shared-address classes at two through four links but only 4/8/16 local-descriptor products; an external-reference pair and a two-link incidence cycle are the explicit countermodel. Cross-reference equality plus reference-to-link-address incidence is complete for the ordered one-reference shared-address contract, without assigning semantic meaning to that incidence. A connected identity/self-incidence/shared-address/recursion structure keeps P/Q distinct from K/A/B and contains the reverse [2,0] reference pair but not proposed [0,2]; its conservative extension adds [0,2] without changing the premises. Binary formation admits all 49 pairs over the seven existing addresses, so application roles and composition/execution authority require an additional distinction or law. Adding an ordinary link to duplicate candidates breaks their swap symmetry but leaves two opposite equivariant singleton readings. A declared finite exact-cover verifier over ordinary linked descriptions, mappings, and context incidence rejects incomplete and wrong evidence and observes ZERO/ONE/MANY candidates, but a locally isomorphic second candidate remains admissible and the link records do not authorize the verifier or their assigned roles. Neither probe derives authenticity, admission, activation, or execution.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };

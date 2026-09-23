@@ -924,6 +924,76 @@ pub struct LinkOntologyLinkCarriedSelectionAuthorityProbe {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAdmissibilityContract {
+    pub record_encoding: &'static str,
+    pub description: Vec<Vec<usize>>,
+    pub verification_operation: &'static str,
+    pub verification_provenance: &'static str,
+    pub role_names_intrinsic_to_records: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAdmissibilityCase {
+    pub id: &'static str,
+    pub admissible_candidates: Vec<usize>,
+    pub admissible_candidate_count: usize,
+    pub cardinality: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyCardinalityAudit {
+    pub method: &'static str,
+    pub observed_classifications: Vec<&'static str>,
+    pub classification_derived_inside_link_substrate: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAdmissibilityAdversarialBoundary {
+    pub complete_evidence_accepts_reconstructed_candidate: bool,
+    pub missing_duplicate_foreign_and_wrong_evidence_rejected: bool,
+    pub forged_locally_isomorphic_candidate_rejected: bool,
+    pub context_incidence_changes_applicability: bool,
+    pub description_replacement_changes_admissibility: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAuthorityRegress {
+    pub description_represented_as_links: bool,
+    pub evidence_and_context_represented_as_links: bool,
+    pub description_authenticated_by_structure: bool,
+    pub observer_role_assignment_authorized_by_structure: bool,
+    pub verifier_represented_or_executed_by_tested_records: bool,
+    pub finite_linked_meta_chain_closes_authority_regress: bool,
+    pub consequence: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAdmissibilityDistinctions {
+    pub formation: &'static str,
+    pub matching: &'static str,
+    pub admissibility: &'static str,
+    pub uniqueness: &'static str,
+    pub justification: &'static str,
+    pub applicability: &'static str,
+    pub admission: &'static str,
+    pub activation: &'static str,
+    pub execution: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyLinkedStructuralAdmissibilityProbe {
+    pub status: &'static str,
+    pub contract: LinkOntologyAdmissibilityContract,
+    pub cases: Vec<LinkOntologyAdmissibilityCase>,
+    pub cardinality_audit: LinkOntologyCardinalityAudit,
+    pub adversarial_boundary: LinkOntologyAdmissibilityAdversarialBoundary,
+    pub authority_regress: LinkOntologyAuthorityRegress,
+    pub distinctions: LinkOntologyAdmissibilityDistinctions,
+    pub conclusion: &'static str,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyQuotientEnumeration {
     pub occurrence_count: usize,
     pub ordered_equality_classes_after_address_renaming: usize,
@@ -982,6 +1052,7 @@ pub struct LinkOntologyStartingRepresentationAudit {
     pub shared_address_composition: LinkOntologySharedAddressCompositionAudit,
     pub structural_application_composition: LinkOntologyStructuralApplicationCompositionProbe,
     pub link_carried_selection_authority: LinkOntologyLinkCarriedSelectionAuthorityProbe,
+    pub linked_structural_admissibility: LinkOntologyLinkedStructuralAdmissibilityProbe,
     pub quotient_audit: LinkOntologyQuotientAudit,
     pub claim_boundary: &'static str,
 }
@@ -2399,6 +2470,395 @@ fn link_ontology_link_carried_selection_authority_probe(
     }
 }
 
+fn linked_certificate_records(
+    bundle_address: usize,
+    context_address: usize,
+    mapping_pairs: &[(usize, usize)],
+    mapping_address_start: usize,
+    membership_address_start: usize,
+    applicability_address: usize,
+) -> Vec<Vec<usize>> {
+    let mappings = mapping_pairs
+        .iter()
+        .enumerate()
+        .map(|(index, (description_address, concrete_address))| {
+            vec![
+                mapping_address_start + index,
+                *description_address,
+                *concrete_address,
+            ]
+        })
+        .collect::<Vec<_>>();
+    std::iter::once(vec![bundle_address, bundle_address, bundle_address])
+        .chain(mappings.iter().cloned())
+        .chain(mappings.iter().enumerate().map(|(index, mapping)| {
+            vec![membership_address_start + index, bundle_address, mapping[0]]
+        }))
+        .chain(std::iter::once(vec![
+            applicability_address,
+            context_address,
+            bundle_address,
+        ]))
+        .collect()
+}
+
+fn linked_certificate_candidates(
+    description: &[Vec<usize>],
+    records: &[Vec<usize>],
+    candidate_addresses: &[usize],
+    context_address: usize,
+) -> Vec<usize> {
+    let description_addresses = description
+        .iter()
+        .flatten()
+        .copied()
+        .collect::<BTreeSet<_>>();
+    let description_record_addresses = description
+        .iter()
+        .map(|record| record[0])
+        .collect::<Vec<_>>();
+    let candidate_description_address = description.last().unwrap()[0];
+    let candidate_set = candidate_addresses.iter().copied().collect::<BTreeSet<_>>();
+    let mut record_by_address = BTreeMap::<usize, Vec<Vec<usize>>>::new();
+    for record in records {
+        record_by_address
+            .entry(record[0])
+            .or_default()
+            .push(record.clone());
+    }
+    let bundle_addresses = records
+        .iter()
+        .filter(|record| record[0] == record[1] && record[1] == record[2])
+        .map(|record| record[0])
+        .collect::<Vec<_>>();
+    let mut accepted = BTreeSet::new();
+
+    for bundle_address in bundle_addresses {
+        let applicability_link_count = records
+            .iter()
+            .filter(|record| record[1] == context_address && record[2] == bundle_address)
+            .count();
+        if applicability_link_count != 1 {
+            continue;
+        }
+        let membership_links = records
+            .iter()
+            .filter(|record| record[0] != bundle_address && record[1] == bundle_address)
+            .collect::<Vec<_>>();
+        let mapping_records = membership_links
+            .iter()
+            .filter_map(|membership| {
+                let addressed = record_by_address.get(&membership[2])?;
+                (addressed.len() == 1).then(|| addressed[0].clone())
+            })
+            .collect::<Vec<_>>();
+        if mapping_records.len() != description_addresses.len() {
+            continue;
+        }
+        let mapped_sources = mapping_records
+            .iter()
+            .map(|record| record[1])
+            .collect::<Vec<_>>();
+        if mapped_sources
+            .iter()
+            .copied()
+            .collect::<BTreeSet<_>>()
+            .len()
+            != description_addresses.len()
+            || !description_addresses
+                .iter()
+                .all(|address| mapped_sources.contains(address))
+        {
+            continue;
+        }
+        let concrete_targets = mapping_records
+            .iter()
+            .map(|record| record[2])
+            .collect::<Vec<_>>();
+        if concrete_targets
+            .iter()
+            .copied()
+            .collect::<BTreeSet<_>>()
+            .len()
+            != concrete_targets.len()
+        {
+            continue;
+        }
+        let mapping = mapping_records
+            .iter()
+            .map(|record| (record[1], record[2]))
+            .collect::<BTreeMap<_, _>>();
+        let reconstructed_records = description
+            .iter()
+            .map(|record| {
+                record
+                    .iter()
+                    .map(|address| mapping[address])
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>();
+        if !reconstructed_records
+            .iter()
+            .all(|record| has_link_record(records, record))
+        {
+            continue;
+        }
+        let context_record = vec![
+            context_address,
+            mapping[&description_record_addresses[0]],
+            mapping[&description_record_addresses[1]],
+        ];
+        if !has_link_record(records, &context_record) {
+            continue;
+        }
+        let candidate_address = mapping[&candidate_description_address];
+        if candidate_set.contains(&candidate_address) {
+            accepted.insert(candidate_address);
+        }
+    }
+    accepted.into_iter().collect()
+}
+
+fn link_ontology_linked_structural_admissibility_probe(
+) -> LinkOntologyLinkedStructuralAdmissibilityProbe {
+    // The descriptive names and verifier are experimental observer vocabulary.
+    // Every represented object below remains an ordinary addressed record.
+    let description = vec![vec![40, 30, 31], vec![41, 31, 32], vec![42, 30, 32]];
+    let replacement_description = vec![vec![40, 30, 31], vec![41, 31, 32], vec![42, 32, 30]];
+    let premises = vec![vec![3, 0, 1], vec![4, 1, 2]];
+    let valid_candidate = vec![7, 0, 2];
+    let reverse_candidate = vec![8, 2, 0];
+    let duplicate_candidate = vec![8, 0, 2];
+    let contexts = vec![vec![60, 3, 4], vec![61, 3, 4]];
+    let base_mapping = vec![(40, 3), (41, 4), (42, 7), (30, 0), (31, 1), (32, 2)];
+    let second_mapping = vec![(40, 3), (41, 4), (42, 8), (30, 0), (31, 1), (32, 2)];
+    let first_certificate = linked_certificate_records(49, 60, &base_mapping, 50, 100, 70);
+    let second_certificate = linked_certificate_records(79, 60, &second_mapping, 80, 110, 71);
+    let common_records = description
+        .iter()
+        .chain(premises.iter())
+        .cloned()
+        .chain(std::iter::once(valid_candidate.clone()))
+        .chain(std::iter::once(reverse_candidate.clone()))
+        .chain(contexts.iter().cloned())
+        .collect::<Vec<_>>();
+    let baseline_records = common_records
+        .iter()
+        .chain(first_certificate.iter())
+        .cloned()
+        .collect::<Vec<_>>();
+    let evaluate = |id: &'static str,
+                    records: &[Vec<usize>],
+                    selected_description: &[Vec<usize>],
+                    candidate_addresses: &[usize],
+                    context_address: usize| {
+        let admissible_candidates = linked_certificate_candidates(
+            selected_description,
+            records,
+            candidate_addresses,
+            context_address,
+        );
+        LinkOntologyAdmissibilityCase {
+            id,
+            admissible_candidate_count: admissible_candidates.len(),
+            cardinality: match admissible_candidates.len() {
+                0 => "ZERO",
+                1 => "ONE",
+                _ => "MANY",
+            },
+            admissible_candidates,
+        }
+    };
+    let missing_evidence_records = baseline_records
+        .iter()
+        .filter(|record| ![55, 105].contains(&record[0]))
+        .cloned()
+        .collect::<Vec<_>>();
+    let duplicate_evidence_records = baseline_records
+        .iter()
+        .cloned()
+        .chain([vec![56, 42, 7], vec![106, 49, 56]])
+        .collect::<Vec<_>>();
+    let foreign_evidence_records = baseline_records
+        .iter()
+        .map(|record| {
+            if record[0] == 55 {
+                vec![55, 99, 2]
+            } else {
+                record.clone()
+            }
+        })
+        .collect::<Vec<_>>();
+    let wrong_decomposition_records = common_records
+        .iter()
+        .chain(second_certificate.iter())
+        .cloned()
+        .collect::<Vec<_>>();
+    let two_candidate_records = description
+        .iter()
+        .chain(premises.iter())
+        .cloned()
+        .chain(std::iter::once(valid_candidate.clone()))
+        .chain(std::iter::once(duplicate_candidate))
+        .chain(contexts.iter().cloned())
+        .chain(first_certificate.iter().cloned())
+        .chain(second_certificate.iter().cloned())
+        .collect::<Vec<_>>();
+    let relocated_certificate = first_certificate
+        .iter()
+        .map(|record| {
+            if record[0] == 70 {
+                vec![70, 61, 49]
+            } else {
+                record.clone()
+            }
+        })
+        .collect::<Vec<_>>();
+    let relocated_records = common_records
+        .iter()
+        .chain(relocated_certificate.iter())
+        .cloned()
+        .collect::<Vec<_>>();
+    let replacement_records = replacement_description
+        .iter()
+        .chain(premises.iter())
+        .cloned()
+        .chain(std::iter::once(valid_candidate))
+        .chain(std::iter::once(reverse_candidate))
+        .chain(contexts.iter().cloned())
+        .chain(second_certificate.iter().cloned())
+        .collect::<Vec<_>>();
+    let cases = vec![
+        evaluate(
+            "valid-complete-evidence",
+            &baseline_records,
+            &description,
+            &[7, 8],
+            60,
+        ),
+        evaluate(
+            "missing-evidence",
+            &missing_evidence_records,
+            &description,
+            &[7, 8],
+            60,
+        ),
+        evaluate(
+            "duplicate-evidence",
+            &duplicate_evidence_records,
+            &description,
+            &[7, 8],
+            60,
+        ),
+        evaluate(
+            "foreign-evidence",
+            &foreign_evidence_records,
+            &description,
+            &[7, 8],
+            60,
+        ),
+        evaluate(
+            "wrong-decomposition",
+            &wrong_decomposition_records,
+            &description,
+            &[7, 8],
+            60,
+        ),
+        evaluate(
+            "two-equally-admissible-candidates",
+            &two_candidate_records,
+            &description,
+            &[7, 8],
+            60,
+        ),
+        evaluate(
+            "zero-admissible-candidates",
+            &wrong_decomposition_records,
+            &description,
+            &[8],
+            60,
+        ),
+        evaluate(
+            "same-candidate-other-context",
+            &baseline_records,
+            &description,
+            &[7, 8],
+            61,
+        ),
+        evaluate(
+            "context-relocated-evidence",
+            &relocated_records,
+            &description,
+            &[7, 8],
+            61,
+        ),
+        evaluate(
+            "replacement-description",
+            &replacement_records,
+            &replacement_description,
+            &[7, 8],
+            60,
+        ),
+    ];
+    let case = |id| cases.iter().find(|item| item.id == id).unwrap();
+
+    LinkOntologyLinkedStructuralAdmissibilityProbe {
+        status:
+            "LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING",
+        contract: LinkOntologyAdmissibilityContract {
+            record_encoding: "each vector is only [address, first reference, second reference]",
+            description: description.clone(),
+            verification_operation: "exactly cover every description address with an injective linked mapping, reconstruct every described record, and require explicit context-to-bundle incidence",
+            verification_provenance:
+                "EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY",
+            role_names_intrinsic_to_records: false,
+        },
+        cardinality_audit: LinkOntologyCardinalityAudit {
+            method: "exhaustively enumerate the supplied finite certificate bundles; do not choose a candidate inside the verifier",
+            observed_classifications: vec!["ZERO", "ONE", "MANY"],
+            classification_derived_inside_link_substrate: false,
+        },
+        adversarial_boundary: LinkOntologyAdmissibilityAdversarialBoundary {
+            complete_evidence_accepts_reconstructed_candidate:
+                cases[0].cardinality == "ONE",
+            missing_duplicate_foreign_and_wrong_evidence_rejected:
+                cases[1..5].iter().all(|item| item.cardinality == "ZERO"),
+            forged_locally_isomorphic_candidate_rejected:
+                case("two-equally-admissible-candidates").cardinality != "MANY",
+            context_incidence_changes_applicability:
+                case("same-candidate-other-context").cardinality == "ZERO"
+                    && case("context-relocated-evidence").cardinality == "ONE",
+            description_replacement_changes_admissibility:
+                case("replacement-description").admissible_candidates == vec![8],
+        },
+        authority_regress: LinkOntologyAuthorityRegress {
+            description_represented_as_links: description
+                .iter()
+                .all(|record| has_link_record(&baseline_records, record)),
+            evidence_and_context_represented_as_links: true,
+            description_authenticated_by_structure: false,
+            observer_role_assignment_authorized_by_structure: false,
+            verifier_represented_or_executed_by_tested_records: false,
+            finite_linked_meta_chain_closes_authority_regress: false,
+            consequence: "ordinary links can carry a checkable finite certificate relative to a declared verifier, but the same records do not establish why that verifier, description, context, or role assignment is authoritative",
+        },
+        distinctions: LinkOntologyAdmissibilityDistinctions {
+            formation: "ALL_CASE_RECORDS_ARE_STRUCTURALLY_FORMABLE",
+            matching: "CONDITIONAL_EXACT_COVER_RECONSTRUCTION",
+            admissibility: "FILTERED_RELATIVE_TO_DECLARED_DESCRIPTION_AND_VERIFIER",
+            uniqueness: "FINITE_ENUMERATION_OBSERVES_ZERO_ONE_OR_MANY",
+            justification: "CERTIFICATE_IS_CHECKABLE_BUT_NOT_SELF_AUTHORIZING",
+            applicability: "EXPLICIT_CONTEXT_INCIDENCE_REQUIRED_BY_DECLARED_VERIFIER",
+            admission: "NO_LINK_DERIVED_PUBLICATION_OR_ADMISSION",
+            activation: "NO_LINK_DERIVED_ACTIVATION",
+            execution: "NO_TRANSITION_CREATION_OR_EXECUTION_EVENT",
+        },
+        cases,
+        conclusion: "For the declared finite exact-cover verifier, linked descriptions, mappings, and context incidence distinguish complete evidence from missing, duplicated, foreign, and wrong evidence and expose ZERO/ONE/MANY admissible candidates. A second isomorphic candidate remains equally admissible, while replacing or relocating ordinary links changes the conditional result.",
+        claim_boundary: "The filtering result is conditional on the observer-supplied verifier and role assignment. It does not make the description self-authenticating, derive the verifier from link structure, reject a locally isomorphic forgery, close the authority regress, admit or activate a candidate, or execute a transition.",
+    }
+}
+
 fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresentationAudit {
     let finite_enumeration = (1..=4)
         .map(|occurrence_count| {
@@ -2554,6 +3014,8 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
             link_ontology_structural_application_composition_probe(),
         link_carried_selection_authority:
             link_ontology_link_carried_selection_authority_probe(),
+        linked_structural_admissibility:
+            link_ontology_linked_structural_admissibility_probe(),
         quotient_audit: LinkOntologyQuotientAudit {
             finite_enumeration: quotient_finite_enumeration,
             address_renaming_complete_invariant_verified,
@@ -2981,6 +3443,12 @@ fn link_ontology_observation_boundary() -> LinkOntologyObservationBoundary {
                 evidence: "Two duplicate candidates form one orbit and admit no invariant singleton. Adding ordinary link [9,7,7] splits them into singleton orbits, but both {7} and {8} are invariant. Opposite referenced/unreferenced readings are equivariant, and isomorphic replacement evidence cannot be rejected by the equality/incidence contract.",
             },
             LinkOntologyLossAudit {
+                distinction: "admissibility from linked descriptions and evidence",
+                classification:
+                    "STRUCTURAL_CERTIFICATES_FILTER_RELATIVE_TO_EXTERNAL_VERIFIER",
+                evidence: "A declared finite exact-cover check over ordinary linked descriptions, mappings, and context incidence rejects missing, duplicate, foreign, and wrong evidence and observes ZERO/ONE/MANY candidates. A locally isomorphic second candidate remains admissible, and the records do not authenticate the description, role assignment, or verifier.",
+            },
+            LinkOntologyLossAudit {
                 distinction: "endpoint direction",
                 classification: "NOT_OBSERVED_NOT_DISPROVED",
                 evidence: "Neither the base family nor the conditional refinement names or measures endpoint order.",
@@ -3124,8 +3592,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v9",
-        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, and can an additional link carry selection authority?",
+        schema: "rml-link-ontology-symmetry-experiment/v10",
+        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and what can linked exact-cover evidence justify before its verifier is itself authorized?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -3252,6 +3720,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "Duplicate candidate links [7,0,2] and [8,0,2] form one automorphism orbit and admit no invariant singleton. Ordinary link [9,7,7] splits the orbit, making both singleton subsets invariant rather than forcing either one. Removal gives zero marked candidates, replacement flips the mark, duplication gives two, an isomorphic forgery is not rejected, context relocation remains a relabelling, and finite or self-referential authority chains do not determine selection polarity or execution.",
             },
             LinkOntologyResult {
+                id: "linked-structural-admissibility",
+                result: "LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING",
+                evidence: "Under an explicitly external finite relational check, ordinary linked descriptions, exact-cover mappings, and context incidence accept one complete reconstruction; reject missing, duplicate, foreign, and wrong evidence; distinguish ZERO, ONE, and MANY; and change under context or description replacement. A second locally isomorphic candidate still passes, and no tested record authorizes the description, verifier, admission, activation, or execution.",
+            },
+            LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
                 result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
                 evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
@@ -3262,8 +3735,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection, justification, applicability, or execution.",
-        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, and that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, prove that external authority is irreducible, derive linked authenticity or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
     }
 }
 

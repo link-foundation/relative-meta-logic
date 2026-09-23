@@ -220,7 +220,7 @@ separation as assumptions; it does not infer link ontology from them. The
 failed zero-transition experiment is likewise scoped to the current passive
 host model and finite workload.
 
-The v12 ontology investigation is separate from execution comparison. Its
+The v13 ontology investigation is separate from execution comparison. Its
 finite experiment quotients two unlabelled reference occurrences by every
 occurrence permutation and reference renaming. Equality coincidence is
 complete for that contract; no invariant singleton selects source or target,
@@ -259,7 +259,7 @@ classifies the tested shared-address contract. This retains record order and
 one reference slot as observer choices and assigns no endpoint, dependency,
 transition, or execution semantics to incidence.
 
-The v9 structural application/composition probe then keeps mathematical
+The v10 structural application/composition probe then keeps mathematical
 implication separate from binary link notation. The recursive candidates
 `[[3,0,1],[4,3,2]]` and `[[3,1,2],[4,0,3]]` differ under the retained ordered
 slots but coincide after uniform slot reversal and address renaming; that
@@ -272,7 +272,7 @@ premise, while formation admits all 49 ordered pairs over the seven existing
 addresses. Raw structure therefore neither recovers function/application
 roles nor supplies a composition-selection or execution law.
 
-The same v9 report tests whether the missing selection authority can itself
+The same v10 report tests whether the missing selection authority can itself
 be carried by an ordinary link. Adding `[9,7,7]` to duplicate candidates
 `[7,0,2]` and `[8,0,2]` breaks their swap symmetry, but makes both singleton
 subsets invariant. Referenced and unreferenced readings are equally
@@ -280,6 +280,13 @@ renaming-equivariant; removal, replacement, duplication, forgery, context
 relocation, and recursive authority variants do not determine authenticity,
 polarity, activation, or execution. Thus linked incidence can make a choice
 structurally expressible without forcing its authoritative interpretation.
+
+A further exact-cover certificate probe reconstructs candidates from ordinary
+description, mapping, and context-incidence records. It conditionally rejects
+missing, duplicated, foreign, and wrong evidence and observes
+`ZERO`/`ONE`/`MANY`, while a locally isomorphic second candidate remains
+admissible. The finite verifier and experimental record roles are observer
+contracts, not authority derived from the tested links.
 
 Link ontology, primitive categories, the structure/transformation
 relation, intrinsic semantic authority, and comparative minimality therefore

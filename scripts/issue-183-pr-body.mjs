@@ -4,7 +4,7 @@ import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 
 export const ISSUE_183_CLOSING_DIRECTIVE =
-  /^\s*(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#183\b/im;
+  /^\s*(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(?:183|184)\b/im;
 
 const ISSUE_183_PR_NUMBER = 184;
 const ISSUE_183_BRANCH = 'issue-183-7fedfddffe9c';

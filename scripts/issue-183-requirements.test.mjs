@@ -72,6 +72,7 @@ const REQUIREMENT_SOURCES = [
     5799100000,
     5800815386,
     5802303479,
+    5803686269,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -94,7 +95,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 141, `expected at least 141 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 142, `expected at least 142 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -143,7 +144,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v9',
+      'rml-link-ontology-symmetry-experiment/v10',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -172,6 +173,7 @@ describe('issue 183 requirement traceability', () => {
       '5799100000',
       '5800815386',
       '5802303479',
+      '5803686269',
       'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL',
       '2/10/77/799',
       'PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION',
@@ -190,6 +192,15 @@ describe('issue 183 requirement traceability', () => {
       'AMBIENT_EXISTENCE_DOES_NOT_SELECT_APPLICABILITY',
       'NO_TRANSITION_CREATION_OR_PUBLICATION_EVENT',
       'does not prove that external authority is irreducible',
+      'linkedStructuralAdmissibility',
+      'linked_structural_admissibility',
+      'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING',
+      'EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY',
+      'ZERO`/`ONE`/`MANY',
+      'locally isomorphic evidence remains admissible',
+      'formation, matching, admissibility, uniqueness, justification, applicability, admission, activation, and execution',
+      'NO_LINK_DERIVED_PUBLICATION_OR_ADMISSION',
+      'observer-provided exact-cover checking',
       'logical implication',
       'contract-forced, representation-stable, observer-added',
       'The result uses no set,',
@@ -203,12 +214,21 @@ describe('issue 183 requirement traceability', () => {
 
   it('rejects issue-closing metadata while foundational requirements remain open', () => {
     assert.doesNotThrow(() => assertIssue183RemainsOpen('Summary\n\nAdvances #183'));
-    for (const directive of ['Fixes #183', 'Closes #183', 'Resolved #183']) {
+    for (const directive of [
+      'Fixes #183',
+      'Closes #183',
+      'Resolved #183',
+      'Fixes #184',
+    ]) {
       assert.throws(
         () => assertIssue183RemainsOpen(`Advances #183\n\n${directive}`),
         directive,
       );
     }
+    assert.equal(
+      removeIssue183ClosingDirectives('Advances #183\n\nFixes #184'),
+      'Advances #183',
+    );
   });
 
   it('repairs a premature closing directive without weakening the live guard', async context => {

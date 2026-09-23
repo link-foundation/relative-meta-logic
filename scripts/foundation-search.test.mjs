@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v12');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v13');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v9',
+      'rml-link-ontology-symmetry-experiment/v10',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -253,6 +253,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['shared-address-composition', 'LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL'],
         ['structural-application-composition', 'RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION'],
         ['link-carried-selection-authority', 'LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY'],
+        ['linked-structural-admissibility', 'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
@@ -998,6 +999,56 @@ describe('architecture-neutral alternative-foundation search', () => {
       authorityProbe.claimBoundary,
       /does not prove that external authority is irreducible/,
     );
+    const admissibilityProbe =
+      startingRepresentation.linkedStructuralAdmissibility;
+    assert.equal(
+      admissibilityProbe.status,
+      'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING',
+    );
+    assert.equal(
+      admissibilityProbe.contract.verificationProvenance,
+      'EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY',
+    );
+    assert.deepEqual(
+      admissibilityProbe.cases.map(item => [
+        item.id,
+        item.cardinality,
+        item.admissibleCandidates,
+      ]),
+      [
+        ['valid-complete-evidence', 'ONE', [7]],
+        ['missing-evidence', 'ZERO', []],
+        ['duplicate-evidence', 'ZERO', []],
+        ['foreign-evidence', 'ZERO', []],
+        ['wrong-decomposition', 'ZERO', []],
+        ['two-equally-admissible-candidates', 'MANY', [7, 8]],
+        ['zero-admissible-candidates', 'ZERO', []],
+        ['same-candidate-other-context', 'ZERO', []],
+        ['context-relocated-evidence', 'ONE', [7]],
+        ['replacement-description', 'ONE', [8]],
+      ],
+    );
+    assert.deepEqual(
+      admissibilityProbe.cardinalityAudit.observedClassifications,
+      ['ZERO', 'ONE', 'MANY'],
+    );
+    assert.equal(
+      admissibilityProbe.adversarialBoundary
+        .forgedLocallyIsomorphicCandidateRejected,
+      false,
+    );
+    assert.equal(
+      admissibilityProbe.authorityRegress.descriptionRepresentedAsLinks,
+      true,
+    );
+    assert.equal(
+      admissibilityProbe.authorityRegress.descriptionAuthenticatedByStructure,
+      false,
+    );
+    assert.match(
+      admissibilityProbe.claimBoundary,
+      /conditional on the observer-supplied verifier and role assignment/,
+    );
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -1100,6 +1151,10 @@ describe('architecture-neutral alternative-foundation search', () => {
           'selection authority from additional linked incidence',
           'ASYMMETRY_PERMITS_BUT_DOES_NOT_FORCE_SELECTION',
         ],
+        [
+          'admissibility from linked descriptions and evidence',
+          'STRUCTURAL_CERTIFICATES_FILTER_RELATIVE_TO_EXTERNAL_VERIFIER',
+        ],
         ['endpoint direction', 'NOT_OBSERVED_NOT_DISPROVED'],
         ['dynamics and time', 'NOT_OBSERVED_NOT_DISPROVED'],
       ],
@@ -1128,6 +1183,10 @@ describe('architecture-neutral alternative-foundation search', () => {
       item.id === 'link-carried-selection-authority' &&
       item.result ===
         'LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY'));
+    assert.ok(experiment.results.some(item =>
+      item.id === 'linked-structural-admissibility' &&
+      item.result ===
+        'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING'));
     assert.match(
       report.conclusion.ontologyExperimentConclusion,
       /binary equality coincidence is complete only at fixed width two/i,
@@ -1135,6 +1194,10 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.match(
       report.conclusion.ontologyExperimentConclusion,
       /two opposite equivariant singleton readings/i,
+    );
+    assert.match(
+      report.conclusion.ontologyExperimentConclusion,
+      /ZERO\/ONE\/MANY candidates/i,
     );
   });
 
@@ -1181,7 +1244,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v12');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v13');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

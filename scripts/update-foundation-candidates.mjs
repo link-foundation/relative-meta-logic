@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v12';
+table.schema = 'rml-foundation-candidate-table/v13';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -53,6 +53,8 @@ table.claimBoundary.proved = [...new Set([
   'the unordered recursive candidate has two leaf orbits of sizes one and two, so it cannot structurally distinguish all three investigated leaf positions',
   'the connected [[3,0,1],[4,1,2],[5,2,0],[6,6,3]] structure keeps P/Q distinct from K/A/B and has identity, self-incidence, shared address, recursive references, and the reverse [2,0] pair but not proposed [0,2]',
   'adding [7,0,2] preserves every composition premise, while binary formation admits all 49 ordered pairs over the seven existing addresses and selects none',
+  'a declared finite exact-cover verifier over linked descriptions, evidence mappings, and context incidence rejects missing, duplicate, foreign, and structurally wrong certificates',
+  'finite enumeration of linked certificate bundles observes ZERO, ONE, and MANY admissible candidates without selecting among the MANY case',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -74,6 +76,9 @@ table.claimBoundary.notProved = [...new Set([
   'that shared-address incidence entails creation of a composed link',
   'that binary link formation supplies a composition-selection or execution law',
   'that uniform reference-slot reversal is an intrinsic equivalence rather than an observer quotient',
+  'that the exact-cover verifier, description, context, or assigned record roles are authorized by link structure',
+  'that a locally isomorphic second candidate can be structurally rejected under the tested certificate contract',
+  'that conditional admissibility admits, activates, publishes, or executes a candidate',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);
