@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v14';
+table.schema = 'rml-foundation-candidate-table/v15';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -57,6 +57,8 @@ table.claimBoundary.proved = [...new Set([
   'finite enumeration of linked certificate bundles observes ZERO, ONE, and MANY admissible candidates without selecting among the MANY case',
   'a reusable local incidence join matches one described record through three linked correspondence witnesses and emits a four-link trace',
   'the same local join can replay a trace root but reversing the mapping interpretation changes the result on identical links',
+  'one ordinary witness link conditionally selects [0,2] from [3,0,1] and [4,1,2] under a declared incidence join; reversal or removal destroys that conditional report',
+  'the witness-only structure and its [7,0,2] extension satisfy the same join, so the witness does not force creation of the result link',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -83,6 +85,7 @@ table.claimBoundary.notProved = [...new Set([
   'that conditional admissibility admits, activates, publishes, or executes a candidate',
   'that the linked local-match trace executes or authorizes its own verifier',
   'that choosing an active description or correspondence orientation is intrinsic to the tested link records',
+  'that the conditional continuation witness authorizes its join, reading orientation, or creation of a result link',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);

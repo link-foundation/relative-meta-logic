@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v11");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v12");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -577,6 +577,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "linked-verifier-step",
                 "LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY",
+            ),
+            (
+                "conditional-continuation",
+                "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
             ),
             (
                 "addressable-quotient-assumptions",
@@ -1137,6 +1141,36 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
         .semantics_not_assigned
         .contains("not a source, target, transition, dependency, or execution edge"));
     let structural_probe = &starting_representation.structural_application_composition;
+    let continuation = &starting_representation.conditional_continuation;
+    assert_eq!(
+        continuation.status,
+        "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT"
+    );
+    assert_eq!(continuation.premises, vec![vec![3, 0, 1], vec![4, 1, 2]]);
+    assert_eq!(continuation.forward_witness, vec![5, 3, 4]);
+    assert_eq!(continuation.reverse_witness, vec![5, 4, 3]);
+    assert_eq!(
+        continuation
+            .cases
+            .iter()
+            .map(|case| (case.id, case.continuations.clone()))
+            .collect::<Vec<_>>(),
+        vec![
+            ("forward-witness", vec![vec![0, 2]]),
+            ("reverse-witness", vec![]),
+            ("without-first-premise", vec![]),
+            ("without-second-premise", vec![]),
+            ("without-witness", vec![]),
+            ("unrelated-result-record", vec![vec![0, 2]]),
+        ]
+    );
+    assert!(continuation.address_renaming_equivariant);
+    assert!(continuation.record_reordering_invariant);
+    assert!(continuation.slot_reversal_changes_continuation);
+    assert!(continuation.result_absent_with_witness);
+    assert!(continuation.result_present_in_extension);
+    assert!(continuation.witness_condition_holds_in_both);
+    assert!(!continuation.intrinsic_creation_or_authority_established);
     assert_eq!(
         structural_probe.status,
         "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION"

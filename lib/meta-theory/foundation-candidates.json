@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v14",
+  "schema": "rml-foundation-candidate-table/v15",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "foundationStatus": "OPEN",
@@ -96,8 +96,8 @@
     "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
   },
   "ontologyExperiment": {
-    "schema": "rml-link-ontology-symmetry-experiment/v11",
-    "question": "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence and a linked local-match trace reduce the external verifier?",
+    "schema": "rml-link-ontology-symmetry-experiment/v12",
+    "question": "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?",
     "startingContract": {
       "id": "unoriented-binary-reference-observation",
       "occurrenceCount": 2,
@@ -1153,6 +1153,170 @@
           },
           "conclusion": "The proposed result is structurally formable but is neither unavoidable nor selected. The premise-only structure and its result-bearing conservative extension satisfy the same stated structural conditions.",
           "claimBoundary": "This countermodel refutes entailment from the tested identity/equality/incidence/recursion structure. It does not refute a future links-derived composition, but such a result needs an additional selection/closure law and an explicit account of its authority; no logical implication, function role, or execution meaning is assigned here."
+        },
+        "conditionalContinuation": {
+          "status": "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
+          "contract": "ordered addressed binary records with equality of addresses",
+          "criterion": "for distinct records P and Q, P.second equals Q.first and an ordinary witness references P.address then Q.address; report [P.first,Q.second]",
+          "criterionProvenance": "OBSERVER_SELECTED_INCIDENCE_JOIN",
+          "premises": [
+            [
+              3,
+              0,
+              1
+            ],
+            [
+              4,
+              1,
+              2
+            ]
+          ],
+          "forwardWitness": [
+            5,
+            3,
+            4
+          ],
+          "reverseWitness": [
+            5,
+            4,
+            3
+          ],
+          "cases": [
+            {
+              "id": "forward-witness",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  3,
+                  4
+                ]
+              ],
+              "continuations": [
+                [
+                  0,
+                  2
+                ]
+              ]
+            },
+            {
+              "id": "reverse-witness",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  4,
+                  3
+                ]
+              ],
+              "continuations": []
+            },
+            {
+              "id": "without-first-premise",
+              "records": [
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  3,
+                  4
+                ]
+              ],
+              "continuations": []
+            },
+            {
+              "id": "without-second-premise",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  5,
+                  3,
+                  4
+                ]
+              ],
+              "continuations": []
+            },
+            {
+              "id": "without-witness",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ]
+              ],
+              "continuations": []
+            },
+            {
+              "id": "unrelated-result-record",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  3,
+                  4
+                ],
+                [
+                  8,
+                  0,
+                  9
+                ]
+              ],
+              "continuations": [
+                [
+                  0,
+                  2
+                ]
+              ]
+            }
+          ],
+          "addressRenamingEquivariant": true,
+          "recordReorderingInvariant": true,
+          "slotReversalChangesContinuation": true,
+          "resultAbsentWithWitness": true,
+          "resultPresentInExtension": true,
+          "witnessConditionHoldsInBoth": true,
+          "intrinsicCreationOrAuthorityEstablished": false,
+          "claimBoundary": "A third ordinary link makes one continuation structurally identifiable under the declared join. Reversing its references changes that conditional answer. Both the witness-only structure and its result-bearing extension satisfy the join, so link formation does not force creation, logical implication, or the authority to use this orientation and criterion."
         },
         "linkCarriedSelectionAuthority": {
           "status": "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",
@@ -2336,6 +2500,11 @@
         "evidence": "A reusable three-position incidence join replaces specialized record reconstruction and emits four ordinary link records per local match. Missing, duplicate, reversed, two-candidate, self-application, trace-replay, reversed-role, and alternate-description cases expose where host iteration, projection, equality, counting, and selection remain."
       },
       {
+        "id": "conditional-continuation",
+        "result": "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
+        "evidence": "An ordinary third link [5,3,4] cites premise addresses [3,0,1] and [4,1,2], so a declared incidence join reports [0,2]. Reversing the witness or removing any of the three records removes that conditional report. The witness-only structure and its [7,0,2] extension satisfy the same condition, so neither creation nor the join authority follows from the records."
+      },
+      {
         "id": "addressable-quotient-assumptions",
         "result": "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
         "evidence": "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract."
@@ -2629,7 +2798,9 @@
       "a declared finite exact-cover verifier over linked descriptions, evidence mappings, and context incidence rejects missing, duplicate, foreign, and structurally wrong certificates",
       "finite enumeration of linked certificate bundles observes ZERO, ONE, and MANY admissible candidates without selecting among the MANY case",
       "a reusable local incidence join matches one described record through three linked correspondence witnesses and emits a four-link trace",
-      "the same local join can replay a trace root but reversing the mapping interpretation changes the result on identical links"
+      "the same local join can replay a trace root but reversing the mapping interpretation changes the result on identical links",
+      "one ordinary witness link conditionally selects [0,2] from [3,0,1] and [4,1,2] under a declared incidence join; reversal or removal destroys that conditional report",
+      "the witness-only structure and its [7,0,2] extension satisfy the same join, so the witness does not force creation of the result link"
     ],
     "notProved": [
       "that S/K is globally minimal",
@@ -2668,7 +2839,8 @@
       "that a locally isomorphic second candidate can be structurally rejected under the tested certificate contract",
       "that conditional admissibility admits, activates, publishes, or executes a candidate",
       "that the linked local-match trace executes or authorizes its own verifier",
-      "that choosing an active description or correspondence orientation is intrinsic to the tested link records"
+      "that choosing an active description or correspondence orientation is intrinsic to the tested link records",
+      "that the conditional continuation witness authorizes its join, reading orientation, or creation of a result link"
     ]
   }
 }

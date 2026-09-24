@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v14');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v15');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v11',
+      'rml-link-ontology-symmetry-experiment/v12',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -255,6 +255,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['link-carried-selection-authority', 'LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY'],
         ['linked-structural-admissibility', 'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING'],
         ['linked-verifier-step', 'LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY'],
+        ['conditional-continuation', 'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
@@ -1083,6 +1084,29 @@ describe('architecture-neutral alternative-foundation search', () => {
       'HOST_ITERATION_PROJECTION_EQUALITY_AND_BRANCHING_REMAIN');
     assert.equal(verifierStep.boundaries.semanticAuthority,
       'ACTIVE_DESCRIPTION_AND_MAPPING_ROLE_NOT_LINK_AUTHORIZED');
+    const continuation = startingRepresentation.conditionalContinuation;
+    assert.equal(continuation.status,
+      'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT');
+    assert.deepEqual(continuation.premises, [[3, 0, 1], [4, 1, 2]]);
+    assert.deepEqual(continuation.forwardWitness, [5, 3, 4]);
+    assert.deepEqual(continuation.reverseWitness, [5, 4, 3]);
+    assert.deepEqual(continuation.cases.map(item => [
+      item.id, item.continuations,
+    ]), [
+      ['forward-witness', [[0, 2]]],
+      ['reverse-witness', []],
+      ['without-first-premise', []],
+      ['without-second-premise', []],
+      ['without-witness', []],
+      ['unrelated-result-record', [[0, 2]]],
+    ]);
+    assert.equal(continuation.addressRenamingEquivariant, true);
+    assert.equal(continuation.recordReorderingInvariant, true);
+    assert.equal(continuation.slotReversalChangesContinuation, true);
+    assert.equal(continuation.resultAbsentWithWitness, true);
+    assert.equal(continuation.resultPresentInExtension, true);
+    assert.equal(continuation.witnessConditionHoldsInBoth, true);
+    assert.equal(continuation.intrinsicCreationOrAuthorityEstablished, false);
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -1278,7 +1302,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v14');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v15');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

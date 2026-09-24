@@ -932,6 +932,79 @@ function structuralApplicationCompositionProbe() {
   };
 }
 
+// Observer-declared incidence criterion: a third ordinary record cites the
+// addresses of two records whose adjacent references coincide. Its output is
+// a possible continuation pair, not a newly created link or an implication.
+function conditionalContinuations(records) {
+  const pairs = [];
+  for (const first of records) {
+    for (const second of records) {
+      if (first[0] === second[0] || first[2] !== second[1]) continue;
+      if (!records.some(witness =>
+        witness[0] !== first[0] &&
+        witness[0] !== second[0] &&
+        witness[1] === first[0] &&
+        witness[2] === second[0])) continue;
+      const pair = [first[1], second[2]];
+      if (!pairs.some(existing =>
+        existing[0] === pair[0] && existing[1] === pair[1])) pairs.push(pair);
+    }
+  }
+  return pairs.sort((left, right) =>
+    left[0] - right[0] || left[1] - right[1]);
+}
+
+function conditionalContinuationProbe() {
+  const premises = [[3, 0, 1], [4, 1, 2]];
+  const forwardWitness = [5, 3, 4];
+  const reverseWitness = [5, 4, 3];
+  const withWitness = [...premises, forwardWitness];
+  const withResult = [...withWitness, [7, 0, 2]];
+  const cases = [
+    ['forward-witness', withWitness],
+    ['reverse-witness', [...premises, reverseWitness]],
+    ['without-first-premise', [premises[1], forwardWitness]],
+    ['without-second-premise', [premises[0], forwardWitness]],
+    ['without-witness', premises],
+    ['unrelated-result-record', [...withWitness, [8, 0, 9]]],
+  ].map(([id, records]) => ({
+    id, records, continuations: conditionalContinuations(records),
+  }));
+  const renaming = new Map(withWitness.flat().map(address =>
+    [address, address + 10]));
+  const renamedRecords = renameRecordAddresses(withWitness, renaming);
+  const reversedSlots = reverseBinaryReferenceSlots(withWitness);
+  return {
+    status:
+      'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT',
+    contract: 'ordered addressed binary records with equality of addresses',
+    criterion:
+      'for distinct records P and Q, P.second equals Q.first and an ordinary witness references P.address then Q.address; report [P.first,Q.second]',
+    criterionProvenance: 'OBSERVER_SELECTED_INCIDENCE_JOIN',
+    premises,
+    forwardWitness,
+    reverseWitness,
+    cases,
+    addressRenamingEquivariant:
+      JSON.stringify(conditionalContinuations(renamedRecords)) ===
+        JSON.stringify([[10, 12]]),
+    recordReorderingInvariant:
+      JSON.stringify(conditionalContinuations([...withWitness].reverse())) ===
+        JSON.stringify([[0, 2]]),
+    slotReversalChangesContinuation:
+      JSON.stringify(conditionalContinuations(reversedSlots)) ===
+        JSON.stringify([[2, 0]]),
+    resultAbsentWithWitness: !hasReferencePair(withWitness, [0, 2]),
+    resultPresentInExtension: hasReferencePair(withResult, [0, 2]),
+    witnessConditionHoldsInBoth:
+      JSON.stringify(conditionalContinuations(withWitness)) ===
+        JSON.stringify(conditionalContinuations(withResult)),
+    intrinsicCreationOrAuthorityEstablished: false,
+    claimBoundary:
+      'A third ordinary link makes one continuation structurally identifiable under the declared join. Reversing its references changes that conditional answer. Both the witness-only structure and its result-bearing extension satisfy the join, so link formation does not force creation, logical implication, or the authority to use this orientation and criterion.',
+  };
+}
+
 function unorderedRecordSetSignature(records) {
   return records.map(record => JSON.stringify(record)).sort().join('|');
 }
@@ -1728,6 +1801,7 @@ function startingRepresentationAudit() {
     slotwiseSelfIncidence: slotwiseSelfIncidenceAudit(),
     sharedAddressComposition: sharedAddressCompositionAudit(),
     structuralApplicationComposition: structuralApplicationCompositionProbe(),
+    conditionalContinuation: conditionalContinuationProbe(),
     linkCarriedSelectionAuthority: linkCarriedSelectionAuthorityProbe(),
     linkedStructuralAdmissibility: linkedStructuralAdmissibilityProbe(),
     linkedVerifierStep: linkedVerifierStepProbe(),
@@ -2207,8 +2281,8 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v11',
-    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence and a linked local-match trace reduce the external verifier?',
+    schema: 'rml-link-ontology-symmetry-experiment/v12',
+    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
       occurrenceCount,
@@ -2352,6 +2426,12 @@ function linkOntologySymmetryExperiment() {
         id: 'linked-verifier-step',
         result: 'LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY',
         evidence: 'A reusable three-position incidence join replaces specialized record reconstruction and emits four ordinary link records per local match. Missing, duplicate, reversed, two-candidate, self-application, trace-replay, reversed-role, and alternate-description cases expose where host iteration, projection, equality, counting, and selection remain.',
+      },
+      {
+        id: 'conditional-continuation',
+        result:
+          'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT',
+        evidence: 'An ordinary third link [5,3,4] cites premise addresses [3,0,1] and [4,1,2], so a declared incidence join reports [0,2]. Reversing the witness or removing any of the three records removes that conditional report. The witness-only structure and its [7,0,2] extension satisfy the same condition, so neither creation nor the join authority follows from the records.',
       },
       {
         id: 'addressable-quotient-assumptions',
@@ -3065,7 +3145,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v14',
+    schema: 'rml-alternative-foundation-search/v15',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',

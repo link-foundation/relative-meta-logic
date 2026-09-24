@@ -805,6 +805,33 @@ pub struct LinkOntologyStructuralApplicationCompositionProbe {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyContinuationCase {
+    pub id: &'static str,
+    pub records: Vec<Vec<usize>>,
+    pub continuations: Vec<Vec<usize>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyConditionalContinuationProbe {
+    pub status: &'static str,
+    pub contract: &'static str,
+    pub criterion: &'static str,
+    pub criterion_provenance: &'static str,
+    pub premises: Vec<Vec<usize>>,
+    pub forward_witness: Vec<usize>,
+    pub reverse_witness: Vec<usize>,
+    pub cases: Vec<LinkOntologyContinuationCase>,
+    pub address_renaming_equivariant: bool,
+    pub record_reordering_invariant: bool,
+    pub slot_reversal_changes_continuation: bool,
+    pub result_absent_with_witness: bool,
+    pub result_present_in_extension: bool,
+    pub witness_condition_holds_in_both: bool,
+    pub intrinsic_creation_or_authority_established: bool,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyAuthorityRecords {
     pub interpretation: &'static str,
     pub records_treated_as_unordered: bool,
@@ -1086,6 +1113,7 @@ pub struct LinkOntologyStartingRepresentationAudit {
     pub slotwise_self_incidence: LinkOntologySlotwiseSelfIncidenceAudit,
     pub shared_address_composition: LinkOntologySharedAddressCompositionAudit,
     pub structural_application_composition: LinkOntologyStructuralApplicationCompositionProbe,
+    pub conditional_continuation: LinkOntologyConditionalContinuationProbe,
     pub link_carried_selection_authority: LinkOntologyLinkCarriedSelectionAuthorityProbe,
     pub linked_structural_admissibility: LinkOntologyLinkedStructuralAdmissibilityProbe,
     pub linked_verifier_step: LinkOntologyVerifierStepProbe,
@@ -2152,6 +2180,97 @@ fn link_ontology_structural_application_composition_probe(
         },
         conclusion: "The proposed result is structurally formable but is neither unavoidable nor selected. The premise-only structure and its result-bearing conservative extension satisfy the same stated structural conditions.",
         claim_boundary: "This countermodel refutes entailment from the tested identity/equality/incidence/recursion structure. It does not refute a future links-derived composition, but such a result needs an additional selection/closure law and an explicit account of its authority; no logical implication, function role, or execution meaning is assigned here.",
+    }
+}
+
+// Observer-declared incidence criterion. This reports a possible reference
+// pair; it creates no record and assigns no implication meaning.
+fn conditional_continuations(records: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    let mut pairs = BTreeSet::new();
+    for first in records {
+        for second in records {
+            if first[0] == second[0] || first[2] != second[1] {
+                continue;
+            }
+            if records.iter().any(|witness| {
+                witness[0] != first[0]
+                    && witness[0] != second[0]
+                    && witness[1] == first[0]
+                    && witness[2] == second[0]
+            }) {
+                pairs.insert(vec![first[1], second[2]]);
+            }
+        }
+    }
+    pairs.into_iter().collect()
+}
+
+fn link_ontology_conditional_continuation_probe() -> LinkOntologyConditionalContinuationProbe {
+    let premises = vec![vec![3, 0, 1], vec![4, 1, 2]];
+    let forward_witness = vec![5, 3, 4];
+    let reverse_witness = vec![5, 4, 3];
+    let mut with_witness = premises.clone();
+    with_witness.push(forward_witness.clone());
+    let mut with_result = with_witness.clone();
+    with_result.push(vec![7, 0, 2]);
+    let mut with_unrelated_result = with_witness.clone();
+    with_unrelated_result.push(vec![8, 0, 9]);
+    let cases = vec![
+        ("forward-witness", with_witness.clone()),
+        (
+            "reverse-witness",
+            vec![
+                premises[0].clone(),
+                premises[1].clone(),
+                reverse_witness.clone(),
+            ],
+        ),
+        (
+            "without-first-premise",
+            vec![premises[1].clone(), forward_witness.clone()],
+        ),
+        (
+            "without-second-premise",
+            vec![premises[0].clone(), forward_witness.clone()],
+        ),
+        ("without-witness", premises.clone()),
+        ("unrelated-result-record", with_unrelated_result),
+    ]
+    .into_iter()
+    .map(|(id, records)| LinkOntologyContinuationCase {
+        id,
+        continuations: conditional_continuations(&records),
+        records,
+    })
+    .collect();
+    let renaming = with_witness
+        .iter()
+        .flatten()
+        .map(|address| (*address, address + 10))
+        .collect::<BTreeMap<_, _>>();
+    let renamed = rename_record_addresses(&with_witness, &renaming);
+    let reversed_slots = reverse_binary_reference_slots(&with_witness);
+    LinkOntologyConditionalContinuationProbe {
+        status: "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
+        contract: "ordered addressed binary records with equality of addresses",
+        criterion: "for distinct records P and Q, P.second equals Q.first and an ordinary witness references P.address then Q.address; report [P.first,Q.second]",
+        criterion_provenance: "OBSERVER_SELECTED_INCIDENCE_JOIN",
+        premises,
+        forward_witness,
+        reverse_witness,
+        cases,
+        address_renaming_equivariant: conditional_continuations(&renamed) == vec![vec![10, 12]],
+        record_reordering_invariant: conditional_continuations(
+            &with_witness.iter().rev().cloned().collect::<Vec<_>>(),
+        ) == vec![vec![0, 2]],
+        slot_reversal_changes_continuation:
+            conditional_continuations(&reversed_slots) == vec![vec![2, 0]],
+        result_absent_with_witness: !has_reference_pair(&with_witness, &[0, 2]),
+        result_present_in_extension: has_reference_pair(&with_result, &[0, 2]),
+        witness_condition_holds_in_both:
+            conditional_continuations(&with_witness) == conditional_continuations(&with_result),
+        intrinsic_creation_or_authority_established: false,
+        claim_boundary: "A third ordinary link makes one continuation structurally identifiable under the declared join. Reversing its references changes that conditional answer. Both the witness-only structure and its result-bearing extension satisfy the join, so link formation does not force creation, logical implication, or the authority to use this orientation and criterion.",
     }
 }
 
@@ -3240,6 +3359,7 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
         shared_address_composition: link_ontology_shared_address_composition_audit(),
         structural_application_composition:
             link_ontology_structural_application_composition_probe(),
+        conditional_continuation: link_ontology_conditional_continuation_probe(),
         link_carried_selection_authority:
             link_ontology_link_carried_selection_authority_probe(),
         linked_structural_admissibility:
@@ -3821,8 +3941,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v11",
-        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence and a linked local-match trace reduce the external verifier?",
+        schema: "rml-link-ontology-symmetry-experiment/v12",
+        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -3957,6 +4077,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 id: "linked-verifier-step",
                 result: "LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY",
                 evidence: "A reusable three-position incidence join replaces specialized record reconstruction and emits four ordinary link records per local match. Missing, duplicate, reversed, two-candidate, self-application, trace-replay, reversed-role, and alternate-description cases expose where host iteration, projection, equality, counting, and selection remain.",
+            },
+            LinkOntologyResult {
+                id: "conditional-continuation",
+                result: "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
+                evidence: "An ordinary third link [5,3,4] cites premise addresses [3,0,1] and [4,1,2], so a declared incidence join reports [0,2]. Reversing the witness or removing any of the three records removes that conditional report. The witness-only structure and its [7,0,2] extension satisfy the same condition, so neither creation nor the join authority follows from the records.",
             },
             LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
