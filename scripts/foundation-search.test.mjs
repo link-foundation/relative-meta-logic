@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v13');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v14');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v10',
+      'rml-link-ontology-symmetry-experiment/v11',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -254,6 +254,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['structural-application-composition', 'RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION'],
         ['link-carried-selection-authority', 'LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY'],
         ['linked-structural-admissibility', 'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING'],
+        ['linked-verifier-step', 'LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
@@ -1049,6 +1050,39 @@ describe('architecture-neutral alternative-foundation search', () => {
       admissibilityProbe.claimBoundary,
       /conditional on the observer-supplied verifier and role assignment/,
     );
+    const verifierStep = startingRepresentation.linkedVerifierStep;
+    assert.equal(verifierStep.status,
+      'LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY');
+    assert.deepEqual(verifierStep.cases.map(item =>
+      [item.id, item.cardinality, item.traceRecords.length]), [
+      ['complete-local-match', 'ONE', 4],
+      ['missing-description-record', 'ZERO', 0],
+      ['missing-mapping', 'ZERO', 0],
+      ['duplicate-mapping', 'MANY', 8],
+      ['reversed-concrete-record', 'ZERO', 0],
+      ['two-concrete-records', 'MANY', 8],
+      ['self-application', 'ONE', 4],
+    ]);
+    assert.deepEqual(verifierStep.cases[0].traceRecords, [
+      [200, 40, 3], [201, 200, 50], [202, 200, 51], [203, 200, 52],
+    ]);
+    assert.deepEqual(verifierStep.traceReplayRecords, [
+      [200, 40, 3], [801, 200, 200], [802, 40, 40], [803, 3, 3],
+    ]);
+    assert.equal(verifierStep.removalTests.noCardinalityClassification,
+      'TRACE_EXISTS_CLASSIFICATION_UNAVAILABLE');
+    assert.equal(verifierStep.removalTests.selfApplicationCardinality, 'ONE');
+    assert.equal(verifierStep.removalTests.reversedMappingReading,
+      'ZERO_FOR_SAME_LINKS');
+    assert.equal(verifierStep.removalTests.traceReplayBySameJoin, true);
+    assert.equal(verifierStep.removalTests.alternateDescriptionOnSameLinks,
+      'ZERO_WHILE_SELECTED_DESCRIPTION_IS_ONE');
+    assert.equal(verifierStep.removalTests.setOrMapConstructionRemoved,
+      'LOCAL_JOIN_STILL_PRODUCES_TRACE_WITHOUT_SET_OR_MAP');
+    assert.equal(verifierStep.boundaries.execution,
+      'HOST_ITERATION_PROJECTION_EQUALITY_AND_BRANCHING_REMAIN');
+    assert.equal(verifierStep.boundaries.semanticAuthority,
+      'ACTIVE_DESCRIPTION_AND_MAPPING_ROLE_NOT_LINK_AUTHORIZED');
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -1244,7 +1278,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v13');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v14');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

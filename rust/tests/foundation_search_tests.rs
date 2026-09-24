@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v10");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v11");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -573,6 +573,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "linked-structural-admissibility",
                 "LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING",
+            ),
+            (
+                "linked-verifier-step",
+                "LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY",
             ),
             (
                 "addressable-quotient-assumptions",
@@ -1529,6 +1533,72 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(admissibility_probe
         .claim_boundary
         .contains("conditional on the observer-supplied verifier and role assignment"));
+    let verifier_step = &starting_representation.linked_verifier_step;
+    assert_eq!(
+        verifier_step.status,
+        "LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY"
+    );
+    assert_eq!(
+        verifier_step
+            .cases
+            .iter()
+            .map(|item| (item.id, item.cardinality, item.trace_records.len()))
+            .collect::<Vec<_>>(),
+        vec![
+            ("complete-local-match", "ONE", 4),
+            ("missing-description-record", "ZERO", 0),
+            ("missing-mapping", "ZERO", 0),
+            ("duplicate-mapping", "MANY", 8),
+            ("reversed-concrete-record", "ZERO", 0),
+            ("two-concrete-records", "MANY", 8),
+            ("self-application", "ONE", 4),
+        ]
+    );
+    assert_eq!(
+        verifier_step.cases[0].trace_records,
+        vec![
+            vec![200, 40, 3],
+            vec![201, 200, 50],
+            vec![202, 200, 51],
+            vec![203, 200, 52]
+        ]
+    );
+    assert_eq!(
+        verifier_step.trace_replay_records,
+        vec![
+            vec![200, 40, 3],
+            vec![801, 200, 200],
+            vec![802, 40, 40],
+            vec![803, 3, 3]
+        ]
+    );
+    assert_eq!(
+        verifier_step.removal_tests.reversed_mapping_reading,
+        "ZERO_FOR_SAME_LINKS"
+    );
+    assert_eq!(
+        verifier_step.removal_tests.no_cardinality_classification,
+        "TRACE_EXISTS_CLASSIFICATION_UNAVAILABLE"
+    );
+    assert_eq!(
+        verifier_step.removal_tests.self_application_cardinality,
+        "ONE"
+    );
+    assert!(verifier_step.removal_tests.trace_replay_by_same_join);
+    assert_eq!(
+        verifier_step
+            .removal_tests
+            .alternate_description_on_same_links,
+        "ZERO_WHILE_SELECTED_DESCRIPTION_IS_ONE"
+    );
+    assert_eq!(
+        verifier_step.boundaries.execution,
+        "HOST_ITERATION_PROJECTION_EQUALITY_AND_BRANCHING_REMAIN"
+    );
+    assert_eq!(
+        verifier_step.boundaries.semantic_authority,
+        "ACTIVE_DESCRIPTION_AND_MAPPING_ROLE_NOT_LINK_AUTHORIZED"
+    );
     assert_eq!(
         starting_representation
             .quotient_audit

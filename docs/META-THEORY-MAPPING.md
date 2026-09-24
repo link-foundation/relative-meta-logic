@@ -19,7 +19,7 @@ executable, see the
 It executes three mechanisms without treating S/K as a native Links Theory
 law or ranking unequally reduced controls. Its two-model witness establishes
 only that the tested ordered-link host signature does not select between two
-transition functions. Its v13 finite symmetry experiment independently derives
+transition functions. Its v14 finite symmetry experiment independently derives
 the equality partition of two unlabelled reference occurrences, eliminates an
 invariant source/target selector and unique dynamics for that contract, and
 makes reification representation-dependent at the tested projection. The same
@@ -44,7 +44,7 @@ link ontology, intrinsic authority, primitive categories, the
 structure/transformation relation, and comparative minimality open; the three
 executed mechanisms are controls and do not define the ontology search space.
 
-The v10 structural probe additionally shows that the two proposed recursive
+The v11 structural probe additionally shows that the two proposed recursive
 application shapes coincide only after the still-unestablished uniform slot
 reversal. Its connected identity/self-incidence/shared-address/recursion
 countermodel keeps `P`/`Q` distinct from `K`/`A`/`B`, contains `[2,0]` but not

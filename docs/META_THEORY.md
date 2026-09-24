@@ -171,7 +171,7 @@ the base occurrence orbits. The interaction-only conditional instead breaks a
 base-preserving relabelling, so its distinction uses information not derived
 from the tested base. Completeness remains bounded to widths one through four.
 
-The v10 audit also tests the starting projection against the independently
+The v11 audit also tests the starting projection against the independently
 required ability of an addressed link to refer to itself. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` patterns have the same reference-only
 `[1,1]` projection but are inequivalent under address renaming and

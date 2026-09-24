@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v13';
+table.schema = 'rml-foundation-candidate-table/v14';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -55,6 +55,8 @@ table.claimBoundary.proved = [...new Set([
   'adding [7,0,2] preserves every composition premise, while binary formation admits all 49 ordered pairs over the seven existing addresses and selects none',
   'a declared finite exact-cover verifier over linked descriptions, evidence mappings, and context incidence rejects missing, duplicate, foreign, and structurally wrong certificates',
   'finite enumeration of linked certificate bundles observes ZERO, ONE, and MANY admissible candidates without selecting among the MANY case',
+  'a reusable local incidence join matches one described record through three linked correspondence witnesses and emits a four-link trace',
+  'the same local join can replay a trace root but reversing the mapping interpretation changes the result on identical links',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -79,6 +81,8 @@ table.claimBoundary.notProved = [...new Set([
   'that the exact-cover verifier, description, context, or assigned record roles are authorized by link structure',
   'that a locally isomorphic second candidate can be structurally rejected under the tested certificate contract',
   'that conditional admissibility admits, activates, publishes, or executes a candidate',
+  'that the linked local-match trace executes or authorizes its own verifier',
+  'that choosing an active description or correspondence orientation is intrinsic to the tested link records',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);

@@ -994,6 +994,41 @@ pub struct LinkOntologyLinkedStructuralAdmissibilityProbe {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyVerifierStepCase {
+    pub id: &'static str,
+    pub cardinality: &'static str,
+    pub trace_records: Vec<Vec<usize>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyVerifierStepRemovalTests {
+    pub no_cardinality_classification: &'static str,
+    pub reversed_mapping_reading: &'static str,
+    pub self_application_cardinality: &'static str,
+    pub trace_replay_by_same_join: bool,
+    pub alternate_description_on_same_links: &'static str,
+    pub set_or_map_construction_removed: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyVerifierStepBoundaries {
+    pub representation: &'static str,
+    pub execution: &'static str,
+    pub semantic_authority: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyVerifierStepProbe {
+    pub status: &'static str,
+    pub relation: &'static str,
+    pub cases: Vec<LinkOntologyVerifierStepCase>,
+    pub trace_replay_records: Vec<Vec<usize>>,
+    pub removal_tests: LinkOntologyVerifierStepRemovalTests,
+    pub boundaries: LinkOntologyVerifierStepBoundaries,
+    pub claim_boundary: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyQuotientEnumeration {
     pub occurrence_count: usize,
     pub ordered_equality_classes_after_address_renaming: usize,
@@ -1053,6 +1088,7 @@ pub struct LinkOntologyStartingRepresentationAudit {
     pub structural_application_composition: LinkOntologyStructuralApplicationCompositionProbe,
     pub link_carried_selection_authority: LinkOntologyLinkCarriedSelectionAuthorityProbe,
     pub linked_structural_admissibility: LinkOntologyLinkedStructuralAdmissibilityProbe,
+    pub linked_verifier_step: LinkOntologyVerifierStepProbe,
     pub quotient_audit: LinkOntologyQuotientAudit,
     pub claim_boundary: &'static str,
 }
@@ -2502,6 +2538,208 @@ fn linked_certificate_records(
         .collect()
 }
 
+// The local incidence join is reusable, but its enumeration and interpretation
+// are still host operations. All inputs and the emitted trace are link triples.
+fn linked_local_matches(
+    description: &[usize],
+    mappings: &[Vec<usize>],
+    records: &[Vec<usize>],
+    reversed: bool,
+) -> Vec<(usize, [usize; 3])> {
+    if !has_link_record(records, description) {
+        return Vec::new();
+    }
+    let mut matches = Vec::new();
+    for concrete in records {
+        let options = (0..3)
+            .map(|position| {
+                mappings
+                    .iter()
+                    .filter(|mapping| {
+                        if reversed {
+                            mapping[2] == description[position] && mapping[1] == concrete[position]
+                        } else {
+                            mapping[1] == description[position] && mapping[2] == concrete[position]
+                        }
+                    })
+                    .map(|mapping| mapping[0])
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>();
+        for address_witness in &options[0] {
+            for first_witness in &options[1] {
+                for second_witness in &options[2] {
+                    matches.push((
+                        concrete[0],
+                        [*address_witness, *first_witness, *second_witness],
+                    ));
+                }
+            }
+        }
+    }
+    matches
+}
+
+fn link_ontology_linked_verifier_step_probe() -> LinkOntologyVerifierStepProbe {
+    let description = vec![40, 30, 31];
+    let mappings = vec![vec![50, 40, 3], vec![51, 30, 0], vec![52, 31, 1]];
+    let base_records = [
+        vec![description.clone(), vec![41, 31, 30], vec![3, 0, 1]],
+        mappings.clone(),
+    ]
+    .concat();
+    let evaluate = |id: &'static str,
+                    records: &[Vec<usize>],
+                    selected_mappings: &[Vec<usize>],
+                    concrete_addresses: &[usize],
+                    reversed: bool| {
+        let matches = linked_local_matches(&description, selected_mappings, records, reversed)
+            .into_iter()
+            .filter(|(address, _)| concrete_addresses.contains(address))
+            .collect::<Vec<_>>();
+        let trace_records =
+            matches
+                .iter()
+                .enumerate()
+                .flat_map(|(index, (concrete_address, witness_addresses))| {
+                    let root = 200 + index * 10;
+                    std::iter::once(vec![root, description[0], *concrete_address])
+                        .chain(witness_addresses.iter().enumerate().map(
+                            move |(position, address)| vec![root + position + 1, root, *address],
+                        ))
+                        .collect::<Vec<_>>()
+                })
+                .collect::<Vec<_>>();
+        LinkOntologyVerifierStepCase {
+            id,
+            cardinality: match matches.len() {
+                0 => "ZERO",
+                1 => "ONE",
+                _ => "MANY",
+            },
+            trace_records,
+        }
+    };
+    let missing_records = base_records
+        .iter()
+        .filter(|record| record[0] != 52)
+        .cloned()
+        .collect::<Vec<_>>();
+    let duplicate_records = [base_records.clone(), vec![vec![53, 30, 0]]].concat();
+    let duplicate_mappings = [mappings.clone(), vec![vec![53, 30, 0]]].concat();
+    let reversed_records = [vec![description.clone(), vec![3, 1, 0]], mappings.clone()].concat();
+    let two_records = [base_records.clone(), vec![vec![7, 0, 1], vec![54, 40, 7]]].concat();
+    let two_mappings = [mappings.clone(), vec![vec![54, 40, 7]]].concat();
+    let self_mappings = vec![vec![50, 40, 40], vec![51, 30, 30], vec![52, 31, 31]];
+    let self_records = [vec![description.clone()], self_mappings.clone()].concat();
+    let cases = vec![
+        evaluate(
+            "complete-local-match",
+            &base_records,
+            &mappings,
+            &[3],
+            false,
+        ),
+        evaluate(
+            "missing-description-record",
+            &base_records
+                .iter()
+                .filter(|record| record[0] != 40)
+                .cloned()
+                .collect::<Vec<_>>(),
+            &mappings,
+            &[3],
+            false,
+        ),
+        evaluate(
+            "missing-mapping",
+            &missing_records,
+            &mappings[..2],
+            &[3],
+            false,
+        ),
+        evaluate(
+            "duplicate-mapping",
+            &duplicate_records,
+            &duplicate_mappings,
+            &[3],
+            false,
+        ),
+        evaluate(
+            "reversed-concrete-record",
+            &reversed_records,
+            &mappings,
+            &[3],
+            false,
+        ),
+        evaluate(
+            "two-concrete-records",
+            &two_records,
+            &two_mappings,
+            &[3, 7],
+            false,
+        ),
+        evaluate(
+            "self-application",
+            &self_records,
+            &self_mappings,
+            &[40],
+            false,
+        ),
+    ];
+    let trace_root = &cases[0].trace_records[0];
+    let trace_self_mappings = vec![
+        vec![801, trace_root[0], trace_root[0]],
+        vec![802, trace_root[1], trace_root[1]],
+        vec![803, trace_root[2], trace_root[2]],
+    ];
+    let trace_self_records = [vec![trace_root.clone()], trace_self_mappings.clone()].concat();
+    let trace_replay_by_same_join =
+        linked_local_matches(trace_root, &trace_self_mappings, &trace_self_records, false).len()
+            == 1;
+    LinkOntologyVerifierStepProbe {
+        status: "LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY",
+        relation: "a description record and a concrete record commute through three linked correspondence witnesses",
+        trace_replay_records: trace_self_records,
+        removal_tests: LinkOntologyVerifierStepRemovalTests {
+            no_cardinality_classification: if cases[0].trace_records.is_empty() {
+                "NO_TRACE"
+            } else {
+                "TRACE_EXISTS_CLASSIFICATION_UNAVAILABLE"
+            },
+            reversed_mapping_reading: if evaluate(
+                "reversed-reading", &base_records, &mappings, &[3], true,
+            ).cardinality == "ZERO" {
+                "ZERO_FOR_SAME_LINKS"
+            } else {
+                "MATCH"
+            },
+            self_application_cardinality: cases
+                .iter()
+                .find(|item| item.id == "self-application")
+                .map(|item| item.cardinality)
+                .unwrap_or("ZERO"),
+            trace_replay_by_same_join,
+            alternate_description_on_same_links: if linked_local_matches(
+                &[41, 31, 30], &mappings, &base_records, false,
+            ).is_empty() {
+                "ZERO_WHILE_SELECTED_DESCRIPTION_IS_ONE"
+            } else {
+                "MATCH"
+            },
+            set_or_map_construction_removed:
+                "LOCAL_JOIN_STILL_PRODUCES_TRACE_WITHOUT_SET_OR_MAP",
+        },
+        boundaries: LinkOntologyVerifierStepBoundaries {
+            representation: "DESCRIPTION_CORRESPONDENCES_AND_TRACE_ARE_LINK_RECORDS",
+            execution: "HOST_ITERATION_PROJECTION_EQUALITY_AND_BRANCHING_REMAIN",
+            semantic_authority: "ACTIVE_DESCRIPTION_AND_MAPPING_ROLE_NOT_LINK_AUTHORIZED",
+        },
+        claim_boundary: "The local record comparison is factored into a reusable incidence join and emits ordinary linked trace records. The host still enumerates records, reads positions, tests equality, and classifies multiplicity; self-application supplies no rule for choosing or executing this relation.",
+        cases,
+    }
+}
+
 fn linked_certificate_candidates(
     description: &[Vec<usize>],
     records: &[Vec<usize>],
@@ -2588,19 +2826,9 @@ fn linked_certificate_candidates(
             .iter()
             .map(|record| (record[1], record[2]))
             .collect::<BTreeMap<_, _>>();
-        let reconstructed_records = description
-            .iter()
-            .map(|record| {
-                record
-                    .iter()
-                    .map(|address| mapping[address])
-                    .collect::<Vec<_>>()
-            })
-            .collect::<Vec<_>>();
-        if !reconstructed_records
-            .iter()
-            .all(|record| has_link_record(records, record))
-        {
+        if !description.iter().all(|record| {
+            !linked_local_matches(record, &mapping_records, records, false).is_empty()
+        }) {
             continue;
         }
         let context_record = vec![
@@ -3016,6 +3244,7 @@ fn link_ontology_starting_representation_audit() -> LinkOntologyStartingRepresen
             link_ontology_link_carried_selection_authority_probe(),
         linked_structural_admissibility:
             link_ontology_linked_structural_admissibility_probe(),
+        linked_verifier_step: link_ontology_linked_verifier_step_probe(),
         quotient_audit: LinkOntologyQuotientAudit {
             finite_enumeration: quotient_finite_enumeration,
             address_renaming_complete_invariant_verified,
@@ -3592,8 +3821,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v10",
-        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and what can linked exact-cover evidence justify before its verifier is itself authorized?",
+        schema: "rml-link-ontology-symmetry-experiment/v11",
+        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence and a linked local-match trace reduce the external verifier?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -3725,6 +3954,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "Under an explicitly external finite relational check, ordinary linked descriptions, exact-cover mappings, and context incidence accept one complete reconstruction; reject missing, duplicate, foreign, and wrong evidence; distinguish ZERO, ONE, and MANY; and change under context or description replacement. A second locally isomorphic candidate still passes, and no tested record authorizes the description, verifier, admission, activation, or execution.",
             },
             LinkOntologyResult {
+                id: "linked-verifier-step",
+                result: "LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY",
+                evidence: "A reusable three-position incidence join replaces specialized record reconstruction and emits four ordinary link records per local match. Missing, duplicate, reversed, two-candidate, self-application, trace-replay, reversed-role, and alternate-description cases expose where host iteration, projection, equality, counting, and selection remain.",
+            },
+            LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
                 result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
                 evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
@@ -3735,7 +3969,7 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain.",
         remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
     }
 }

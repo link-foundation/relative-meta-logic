@@ -137,7 +137,7 @@ relabelling that leaves its base fixed, so its distinctions require information
 not derived from that base. This is conditional structural evidence, not an
 endpoint direction or a justified ontology.
 
-The v10 starting-representation audit then uses the issue's independent
+The v11 starting-representation audit then uses the issue's independent
 requirement that addressed links may refer to themselves. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` links have the same reference-only
 `[1,1]` projection but remain inequivalent under global address renaming and
@@ -212,10 +212,9 @@ experiment neither authenticates its description/verifier nor closes the
 authority regress.
 
 Those results are eliminations and complete finite classifications at the
-tested widths, not unbounded theorems or positive execution laws. Version 13
-still marks passivity and external
-transition as experimental assumptions of the older host witness, and it
-leaves link ontology and intrinsic authority unresolved. The v13 result does
+tested widths, not unbounded theorems or positive execution laws. The older
+host witness marks passivity and external transition as experimental assumptions,
+and it leaves link ontology and intrinsic authority unresolved. The v14 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

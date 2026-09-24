@@ -178,7 +178,7 @@ refinement-present, 1 interaction-only, and 20 symmetric classes. All 73
 candidate observations at widths one through four that preserve their base
 symmetries leave the base occurrence orbits unchanged. The interaction-only
 conditional breaks a relabelling that fixes its base, so it requires
-information not derived from that base. The v10 starting-representation audit
+information not derived from that base. The v11 starting-representation audit
 also shows that direct-self `[0,0,1]` and fresh-external `[0,1,2]` links share
 the `[1,1]` reference-only projection. Forgetting the link address collapses
 `2/4/7/12` addressable classes to `1/2/3/5` at widths one through four and is
@@ -214,7 +214,11 @@ foreign, and wrong linked evidence and enumerates `ZERO`/`ONE`/`MANY` passing
 candidates. A locally isomorphic second candidate remains admissible; the
 verifier, role assignment, cardinality classification, admission, activation,
 and execution remain external or unresolved.
-The v13 report treats these as finite, provenance-labelled constraints,
+The v11 local-verifier probe replaces the bespoke record reconstruction check
+with a reusable incidence join and emits four-link traces. Trace replay is
+possible, but the join still depends on host iteration, position access,
+equality, counting, and externally selected roles.
+The v14 report treats these as finite, provenance-labelled constraints,
 not a link ontology or execution law. Primitive categories, the
 structure/transformation relation, intrinsic
 authority, and comparative minimality remain unresolved; A/B/C cannot

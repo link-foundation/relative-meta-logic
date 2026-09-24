@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v13`. Run it with:
+`rml-alternative-foundation-search/v14`. Run it with:
 
 ```bash
 cd js
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v10` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v11` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v10 follow-up first changes no primitive vocabulary at all. It retains only
+The v11 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -474,6 +474,49 @@ authority-shaped links therefore has not closed the regress: the finite
 certificate is checkable relative to a stated observer contract, not
 self-authorizing.
 
+### Linked local verifier step
+
+The v11 probe factors **one** operation out of the preceding verifier:
+matching a described record to a concrete record. It uses the description
+`[40,30,31]`, concrete record `[3,0,1]`, and three ordinary correspondence
+records `[50,40,3]`, `[51,30,0]`, and `[52,31,1]`. A reusable incidence join
+checks the same relation at all three positions. The exact-cover verifier now
+uses this join in place of its record-reconstruction comparison. Each local
+match emits an ordinary four-record trace:
+
+```text
+[200,40,3] [201,200,50] [202,200,51] [203,200,52]
+```
+
+The first trace record associates the described and concrete record addresses;
+the other three cite the correspondence witnesses. The same join can inspect
+that trace root through identity correspondences. This is conditional trace
+replay, not validation of the mechanism that chose to replay it.
+
+The probe compares several decompositions: direct reconstruction in the older
+verifier, the local incidence join used now, trace replay through that join,
+and self-application of an ordinary described record. Its adversarial cases
+yield `ONE` for a complete match, `ZERO` for a missing description, missing
+correspondence, or a reversed concrete record, `MANY` for duplicate correspondence or two concrete
+records, and `ONE` for self-application. Removing `Set` and `Map` construction
+from this one local step leaves its trace available. Removing the host's
+cardinality classification leaves a trace but no `ZERO`/`ONE`/`MANY` label.
+Reading the very same correspondence links in the opposite direction instead
+produces `ZERO`, and selecting another description on the same records changes
+the result from `ONE` to `ZERO`.
+
+| Boundary | What the experiment establishes |
+|---|---|
+| Representation | Description, correspondence witnesses, and trace are ordinary addressed triples. |
+| Execution | The host still iterates records, projects three positions, compares addresses, branches, and counts witnesses. Removing any of iteration, projection, or equality makes this join unevaluable under the tested contract. |
+| Semantic authority | The link records do not say which description is active, which orientation means “correspondence,” or why this join should execute. Self-application and trace replay preserve that ambiguity. |
+
+The result is
+`LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY`. It is a
+smaller reusable matching operation and a fully linked *record of* its local
+steps. It is not a link-executed exact-cover verifier, a derivation of the join
+from link ontology, or proof that a richer mechanism cannot close the boundary.
+
 ### Conditional refinement probe
 
 The second follow-up asks what a reference-only projection would lose if an
@@ -677,7 +720,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v13 execution-comparison gate admits a candidate only if it passes the common
+The v14 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.
