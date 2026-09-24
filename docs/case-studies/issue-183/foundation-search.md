@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v15`. Run it with:
+`rml-alternative-foundation-search/v16`. Run it with:
 
 ```bash
 cd js
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v12` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v13` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -836,6 +836,36 @@ memoized coinductive certificates: each address can name both the observed
 fact and the continuation that reuses it. Crucially, the proof substrate still
 rejects circular justification; referential data is useful structure, not
 permission for a theorem to prove itself.
+
+## Transition-law provenance after a linked continuation witness
+
+The local probe starts with ordinary addressed binary records
+`P=[3,0,1]`, `Q=[4,1,2]`, and `W=[5,3,4]`. A host-supplied incidence join
+reports `[0,2]` as a possible continuation. The record set alone neither
+contains that result nor requires its creation: adding `[7,0,2]` preserves the
+same witness condition. This is an identification result conditional on the
+join, not a logical implication or an executed transition.
+
+The v13 transition-law audit keeps these facts fixed while varying the
+observer's choices:
+
+| Variation | Observed result | Scope |
+|---|---|---|
+| Lossless nested incidence encoding, decoded before the same join | `[0,2]` | The chosen readout survives this faithful representation change; the decoding and join are still host operations. |
+| Ignore witness reference order | Both `W=[5,3,4]` and `W=[5,4,3]` identify `[0,2]` | Witness orientation is unnecessary for this one chain, despite being part of the original criterion. |
+| Reverse the output projection with all input records unchanged | `[2,0]` instead of `[0,2]` | Both generic readouts survive address renaming and record reordering, yet disagree over identical structural facts. |
+| Add ordinary `[6,5,5]` as a rule-like record | Both projections still disagree | An untyped rule record does not select its own reader. |
+| Erase premise-reference equality while retaining record addresses and witness references | `[3,0,1],[4,1,2],W` reports `[0,2]`; `[3,0,1],[4,9,2],W` reports none | The retained observations agree, so they cannot determine whether the premise join applies. |
+| Remove record enumeration | Candidate discovery becomes undetermined | No pair is selected for the join. |
+| Remove record construction | No result record appears | Reporting a candidate is separate from producing it. |
+
+The report separates five stages: `[0,2]` is structurally formable and
+conditionally identifiable; intrinsic admissibility, consequence, and
+production are not established. The two projections are deliberately simple
+competing models, not a proof that no future Links-derived law is possible.
+They show precisely what the current records fail to determine: which
+projection, if any, has authority, and how the law governing that choice
+would apply to itself.
 
 ## Reproducibility and claim boundary
 

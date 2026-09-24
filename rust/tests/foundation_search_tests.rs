@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v12");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v13");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -1171,6 +1171,68 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(continuation.result_present_in_extension);
     assert!(continuation.witness_condition_holds_in_both);
     assert!(!continuation.intrinsic_creation_or_authority_established);
+    let law_audit = &continuation.transition_law_audit;
+    assert!(law_audit.nested_encoding_preserves_readout);
+    assert!(law_audit.both_readouts_address_renaming_equivariant);
+    assert!(law_audit.both_readouts_record_reordering_invariant);
+    assert_eq!(law_audit.unordered_witness_readout, vec![vec![0, 2]]);
+    assert_eq!(
+        law_audit.reversed_witness_under_unordered_reading,
+        vec![vec![0, 2]]
+    );
+    assert_eq!(
+        law_audit.same_facts_competing_readouts.forward_projection,
+        vec![vec![0, 2]]
+    );
+    assert_eq!(
+        law_audit.same_facts_competing_readouts.reverse_projection,
+        vec![vec![2, 0]]
+    );
+    assert_eq!(
+        law_audit.same_facts_with_rule_record_competing_readouts,
+        law_audit.same_facts_competing_readouts
+    );
+    assert!(
+        law_audit
+            .adjacency_equality_erasure_countermodel
+            .same_retained_addresses_and_witness
+    );
+    assert_eq!(
+        law_audit
+            .adjacency_equality_erasure_countermodel
+            .shared_reference_readout,
+        vec![vec![0, 2]]
+    );
+    assert!(law_audit
+        .adjacency_equality_erasure_countermodel
+        .split_reference_readout
+        .is_empty());
+    assert_eq!(
+        law_audit.operation_removal.without_witness_orientation,
+        "SAME_CANDIDATE_FOR_THIS_CHAIN"
+    );
+    assert_eq!(
+        law_audit.operation_removal.without_output_projection,
+        "TWO_CANDIDATE_READOUTS"
+    );
+    assert_eq!(
+        law_audit.operation_removal.without_incidence_equality,
+        "JOIN_UNDETERMINED"
+    );
+    assert_eq!(
+        law_audit.operation_removal.without_enumeration,
+        "CANDIDATE_DISCOVERY_UNDETERMINED"
+    );
+    assert_eq!(
+        law_audit.operation_removal.without_construction,
+        "NO_RESULT_RECORD_PRODUCED"
+    );
+    assert!(law_audit.stage_boundary.formable);
+    assert!(law_audit.stage_boundary.conditionally_identifiable);
+    assert!(!law_audit.stage_boundary.intrinsically_admissible);
+    assert!(!law_audit.stage_boundary.follows_from_records_alone);
+    assert!(!law_audit.stage_boundary.produced_by_records_alone);
+    assert!(!law_audit.law_self_application_established);
     assert_eq!(
         structural_probe.status,
         "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION"

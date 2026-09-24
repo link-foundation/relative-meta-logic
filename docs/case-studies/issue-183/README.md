@@ -137,7 +137,7 @@ relabelling that leaves its base fixed, so its distinctions require information
 not derived from that base. This is conditional structural evidence, not an
 endpoint direction or a justified ontology.
 
-The v12 starting-representation audit then uses the issue's independent
+The v13 starting-representation audit then uses the issue's independent
 requirement that addressed links may refer to themselves. Direct-self
 `[0,0,1]` and fresh-external `[0,1,2]` links have the same reference-only
 `[1,1]` projection but remain inequivalent under global address renaming and
@@ -218,13 +218,18 @@ records removes that report. Renaming addresses and reordering records
 preserve it. Yet the witness-only structure and its extension containing
 `[7,0,2]` satisfy the same witness condition. Thus the extra Link carries
 conditional selection information but does not force creation of the
-result Link or authorize the join. The linked local-verifier trace retains
-the same distinction between representation, execution, and authority.
+result Link or authorize the join. A transition-law audit checks a lossless
+nested encoding, then varies the host's reading. Removing witness orientation
+still identifies `[0,2]` in this particular chain, but two generic output
+projections report `[0,2]` and `[2,0]` from exactly the same records. An
+additional ordinary rule-like record `[6,5,5]` resolves neither choice.
+The linked local-verifier trace retains the same distinction between
+representation, execution, and authority.
 
 Those results are eliminations and complete finite classifications at the
 tested widths, not unbounded theorems or positive execution laws. The older
 host witness marks passivity and external transition as experimental assumptions,
-and it leaves link ontology and intrinsic authority unresolved. The v15 result does
+and it leaves link ontology and intrinsic authority unresolved. The v16 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

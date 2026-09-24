@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v15');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v16');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v12',
+      'rml-link-ontology-symmetry-experiment/v13',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -1107,6 +1107,41 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.equal(continuation.resultPresentInExtension, true);
     assert.equal(continuation.witnessConditionHoldsInBoth, true);
     assert.equal(continuation.intrinsicCreationOrAuthorityEstablished, false);
+    assert.deepEqual(continuation.transitionLawAudit, {
+      nestedEncodingPreservesReadout: true,
+      bothReadoutsAddressRenamingEquivariant: true,
+      bothReadoutsRecordReorderingInvariant: true,
+      unorderedWitnessReadout: [[0, 2]],
+      reversedWitnessUnderUnorderedReading: [[0, 2]],
+      sameFactsCompetingReadouts: {
+        forwardProjection: [[0, 2]],
+        reverseProjection: [[2, 0]],
+      },
+      sameFactsWithRuleRecordCompetingReadouts: {
+        forwardProjection: [[0, 2]],
+        reverseProjection: [[2, 0]],
+      },
+      adjacencyEqualityErasureCountermodel: {
+        sameRetainedAddressesAndWitness: true,
+        sharedReferenceReadout: [[0, 2]],
+        splitReferenceReadout: [],
+      },
+      operationRemoval: {
+        withoutWitnessOrientation: 'SAME_CANDIDATE_FOR_THIS_CHAIN',
+        withoutOutputProjection: 'TWO_CANDIDATE_READOUTS',
+        withoutIncidenceEquality: 'JOIN_UNDETERMINED',
+        withoutEnumeration: 'CANDIDATE_DISCOVERY_UNDETERMINED',
+        withoutConstruction: 'NO_RESULT_RECORD_PRODUCED',
+      },
+      stageBoundary: {
+        formable: true,
+        conditionallyIdentifiable: true,
+        intrinsicallyAdmissible: false,
+        followsFromRecordsAlone: false,
+        producedByRecordsAlone: false,
+      },
+      lawSelfApplicationEstablished: false,
+    });
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -1302,7 +1337,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v15');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v16');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

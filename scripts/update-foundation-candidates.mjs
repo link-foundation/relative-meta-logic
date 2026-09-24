@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v15';
+table.schema = 'rml-foundation-candidate-table/v16';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([

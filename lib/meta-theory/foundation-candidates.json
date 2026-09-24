@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v15",
+  "schema": "rml-foundation-candidate-table/v16",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "foundationStatus": "OPEN",
@@ -96,7 +96,7 @@
     "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
   },
   "ontologyExperiment": {
-    "schema": "rml-link-ontology-symmetry-experiment/v12",
+    "schema": "rml-link-ontology-symmetry-experiment/v13",
     "question": "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?",
     "startingContract": {
       "id": "unoriented-binary-reference-observation",
@@ -1316,7 +1316,77 @@
           "resultPresentInExtension": true,
           "witnessConditionHoldsInBoth": true,
           "intrinsicCreationOrAuthorityEstablished": false,
-          "claimBoundary": "A third ordinary link makes one continuation structurally identifiable under the declared join. Reversing its references changes that conditional answer. Both the witness-only structure and its result-bearing extension satisfy the join, so link formation does not force creation, logical implication, or the authority to use this orientation and criterion."
+          "transitionLawAudit": {
+            "nestedEncodingPreservesReadout": true,
+            "bothReadoutsAddressRenamingEquivariant": true,
+            "bothReadoutsRecordReorderingInvariant": true,
+            "unorderedWitnessReadout": [
+              [
+                0,
+                2
+              ]
+            ],
+            "reversedWitnessUnderUnorderedReading": [
+              [
+                0,
+                2
+              ]
+            ],
+            "sameFactsCompetingReadouts": {
+              "forwardProjection": [
+                [
+                  0,
+                  2
+                ]
+              ],
+              "reverseProjection": [
+                [
+                  2,
+                  0
+                ]
+              ]
+            },
+            "sameFactsWithRuleRecordCompetingReadouts": {
+              "forwardProjection": [
+                [
+                  0,
+                  2
+                ]
+              ],
+              "reverseProjection": [
+                [
+                  2,
+                  0
+                ]
+              ]
+            },
+            "adjacencyEqualityErasureCountermodel": {
+              "sameRetainedAddressesAndWitness": true,
+              "sharedReferenceReadout": [
+                [
+                  0,
+                  2
+                ]
+              ],
+              "splitReferenceReadout": []
+            },
+            "operationRemoval": {
+              "withoutWitnessOrientation": "SAME_CANDIDATE_FOR_THIS_CHAIN",
+              "withoutOutputProjection": "TWO_CANDIDATE_READOUTS",
+              "withoutIncidenceEquality": "JOIN_UNDETERMINED",
+              "withoutEnumeration": "CANDIDATE_DISCOVERY_UNDETERMINED",
+              "withoutConstruction": "NO_RESULT_RECORD_PRODUCED"
+            },
+            "stageBoundary": {
+              "formable": true,
+              "conditionallyIdentifiable": true,
+              "intrinsicallyAdmissible": false,
+              "followsFromRecordsAlone": false,
+              "producedByRecordsAlone": false
+            },
+            "lawSelfApplicationEstablished": false
+          },
+          "claimBoundary": "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established."
         },
         "linkCarriedSelectionAuthority": {
           "status": "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",

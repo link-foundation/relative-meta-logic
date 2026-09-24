@@ -935,17 +935,25 @@ function structuralApplicationCompositionProbe() {
 // Observer-declared incidence criterion: a third ordinary record cites the
 // addresses of two records whose adjacent references coincide. Its output is
 // a possible continuation pair, not a newly created link or an implication.
-function conditionalContinuations(records) {
+function conditionalContinuations(
+  records, { unorderedWitness = false, reverseProjection = false } = {},
+) {
   const pairs = [];
   for (const first of records) {
     for (const second of records) {
       if (first[0] === second[0] || first[2] !== second[1]) continue;
-      if (!records.some(witness =>
-        witness[0] !== first[0] &&
-        witness[0] !== second[0] &&
-        witness[1] === first[0] &&
-        witness[2] === second[0])) continue;
-      const pair = [first[1], second[2]];
+      if (!records.some(witness => {
+        if (witness[0] === first[0] || witness[0] === second[0]) {
+          return false;
+        }
+        const forward = witness[1] === first[0] &&
+          witness[2] === second[0];
+        const backward = witness[1] === second[0] &&
+          witness[2] === first[0];
+        return forward || (unorderedWitness && backward);
+      })) continue;
+      const pair = reverseProjection ? [second[2], first[1]] :
+        [first[1], second[2]];
       if (!pairs.some(existing =>
         existing[0] === pair[0] && existing[1] === pair[1])) pairs.push(pair);
     }
@@ -974,6 +982,30 @@ function conditionalContinuationProbe() {
     [address, address + 10]));
   const renamedRecords = renameRecordAddresses(withWitness, renaming);
   const reversedSlots = reverseBinaryReferenceSlots(withWitness);
+  const incidenceEncoding = withWitness.map(([address, left, right]) =>
+    [address, [[0, left], [1, right]]]);
+  const decodedIncidence = incidenceEncoding.map(([address, slots]) =>
+    [address, slots[0][1], slots[1][1]]);
+  const competingReadouts = records => ({
+    forwardProjection: conditionalContinuations(records),
+    reverseProjection: conditionalContinuations(records, {
+      reverseProjection: true,
+    }),
+  });
+  const sameFactsCompetingReadouts = competingReadouts(withWitness);
+  const unorderedWitnessReadout = conditionalContinuations(withWitness, {
+    unorderedWitness: true,
+  });
+  const reversedWitnessUnderUnorderedReading = conditionalContinuations(
+    [...premises, reverseWitness], { unorderedWitness: true },
+  );
+  const splitReferenceRecords = [premises[0], [4, 9, 2], forwardWitness];
+  const sameRetainedAddressesAndWitness =
+    JSON.stringify(withWitness.map(record => record[0])) ===
+      JSON.stringify(splitReferenceRecords.map(record => record[0])) &&
+    JSON.stringify(withWitness[2]) ===
+      JSON.stringify(splitReferenceRecords[2]);
+  const splitReferenceReadout = conditionalContinuations(splitReferenceRecords);
   return {
     status:
       'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT',
@@ -1000,8 +1032,55 @@ function conditionalContinuationProbe() {
       JSON.stringify(conditionalContinuations(withWitness)) ===
         JSON.stringify(conditionalContinuations(withResult)),
     intrinsicCreationOrAuthorityEstablished: false,
+    transitionLawAudit: {
+      nestedEncodingPreservesReadout:
+        JSON.stringify(conditionalContinuations(decodedIncidence)) ===
+          JSON.stringify(conditionalContinuations(withWitness)),
+      bothReadoutsAddressRenamingEquivariant:
+        JSON.stringify(competingReadouts(renamedRecords)) ===
+          JSON.stringify({
+            forwardProjection: [[10, 12]],
+            reverseProjection: [[12, 10]],
+          }),
+      bothReadoutsRecordReorderingInvariant:
+        JSON.stringify(competingReadouts([...withWitness].reverse())) ===
+          JSON.stringify(sameFactsCompetingReadouts),
+      unorderedWitnessReadout,
+      reversedWitnessUnderUnorderedReading,
+      sameFactsCompetingReadouts,
+      sameFactsWithRuleRecordCompetingReadouts:
+        competingReadouts([...withWitness, [6, 5, 5]]),
+      adjacencyEqualityErasureCountermodel: {
+        sameRetainedAddressesAndWitness,
+        sharedReferenceReadout: conditionalContinuations(withWitness),
+        splitReferenceReadout,
+      },
+      operationRemoval: {
+        withoutWitnessOrientation:
+          JSON.stringify(unorderedWitnessReadout) ===
+            JSON.stringify(reversedWitnessUnderUnorderedReading) ?
+            'SAME_CANDIDATE_FOR_THIS_CHAIN' : 'CANDIDATE_CHANGES',
+        withoutOutputProjection:
+          JSON.stringify(sameFactsCompetingReadouts.forwardProjection) !==
+            JSON.stringify(sameFactsCompetingReadouts.reverseProjection) ?
+            'TWO_CANDIDATE_READOUTS' : 'SAME_CANDIDATE',
+        withoutIncidenceEquality:
+          sameRetainedAddressesAndWitness && splitReferenceReadout.length === 0 ?
+            'JOIN_UNDETERMINED' : 'COUNTERMODEL_NOT_ESTABLISHED',
+        withoutEnumeration: 'CANDIDATE_DISCOVERY_UNDETERMINED',
+        withoutConstruction: 'NO_RESULT_RECORD_PRODUCED',
+      },
+      stageBoundary: {
+        formable: true,
+        conditionallyIdentifiable: true,
+        intrinsicallyAdmissible: false,
+        followsFromRecordsAlone: false,
+        producedByRecordsAlone: false,
+      },
+      lawSelfApplicationEstablished: false,
+    },
     claimBoundary:
-      'A third ordinary link makes one continuation structurally identifiable under the declared join. Reversing its references changes that conditional answer. Both the witness-only structure and its result-bearing extension satisfy the join, so link formation does not force creation, logical implication, or the authority to use this orientation and criterion.',
+      'A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established.',
   };
 }
 
@@ -2281,7 +2360,7 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v12',
+    schema: 'rml-link-ontology-symmetry-experiment/v13',
     question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
@@ -3145,7 +3224,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v15',
+    schema: 'rml-alternative-foundation-search/v16',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',

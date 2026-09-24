@@ -812,6 +812,52 @@ pub struct LinkOntologyContinuationCase {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyCompetingReadouts {
+    pub forward_projection: Vec<Vec<usize>>,
+    pub reverse_projection: Vec<Vec<usize>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyTransitionLawRemoval {
+    pub without_witness_orientation: &'static str,
+    pub without_output_projection: &'static str,
+    pub without_incidence_equality: &'static str,
+    pub without_enumeration: &'static str,
+    pub without_construction: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyTransitionStageBoundary {
+    pub formable: bool,
+    pub conditionally_identifiable: bool,
+    pub intrinsically_admissible: bool,
+    pub follows_from_records_alone: bool,
+    pub produced_by_records_alone: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAdjacencyEqualityErasureCountermodel {
+    pub same_retained_addresses_and_witness: bool,
+    pub shared_reference_readout: Vec<Vec<usize>>,
+    pub split_reference_readout: Vec<Vec<usize>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyTransitionLawAudit {
+    pub nested_encoding_preserves_readout: bool,
+    pub both_readouts_address_renaming_equivariant: bool,
+    pub both_readouts_record_reordering_invariant: bool,
+    pub unordered_witness_readout: Vec<Vec<usize>>,
+    pub reversed_witness_under_unordered_reading: Vec<Vec<usize>>,
+    pub same_facts_competing_readouts: LinkOntologyCompetingReadouts,
+    pub same_facts_with_rule_record_competing_readouts: LinkOntologyCompetingReadouts,
+    pub adjacency_equality_erasure_countermodel: LinkOntologyAdjacencyEqualityErasureCountermodel,
+    pub operation_removal: LinkOntologyTransitionLawRemoval,
+    pub stage_boundary: LinkOntologyTransitionStageBoundary,
+    pub law_self_application_established: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyConditionalContinuationProbe {
     pub status: &'static str,
     pub contract: &'static str,
@@ -828,6 +874,7 @@ pub struct LinkOntologyConditionalContinuationProbe {
     pub result_present_in_extension: bool,
     pub witness_condition_holds_in_both: bool,
     pub intrinsic_creation_or_authority_established: bool,
+    pub transition_law_audit: LinkOntologyTransitionLawAudit,
     pub claim_boundary: &'static str,
 }
 
@@ -2186,6 +2233,14 @@ fn link_ontology_structural_application_composition_probe(
 // Observer-declared incidence criterion. This reports a possible reference
 // pair; it creates no record and assigns no implication meaning.
 fn conditional_continuations(records: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    conditional_continuations_with_law(records, false, false)
+}
+
+fn conditional_continuations_with_law(
+    records: &[Vec<usize>],
+    unordered_witness: bool,
+    reverse_projection: bool,
+) -> Vec<Vec<usize>> {
     let mut pairs = BTreeSet::new();
     for first in records {
         for second in records {
@@ -2195,14 +2250,25 @@ fn conditional_continuations(records: &[Vec<usize>]) -> Vec<Vec<usize>> {
             if records.iter().any(|witness| {
                 witness[0] != first[0]
                     && witness[0] != second[0]
-                    && witness[1] == first[0]
-                    && witness[2] == second[0]
+                    && ((witness[1] == first[0] && witness[2] == second[0])
+                        || (unordered_witness && witness[1] == second[0] && witness[2] == first[0]))
             }) {
-                pairs.insert(vec![first[1], second[2]]);
+                pairs.insert(if reverse_projection {
+                    vec![second[2], first[1]]
+                } else {
+                    vec![first[1], second[2]]
+                });
             }
         }
     }
     pairs.into_iter().collect()
+}
+
+fn competing_continuation_readouts(records: &[Vec<usize>]) -> LinkOntologyCompetingReadouts {
+    LinkOntologyCompetingReadouts {
+        forward_projection: conditional_continuations(records),
+        reverse_projection: conditional_continuations_with_law(records, false, true),
+    }
 }
 
 fn link_ontology_conditional_continuation_probe() -> LinkOntologyConditionalContinuationProbe {
@@ -2250,6 +2316,38 @@ fn link_ontology_conditional_continuation_probe() -> LinkOntologyConditionalCont
         .collect::<BTreeMap<_, _>>();
     let renamed = rename_record_addresses(&with_witness, &renaming);
     let reversed_slots = reverse_binary_reference_slots(&with_witness);
+    let nested_encoding = with_witness
+        .iter()
+        .map(|record| (record[0], [(0, record[1]), (1, record[2])]))
+        .collect::<Vec<_>>();
+    let decoded_nested = nested_encoding
+        .iter()
+        .map(|(address, slots)| vec![*address, slots[0].1, slots[1].1])
+        .collect::<Vec<_>>();
+    let same_facts_competing_readouts = competing_continuation_readouts(&with_witness);
+    let unordered_witness_readout = conditional_continuations_with_law(&with_witness, true, false);
+    let reversed_witness_under_unordered_reading = conditional_continuations_with_law(
+        &[
+            premises[0].clone(),
+            premises[1].clone(),
+            reverse_witness.clone(),
+        ],
+        true,
+        false,
+    );
+    let mut with_rule_record = with_witness.clone();
+    with_rule_record.push(vec![6, 5, 5]);
+    let split_reference_records = vec![premises[0].clone(), vec![4, 9, 2], forward_witness.clone()];
+    let same_retained_addresses_and_witness = with_witness
+        .iter()
+        .map(|record| record[0])
+        .collect::<Vec<_>>()
+        == split_reference_records
+            .iter()
+            .map(|record| record[0])
+            .collect::<Vec<_>>()
+        && with_witness[2] == split_reference_records[2];
+    let split_reference_readout = conditional_continuations(&split_reference_records);
     LinkOntologyConditionalContinuationProbe {
         status: "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
         contract: "ordered addressed binary records with equality of addresses",
@@ -2270,7 +2368,62 @@ fn link_ontology_conditional_continuation_probe() -> LinkOntologyConditionalCont
         witness_condition_holds_in_both:
             conditional_continuations(&with_witness) == conditional_continuations(&with_result),
         intrinsic_creation_or_authority_established: false,
-        claim_boundary: "A third ordinary link makes one continuation structurally identifiable under the declared join. Reversing its references changes that conditional answer. Both the witness-only structure and its result-bearing extension satisfy the join, so link formation does not force creation, logical implication, or the authority to use this orientation and criterion.",
+        transition_law_audit: LinkOntologyTransitionLawAudit {
+            nested_encoding_preserves_readout:
+                conditional_continuations(&decoded_nested) == conditional_continuations(&with_witness),
+            both_readouts_address_renaming_equivariant:
+                competing_continuation_readouts(&renamed)
+                    == LinkOntologyCompetingReadouts {
+                        forward_projection: vec![vec![10, 12]],
+                        reverse_projection: vec![vec![12, 10]],
+                    },
+            both_readouts_record_reordering_invariant:
+                competing_continuation_readouts(
+                    &with_witness.iter().rev().cloned().collect::<Vec<_>>(),
+                ) == same_facts_competing_readouts.clone(),
+            unordered_witness_readout: unordered_witness_readout.clone(),
+            reversed_witness_under_unordered_reading: reversed_witness_under_unordered_reading.clone(),
+            same_facts_with_rule_record_competing_readouts:
+                competing_continuation_readouts(&with_rule_record),
+            adjacency_equality_erasure_countermodel:
+                LinkOntologyAdjacencyEqualityErasureCountermodel {
+                    same_retained_addresses_and_witness,
+                    shared_reference_readout: conditional_continuations(&with_witness),
+                    split_reference_readout: split_reference_readout.clone(),
+                },
+            operation_removal: LinkOntologyTransitionLawRemoval {
+                without_witness_orientation: if unordered_witness_readout
+                    == reversed_witness_under_unordered_reading {
+                    "SAME_CANDIDATE_FOR_THIS_CHAIN"
+                } else {
+                    "CANDIDATE_CHANGES"
+                },
+                without_output_projection: if same_facts_competing_readouts.forward_projection
+                    != same_facts_competing_readouts.reverse_projection {
+                    "TWO_CANDIDATE_READOUTS"
+                } else {
+                    "SAME_CANDIDATE"
+                },
+                without_incidence_equality: if same_retained_addresses_and_witness
+                    && split_reference_readout.is_empty() {
+                    "JOIN_UNDETERMINED"
+                } else {
+                    "COUNTERMODEL_NOT_ESTABLISHED"
+                },
+                without_enumeration: "CANDIDATE_DISCOVERY_UNDETERMINED",
+                without_construction: "NO_RESULT_RECORD_PRODUCED",
+            },
+            same_facts_competing_readouts,
+            stage_boundary: LinkOntologyTransitionStageBoundary {
+                formable: true,
+                conditionally_identifiable: true,
+                intrinsically_admissible: false,
+                follows_from_records_alone: false,
+                produced_by_records_alone: false,
+            },
+            law_self_application_established: false,
+        },
+        claim_boundary: "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established.",
     }
 }
 
@@ -3941,7 +4094,7 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v12",
+        schema: "rml-link-ontology-symmetry-experiment/v13",
         question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
