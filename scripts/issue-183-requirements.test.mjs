@@ -79,6 +79,7 @@ const REQUIREMENT_SOURCES = [
     5820068540,
     5820555614,
     5820560691,
+    5821335636,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -101,7 +102,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 146, `expected at least 146 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 147, `expected at least 147 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -150,7 +151,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v13',
+      'rml-link-ontology-symmetry-experiment/v14',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -213,6 +214,8 @@ describe('issue 183 requirement traceability', () => {
       '5820068540',
       '5820555614',
       '5820560691',
+      '5821335636',
+      'CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION',
       'logical implication',
       'contract-forced, representation-stable, observer-added',
       'The result uses no set,',

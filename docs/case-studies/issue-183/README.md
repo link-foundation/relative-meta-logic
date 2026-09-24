@@ -223,13 +223,20 @@ nested encoding, then varies the host's reading. Removing witness orientation
 still identifies `[0,2]` in this particular chain, but two generic output
 projections report `[0,2]` and `[2,0]` from exactly the same records. An
 additional ordinary rule-like record `[6,5,5]` resolves neither choice.
+A consequence audit then asks what makes a possible continuation follow,
+reading consequence as membership in every admissible completion of the two
+premises. Nothing new follows from the recorded links alone. Transitive and
+circular exclusions make `[0,2]` and `[2,0]` follow respectively, each one
+restates a surviving projection, and every tested genericity criterion is
+blind to that orientation. The status is
+`CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION`.
 The linked local-verifier trace retains the same distinction between
 representation, execution, and authority.
 
 Those results are eliminations and complete finite classifications at the
 tested widths, not unbounded theorems or positive execution laws. The older
 host witness marks passivity and external transition as experimental assumptions,
-and it leaves link ontology and intrinsic authority unresolved. The v16 result does
+and it leaves link ontology and intrinsic authority unresolved. The v17 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them

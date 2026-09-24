@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v16`. Run it with:
+`rml-alternative-foundation-search/v17`. Run it with:
 
 ```bash
 cd js
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v13` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v14` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -866,6 +866,87 @@ competing models, not a proof that no future Links-derived law is possible.
 They show precisely what the current records fail to determine: which
 projection, if any, has authority, and how the law governing that choice
 would apply to itself.
+
+## What makes a possible continuation follow
+
+The transition-law audit shows that `[0,2]` can be formed and, under a declared
+join, identified. The v14 consequence audit asks the next question without
+adding verifier machinery, a rule-like record, or a selector: which structural
+fact turns a possible continuation into one that **follows**? It is a finite
+model check over the same premises `P=[3,0,1]` (`K ⟼ A`) and `Q=[4,1,2]`
+(`A ⟼ B`). A pair is **possible** when some admissible completion of the
+recorded pairs contains it. It **follows** when every admissible completion
+contains it. Formation, identification, admissibility, consequence, and
+production stay separate: computing a model does not produce the continuation.
+
+Over `K`, `A`, and `B` there are nine ordered pairs, so the two premises have
+`128` completions. Every pair is possible in every admissible class below.
+With no exclusion, nothing beyond the recorded pairs follows. That part is
+trivial, because the unconstrained family is upward closed. It still fixes the
+baseline: positive link facts alone never make a continuation follow.
+
+| Exclusion over completions | Admissible | Follows | `[0,2]` follows | `[2,0]` follows | Some orientation always present |
+|---|---|---|---|---|---|
+| none | `128` | `[0,1]`, `[1,2]` | no | no | no |
+| transitive (`x⟼y`, `y⟼z` require `x⟼z`) | `13` | `[0,1]`, `[0,2]`, `[1,2]` | yes | no | yes |
+| circular (`x⟼y`, `y⟼z` require `z⟼x`) | `2` | `[0,1]`, `[1,2]`, `[2,0]` | no | yes | yes |
+| transitive or circular | `14` | `[0,1]`, `[1,2]` | no | no | yes |
+
+Some exclusion is therefore necessary before anything new follows. Among the
+tested exclusions, only an oriented one makes an oriented continuation follow:
+admitting either orientation makes only the unoriented connection between `K`
+and `B` follow. Each oriented exclusion's meet is also exactly the least model
+of one surviving projection below, so the fact that selects the continuation
+restates a transition law. That answers the follow-up question "why does this
+fact select it?" with another external interpretation: the problem moves one
+level.
+
+The competing projections are then used as a search instrument rather than
+repaired. A position law copies two of the four premise reference slots
+`[P.first, P.second, Q.first, Q.second]` into an output pair. The `16` laws give
+`9` distinct readouts. Address renaming, arbitrary substitution, record
+reordering, and nested encoding pass all `16`, so they constrain nothing here.
+Global slot reversal passes `6`, non-degeneracy `10`, and unordered novelty `8`.
+Non-degeneracy plus either of the other two already leaves the same two laws:
+`[P.first, Q.second]` reading `[0,2]` and `[Q.second, P.first]` reading `[2,0]`.
+Every criterion commutes with the output swap, and the swap fixes no
+non-degenerate law. No combination of these criteria can therefore select one
+orientation.
+
+| Tie-breaker | Selects | Equally generic mirror | Mirror selects | Provenance |
+|---|---|---|---|---|
+| slot-position preservation | `[0,2]` | slot exchange | `[2,0]` | `ALIGNS_UNRECORDED_OUTPUT_SLOTS_WITH_PREMISE_SLOTS` |
+| unit neutrality | `[0,2]` | converse unit neutrality | `[2,0]` | `IMPORTS_IDENTITY_LAW_AND_ORIENTED_EQUALITY` |
+| declared closed model | `[0,2]` | declared closed cycle | `[2,0]` | `CONCLUSION_ALREADY_RECORDED` |
+| premise recoverability | `[0,2]` | premise interchangeability | `[2,0]` | `IMPORTS_IRREVERSIBLE_CONSEQUENCE` |
+
+The minimal model pair makes the disagreement structural rather than
+notational. Both least models contain the recorded premises. The forward model
+`[0,1]`, `[0,2]`, `[1,2]` has `1` automorphism, and under its law only the
+derived link follows from the other two; neither premise does. The circular
+model `[0,1]`, `[1,2]`, `[2,0]` has `3` automorphisms, and every link follows
+from the other two. Assumptions were then removed one at a time:
+
+| Assumption kept or removed | Result |
+|---|---|
+| Oriented exclusion kept | `ORIENTED_CONTINUATION_FOLLOWS_RELATIVE_TO_THAT_EXCLUSION` |
+| Exclusion orientation removed | `ONLY_UNORIENTED_CONNECTION_FOLLOWS` |
+| Exclusion removed | `NOTHING_BEYOND_RECORDED_FACTS_FOLLOWS` |
+| Reference-slot order removed | `PREMISE_AUTOMORPHISM_EXCHANGES_CANDIDATES` |
+
+The ordered premises have only the identity automorphism. Unordered premises
+also admit the exchange of `K` with `B` and `P` with `Q`, which swaps the two
+candidates. Adding the witness `[5,3,4]` changes neither count.
+Self-application does not settle the choice either. Each surviving law is closed
+on its own least model and fails on the other's, and all four exclusion classes
+are consistent with the recorded links. The status is
+`CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION`. The same recorded links
+are compatible with opposite required consequences, and the missing information
+is an exclusion plus one orientation bit that the records do not state. This is
+a finite negative for ordered binary records, three addresses, and slot-copying
+laws. It does not show that no richer Links-derived principle can exist, and a
+host-free generic principle deriving `K ⟼ B` from `K ⟼ A` and `A ⟼ B` remains
+open.
 
 ## Reproducibility and claim boundary
 
