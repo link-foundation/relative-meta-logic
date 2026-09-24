@@ -1,5 +1,5 @@
 {
-  "schema": "rml-foundation-candidate-table/v16",
+  "schema": "rml-foundation-candidate-table/v17",
   "generatedBy": "js/src/rml-foundation-search.mjs",
   "semanticSource": "lib/meta-theory/alternative-foundations.lino",
   "foundationStatus": "OPEN",
@@ -96,8 +96,8 @@
     "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
   },
   "ontologyExperiment": {
-    "schema": "rml-link-ontology-symmetry-experiment/v13",
-    "question": "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?",
+    "schema": "rml-link-ontology-symmetry-experiment/v14",
+    "question": "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier, and what, if anything, turns a possible continuation into one that follows?",
     "startingContract": {
       "id": "unoriented-binary-reference-observation",
       "occurrenceCount": 2,
@@ -1386,7 +1386,297 @@
             },
             "lawSelfApplicationEstablished": false
           },
-          "claimBoundary": "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established."
+          "consequenceAudit": {
+            "question": "What structural fact turns a possible continuation into one that follows?",
+            "status": "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION",
+            "modalReading": "a pair is possible when some admissible completion of the recorded pairs contains it, and follows when every admissible completion contains it",
+            "premisePairs": [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "completionCount": 128,
+            "everyPairPossibleInEachClass": true,
+            "positiveFactsAloneForceNothingNew": true,
+            "exclusionClasses": [
+              {
+                "id": "none",
+                "admissibleCompletions": 128,
+                "follows": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ],
+                "leastCompletionAdmissible": true,
+                "forwardFollows": false,
+                "reverseFollows": false,
+                "unorientedConnectionFollows": false
+              },
+              {
+                "id": "transitive",
+                "admissibleCompletions": 13,
+                "follows": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ],
+                "leastCompletionAdmissible": true,
+                "forwardFollows": true,
+                "reverseFollows": false,
+                "unorientedConnectionFollows": true
+              },
+              {
+                "id": "circular",
+                "admissibleCompletions": 2,
+                "follows": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ],
+                "leastCompletionAdmissible": true,
+                "forwardFollows": false,
+                "reverseFollows": true,
+                "unorientedConnectionFollows": true
+              },
+              {
+                "id": "transitive-or-circular",
+                "admissibleCompletions": 14,
+                "follows": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ],
+                "leastCompletionAdmissible": false,
+                "forwardFollows": false,
+                "reverseFollows": false,
+                "unorientedConnectionFollows": true
+              }
+            ],
+            "orientedExclusionsRestateSurvivors": true,
+            "lawSpace": {
+              "positionLaws": 16,
+              "distinctReadouts": 9,
+              "admittedCriteria": [
+                {
+                  "id": "address-renaming",
+                  "passing": 16,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "arbitrary-substitution",
+                  "passing": 16,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "record-reordering",
+                  "passing": 16,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "nested-encoding",
+                  "passing": 16,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "global-slot-reversal",
+                  "passing": 6,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "non-degenerate",
+                  "passing": 10,
+                  "survivorsWithoutIt": 6
+                },
+                {
+                  "id": "unordered-novelty",
+                  "passing": 8,
+                  "survivorsWithoutIt": 2
+                }
+              ],
+              "admittedCriteriaCommuteWithOutputSwap": true,
+              "outputSwapFixesNoNonDegenerateLaw": true,
+              "survivors": [
+                {
+                  "slots": [
+                    "P.first",
+                    "Q.second"
+                  ],
+                  "readout": [
+                    0,
+                    2
+                  ]
+                },
+                {
+                  "slots": [
+                    "Q.second",
+                    "P.first"
+                  ],
+                  "readout": [
+                    2,
+                    0
+                  ]
+                }
+              ],
+              "tieBreakers": [
+                {
+                  "id": "slot-position-preservation",
+                  "selects": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "mirror": "slot-exchange",
+                  "mirrorSelects": [
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "provenance": "ALIGNS_UNRECORDED_OUTPUT_SLOTS_WITH_PREMISE_SLOTS"
+                },
+                {
+                  "id": "unit-neutrality",
+                  "selects": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "mirror": "converse-unit-neutrality",
+                  "mirrorSelects": [
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "provenance": "IMPORTS_IDENTITY_LAW_AND_ORIENTED_EQUALITY"
+                },
+                {
+                  "id": "declared-closed-model",
+                  "selects": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "mirror": "declared-closed-cycle",
+                  "mirrorSelects": [
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "provenance": "CONCLUSION_ALREADY_RECORDED"
+                },
+                {
+                  "id": "premise-recoverability",
+                  "selects": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "mirror": "premise-interchangeability",
+                  "mirrorSelects": [
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "provenance": "IMPORTS_IRREVERSIBLE_CONSEQUENCE"
+                }
+              ]
+            },
+            "minimalPair": {
+              "agreeOnRecordedPremises": true,
+              "forwardLeastModel": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0,
+                  2
+                ],
+                [
+                  1,
+                  2
+                ]
+              ],
+              "reverseLeastModel": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  1,
+                  2
+                ],
+                [
+                  2,
+                  0
+                ]
+              ],
+              "forwardLeastModelAutomorphisms": 1,
+              "reverseLeastModelAutomorphisms": 3,
+              "forwardEveryLinkFollowsFromOthers": false,
+              "reverseEveryLinkFollowsFromOthers": true
+            },
+            "slotOrder": {
+              "orderedAutomorphisms": 1,
+              "unorderedAutomorphisms": 2,
+              "witnessChangesAutomorphismCounts": false,
+              "unorderedAutomorphismExchangesCandidates": true
+            },
+            "assumptionRemoval": {
+              "withOrientedExclusion": "ORIENTED_CONTINUATION_FOLLOWS_RELATIVE_TO_THAT_EXCLUSION",
+              "withoutExclusionOrientation": "ONLY_UNORIENTED_CONNECTION_FOLLOWS",
+              "withoutExclusion": "NOTHING_BEYOND_RECORDED_FACTS_FOLLOWS",
+              "withoutSlotOrder": "PREMISE_AUTOMORPHISM_EXCHANGES_CANDIDATES"
+            },
+            "selfApplication": {
+              "eachSurvivorClosedOnOwnLeastModel": true,
+              "anySurvivorClosedOnOtherLeastModel": false,
+              "exclusionsConsistentWithRecords": 4,
+              "exclusionDeterminedByRecords": false
+            },
+            "missingInformation": "Recorded Links supply only positive facts. A continuation follows only under an exclusion over completions, and one orientation bit of that exclusion still separates [K,B] from [B,K]; the records state neither."
+          },
+          "claimBoundary": "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established. Read over every completion of the premises, nothing new follows without an exclusion; the transitive and circular exclusions restate the two surviving projections and make opposite orientations follow, and every admitted genericity criterion is blind to that orientation."
         },
         "linkCarriedSelectionAuthority": {
           "status": "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",
@@ -2575,6 +2865,11 @@
         "evidence": "An ordinary third link [5,3,4] cites premise addresses [3,0,1] and [4,1,2], so a declared incidence join reports [0,2]. Reversing the witness or removing any of the three records removes that conditional report. The witness-only structure and its [7,0,2] extension satisfy the same condition, so neither creation nor the join authority follows from the records."
       },
       {
+        "id": "continuation-consequence",
+        "result": "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION",
+        "evidence": "Over all 128 completions of the recorded pairs [0,1] and [1,2], positive link facts alone make no new pair follow. A transitive exclusion makes [0,2] follow and a circular exclusion makes [2,0] follow, but each exclusion's meet equals the least model of one surviving projection, so the selecting fact restates the law. Address renaming, arbitrary substitution, record reordering, nested encoding, slot reversal, non-degeneracy, and novelty all commute with the output swap, which fixes no non-degenerate law, so none of them selects an orientation."
+      },
+      {
         "id": "addressable-quotient-assumptions",
         "result": "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
         "evidence": "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract."
@@ -2585,8 +2880,8 @@
         "evidence": "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved."
       }
     ],
-    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain.",
-    "remainingBoundary": "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument."
+    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain. Over every completion of two chained premise pairs, a continuation follows only relative to an exclusion the records do not state, and the transitive and circular exclusions make opposite orientations follow.",
+    "remainingBoundary": "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive which exclusion or orientation makes a continuation follow, derive execution semantics, or generalize every finite enumeration beyond its stated argument."
   },
   "acceptanceWorkload": [
     "load",
@@ -2870,7 +3165,9 @@
       "a reusable local incidence join matches one described record through three linked correspondence witnesses and emits a four-link trace",
       "the same local join can replay a trace root but reversing the mapping interpretation changes the result on identical links",
       "one ordinary witness link conditionally selects [0,2] from [3,0,1] and [4,1,2] under a declared incidence join; reversal or removal destroys that conditional report",
-      "the witness-only structure and its [7,0,2] extension satisfy the same join, so the witness does not force creation of the result link"
+      "the witness-only structure and its [7,0,2] extension satisfy the same join, so the witness does not force creation of the result link",
+      "over all 128 completions of the recorded pairs [0,1] and [1,2], no new pair follows without an exclusion; transitive completions make [0,2] follow and circular completions make [2,0] follow",
+      "all 16 two-premise position laws are invariant under address renaming, arbitrary substitution, record reordering, and nested encoding; the admitted criteria leave the [0,2] and [2,0] readouts and each commutes with an output swap that fixes no non-degenerate law"
     ],
     "notProved": [
       "that S/K is globally minimal",
@@ -2910,7 +3207,8 @@
       "that conditional admissibility admits, activates, publishes, or executes a candidate",
       "that the linked local-match trace executes or authorizes its own verifier",
       "that choosing an active description or correspondence orientation is intrinsic to the tested link records",
-      "that the conditional continuation witness authorizes its join, reading orientation, or creation of a result link"
+      "that the conditional continuation witness authorizes its join, reading orientation, or creation of a result link",
+      "that the recorded links determine which exclusion or output orientation makes a continuation follow"
     ]
   }
 }

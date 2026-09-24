@@ -962,6 +962,298 @@ function conditionalContinuations(
     left[0] - right[0] || left[1] - right[1]);
 }
 
+// Consequence audit over the same two premises. It is a finite model check,
+// not a verifier step: a pair is possible when some admissible completion of
+// the recorded pairs contains it and follows when every one contains it.
+// Position laws copy two of the four premise reference slots into an
+// unrecorded output pair.
+function continuationConsequenceAudit() {
+  const [K, A, B] = [0, 1, 2];
+  const carrier = [K, A, B];
+  const premises = [[3, K, A], [4, A, B]];
+  const premisePairs = premises.map(([, left, right]) => [left, right]);
+  const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  const hasPair = (pairs, [left, right]) =>
+    pairs.some(pair => pair[0] === left && pair[1] === right);
+  const sortPairs = pairs => [...pairs].sort((left, right) =>
+    left[0] - right[0] || left[1] - right[1]);
+  const uniquePairs = pairs => sortPairs(pairs.filter((pair, index) =>
+    !hasPair(pairs.slice(0, index), pair)));
+  const renamePairs = (pairs, renaming) =>
+    uniquePairs(pairs.map(pair => pair.map(value => renaming[value] ?? value)));
+
+  const allPairs = carrier.flatMap(left => carrier.map(right => [left, right]));
+  const optionalPairs = allPairs.filter(pair => !hasPair(premisePairs, pair));
+  const completions = Array.from(
+    { length: 2 ** optionalPairs.length },
+    (_, mask) => sortPairs([...premisePairs, ...optionalPairs.filter((_, bit) =>
+      mask & (1 << bit))]),
+  );
+  const closedUnder = (relation, conclude) => relation.every(([x, y]) =>
+    relation.every(([middle, z]) =>
+      middle !== y || hasPair(relation, conclude(x, z))));
+  const transitive = relation => closedUnder(relation, (x, z) => [x, z]);
+  const circular = relation => closedUnder(relation, (x, z) => [z, x]);
+  const intersection = relations => allPairs.filter(pair =>
+    relations.every(relation => hasPair(relation, pair)));
+  const exclusionClasses = [
+    ['none', completions],
+    ['transitive', completions.filter(transitive)],
+    ['circular', completions.filter(circular)],
+    ['transitive-or-circular', completions.filter(relation =>
+      transitive(relation) || circular(relation))],
+  ].map(([id, admissible]) => {
+    const follows = intersection(admissible);
+    return {
+      id,
+      admissible,
+      summary: {
+        id,
+        admissibleCompletions: admissible.length,
+        follows,
+        leastCompletionAdmissible: admissible.some(relation =>
+          same(relation, follows)),
+        forwardFollows: hasPair(follows, [K, B]),
+        reverseFollows: hasPair(follows, [B, K]),
+        unorientedConnectionFollows: admissible.every(relation =>
+          hasPair(relation, [K, B]) || hasPair(relation, [B, K])),
+      },
+    };
+  });
+  const classById = Object.fromEntries(exclusionClasses.map(item =>
+    [item.id, item.summary]));
+
+  const slotNames = ['P.first', 'P.second', 'Q.first', 'Q.second'];
+  const laws = [0, 1, 2, 3].flatMap(first => [0, 1, 2, 3].map(second =>
+    [first, second]));
+  const swapOutput = ([first, second]) => [second, first];
+  const applyLaw = (records, [first, second]) => uniquePairs(
+    records.flatMap(left => records
+      .filter(right => left[0] !== right[0] && left[2] === right[1])
+      .map(right => {
+        const references = [left[1], left[2], right[1], right[2]];
+        return [references[first], references[second]];
+      })),
+  );
+  const readout = law => applyLaw(premises, law)[0];
+  const substitutions = carrier.flatMap(k => carrier.flatMap(a =>
+    carrier.map(b => [k, a, b])));
+  const criteria = [
+    ['address-renaming', law => permutations([0, 1, 2, 3, 4]).every(renaming =>
+      same(
+        applyLaw(premises.map(record => record.map(value => renaming[value])),
+          law),
+        renamePairs(applyLaw(premises, law), renaming),
+      ))],
+    ['arbitrary-substitution', law => substitutions.every(substitution => {
+      const substituted = premises.map(([address, left, right]) =>
+        [address, substitution[left], substitution[right]]);
+      const actual = applyLaw(substituted, law);
+      return renamePairs(applyLaw(premises, law), substitution)
+        .every(pair => hasPair(actual, pair));
+    })],
+    ['record-reordering', law =>
+      same(applyLaw([...premises].reverse(), law), applyLaw(premises, law))],
+    ['nested-encoding', law => same(
+      applyLaw(premises
+        .map(([address, left, right]) => [address, [[0, left], [1, right]]])
+        .map(([address, slots]) => [address, slots[0][1], slots[1][1]]), law),
+      applyLaw(premises, law),
+    )],
+    ['global-slot-reversal', law => same(
+      applyLaw(reverseBinaryReferenceSlots(premises), law),
+      uniquePairs(applyLaw(premises, law).map(([left, right]) => [right, left])),
+    )],
+    ['non-degenerate', law => readout(law)[0] !== readout(law)[1]],
+    ['unordered-novelty', law => !premisePairs.some(pair =>
+      same([...pair].sort(), [...readout(law)].sort()))],
+  ];
+  const passesAll = (law, skipped) => criteria.every(([id, test]) =>
+    id === skipped || test(law));
+  const survivors = laws.filter(law => passesAll(law));
+
+  const leastModel = law => {
+    let records = premises;
+    for (;;) {
+      const recorded = records.map(([, left, right]) => [left, right]);
+      const fresh = applyLaw(records, law)
+        .filter(pair => !hasPair(recorded, pair));
+      if (fresh.length === 0) return records;
+      records = [...records, ...fresh.map((pair, index) =>
+        [7 + records.length - premises.length + index, ...pair])];
+    }
+  };
+  const pairsOf = records => sortPairs(records.map(([, left, right]) =>
+    [left, right]));
+  const closedOn = (law, records) =>
+    applyLaw(records, law).every(pair => hasPair(pairsOf(records), pair));
+  const pairAutomorphisms = pairs => permutations(carrier).filter(renaming =>
+    same(renamePairs(pairs, renaming), uniquePairs(pairs)));
+  const derivedOutsidePremiseOrbits = law => {
+    const pairs = pairsOf(leastModel(law));
+    const derived = pairs.filter(pair => !hasPair(premisePairs, pair));
+    return pairAutomorphisms(pairs).every(renaming =>
+      !renamePairs(derived, renaming).some(pair => hasPair(premisePairs, pair)));
+  };
+  const everyLinkFollowsFromOthers = law => {
+    const model = leastModel(law);
+    return model.every(record => hasPair(
+      applyLaw(model.filter(other => other !== record), law),
+      [record[1], record[2]],
+    ));
+  };
+  const firstSlots = [0, 2];
+  const secondSlots = [1, 3];
+  const unitCases = [[[3, K, A], [4, A, A]], [[3, A, A], [4, A, B]]];
+  const tieBreakers = [
+    ['slot-position-preservation',
+      ([first, second]) =>
+        firstSlots.includes(first) && secondSlots.includes(second),
+      'slot-exchange',
+      ([first, second]) =>
+        secondSlots.includes(first) && firstSlots.includes(second),
+      'ALIGNS_UNRECORDED_OUTPUT_SLOTS_WITH_PREMISE_SLOTS'],
+    ['unit-neutrality',
+      law => unitCases.every(records => same(applyLaw(records, law),
+        [records.find(([, left, right]) => left !== right).slice(1)])),
+      'converse-unit-neutrality',
+      law => unitCases.every(records => same(applyLaw(records, law),
+        [records.find(([, left, right]) => left !== right).slice(1).reverse()])),
+      'IMPORTS_IDENTITY_LAW_AND_ORIENTED_EQUALITY'],
+    ['declared-closed-model',
+      law => closedOn(law, [...premises, [7, K, B]]),
+      'declared-closed-cycle',
+      law => closedOn(law, [...premises, [7, B, K]]),
+      'CONCLUSION_ALREADY_RECORDED'],
+    ['premise-recoverability', derivedOutsidePremiseOrbits,
+      'premise-interchangeability', everyLinkFollowsFromOthers,
+      'IMPORTS_IRREVERSIBLE_CONSEQUENCE'],
+  ].map(([id, select, mirror, mirrorSelect, provenance]) => ({
+    id,
+    selects: survivors.filter(select).map(readout),
+    mirror,
+    mirrorSelects: survivors.filter(mirrorSelect).map(readout),
+    provenance,
+  }));
+
+  const [forwardLaw, reverseLaw] = [[0, 3], [3, 0]];
+  const forwardLeastModel = pairsOf(leastModel(forwardLaw));
+  const reverseLeastModel = pairsOf(leastModel(reverseLaw));
+  const recordAutomorphisms = (records, unordered) => {
+    const normal = candidate => JSON.stringify(candidate
+      .map(([address, left, right]) => unordered ?
+        [address, Math.min(left, right), Math.max(left, right)] :
+        [address, left, right])
+      .sort((left, right) => left[0] - right[0]));
+    const values = [...new Set(records.flat())].sort((left, right) =>
+      left - right);
+    return permutations(values)
+      .map(image => Object.fromEntries(values.map((value, index) =>
+        [value, image[index]])))
+      .filter(renaming => normal(records.map(record =>
+        record.map(value => renaming[value]))) === normal(records));
+  };
+  const withWitness = [...premises, [5, 3, 4]];
+  const automorphismCounts = unordered => [premises, withWitness].map(records =>
+    recordAutomorphisms(records, unordered).length);
+  const [orderedCounts, unorderedCounts] =
+    [false, true].map(automorphismCounts);
+  const unorderedAutomorphismExchangesCandidates =
+    recordAutomorphisms(premises, true).some(renaming =>
+      renaming[K] === B && renaming[B] === K);
+  const orientedExclusionsRestateSurvivors =
+    same(classById.transitive.follows, forwardLeastModel) &&
+    same(classById.circular.follows, reverseLeastModel) &&
+    same(survivors, [forwardLaw, reverseLaw]);
+  return {
+    question:
+      'What structural fact turns a possible continuation into one that follows?',
+    status: 'CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION',
+    modalReading:
+      'a pair is possible when some admissible completion of the recorded pairs contains it, and follows when every admissible completion contains it',
+    premisePairs,
+    completionCount: completions.length,
+    everyPairPossibleInEachClass: exclusionClasses.every(({ admissible }) =>
+      allPairs.every(pair => admissible.some(relation =>
+        hasPair(relation, pair)))),
+    positiveFactsAloneForceNothingNew: completions.every(facts =>
+      same(intersection(completions.filter(relation =>
+        facts.every(pair => hasPair(relation, pair)))), facts)),
+    exclusionClasses: exclusionClasses.map(item => item.summary),
+    orientedExclusionsRestateSurvivors,
+    lawSpace: {
+      positionLaws: laws.length,
+      distinctReadouts: new Set(laws.map(law => JSON.stringify(readout(law))))
+        .size,
+      admittedCriteria: criteria.map(([id, test]) => ({
+        id,
+        passing: laws.filter(test).length,
+        survivorsWithoutIt: laws.filter(law => passesAll(law, id)).length,
+      })),
+      admittedCriteriaCommuteWithOutputSwap: criteria.every(([, test]) =>
+        laws.every(law => test(law) === test(swapOutput(law)))),
+      outputSwapFixesNoNonDegenerateLaw: laws.every(law =>
+        readout(law)[0] === readout(law)[1] || !same(law, swapOutput(law))),
+      survivors: survivors.map(law => ({
+        slots: law.map(slot => slotNames[slot]),
+        readout: readout(law),
+      })),
+      tieBreakers,
+    },
+    minimalPair: {
+      agreeOnRecordedPremises: premisePairs.every(pair =>
+        hasPair(forwardLeastModel, pair) && hasPair(reverseLeastModel, pair)),
+      forwardLeastModel,
+      reverseLeastModel,
+      forwardLeastModelAutomorphisms:
+        pairAutomorphisms(forwardLeastModel).length,
+      reverseLeastModelAutomorphisms:
+        pairAutomorphisms(reverseLeastModel).length,
+      forwardEveryLinkFollowsFromOthers: everyLinkFollowsFromOthers(forwardLaw),
+      reverseEveryLinkFollowsFromOthers: everyLinkFollowsFromOthers(reverseLaw),
+    },
+    slotOrder: {
+      orderedAutomorphisms: orderedCounts[0],
+      unorderedAutomorphisms: unorderedCounts[0],
+      witnessChangesAutomorphismCounts:
+        orderedCounts[0] !== orderedCounts[1] ||
+        unorderedCounts[0] !== unorderedCounts[1],
+      unorderedAutomorphismExchangesCandidates,
+    },
+    assumptionRemoval: {
+      withOrientedExclusion:
+        classById.transitive.forwardFollows &&
+        !classById.transitive.reverseFollows &&
+        classById.circular.reverseFollows &&
+        !classById.circular.forwardFollows ?
+          'ORIENTED_CONTINUATION_FOLLOWS_RELATIVE_TO_THAT_EXCLUSION' :
+          'ORIENTATION_NOT_SEPARATED',
+      withoutExclusionOrientation:
+        classById['transitive-or-circular'].unorientedConnectionFollows &&
+        !classById['transitive-or-circular'].forwardFollows &&
+        !classById['transitive-or-circular'].reverseFollows ?
+          'ONLY_UNORIENTED_CONNECTION_FOLLOWS' : 'ORIENTED_CONTINUATION_FOLLOWS',
+      withoutExclusion: same(classById.none.follows, premisePairs) ?
+        'NOTHING_BEYOND_RECORDED_FACTS_FOLLOWS' : 'NEW_PAIR_FOLLOWS',
+      withoutSlotOrder: unorderedAutomorphismExchangesCandidates ?
+        'PREMISE_AUTOMORPHISM_EXCHANGES_CANDIDATES' :
+        'CANDIDATES_REMAIN_DISTINGUISHABLE',
+    },
+    selfApplication: {
+      eachSurvivorClosedOnOwnLeastModel: survivors.every(law =>
+        closedOn(law, leastModel(law))),
+      anySurvivorClosedOnOtherLeastModel: survivors.some(law =>
+        closedOn(law, leastModel(swapOutput(law)))),
+      exclusionsConsistentWithRecords: exclusionClasses.filter(({ admissible }) =>
+        admissible.length > 0).length,
+      exclusionDeterminedByRecords: exclusionClasses.filter(({ admissible }) =>
+        admissible.length > 0).length === 1,
+    },
+    missingInformation:
+      'Recorded Links supply only positive facts. A continuation follows only under an exclusion over completions, and one orientation bit of that exclusion still separates [K,B] from [B,K]; the records state neither.',
+  };
+}
+
 function conditionalContinuationProbe() {
   const premises = [[3, 0, 1], [4, 1, 2]];
   const forwardWitness = [5, 3, 4];
@@ -1079,8 +1371,9 @@ function conditionalContinuationProbe() {
       },
       lawSelfApplicationEstablished: false,
     },
+    consequenceAudit: continuationConsequenceAudit(),
     claimBoundary:
-      'A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established.',
+      'A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established. Read over every completion of the premises, nothing new follows without an exclusion; the transitive and circular exclusions restate the two surviving projections and make opposite orientations follow, and every admitted genericity criterion is blind to that orientation.',
   };
 }
 
@@ -2360,8 +2653,8 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v13',
-    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?',
+    schema: 'rml-link-ontology-symmetry-experiment/v14',
+    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier, and what, if anything, turns a possible continuation into one that follows?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
       occurrenceCount,
@@ -2513,6 +2806,11 @@ function linkOntologySymmetryExperiment() {
         evidence: 'An ordinary third link [5,3,4] cites premise addresses [3,0,1] and [4,1,2], so a declared incidence join reports [0,2]. Reversing the witness or removing any of the three records removes that conditional report. The witness-only structure and its [7,0,2] extension satisfy the same condition, so neither creation nor the join authority follows from the records.',
       },
       {
+        id: 'continuation-consequence',
+        result: 'CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION',
+        evidence: 'Over all 128 completions of the recorded pairs [0,1] and [1,2], positive link facts alone make no new pair follow. A transitive exclusion makes [0,2] follow and a circular exclusion makes [2,0] follow, but each exclusion\'s meet equals the least model of one surviving projection, so the selecting fact restates the law. Address renaming, arbitrary substitution, record reordering, nested encoding, slot reversal, non-degeneracy, and novelty all commute with the output swap, which fixes no non-degenerate law, so none of them selects an orientation.',
+      },
+      {
         id: 'addressable-quotient-assumptions',
         result: 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED',
         evidence: 'Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.',
@@ -2523,8 +2821,8 @@ function linkOntologySymmetryExperiment() {
         evidence: 'The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.',
       },
     ],
-    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain.',
-    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.',
+    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain. Over every completion of two chained premise pairs, a continuation follows only relative to an exclusion the records do not state, and the transitive and circular exclusions make opposite orientations follow.',
+    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive which exclusion or orientation makes a continuation follow, derive execution semantics, or generalize every finite enumeration beyond its stated argument.',
   };
 }
 
@@ -3224,7 +3522,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v16',
+    schema: 'rml-alternative-foundation-search/v17',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',
@@ -3269,7 +3567,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
       globallyMinimal: false,
       intrinsicTransitionAuthority: 'UNRESOLVED',
       representationWitnessConclusion: 'The tested ordered-link host representation does not select between the two witnessed transitions.',
-      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base. The reference-only projection is non-faithful for required direct self-reference. Before occurrence permutation, 2/4/8/16 Boolean masks classify self-incidence per ordered slot. Removing single-link isolation yields 10/77/799 shared-address classes at two through four links but only 4/8/16 local-descriptor products; an external-reference pair and a two-link incidence cycle are the explicit countermodel. Cross-reference equality plus reference-to-link-address incidence is complete for the ordered one-reference shared-address contract, without assigning semantic meaning to that incidence. A connected identity/self-incidence/shared-address/recursion structure keeps P/Q distinct from K/A/B and contains the reverse [2,0] reference pair but not proposed [0,2]; its conservative extension adds [0,2] without changing the premises. Binary formation admits all 49 pairs over the seven existing addresses, so application roles and composition/execution authority require an additional distinction or law. Adding an ordinary link to duplicate candidates breaks their swap symmetry but leaves two opposite equivariant singleton readings. A declared finite exact-cover verifier over ordinary linked descriptions, mappings, and context incidence rejects incomplete and wrong evidence and observes ZERO/ONE/MANY candidates, but a locally isomorphic second candidate remains admissible and the link records do not authorize the verifier or their assigned roles. The local verifier-step probe yields linked match traces, including trace replay and self-application, but still uses host iteration, projection, equality, counting, and role selection. These probes do not derive authenticity, admission, activation, or execution.',
+      ontologyExperimentConclusion: 'Binary equality coincidence is complete only at fixed width two. Across tested widths one through four, multiplicity spectra classify the base observation. The width-four refinement separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20 symmetric classes. Every tested candidate that preserves all base symmetries leaves the base occurrence orbits unchanged, while the interaction-only witness breaks a base-preserving relabelling; its distinction is therefore not derived from the tested base. The reference-only projection is non-faithful for required direct self-reference. Before occurrence permutation, 2/4/8/16 Boolean masks classify self-incidence per ordered slot. Removing single-link isolation yields 10/77/799 shared-address classes at two through four links but only 4/8/16 local-descriptor products; an external-reference pair and a two-link incidence cycle are the explicit countermodel. Cross-reference equality plus reference-to-link-address incidence is complete for the ordered one-reference shared-address contract, without assigning semantic meaning to that incidence. A connected identity/self-incidence/shared-address/recursion structure keeps P/Q distinct from K/A/B and contains the reverse [2,0] reference pair but not proposed [0,2]; its conservative extension adds [0,2] without changing the premises. Binary formation admits all 49 pairs over the seven existing addresses, so application roles and composition/execution authority require an additional distinction or law. Adding an ordinary link to duplicate candidates breaks their swap symmetry but leaves two opposite equivariant singleton readings. A declared finite exact-cover verifier over ordinary linked descriptions, mappings, and context incidence rejects incomplete and wrong evidence and observes ZERO/ONE/MANY candidates, but a locally isomorphic second candidate remains admissible and the link records do not authorize the verifier or their assigned roles. The local verifier-step probe yields linked match traces, including trace replay and self-application, but still uses host iteration, projection, equality, counting, and role selection. Over all 128 completions of chained premise pairs [0,1] and [1,2], no new pair follows without an exclusion; transitive and circular exclusions make [0,2] and [2,0] follow, and every admitted genericity criterion commutes with the output swap, so the records leave that orientation unstated. These probes do not derive authenticity, admission, activation, consequence, or execution.',
       pathDependenceResult: 'The same workload survives two independently sourced non-combinator mechanisms, but only S/K currently meets the comparison-eligibility gate. No minimum or winner is reported from that asymmetric cohort.',
     },
   };

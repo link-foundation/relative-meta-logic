@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v16');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v17');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v13',
+      'rml-link-ontology-symmetry-experiment/v14',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -256,6 +256,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['linked-structural-admissibility', 'LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING'],
         ['linked-verifier-step', 'LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY'],
         ['conditional-continuation', 'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT'],
+        ['continuation-consequence', 'CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
@@ -1142,6 +1143,135 @@ describe('architecture-neutral alternative-foundation search', () => {
       },
       lawSelfApplicationEstablished: false,
     });
+    assert.deepEqual(continuation.consequenceAudit, {
+      question:
+        'What structural fact turns a possible continuation into one that follows?',
+      status: 'CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION',
+      modalReading:
+        'a pair is possible when some admissible completion of the recorded pairs contains it, and follows when every admissible completion contains it',
+      premisePairs: [[0, 1], [1, 2]],
+      completionCount: 128,
+      everyPairPossibleInEachClass: true,
+      positiveFactsAloneForceNothingNew: true,
+      exclusionClasses: [
+        {
+          id: 'none',
+          admissibleCompletions: 128,
+          follows: [[0, 1], [1, 2]],
+          leastCompletionAdmissible: true,
+          forwardFollows: false,
+          reverseFollows: false,
+          unorientedConnectionFollows: false,
+        },
+        {
+          id: 'transitive',
+          admissibleCompletions: 13,
+          follows: [[0, 1], [0, 2], [1, 2]],
+          leastCompletionAdmissible: true,
+          forwardFollows: true,
+          reverseFollows: false,
+          unorientedConnectionFollows: true,
+        },
+        {
+          id: 'circular',
+          admissibleCompletions: 2,
+          follows: [[0, 1], [1, 2], [2, 0]],
+          leastCompletionAdmissible: true,
+          forwardFollows: false,
+          reverseFollows: true,
+          unorientedConnectionFollows: true,
+        },
+        {
+          id: 'transitive-or-circular',
+          admissibleCompletions: 14,
+          follows: [[0, 1], [1, 2]],
+          leastCompletionAdmissible: false,
+          forwardFollows: false,
+          reverseFollows: false,
+          unorientedConnectionFollows: true,
+        },
+      ],
+      orientedExclusionsRestateSurvivors: true,
+      lawSpace: {
+        positionLaws: 16,
+        distinctReadouts: 9,
+        admittedCriteria: [
+          { id: 'address-renaming', passing: 16, survivorsWithoutIt: 2 },
+          { id: 'arbitrary-substitution', passing: 16, survivorsWithoutIt: 2 },
+          { id: 'record-reordering', passing: 16, survivorsWithoutIt: 2 },
+          { id: 'nested-encoding', passing: 16, survivorsWithoutIt: 2 },
+          { id: 'global-slot-reversal', passing: 6, survivorsWithoutIt: 2 },
+          { id: 'non-degenerate', passing: 10, survivorsWithoutIt: 6 },
+          { id: 'unordered-novelty', passing: 8, survivorsWithoutIt: 2 },
+        ],
+        admittedCriteriaCommuteWithOutputSwap: true,
+        outputSwapFixesNoNonDegenerateLaw: true,
+        survivors: [
+          { slots: ['P.first', 'Q.second'], readout: [0, 2] },
+          { slots: ['Q.second', 'P.first'], readout: [2, 0] },
+        ],
+        tieBreakers: [
+          {
+            id: 'slot-position-preservation',
+            selects: [[0, 2]],
+            mirror: 'slot-exchange',
+            mirrorSelects: [[2, 0]],
+            provenance: 'ALIGNS_UNRECORDED_OUTPUT_SLOTS_WITH_PREMISE_SLOTS',
+          },
+          {
+            id: 'unit-neutrality',
+            selects: [[0, 2]],
+            mirror: 'converse-unit-neutrality',
+            mirrorSelects: [[2, 0]],
+            provenance: 'IMPORTS_IDENTITY_LAW_AND_ORIENTED_EQUALITY',
+          },
+          {
+            id: 'declared-closed-model',
+            selects: [[0, 2]],
+            mirror: 'declared-closed-cycle',
+            mirrorSelects: [[2, 0]],
+            provenance: 'CONCLUSION_ALREADY_RECORDED',
+          },
+          {
+            id: 'premise-recoverability',
+            selects: [[0, 2]],
+            mirror: 'premise-interchangeability',
+            mirrorSelects: [[2, 0]],
+            provenance: 'IMPORTS_IRREVERSIBLE_CONSEQUENCE',
+          },
+        ],
+      },
+      minimalPair: {
+        agreeOnRecordedPremises: true,
+        forwardLeastModel: [[0, 1], [0, 2], [1, 2]],
+        reverseLeastModel: [[0, 1], [1, 2], [2, 0]],
+        forwardLeastModelAutomorphisms: 1,
+        reverseLeastModelAutomorphisms: 3,
+        forwardEveryLinkFollowsFromOthers: false,
+        reverseEveryLinkFollowsFromOthers: true,
+      },
+      slotOrder: {
+        orderedAutomorphisms: 1,
+        unorderedAutomorphisms: 2,
+        witnessChangesAutomorphismCounts: false,
+        unorderedAutomorphismExchangesCandidates: true,
+      },
+      assumptionRemoval: {
+        withOrientedExclusion:
+          'ORIENTED_CONTINUATION_FOLLOWS_RELATIVE_TO_THAT_EXCLUSION',
+        withoutExclusionOrientation: 'ONLY_UNORIENTED_CONNECTION_FOLLOWS',
+        withoutExclusion: 'NOTHING_BEYOND_RECORDED_FACTS_FOLLOWS',
+        withoutSlotOrder: 'PREMISE_AUTOMORPHISM_EXCHANGES_CANDIDATES',
+      },
+      selfApplication: {
+        eachSurvivorClosedOnOwnLeastModel: true,
+        anySurvivorClosedOnOtherLeastModel: false,
+        exclusionsConsistentWithRecords: 4,
+        exclusionDeterminedByRecords: false,
+      },
+      missingInformation:
+        'Recorded Links supply only positive facts. A continuation follows only under an exclusion over completions, and one orientation bit of that exclusion still separates [K,B] from [B,K]; the records state neither.',
+    });
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -1292,6 +1422,10 @@ describe('architecture-neutral alternative-foundation search', () => {
       report.conclusion.ontologyExperimentConclusion,
       /ZERO\/ONE\/MANY candidates/i,
     );
+    assert.match(
+      report.conclusion.ontologyExperimentConclusion,
+      /no new pair follows without an exclusion/i,
+    );
   });
 
   it('fault-injects every residual semantic law instead of assuming it', () => {
@@ -1337,7 +1471,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v16');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v17');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,

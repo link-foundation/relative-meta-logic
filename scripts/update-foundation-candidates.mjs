@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v16';
+table.schema = 'rml-foundation-candidate-table/v17';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -59,6 +59,8 @@ table.claimBoundary.proved = [...new Set([
   'the same local join can replay a trace root but reversing the mapping interpretation changes the result on identical links',
   'one ordinary witness link conditionally selects [0,2] from [3,0,1] and [4,1,2] under a declared incidence join; reversal or removal destroys that conditional report',
   'the witness-only structure and its [7,0,2] extension satisfy the same join, so the witness does not force creation of the result link',
+  'over all 128 completions of the recorded pairs [0,1] and [1,2], no new pair follows without an exclusion; transitive completions make [0,2] follow and circular completions make [2,0] follow',
+  'all 16 two-premise position laws are invariant under address renaming, arbitrary substitution, record reordering, and nested encoding; the admitted criteria leave the [0,2] and [2,0] readouts and each commutes with an output swap that fixes no non-degenerate law',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -86,6 +88,7 @@ table.claimBoundary.notProved = [...new Set([
   'that the linked local-match trace executes or authorizes its own verifier',
   'that choosing an active description or correspondence orientation is intrinsic to the tested link records',
   'that the conditional continuation witness authorizes its join, reading orientation, or creation of a result link',
+  'that the recorded links determine which exclusion or output orientation makes a continuation follow',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);
