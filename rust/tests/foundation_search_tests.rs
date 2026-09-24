@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v13");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v14");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -581,6 +581,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "conditional-continuation",
                 "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
+            ),
+            (
+                "continuation-consequence",
+                "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION",
             ),
             (
                 "addressable-quotient-assumptions",
@@ -1233,6 +1237,215 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(!law_audit.stage_boundary.follows_from_records_alone);
     assert!(!law_audit.stage_boundary.produced_by_records_alone);
     assert!(!law_audit.law_self_application_established);
+    let consequence = &continuation.consequence_audit;
+    assert_eq!(
+        consequence.question,
+        "What structural fact turns a possible continuation into one that follows?"
+    );
+    assert_eq!(
+        consequence.status,
+        "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION"
+    );
+    assert_eq!(
+        consequence.modal_reading,
+        "a pair is possible when some admissible completion of the recorded pairs contains it, and follows when every admissible completion contains it"
+    );
+    assert_eq!(consequence.premise_pairs, vec![vec![0, 1], vec![1, 2]]);
+    assert_eq!(consequence.completion_count, 128);
+    assert!(consequence.every_pair_possible_in_each_class);
+    assert!(consequence.positive_facts_alone_force_nothing_new);
+    assert_eq!(
+        consequence
+            .exclusion_classes
+            .iter()
+            .map(|class| (
+                class.id,
+                class.admissible_completions,
+                class.follows.clone(),
+                class.least_completion_admissible,
+                class.forward_follows,
+                class.reverse_follows,
+                class.unoriented_connection_follows,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                "none",
+                128,
+                vec![vec![0, 1], vec![1, 2]],
+                true,
+                false,
+                false,
+                false
+            ),
+            (
+                "transitive",
+                13,
+                vec![vec![0, 1], vec![0, 2], vec![1, 2]],
+                true,
+                true,
+                false,
+                true
+            ),
+            (
+                "circular",
+                2,
+                vec![vec![0, 1], vec![1, 2], vec![2, 0]],
+                true,
+                false,
+                true,
+                true
+            ),
+            (
+                "transitive-or-circular",
+                14,
+                vec![vec![0, 1], vec![1, 2]],
+                false,
+                false,
+                false,
+                true
+            ),
+        ]
+    );
+    assert!(consequence.oriented_exclusions_restate_survivors);
+    let law_space = &consequence.law_space;
+    assert_eq!(law_space.position_laws, 16);
+    assert_eq!(law_space.distinct_readouts, 9);
+    assert_eq!(
+        law_space
+            .admitted_criteria
+            .iter()
+            .map(|criterion| (
+                criterion.id,
+                criterion.passing,
+                criterion.survivors_without_it
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("address-renaming", 16, 2),
+            ("arbitrary-substitution", 16, 2),
+            ("record-reordering", 16, 2),
+            ("nested-encoding", 16, 2),
+            ("global-slot-reversal", 6, 2),
+            ("non-degenerate", 10, 6),
+            ("unordered-novelty", 8, 2),
+        ]
+    );
+    assert!(law_space.admitted_criteria_commute_with_output_swap);
+    assert!(law_space.output_swap_fixes_no_non_degenerate_law);
+    assert_eq!(
+        law_space
+            .survivors
+            .iter()
+            .map(|law| (law.slots.clone(), law.readout.clone()))
+            .collect::<Vec<_>>(),
+        vec![
+            (vec!["P.first", "Q.second"], vec![0, 2]),
+            (vec!["Q.second", "P.first"], vec![2, 0]),
+        ]
+    );
+    assert_eq!(
+        law_space
+            .tie_breakers
+            .iter()
+            .map(|tie_breaker| (
+                tie_breaker.id,
+                tie_breaker.selects.clone(),
+                tie_breaker.mirror,
+                tie_breaker.mirror_selects.clone(),
+                tie_breaker.provenance,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                "slot-position-preservation",
+                vec![vec![0, 2]],
+                "slot-exchange",
+                vec![vec![2, 0]],
+                "ALIGNS_UNRECORDED_OUTPUT_SLOTS_WITH_PREMISE_SLOTS",
+            ),
+            (
+                "unit-neutrality",
+                vec![vec![0, 2]],
+                "converse-unit-neutrality",
+                vec![vec![2, 0]],
+                "IMPORTS_IDENTITY_LAW_AND_ORIENTED_EQUALITY",
+            ),
+            (
+                "declared-closed-model",
+                vec![vec![0, 2]],
+                "declared-closed-cycle",
+                vec![vec![2, 0]],
+                "CONCLUSION_ALREADY_RECORDED",
+            ),
+            (
+                "premise-recoverability",
+                vec![vec![0, 2]],
+                "premise-interchangeability",
+                vec![vec![2, 0]],
+                "IMPORTS_IRREVERSIBLE_CONSEQUENCE",
+            ),
+        ]
+    );
+    let minimal_pair = &consequence.minimal_pair;
+    assert!(minimal_pair.agree_on_recorded_premises);
+    assert_eq!(
+        minimal_pair.forward_least_model,
+        vec![vec![0, 1], vec![0, 2], vec![1, 2]]
+    );
+    assert_eq!(
+        minimal_pair.reverse_least_model,
+        vec![vec![0, 1], vec![1, 2], vec![2, 0]]
+    );
+    assert_eq!(minimal_pair.forward_least_model_automorphisms, 1);
+    assert_eq!(minimal_pair.reverse_least_model_automorphisms, 3);
+    assert!(!minimal_pair.forward_every_link_follows_from_others);
+    assert!(minimal_pair.reverse_every_link_follows_from_others);
+    assert_eq!(consequence.slot_order.ordered_automorphisms, 1);
+    assert_eq!(consequence.slot_order.unordered_automorphisms, 2);
+    assert!(!consequence.slot_order.witness_changes_automorphism_counts);
+    assert!(
+        consequence
+            .slot_order
+            .unordered_automorphism_exchanges_candidates
+    );
+    assert_eq!(
+        (
+            consequence.assumption_removal.with_oriented_exclusion,
+            consequence.assumption_removal.without_exclusion_orientation,
+            consequence.assumption_removal.without_exclusion,
+            consequence.assumption_removal.without_slot_order,
+        ),
+        (
+            "ORIENTED_CONTINUATION_FOLLOWS_RELATIVE_TO_THAT_EXCLUSION",
+            "ONLY_UNORIENTED_CONNECTION_FOLLOWS",
+            "NOTHING_BEYOND_RECORDED_FACTS_FOLLOWS",
+            "PREMISE_AUTOMORPHISM_EXCHANGES_CANDIDATES",
+        )
+    );
+    assert!(
+        consequence
+            .self_application
+            .each_survivor_closed_on_own_least_model
+    );
+    assert!(
+        !consequence
+            .self_application
+            .any_survivor_closed_on_other_least_model
+    );
+    assert_eq!(
+        consequence
+            .self_application
+            .exclusions_consistent_with_records,
+        4
+    );
+    assert!(!consequence.self_application.exclusion_determined_by_records);
+    assert!(consequence
+        .missing_information
+        .contains("one orientation bit of that exclusion"));
+    assert!(continuation
+        .claim_boundary
+        .contains("every admitted genericity criterion is blind to that orientation"));
     assert_eq!(
         structural_probe.status,
         "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION"

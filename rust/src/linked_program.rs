@@ -858,6 +858,104 @@ pub struct LinkOntologyTransitionLawAudit {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyExclusionClass {
+    pub id: &'static str,
+    pub admissible_completions: usize,
+    pub follows: Vec<Vec<usize>>,
+    pub least_completion_admissible: bool,
+    pub forward_follows: bool,
+    pub reverse_follows: bool,
+    pub unoriented_connection_follows: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyAdmittedLawCriterion {
+    pub id: &'static str,
+    pub passing: usize,
+    pub survivors_without_it: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologySurvivingPositionLaw {
+    pub slots: Vec<&'static str>,
+    pub readout: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationTieBreaker {
+    pub id: &'static str,
+    pub selects: Vec<Vec<usize>>,
+    pub mirror: &'static str,
+    pub mirror_selects: Vec<Vec<usize>>,
+    pub provenance: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyPositionLawSpace {
+    pub position_laws: usize,
+    pub distinct_readouts: usize,
+    pub admitted_criteria: Vec<LinkOntologyAdmittedLawCriterion>,
+    pub admitted_criteria_commute_with_output_swap: bool,
+    pub output_swap_fixes_no_non_degenerate_law: bool,
+    pub survivors: Vec<LinkOntologySurvivingPositionLaw>,
+    pub tie_breakers: Vec<LinkOntologyOrientationTieBreaker>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyConsequenceMinimalPair {
+    pub agree_on_recorded_premises: bool,
+    pub forward_least_model: Vec<Vec<usize>>,
+    pub reverse_least_model: Vec<Vec<usize>>,
+    pub forward_least_model_automorphisms: usize,
+    pub reverse_least_model_automorphisms: usize,
+    pub forward_every_link_follows_from_others: bool,
+    pub reverse_every_link_follows_from_others: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyConsequenceSlotOrder {
+    pub ordered_automorphisms: usize,
+    pub unordered_automorphisms: usize,
+    pub witness_changes_automorphism_counts: bool,
+    pub unordered_automorphism_exchanges_candidates: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyConsequenceAssumptionRemoval {
+    pub with_oriented_exclusion: &'static str,
+    pub without_exclusion_orientation: &'static str,
+    pub without_exclusion: &'static str,
+    pub without_slot_order: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyConsequenceSelfApplication {
+    pub each_survivor_closed_on_own_least_model: bool,
+    pub any_survivor_closed_on_other_least_model: bool,
+    pub exclusions_consistent_with_records: usize,
+    pub exclusion_determined_by_records: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyConsequenceAudit {
+    pub question: &'static str,
+    pub status: &'static str,
+    pub modal_reading: &'static str,
+    pub premise_pairs: Vec<Vec<usize>>,
+    pub completion_count: usize,
+    pub every_pair_possible_in_each_class: bool,
+    pub positive_facts_alone_force_nothing_new: bool,
+    pub exclusion_classes: Vec<LinkOntologyExclusionClass>,
+    pub oriented_exclusions_restate_survivors: bool,
+    pub law_space: LinkOntologyPositionLawSpace,
+    pub minimal_pair: LinkOntologyConsequenceMinimalPair,
+    pub slot_order: LinkOntologyConsequenceSlotOrder,
+    pub assumption_removal: LinkOntologyConsequenceAssumptionRemoval,
+    pub self_application: LinkOntologyConsequenceSelfApplication,
+    pub missing_information: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyConditionalContinuationProbe {
     pub status: &'static str,
     pub contract: &'static str,
@@ -875,6 +973,7 @@ pub struct LinkOntologyConditionalContinuationProbe {
     pub witness_condition_holds_in_both: bool,
     pub intrinsic_creation_or_authority_established: bool,
     pub transition_law_audit: LinkOntologyTransitionLawAudit,
+    pub consequence_audit: LinkOntologyConsequenceAudit,
     pub claim_boundary: &'static str,
 }
 
@@ -2271,6 +2370,562 @@ fn competing_continuation_readouts(records: &[Vec<usize>]) -> LinkOntologyCompet
     }
 }
 
+// Consequence audit over the same two premises. It is a finite model check,
+// not a verifier step: a pair is possible when some admissible completion of
+// the recorded pairs contains it and follows when every one contains it.
+// Position laws copy two of the four premise reference slots into an
+// unrecorded output pair.
+type ConsequencePositionLaw = [usize; 2];
+
+const CONSEQUENCE_CRITERIA: [&str; 7] = [
+    "address-renaming",
+    "arbitrary-substitution",
+    "record-reordering",
+    "nested-encoding",
+    "global-slot-reversal",
+    "non-degenerate",
+    "unordered-novelty",
+];
+
+fn consequence_law_readouts(
+    records: &[Vec<usize>],
+    law: ConsequencePositionLaw,
+) -> Vec<Vec<usize>> {
+    let mut pairs = BTreeSet::new();
+    for left in records {
+        for right in records {
+            if left[0] != right[0] && left[2] == right[1] {
+                let references = [left[1], left[2], right[1], right[2]];
+                pairs.insert(vec![references[law[0]], references[law[1]]]);
+            }
+        }
+    }
+    pairs.into_iter().collect()
+}
+
+fn consequence_unique_pairs(pairs: impl IntoIterator<Item = Vec<usize>>) -> Vec<Vec<usize>> {
+    pairs
+        .into_iter()
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+fn consequence_rename_pairs(pairs: &[Vec<usize>], renaming: &[usize]) -> Vec<Vec<usize>> {
+    consequence_unique_pairs(pairs.iter().map(|pair| {
+        pair.iter()
+            .map(|value| renaming.get(*value).copied().unwrap_or(*value))
+            .collect()
+    }))
+}
+
+fn consequence_pairs_of(records: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    let mut pairs = records
+        .iter()
+        .map(|record| vec![record[1], record[2]])
+        .collect::<Vec<_>>();
+    pairs.sort();
+    pairs
+}
+
+fn consequence_least_model(
+    premises: &[Vec<usize>],
+    law: ConsequencePositionLaw,
+) -> Vec<Vec<usize>> {
+    let mut records = premises.to_vec();
+    loop {
+        let recorded = consequence_pairs_of(&records);
+        let fresh = consequence_law_readouts(&records, law)
+            .into_iter()
+            .filter(|pair| !recorded.contains(pair))
+            .collect::<Vec<_>>();
+        if fresh.is_empty() {
+            return records;
+        }
+        let first_fresh_address = 7 + records.len() - premises.len();
+        records.extend(
+            fresh
+                .into_iter()
+                .enumerate()
+                .map(|(index, pair)| vec![first_fresh_address + index, pair[0], pair[1]]),
+        );
+    }
+}
+
+fn consequence_closed_on(law: ConsequencePositionLaw, records: &[Vec<usize>]) -> bool {
+    let pairs = consequence_pairs_of(records);
+    consequence_law_readouts(records, law)
+        .iter()
+        .all(|pair| pairs.contains(pair))
+}
+
+fn consequence_record_automorphisms(
+    records: &[Vec<usize>],
+    unordered: bool,
+) -> Vec<BTreeMap<usize, usize>> {
+    let normal = |candidate: &[Vec<usize>]| {
+        let mut normalized = candidate
+            .iter()
+            .map(|record| {
+                if unordered {
+                    vec![
+                        record[0],
+                        record[1].min(record[2]),
+                        record[1].max(record[2]),
+                    ]
+                } else {
+                    record.clone()
+                }
+            })
+            .collect::<Vec<_>>();
+        normalized.sort_by_key(|record| record[0]);
+        normalized
+    };
+    let values = records
+        .iter()
+        .flatten()
+        .copied()
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let original = normal(records);
+    finite_permutations(&values)
+        .into_iter()
+        .map(|image| {
+            values
+                .iter()
+                .copied()
+                .zip(image)
+                .collect::<BTreeMap<_, _>>()
+        })
+        .filter(|renaming| normal(&rename_record_addresses(records, renaming)) == original)
+        .collect()
+}
+
+fn link_ontology_continuation_consequence_audit() -> LinkOntologyConsequenceAudit {
+    let (k, a, b) = (0, 1, 2);
+    let carrier = [k, a, b];
+    let premises = vec![vec![3, k, a], vec![4, a, b]];
+    let premise_pairs = consequence_pairs_of(&premises);
+
+    let all_pairs = carrier
+        .iter()
+        .flat_map(|left| carrier.iter().map(move |right| vec![*left, *right]))
+        .collect::<Vec<_>>();
+    let optional_pairs = all_pairs
+        .iter()
+        .filter(|pair| !premise_pairs.contains(pair))
+        .cloned()
+        .collect::<Vec<_>>();
+    let completions = (0..1usize << optional_pairs.len())
+        .map(|mask| {
+            consequence_unique_pairs(
+                premise_pairs.iter().cloned().chain(
+                    optional_pairs
+                        .iter()
+                        .enumerate()
+                        .filter(|(bit, _)| mask & (1 << bit) != 0)
+                        .map(|(_, pair)| pair.clone()),
+                ),
+            )
+        })
+        .collect::<Vec<_>>();
+    // Transitive closure concludes [x,z] from [x,y],[y,z]; circular closure
+    // concludes [z,x] from the same chain.
+    let closed_under = |relation: &[Vec<usize>], circular: bool| {
+        relation.iter().all(|first| {
+            relation.iter().all(|second| {
+                second[0] != first[1]
+                    || relation.contains(&if circular {
+                        vec![second[1], first[0]]
+                    } else {
+                        vec![first[0], second[1]]
+                    })
+            })
+        })
+    };
+    let intersection = |relations: &[Vec<Vec<usize>>]| {
+        all_pairs
+            .iter()
+            .filter(|pair| relations.iter().all(|relation| relation.contains(pair)))
+            .cloned()
+            .collect::<Vec<_>>()
+    };
+    let admissible_by_class = vec![
+        ("none", completions.clone()),
+        (
+            "transitive",
+            completions
+                .iter()
+                .filter(|relation| closed_under(relation, false))
+                .cloned()
+                .collect::<Vec<_>>(),
+        ),
+        (
+            "circular",
+            completions
+                .iter()
+                .filter(|relation| closed_under(relation, true))
+                .cloned()
+                .collect(),
+        ),
+        (
+            "transitive-or-circular",
+            completions
+                .iter()
+                .filter(|relation| closed_under(relation, false) || closed_under(relation, true))
+                .cloned()
+                .collect(),
+        ),
+    ];
+    let forward_pair = vec![k, b];
+    let reverse_pair = vec![b, k];
+    let exclusion_classes = admissible_by_class
+        .iter()
+        .map(|(id, admissible)| {
+            let follows = intersection(admissible);
+            LinkOntologyExclusionClass {
+                id: *id,
+                admissible_completions: admissible.len(),
+                least_completion_admissible: admissible.contains(&follows),
+                forward_follows: follows.contains(&forward_pair),
+                reverse_follows: follows.contains(&reverse_pair),
+                unoriented_connection_follows: admissible.iter().all(|relation| {
+                    relation.contains(&forward_pair) || relation.contains(&reverse_pair)
+                }),
+                follows,
+            }
+        })
+        .collect::<Vec<_>>();
+    let class_by_id = |id: &str| {
+        exclusion_classes
+            .iter()
+            .find(|class| class.id == id)
+            .expect("declared exclusion class")
+    };
+    let every_pair_possible_in_each_class = admissible_by_class.iter().all(|(_, admissible)| {
+        all_pairs
+            .iter()
+            .all(|pair| admissible.iter().any(|relation| relation.contains(pair)))
+    });
+    let positive_facts_alone_force_nothing_new = completions.iter().all(|facts| {
+        intersection(
+            &completions
+                .iter()
+                .filter(|relation| facts.iter().all(|pair| relation.contains(pair)))
+                .cloned()
+                .collect::<Vec<_>>(),
+        ) == *facts
+    });
+
+    let slot_names = ["P.first", "P.second", "Q.first", "Q.second"];
+    let laws = (0..4)
+        .flat_map(|first| (0..4).map(move |second| [first, second]))
+        .collect::<Vec<ConsequencePositionLaw>>();
+    let swap_output = |law: ConsequencePositionLaw| [law[1], law[0]];
+    let readout = |law: ConsequencePositionLaw| consequence_law_readouts(&premises, law)[0].clone();
+    let renamings = finite_permutations(&[0, 1, 2, 3, 4]);
+    let substitutions = finite_assignments(3, carrier.len());
+    // One result per CONSEQUENCE_CRITERIA entry, in the same order.
+    let criteria = |law: ConsequencePositionLaw| -> [bool; 7] {
+        let original = consequence_law_readouts(&premises, law);
+        let mut unordered_readout = original[0].clone();
+        unordered_readout.sort_unstable();
+        [
+            renamings.iter().all(|renaming| {
+                consequence_law_readouts(
+                    &premises
+                        .iter()
+                        .map(|record| record.iter().map(|value| renaming[*value]).collect())
+                        .collect::<Vec<_>>(),
+                    law,
+                ) == consequence_rename_pairs(&original, renaming)
+            }),
+            substitutions.iter().all(|substitution| {
+                let substituted = premises
+                    .iter()
+                    .map(|record| vec![record[0], substitution[record[1]], substitution[record[2]]])
+                    .collect::<Vec<_>>();
+                let actual = consequence_law_readouts(&substituted, law);
+                consequence_rename_pairs(&original, substitution)
+                    .iter()
+                    .all(|pair| actual.contains(pair))
+            }),
+            consequence_law_readouts(&premises.iter().rev().cloned().collect::<Vec<_>>(), law)
+                == original,
+            consequence_law_readouts(
+                &premises
+                    .iter()
+                    .map(|record| (record[0], [(0, record[1]), (1, record[2])]))
+                    .map(|(address, slots)| vec![address, slots[0].1, slots[1].1])
+                    .collect::<Vec<_>>(),
+                law,
+            ) == original,
+            consequence_law_readouts(&reverse_binary_reference_slots(&premises), law)
+                == consequence_unique_pairs(original.iter().map(|pair| vec![pair[1], pair[0]])),
+            original[0][0] != original[0][1],
+            !premise_pairs.iter().any(|pair| {
+                let mut unordered_pair = pair.clone();
+                unordered_pair.sort_unstable();
+                unordered_pair == unordered_readout
+            }),
+        ]
+    };
+    let law_criteria = laws
+        .iter()
+        .map(|law| (*law, criteria(*law)))
+        .collect::<Vec<_>>();
+    let passes_all = |results: &[bool; 7], skipped: Option<usize>| {
+        results
+            .iter()
+            .enumerate()
+            .all(|(index, passes)| Some(index) == skipped || *passes)
+    };
+    let survivors = law_criteria
+        .iter()
+        .filter(|(_, results)| passes_all(results, None))
+        .map(|(law, _)| *law)
+        .collect::<Vec<_>>();
+
+    let least_model = |law: ConsequencePositionLaw| consequence_least_model(&premises, law);
+    let pair_automorphisms = |pairs: &[Vec<usize>]| {
+        let normal = consequence_unique_pairs(pairs.iter().cloned());
+        finite_permutations(&carrier)
+            .into_iter()
+            .filter(|renaming| consequence_rename_pairs(pairs, renaming) == normal)
+            .collect::<Vec<_>>()
+    };
+    let derived_outside_premise_orbits = |law: ConsequencePositionLaw| {
+        let pairs = consequence_pairs_of(&least_model(law));
+        let derived = pairs
+            .iter()
+            .filter(|pair| !premise_pairs.contains(pair))
+            .cloned()
+            .collect::<Vec<_>>();
+        pair_automorphisms(&pairs).iter().all(|renaming| {
+            !consequence_rename_pairs(&derived, renaming)
+                .iter()
+                .any(|pair| premise_pairs.contains(pair))
+        })
+    };
+    let every_link_follows_from_others = |law: ConsequencePositionLaw| {
+        let model = least_model(law);
+        model.iter().enumerate().all(|(index, record)| {
+            let others = model
+                .iter()
+                .enumerate()
+                .filter(|(other, _)| *other != index)
+                .map(|(_, other)| other.clone())
+                .collect::<Vec<_>>();
+            consequence_law_readouts(&others, law).contains(&vec![record[1], record[2]])
+        })
+    };
+    let first_slots = [0, 2];
+    let second_slots = [1, 3];
+    let unit_cases = [
+        vec![vec![3, k, a], vec![4, a, a]],
+        vec![vec![3, a, a], vec![4, a, b]],
+    ];
+    let unit_neutral = |law: ConsequencePositionLaw, converse: bool| {
+        unit_cases.iter().all(|records| {
+            let mut expected = records
+                .iter()
+                .find(|record| record[1] != record[2])
+                .expect("one non-loop premise")[1..]
+                .to_vec();
+            if converse {
+                expected.reverse();
+            }
+            consequence_law_readouts(records, law) == vec![expected]
+        })
+    };
+    let declared_closed = |law: ConsequencePositionLaw, conclusion: Vec<usize>| {
+        let mut records = premises.clone();
+        records.push(conclusion);
+        consequence_closed_on(law, &records)
+    };
+    let selected = |select: &dyn Fn(ConsequencePositionLaw) -> bool| {
+        survivors
+            .iter()
+            .copied()
+            .filter(|law| select(*law))
+            .map(readout)
+            .collect::<Vec<_>>()
+    };
+    let tie_breakers = vec![
+        LinkOntologyOrientationTieBreaker {
+            id: "slot-position-preservation",
+            selects: selected(&|law| {
+                first_slots.contains(&law[0]) && second_slots.contains(&law[1])
+            }),
+            mirror: "slot-exchange",
+            mirror_selects: selected(&|law| {
+                second_slots.contains(&law[0]) && first_slots.contains(&law[1])
+            }),
+            provenance: "ALIGNS_UNRECORDED_OUTPUT_SLOTS_WITH_PREMISE_SLOTS",
+        },
+        LinkOntologyOrientationTieBreaker {
+            id: "unit-neutrality",
+            selects: selected(&|law| unit_neutral(law, false)),
+            mirror: "converse-unit-neutrality",
+            mirror_selects: selected(&|law| unit_neutral(law, true)),
+            provenance: "IMPORTS_IDENTITY_LAW_AND_ORIENTED_EQUALITY",
+        },
+        LinkOntologyOrientationTieBreaker {
+            id: "declared-closed-model",
+            selects: selected(&|law| declared_closed(law, vec![7, k, b])),
+            mirror: "declared-closed-cycle",
+            mirror_selects: selected(&|law| declared_closed(law, vec![7, b, k])),
+            provenance: "CONCLUSION_ALREADY_RECORDED",
+        },
+        LinkOntologyOrientationTieBreaker {
+            id: "premise-recoverability",
+            selects: selected(&derived_outside_premise_orbits),
+            mirror: "premise-interchangeability",
+            mirror_selects: selected(&every_link_follows_from_others),
+            provenance: "IMPORTS_IRREVERSIBLE_CONSEQUENCE",
+        },
+    ];
+
+    let (forward_law, reverse_law) = ([0, 3], [3, 0]);
+    let forward_least_model = consequence_pairs_of(&least_model(forward_law));
+    let reverse_least_model = consequence_pairs_of(&least_model(reverse_law));
+    let mut with_witness = premises.clone();
+    with_witness.push(vec![5, 3, 4]);
+    let automorphism_counts = |unordered: bool| {
+        [premises.as_slice(), with_witness.as_slice()]
+            .map(|records| consequence_record_automorphisms(records, unordered).len())
+    };
+    let ordered_counts = automorphism_counts(false);
+    let unordered_counts = automorphism_counts(true);
+    let unordered_automorphism_exchanges_candidates =
+        consequence_record_automorphisms(&premises, true)
+            .iter()
+            .any(|renaming| renaming[&k] == b && renaming[&b] == k);
+    let unconstrained = class_by_id("none");
+    let transitive = class_by_id("transitive");
+    let circular = class_by_id("circular");
+    let disjunctive = class_by_id("transitive-or-circular");
+    let oriented_exclusions_restate_survivors = transitive.follows == forward_least_model
+        && circular.follows == reverse_least_model
+        && survivors == vec![forward_law, reverse_law];
+    let assumption_removal = LinkOntologyConsequenceAssumptionRemoval {
+        with_oriented_exclusion: if transitive.forward_follows
+            && !transitive.reverse_follows
+            && circular.reverse_follows
+            && !circular.forward_follows
+        {
+            "ORIENTED_CONTINUATION_FOLLOWS_RELATIVE_TO_THAT_EXCLUSION"
+        } else {
+            "ORIENTATION_NOT_SEPARATED"
+        },
+        without_exclusion_orientation: if disjunctive.unoriented_connection_follows
+            && !disjunctive.forward_follows
+            && !disjunctive.reverse_follows
+        {
+            "ONLY_UNORIENTED_CONNECTION_FOLLOWS"
+        } else {
+            "ORIENTED_CONTINUATION_FOLLOWS"
+        },
+        without_exclusion: if unconstrained.follows == premise_pairs {
+            "NOTHING_BEYOND_RECORDED_FACTS_FOLLOWS"
+        } else {
+            "NEW_PAIR_FOLLOWS"
+        },
+        without_slot_order: if unordered_automorphism_exchanges_candidates {
+            "PREMISE_AUTOMORPHISM_EXCHANGES_CANDIDATES"
+        } else {
+            "CANDIDATES_REMAIN_DISTINGUISHABLE"
+        },
+    };
+    let consistent_exclusions = admissible_by_class
+        .iter()
+        .filter(|(_, admissible)| !admissible.is_empty())
+        .count();
+    let law_space = LinkOntologyPositionLawSpace {
+        position_laws: laws.len(),
+        distinct_readouts: laws
+            .iter()
+            .map(|law| readout(*law))
+            .collect::<BTreeSet<_>>()
+            .len(),
+        admitted_criteria: CONSEQUENCE_CRITERIA
+            .into_iter()
+            .enumerate()
+            .map(|(index, id)| LinkOntologyAdmittedLawCriterion {
+                id,
+                passing: law_criteria
+                    .iter()
+                    .filter(|(_, results)| results[index])
+                    .count(),
+                survivors_without_it: law_criteria
+                    .iter()
+                    .filter(|(_, results)| passes_all(results, Some(index)))
+                    .count(),
+            })
+            .collect(),
+        admitted_criteria_commute_with_output_swap: law_criteria
+            .iter()
+            .all(|(law, results)| *results == criteria(swap_output(*law))),
+        output_swap_fixes_no_non_degenerate_law: laws.iter().all(|law| {
+            let value = readout(*law);
+            value[0] == value[1] || *law != swap_output(*law)
+        }),
+        survivors: survivors
+            .iter()
+            .map(|law| LinkOntologySurvivingPositionLaw {
+                slots: law.iter().map(|slot| slot_names[*slot]).collect(),
+                readout: readout(*law),
+            })
+            .collect(),
+        tie_breakers,
+    };
+    let minimal_pair = LinkOntologyConsequenceMinimalPair {
+        agree_on_recorded_premises: premise_pairs
+            .iter()
+            .all(|pair| forward_least_model.contains(pair) && reverse_least_model.contains(pair)),
+        forward_least_model_automorphisms: pair_automorphisms(&forward_least_model).len(),
+        reverse_least_model_automorphisms: pair_automorphisms(&reverse_least_model).len(),
+        forward_every_link_follows_from_others: every_link_follows_from_others(forward_law),
+        reverse_every_link_follows_from_others: every_link_follows_from_others(reverse_law),
+        forward_least_model,
+        reverse_least_model,
+    };
+    let self_application = LinkOntologyConsequenceSelfApplication {
+        each_survivor_closed_on_own_least_model: survivors
+            .iter()
+            .all(|law| consequence_closed_on(*law, &least_model(*law))),
+        any_survivor_closed_on_other_least_model: survivors
+            .iter()
+            .any(|law| consequence_closed_on(*law, &least_model(swap_output(*law)))),
+        exclusions_consistent_with_records: consistent_exclusions,
+        exclusion_determined_by_records: consistent_exclusions == 1,
+    };
+    LinkOntologyConsequenceAudit {
+        question: "What structural fact turns a possible continuation into one that follows?",
+        status: "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION",
+        modal_reading: "a pair is possible when some admissible completion of the recorded pairs contains it, and follows when every admissible completion contains it",
+        completion_count: completions.len(),
+        every_pair_possible_in_each_class,
+        positive_facts_alone_force_nothing_new,
+        oriented_exclusions_restate_survivors,
+        law_space,
+        minimal_pair,
+        slot_order: LinkOntologyConsequenceSlotOrder {
+            ordered_automorphisms: ordered_counts[0],
+            unordered_automorphisms: unordered_counts[0],
+            witness_changes_automorphism_counts: ordered_counts[0] != ordered_counts[1]
+                || unordered_counts[0] != unordered_counts[1],
+            unordered_automorphism_exchanges_candidates,
+        },
+        assumption_removal,
+        self_application,
+        missing_information: "Recorded Links supply only positive facts. A continuation follows only under an exclusion over completions, and one orientation bit of that exclusion still separates [K,B] from [B,K]; the records state neither.",
+        premise_pairs,
+        exclusion_classes,
+    }
+}
+
 fn link_ontology_conditional_continuation_probe() -> LinkOntologyConditionalContinuationProbe {
     let premises = vec![vec![3, 0, 1], vec![4, 1, 2]];
     let forward_witness = vec![5, 3, 4];
@@ -2423,7 +3078,8 @@ fn link_ontology_conditional_continuation_probe() -> LinkOntologyConditionalCont
             },
             law_self_application_established: false,
         },
-        claim_boundary: "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established.",
+        consequence_audit: link_ontology_continuation_consequence_audit(),
+        claim_boundary: "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established. Read over every completion of the premises, nothing new follows without an exclusion; the transitive and circular exclusions restate the two surviving projections and make opposite orientations follow, and every admitted genericity criterion is blind to that orientation.",
     }
 }
 
@@ -4094,8 +4750,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v13",
-        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, and how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier?",
+        schema: "rml-link-ontology-symmetry-experiment/v14",
+        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier, and what, if anything, turns a possible continuation into one that follows?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -4237,6 +4893,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "An ordinary third link [5,3,4] cites premise addresses [3,0,1] and [4,1,2], so a declared incidence join reports [0,2]. Reversing the witness or removing any of the three records removes that conditional report. The witness-only structure and its [7,0,2] extension satisfy the same condition, so neither creation nor the join authority follows from the records.",
             },
             LinkOntologyResult {
+                id: "continuation-consequence",
+                result: "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION",
+                evidence: "Over all 128 completions of the recorded pairs [0,1] and [1,2], positive link facts alone make no new pair follow. A transitive exclusion makes [0,2] follow and a circular exclusion makes [2,0] follow, but each exclusion's meet equals the least model of one surviving projection, so the selecting fact restates the law. Address renaming, arbitrary substitution, record reordering, nested encoding, slot reversal, non-degeneracy, and novelty all commute with the output swap, which fixes no non-degenerate law, so none of them selects an orientation.",
+            },
+            LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
                 result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
                 evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
@@ -4247,8 +4908,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain.",
-        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain. Over every completion of two chained premise pairs, a continuation follows only relative to an exclusion the records do not state, and the transitive and circular exclusions make opposite orientations follow.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive which exclusion or orientation makes a continuation follow, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
     }
 }
 
