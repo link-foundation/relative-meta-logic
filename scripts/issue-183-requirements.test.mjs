@@ -74,6 +74,9 @@ const REQUIREMENT_SOURCES = [
     5802303479,
     5803686269,
     5810243989,
+    5819764265,
+    5819808597,
+    5820068540,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -205,6 +208,7 @@ describe('issue 183 requirement traceability', () => {
       'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT',
       '5819764265',
       '5819808597',
+      '5820068540',
       'logical implication',
       'contract-forced, representation-stable, observer-added',
       'The result uses no set,',
