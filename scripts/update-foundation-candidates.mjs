@@ -17,7 +17,7 @@ const alternativeSource = readFileSync(
 const report = foundationSearchReport(universalSource, alternativeSource);
 const table = JSON.parse(readFileSync(tableUrl, 'utf8'));
 
-table.schema = 'rml-foundation-candidate-table/v17';
+table.schema = 'rml-foundation-candidate-table/v18';
 table.ontologyExperiment = report.ontologyExperiment;
 
 table.claimBoundary.proved = [...new Set([
@@ -61,6 +61,11 @@ table.claimBoundary.proved = [...new Set([
   'the witness-only structure and its [7,0,2] extension satisfy the same join, so the witness does not force creation of the result link',
   'over all 128 completions of the recorded pairs [0,1] and [1,2], no new pair follows without an exclusion; transitive completions make [0,2] follow and circular completions make [2,0] follow',
   'all 16 two-premise position laws are invariant under address renaming, arbitrary substitution, record reordering, and nested encoding; the admitted criteria leave the [0,2] and [2,0] readouts and each commutes with an output swap that fixes no non-degenerate law',
+  'with address equality and slot order alone, [3,0,1] and [4,1,2] keep [0,2] and [2,0] in different orbits under named or anonymous ordered slots, while unordered slots make them coincide',
+  'the output swap commutes with every address renaming and with the global slot reversal, so in all 4567 extensions of the premises by up to two ordinary records no symmetry fixes exactly one of [0,2] and [2,0]',
+  'the achiral [[3,0,1],[4,1,2],[5,3,4]] and its chiral extension by [8,8,9] have identical readouts under all 16 position laws, but only the first has a slot-reversing symmetry',
+  'the cycle [[3,0,1],[4,1,2],[5,2,10],[6,10,0]] and detour [[3,0,1],[4,1,2],[5,2,10],[6,0,10]] have the same unordered records, but only the cycle exchanges [0,2] and [2,0] under named slots',
+  'the rigid self-referential tag carrier [[20,20,20],[21,20,20]] forces slot identity, yet no symmetry of the tagged premises fixes exactly one of [0,2] and [2,0]',
 ])];
 table.claimBoundary.notProved = [...new Set([
   ...table.claimBoundary.notProved,
@@ -89,6 +94,8 @@ table.claimBoundary.notProved = [...new Set([
   'that choosing an active description or correspondence orientation is intrinsic to the tested link records',
   'that the conditional continuation witness authorizes its join, reading orientation, or creation of a result link',
   'that the recorded links determine which exclusion or output orientation makes a continuation follow',
+  'that slot order, chirality, tagged slot identity, or a self-referential slot carrier forces which of [0,2] and [2,0] follows',
+  'that the identity correspondence between premise and conclusion slot orders is intrinsic rather than chosen',
 ])];
 
 writeFileSync(tableUrl, `${JSON.stringify(table, null, 2)}\n`);

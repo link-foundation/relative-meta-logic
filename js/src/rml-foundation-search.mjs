@@ -1254,6 +1254,451 @@ function continuationConsequenceAudit() {
   };
 }
 
+// Orientation audit over the same two premises (R148). It uses only address
+// equality and, per contract, slot order: no completion, exclusion, or
+// position law decides anything here. A contract symmetry renames addresses
+// and, when slots are anonymous, may also reverse every record's slots, so it
+// acts on an unrecorded pair exactly as it would act on a record.
+function continuationOrientationAudit() {
+  const [K, A, B] = [0, 1, 2];
+  const premises = [[3, K, A], [4, A, B]];
+  const forward = [K, B];
+  const reverse = [B, K];
+  const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  const samePair = (left, right) => left[0] === right[0] && left[1] === right[1];
+  const byNumber = (left, right) => left - right;
+  const swapPair = ([left, right]) => [right, left];
+  const hasPair = (pairs, [left, right]) =>
+    pairs.some(pair => pair[0] === left && pair[1] === right);
+  const sortPairs = pairs => [...pairs].sort((left, right) =>
+    left[0] - right[0] || left[1] - right[1]);
+  const orders = new Map();
+  const arrangements = values => {
+    if (!orders.has(values.length)) {
+      orders.set(values.length, permutations(values.map((_, index) => index)));
+    }
+    return orders.get(values.length).map(order =>
+      order.map(index => values[index]));
+  };
+  const contractIds = {
+    named: 'named-ordered-slots',
+    anonymous: 'anonymous-ordered-slots',
+    unordered: 'unordered-slots',
+  };
+
+  // A symmetry maps records to records, so once the record permutation and
+  // the slot treatment are fixed, every referenced address has one image.
+  // Unordered slots may flip each record separately.
+  const symmetries = (records, contract) => {
+    const byAddress = new Map(records.map(record => [record[0], record]));
+    const addresses = records.map(([address]) => address);
+    const flipChoices = contract === 'unordered' ?
+      Array.from({ length: 2 ** records.length }, (_, mask) =>
+        records.map((_, index) => Boolean(mask & (1 << index)))) :
+      [false, ...(contract === 'anonymous' ? [true] : [])]
+        .map(reversed => records.map(() => reversed));
+    const found = [];
+    for (const image of arrangements(addresses)) {
+      for (const flips of flipChoices) {
+        const map = new Map(addresses.map((address, index) =>
+          [address, image[index]]));
+        const consistent = records.every(([address, first, second], index) => {
+          const target = byAddress.get(map.get(address));
+          const images = flips[index] ? [target[2], target[1]] :
+            [target[1], target[2]];
+          return [first, second].every((value, slot) => {
+            if (!map.has(value)) map.set(value, images[slot]);
+            return map.get(value) === images[slot];
+          });
+        });
+        if (!consistent || new Set(map.values()).size !== map.size) continue;
+        const reversed = contract === 'anonymous' && flips[0];
+        const key = JSON.stringify([[...map].sort((left, right) =>
+          left[0] - right[0]), reversed]);
+        if (!found.some(symmetry => symmetry.key === key)) {
+          found.push({ key, map, reversed });
+        }
+      }
+    }
+    return found;
+  };
+  const act = ({ map, reversed }, [left, right]) => reversed ?
+    [map.get(right), map.get(left)] : [map.get(left), map.get(right)];
+  const fixes = (symmetry, pair) => samePair(act(symmetry, pair), pair);
+  const exchangesCandidates = group => group.some(symmetry =>
+    samePair(act(symmetry, forward), reverse));
+  const fixesExactlyOneCandidate = symmetry =>
+    fixes(symmetry, forward) !== fixes(symmetry, reverse);
+  const elementOrbits = (group, records) => {
+    const orbits = [];
+    for (const address of [...new Set(records.flat())].sort(byNumber)) {
+      if (orbits.some(orbit => orbit.includes(address))) continue;
+      orbits.push([...new Set(group.map(({ map }) => map.get(address)))]
+        .sort(byNumber));
+    }
+    return orbits;
+  };
+  const candidateRelation = (group, contract) => {
+    if (contract === 'unordered') return 'COINCIDE';
+    return exchangesCandidates(group) ? 'EXCHANGED' : 'SEPARATED';
+  };
+
+  const contracts = Object.entries(contractIds).map(([contract, id]) => {
+    const group = symmetries(premises, contract);
+    return {
+      id,
+      symmetries: group.length,
+      elementOrbits: elementOrbits(group, premises),
+      endsExchanged: group.some(({ map }) => map.get(K) === B),
+      candidateRelation: candidateRelation(group, contract),
+    };
+  });
+
+  // Premises plus up to two ordinary records at addresses 5 and 6 whose
+  // references range over every existing address and fresh addresses 10,
+  // 11, ... numbered in order of first use.
+  const referenceSequences = (length, existing) => {
+    const sequences = [];
+    const extend = (prefix, freshCount) => {
+      if (prefix.length === length) {
+        sequences.push(prefix);
+        return;
+      }
+      for (const value of existing) extend([...prefix, value], freshCount);
+      for (let fresh = 0; fresh <= freshCount; fresh += 1) {
+        extend([...prefix, 10 + fresh], Math.max(freshCount, fresh + 1));
+      }
+    };
+    extend([], 0);
+    return sequences;
+  };
+  const family = [0, 1, 2].flatMap(extra => referenceSequences(
+    2 * extra,
+    Array.from({ length: premises.length + 3 + extra }, (_, index) => index),
+  ).map(references => [...premises, ...Array.from({ length: extra },
+    (_, index) =>
+      [5 + index, references[2 * index], references[2 * index + 1]])]));
+  const correspondences = [['identity', pair => pair], ['exchange', swapPair]];
+  const tallies = ['named', 'anonymous'].map(contract => ({
+    id: contractIds[contract],
+    separated: 0,
+    exchanged: 0,
+    symmetriesFixingExactlyOneCandidate: 0,
+  }));
+  const exchangingExtensions = [];
+  let chiralUnderAnonymousSlots = 0;
+  let freeCorrespondences = correspondences.map(([id]) => id);
+  for (const records of family) {
+    // Named symmetries are exactly the anonymous ones that keep slots in place.
+    const anonymousGroup = symmetries(records, 'anonymous');
+    const groups = [
+      anonymousGroup.filter(({ reversed }) => !reversed),
+      anonymousGroup,
+    ];
+    groups.forEach((group, index) => {
+      const tally = tallies[index];
+      tally.symmetriesFixingExactlyOneCandidate +=
+        group.filter(fixesExactlyOneCandidate).length;
+      if (exchangesCandidates(group)) tally.exchanged += 1;
+      else tally.separated += 1;
+      freeCorrespondences = freeCorrespondences.filter(id => {
+        const [, correspondence] = correspondences.find(([candidate]) =>
+          candidate === id);
+        return group.every(symmetry => samePair(
+          act(symmetry, correspondence(forward)),
+          correspondence(act(symmetry, forward)),
+        ));
+      });
+    });
+    if (exchangesCandidates(groups[0])) {
+      exchangingExtensions.push(records.slice(premises.length));
+    }
+    if (!anonymousGroup.some(({ reversed }) => reversed)) {
+      chiralUnderAnonymousSlots += 1;
+    }
+  }
+
+  const laws = [0, 1, 2, 3].flatMap(first => [0, 1, 2, 3].map(second =>
+    [first, second]));
+  const applyLaw = (records, [first, second]) => {
+    const pairs = [];
+    for (const left of records) {
+      for (const right of records) {
+        if (left[0] === right[0] || left[2] !== right[1]) continue;
+        const references = [left[1], left[2], right[1], right[2]];
+        const pair = [references[first], references[second]];
+        if (!hasPair(pairs, pair)) pairs.push(pair);
+      }
+    }
+    return sortPairs(pairs);
+  };
+  const [alignedLaw, reversedLaw] = [[0, 3], [3, 0]];
+  const anonymousCase = records => {
+    const group = symmetries(records, 'anonymous');
+    return {
+      records,
+      slotReversingSymmetries: group.filter(({ reversed }) => reversed).length,
+      endsExchanged: group.some(({ map }) => map.get(K) === B),
+      candidateRelation: candidateRelation(group, 'anonymous'),
+      symmetriesFixingExactlyOneCandidate:
+        group.filter(fixesExactlyOneCandidate).length,
+    };
+  };
+  const achiral = [...premises, [5, 3, 4]];
+  const chiral = [...achiral, [8, 8, 9]];
+  const unorderedShadow = records => records.map(([address, left, right]) =>
+    [address, Math.min(left, right), Math.max(left, right)]);
+  const slotOrderCase = records => ({
+    records,
+    namedCandidateRelation:
+      candidateRelation(symmetries(records, 'named'), 'named'),
+    alignedReadout: applyLaw(records, alignedLaw),
+    reversedReadout: applyLaw(records, reversedLaw),
+  });
+  const cycle = [...premises, [5, B, 10], [6, 10, K]];
+  const detour = [...premises, [5, B, 10], [6, K, 10]];
+
+  const renamings = arrangements([0, 1, 2, 3, 4]);
+  const renamingFailures = renamings.filter(image => {
+    const renamed = premises.map(record => record.map(value => image[value]));
+    const group = symmetries(renamed, 'anonymous');
+    const [renamedForward, renamedReverse] = [forward, reverse].map(pair =>
+      pair.map(value => image[value]));
+    return group.some(symmetry =>
+      samePair(act(symmetry, renamedForward), renamedReverse) ||
+      fixes(symmetry, renamedForward) !== fixes(symmetry, renamedReverse));
+  }).length;
+
+  // Tagged incidence: [a,x,y] becomes the triples (a,t0,x) and (a,t1,y), so
+  // slot identity is carried by tag addresses 20 and 21. Symmetries permute
+  // every address and preserve the triple set; named tags stay fixed.
+  const tags = [20, 21];
+  const encode = (records, [first, second]) => records.flatMap(
+    ([address, left, right]) => [[address, first, left],
+      [address, second, right]],
+  );
+  const tripleKey = triples => triples.map(triple => JSON.stringify(triple))
+    .sort().join('|');
+  const tripleSymmetries = (triples, fixed) => {
+    const symbols = [...new Set(triples.flat())].sort(byNumber);
+    const original = tripleKey(triples);
+    return arrangements(symbols)
+      .map(image => new Map(symbols.map((symbol, index) =>
+        [symbol, image[index]])))
+      .filter(map => fixed.every(symbol => map.get(symbol) === symbol) &&
+        tripleKey(triples.map(triple => triple.map(symbol =>
+          map.get(symbol)))) === original);
+  };
+  const taggedCandidate = ([left, right]) =>
+    tripleKey([[tags[0], left], [tags[1], right]]);
+  const taggedAct = (map, candidate) => tripleKey(candidate.split('|')
+    .map(item => JSON.parse(item).map(symbol => map.get(symbol))));
+  const taggedCase = (id, carrierRecords, fixed) => {
+    const carrierTriples = encode(carrierRecords, tags);
+    const group = tripleSymmetries(
+      [...encode(premises, tags), ...carrierTriples], fixed,
+    );
+    const [taggedForward, taggedReverse] =
+      [forward, reverse].map(taggedCandidate);
+    return {
+      id,
+      ...(carrierRecords.length > 0 ? {
+        carrierRecords,
+        carrierSymmetries: tripleSymmetries(carrierTriples, fixed).length,
+        carrierRecordsHaveEqualSlots: carrierRecords.every(
+          ([, left, right]) => left === right,
+        ),
+      } : {}),
+      symmetries: group.length,
+      tagsExchanged: group.some(map => map.get(tags[0]) === tags[1]),
+      endsExchanged: group.some(map => map.get(K) === B),
+      candidateRelation: group.some(map =>
+        taggedAct(map, taggedForward) === taggedReverse) ?
+        'EXCHANGED' : 'SEPARATED',
+      symmetriesFixingExactlyOneCandidate: group.filter(map =>
+        (taggedAct(map, taggedForward) === taggedForward) !==
+          (taggedAct(map, taggedReverse) === taggedReverse)).length,
+    };
+  };
+  const taggedEncodings = [
+    taggedCase('named-tags', [], tags),
+    taggedCase('anonymous-tags', [], []),
+  ];
+  const carriers = [
+    taggedCase('symmetric-self-loop-carrier', [[20, 20, 20], [21, 21, 21]], []),
+    taggedCase('rigid-self-referential-carrier',
+      [[20, 20, 20], [21, 20, 20]], []),
+  ];
+  const original = encode(premises, tags);
+  const tagSwapped = encode(premises, [...tags].reverse());
+  const isomorphicWithTagsFixed = renamings.some(image =>
+    tripleKey(original.map(triple => triple.map(symbol =>
+      tags.includes(symbol) ? symbol : image[symbol]))) ===
+      tripleKey(tagSwapped));
+  // The aligned candidate keeps each end with the tag it has in its premise;
+  // decoding reads tag 20 as the first slot.
+  const alignedDecoding = triples => {
+    const tagOf = (address, value) => triples.find(([record, , reference]) =>
+      record === address && reference === value)[1];
+    return [[tagOf(3, K), K], [tagOf(4, B), B]]
+      .sort((left, right) => left[0] - right[0])
+      .map(([, value]) => value);
+  };
+
+  // Scope of the one-step result: once a conclusion is recorded and composed
+  // again, its slot order is a record fact and the two correspondences build
+  // different closures of a three-link chain.
+  const chain = [[3, K, A], [4, A, B], [5, B, 9]];
+  const closure = (pairs, law) => {
+    const derived = applyLaw(pairs.map((pair, index) => [100 + index, ...pair]),
+      law).filter(pair => !hasPair(pairs, pair));
+    return derived.length === 0 ? sortPairs(pairs) :
+      closure([...pairs, ...derived], law);
+  };
+  const everyPathHasJoinedEnds = pairs => pairs.every(([start]) => {
+    const reached = new Set();
+    const pending = [start];
+    while (pending.length > 0) {
+      const node = pending.pop();
+      for (const [left, right] of pairs) {
+        if (left === node && !reached.has(right)) {
+          reached.add(right);
+          pending.push(right);
+        }
+      }
+    }
+    return [...reached].every(end => end === start ||
+      hasPair(pairs, [start, end]) || hasPair(pairs, [end, start]));
+  });
+  const chainPairs = chain.map(([, left, right]) => [left, right]);
+  const closures = [['identity', alignedLaw], ['exchange', reversedLaw]]
+    .map(([correspondence, law]) => {
+      const pairs = closure(chainPairs, law);
+      return {
+        correspondence,
+        closure: pairs,
+        derivedPairs: pairs.length - chainPairs.length,
+        everyPathHasJoinedEnds: everyPathHasJoinedEnds(pairs),
+      };
+    });
+  const fewestDerived = Math.min(...closures.map(item => item.derivedPairs));
+
+  const [named, anonymous, unordered] = contracts;
+  const chirality = {
+    observation: 'readouts of all 16 position laws',
+    identicalObservations: same(laws.map(law => applyLaw(achiral, law)),
+      laws.map(law => applyLaw(chiral, law))),
+    achiral: anonymousCase(achiral),
+    chiral: anonymousCase(chiral),
+  };
+  const rigidCarrier = carriers[1];
+  return {
+    question:
+      'What structural property, if any, breaks the K⟼B / B⟼K symmetry without merely encoding the desired direction?',
+    status: 'CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED',
+    primitives:
+      'address equality and, per contract, slot order; no completion, exclusion, or position law',
+    candidates: [forward, reverse],
+    contracts,
+    twinFamily: {
+      extension:
+        'the premises plus up to two ordinary records whose references range over every existing address and fresh addresses',
+      structures: family.length,
+      byExtraRecords: [0, 1, 2].map(extra => family.filter(records =>
+        records.length === premises.length + extra).length),
+      contracts: tallies,
+      exchangingExtensions,
+      chiralUnderAnonymousSlots,
+      freeCorrespondences,
+    },
+    sameObservationPairs: {
+      chirality,
+      slotOrder: {
+        observation: 'records with unordered slots',
+        identicalObservations: same(unorderedShadow(cycle),
+          unorderedShadow(detour)),
+        cycle: slotOrderCase(cycle),
+        detour: slotOrderCase(detour),
+      },
+    },
+    representations: {
+      addressRenamings: renamings.length,
+      renamingFailures,
+      taggedEncodings,
+      tagSwap: {
+        isomorphicWithTagsFixed,
+        alignedCandidateDecodesTo: [original, tagSwapped].map(alignedDecoding),
+      },
+    },
+    recursion: {
+      carriers,
+      result: rigidCarrier.carrierRecordsHaveEqualSlots &&
+        rigidCarrier.carrierSymmetries === 1 && !rigidCarrier.tagsExchanged &&
+        rigidCarrier.candidateRelation === 'SEPARATED' &&
+        rigidCarrier.symmetriesFixingExactlyOneCandidate === 0 ?
+        'SLOT_IDENTITY_FORCED_BY_SELF_INCIDENCE_CANDIDATES_STILL_UNRANKED' :
+        'CARRIER_RESULT_CHANGED',
+    },
+    asymmetries: [
+      {
+        id: 'join-address',
+        provenance: contracts.every(({ elementOrbits }) =>
+          elementOrbits.some(orbit => same(orbit, [A]))) ?
+          'FORCED_BY_INCIDENCE' : 'NOT_FORCED',
+      },
+      {
+        id: 'candidate-separation',
+        provenance: named.candidateRelation === 'SEPARATED' &&
+          anonymous.candidateRelation === 'SEPARATED' &&
+          unordered.candidateRelation === 'COINCIDE' ?
+          'FORCED_BY_SLOT_ORDER' : 'NOT_FORCED',
+      },
+      {
+        id: 'end-asymmetry',
+        provenance: !named.endsExchanged && anonymous.endsExchanged &&
+          !chirality.chiral.endsExchanged ?
+          'FORCED_BY_SLOT_NAMES_OR_CHIRAL_CONTEXT' : 'NOT_FORCED',
+      },
+      {
+        id: 'slot-identity',
+        provenance: taggedEncodings[1].tagsExchanged &&
+          !rigidCarrier.tagsExchanged ?
+          'FORCED_ONLY_BY_A_RIGID_SELF_REFERENTIAL_CARRIER' : 'NOT_FORCED',
+      },
+      {
+        id: 'output-correspondence',
+        provenance: freeCorrespondences.length === correspondences.length ?
+          'CHOSEN_NOT_FORCED' : 'FORCED',
+      },
+    ],
+    noGo: {
+      argument:
+        'Every contract symmetry renames addresses and may reverse every record\'s slots, so it acts on an unrecorded pair as on a record. The output swap commutes with every renaming and acts on pairs as that reversal does, so it commutes with every contract symmetry of every structure. Hence [0,2] and [2,0] have equal stabilizers, the orbit of [2,0] is the swapped orbit of [0,2], and composing any invariant selector with the swap gives an invariant selector that chooses the opposite orientation.',
+      strongNegative:
+        'EVERY_INTRINSIC_LINK_OBSERVATION_PRESERVED_ORIENTATION_STILL_REVERSIBLE',
+    },
+    iterationBoundary: {
+      records: chain,
+      closures,
+      separatingRequirements: [
+        {
+          id: 'every-path-has-joined-ends',
+          selects: closures.filter(item => item.everyPathHasJoinedEnds)
+            .map(item => item.correspondence),
+        },
+        {
+          id: 'fewest-derived-pairs',
+          selects: closures.filter(item => item.derivedPairs === fewestDerived)
+            .map(item => item.correspondence),
+        },
+      ],
+      provenance: 'REQUIREMENT_ON_HOW_CONSEQUENCE_COMPOSES',
+    },
+    missingInformation:
+      'Slot order separates [K,B] from [B,K] but never ranks them. What is missing is the correspondence between the premise slot order and the unrecorded conclusion slot order: the identity correspondence is the neutral one, which makes [K,B] the default reading, but requiring consequence to use it is R147\'s slot-position preservation, which no record states. The records force separation, not orientation.',
+  };
+}
+
 function conditionalContinuationProbe() {
   const premises = [[3, 0, 1], [4, 1, 2]];
   const forwardWitness = [5, 3, 4];
@@ -1372,8 +1817,9 @@ function conditionalContinuationProbe() {
       lawSelfApplicationEstablished: false,
     },
     consequenceAudit: continuationConsequenceAudit(),
+    orientationAudit: continuationOrientationAudit(),
     claimBoundary:
-      'A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established. Read over every completion of the premises, nothing new follows without an exclusion; the transitive and circular exclusions restate the two surviving projections and make opposite orientations follow, and every admitted genericity criterion is blind to that orientation.',
+      'A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established. Read over every completion of the premises, nothing new follows without an exclusion; the transitive and circular exclusions restate the two surviving projections and make opposite orientations follow, and every admitted genericity criterion is blind to that orientation. With address equality and slot order alone, slot order separates the two orientations but never ranks them: the output swap commutes with every contract symmetry, so each invariant selector has an invariant twin, and even a rigid self-referential slot carrier leaves the premise-to-conclusion slot correspondence free.',
   };
 }
 
@@ -2653,8 +3099,8 @@ function linkOntologySymmetryExperiment() {
   const observationBoundary = observationBoundaryExperiment();
 
   return {
-    schema: 'rml-link-ontology-symmetry-experiment/v14',
-    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier, and what, if anything, turns a possible continuation into one that follows?',
+    schema: 'rml-link-ontology-symmetry-experiment/v15',
+    question: 'Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier, what, if anything, turns a possible continuation into one that follows, and does any Link structure force which orientation follows?',
     startingContract: {
       id: 'unoriented-binary-reference-observation',
       occurrenceCount,
@@ -2811,6 +3257,11 @@ function linkOntologySymmetryExperiment() {
         evidence: 'Over all 128 completions of the recorded pairs [0,1] and [1,2], positive link facts alone make no new pair follow. A transitive exclusion makes [0,2] follow and a circular exclusion makes [2,0] follow, but each exclusion\'s meet equals the least model of one surviving projection, so the selecting fact restates the law. Address renaming, arbitrary substitution, record reordering, nested encoding, slot reversal, non-degeneracy, and novelty all commute with the output swap, which fixes no non-degenerate law, so none of them selects an orientation.',
       },
       {
+        id: 'continuation-orientation',
+        result: 'CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED',
+        evidence: 'Using only address equality and slot order, the premises [3,0,1] and [4,1,2] keep [0,2] and [2,0] in different orbits whenever slots are ordered, while unordered slots make them coincide. The output swap commutes with every renaming and with the global slot reversal, so in all 4567 extensions by up to two ordinary records no symmetry fixes exactly one candidate, and both premise-to-conclusion slot correspondences remain compatible. Chirality, address renaming, tagged encodings, and a rigid self-referential tag carrier change which ends or slots are distinguishable, but never which candidate follows.',
+      },
+      {
         id: 'addressable-quotient-assumptions',
         result: 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED',
         evidence: 'Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.',
@@ -2821,8 +3272,8 @@ function linkOntologySymmetryExperiment() {
         evidence: 'The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.',
       },
     ],
-    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain. Over every completion of two chained premise pairs, a continuation follows only relative to an exclusion the records do not state, and the transitive and circular exclusions make opposite orientations follow.',
-    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive which exclusion or orientation makes a continuation follow, derive execution semantics, or generalize every finite enumeration beyond its stated argument.',
+    admissibleConclusion: 'Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain. Over every completion of two chained premise pairs, a continuation follows only relative to an exclusion the records do not state, and the transitive and circular exclusions make opposite orientations follow. With address equality and slot order alone, slot order separates the two orientations but never ranks them: the output swap commutes with every contract symmetry, so each invariant selector has an invariant twin.',
+    remainingBoundary: 'This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, that ordinary links can carry conditionally checkable exact-cover certificates, and that slot order separates the two continuation orientations without ranking them. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive which exclusion or orientation makes a continuation follow, exhibit a Link structure that forces that orientation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.',
   };
 }
 
@@ -3522,7 +3973,7 @@ function foundationSearchReport(universalSource, alternativeSource) {
     : null;
 
   return {
-    schema: 'rml-alternative-foundation-search/v17',
+    schema: 'rml-alternative-foundation-search/v18',
     foundationStatus: 'OPEN',
     question: 'Which representation and semantic assumptions does each executable links model introduce, and which comparisons remain justified?',
     candidateDesignConstraint: 'Candidates B and C define no S/K transition or bracket-abstraction machinery and execute without the combinator source compiler; language terms remain opaque data.',

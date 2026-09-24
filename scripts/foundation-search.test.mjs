@@ -23,7 +23,7 @@ const report = foundationSearchReport(universalSource, alternativeSource);
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
-    assert.equal(report.schema, 'rml-alternative-foundation-search/v17');
+    assert.equal(report.schema, 'rml-alternative-foundation-search/v18');
     assert.match(report.question, /representation and semantic assumptions/i);
     assert.doesNotMatch(report.question, /must be added to links/i);
     assert.match(report.proofBoundary, /does not establish link ontology/i);
@@ -168,7 +168,7 @@ describe('architecture-neutral alternative-foundation search', () => {
     assert.deepEqual(report.ontologyExperiment, experiment);
     assert.equal(
       experiment.schema,
-      'rml-link-ontology-symmetry-experiment/v14',
+      'rml-link-ontology-symmetry-experiment/v15',
     );
     assert.equal(experiment.startingContract.occurrenceCount, 2);
     assert.deepEqual(
@@ -257,6 +257,7 @@ describe('architecture-neutral alternative-foundation search', () => {
         ['linked-verifier-step', 'LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY'],
         ['conditional-continuation', 'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT'],
         ['continuation-consequence', 'CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION'],
+        ['continuation-orientation', 'CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED'],
         ['addressable-quotient-assumptions', 'RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED'],
         ['observation-loss-provenance', 'CLASSIFIED_NOT_RESOLVED'],
       ],
@@ -1272,6 +1273,194 @@ describe('architecture-neutral alternative-foundation search', () => {
       missingInformation:
         'Recorded Links supply only positive facts. A continuation follows only under an exclusion over completions, and one orientation bit of that exclusion still separates [K,B] from [B,K]; the records state neither.',
     });
+    const orientation = continuation.orientationAudit;
+    assert.equal(orientation.question,
+      'What structural property, if any, breaks the K⟼B / B⟼K symmetry without merely encoding the desired direction?');
+    assert.equal(orientation.status,
+      'CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED');
+    assert.deepEqual(orientation.candidates, [[0, 2], [2, 0]]);
+    assert.deepEqual(orientation.contracts, [
+      {
+        id: 'named-ordered-slots',
+        symmetries: 1,
+        elementOrbits: [[0], [1], [2], [3], [4]],
+        endsExchanged: false,
+        candidateRelation: 'SEPARATED',
+      },
+      {
+        id: 'anonymous-ordered-slots',
+        symmetries: 2,
+        elementOrbits: [[0, 2], [1], [3, 4]],
+        endsExchanged: true,
+        candidateRelation: 'SEPARATED',
+      },
+      {
+        id: 'unordered-slots',
+        symmetries: 2,
+        elementOrbits: [[0, 2], [1], [3, 4]],
+        endsExchanged: true,
+        candidateRelation: 'COINCIDE',
+      },
+    ]);
+    const { extension, ...twinFamily } = orientation.twinFamily;
+    assert.match(extension, /up to two ordinary records/);
+    assert.deepEqual(twinFamily, {
+      structures: 4567,
+      byExtraRecords: [1, 50, 4516],
+      contracts: [
+        {
+          id: 'named-ordered-slots',
+          separated: 4563,
+          exchanged: 4,
+          symmetriesFixingExactlyOneCandidate: 0,
+        },
+        {
+          id: 'anonymous-ordered-slots',
+          separated: 4563,
+          exchanged: 4,
+          symmetriesFixingExactlyOneCandidate: 0,
+        },
+      ],
+      exchangingExtensions: [
+        [[5, 1, 0], [6, 2, 1]],
+        [[5, 2, 1], [6, 1, 0]],
+        [[5, 2, 10], [6, 10, 0]],
+        [[5, 10, 0], [6, 2, 10]],
+      ],
+      chiralUnderAnonymousSlots: 4332,
+      freeCorrespondences: ['identity', 'exchange'],
+    });
+    const premiseRecords = [[3, 0, 1], [4, 1, 2]];
+    assert.deepEqual(orientation.sameObservationPairs, {
+      chirality: {
+        observation: 'readouts of all 16 position laws',
+        identicalObservations: true,
+        achiral: {
+          records: [...premiseRecords, [5, 3, 4]],
+          slotReversingSymmetries: 1,
+          endsExchanged: true,
+          candidateRelation: 'SEPARATED',
+          symmetriesFixingExactlyOneCandidate: 0,
+        },
+        chiral: {
+          records: [...premiseRecords, [5, 3, 4], [8, 8, 9]],
+          slotReversingSymmetries: 0,
+          endsExchanged: false,
+          candidateRelation: 'SEPARATED',
+          symmetriesFixingExactlyOneCandidate: 0,
+        },
+      },
+      slotOrder: {
+        observation: 'records with unordered slots',
+        identicalObservations: true,
+        cycle: {
+          records: [...premiseRecords, [5, 2, 10], [6, 10, 0]],
+          namedCandidateRelation: 'EXCHANGED',
+          alignedReadout: [[0, 2], [1, 10], [2, 0], [10, 1]],
+          reversedReadout: [[0, 2], [1, 10], [2, 0], [10, 1]],
+        },
+        detour: {
+          records: [...premiseRecords, [5, 2, 10], [6, 0, 10]],
+          namedCandidateRelation: 'SEPARATED',
+          alignedReadout: [[0, 2], [1, 10]],
+          reversedReadout: [[2, 0], [10, 1]],
+        },
+      },
+    });
+    assert.deepEqual(orientation.representations, {
+      addressRenamings: 120,
+      renamingFailures: 0,
+      taggedEncodings: [
+        {
+          id: 'named-tags',
+          symmetries: 1,
+          tagsExchanged: false,
+          endsExchanged: false,
+          candidateRelation: 'SEPARATED',
+          symmetriesFixingExactlyOneCandidate: 0,
+        },
+        {
+          id: 'anonymous-tags',
+          symmetries: 2,
+          tagsExchanged: true,
+          endsExchanged: true,
+          candidateRelation: 'SEPARATED',
+          symmetriesFixingExactlyOneCandidate: 0,
+        },
+      ],
+      tagSwap: {
+        isomorphicWithTagsFixed: true,
+        alignedCandidateDecodesTo: [[0, 2], [2, 0]],
+      },
+    });
+    assert.deepEqual(orientation.recursion, {
+      carriers: [
+        {
+          id: 'symmetric-self-loop-carrier',
+          carrierRecords: [[20, 20, 20], [21, 21, 21]],
+          carrierSymmetries: 2,
+          carrierRecordsHaveEqualSlots: true,
+          symmetries: 2,
+          tagsExchanged: true,
+          endsExchanged: true,
+          candidateRelation: 'SEPARATED',
+          symmetriesFixingExactlyOneCandidate: 0,
+        },
+        {
+          id: 'rigid-self-referential-carrier',
+          carrierRecords: [[20, 20, 20], [21, 20, 20]],
+          carrierSymmetries: 1,
+          carrierRecordsHaveEqualSlots: true,
+          symmetries: 1,
+          tagsExchanged: false,
+          endsExchanged: false,
+          candidateRelation: 'SEPARATED',
+          symmetriesFixingExactlyOneCandidate: 0,
+        },
+      ],
+      result: 'SLOT_IDENTITY_FORCED_BY_SELF_INCIDENCE_CANDIDATES_STILL_UNRANKED',
+    });
+    assert.deepEqual(orientation.asymmetries, [
+      { id: 'join-address', provenance: 'FORCED_BY_INCIDENCE' },
+      { id: 'candidate-separation', provenance: 'FORCED_BY_SLOT_ORDER' },
+      {
+        id: 'end-asymmetry',
+        provenance: 'FORCED_BY_SLOT_NAMES_OR_CHIRAL_CONTEXT',
+      },
+      {
+        id: 'slot-identity',
+        provenance: 'FORCED_ONLY_BY_A_RIGID_SELF_REFERENTIAL_CARRIER',
+      },
+      { id: 'output-correspondence', provenance: 'CHOSEN_NOT_FORCED' },
+    ]);
+    assert.match(orientation.noGo.argument,
+      /output swap commutes with every renaming/);
+    assert.equal(orientation.noGo.strongNegative,
+      'EVERY_INTRINSIC_LINK_OBSERVATION_PRESERVED_ORIENTATION_STILL_REVERSIBLE');
+    assert.deepEqual(orientation.iterationBoundary, {
+      records: [...premiseRecords, [5, 2, 9]],
+      closures: [
+        {
+          correspondence: 'identity',
+          closure: [[0, 1], [0, 2], [0, 9], [1, 2], [1, 9], [2, 9]],
+          derivedPairs: 3,
+          everyPathHasJoinedEnds: true,
+        },
+        {
+          correspondence: 'exchange',
+          closure: [[0, 1], [1, 2], [2, 0], [2, 9], [9, 1]],
+          derivedPairs: 2,
+          everyPathHasJoinedEnds: false,
+        },
+      ],
+      separatingRequirements: [
+        { id: 'every-path-has-joined-ends', selects: ['identity'] },
+        { id: 'fewest-derived-pairs', selects: ['exchange'] },
+      ],
+      provenance: 'REQUIREMENT_ON_HOW_CONSEQUENCE_COMPOSES',
+    });
+    assert.match(orientation.missingInformation,
+      /The records force separation, not orientation\./);
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [
@@ -1471,7 +1660,7 @@ describe('architecture-neutral alternative-foundation search', () => {
   });
 
   it('keeps the checked-in candidate table synchronized with execution', () => {
-    assert.equal(expected.schema, 'rml-foundation-candidate-table/v17');
+    assert.equal(expected.schema, 'rml-foundation-candidate-table/v18');
     assert.equal(
       new Set(expected.claimBoundary.proved).size,
       expected.claimBoundary.proved.length,
