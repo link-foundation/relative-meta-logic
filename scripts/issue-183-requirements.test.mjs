@@ -96,7 +96,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 143, `expected at least 143 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 145, `expected at least 145 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -145,7 +145,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v11',
+      'rml-link-ontology-symmetry-experiment/v12',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -202,6 +202,9 @@ describe('issue 183 requirement traceability', () => {
       'formation, matching, admissibility, uniqueness, justification, applicability, admission, activation, and execution',
       'NO_LINK_DERIVED_PUBLICATION_OR_ADMISSION',
       'observer-provided exact-cover checking',
+      'LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT',
+      '5819764265',
+      '5819808597',
       'logical implication',
       'contract-forced, representation-stable, observer-added',
       'The result uses no set,',

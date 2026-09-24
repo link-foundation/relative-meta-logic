@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v14`. Run it with:
+`rml-alternative-foundation-search/v15`. Run it with:
 
 ```bash
 cd js
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v11` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v12` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -160,7 +160,7 @@ search is finished.
 
 ### Fixed-arity information loss
 
-The v11 follow-up first changes no primitive vocabulary at all. It retains only
+The v12 follow-up first changes no primitive vocabulary at all. It retains only
 unlabelled reference occurrences and observable reference equality, but
 exhausts widths one through four instead of fixing the width at two.
 
@@ -476,7 +476,7 @@ self-authorizing.
 
 ### Linked local verifier step
 
-The v11 probe factors **one** operation out of the preceding verifier:
+The v12 probe factors **one** operation out of the preceding verifier:
 matching a described record to a concrete record. It uses the description
 `[40,30,31]`, concrete record `[3,0,1]`, and three ordinary correspondence
 records `[50,40,3]`, `[51,30,0]`, and `[52,31,1]`. A reusable incidence join
@@ -516,6 +516,46 @@ The result is
 smaller reusable matching operation and a fully linked *record of* its local
 steps. It is not a link-executed exact-cover verifier, a derivation of the join
 from link ontology, or proof that a richer mechanism cannot close the boundary.
+
+### Conditional continuation with one ordinary witness
+
+The next minimal experiment keeps logical implication, a structural Link, a
+reported continuation, and execution distinct. The two premise records are
+`P=[3,0,1]` and `Q=[4,1,2]`; by themselves they contain no `[0,2]`
+record. A third ordinary record `W=[5,3,4]` cites the addresses of `P`
+then `Q`. Under an **observer-declared** incidence join, distinct records
+`P,Q` may report `[P.first,Q.second]` when `P.second=Q.first` and one
+record cites `[P.address,Q.address]`. This reports the pair `[0,2]`. It
+does not add a Link or establish implication.
+The ordered premises already expose the shared address and possible
+`[0,2]` pair to this observer. The new witness contributes a condition for
+reporting that pair; it does not supply a missing endpoint or a composition
+law.
+
+The same two premises with `[5,4,3]` instead report no continuation under
+that join. Removing either premise or the witness also reports none. An
+unrelated `[0,9]` record does not change the reported pair. Reordering
+records or bijectively renaming all addresses preserves the result in the
+corresponding coordinates; uniformly reversing reference slots instead
+reports `[2,0]`. The distinction is therefore stable under the tested
+representation changes but depends on the ordered-slot and witness-reading
+choices.
+
+Most decisively, `{P,Q,W}` and `{P,Q,W,[7,0,2]}` satisfy the **same**
+witness condition. The first lacks any `[0,2]` Link; the second contains
+one. This is a smaller countermodel to any claim that the witness alone
+forces creation of the composed Link. The extra ordinary Link makes a
+specific continuation *conditionally identifiable* under the chosen join,
+but it does not authorize that join, select the witness orientation, or
+execute the continuation. Minimality here is only relative to this
+three-record criterion; the experiment does not rule out another
+links-derived invariant or closure principle.
+
+The local verifier's trace has the same provenance problem: the records
+can carry the trace after host execution, while selection of the active
+description, correspondence direction, equality tests, and iteration
+still determine whether that trace follows. Trace replay and
+self-application do not change this countermodel.
 
 ### Conditional refinement probe
 
@@ -720,7 +760,7 @@ The comparison reports, for each candidate:
 - object-specific host semantics; and
 - undocumented authority paths.
 
-The v14 execution-comparison gate admits a candidate only if it passes the common
+The v15 execution-comparison gate admits a candidate only if it passes the common
 workload, derives the whole acceptance interpreter in links, has no host/self
 semantic duplication, consumes no external semantic source description, and
 has complete runtime trust coverage. Candidate A passes. B and C do not.
