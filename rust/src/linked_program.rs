@@ -50,42 +50,48 @@ const PROVENANCE_CLASSIFICATIONS: &[&str] = &[
     "externally-primitive",
 ];
 
+/// A `linked-rewrite` as declared in its program.
 #[derive(Debug, Clone, PartialEq)]
-struct RewriteRule {
-    program: String,
-    name: String,
-    pattern: Node,
-    replacement: Node,
+pub struct RewriteRule {
+    pub program: String,
+    pub name: String,
+    pub pattern: Node,
+    pub replacement: Node,
 }
 
+/// A `linked-fact` as declared in its program.
 #[derive(Debug, Clone, PartialEq)]
-struct LinkedFact {
-    program: String,
-    name: String,
-    judgement: Node,
+pub struct LinkedFact {
+    pub program: String,
+    pub name: String,
+    pub judgement: Node,
 }
 
+/// A `linked-inference` as declared in its program.
 #[derive(Debug, Clone, PartialEq)]
-struct InferenceRule {
-    program: String,
-    name: String,
-    premises: Vec<Node>,
-    conclusion: Node,
+pub struct InferenceRule {
+    pub program: String,
+    pub name: String,
+    pub premises: Vec<Node>,
+    pub conclusion: Node,
 }
 
+/// One `(uses program (rebind from to) ...)` clause.
 #[derive(Debug, Clone, PartialEq)]
-struct ProgramImport {
-    program: String,
-    rebindings: BTreeMap<String, String>,
+pub struct ProgramImport {
+    pub program: String,
+    pub rebindings: BTreeMap<String, String>,
 }
 
+/// A loaded `linked-program`: its imports and the rules it declares itself,
+/// each in declaration order. Imported rules are not copied in.
 #[derive(Debug, Clone, PartialEq)]
-struct LinkedProgram {
-    name: String,
-    uses: Vec<ProgramImport>,
-    rewrites: Vec<RewriteRule>,
-    facts: Vec<LinkedFact>,
-    inferences: Vec<InferenceRule>,
+pub struct LinkedProgram {
+    pub name: String,
+    pub uses: Vec<ProgramImport>,
+    pub rewrites: Vec<RewriteRule>,
+    pub facts: Vec<LinkedFact>,
+    pub inferences: Vec<InferenceRule>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -178,6 +184,15 @@ pub struct LinkedSearch {
     pub goals: Vec<SearchGoal>,
     pub derived: Vec<SearchDerivation>,
     pub facts: usize,
+}
+
+/// An ordered reduction that stopped without a normal form, reported by
+/// [`LinkedProgramRegistry::reduce_or_stop`] as a value instead of an error.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReductionStopped {
+    /// `RewriteLimit`, `RewriteCycle`, or `RewriteStalled`; never `Normal`.
+    pub normalization: GoalNormalization,
+    pub detail: String,
 }
 
 /// The three ways an ordered reduction can fail to reach a normal form, kept
@@ -7162,10 +7177,33 @@ impl LinkedProgramRegistry {
         execution_basis: ExecutionBasis,
         disabled_operations: &[&str],
     ) -> Result<Self, String> {
+        Self::from_rml_expanded(source, execution_basis, disabled_operations, |_| {
+            Ok(Vec::new())
+        })
+    }
+
+    /// Parse and load linked source like
+    /// [`from_rml_with_basis`](Self::from_rml_with_basis). `expand` receives
+    /// the parsed top-level forms and returns further forms to load with
+    /// them, so a layer that declares programs through its own forms reads
+    /// the source through this single front end instead of parsing it a
+    /// second time, like `expandForms` of `LinkedProgramRegistry.fromRml` in
+    /// `js/src/rml-linked-program.mjs`.
+    pub fn from_rml_expanded<F>(
+        source: &str,
+        execution_basis: ExecutionBasis,
+        disabled_operations: &[&str],
+        expand: F,
+    ) -> Result<Self, String>
+    where
+        F: FnOnce(&[Node]) -> Result<Vec<Node>, String>,
+    {
         if disabled_operations.contains(&"parse-linked-forms") {
             return Err("disabled host semantic operation parse-linked-forms".to_string());
         }
-        let forms = parse_linked_forms(source)?;
+        let mut forms = parse_linked_forms(source)?;
+        let expanded = expand(&forms)?;
+        forms.extend(expanded);
         let registry = Self::from_forms_with_basis(&forms, execution_basis, disabled_operations)?;
         registry.observe(&["load-linked-program"], "parse-linked-forms")?;
         Ok(registry)
@@ -7192,7 +7230,8 @@ impl LinkedProgramRegistry {
         Self::from_forms_with_basis(forms, ExecutionBasis::ClosedSk, disabled_operations)
     }
 
-    fn from_forms_with_basis(
+    /// Load already parsed forms under a selected execution basis.
+    pub fn from_forms_with_basis(
         forms: &[Node],
         execution_basis: ExecutionBasis,
         disabled_operations: &[&str],
@@ -7476,6 +7515,17 @@ impl LinkedProgramRegistry {
         self.programs.keys().map(String::as_str).collect()
     }
 
+    /// The declared imports and rules of one program, like the public
+    /// `programs` map of the JavaScript registry.
+    pub fn program(&self, name: &str) -> Option<&LinkedProgram> {
+        self.programs.get(name)
+    }
+
+    /// The execution basis this registry was loaded under.
+    pub fn execution_basis(&self) -> ExecutionBasis {
+        self.execution_basis
+    }
+
     fn effective_rewrites(
         &self,
         name: &str,
@@ -7639,6 +7689,33 @@ impl LinkedProgramRegistry {
     ) -> Result<ReductionResult, String> {
         self.reduce_classified(name, input, max_steps)
             .map_err(ReduceFailure::into_message)
+    }
+
+    /// Reduce like [`reduce`](Self::reduce), but return a reduction that
+    /// stops without a normal form (the step limit, a revisited term, or a
+    /// rewrite that made no progress) as `Ok(Err(..))`, the way `search`
+    /// classifies its goals. Other failures stay errors.
+    pub fn reduce_or_stop(
+        &self,
+        name: &str,
+        input: &Node,
+        max_steps: usize,
+    ) -> Result<Result<ReductionResult, ReductionStopped>, String> {
+        let stopped = |normalization, detail| {
+            Ok(Err(ReductionStopped {
+                normalization,
+                detail,
+            }))
+        };
+        match self.reduce_classified(name, input, max_steps) {
+            Ok(result) => Ok(Ok(result)),
+            Err(ReduceFailure::Limit(detail)) => stopped(GoalNormalization::RewriteLimit, detail),
+            Err(ReduceFailure::Cycle(detail)) => stopped(GoalNormalization::RewriteCycle, detail),
+            Err(ReduceFailure::Stalled(detail)) => {
+                stopped(GoalNormalization::RewriteStalled, detail)
+            }
+            Err(ReduceFailure::Other(message)) => Err(message),
+        }
     }
 
     fn reduce_classified(

@@ -375,13 +375,24 @@ class LinkedProgramRegistry {
     this.#observedLinkedCapabilitySegments = new Set();
   }
 
-  static fromRml(source, { disabledOperations = [], executionBasis = 's-k' } = {}) {
+  /**
+   * Parse and load linked source. `expandForms`, when given, receives the
+   * parsed top-level forms and returns further forms to load with them, so a
+   * layer that declares programs through its own forms reads the source
+   * through this single front end instead of parsing it a second time.
+   */
+  static fromRml(source, {
+    disabledOperations = [],
+    executionBasis = 's-k',
+    expandForms = null,
+  } = {}) {
     const disabled = new Set(disabledOperations);
-    const forms = parseForms(source, operation => {
+    const parsed = parseForms(source, operation => {
       if (disabled.has(operation)) {
         throw new Error(`disabled host semantic operation ${operation}`);
       }
     });
+    const forms = expandForms === null ? parsed : [...parsed, ...expandForms(parsed)];
     const registry = LinkedProgramRegistry.fromForms(forms, {
       disabledOperations,
       executionBasis,

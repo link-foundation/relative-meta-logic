@@ -297,6 +297,93 @@ fn reports_why_a_proof_search_ended_in_every_execution_basis() {
     let programs = LinkedProgramRegistry::from_rml(source).expect("search programs load");
     assert!(programs.search("graph", &[], &[], 128, 10_000, 0).is_err());
     assert!(programs.search("graph", &[], &[], 128, 0, 10_000).is_err());
+
+    // `reduce_or_stop` reports a reduction without a normal form as a value.
+    let stopped = programs
+        .reduce_or_stop("loops", &node("(flip a)"), 10_000)
+        .expect("reduction runs")
+        .expect_err("the rewrites cycle");
+    assert_eq!(stopped.normalization, GoalNormalization::RewriteCycle);
+    assert!(stopped.detail.contains("rewrite cycle after"));
+    let limited = programs
+        .reduce_or_stop("loops", &node("(flip a)"), 1)
+        .expect("reduction runs")
+        .expect_err("one step is not enough");
+    assert_eq!(limited.normalization, GoalNormalization::RewriteLimit);
+    let normal = programs
+        .reduce_or_stop("graph", &node("(edge a b)"), 10_000)
+        .expect("reduction runs")
+        .expect("no rewrite applies");
+    assert_eq!(normal.term, node("(edge a b)"));
+    assert!(programs
+        .reduce_or_stop("missing", &node("(edge a b)"), 10_000)
+        .is_err());
+}
+
+#[test]
+fn loads_the_forms_a_layer_derives_from_the_same_parse() {
+    let layered = "(linked-program base)\n\
+         (linked-rewrite base finish (from (start ?x)) (to (done ?x)))\n\
+         (wrapped-program wrapper base)";
+    let mut heads = Vec::new();
+    let programs =
+        LinkedProgramRegistry::from_rml_expanded(layered, ExecutionBasis::ClosedSk, &[], |forms| {
+            let mut derived = Vec::new();
+            for form in forms {
+                let Node::List(children) = form else {
+                    continue;
+                };
+                heads.push(children[0].clone());
+                if children[0] == Node::Leaf("wrapped-program".to_string()) {
+                    derived.push(Node::List(vec![
+                        Node::Leaf("linked-program".to_string()),
+                        children[1].clone(),
+                        Node::List(vec![Node::Leaf("uses".to_string()), children[2].clone()]),
+                    ]));
+                }
+            }
+            Ok(derived)
+        })
+        .expect("layered source loads");
+    assert_eq!(
+        heads,
+        ["linked-program", "linked-rewrite", "wrapped-program"]
+            .map(|head| Node::Leaf(head.to_string()))
+    );
+    assert_eq!(programs.names(), ["base", "wrapper"]);
+    assert_eq!(
+        programs
+            .reduce("wrapper", &node("(start a)"), 10_000)
+            .expect("wrapper reduces")
+            .term,
+        node("(done a)")
+    );
+    assert!(programs
+        .runtime_semantic_trace()
+        .observed_operations
+        .contains(&"parse-linked-forms".to_string()));
+    let base = programs.program("base").expect("base is loaded");
+    assert_eq!(base.rewrites[0].name, "finish");
+    assert_eq!(
+        programs.program("wrapper").expect("wrapper").uses[0].program,
+        "base"
+    );
+    assert!(programs.program("missing").is_none());
+    assert_eq!(programs.execution_basis(), ExecutionBasis::ClosedSk);
+
+    // Derived forms are validated like parsed ones, and a failing layer stops the load.
+    let unknown =
+        LinkedProgramRegistry::from_rml_expanded(layered, ExecutionBasis::ClosedSk, &[], |_| {
+            Ok(vec![node("(linked-program broken (uses missing))")])
+        })
+        .expect_err("unknown dependency");
+    assert!(unknown.contains("linked-program broken uses unknown program missing"));
+    let rejected =
+        LinkedProgramRegistry::from_rml_expanded(layered, ExecutionBasis::ClosedSk, &[], |_| {
+            Err("layer rejected the source".to_string())
+        })
+        .expect_err("layer error");
+    assert_eq!(rejected, "layer rejected the source");
 }
 
 #[test]

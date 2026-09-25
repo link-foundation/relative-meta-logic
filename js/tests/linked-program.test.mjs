@@ -243,6 +243,40 @@ describe('links-defined universal program evaluator', () => {
     assert.throws(() => programs.search('graph', [], { maxFacts: 0 }), /proof bounds must be positive safe integers/);
   });
 
+  it('loads the forms a layer derives from the same parse', () => {
+    const layered = `
+      (linked-program base)
+      (linked-rewrite base finish (from (start ?x)) (to (done ?x)))
+      (wrapped-program wrapper base)
+    `;
+    let heads = null;
+    const expandForms = forms => {
+      heads = forms.map(form => form[0]);
+      return forms
+        .filter(form => form[0] === 'wrapped-program')
+        .map(form => ['linked-program', form[1], ['uses', form[2]]]);
+    };
+    const programs = LinkedProgramRegistry.fromRml(layered, { expandForms });
+    assert.deepEqual(heads, ['linked-program', 'linked-rewrite', 'wrapped-program']);
+    assert.deepEqual(programs.names(), ['base', 'wrapper']);
+    assert.deepEqual(programs.reduce('wrapper', ['start', 'a']).term, ['done', 'a']);
+    assert.ok(programs.runtimeSemanticTrace().observedOperations.includes('parse-linked-forms'));
+
+    // Derived forms are validated like parsed ones, and a failing layer stops the load.
+    assert.throws(
+      () => LinkedProgramRegistry.fromRml(layered, {
+        expandForms: () => [['linked-program', 'broken', ['uses', 'missing']]],
+      }),
+      /linked-program broken uses unknown program missing/,
+    );
+    assert.throws(
+      () => LinkedProgramRegistry.fromRml(layered, {
+        expandForms: () => { throw new Error('layer rejected the source'); },
+      }),
+      /layer rejected the source/,
+    );
+  });
+
   it('instantiates one unchanged theory over replaceable foundations', () => {
     const programs = registry(`
       (linked-program portable-classifier)
