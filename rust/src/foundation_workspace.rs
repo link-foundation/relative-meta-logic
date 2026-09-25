@@ -1027,18 +1027,18 @@ fn plan_workspace(forms: &[Node]) -> Result<Plan, String> {
         }
     }
 
-    for index in 0..foundations.len() {
+    for foundation in &mut foundations {
         let context = format!(
             "linked-foundation {} version {}",
-            foundations[index].name, foundations[index].version
+            foundation.name, foundation.version
         );
-        let dependencies = foundations[index]
+        let dependencies = foundation
             .depends_on
             .iter()
             .map(|reference| resolve(&foundation_index, &versions, reference, &context))
             .collect::<Result<Vec<_>, _>>()?;
-        foundations[index].context = context;
-        foundations[index].dependencies = dependencies;
+        foundation.context = context;
+        foundation.dependencies = dependencies;
     }
     for index in 0..foundations.len() {
         plan_foundation(&mut foundations, index, &programs, &rules)?;
@@ -2747,26 +2747,25 @@ impl FoundationWorkspace {
                 )),
             }
         };
-        let rule_form = |form: &Node,
-                         change_name: &str|
-         -> Result<(String, String, &'static str), String> {
-            let kind = head_text(form).and_then(rule_kind_of_head).ok_or_else(|| {
-                format!(
+        let rule_form =
+            |form: &Node, change_name: &str| -> Result<(String, String, &'static str), String> {
+                let kind = head_text(form).and_then(rule_kind_of_head).ok_or_else(|| {
+                    format!(
                     "{change_name} must be a linked-rewrite, linked-fact, or linked-inference form"
                 )
-            })?;
-            let Node::List(parts) = form else {
-                unreachable!("a form with a rule head is a link");
+                })?;
+                let Node::List(parts) = form else {
+                    unreachable!("a form with a rule head is a link");
+                };
+                let program = name_leaf(parts.get(1), &format!("{change_name} program"))?;
+                let rule = name_leaf(parts.get(2), &format!("{change_name} rule"))?;
+                if !parsed_programs.contains(program.as_str()) {
+                    return Err(format!(
+                        "{change_name} targets {program}, which is not a loaded linked-program"
+                    ));
+                }
+                Ok((program, rule, kind))
             };
-            let program = name_leaf(parts.get(1), &format!("{change_name} program"))?;
-            let rule = name_leaf(parts.get(2), &format!("{change_name} rule"))?;
-            if !parsed_programs.contains(program.as_str()) {
-                return Err(format!(
-                    "{change_name} targets {program}, which is not a loaded linked-program"
-                ));
-            }
-            Ok((program, rule, kind))
-        };
         match change {
             FoundationChange::ReplaceAssumption { .. } => unreachable!("handled above"),
             FoundationChange::AddRule(form) => {
