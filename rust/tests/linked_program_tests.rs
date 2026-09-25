@@ -1071,3 +1071,215 @@ fn self_interprets_a_non_trivial_fragment_of_its_own_matching_semantics() {
         .iter()
         .any(|step| step.rule == "substitute-bound-variable"));
 }
+
+/// Swaps the body of one `links-meta-foundation` rule in the source text; the
+/// runtime crate stays the same, so any change in the answer comes from D'.
+fn replace_meta_foundation_rule(text: &str, name: &str, body: &str) -> String {
+    let header = format!("(linked-rewrite links-meta-foundation {name}\n");
+    let start = text
+        .find(&header)
+        .unwrap_or_else(|| panic!("universal.lino defines {name}"));
+    let end = start + text[start..].find("\n\n").expect("rule ends");
+    format!("{}{}{}{}", &text[..start], header, body, &text[end..])
+}
+
+const MIRRORED_SUBSTITUTE_PAIR: &str = "  (from
+    (meta-substitute (pair ?left ?right) ?bindings))
+  (to
+    (pair
+      (meta-substitute ?right ?bindings)
+      (meta-substitute ?left ?bindings))))";
+
+#[test]
+fn executes_a_replaced_linked_definition_of_k1_on_the_unchanged_runtime() {
+    let original_source = source();
+    let run = |text: &str, request: &Node| {
+        let programs = LinkedProgramRegistry::from_rml(text).expect("linked programs load");
+        let result = programs
+            .reduce("links-meta-foundation", request, 10_000)
+            .expect("request reduces");
+        let rules: Vec<String> = result.trace.iter().map(|step| step.rule.clone()).collect();
+        (
+            result.term,
+            rules,
+            programs.runtime_semantic_trace().observed_operations,
+        )
+    };
+    let cases = [
+        (
+            "matching",
+            "match-repeated-variable",
+            "  (from
+    (match-variable (binding-found ?previous) ?name ?candidate ?bindings))
+  (to (match-ok ?bindings)))",
+            "(meta-rewrite
+               (rules (rewrite (pair (meta-variable x) (meta-variable x)) (atom same)) (no-rules))
+               (pair (atom a) (atom b)))",
+            "(pair (atom a) (atom b))",
+            "(atom same)",
+        ),
+        (
+            "substitution",
+            "substitute-pair",
+            MIRRORED_SUBSTITUTE_PAIR,
+            "(meta-rewrite
+               (rules
+                 (rewrite
+                   (pair (atom identity) (meta-variable argument))
+                   (pair (meta-variable argument) (atom done)))
+                 (no-rules))
+               (pair (atom identity) (atom a)))",
+            "(pair (atom a) (atom done))",
+            "(pair (atom done) (atom a))",
+        ),
+        (
+            "rule selection",
+            "select-next-object-rule",
+            "  (from
+    (select-meta-rewrite rewrite-miss ?remaining-rules ?candidate))
+  (to ?candidate))",
+            "(meta-rewrite
+               (rules (rewrite (atom other) (atom first))
+                 (rules (rewrite (atom a) (atom second)) (no-rules)))
+               (atom a))",
+            "(atom second)",
+            "(atom a)",
+        ),
+        (
+            "verification",
+            "verify-object-result",
+            "  (from (meta-verify ?result ?result))
+  (to (verified ?result)))",
+            "(meta-verify
+               (atom a)
+               (meta-rewrite
+                 (rules
+                   (rewrite (pair (atom identity) (meta-variable argument)) (meta-variable argument))
+                   (no-rules))
+                 (pair (atom identity) (atom a))))",
+            "verified",
+            "(verified (atom a))",
+        ),
+    ];
+
+    for (mechanism, rule, body, request, before, after) in cases {
+        let request = node(request);
+        let (original_term, _, original_operations) = run(&original_source, &request);
+        let replaced_source = replace_meta_foundation_rule(&original_source, rule, body);
+        let (replaced_term, replaced_rules, replaced_operations) = run(&replaced_source, &request);
+        let expected = |text: &str| {
+            if text.starts_with('(') {
+                node(text)
+            } else {
+                Node::Leaf(text.to_string())
+            }
+        };
+        assert_eq!(original_term, expected(before), "{mechanism} under D");
+        assert_eq!(replaced_term, expected(after), "{mechanism} under D'");
+        assert!(
+            replaced_rules.iter().any(|fired| fired == rule),
+            "{mechanism} fires the replaced {rule}"
+        );
+        assert_eq!(
+            replaced_operations, original_operations,
+            "{mechanism} host operations"
+        );
+        assert_eq!(
+            original_operations,
+            [
+                "contract-k-link",
+                "contract-s-link",
+                "enforce-cycle-and-resource-bounds",
+                "parse-linked-forms",
+            ]
+        );
+    }
+
+    // The runtime names none of the constructors these rule bodies use, so
+    // no host branch can decide what the replaced definitions do.
+    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let runtime = [
+        "src/linked_program.rs",
+        "src/linked_program/combinator_kernel.rs",
+    ]
+    .iter()
+    .map(|file| fs::read_to_string(manifest.join(file)).expect("runtime source"))
+    .chain(std::iter::once(
+        fs::read_to_string(manifest.join("../lib/meta-theory/fixed-point.ski"))
+            .expect("kernel artifact"),
+    ))
+    .collect::<Vec<_>>()
+    .join("\n");
+    for constructor in [
+        "meta-substitute",
+        "finish-meta-apply",
+        "select-meta-rewrite",
+        "rewrite-miss",
+        "binding-found",
+        "match-ok",
+    ] {
+        assert!(
+            original_source.contains(constructor),
+            "universal.lino uses {constructor}"
+        );
+        assert!(
+            !runtime.contains(constructor),
+            "the runtime names {constructor}"
+        );
+    }
+}
+
+#[test]
+fn keeps_k0_substitution_fixed_when_k1_substitution_is_replaced() {
+    // K1 interprets an encoded copy of its own rule through its linked
+    // substitution, while direct execution substitutes inside the compiled
+    // S/K kernel. Replacing the linked rule therefore reaches the first and
+    // not the second, and the two stop agreeing.
+    let original_source = source();
+    let mirrored_source = replace_meta_foundation_rule(
+        &original_source,
+        "substitute-pair",
+        MIRRORED_SUBSTITUTE_PAIR,
+    );
+    let direct_request = node("(meta-match (atom same) (atom same) (no-bindings))");
+    let self_request = Node::List(vec![
+        Node::Leaf("meta-apply".to_string()),
+        Node::List(vec![
+            Node::Leaf("rewrite".to_string()),
+            encode_object(
+                &node("(meta-match (atom ?value) (atom ?value) ?bindings)"),
+                true,
+            ),
+            encode_object(&node("(match-ok ?bindings)"), true),
+        ]),
+        encode_object(&direct_request, false),
+    ]);
+    let original = LinkedProgramRegistry::from_rml(&original_source).expect("D loads");
+    let replaced = LinkedProgramRegistry::from_rml(&mirrored_source).expect("D' loads");
+    let reduce = |programs: &LinkedProgramRegistry, request: &Node| {
+        programs
+            .reduce("links-meta-foundation", request, 10_000)
+            .expect("request reduces")
+            .term
+    };
+    let direct = node("(match-ok (no-bindings))");
+
+    assert_eq!(reduce(&original, &direct_request), direct);
+    assert_eq!(reduce(&replaced, &direct_request), direct);
+    assert_eq!(
+        reduce(&original, &self_request),
+        Node::List(vec![
+            Node::Leaf("rewrite-result".to_string()),
+            encode_object(&direct, false),
+        ])
+    );
+    assert_eq!(
+        reduce(&replaced, &self_request),
+        node(
+            "(rewrite-result
+               (pair
+                 (pair (atom nil) (pair (atom no-bindings) (atom nil)))
+                 (atom match-ok)))"
+        )
+    );
+}
