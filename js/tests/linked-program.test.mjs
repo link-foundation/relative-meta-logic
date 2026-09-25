@@ -735,4 +735,194 @@ describe('links-defined universal program evaluator', () => {
     assert.ok(selfInterpreted.trace.some(step => step.rule === 'match-repeated-variable'));
     assert.ok(selfInterpreted.trace.some(step => step.rule === 'substitute-bound-variable'));
   });
+
+  it('executes a replaced linked definition of K1 on the unchanged runtime', () => {
+    // Swap the body of one links-meta-foundation rule in the source text; the
+    // runtime module stays the same, so any change in the answer comes from D'.
+    const replaceRule = (name, body) => {
+      const header = `(linked-rewrite links-meta-foundation ${name}\n`;
+      const start = source.indexOf(header);
+      assert.ok(start >= 0, `universal.lino defines ${name}`);
+      const end = source.indexOf('\n\n', start);
+      return `${source.slice(0, start)}${header}${body}${source.slice(end)}`;
+    };
+    const run = (text, request) => {
+      const programs = LinkedProgramRegistry.fromRml(text);
+      const result = programs.reduce('links-meta-foundation', request);
+      return {
+        term: result.term,
+        rules: result.trace.map(step => step.rule),
+        operations: programs.runtimeSemanticTrace().observedOperations,
+      };
+    };
+    const rules = (...items) => items.reduceRight(
+      (tail, item) => ['rules', item, tail],
+      ['no-rules'],
+    );
+    const identity = ['pair', ['atom', 'identity'], ['meta-variable', 'argument']];
+    const cases = [
+      {
+        mechanism: 'matching',
+        rule: 'match-repeated-variable',
+        body: `  (from
+    (match-variable (binding-found ?previous) ?name ?candidate ?bindings))
+  (to (match-ok ?bindings)))`,
+        request: [
+          'meta-rewrite',
+          rules(['rewrite',
+            ['pair', ['meta-variable', 'x'], ['meta-variable', 'x']],
+            ['atom', 'same'],
+          ]),
+          ['pair', ['atom', 'a'], ['atom', 'b']],
+        ],
+        before: ['pair', ['atom', 'a'], ['atom', 'b']],
+        after: ['atom', 'same'],
+      },
+      {
+        mechanism: 'substitution',
+        rule: 'substitute-pair',
+        body: `  (from
+    (meta-substitute (pair ?left ?right) ?bindings))
+  (to
+    (pair
+      (meta-substitute ?right ?bindings)
+      (meta-substitute ?left ?bindings))))`,
+        request: [
+          'meta-rewrite',
+          rules(['rewrite', identity, ['pair', ['meta-variable', 'argument'], ['atom', 'done']]]),
+          ['pair', ['atom', 'identity'], ['atom', 'a']],
+        ],
+        before: ['pair', ['atom', 'a'], ['atom', 'done']],
+        after: ['pair', ['atom', 'done'], ['atom', 'a']],
+      },
+      {
+        mechanism: 'rule selection',
+        rule: 'select-next-object-rule',
+        body: `  (from
+    (select-meta-rewrite rewrite-miss ?remaining-rules ?candidate))
+  (to ?candidate))`,
+        request: [
+          'meta-rewrite',
+          rules(
+            ['rewrite', ['atom', 'other'], ['atom', 'first']],
+            ['rewrite', ['atom', 'a'], ['atom', 'second']],
+          ),
+          ['atom', 'a'],
+        ],
+        before: ['atom', 'second'],
+        after: ['atom', 'a'],
+      },
+      {
+        mechanism: 'verification',
+        rule: 'verify-object-result',
+        body: `  (from (meta-verify ?result ?result))
+  (to (verified ?result)))`,
+        request: [
+          'meta-verify',
+          ['atom', 'a'],
+          [
+            'meta-rewrite',
+            rules(['rewrite', identity, ['meta-variable', 'argument']]),
+            ['pair', ['atom', 'identity'], ['atom', 'a']],
+          ],
+        ],
+        before: 'verified',
+        after: ['verified', ['atom', 'a']],
+      },
+    ];
+
+    for (const { mechanism, rule, body, request, before, after } of cases) {
+      const original = run(source, request);
+      const replaced = run(replaceRule(rule, body), request);
+      assert.deepEqual(original.term, before, `${mechanism} under D`);
+      assert.deepEqual(replaced.term, after, `${mechanism} under D'`);
+      assert.ok(replaced.rules.includes(rule), `${mechanism} fires the replaced ${rule}`);
+      assert.deepEqual(replaced.operations, original.operations, `${mechanism} host operations`);
+      assert.deepEqual(original.operations, [
+        'contract-k-link',
+        'contract-s-link',
+        'enforce-cycle-and-resource-bounds',
+        'parse-linked-forms',
+      ]);
+    }
+
+    // The runtime names none of the constructors these rule bodies use, so
+    // no host branch can decide what the replaced definitions do.
+    const runtime = [
+      'rml-linked-program.mjs',
+      'rml-combinator-kernel.mjs',
+      'rml-combinator-kernel-data.mjs',
+    ].map(file => readFileSync(resolve(here, '..', 'src', file), 'utf8')).join('\n');
+    for (const constructor of [
+      'meta-substitute',
+      'finish-meta-apply',
+      'select-meta-rewrite',
+      'rewrite-miss',
+      'binding-found',
+      'match-ok',
+    ]) {
+      assert.ok(source.includes(constructor), `universal.lino uses ${constructor}`);
+      assert.equal(runtime.includes(constructor), false, `the runtime names ${constructor}`);
+    }
+  });
+
+  it('keeps K0 substitution fixed when K1 substitution is replaced', () => {
+    // K1 interprets an encoded copy of its own rule through its linked
+    // substitution, while direct execution substitutes inside the compiled
+    // S/K kernel. Replacing the linked rule therefore reaches the first and
+    // not the second, and the two stop agreeing.
+    const encode = (term, variables = false) => {
+      if (!Array.isArray(term)) {
+        if (variables && term.startsWith('?')) {
+          return ['meta-variable', term.slice(1)];
+        }
+        return ['atom', term];
+      }
+      return term.reduceRight(
+        (tail, item) => ['pair', encode(item, variables), tail],
+        ['atom', 'nil'],
+      );
+    };
+    const directRequest = ['meta-match', ['atom', 'same'], ['atom', 'same'], ['no-bindings']];
+    const selfRequest = [
+      'meta-apply',
+      [
+        'rewrite',
+        encode(['meta-match', ['atom', '?value'], ['atom', '?value'], '?bindings'], true),
+        encode(['match-ok', '?bindings'], true),
+      ],
+      encode(directRequest),
+    ];
+    const header = '(linked-rewrite links-meta-foundation substitute-pair\n';
+    const start = source.indexOf(header);
+    const end = source.indexOf('\n\n', start);
+    const mirrored = `${source.slice(0, start)}${header}  (from
+    (meta-substitute (pair ?left ?right) ?bindings))
+  (to
+    (pair
+      (meta-substitute ?right ?bindings)
+      (meta-substitute ?left ?bindings))))${source.slice(end)}`;
+
+    const original = LinkedProgramRegistry.fromRml(source);
+    const replaced = LinkedProgramRegistry.fromRml(mirrored);
+    const direct = ['match-ok', ['no-bindings']];
+
+    assert.deepEqual(original.reduce('links-meta-foundation', directRequest).term, direct);
+    assert.deepEqual(replaced.reduce('links-meta-foundation', directRequest).term, direct);
+    assert.deepEqual(
+      original.reduce('links-meta-foundation', selfRequest).term,
+      ['rewrite-result', encode(direct)],
+    );
+    assert.deepEqual(
+      replaced.reduce('links-meta-foundation', selfRequest).term,
+      [
+        'rewrite-result',
+        [
+          'pair',
+          ['pair', ['atom', 'nil'], ['pair', ['atom', 'no-bindings'], ['atom', 'nil']]],
+          ['atom', 'match-ok'],
+        ],
+      ],
+    );
+  });
 });
