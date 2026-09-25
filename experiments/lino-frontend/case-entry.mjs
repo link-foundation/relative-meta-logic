@@ -26,6 +26,15 @@ function errorOf(error) {
   return { message: error.message, line: error.line, col: error.col, length: error.length };
 }
 
+// The [line, column, text, value] of every reference that starts with a quote.
+function quotesOf({ source, quotes }) {
+  return quotes.map(({ start, end, value }) => {
+    const before = source.slice(0, start);
+    const lineStart = before.lastIndexOf('\n') + 1;
+    return [before.split('\n').length, [...before.slice(lineStart)].length + 1, source.slice(start, end), value];
+  });
+}
+
 function entry(name, source) {
   const lines = ['    {', `      "name": ${text(name)},`, `      "source": ${text(source)},`];
   try {
@@ -43,7 +52,8 @@ function entry(name, source) {
   try {
     const prepared = prepareLinoSource(source);
     lines.push(`      "prepared": ${text(prepared.prepared)},`);
-    lines.push(`      "lines": ${JSON.stringify(prepared.lines.map(line => [line.line, line.col]))}`);
+    lines.push(`      "lines": ${JSON.stringify(prepared.lines.map(line => [line.line, line.col]))},`);
+    lines.push(`      "quotes": ${text(quotesOf(prepared))}`);
   } catch {
     // The prepare step fails with the error above, so the entry ends there.
     lines[lines.length - 1] = lines[lines.length - 1].replace(/,$/, '');

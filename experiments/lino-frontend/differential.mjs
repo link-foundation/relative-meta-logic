@@ -5,12 +5,12 @@
 //
 // The documents mix references, quoted references, words with quotes, names,
 // shallow parentheses, indentation by spaces and tabs, comments, byte order
-// marks, all three line endings, and broken forms. Parentheses stay at most
-// three deep, since links-notation 0.20 parses deep nesting in exponential
-// time. Every short run of spaces, tabs, and line breaks also follows a few
-// fixed documents: the Rust links-notation 0.20 parser refuses spaces at the
-// end of a document that the JavaScript parser accepts, and the Rust front end
-// has to repair that. The Rust side is `rust/examples/lino_forms.rs`.
+// marks, all three line endings, and broken forms. Groups nest at most four
+// deep; `deep-documents.mjs` generates deeper ones. Every short run of spaces,
+// tabs, and line breaks also follows a few fixed documents: the Rust
+// links-notation 0.20 parser refuses spaces at the end of a document that the
+// JavaScript parser accepts, and the Rust front end has to repair that. The
+// Rust side is `rust/examples/lino_forms.rs`.
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -63,6 +63,15 @@ function document() {
 function errorOf(error) {
   return { message: error.message, line: error.line, col: error.col, length: error.length };
 }
+// The [line, column, text, value] of every reference that starts with a quote.
+function quotesOf({ source, quotes }) {
+  return quotes.map(({ start, end, value }) => {
+    const before = source.slice(0, start);
+    const lineStart = before.lastIndexOf('\n') + 1;
+    return [before.split('\n').length, [...before.slice(lineStart)].length + 1, source.slice(start, end), value];
+  });
+}
+
 function readJs(source) {
   const result = {};
   try {
@@ -71,9 +80,10 @@ function readJs(source) {
     result.error = errorOf(error);
   }
   try {
-    const { prepared, lines } = prepareLinoSource(source);
-    result.prepared = prepared;
-    result.lines = lines.map(logical => [logical.line, logical.col]);
+    const prepared = prepareLinoSource(source);
+    result.prepared = prepared.prepared;
+    result.lines = prepared.lines.map(logical => [logical.line, logical.col]);
+    result.quotes = quotesOf(prepared);
   } catch (error) {
     result.prepareError = errorOf(error);
   }
@@ -82,7 +92,7 @@ function readJs(source) {
 
 // JavaScript blanks one UTF-16 code unit per space and Rust one UTF-8 byte, so
 // the prepared texts are compared only for ASCII sources.
-const KEYS = ['forms', 'error', 'prepared', 'lines', 'prepareError', 'text', 'message', 'line', 'col', 'length'];
+const KEYS = ['forms', 'error', 'prepared', 'lines', 'quotes', 'prepareError', 'text', 'message', 'line', 'col', 'length'];
 function comparable(result, source) {
   const copy = { ...result };
   if (/[^\x00-\x7f]/.test(source)) delete copy.prepared;
