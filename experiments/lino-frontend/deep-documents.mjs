@@ -1,16 +1,21 @@
 // Generate LiNo documents with deeper parentheses than `differential.mjs`
-// uses, and record what the JavaScript front end reads from them (issue #183).
-// Run from the repository root:
+// uses, record what the JavaScript front end reads from them, and compare
+// what two front ends read (issue #183). Run from the repository root:
 //
 //   node experiments/lino-frontend/deep-documents.mjs generate <count> <seed> <depth> <sources.json> [cap]
 //   node experiments/lino-frontend/deep-documents.mjs read <sources.json> <results.jsonl> [module]
+//   node experiments/lino-frontend/deep-documents.mjs compare <results.jsonl> <results.jsonl>
 //
 // `depth` bounds how deep groups nest on purpose; `cap`, two more by default,
 // bounds the nesting a document may reach once missing parentheses count.
-// `read` prints one JSON line per source, the forms or the error, in the
-// format `rust/examples/lino_forms.rs` prints, so the results of two versions
-// of a front end, or of both runtimes, compare with `diff`. `module` is the
-// front end to load, `js/src/rml-lino-frontend.mjs` by default.
+// `read` prints one JSON line per source, the forms or the error. `module` is
+// the front end to load, `js/src/rml-lino-frontend.mjs` by default, so two
+// versions of a front end can read the same sources. `compare` prints every
+// source two result files read differently, and looks only at the forms and
+// the error, so it also compares what `read` printed with what the Rust front
+// end prints:
+//
+//   cargo run --release --example lino_forms --manifest-path rust/Cargo.toml -- <sources.json> > <results.jsonl>
 //
 // The documents stress what reading deep groups one at a time has to keep:
 // groups at the start of a line and after values, groups alone on a line,
@@ -114,14 +119,37 @@ async function read(sourcesPath, resultsPath, modulePath) {
   writeFileSync(resultsPath, `${lines.join('\n')}\n`);
 }
 
+// The forms or the error of every line of a result file, with their keys in
+// one order, whatever else the line holds.
+function results(path) {
+  const keys = ['forms', 'error', 'text', 'message', 'line', 'col', 'length'];
+  return readFileSync(path, 'utf8').trim().split('\n').map(line => JSON.stringify(JSON.parse(line), keys));
+}
+
+function compare(leftPath, rightPath) {
+  const left = results(leftPath);
+  const right = results(rightPath);
+  let differing = 0;
+  left.forEach((result, index) => {
+    if (result === right[index]) return;
+    differing += 1;
+    if (differing <= 10) console.log(`${index}\n  ${result}\n  ${right[index]}`);
+  });
+  console.log(`${left.length} and ${right.length} results: ${differing} read differently`);
+  process.exit(differing === 0 && left.length === right.length ? 0 : 1);
+}
+
 if (command === 'generate') {
   const [count, seed, depth, out, cap] = args;
   const deepest = cap === undefined ? Number(depth) + 2 : Number(cap);
   writeFileSync(out, JSON.stringify(generate(Number(count), Number(seed), Number(depth), deepest)));
 } else if (command === 'read') {
   await read(...args);
+} else if (command === 'compare') {
+  compare(...args);
 } else {
   console.error('Usage: deep-documents.mjs generate <count> <seed> <depth> <sources.json> [cap]');
   console.error('       deep-documents.mjs read <sources.json> <results.jsonl> [module]');
+  console.error('       deep-documents.mjs compare <results.jsonl> <results.jsonl>');
   process.exit(2);
 }

@@ -1,18 +1,24 @@
 // Check how the shared LiNo front end reads references that start with a
 // quote (issue #183). Run from the repository root:
 //
-//   node experiments/lino-frontend/quote-reading.mjs check <count> <seed>
+//   node experiments/lino-frontend/quote-reading.mjs check <count> <seed> [rust]
 //   node experiments/lino-frontend/quote-reading.mjs cost [module]
 //
 // `check` generates texts full of quote runs, parentheses, and whitespace, and
 // compares every reference `prepareLinoSource` records in `quotes` with what
 // the links-notation 0.20 grammar reads there: `parseQuotedStringAt`, which
 // looks at one character after another, and an ordinary reference when it
-// finds no quoted one. `cost` times `parseLinoDocument` on texts built to make
-// quote reading slow, each in a child process with a time limit; `module` is
-// the front end to load, `js/src/rml-lino-frontend.mjs` by default.
-import { execFileSync } from 'node:child_process';
-import { resolve } from 'node:path';
+// finds no quoted one. With `rust`, it also compares the forms, the error, and
+// the quotes `rust/examples/lino_forms.rs` reads from each text with what the
+// JavaScript front end reads. `cost` times `parseLinoDocument` on texts built
+// to make quote reading slow, each in a child process with a time limit;
+// `module` is the front end to load, `js/src/rml-lino-frontend.mjs` by
+// default, or `rust` for `rust/examples/lino_forms.rs`, which also prints what
+// the prepare step returns.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const [command, ...args] = process.argv.slice(2);
@@ -88,18 +94,60 @@ function randomTexts(count, seed) {
   return texts;
 }
 
-async function check(count, seed) {
-  const { prepareLinoSource } = await import('../../js/src/rml-lino-frontend.mjs');
+// The [line, column, text, value] of every reference that starts with a quote,
+// as `rust/examples/lino_forms.rs` prints them.
+function quotesOf({ source, quotes }) {
+  return quotes.map(({ start, end, value }) => {
+    const before = source.slice(0, start);
+    const lineStart = before.lastIndexOf('\n') + 1;
+    return [before.split('\n').length, [...before.slice(lineStart)].length + 1, source.slice(start, end), value];
+  });
+}
+
+// One JSON line per text from `rust/examples/lino_forms.rs`.
+function readWithRust(texts) {
+  const sourcesPath = join(mkdtempSync(join(tmpdir(), 'lino-quotes-')), 'sources.json');
+  writeFileSync(sourcesPath, JSON.stringify(texts));
+  const rust = spawnSync('cargo', [
+    'run', '--quiet', '--release', '--example', 'lino_forms', '--manifest-path', 'rust/Cargo.toml', '--', sourcesPath,
+  ], { encoding: 'utf8', maxBuffer: 1 << 30 });
+  if (rust.status !== 0) throw new Error(rust.stderr);
+  return rust.stdout.trim().split('\n').map(line => JSON.parse(line));
+}
+
+async function check(count, seed, withRust) {
+  const { parseLinoDocument, prepareLinoSource } = await import('../../js/src/rml-lino-frontend.mjs');
+  const texts = randomTexts(count, seed);
+  const rustResults = withRust ? readWithRust(texts) : [];
   let references = 0;
   let refused = 0;
   let differing = 0;
-  for (const text of randomTexts(count, seed)) {
+  let runtimesDiffering = 0;
+  texts.forEach((text, index) => {
+    if (withRust) {
+      const js = {};
+      try {
+        js.forms = parseLinoDocument(text);
+      } catch (error) {
+        js.error = { message: error.message, line: error.line, col: error.col, length: error.length };
+      }
+      try {
+        js.quotes = quotesOf(prepareLinoSource(text));
+      } catch {
+        // The prepare step fails with the error above.
+      }
+      const keys = ['forms', 'error', 'quotes', 'text', 'message', 'line', 'col', 'length'];
+      if (JSON.stringify(js, keys) !== JSON.stringify(rustResults[index], keys)) {
+        runtimesDiffering += 1;
+        if (runtimesDiffering <= 5) console.log(JSON.stringify({ text, js, rust: rustResults[index] }));
+      }
+    }
     let prepared;
     try {
       prepared = prepareLinoSource(text);
     } catch {
       refused += 1;
-      continue;
+      return;
     }
     const { source, quotes } = prepared;
     for (const { start, end, value } of quotes) {
@@ -110,9 +158,10 @@ async function check(count, seed) {
         if (differing <= 5) console.log(JSON.stringify({ source, start, read: { end, value }, expected }));
       }
     }
-  }
+  });
   console.log(`${count} texts (${refused} refused), ${references} references: ${differing} read differently`);
-  if (differing > 0) process.exitCode = 1;
+  if (withRust) console.log(`${count} texts: ${runtimesDiffering} read differently by the Rust front end`);
+  if (differing > 0 || runtimesDiffering > 0) process.exitCode = 1;
 }
 
 // Texts of about `size` characters that make quote reading slow.
@@ -144,9 +193,27 @@ const SHAPES = {
   'quoted references on one line': size => "'a' ".repeat(size / 4),
 };
 
+const RUST_EXAMPLE = resolve('rust', 'target', 'release', 'examples', 'lino_forms');
+
+// The milliseconds `rust/examples/lino_forms.rs` takes to read `text`, and
+// what it reads.
+function timeRust(text) {
+  const sourcesPath = join(mkdtempSync(join(tmpdir(), 'lino-quotes-')), 'sources.json');
+  writeFileSync(sourcesPath, JSON.stringify([text]));
+  const rust = spawnSync(RUST_EXAMPLE, ['--time', sourcesPath], { encoding: 'utf8', maxBuffer: 1 << 30, timeout: 55_000 });
+  if (rust.status !== 0) throw new Error(rust.signal ? `stopped (${rust.signal})` : rust.stderr);
+  const result = JSON.parse(rust.stdout);
+  return { ms: result.micros / 1000, outcome: result.forms ? `${result.forms.length} forms` : result.error.message };
+}
+
 async function time(modulePath, shape, size) {
-  const { parseLinoDocument } = await import(pathToFileURL(resolve(modulePath)).href);
   const text = SHAPES[shape](size);
+  if (modulePath === 'rust') {
+    const { ms, outcome } = timeRust(text);
+    console.log(JSON.stringify({ shape, size, ms: Math.round(ms), outcome: outcome.slice(0, 60) }));
+    return;
+  }
+  const { parseLinoDocument } = await import(pathToFileURL(resolve(modulePath)).href);
   const start = process.hrtime.bigint();
   let outcome;
   try {
@@ -159,6 +226,9 @@ async function time(modulePath, shape, size) {
 }
 
 function cost(modulePath) {
+  if (modulePath === 'rust') {
+    execFileSync('cargo', ['build', '--quiet', '--release', '--example', 'lino_forms', '--manifest-path', 'rust/Cargo.toml'], { stdio: 'inherit' });
+  }
   for (const shape of Object.keys(SHAPES)) {
     for (const size of [10_000, 100_000, 1_000_000]) {
       try {
@@ -176,12 +246,12 @@ function cost(modulePath) {
 }
 
 if (command === 'check') {
-  await check(Number(args[0] || 20000), Number(args[1] || 1));
+  await check(Number(args[0] || 20000), Number(args[1] || 1), args[2] === 'rust');
 } else if (command === 'cost') {
   cost(args[0] || 'js/src/rml-lino-frontend.mjs');
 } else if (command === 'time') {
   await time(args[0], args[1], Number(args[2]));
 } else {
-  console.error('Usage: quote-reading.mjs check <count> <seed> | cost [module]');
+  console.error('Usage: quote-reading.mjs check <count> <seed> [rust] | cost [module]');
   process.exit(2);
 }

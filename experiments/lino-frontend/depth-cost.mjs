@@ -5,12 +5,17 @@
 //   node experiments/lino-frontend/depth-cost.mjs overhead
 //   node experiments/lino-frontend/depth-cost.mjs shapes [maxDepth]
 //   node experiments/lino-frontend/depth-cost.mjs frontend [maxDepth]
+//   node experiments/lino-frontend/depth-cost.mjs rust [maxDepth]
 //   node experiments/lino-frontend/depth-cost.mjs corpus
 //
 // `shapes` times links-notation alone, `frontend` times `parseLinoDocument`,
-// and `corpus` times both on every large `.lino` file of the repository.
+// `rust` times the Rust front end through `rust/examples/lino_forms.rs`, and
+// `corpus` times links-notation and `parseLinoDocument` on every large `.lino`
+// file of the repository.
+import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -87,6 +92,22 @@ if (mode === 'overhead') {
     for (let d = 1; d <= limit; d += d < 8 ? 1 : 8) row.push(`${d}:${show(time(make(d), 1, parseLinoDocument))}`);
     console.log(name.padEnd(12), row.join(' '));
   }
+} else if (mode === 'rust') {
+  const limit = Number(process.argv[3] || 64);
+  const depths = [];
+  for (let d = 1; d <= limit; d += d < 8 ? 1 : 8) depths.push(d);
+  const texts = Object.values(SHAPES).flatMap(make => depths.map(make));
+  const sourcesPath = join(mkdtempSync(join(tmpdir(), 'lino-depth-')), 'sources.json');
+  writeFileSync(sourcesPath, JSON.stringify(texts));
+  const out = execFileSync('cargo', [
+    'run', '--quiet', '--release', '--example', 'lino_forms', '--manifest-path', join(root, 'rust', 'Cargo.toml'),
+    '--', '--time', sourcesPath,
+  ], { encoding: 'utf8', maxBuffer: 1 << 30 });
+  const micros = out.trim().split('\n').map(line => JSON.parse(line).micros);
+  Object.keys(SHAPES).forEach((name, index) => {
+    const row = depths.map((d, at) => `${d}:${show(micros[index * depths.length + at])}`);
+    console.log(name.padEnd(12), row.join(' '));
+  });
 } else if (mode === 'corpus') {
   const histogram = new Map();
   const rows = [];
