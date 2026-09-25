@@ -17,8 +17,8 @@ if (pairs.length === 0 || pairs.length % 2 !== 0) {
 // JSON with every character outside printable ASCII escaped, as in the cases.
 function text(value) {
   return JSON.stringify(value).replace(
-    /[\u007f-￿]/g,
-    character => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`,
+    /[\u{7f}-\u{10ffff}]/gu,
+    character => character.split('').map(unit => `\\u${unit.charCodeAt(0).toString(16).padStart(4, '0')}`).join(''),
   );
 }
 
