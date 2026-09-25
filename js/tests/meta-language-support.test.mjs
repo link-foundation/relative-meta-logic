@@ -43,6 +43,28 @@ describe('meta-language support', () => {
     assert.deepStrictEqual(report.metaDiagnostics, report.directDiagnostics);
   });
 
+  it('keeps an unmatched parenthesis inside a quote or a comment through the round trip', () => {
+    const source = "# it's (\n(a \"(\" b)\n";
+    const report = rmlMetaLanguageParityReport(source);
+
+    assert.strictEqual(reconstructRmlFromMetaLanguage(parseRmlToMetaLanguage(source)), source);
+    assert.deepStrictEqual(parseRmlLinksViaMetaLanguage(source), ["(a '(' b)"]);
+    assert.strictEqual(report.roundTripOk, true);
+    assert.strictEqual(report.linkParityOk, true);
+    assert.strictEqual(report.evaluationParityOk, true);
+  });
+
+  it('rejects source that is not LiNo with the position of the failure', () => {
+    for (const read of [parseRmlLinksViaMetaLanguage, rmlMetaLanguageParityReport, metaLanguageFeatureReport]) {
+      assert.throws(() => read('(a: a is a)\n(? (a = a)'), {
+        name: 'LinoParseError',
+        message: 'LiNo parse failure: unexpected end of input',
+        line: 2,
+        col: 11,
+      });
+    }
+  });
+
   it('rewrites JavaScript identifiers through meta-language query and replace', () => {
     const rewritten = rewriteJavaScriptIdentifierViaMetaLanguage(
       'const oldName = call(oldName);\n',

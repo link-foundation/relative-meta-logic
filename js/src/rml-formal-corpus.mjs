@@ -55,7 +55,19 @@ function formsFrom(source, context) {
   const text = String(source);
   const metaLanguage = parseRmlToMetaLanguage(text);
   const reconstructed = reconstructRmlFromMetaLanguage(metaLanguage);
-  const forms = parseLino(reconstructed).map(link => parseOne(tokenizeOne(link)));
+  let links;
+  try {
+    links = parseLino(reconstructed);
+  } catch (err) {
+    throw new Error(`invalid ${context} source: ${err.message}`);
+  }
+  const forms = links.map(link => {
+    try {
+      return parseOne(tokenizeOne(link));
+    } catch (err) {
+      throw new Error(`invalid ${context} link ${link}: ${err.message}`);
+    }
+  });
   return { text, reconstructed, forms, roundTripOk: reconstructed === text, context };
 }
 

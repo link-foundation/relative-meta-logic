@@ -14,7 +14,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { Parser } from 'links-notation';
+import {
+  LinoParseError,
+  MAX_LINO_NESTING_DEPTH,
+  MAX_LINO_SOURCE_UNITS,
+  normalizeLinoSource,
+  parseLinoDocument,
+  prepareLinoSource,
+} from './rml-lino-frontend.mjs';
 
 // ---------- Structured Diagnostics ----------
 // Every parser/evaluator error is reported as a `Diagnostic` with an error
@@ -107,7 +114,7 @@ function tokenizeOne(s) {
 
   const out = [];
   let i = 0;
-  const isWS = c => /\s/.test(c);
+  const isWS = c => /\p{White_Space}/u.test(c);
   while (i < s.length) {
     const c = s[i];
     if (isWS(c)) { i++; continue; }
@@ -6961,83 +6968,6 @@ function check(term, expectedType, ctx, options) {
 }
 
 // ---------- Public LiNo helpers ----------
-function stripLinoComments(text) {
-  return text
-    .replace(/^[ \t]*#.*$/gm, '')          // full-line comments
-    .replace(/(\)[ \t]+)#.*$/gm, '$1')     // inline comments after closing paren
-    .replace(/\n{3,}/g, '\n\n');
-}
-
-// RML's parenthesized forms predate links-notation 0.20's nested-context
-// interpretation of line breaks. Keep their established flat-list meaning by
-// treating layout inside parentheses as whitespace, while retaining root-level
-// newlines for indentation syntax and preserving multiline quoted references.
-function hasSubstantiveQuotedBody(text) {
-  let depth = 0;
-  let visible = false;
-  for (const character of text) {
-    if (character === '(') depth += 1;
-    if (character === ')') {
-      depth -= 1;
-      if (depth < 0) return false;
-    }
-    if (!/\s/.test(character)) visible = true;
-  }
-  return visible && depth === 0;
-}
-
-// Return the position after a delimited reference using links-notation 0.20's
-// N-quote rules. This keeps layout normalization from changing quoted data.
-function quotedReferenceEnd(text, start) {
-  const quote = text[start];
-  if (quote !== '"' && quote !== "'" && quote !== '`') return null;
-  let width = 1;
-  while (text[start + width] === quote) width += 1;
-  const delimiter = quote.repeat(width);
-  const escape = delimiter.repeat(2);
-  const emptyEnd = width % 2 === 0 ? start + width : null;
-  let position = start + width;
-  while (position < text.length) {
-    if (text.startsWith(escape, position)) {
-      position += escape.length;
-      continue;
-    }
-    if (text.startsWith(delimiter, position) && text[position + width] !== quote) {
-      const end = position + width;
-      const body = text.slice(start + width, position);
-      return width % 2 !== 0 || hasSubstantiveQuotedBody(body) ? end : emptyEnd;
-    }
-    position += 1;
-  }
-  return emptyEnd;
-}
-
-function flattenParenthesizedLayout(text) {
-  let depth = 0;
-  let output = '';
-
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    if (character === '"' || character === "'" || character === '`') {
-      const end = quotedReferenceEnd(text, index);
-      if (end !== null) {
-        output += text.slice(index, end);
-        index = end - 1;
-        continue;
-      }
-    }
-    if (character === '(') depth += 1;
-    if (character === ')') depth = Math.max(0, depth - 1);
-    if (character === '\n' && depth > 0) {
-      output += ' ';
-      while (text[index + 1] === ' ' || text[index + 1] === '\t') index += 1;
-      continue;
-    }
-    output += character;
-  }
-  return output;
-}
-
 function isLiterateLinoPath(file) {
   return typeof file === 'string' && /\.lino\.md$/i.test(file);
 }
@@ -7097,105 +7027,114 @@ function extractLiterateLino(text) {
   return out.join('\n');
 }
 
+// The LiNo text `evaluate` reads from `code`. A literate file is normalized
+// first, so a CRLF file closes its fences, and prose lines become blank lines.
 function sourceForEvaluation(code, file) {
-  const source = String(code);
-  return isLiterateLinoPath(file) ? extractLiterateLino(source) : source;
+  return isLiterateLinoPath(file) ? extractLiterateLino(normalizeLinoSource(code)) : String(code);
 }
 
 /**
- * Parse LiNo source text with the official links-notation parser.
+ * Parse LiNo source text into the texts of its top-level forms.
+ *
+ * The shared front end in `rml-lino-frontend.mjs` reads the text with the
+ * links-notation parser; comment links such as `(# note)` are left out.
+ *
+ * @param {string} text - LiNo source text.
+ * @returns {string[]} One parenthesized link per top-level form.
+ * @throws {LinoParseError} When the text is not valid LiNo.
  */
 function parseLino(text) {
-  const parser = new Parser({ comments: false });
-  const source = flattenParenthesizedLayout(stripLinoComments(text));
-  return parser.parse(source).map(link => String(link));
+  return parseLinoDocument(text).map(form => form.text);
 }
 
+/**
+ * Read the text of one top-level form into its AST.
+ *
+ * @param {string} text - One parenthesized link, as `parseLino` returns it.
+ * @returns {Array|string} The form with its higher-order sugar desugared.
+ * @throws {RmlError} E002 when the form does not read.
+ */
+function readLinoForm(text) {
+  return desugarHoas(parseOne(tokenizeOne(text)));
+}
+
+/**
+ * Parse LiNo source text into the ASTs of its top-level forms.
+ *
+ * @param {string} text - LiNo source text.
+ * @returns {Array} One AST per top-level form.
+ * @throws {LinoParseError|RmlError} The first failure: a `LinoParseError` when
+ *   the text is not valid LiNo, or the E002 `RmlError` of a form that does not
+ *   read.
+ */
 function parseLinoForms(text) {
-  return parseLino(text)
-    .filter(linkStr => {
-      const s = String(linkStr).trim();
-      // Skip if it's just a comment link like "(# ...)"
-      return !s.match(/^\(#\s/);
-    })
-    .map(linkStr => {
-      const toks = tokenizeOne(String(linkStr));
-      return desugarHoas(parseOne(toks));
-    });
+  return parseLinoDocument(text).map(form => readLinoForm(form.text));
 }
 
-// Compute (line, col) source positions for every top-level link in `text`.
-// A "top-level link" is a parenthesized form that is not nested inside another;
-// position is reported as 1-based line and column of its opening `(`.
-// Lines starting with `#` are treated as full-line comments and ignored, just
-// like `stripLinoComments` does. Inline `# ...` comments that follow a closing
-// paren (matching `(\)[ \t]+)#.*$` in `stripLinoComments`) are also skipped so
-// parens inside the comment don't disturb the depth counter.
+/**
+ * Read LiNo source text into the ASTs of its top-level forms, each with the
+ * span of the line it starts on.
+ *
+ * @param {string} text - LiNo source text.
+ * @param {string|null} [file] - File path recorded in every span.
+ * @returns {{forms: Array, spans: object[]}} The forms and their spans, index
+ *   by index.
+ * @throws {RmlError} The first failure: E006 at the position the front end
+ *   names when the text is not valid LiNo, or E002 at the form's span when a
+ *   form does not read.
+ */
+function readLinoForms(text, file) {
+  const at = position => ({
+    file: file || null,
+    line: position.line,
+    col: position.col,
+    length: position.length,
+  });
+  let parsed;
+  try {
+    parsed = parseLinoDocument(text);
+  } catch (err) {
+    if (err instanceof LinoParseError) throw new RmlError(err.code, err.message, at(err));
+    throw err;
+  }
+  const forms = [];
+  const spans = [];
+  for (const form of parsed) {
+    const span = at(form);
+    try {
+      forms.push(readLinoForm(form.text));
+    } catch (err) {
+      if (err instanceof RmlError) throw new RmlError(err.code, err.message, span);
+      throw err;
+    }
+    spans.push(span);
+  }
+  return { forms, spans };
+}
+
 /**
  * Compute 1-based source spans for every top-level LiNo form in `text`.
+ *
+ * A span points at the first character other than a space or a tab on the
+ * line the form starts on, with the column counted in Unicode code points.
+ * Text that is not valid LiNo has no forms and so no spans.
+ *
+ * @param {string} text - LiNo source text.
+ * @param {string|null} [file] - File path recorded in every span.
+ * @returns {Array.<{file: (string|null), line: number, col: number, length: number}>}
  */
 function computeFormSpans(text, file) {
-  const spans = [];
-  const lines = text.split('\n');
-  // Track parenthesis depth across the whole text (top-level links never nest).
-  let depth = 0;
-  let lineNum = 1;
-  let colNum = 1;
-  let pendingStart = null; // {line, col, offset} for the next top-level link
-  let inLineComment = false;
-  let lastClosingDepthZeroCol = -1;
-  let sawWsAfterClose = false;
-  for (let off = 0; off < text.length; off++) {
-    const ch = text[off];
-    if (ch === '\n') {
-      inLineComment = false;
-      lineNum++;
-      colNum = 1;
-      lastClosingDepthZeroCol = -1;
-      sawWsAfterClose = false;
-      continue;
-    }
-    if (inLineComment) { colNum++; continue; }
-    // Detect a full-line comment (line begins with optional whitespace + #).
-    if (ch === '#' && depth === 0) {
-      // Full-line comment: line so far is all whitespace.
-      const lineSoFar = lines[lineNum - 1].slice(0, colNum - 1);
-      if (/^[ \t]*$/.test(lineSoFar)) {
-        inLineComment = true;
-        colNum++;
-        continue;
-      }
-      // Inline comment after `)` + whitespace: discard rest of line.
-      if (lastClosingDepthZeroCol >= 0 && sawWsAfterClose) {
-        inLineComment = true;
-        colNum++;
-        continue;
-      }
-    }
-    if (ch === '(') {
-      if (depth === 0) {
-        pendingStart = { line: lineNum, col: colNum };
-      }
-      depth++;
-      sawWsAfterClose = false;
-    } else if (ch === ')') {
-      depth--;
-      if (depth === 0 && pendingStart) {
-        spans.push({ file: file || null, line: pendingStart.line, col: pendingStart.col, length: 1 });
-        pendingStart = null;
-        lastClosingDepthZeroCol = colNum;
-        sawWsAfterClose = false;
-      }
-    } else if (ch === ' ' || ch === '\t') {
-      if (lastClosingDepthZeroCol >= 0) sawWsAfterClose = true;
-    } else {
-      // Any other character resets the inline-comment-eligible state.
-      lastClosingDepthZeroCol = -1;
-      sawWsAfterClose = false;
-    }
-    colNum++;
+  try {
+    return parseLinoDocument(text).map(form => ({
+      file: file || null,
+      line: form.line,
+      col: form.col,
+      length: form.length,
+    }));
+  } catch (err) {
+    if (err instanceof LinoParseError) return [];
+    throw err;
   }
-  return spans;
 }
 
 // New structured evaluator: returns { results, diagnostics }. Existing
@@ -7206,6 +7145,12 @@ function computeFormSpans(text, file) {
 // preserve state across inputs) or a plain options object passed to `new Env`.
 /**
  * Evaluate LiNo source and return query results plus structured diagnostics.
+ *
+ * The source is read in full before any form runs: text that is not valid
+ * LiNo yields one E006 diagnostic at the position the front end names, and a
+ * form that does not read yields one E002 diagnostic at its span, with no
+ * results. Once every form has been read, evaluation errors do not abort it:
+ * independent forms continue to be processed after a failing one.
  *
  * @param {string} code - LiNo source text.
  * @param {object} [options] - Evaluation options.
@@ -7271,18 +7216,19 @@ function evaluate(code, options) {
   // form-evaluation loop so they appear alongside other diagnostics.
   if (!Array.isArray(env._shadowDiagnostics)) env._shadowDiagnostics = [];
 
-  // Pre-compute spans for each top-level form so error reporting can attach
-  // a real source location even when the parser/evaluator throw deep inside.
-  const formSpans = computeFormSpans(sourceText, file);
-
+  // Read every top-level form, with the span of the line it starts on, before
+  // running any of them: a document that does not read is reported once, at
+  // the failing position, and nothing in it runs.
   let forms;
+  let formSpans;
   try {
-    forms = parseLinoForms(sourceText);
+    ({ forms, spans: formSpans } = readLinoForms(sourceText, file));
   } catch (err) {
-    const diag = err && err.code
-      ? new Diagnostic({ code: err.code, message: err.message, span: { file, line: 1, col: 1, length: 0 } })
-      : new Diagnostic({ code: 'E006', message: `LiNo parse failure: ${err && err.message ? err.message : String(err)}`, span: { file, line: 1, col: 1, length: 0 } });
-    diagnostics.push(diag);
+    diagnostics.push(new Diagnostic({
+      code: (err && err.code) || 'E000',
+      message: err && err.message ? err.message : String(err),
+      span: (err && err.span) || { file, line: 1, col: 1, length: 0 },
+    }));
     const out = { results, diagnostics };
     if (traceEnabled) out.trace = trace;
     if (proofs !== null) out.proofs = proofs;
@@ -8910,7 +8856,10 @@ function exportIsabelle(sourceText, options = {}) {
   try {
     forms = parseLinoForms(sourceText);
   } catch (err) {
-    throw new IsabelleExportError(`LiNo parse failure: ${err && err.message ? err.message : String(err)}`);
+    const message = err instanceof LinoParseError
+      ? err.message
+      : `LiNo parse failure: ${err && err.message ? err.message : String(err)}`;
+    throw new IsabelleExportError(message);
   }
   for (const form of forms) ctx.processForm(form);
   return ctx.render();
@@ -9075,6 +9024,15 @@ export {
   computeFormSpans,
   extractLiterateLino,
   parseLino,
+  parseLinoDocument,
+  parseLinoForms,
+  readLinoForm,
+  readLinoForms,
+  LinoParseError,
+  normalizeLinoSource,
+  prepareLinoSource,
+  MAX_LINO_NESTING_DEPTH,
+  MAX_LINO_SOURCE_UNITS,
   tokenizeOne,
   parseOne,
   Env,

@@ -1,9 +1,9 @@
 import {
+  LinoParseError,
   keyOf,
   parseInductiveForm,
   parseLino,
-  parseOne,
-  tokenizeOne,
+  readLinoForm,
 } from './rml-links.mjs';
 
 class RocqExportError extends Error {
@@ -330,8 +330,23 @@ class RocqEmitter {
   }
 }
 
+// Reads every form before any is translated, so both runtimes report the same
+// first error whatever the forms go on to declare.
 function parseForms(text) {
-  return parseLino(text).map(link => parseOne(tokenizeOne(String(link))));
+  let links;
+  try {
+    links = parseLino(text);
+  } catch (err) {
+    if (err instanceof LinoParseError) throw new RocqExportError(err.message);
+    throw err;
+  }
+  return links.map(link => {
+    try {
+      return readLinoForm(link);
+    } catch (err) {
+      throw new RocqExportError(`failed to parse \`${link}\`: ${err.message}`);
+    }
+  });
 }
 
 function exportRocq(text, options = {}) {

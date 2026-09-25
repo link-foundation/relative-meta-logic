@@ -2740,6 +2740,292 @@ var Parser = class {
 };
 var DEFAULT_MAX_BUFFER_SIZE = 10 * 1024 * 1024;
 
+// src/rml-lino-frontend.mjs
+var MAX_LINO_NESTING_DEPTH = 64;
+var MAX_LINO_SOURCE_UNITS = 10 * 1024 * 1024;
+var LinoParseError = class extends Error {
+  /**
+   * @param {string} detail - What went wrong, without the `LiNo parse failure` prefix.
+   * @param {Object} [position] - 1-based position of the offending character.
+   * @param {number} [position.line] - Line, 1 when unknown.
+   * @param {number} [position.col] - Column in Unicode code points, 1 when unknown.
+   * @param {number} [position.length] - Length of the offending text, 0 when unknown.
+   */
+  constructor(detail, position = {}) {
+    super(`LiNo parse failure: ${detail}`);
+    this.name = "LinoParseError";
+    this.code = "E006";
+    this.detail = detail;
+    this.line = position.line ?? 1;
+    this.col = position.col ?? 1;
+    this.length = position.length ?? 0;
+  }
+};
+function normalizeLinoSource(text) {
+  const source = String(text);
+  const withoutBom = source.charCodeAt(0) === 65279 ? source.slice(1) : source;
+  return withoutBom.replace(/\r\n?/g, "\n");
+}
+function hasSubstantiveQuotedBody(text) {
+  let depth = 0;
+  let visible = false;
+  for (const character of text) {
+    if (character === "(") depth += 1;
+    if (character === ")") {
+      depth -= 1;
+      if (depth < 0) return false;
+    }
+    if (!/\s/.test(character)) visible = true;
+  }
+  return visible && depth === 0;
+}
+function quotedReferenceEnd2(text, start) {
+  const quote2 = text[start];
+  if (quote2 !== '"' && quote2 !== "'" && quote2 !== "`") return null;
+  let width = 1;
+  while (text[start + width] === quote2) width += 1;
+  const delimiter = quote2.repeat(width);
+  const escape = delimiter.repeat(2);
+  const emptyEnd = width % 2 === 0 ? start + width : null;
+  let position = start + width;
+  while (position < text.length) {
+    if (text.startsWith(escape, position)) {
+      position += escape.length;
+      continue;
+    }
+    if (text.startsWith(delimiter, position) && text[position + width] !== quote2) {
+      const end = position + width;
+      const body = text.slice(start + width, position);
+      return width % 2 !== 0 || hasSubstantiveQuotedBody(body) ? end : emptyEnd;
+    }
+    position += 1;
+  }
+  return emptyEnd;
+}
+function positionAt(source, offset) {
+  let line = 1;
+  let lineStart = 0;
+  for (let index = source.indexOf("\n"); index !== -1 && index < offset; index = source.indexOf("\n", index + 1)) {
+    line += 1;
+    lineStart = index + 1;
+  }
+  return { line, col: [...source.slice(lineStart, offset)].length + 1 };
+}
+function codePointStart(source, offset) {
+  if (offset > 0 && offset < source.length) {
+    const unit = source.charCodeAt(offset);
+    const previous = source.charCodeAt(offset - 1);
+    if (unit >= 56320 && unit <= 57343 && previous >= 55296 && previous <= 56319) {
+      return offset - 1;
+    }
+  }
+  return offset;
+}
+function describeCharacter(character) {
+  if (character === '"') return '\\"';
+  if (character === "\\") return "\\\\";
+  if (character === "	") return "\\t";
+  if (character === "\n") return "\\n";
+  if (character === "\r") return "\\r";
+  const code = character.codePointAt(0);
+  if (code >= 32 && code <= 126) return character;
+  return `\\u{${code.toString(16)}}`;
+}
+function unexpectedAt(source, offset) {
+  if (offset >= source.length) {
+    return new LinoParseError("unexpected end of input", { ...positionAt(source, source.length), length: 1 });
+  }
+  const at = codePointStart(source, Math.max(0, offset));
+  const character = String.fromCodePoint(source.codePointAt(at));
+  return new LinoParseError(`unexpected "${describeCharacter(character)}"`, { ...positionAt(source, at), length: 1 });
+}
+function nestingError(source, offset) {
+  return new LinoParseError(`nesting deeper than ${MAX_LINO_NESTING_DEPTH} levels`, {
+    ...positionAt(source, offset),
+    length: 1
+  });
+}
+function prepareLinoSource(text) {
+  const source = normalizeLinoSource(text);
+  if (source.length > MAX_LINO_SOURCE_UNITS) {
+    throw new LinoParseError(`source longer than ${MAX_LINO_SOURCE_UNITS} UTF-16 code units`);
+  }
+  const parts = [];
+  const lines = [];
+  const levels = [0];
+  let base = null;
+  let lineDepth = 0;
+  let depth = 0;
+  let line = 1;
+  let lineStart = 0;
+  let copied = 0;
+  let inReference = false;
+  const blankRestOfLine = (start) => {
+    const newline = source.indexOf("\n", start);
+    const end = newline === -1 ? source.length : newline;
+    parts.push(source.slice(copied, start), " ".repeat(end - start));
+    copied = end;
+    return end;
+  };
+  let index = 0;
+  while (index < source.length) {
+    if (index === lineStart) {
+      let first = index;
+      while (source[first] === " " || source[first] === "	") first += 1;
+      if (source[first] === "#") {
+        index = blankRestOfLine(first);
+        continue;
+      }
+      if (depth === 0 && first < source.length && source[first] !== "\n") {
+        let spaces = 0;
+        while (source[index + spaces] === " ") spaces += 1;
+        if (base === null) base = spaces;
+        const width = Math.max(0, spaces - base);
+        if (width > levels[levels.length - 1]) {
+          levels.push(width);
+        } else {
+          while (width < levels[levels.length - 1]) levels.pop();
+        }
+        lineDepth = levels.length - 1;
+        if (lineDepth > MAX_LINO_NESTING_DEPTH) throw nestingError(source, first);
+        lines.push({ offset: first, line, col: first - index + 1 });
+      }
+    }
+    const character = source[index];
+    if (!inReference && (character === '"' || character === "'" || character === "`")) {
+      const end = quotedReferenceEnd2(source, index);
+      if (end !== null) {
+        for (let inner = source.indexOf("\n", index); inner !== -1 && inner < end; inner = source.indexOf("\n", inner + 1)) {
+          line += 1;
+        }
+        index = end;
+        continue;
+      }
+    }
+    if (character === "\n") {
+      line += 1;
+      lineStart = index + 1;
+      inReference = false;
+      if (depth > 0) {
+        parts.push(source.slice(copied, index), " ");
+        copied = index + 1;
+      }
+    } else if (character === "(") {
+      depth += 1;
+      inReference = false;
+      if (lineDepth + depth > MAX_LINO_NESTING_DEPTH) throw nestingError(source, index);
+    } else if (character === ")") {
+      depth = Math.max(0, depth - 1);
+      inReference = false;
+      let hash = index + 1;
+      while (source[hash] === " " || source[hash] === "	") hash += 1;
+      if (hash > index + 1 && source[hash] === "#") {
+        index = blankRestOfLine(hash);
+        continue;
+      }
+    } else {
+      inReference = character !== " " && character !== "	" && character !== ":";
+    }
+    index += 1;
+  }
+  parts.push(source.slice(copied));
+  return { source, prepared: parts.join(""), lines };
+}
+function isIndentedIdItem(item) {
+  return item.id !== void 0 && item.id !== null && (!item.values || item.values.length === 0);
+}
+var RecordingParser = class extends Parser {
+  transformResult(rawResult) {
+    this.rawItems = Array.isArray(rawResult) ? rawResult : [rawResult];
+    return super.transformResult(rawResult);
+  }
+  // links-notation 0.20 reads each line under an indented id through its
+  // single value, which drops the name of a line such as `b: c`. Keep such a
+  // line whole, `(a: (b: c))`, the way the line `(b: c)` reads.
+  collectLinks(item, parentPath, result) {
+    if (item && item.children && item.children.length > 0 && isIndentedIdItem(item)) {
+      const values = item.children.map((child) => child.values && child.values.length === 1 && (child.id === void 0 || child.id === null) ? this.transformLink(child.values[0]) : this.transformLink(child));
+      const current = this.transformLink({ id: item.id, values });
+      result.push(parentPath.length === 0 ? current : this.combinePathElements(parentPath, current));
+      return;
+    }
+    super.collectLinks(item, parentPath, result);
+  }
+};
+var DROPPED_LINE = "unexpected indentation under a value of an indented id";
+function traceLinkLines(rawItems, lineCount) {
+  const indexes = [];
+  let next = 0;
+  let dropped = null;
+  const skip = (item) => {
+    next += 1;
+    for (const child of item.children || []) skip(child);
+  };
+  const visit = (item) => {
+    indexes.push(next);
+    next += 1;
+    const children = item.children || [];
+    if (children.length > 0 && isIndentedIdItem(item)) {
+      for (const value of children) {
+        next += 1;
+        const under = value.children || [];
+        if (under.length > 0 && dropped === null) dropped = next;
+        for (const line of under) skip(line);
+      }
+      return;
+    }
+    for (const child of children) visit(child);
+  };
+  for (const item of rawItems) {
+    if (item !== null && item !== void 0) visit(item);
+  }
+  return { indexes: next === lineCount ? indexes : null, dropped };
+}
+function formatParsedLink(link) {
+  const values = link.values || [];
+  if (link.id === null && values.length === 0) return "()";
+  if (values.length === 0) return `(${Link.escapeReference(link.id)})`;
+  const compound = link._isFromPathCombination === true;
+  const body = values.map((value) => !compound && (value.values || []).length === 0 && value.id !== null ? Link.escapeReference(value.id) : formatParsedLink(value)).join(" ");
+  return link.id === null ? `(${body})` : `(${Link.escapeReference(link.id)}: ${body})`;
+}
+function isCommentLink(link) {
+  const values = link.values || [];
+  if (link.id !== null || link._isFromPathCombination === true || values.length < 2) return false;
+  const head = values[0];
+  return head.id === "#" && (head.values || []).length === 0;
+}
+function parseLinoDocument(text) {
+  const { source, prepared, lines } = prepareLinoSource(text);
+  if (/^\p{White_Space}*$/u.test(prepared)) return [];
+  const parser = new RecordingParser({ comments: false });
+  let links;
+  try {
+    links = parser.parse(prepared);
+  } catch (error) {
+    if (error && typeof error.offset === "number") throw unexpectedAt(source, error.offset);
+    throw new LinoParseError(error && error.message ? error.message : String(error));
+  }
+  const { indexes, dropped } = traceLinkLines(parser.rawItems || [], lines.length);
+  if (dropped !== null) {
+    const at = indexes !== null ? lines[dropped] : null;
+    throw new LinoParseError(DROPPED_LINE, at ? { line: at.line, col: at.col, length: 1 } : {});
+  }
+  const traced = indexes !== null && indexes.length === links.length;
+  const forms = [];
+  links.forEach((link, position) => {
+    if (isCommentLink(link)) return;
+    const start = traced ? lines[indexes[position]] : null;
+    forms.push({
+      text: formatParsedLink(link),
+      line: start ? start.line : 1,
+      col: start ? start.col : 1,
+      length: start ? 1 : 0
+    });
+  });
+  return forms;
+}
+
 // src/rml-links-browser-entry.mjs
 var process = {
   argv: [],
@@ -2851,7 +3137,7 @@ function tokenizeOne(s) {
   }
   const out = [];
   let i = 0;
-  const isWS = (c) => /\s/.test(c);
+  const isWS = (c) => /\p{White_Space}/u.test(c);
   while (i < s.length) {
     const c = s[i];
     if (isWS(c)) {
@@ -8332,69 +8618,6 @@ function check(term, expectedType, ctx, options) {
   }
   return { ok, diagnostics };
 }
-function stripLinoComments(text) {
-  return text.replace(/^[ \t]*#.*$/gm, "").replace(/(\)[ \t]+)#.*$/gm, "$1").replace(/\n{3,}/g, "\n\n");
-}
-function hasSubstantiveQuotedBody(text) {
-  let depth = 0;
-  let visible = false;
-  for (const character of text) {
-    if (character === "(") depth += 1;
-    if (character === ")") {
-      depth -= 1;
-      if (depth < 0) return false;
-    }
-    if (!/\s/.test(character)) visible = true;
-  }
-  return visible && depth === 0;
-}
-function quotedReferenceEnd2(text, start) {
-  const quote2 = text[start];
-  if (quote2 !== '"' && quote2 !== "'" && quote2 !== "`") return null;
-  let width = 1;
-  while (text[start + width] === quote2) width += 1;
-  const delimiter = quote2.repeat(width);
-  const escape = delimiter.repeat(2);
-  const emptyEnd = width % 2 === 0 ? start + width : null;
-  let position = start + width;
-  while (position < text.length) {
-    if (text.startsWith(escape, position)) {
-      position += escape.length;
-      continue;
-    }
-    if (text.startsWith(delimiter, position) && text[position + width] !== quote2) {
-      const end = position + width;
-      const body = text.slice(start + width, position);
-      return width % 2 !== 0 || hasSubstantiveQuotedBody(body) ? end : emptyEnd;
-    }
-    position += 1;
-  }
-  return emptyEnd;
-}
-function flattenParenthesizedLayout(text) {
-  let depth = 0;
-  let output = "";
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    if (character === '"' || character === "'" || character === "`") {
-      const end = quotedReferenceEnd2(text, index);
-      if (end !== null) {
-        output += text.slice(index, end);
-        index = end - 1;
-        continue;
-      }
-    }
-    if (character === "(") depth += 1;
-    if (character === ")") depth = Math.max(0, depth - 1);
-    if (character === "\n" && depth > 0) {
-      output += " ";
-      while (text[index + 1] === " " || text[index + 1] === "	") index += 1;
-      continue;
-    }
-    output += character;
-  }
-  return output;
-}
 function isLiterateLinoPath(file) {
   return typeof file === "string" && /\.lino\.md$/i.test(file);
 }
@@ -8441,83 +8664,57 @@ function extractLiterateLino(text) {
   return out.join("\n");
 }
 function sourceForEvaluation(code, file) {
-  const source = String(code);
-  return isLiterateLinoPath(file) ? extractLiterateLino(source) : source;
+  return isLiterateLinoPath(file) ? extractLiterateLino(normalizeLinoSource(code)) : String(code);
 }
 function parseLino(text) {
-  const parser = new Parser({ comments: false });
-  const source = flattenParenthesizedLayout(stripLinoComments(text));
-  return parser.parse(source).map((link) => String(link));
+  return parseLinoDocument(text).map((form) => form.text);
+}
+function readLinoForm(text) {
+  return desugarHoas(parseOne(tokenizeOne(text)));
 }
 function parseLinoForms(text) {
-  return parseLino(text).filter((linkStr) => {
-    const s = String(linkStr).trim();
-    return !s.match(/^\(#\s/);
-  }).map((linkStr) => {
-    const toks = tokenizeOne(String(linkStr));
-    return desugarHoas(parseOne(toks));
+  return parseLinoDocument(text).map((form) => readLinoForm(form.text));
+}
+function readLinoForms(text, file) {
+  const at = (position) => ({
+    file: file || null,
+    line: position.line,
+    col: position.col,
+    length: position.length
   });
+  let parsed;
+  try {
+    parsed = parseLinoDocument(text);
+  } catch (err) {
+    if (err instanceof LinoParseError) throw new RmlError(err.code, err.message, at(err));
+    throw err;
+  }
+  const forms = [];
+  const spans = [];
+  for (const form of parsed) {
+    const span = at(form);
+    try {
+      forms.push(readLinoForm(form.text));
+    } catch (err) {
+      if (err instanceof RmlError) throw new RmlError(err.code, err.message, span);
+      throw err;
+    }
+    spans.push(span);
+  }
+  return { forms, spans };
 }
 function computeFormSpans(text, file) {
-  const spans = [];
-  const lines = text.split("\n");
-  let depth = 0;
-  let lineNum = 1;
-  let colNum = 1;
-  let pendingStart = null;
-  let inLineComment = false;
-  let lastClosingDepthZeroCol = -1;
-  let sawWsAfterClose = false;
-  for (let off = 0; off < text.length; off++) {
-    const ch = text[off];
-    if (ch === "\n") {
-      inLineComment = false;
-      lineNum++;
-      colNum = 1;
-      lastClosingDepthZeroCol = -1;
-      sawWsAfterClose = false;
-      continue;
-    }
-    if (inLineComment) {
-      colNum++;
-      continue;
-    }
-    if (ch === "#" && depth === 0) {
-      const lineSoFar = lines[lineNum - 1].slice(0, colNum - 1);
-      if (/^[ \t]*$/.test(lineSoFar)) {
-        inLineComment = true;
-        colNum++;
-        continue;
-      }
-      if (lastClosingDepthZeroCol >= 0 && sawWsAfterClose) {
-        inLineComment = true;
-        colNum++;
-        continue;
-      }
-    }
-    if (ch === "(") {
-      if (depth === 0) {
-        pendingStart = { line: lineNum, col: colNum };
-      }
-      depth++;
-      sawWsAfterClose = false;
-    } else if (ch === ")") {
-      depth--;
-      if (depth === 0 && pendingStart) {
-        spans.push({ file: file || null, line: pendingStart.line, col: pendingStart.col, length: 1 });
-        pendingStart = null;
-        lastClosingDepthZeroCol = colNum;
-        sawWsAfterClose = false;
-      }
-    } else if (ch === " " || ch === "	") {
-      if (lastClosingDepthZeroCol >= 0) sawWsAfterClose = true;
-    } else {
-      lastClosingDepthZeroCol = -1;
-      sawWsAfterClose = false;
-    }
-    colNum++;
+  try {
+    return parseLinoDocument(text).map((form) => ({
+      file: file || null,
+      line: form.line,
+      col: form.col,
+      length: form.length
+    }));
+  } catch (err) {
+    if (err instanceof LinoParseError) return [];
+    throw err;
   }
-  return spans;
 }
 function evaluate(code, options) {
   const opts = options || {};
@@ -8553,13 +8750,16 @@ function evaluate(code, options) {
   const importStack = opts._importStack || [];
   const importedFiles = opts._importedFiles || /* @__PURE__ */ new Set();
   if (!Array.isArray(env._shadowDiagnostics)) env._shadowDiagnostics = [];
-  const formSpans = computeFormSpans(sourceText, file);
   let forms;
+  let formSpans;
   try {
-    forms = parseLinoForms(sourceText);
+    ({ forms, spans: formSpans } = readLinoForms(sourceText, file));
   } catch (err) {
-    const diag = err && err.code ? new Diagnostic({ code: err.code, message: err.message, span: { file, line: 1, col: 1, length: 0 } }) : new Diagnostic({ code: "E006", message: `LiNo parse failure: ${err && err.message ? err.message : String(err)}`, span: { file, line: 1, col: 1, length: 0 } });
-    diagnostics.push(diag);
+    diagnostics.push(new Diagnostic({
+      code: err && err.code || "E000",
+      message: err && err.message ? err.message : String(err),
+      span: err && err.span || { file, line: 1, col: 1, length: 0 }
+    }));
     const out2 = { results, diagnostics };
     if (traceEnabled) out2.trace = trace;
     if (proofs !== null) out2.proofs = proofs;
@@ -10051,7 +10251,8 @@ function exportIsabelle(sourceText, options = {}) {
   try {
     forms = parseLinoForms(sourceText);
   } catch (err) {
-    throw new IsabelleExportError(`LiNo parse failure: ${err && err.message ? err.message : String(err)}`);
+    const message = err instanceof LinoParseError ? err.message : `LiNo parse failure: ${err && err.message ? err.message : String(err)}`;
+    throw new IsabelleExportError(message);
   }
   for (const form of forms) ctx.processForm(form);
   return ctx.render();
@@ -10068,6 +10269,9 @@ if (false) {
 export {
   Diagnostic,
   Env,
+  LinoParseError,
+  MAX_LINO_NESTING_DEPTH,
+  MAX_LINO_SOURCE_UNITS,
   RmlError,
   TraceEvent,
   automaticSequencesDomainPlugin,
@@ -10103,6 +10307,7 @@ export {
   keyOf,
   matchProofPattern,
   nf,
+  normalizeLinoSource,
   parseAllowHostPrimitiveForm,
   parseAtpStatus,
   parseBinding,
@@ -10112,6 +10317,8 @@ export {
   parseFoundationForm,
   parseInductiveForm,
   parseLino,
+  parseLinoDocument,
+  parseLinoForms,
   parseModeFlag,
   parseOne,
   parseProofAssumptionForm,
@@ -10119,7 +10326,10 @@ export {
   parseRootConstructForm,
   parseRuleForm,
   parseStrictFoundationForm,
+  prepareLinoSource,
   quantize,
+  readLinoForm,
+  readLinoForms,
   rewrite,
   run,
   runTactics,

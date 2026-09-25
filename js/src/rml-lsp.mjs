@@ -11,8 +11,7 @@ import { fileURLToPath } from 'node:url';
 import {
   Env,
   evaluate,
-  computeFormSpans,
-  parseLino,
+  parseLinoDocument,
   tokenizeOne,
   parseOne,
 } from './rml-links.mjs';
@@ -86,15 +85,36 @@ function lspRange(line, character, length = 1) {
   };
 }
 
-function spanToRange(span) {
-  const line = Math.max(0, (span?.line || 1) - 1);
-  const character = Math.max(0, (span?.col || 1) - 1);
-  return lspRange(line, character, span?.length || 1);
+// The lines of a document, split the way both LSP and the LiNo front end count
+// them: LF, CRLF, and a lone CR each end a line.
+function documentLines(text) {
+  return String(text).split(/\r\n|\r|\n/);
 }
 
-function toLspDiagnostic(diag) {
+// RML spans count columns in code points (see docs/DIAGNOSTICS.md) while LSP
+// positions count UTF-16 code units, so a column is converted on its line.
+// The front end drops a leading byte order mark before it counts.
+function utf16Character(lines, line, col) {
+  const lineText = lines[line] ?? '';
+  let character = line === 0 && lineText.charCodeAt(0) === 0xfeff ? 1 : 0;
+  for (let remaining = col - 1; remaining > 0; remaining--) {
+    const code = lineText.codePointAt(character);
+    character += code === undefined ? 1 : code > 0xffff ? 2 : 1;
+  }
+  return character;
+}
+
+function spanToRange(span, lines = []) {
+  const line = Math.max(0, (span?.line || 1) - 1);
+  const col = Math.max(1, span?.col || 1);
+  const start = utf16Character(lines, line, col);
+  const end = utf16Character(lines, line, col + Math.max(1, span?.length || 1));
+  return lspRange(line, start, end - start);
+}
+
+function toLspDiagnostic(diag, lines) {
   return {
-    range: spanToRange(diag.span),
+    range: spanToRange(diag.span, lines),
     severity: diag.code === 'E008' ? DiagnosticSeverity.Warning : DiagnosticSeverity.Error,
     code: diag.code,
     source: 'rml',
@@ -103,20 +123,19 @@ function toLspDiagnostic(diag) {
 }
 
 function parseFormsWithSpans(text, file) {
-  const spans = computeFormSpans(text, file);
-  let links;
+  let forms;
   try {
-    links = parseLino(text);
+    forms = parseLinoDocument(text);
   } catch (_) {
+    // The evaluator reports why the text is not valid LiNo; document features
+    // wait until it reads again.
     return [];
   }
 
   const out = [];
-  let spanIndex = 0;
-  for (const link of links) {
-    const source = String(link).trim();
-    const span = spans[spanIndex++] || { file, line: 1, col: 1, length: 1 };
-    if (/^\(#\s/.test(source)) continue;
+  for (const form of forms) {
+    const source = form.text;
+    const span = { file, line: form.line, col: form.col, length: form.length || 1 };
     try {
       let node = parseOne(tokenizeOne(source));
       while (Array.isArray(node) && node.length === 1 && Array.isArray(node[0])) {
@@ -141,7 +160,7 @@ function normalizeToken(token) {
 }
 
 function tokenAt(text, position) {
-  const lines = text.split('\n');
+  const lines = documentLines(text);
   const lineText = lines[position.line];
   if (lineText === undefined) return null;
   let index = Math.min(Math.max(0, position.character), lineText.length);
@@ -169,7 +188,7 @@ function tokenAt(text, position) {
 }
 
 function prefixAt(text, position) {
-  const lines = text.split('\n');
+  const lines = documentLines(text);
   const lineText = lines[position.line] || '';
   const before = lineText.slice(0, Math.max(0, position.character));
   const match = before.match(/[^\s()]*$/);
@@ -177,11 +196,11 @@ function prefixAt(text, position) {
 }
 
 function findTokenRange(text, span, token) {
-  const lines = text.split('\n');
+  const lines = documentLines(text);
   const startLine = Math.max(0, (span?.line || 1) - 1);
   const needle = String(token);
   for (let line = startLine; line < lines.length; line++) {
-    let from = line === startLine ? Math.max(0, (span?.col || 1) - 1) : 0;
+    let from = line === startLine ? utf16Character(lines, line, Math.max(1, span?.col || 1)) : 0;
     for (;;) {
       const index = lines[line].indexOf(needle, from);
       if (index === -1) break;
@@ -193,7 +212,7 @@ function findTokenRange(text, span, token) {
       from = index + needle.length;
     }
   }
-  return spanToRange(span);
+  return spanToRange(span, lines);
 }
 
 function addDefinition(definitions, name, range, kind, detail) {
@@ -216,6 +235,7 @@ function constructorName(node) {
 }
 
 function collectDefinitions(text, file) {
+  const lines = documentLines(text);
   const definitions = new Map();
   let namespace = null;
   for (const { node, span } of parseFormsWithSpans(text, file)) {
@@ -228,7 +248,8 @@ function collectDefinitions(text, file) {
 
     if (typeof node[0] === 'string' && node[0].endsWith(':')) {
       const name = node[0].slice(0, -1);
-      const range = lspRange((span.line || 1) - 1, span.col || 1, name.length);
+      const line = (span.line || 1) - 1;
+      const range = lspRange(line, utf16Character(lines, line, (span.col || 1) + 1), name.length);
       addNamespacedDefinition(definitions, namespace, name, range, 'definition', `Definition \`${name}\``);
       continue;
     }
@@ -309,9 +330,10 @@ function analyzeDocument(uri, text) {
   const file = uriToFilePath(uri);
   const env = new Env();
   const evaluation = evaluate(text, { env, file });
+  const lines = documentLines(text);
   const definitions = collectDefinitions(text, file);
   return {
-    diagnostics: evaluation.diagnostics.map(toLspDiagnostic),
+    diagnostics: evaluation.diagnostics.map(diag => toLspDiagnostic(diag, lines)),
     definitions,
     env,
   };

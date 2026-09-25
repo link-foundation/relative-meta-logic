@@ -69,6 +69,25 @@ function isProofRuleShape(form) {
     form.slice(2).some(clause => clause[0] === 'conclusion');
 }
 
+// Reads every form of a reconstructed source before any of them is
+// interpreted, so both runtimes report the same first error whatever the
+// forms go on to declare.
+function readTheoryForms(source, label) {
+  let links;
+  try {
+    links = parseLino(source);
+  } catch (err) {
+    throw new Error(`invalid ${label} source: ${err.message}`);
+  }
+  return links.map(link => {
+    try {
+      return parseOne(tokenizeOne(link));
+    } catch (err) {
+      throw new Error(`invalid ${label} link ${link}: ${err.message}`);
+    }
+  });
+}
+
 /**
  * An addressable network of theories, definition relations, and local terms.
  * Source is round-tripped through meta-language before its LiNo forms are read.
@@ -105,9 +124,7 @@ class TheoryNetwork {
       reconstructed === text,
       trustedReconstructed === trustedText,
     );
-    const trustedForms = parseLino(trustedReconstructed)
-      .map(link => parseOne(tokenizeOne(link)));
-    const forms = parseLino(reconstructed).map(link => parseOne(tokenizeOne(link)));
+    const trustedForms = readTheoryForms(trustedReconstructed, 'trusted foundation');
 
     for (const form of trustedForms) {
       if (!Array.isArray(form) || typeof form[0] !== 'string') continue;
@@ -127,6 +144,7 @@ class TheoryNetwork {
     }
     network.#validateTrustedFoundation();
 
+    const forms = readTheoryForms(reconstructed, 'theory network');
     for (const form of forms) {
       if (!Array.isArray(form) || typeof form[0] !== 'string') continue;
       network.forms.push(form);

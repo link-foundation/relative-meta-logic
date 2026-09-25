@@ -76,19 +76,30 @@ function parseRmlToMetaLanguage(source, options = {}) {
   );
 }
 
-function reconstructRmlFromMetaLanguage(network) {
-  return network.reconstructText();
+/**
+ * Render the source a meta-language network holds, every character in order.
+ *
+ * meta-language 0.46 flags an unmatched "(" itself as missing, so
+ * `reconstructText()` drops it, even inside a quoted reference or a comment;
+ * the Rust crate adds a separate missing ")" instead and keeps the "(".
+ * Rendering every source token keeps the round trip lossless in both.
+ */
+function reconstructRmlFromMetaLanguage(network, language = RML_META_LANGUAGE) {
+  return network.renderSource(language);
 }
 
 function parseRmlLinksViaMetaLanguage(source, options = {}) {
-  return parseLino(reconstructRmlFromMetaLanguage(parseRmlToMetaLanguage(source, options)));
+  return parseLino(reconstructRmlFromMetaLanguage(
+    parseRmlToMetaLanguage(source, options),
+    options.language ?? RML_META_LANGUAGE,
+  ));
 }
 
 function rmlMetaLanguageParityReport(source, options = {}) {
   const text = String(source);
   const language = options.language ?? RML_META_LANGUAGE;
   const network = parseRmlToMetaLanguage(text, options);
-  const reconstructed = reconstructRmlFromMetaLanguage(network);
+  const reconstructed = reconstructRmlFromMetaLanguage(network, language);
   const directLinks = parseLino(text);
   const metaLinks = parseLino(reconstructed);
   const direct = evaluate(text, options.evaluationOptions ?? {});
