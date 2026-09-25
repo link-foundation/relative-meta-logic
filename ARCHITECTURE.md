@@ -75,18 +75,31 @@ Both runtimes read source through the same front end, `js/src/rml-lino-frontend.
 
 1. **Normalize:** drop a leading byte order mark; CRLF and a lone CR each become LF.
 2. **Prepare:** one pass that knows about quotes blanks comments, joins the lines of a
-   parenthesized form that spans several lines, and records where each logical line starts. A line
-   whose first character other than a space or a tab is `#` is a comment, and so is a `#` after a
-   `)` and one or more spaces or tabs, up to the end of the line. A `#` or a parenthesis inside a
-   quoted reference is text. Nesting deeper than 64 levels and source longer than 10485760 UTF-16
-   code units are refused here, before the parser runs.
-3. **Parse:** the `links-notation` parser reads the prepared text. Each top-level link is formatted
-   back to a link string, and comment links such as `(# note)` are left out. Two repairs keep the
-   runtimes reading the same forms where `links-notation` 0.20 does not. A line under an indented
-   id keeps its name, so `a:` over `b: c` reads as `(a: (b: c))`, and a line indented under such a
-   line is refused instead of dropped. The Rust parser also does not see a last line that holds
-   only spaces and tabs, which the Rust `links-notation` parser reads as the indentation of a line
-   that never comes and the JavaScript one as trailing space.
+   parenthesized form that spans several lines, records where each logical line starts, and reads
+   every reference that starts with a quote: a quoted reference, the empty reference, or, where
+   the quote opens no quoted reference, the ordinary reference it starts. A line whose first
+   character other than a space or a tab is `#` is a comment, and so is a `#` after a `)` and one
+   or more spaces or tabs, up to the end of the line. A `#` or a parenthesis inside a quoted
+   reference is text. Nesting deeper than 64 levels and source longer than 10485760 UTF-16 code
+   units are refused here, before the parser runs.
+3. **Parse:** the `links-notation` parser reads the prepared text, in which each reference that
+   starts with a quote is a token that stands for what step 2 read, one piece at a time: a group
+   whose parentheses nest two deep is parsed on its own, and the text around it holds a
+   placeholder in its place. Each top-level link is formatted back to a link string, and comment
+   links such as `(# note)` are left out. Two repairs keep the runtimes reading the same forms
+   where `links-notation` 0.20 does not. A line under an indented id keeps its name, so `a:` over
+   `b: c` reads as `(a: (b: c))`, and a line indented under such a line is refused instead of
+   dropped. The Rust parser also does not see a last line that holds only spaces and tabs, which
+   the Rust `links-notation` parser reads as the indentation of a line that never comes and the
+   JavaScript one as trailing space.
+
+`links-notation` 0.20 backtracks without memoizing and looks for the end of a quoted reference one
+character at a time. On its own it takes time that grows exponentially with how deeply groups nest
+(in Rust, where a group is left unclosed, fails, or has a value after it) and with the square of
+the length of a wide unclosed quote. The front end reads quotes itself, in time that grows with
+the length of the source times its logarithm, and hands the parser no piece whose parentheses nest
+more than two levels deep. Both test suites read twelve sources built to be slow, from groups
+nested 64 deep to fifty thousand quoted references on one line, each within five seconds.
 
 The read is all or nothing. Text that is not LiNo stops it with `E006` at the position of the
 failure, and a form that is LiNo but that the next stage cannot read stops it with `E002`; in both
