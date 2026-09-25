@@ -101,6 +101,7 @@ fn parse_forms(source: &str, context: &str) -> Result<(String, Vec<Node>), Strin
     let encoded = parse_rml_to_meta_language(source);
     let reconstructed = reconstruct_rml_from_meta_language(&encoded);
     let forms = parse_lino(&reconstructed)
+        .map_err(|error| format!("invalid {context} source: {error}"))?
         .into_iter()
         .map(|link| {
             parse_one(&tokenize_one(&link))

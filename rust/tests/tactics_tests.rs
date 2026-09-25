@@ -71,7 +71,7 @@ fn closes_equality_goal_with_by_reflexivity() {
 
 #[test]
 fn parses_tactic_text_into_links() {
-    let tactics = parse_tactic_links("(reflexivity)");
+    let tactics = parse_tactic_links("(reflexivity)").expect("valid tactic text");
     let out = run_tactics(state(&["(a = a)"]), &tactics);
 
     assert!(out.diagnostics.is_empty());
@@ -79,6 +79,14 @@ fn parses_tactic_text_into_links() {
     assert_eq!(
         out.state.proof.iter().map(key_of).collect::<Vec<_>>(),
         vec!["(reflexivity)"]
+    );
+}
+
+#[test]
+fn rejects_tactic_text_that_is_not_lino_instead_of_running_part_of_it() {
+    assert_eq!(
+        parse_tactic_links("(reflexivity) (symmetry"),
+        Err("LiNo parse failure: unexpected end of input".to_string())
     );
 }
 

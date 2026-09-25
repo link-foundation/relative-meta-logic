@@ -6211,6 +6211,28 @@ fn assert_replacement_bound(
     Ok(())
 }
 
+/// Reads the forms of a linked source.  Linked program forms are an unordered
+/// top-level graph, so leading horizontal whitespace never nests them: it is
+/// stripped from every line before parsing, exactly like `parseForms` in
+/// `js/src/rml-linked-program.mjs` (whose `^` also follows `\r`, U+2028 and
+/// U+2029).
+fn parse_linked_forms(source: &str) -> Result<Vec<Node>, String> {
+    let mut normalized = String::with_capacity(source.len());
+    let mut at_line_start = true;
+    for character in source.chars() {
+        if at_line_start && matches!(character, ' ' | '\t') {
+            continue;
+        }
+        at_line_start = matches!(character, '\n' | '\r' | '\u{2028}' | '\u{2029}');
+        normalized.push(character);
+    }
+    parse_lino(&normalized)
+        .map_err(|error| error.to_string())?
+        .iter()
+        .map(|link| parse_one(&tokenize_one(link)))
+        .collect()
+}
+
 impl LinkedProgramRegistry {
     fn observe_path(&self, path: &str) {
         self.runtime_trace
@@ -7041,10 +7063,7 @@ impl LinkedProgramRegistry {
         if disabled_operations.contains(&"parse-linked-forms") {
             return Err("disabled host semantic operation parse-linked-forms".to_string());
         }
-        let forms = parse_lino(source)
-            .iter()
-            .map(|link| parse_one(&tokenize_one(link)))
-            .collect::<Result<Vec<_>, _>>()?;
+        let forms = parse_linked_forms(source)?;
         let registry = Self::from_forms_with_basis(&forms, execution_basis, disabled_operations)?;
         registry.observe(&["load-linked-program"], "parse-linked-forms")?;
         Ok(registry)
@@ -7054,10 +7073,7 @@ impl LinkedProgramRegistry {
         if disabled_operations.contains(&"parse-linked-forms") {
             return Err("disabled host semantic operation parse-linked-forms".to_string());
         }
-        let forms = parse_lino(source)
-            .iter()
-            .map(|link| parse_one(&tokenize_one(link)))
-            .collect::<Result<Vec<_>, _>>()?;
+        let forms = parse_linked_forms(source)?;
         let registry = Self::from_forms_with_disabled(&forms, disabled_operations)?;
         registry.observe(&["load-linked-program"], "parse-linked-forms")?;
         Ok(registry)

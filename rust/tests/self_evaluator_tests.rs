@@ -22,7 +22,7 @@ const REQUIRED_EVAL_RULES: &[&str] = &[
     "(eval (operator: aggregator))",
     "(eval (operator: outer inner))",
     "(eval (name: lambda binding body))",
-    "(eval (expression has probability number))",
+    "(eval ((expression) has probability number))",
     "(eval (? expression))",
     "(eval (left + right))",
     "(eval (left - right))",
@@ -44,7 +44,7 @@ const REQUIRED_EVAL_RULES: &[&str] = &[
     "(eval (left = right))",
     "(eval (left != right))",
     "(eval (Type level))",
-    "(eval Prop)",
+    "(eval (Prop))",
     "(eval (Pi binding body))",
     "(eval (lambda binding body))",
     "(eval (apply function argument))",
@@ -59,7 +59,7 @@ const REQUIRED_EVAL_RULES: &[&str] = &[
     "(eval (root-construct name details))",
     "(eval (foundation name details))",
     "(eval (with-foundation name body))",
-    "(eval foundation-report)",
+    "(eval (foundation-report))",
     "(eval (strict-foundation pure-links))",
     "(eval (allow-host-primitive names))",
     "(eval (assumption name (judgement judgement)))",
@@ -109,6 +109,7 @@ fn parse_forms(path: &Path) -> Vec<Node> {
     let text = fs::read_to_string(path)
         .unwrap_or_else(|e| panic!("could not read {}: {}", path.display(), e));
     parse_lino(&text)
+        .unwrap_or_else(|e| panic!("{} is not valid LiNo: {}", path.display(), e))
         .into_iter()
         .map(|link| {
             parse_one(&tokenize_one(&link))

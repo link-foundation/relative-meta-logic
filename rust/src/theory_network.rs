@@ -106,6 +106,20 @@ pub struct TheoryNetwork {
     linked_programs: LinkedProgramRegistry,
 }
 
+/// Reads every form of a reconstructed source before any of them is
+/// interpreted, so both runtimes report the same first error whatever the
+/// forms go on to declare.
+fn parse_theory_forms(source: &str, label: &str) -> Result<Vec<Node>, String> {
+    parse_lino(source)
+        .map_err(|error| format!("invalid {label} source: {error}"))?
+        .into_iter()
+        .map(|link| {
+            parse_one(&tokenize_one(&link))
+                .map_err(|error| format!("invalid {label} link {link}: {error}"))
+        })
+        .collect()
+}
+
 impl TheoryNetwork {
     pub fn from_rml(source: &str, trusted_foundation: &str) -> Result<Self, String> {
         let meta_language_network = parse_rml_to_meta_language(source);
@@ -130,9 +144,7 @@ impl TheoryNetwork {
         let mut proof_env = Env::new(None);
         let mut forms = Vec::new();
 
-        for link in parse_lino(&trusted_reconstructed) {
-            let form = parse_one(&tokenize_one(&link))
-                .map_err(|error| format!("invalid trusted foundation link {link}: {error}"))?;
+        for form in parse_theory_forms(&trusted_reconstructed, "trusted foundation")? {
             let Some(head) = form_head(&form) else {
                 continue;
             };
@@ -154,9 +166,7 @@ impl TheoryNetwork {
         }
         network.validate_trusted_foundation()?;
 
-        for link in parse_lino(&reconstructed) {
-            let form = parse_one(&tokenize_one(&link))
-                .map_err(|error| format!("invalid theory network link {link}: {error}"))?;
+        for form in parse_theory_forms(&reconstructed, "theory network")? {
             let Node::List(children) = &form else {
                 continue;
             };

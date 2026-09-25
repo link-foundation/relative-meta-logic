@@ -116,16 +116,25 @@ fn parse_lino_keeps_multiline_parenthesized_rml_forms_flat() {
     assert_eq!(
         parse_lino(
             "(implementation-contract theory-network\n  (kind link-network-composition)\n  (obligation definition-link))"
-        ),
+        )
+        .expect("valid LiNo"),
         vec!["(implementation-contract theory-network (kind link-network-composition) (obligation definition-link))"]
+    );
+}
+
+#[test]
+fn parse_lino_preserves_newlines_in_quoted_references() {
+    assert_eq!(
+        parse_lino("(label \"first\nsecond\")").expect("valid LiNo"),
+        vec!["(label 'first\nsecond')"]
     );
 }
 
 #[test]
 fn parse_lino_preserves_multiline_n_quote_references() {
     assert_eq!(
-        parse_lino("(label \"\"first\nsecond\"\")"),
-        vec!["(label first\nsecond)"]
+        parse_lino("(label \"\"first\nsecond\"\")").expect("valid LiNo"),
+        vec!["(label 'first\nsecond')"]
     );
 }
 

@@ -23,6 +23,12 @@ use std::time::{Duration, Instant};
 pub mod lean_export;
 pub use lean_export::{export_lean, lean_ident, LeanExportResult};
 
+pub mod lino_frontend;
+pub use lino_frontend::{
+    normalize_lino_source, parse_lino_document, prepare_lino_source, LinoForm, LinoParseError,
+    MAX_LINO_NESTING_DEPTH, MAX_LINO_SOURCE_UNITS,
+};
+
 // ========== Structured Diagnostics ==========
 // Every parser/evaluator error is reported as a `Diagnostic` with an error
 // code, human-readable message, and source span (file/line/col, 1-based).
@@ -191,210 +197,81 @@ pub fn format_diagnostic(diag: &Diagnostic, source: Option<&str>) -> String {
     out
 }
 
-/// Compute (line, col) source positions for every top-level link in `text`.
-/// Mirrors `compute_form_spans` in the JavaScript implementation.
+/// Compute 1-based source spans for every top-level LiNo form in `text`.
+/// Mirrors `computeFormSpans` in the JavaScript implementation.
 ///
-/// A "top-level link" is a parenthesized form not nested inside another; the
-/// position is the 1-based line/col of its opening `(`. Full-line `# ...`
-/// comments and inline `# ...` comments after a closing paren plus whitespace
-/// are skipped so that parens inside a comment don't disturb the depth
-/// counter.
+/// A span points at the first character other than a space or a tab on the
+/// line the form starts on, with the column counted in Unicode code points.
+/// Text that is not valid LiNo has no forms and so no spans.
 pub fn compute_form_spans(text: &str, file: Option<&str>) -> Vec<Span> {
-    let mut spans = Vec::new();
-    let mut depth: i32 = 0;
-    let mut line: usize = 1;
-    let mut col: usize = 1;
-    let mut pending_start: Option<(usize, usize)> = None;
-    let mut in_line_comment = false;
-    let mut line_start_idx: usize = 0;
-    let mut last_closing_depth_zero_col: i32 = -1;
-    let mut saw_ws_after_close = false;
-    let bytes = text.as_bytes();
-    for (off, &b) in bytes.iter().enumerate() {
-        let ch = b as char;
-        if ch == '\n' {
-            in_line_comment = false;
-            line += 1;
-            col = 1;
-            line_start_idx = off + 1;
-            last_closing_depth_zero_col = -1;
-            saw_ws_after_close = false;
-            continue;
-        }
-        if in_line_comment {
-            col += 1;
-            continue;
-        }
-        if ch == '#' && depth == 0 {
-            // Full-line comment: line so far is all whitespace.
-            let line_so_far = &text[line_start_idx..off];
-            if line_so_far.chars().all(|c| c == ' ' || c == '\t') {
-                in_line_comment = true;
-                col += 1;
-                continue;
-            }
-            // Inline comment after `)` + whitespace: discard rest of line.
-            if last_closing_depth_zero_col >= 0 && saw_ws_after_close {
-                in_line_comment = true;
-                col += 1;
-                continue;
-            }
-        }
-        if ch == '(' {
-            if depth == 0 {
-                pending_start = Some((line, col));
-            }
-            depth += 1;
-            saw_ws_after_close = false;
-        } else if ch == ')' {
-            depth -= 1;
-            if depth == 0 {
-                if let Some((sl, sc)) = pending_start.take() {
-                    spans.push(Span::new(file.map(|s| s.to_string()), sl, sc, 1));
-                }
-                last_closing_depth_zero_col = col as i32;
-                saw_ws_after_close = false;
-            }
-        } else if ch == ' ' || ch == '\t' {
-            if last_closing_depth_zero_col >= 0 {
-                saw_ws_after_close = true;
-            }
-        } else {
-            // Any other character resets the inline-comment-eligible state.
-            last_closing_depth_zero_col = -1;
-            saw_ws_after_close = false;
-        }
-        col += 1;
+    match parse_lino_document(text) {
+        Ok(forms) => forms.iter().map(|form| form.span(file)).collect(),
+        Err(_) => Vec::new(),
     }
-    spans
 }
 
 // ========== LiNo Parser ==========
-// Uses the official links-notation crate for parsing LiNo text.
-// See: https://github.com/link-foundation/links-notation
+// The shared front end in `lino_frontend.rs` reads LiNo text with the official
+// links-notation crate. See: https://github.com/link-foundation/links-notation
 
-// Find the index of an inline comment marker `#` that follows a `)` plus
-// whitespace, mirroring the JS regex `(\)[ \t]+)#.*$`.
-fn inline_comment_index(line: &str) -> Option<usize> {
-    let bytes = line.as_bytes();
-    let mut last_close: Option<usize> = None;
-    for (i, b) in bytes.iter().enumerate() {
-        match *b {
-            b')' => last_close = Some(i),
-            b'#' => {
-                if let Some(close_idx) = last_close {
-                    let between = &line[close_idx + 1..i];
-                    if !between.is_empty() && between.chars().all(|c| c == ' ' || c == '\t') {
-                        return Some(i);
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
-    None
+/// Parse LiNo source text into the texts of its top-level forms.
+///
+/// The shared front end in [`lino_frontend`] reads the text with the
+/// links-notation parser; comment links such as `(# note)` are left out.
+///
+/// # Errors
+///
+/// A [`LinoParseError`] when the text is not valid LiNo.
+pub fn parse_lino(text: &str) -> Result<Vec<String>, LinoParseError> {
+    Ok(parse_lino_document(text)?
+        .into_iter()
+        .map(|form| form.text)
+        .collect())
 }
 
-/// Parse LiNo text into a vector of link strings (each a top-level parenthesized expression).
-pub fn parse_lino(text: &str) -> Vec<String> {
-    parse_lino_with_errors(text).0
+/// Read the text of one top-level form into its AST.
+///
+/// # Errors
+///
+/// The E002 message of [`parse_one`] when the form does not read.
+pub fn read_lino_form(text: &str) -> Result<Node, String> {
+    parse_one(&tokenize_one(text)).map(desugar_hoas)
 }
 
-// RML's parenthesized forms predate links-notation 0.20's nested-context
-// interpretation of line breaks. Keep their established flat-list meaning by
-// treating layout inside parentheses as whitespace, while retaining root-level
-// newlines for indentation syntax and preserving multiline quoted references.
-fn flatten_parenthesized_layout(text: &str) -> String {
-    let mut output = String::with_capacity(text.len());
-    let mut depth = 0usize;
-    let mut index = 0usize;
-    while index < text.len() {
-        let character = text[index..]
-            .chars()
-            .next()
-            .expect("valid character boundary");
-        if matches!(character, '"' | '\'' | '`') {
-            if let Some(end) = links_notation::parser::quoted_reference_end(text, index) {
-                output.push_str(&text[index..end]);
-                index = end;
-                continue;
-            }
-        }
-        match character {
-            '(' => depth += 1,
-            ')' => depth = depth.saturating_sub(1),
-            '\n' if depth > 0 => {
-                output.push(' ');
-                index += character.len_utf8();
-                while index < text.len() {
-                    let next = text[index..]
-                        .chars()
-                        .next()
-                        .expect("valid character boundary");
-                    if !matches!(next, ' ' | '\t') {
-                        break;
-                    }
-                    index += next.len_utf8();
-                }
-                continue;
-            }
-            _ => {}
-        }
-        output.push(character);
-        index += character.len_utf8();
-    }
-    output
+/// Parse LiNo source text into the ASTs of its top-level forms.
+///
+/// # Errors
+///
+/// The message of the first failure: a [`LinoParseError`] message when the
+/// text is not valid LiNo, or the E002 message of a form that does not read.
+pub fn parse_lino_forms(text: &str) -> Result<Vec<Node>, String> {
+    parse_lino_document(text)
+        .map_err(|err| err.message())?
+        .iter()
+        .map(|form| read_lino_form(&form.text))
+        .collect()
 }
 
-/// Parse LiNo text and return both the parsed links and any error messages from
-/// the underlying parser. Used by `evaluate_inner` to surface E006 diagnostics
-/// for unbalanced/invalid input — mirrors `parseLinoForms` in
-/// `js/src/rml-links.mjs`, which throws and is caught into an E006 diagnostic.
-fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
-    // Strip both full-line and inline comments (# ...) before parsing —
-    // the LiNo parser doesn't handle them and an inline comment containing a
-    // colon would otherwise be misread as a binding.
-    let stripped: String = text
-        .lines()
-        .map(|line| {
-            let trimmed = line.trim_start();
-            if trimmed.starts_with('#') {
-                String::new()
-            } else if let Some(idx) = inline_comment_index(line) {
-                line[..idx].trim_end().to_string()
-            } else {
-                line.to_string()
+/// Read LiNo source text into the ASTs of its top-level forms, each with the
+/// span of the line it starts on.
+///
+/// # Errors
+///
+/// The diagnostic of the first failure: E006 at the position the front end
+/// names when the text is not valid LiNo, or E002 at the form's span when a
+/// form does not read.
+pub fn read_lino_forms(text: &str, file: Option<&str>) -> Result<Vec<(Node, Span)>, Diagnostic> {
+    parse_lino_document(text)
+        .map_err(|err| err.to_diagnostic(file))?
+        .iter()
+        .map(|form| {
+            let span = form.span(file);
+            match read_lino_form(&form.text) {
+                Ok(node) => Ok((node, span)),
+                Err(message) => Err(Diagnostic::new("E002", message, span)),
             }
         })
-        .collect::<Vec<String>>()
-        .join("\n");
-
-    let stripped = flatten_parenthesized_layout(&stripped);
-
-    // The links-notation crate treats blank lines as group separators,
-    // so we split the input by blank lines and parse each segment separately.
-    let mut all_links = Vec::new();
-    let mut errors = Vec::new();
-    for segment in stripped.split("\n\n") {
-        let trimmed = segment.trim();
-        if trimmed.is_empty() {
-            continue;
-        }
-        match links_notation::parse_lino_to_links_with_config(
-            trimmed,
-            &links_notation::ParserConfig::without_comments(),
-        ) {
-            Ok(links) => {
-                for link in links {
-                    all_links.push(link.to_string());
-                }
-            }
-            Err(e) => {
-                errors.push(format!("{}", e));
-            }
-        }
-    }
-    (all_links, errors)
+        .collect()
 }
 
 fn is_literate_lino_path(file: Option<&str>) -> bool {
@@ -9032,23 +8909,14 @@ fn apply_tactic(
 }
 
 /// Parse a LiNo snippet into tactic links.
-pub fn parse_tactic_links(text: &str) -> Vec<Node> {
-    parse_lino(text)
-        .iter()
-        .filter(|link_str| {
-            let s = link_str.trim();
-            !(s.starts_with("(#") && s.chars().nth(2).map_or(false, |c| c.is_whitespace()))
-        })
-        .filter_map(|link_str| {
-            let toks = tokenize_one(link_str);
-            let toks = if toks.len() == 1 && toks[0] != "(" && toks[0] != ")" {
-                vec!["(".to_string(), toks[0].clone(), ")".to_string()]
-            } else {
-                toks
-            };
-            parse_one(&toks).ok().map(desugar_hoas)
-        })
-        .collect()
+///
+/// # Errors
+///
+/// The message of the first failure, exactly as [`parse_lino_forms`] reports
+/// it, so a snippet that is not valid LiNo is rejected rather than run as a
+/// shorter tactic list (like `_normaliseTacticList` in `js/src/rml-links.mjs`).
+pub fn parse_tactic_links(text: &str) -> Result<Vec<Node>, String> {
+    parse_lino_forms(text)
 }
 
 /// Apply link tactics with configured rewrite rules, stopping at the first failing tactic.
@@ -12069,18 +11937,7 @@ fn extract_special_form(head: &str) -> bool {
 }
 
 fn extract_parse_forms(text: &str) -> Result<Vec<Node>, String> {
-    let mut forms = Vec::new();
-    for link in parse_lino(text) {
-        let trimmed = link.trim();
-        if trimmed.starts_with("(#") && trimmed.chars().nth(2).map_or(false, |c| c.is_whitespace())
-        {
-            continue;
-        }
-        let toks = tokenize_one(&link);
-        let node = parse_one(&toks).map_err(extract_compile_error)?;
-        forms.push(desugar_hoas(node));
-    }
-    Ok(forms)
+    parse_lino_forms(text).map_err(extract_compile_error)
 }
 
 fn extract_lambda_declaration(form: &Node) -> Result<ExtractLambda, String> {
@@ -12595,8 +12452,12 @@ pub enum RunResult {
 ///
 /// Each diagnostic carries a code (`E001`, `E002`, ...), a message, and a
 /// source span (1-based line/col).  See `docs/DIAGNOSTICS.md` for the
-/// full code list.  Errors do not abort evaluation: independent forms
-/// continue to be processed after a failing one.
+/// full code list.  The source is read in full before any form runs: text
+/// that is not valid LiNo yields one E006 diagnostic at the position the
+/// front end names, and a form that does not read yields one E002
+/// diagnostic at its span, with no results.  Once every form has been read,
+/// evaluation errors do not abort it: independent forms continue to be
+/// processed after a failing one.
 pub fn evaluate(text: &str, file: Option<&str>, options: Option<EnvOptions>) -> EvaluateResult {
     evaluate_with_options(
         text,
@@ -13403,53 +13264,35 @@ fn evaluate_inner(
     ctx: &mut ImportContext,
 ) -> EvaluateResult {
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
+    // A literate file is normalized first, so a CRLF file closes its fences,
+    // and prose lines become blank lines.
     let extracted_literate = if is_literate_lino_path(file) {
-        Some(extract_literate_lino(text))
+        Some(extract_literate_lino(&normalize_lino_source(text)))
     } else {
         None
     };
     let source_text = extracted_literate.as_deref().unwrap_or(text);
-    let spans = compute_form_spans(source_text, file);
 
-    let (links, parse_errors) = parse_lino_with_errors(source_text);
-    for parse_err in parse_errors {
-        diagnostics.push(Diagnostic::new(
-            "E006",
-            format!("LiNo parse failure: {}", parse_err),
-            Span::new(file.map(|s| s.to_string()), 1, 1, 0),
-        ));
-    }
-    let forms: Vec<Node> = links
-        .iter()
-        .filter(|link_str| {
-            let s = link_str.trim();
-            !(s.starts_with("(#") && s.chars().nth(2).map_or(false, |c| c.is_whitespace()))
-        })
-        .filter_map(|link_str| {
-            // The LiNo parser collapses single-token links like `(whnf)` to
-            // the bare token `whnf` — no parens. Re-wrap as a single-element
-            // list so downstream evaluators see the head as the form keyword
-            // (mirrors the JS evaluator's `['whnf']` shape and lets the
-            // normalization driver E038 fall-through fire).
-            let toks = tokenize_one(link_str);
-            let toks = if toks.len() == 1 && toks[0] != "(" && toks[0] != ")" {
-                vec!["(".to_string(), toks[0].clone(), ")".to_string()]
-            } else {
-                toks
+    // Read every top-level form, with the span of the line it starts on, before
+    // running any of them: a document that does not read is reported once, at
+    // the failing position, and nothing in it runs.
+    let (forms, spans): (Vec<Node>, Vec<Span>) = match read_lino_forms(source_text, file) {
+        Ok(read) => read.into_iter().unzip(),
+        Err(diagnostic) => {
+            diagnostics.push(diagnostic);
+            return EvaluateResult {
+                results: Vec::new(),
+                diagnostics,
+                trace: if options.trace {
+                    std::mem::take(&mut env.trace_events)
+                } else {
+                    Vec::new()
+                },
+                proofs: Vec::new(),
+                provenance: Vec::new(),
             };
-            match parse_one(&toks) {
-                Ok(node) => Some(desugar_hoas(node)),
-                Err(msg) => {
-                    diagnostics.push(Diagnostic::new(
-                        "E002",
-                        msg,
-                        Span::new(file.map(|s| s.to_string()), 1, 1, 0),
-                    ));
-                    None
-                }
-            }
-        })
-        .collect();
+        }
+    };
 
     let mut results: Vec<RunResult> = Vec::new();
 
@@ -13479,7 +13322,7 @@ fn evaluate_inner(
     let prev_hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(|_| {}));
 
-    for (idx, form) in forms.into_iter().enumerate() {
+    for (form, span) in forms.into_iter().zip(spans) {
         let mut form = form;
         loop {
             match form {
@@ -13493,10 +13336,6 @@ fn evaluate_inner(
                 _ => break,
             }
         }
-        let span = spans
-            .get(idx)
-            .cloned()
-            .unwrap_or_else(|| Span::new(file.map(|s| s.to_string()), 1, 1, 0));
         env.current_span = Some(span.clone());
 
         // Top-level (namespace <name>) directive — sets the active namespace

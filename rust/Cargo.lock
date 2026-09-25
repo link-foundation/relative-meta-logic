@@ -1992,6 +1992,7 @@ version = "0.38.0"
 dependencies = [
  "links-notation 0.20.0",
  "meta-language",
+ "serde_json",
  "sha2",
 ]
 
