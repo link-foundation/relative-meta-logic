@@ -955,10 +955,11 @@ therefore not another tie-breaker between them. The v15 orientation audit asks
 where the orientation of `K ⟼ B` over `B ⟼ K` could come from, and whether a
 more primitive property of Links derives it. It takes none of source/target,
 premise/conclusion, time, rewrite direction, function/argument, cause/effect,
-truth, or proof as a primitive. Its only primitives are address equality and, depending on
-the contract, the order of each record's two reference slots. Completions,
-exclusions, and position laws are not used, so the model-theoretic reading of
-R147 stays a search instrument rather than a new foundation.
+truth, or proof as a primitive. Its only primitives are address equality and,
+depending on the contract, the order of each record's two reference slots.
+Completions, exclusions, and position laws are not used, so the
+model-theoretic reading of R147 stays a search instrument rather than a new
+foundation.
 
 Two candidate readings are **separated** when no symmetry of the records maps
 one to the other, **exchanged** when some symmetry does, and **coincide** when
@@ -1093,9 +1094,10 @@ quotient falsifies endpoint direction and unique dynamics under its symmetries
 and makes reification representation-dependent at its projection boundary.
 What is not established is that this contract exhausts the ontology of links,
 whether execution can arise from links themselves, an intrinsic orientation
-of consequence, a comparable alternative cohort, a winning foundation, global minimality, pairwise candidate
-equivalence, enumeration of every formal system, or full production
-implementations of Lean, Rocq, Rust, and JavaScript.
+of consequence, a comparable alternative cohort, a winning foundation, global
+minimality, pairwise candidate equivalence, enumeration of every formal
+system, or full production implementations of Lean, Rocq, Rust, and
+JavaScript.
 
 Accordingly, identifying and enforcing these boundaries completes an audit,
 not the research questions themselves. The requirements ledger preserves that
