@@ -14087,6 +14087,7 @@ pub mod meta_language_support;
 pub mod formal_corpus;
 pub mod theory_network;
 pub mod linked_program;
+pub mod foundation_workspace;
 pub mod rocq;
 
 // Universal CST converters (issue #138).
