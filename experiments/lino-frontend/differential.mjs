@@ -27,7 +27,7 @@ const choose = items => items[pick(items.length)];
 
 const atoms = [
   'a', 'b', 'c', 'x:', 'y:', '?', '#', '"q r"', "'s'", '`t`', "it's", '"a""b"',
-  '"(" ', '")"', '"#"', 'é', '😀', ' ', 'a\u0085b', '"multi\nline"',
+  '"(" ', '")"', '"#"', 'é', '😀', '\u00a0', 'a\u0085b', '"multi\nline"',
 ];
 function group(depth) {
   const items = [];
@@ -57,7 +57,7 @@ function document() {
   }
   if (pick(15) === 0) lines.push(choose(['(', ')', '(a "b', '(: a)']));
   const text = lines.join(choose(['\n', '\n', '\r\n', '\r']));
-  return (pick(20) === 0 ? '﻿' : '') + text + (pick(3) === 0 ? '\n' : '');
+  return (pick(20) === 0 ? '\ufeff' : '') + text + (pick(3) === 0 ? '\n' : '');
 }
 
 function errorOf(error) {
