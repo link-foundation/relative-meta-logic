@@ -7,14 +7,15 @@
 //
 // `read` prints what the JavaScript and the Rust links-notation read from
 // small documents, and what each writes the links it read back as: documents
-// the two read differently, and documents both read with lines left out. `time` reads each shape below at growing sizes,
-// each read in a child process, and stops a shape at the first read that
-// takes longer than `seconds`, 10 by default, or that crashes; without `js`
-// or `rust` it times both. The Rust reads go through
-// `rust/examples/links_notation_alone.rs`, built in release mode, and the
-// flags after `--` go to it: `-- --parse-only` times the Rust parser without
-// the flattening after it, and `-- --stack-kib 2048` reads on a thread with the
-// stack Rust gives a thread it starts.
+// the two read differently, and documents both read with lines left out.
+// `time` reads each shape below at growing sizes, each read in a child
+// process, and stops a shape at the first read that takes longer than
+// `seconds`, 10 by default, or that crashes; without `js` or `rust` it times
+// both. The Rust reads go through `rust/examples/links_notation_alone.rs`,
+// built in release mode, and the flags after `--` go to it: `-- --parse-only`
+// times the Rust parser without the flattening after it, and
+// `-- --stack-kib 2048` reads on a thread with the stack Rust gives a thread
+// it starts.
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { mkdtempSync, writeFileSync } from 'node:fs';

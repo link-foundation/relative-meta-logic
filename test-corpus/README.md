@@ -17,6 +17,9 @@ and the references that start with a quote that the prepare step returns.
 every case.
 `experiments/lino-frontend/case-entry.mjs` prints the entry for a new source,
 `experiments/lino-frontend/differential.mjs` reads generated documents with
-both front ends and prints any they read differently, and
+both front ends and prints any they read differently,
 `experiments/lino-frontend/deep-documents.mjs` generates and compares documents
-whose parentheses nest deeper.
+whose parentheses nest deeper, and
+`experiments/lino-frontend/nested-indented-ids.mjs` reads indented ids nested
+under indented ids, among them the examples of the `links-notation` grammar,
+with both front ends and prints what each reads.
