@@ -275,24 +275,30 @@
   (sequence value-link with one reference value)
   (produces (ast reference reference-text)))
 
-# Each line under an indented id gives one value of the link: a line that
-# holds one value and no name gives that value, and any other line gives
-# itself, so `a:` over the line `b: c` reads as `(a: (b: c))`. A line indented
-# under one of those lines has no place in the link; the front end rejects it
-# with E006 instead of dropping it.
+# Each line under an indented id gives one value of the link: an indented id
+# with lines under it gives its own link, so `a:` over `b:` over `c` reads as
+# `(a: (b: c))`, the hierarchical nesting of the links-notation grammar; a
+# line that holds one value and no name gives that value; and any other line
+# gives itself, so `a:` over the line `b: c` reads the same. A line indented
+# under a line that is not an indented id has no place in the link; the front
+# end rejects it with E006 instead of dropping it.
 (rule ast-indented-id-link
   (sequence indented-id-link indented-id-values)
   (produces (ast link reference child-values)))
 
 (rule indented-id-values
-  (sequence push-indentation (one-or-more indented-id-value) pop-indentation)
-  (rejects indented-children))
+  (sequence push-indentation (one-or-more indented-id-value) pop-indentation))
 
 (rule indented-id-value
   (choice
-    (sequence single-line-value-link with one value and no reference id)
-    any-link)
+    ast-indented-id-link
+    (sequence indented-id-line (rejects indented-children)))
   (produces child-value))
+
+(rule indented-id-line
+  (choice
+    (sequence single-line-value-link with one value and no reference id)
+    any-link))
 
 (rule ast-parent-child-link
   (sequence parent-link child-link)

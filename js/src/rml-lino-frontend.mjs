@@ -27,9 +27,10 @@
 //    replaces stood, so parser positions are source positions.
 // 3. Parse with links-notation, one piece at a time as described below, and
 //    format every top-level link, with one repair: a line under an indented id
-//    keeps its name, so `a:` over `b: c` reads as `(a: (b: c))`, and a line
-//    indented under such a line is refused where links-notation 0.20 would
-//    drop it.
+//    keeps its name, so `a:` over `b: c` reads as `(a: (b: c))`, an indented
+//    id among those lines takes in the lines under it, so `a:` over `b:` over
+//    `c` reads the same, and any other line indented under such a line is
+//    refused. links-notation 0.20 drops the names and the lines.
 // 4. Drop comment links such as `(# note)`, and give every other form the
 //    position of the first character other than a space or a tab on the line
 //    it starts on.
@@ -399,6 +400,12 @@ function isIndentedIdItem(item) {
   return item.id !== undefined && item.id !== null && (!item.values || item.values.length === 0);
 }
 
+// Whether an item is an indented id with lines under it, `name:` over
+// indented lines.
+function isIndentedIdBlock(item) {
+  return Boolean(item && item.children && item.children.length > 0 && isIndentedIdItem(item));
+}
+
 // A parser that hands back the items links-notation parsed instead of the
 // links it builds from them. The source limit is checked before parsing, and
 // a piece with placeholders can be a little longer than its source.
@@ -415,19 +422,31 @@ class ItemParser extends Parser {
 // links-notation's link builder, with one repair.
 class LinkBuilder extends Parser {
   // links-notation 0.20 reads each line under an indented id through its
-  // single value, which drops the name of a line such as `b: c`. Keep such a
-  // line whole, `(a: (b: c))`, the way the line `(b: c)` reads.
+  // single value, which drops the name of a line such as `b: c`, and it drops
+  // the lines under an indented id among those lines. Keep such a line whole,
+  // `(a: (b: c))`, the way the line `(b: c)` reads, and read such an indented
+  // id the way it reads on its own, so `b:` over `c` also gives `(b: c)`: the
+  // GRAMMAR.md of links-notation reads `outer:` over `inner:` over `value1`
+  // and `value2`, then `value3` under `outer:`, as
+  // `(outer: (inner: value1 value2) value3)`.
   collectLinks(item, parentPath, result) {
-    if (item && item.children && item.children.length > 0 && isIndentedIdItem(item)) {
-      const values = item.children.map(child => (
-        child.values && child.values.length === 1 && (child.id === undefined || child.id === null)
-          ? this.transformLink(child.values[0])
-          : this.transformLink(child)));
-      const current = this.transformLink({ id: item.id, values });
+    if (isIndentedIdBlock(item)) {
+      const current = this.indentedIdLink(item);
       result.push(parentPath.length === 0 ? current : this.combinePathElements(parentPath, current));
       return;
     }
     super.collectLinks(item, parentPath, result);
+  }
+
+  // The link of an indented id and the lines under it, one value per line.
+  indentedIdLink(item) {
+    const values = item.children.map(child => {
+      if (isIndentedIdBlock(child)) return this.indentedIdLink(child);
+      return child.values && child.values.length === 1 && (child.id === undefined || child.id === null)
+        ? this.transformLink(child.values[0])
+        : this.transformLink(child);
+    });
+    return this.transformLink({ id: item.id, values });
   }
 }
 
@@ -608,10 +627,11 @@ const DROPPED_LINE = 'unexpected indentation under a value of an indented id';
 // The logical line each top-level link comes from, in the order
 // `collectLinks` produces them: an item gives one link at its line; an
 // indented-id item (`name:` over indented lines) takes in the lines under it,
-// and any other item is followed by its children. `indexes` is `null` when the
-// items do not account for every logical line. `dropped` is the index of the
-// first line links-notation would leave out, a line indented under a value of
-// an indented id, or `null`.
+// and so does an indented-id item among those lines, and any other item is
+// followed by its children. `indexes` is `null` when the items do not account
+// for every logical line. `dropped` is the index of the first line that has no
+// place in a link, a line indented under a value of an indented id that is not
+// itself an indented id, or `null`.
 function traceLinkLines(rawItems, lineCount) {
   const indexes = [];
   let next = 0;
@@ -620,20 +640,26 @@ function traceLinkLines(rawItems, lineCount) {
     next += 1;
     for (const child of item.children || []) skip(child);
   };
+  const takeValues = item => {
+    for (const value of item.children) {
+      next += 1;
+      if (isIndentedIdBlock(value)) {
+        takeValues(value);
+        continue;
+      }
+      const under = value.children || [];
+      if (under.length > 0 && dropped === null) dropped = next;
+      for (const line of under) skip(line);
+    }
+  };
   const visit = item => {
     indexes.push(next);
     next += 1;
-    const children = item.children || [];
-    if (children.length > 0 && isIndentedIdItem(item)) {
-      for (const value of children) {
-        next += 1;
-        const under = value.children || [];
-        if (under.length > 0 && dropped === null) dropped = next;
-        for (const line of under) skip(line);
-      }
+    if (isIndentedIdBlock(item)) {
+      takeValues(item);
       return;
     }
-    for (const child of children) visit(child);
+    for (const child of item.children || []) visit(child);
   };
   for (const item of rawItems) {
     if (item !== null && item !== undefined) visit(item);

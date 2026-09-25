@@ -29,12 +29,14 @@
 //! 3. Parse with links-notation, one piece at a time as described below, and
 //!    format every top-level link the way the JavaScript links-notation parser
 //!    builds it, with one repair: a line under an indented id keeps its name,
-//!    so `a:` over `b: c` reads as `(a: (b: c))`, and a line indented under
-//!    such a line is refused where links-notation 0.20 would drop it. The
-//!    parser does not see a last line that holds only spaces and tabs: the
-//!    Rust links-notation 0.20 parser reads its spaces as the indentation of a
-//!    line that never comes and fails, where the JavaScript parser reads them
-//!    as trailing space.
+//!    so `a:` over `b: c` reads as `(a: (b: c))`, an indented id among those
+//!    lines takes in the lines under it, so `a:` over `b:` over `c` reads the
+//!    same, and any other line indented under such a line is refused.
+//!    links-notation 0.20 drops the names and the lines. The parser does not
+//!    see a last line that holds only spaces and tabs: the Rust links-notation
+//!    0.20 parser reads its spaces as the indentation of a line that never
+//!    comes and fails, where the JavaScript parser reads them as trailing
+//!    space.
 //! 4. Drop comment links such as `(# note)`, and give every other form the
 //!    position of the first character other than a space or a tab on the line
 //!    it starts on.
@@ -685,27 +687,42 @@ fn is_indented_id_item(item: &RawItem) -> bool {
     item.id.is_some() && item.values.as_ref().is_none_or(Vec::is_empty)
 }
 
+// Whether an item is an indented id with lines under it, `name:` over
+// indented lines.
+fn is_indented_id_block(item: &RawItem) -> bool {
+    !item.children.is_empty() && is_indented_id_item(item)
+}
+
+// The link of an indented id and the lines under it, one value per line.
+//
+// links-notation 0.20 reads each line under an indented id through its single
+// value, which drops the name of a line such as `b: c`, and it drops the lines
+// under an indented id among those lines. Keep such a line whole,
+// `(a: (b: c))`, the way the line `(b: c)` reads, and read such an indented id
+// the way it reads on its own, so `b:` over `c` also gives `(b: c)`: the
+// GRAMMAR.md of links-notation reads `outer:` over `inner:` over `value1` and
+// `value2`, then `value3` under `outer:`, as
+// `(outer: (inner: value1 value2) value3)`.
+fn indented_id_link(item: &RawItem) -> ParsedLink {
+    let values = item
+        .children
+        .iter()
+        .map(|child| match &child.values {
+            _ if is_indented_id_block(child) => indented_id_link(child),
+            Some(values) if values.len() == 1 && child.id.is_none() => transform_link(&values[0]),
+            _ => transform_link(child),
+        })
+        .collect();
+    ParsedLink::new(item.id.clone(), values)
+}
+
 fn collect_links(item: &RawItem, parent_path: &[ParsedLink], result: &mut Vec<ParsedLink>) {
     if item.children.is_empty() {
         result.push(combine_path_elements(parent_path, transform_link(item)));
         return;
     }
     if is_indented_id_item(item) {
-        // links-notation reads each line under an indented id through its
-        // single value, which drops the name of a line such as `b: c`. Keep
-        // such a line whole, `(a: (b: c))`, the way the line `(b: c)` reads.
-        let child_values = item
-            .children
-            .iter()
-            .map(|child| match &child.values {
-                Some(values) if values.len() == 1 && child.id.is_none() => {
-                    transform_link(&values[0])
-                }
-                _ => transform_link(child),
-            })
-            .collect();
-        let current = ParsedLink::new(item.id.clone(), child_values);
-        result.push(combine_path_elements(parent_path, current));
+        result.push(combine_path_elements(parent_path, indented_id_link(item)));
         return;
     }
     let current = transform_link(item);
@@ -821,15 +838,16 @@ struct LinkLines {
     /// The logical line of each link, or `None` when the items do not account
     /// for every logical line.
     indexes: Option<Vec<usize>>,
-    /// The first line links-notation would leave out, a line indented under a
-    /// value of an indented id.
+    /// The first line that has no place in a link, a line indented under a
+    /// value of an indented id that is not itself an indented id.
     dropped: Option<usize>,
 }
 
 // The logical line each top-level link comes from, in the order
 // `collect_links` produces them: an item gives one link at its line; an
 // indented-id item (`name:` over indented lines) takes in the lines under it,
-// and any other item is followed by its children.
+// and so does an indented-id item among those lines, and any other item is
+// followed by its children.
 fn trace_link_lines(items: &[RawItem], line_count: usize) -> LinkLines {
     struct Trace {
         indexes: Vec<usize>,
@@ -842,19 +860,26 @@ fn trace_link_lines(items: &[RawItem], line_count: usize) -> LinkLines {
             skip(child, trace);
         }
     }
+    fn take_values(item: &RawItem, trace: &mut Trace) {
+        for value in &item.children {
+            trace.next += 1;
+            if is_indented_id_block(value) {
+                take_values(value, trace);
+                continue;
+            }
+            if !value.children.is_empty() && trace.dropped.is_none() {
+                trace.dropped = Some(trace.next);
+            }
+            for line in &value.children {
+                skip(line, trace);
+            }
+        }
+    }
     fn visit(item: &RawItem, trace: &mut Trace) {
         trace.indexes.push(trace.next);
         trace.next += 1;
-        if !item.children.is_empty() && is_indented_id_item(item) {
-            for value in &item.children {
-                trace.next += 1;
-                if !value.children.is_empty() && trace.dropped.is_none() {
-                    trace.dropped = Some(trace.next);
-                }
-                for line in &value.children {
-                    skip(line, trace);
-                }
-            }
+        if is_indented_id_block(item) {
+            take_values(item, trace);
             return;
         }
         for child in &item.children {

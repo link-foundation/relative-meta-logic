@@ -618,6 +618,67 @@
       "quotes": []
     },
     {
+      "name": "an indented id under an indented id",
+      "source": "a:\n  b:\n    c",
+      "forms": [
+        {"text":"(a: (b: c))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b:\n    c",
+      "lines": [[1,1],[2,3],[3,5]],
+      "quotes": []
+    },
+    {
+      "name": "indented ids nested three deep",
+      "source": "a:\n  b:\n    c:\n      d",
+      "forms": [
+        {"text":"(a: (b: (c: d)))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b:\n    c:\n      d",
+      "lines": [[1,1],[2,3],[3,5],[4,7]],
+      "quotes": []
+    },
+    {
+      "name": "the hierarchical nesting of the links-notation grammar",
+      "source": "outer:\n  inner:\n    value1\n    value2\n  value3",
+      "forms": [
+        {"text":"(outer: (inner: value1 value2) value3)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "outer:\n  inner:\n    value1\n    value2\n  value3",
+      "lines": [[1,1],[2,3],[3,5],[4,5],[5,3]],
+      "quotes": []
+    },
+    {
+      "name": "the indented nesting example of the links-notation grammar",
+      "source": "statement:\n  subject:\n    I\n  verb:\n    love\n  object:\n    you:\n      very\n      much",
+      "forms": [
+        {"text":"(statement: (subject: I) (verb: love) (object: (you: very much)))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "statement:\n  subject:\n    I\n  verb:\n    love\n  object:\n    you:\n      very\n      much",
+      "lines": [[1,1],[2,3],[3,5],[4,3],[5,5],[6,3],[7,5],[8,7],[9,7]],
+      "quotes": []
+    },
+    {
+      "name": "the mixed syntax example of the links-notation grammar",
+      "source": "document:\n  (metadata: title author date)\n  content:\n    paragraph1\n    (paragraph2: text (with: nested structure))\n    paragraph3",
+      "forms": [
+        {"text":"(document: (metadata: title author date) (content: paragraph1 (paragraph2: text (with: nested structure)) paragraph3))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "document:\n  (metadata: title author date)\n  content:\n    paragraph1\n    (paragraph2: text (with: nested structure))\n    paragraph3",
+      "lines": [[1,1],[2,3],[3,3],[4,5],[5,5],[6,5]],
+      "quotes": []
+    },
+    {
+      "name": "nested indented ids under an indented line",
+      "source": "(x)\n  a:\n    b:\n      c",
+      "forms": [
+        {"text":"(x)","line":1,"col":1,"length":1},
+        {"text":"((x) (a: (b: c)))","line":2,"col":3,"length":1}
+      ],
+      "prepared": "(x)\n  a:\n    b:\n      c",
+      "lines": [[1,1],[2,3],[3,5],[4,7]],
+      "quotes": []
+    },
+    {
       "name": "a line indented under a line of an indented id",
       "source": "a:\n  b\n    c\n(d)",
       "error": {"message":"LiNo parse failure: unexpected indentation under a value of an indented id","line":3,"col":5,"length":1},
@@ -627,17 +688,25 @@
     },
     {
       "name": "a line indented under a named line of an indented id",
-      "source": "a:\n  b:\n    c",
+      "source": "a:\n  b: c\n    d",
       "error": {"message":"LiNo parse failure: unexpected indentation under a value of an indented id","line":3,"col":5,"length":1},
-      "prepared": "a:\n  b:\n    c",
+      "prepared": "a:\n  b: c\n    d",
       "lines": [[1,1],[2,3],[3,5]],
       "quotes": []
     },
     {
-      "name": "a line indented under a nested indented id",
+      "name": "a line indented under a value of an indented id under an indented line",
       "source": "(x)\n  a:\n    b\n      c",
       "error": {"message":"LiNo parse failure: unexpected indentation under a value of an indented id","line":4,"col":7,"length":1},
       "prepared": "(x)\n  a:\n    b\n      c",
+      "lines": [[1,1],[2,3],[3,5],[4,7]],
+      "quotes": []
+    },
+    {
+      "name": "a line indented under a value of a nested indented id",
+      "source": "a:\n  b:\n    c\n      d",
+      "error": {"message":"LiNo parse failure: unexpected indentation under a value of an indented id","line":4,"col":7,"length":1},
+      "prepared": "a:\n  b:\n    c\n      d",
       "lines": [[1,1],[2,3],[3,5],[4,7]],
       "quotes": []
     },

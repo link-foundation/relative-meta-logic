@@ -88,8 +88,10 @@ Both runtimes read source through the same front end, `js/src/rml-lino-frontend.
    placeholder in its place. Each top-level link is formatted back to a link string, and comment
    links such as `(# note)` are left out. Two repairs keep the runtimes reading the same forms
    where `links-notation` 0.20 does not. A line under an indented id keeps its name, so `a:` over
-   `b: c` reads as `(a: (b: c))`, and a line indented under such a line is refused instead of
-   dropped. The Rust parser also does not see a last line that holds only spaces and tabs, which
+   `b: c` reads as `(a: (b: c))`; an indented id among those lines takes in the lines under it,
+   so `a:` over `b:` over `c` reads the same, as the hierarchical nesting of the `links-notation`
+   grammar does; and any other line indented under such a line is refused instead of dropped.
+   The Rust parser also does not see a last line that holds only spaces and tabs, which
    the Rust `links-notation` parser reads as the indentation of a line that never comes and the
    JavaScript one as trailing space.
 
