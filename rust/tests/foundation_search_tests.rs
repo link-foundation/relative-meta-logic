@@ -422,7 +422,7 @@ fn host_representation_witness_does_not_claim_link_ontology() {
 fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     let report = link_ontology_symmetry_report();
 
-    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v14");
+    assert_eq!(report.schema, "rml-link-ontology-symmetry-experiment/v15");
     assert_eq!(report.occurrence_count, 2);
     assert_eq!(
         report
@@ -585,6 +585,10 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
             (
                 "continuation-consequence",
                 "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION",
+            ),
+            (
+                "continuation-orientation",
+                "CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED",
             ),
             (
                 "addressable-quotient-assumptions",
@@ -1446,6 +1450,295 @@ fn exhaustive_link_symmetries_derive_representation_independent_facts() {
     assert!(continuation
         .claim_boundary
         .contains("every admitted genericity criterion is blind to that orientation"));
+    let orientation = &continuation.orientation_audit;
+    assert_eq!(
+        orientation.question,
+        "What structural property, if any, breaks the K⟼B / B⟼K symmetry without merely encoding the desired direction?"
+    );
+    assert_eq!(
+        orientation.status,
+        "CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED"
+    );
+    assert_eq!(orientation.candidates, vec![vec![0, 2], vec![2, 0]]);
+    assert_eq!(
+        orientation
+            .contracts
+            .iter()
+            .map(|contract| (
+                contract.id,
+                contract.symmetries,
+                contract.element_orbits.clone(),
+                contract.ends_exchanged,
+                contract.candidate_relation,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                "named-ordered-slots",
+                1,
+                vec![vec![0], vec![1], vec![2], vec![3], vec![4]],
+                false,
+                "SEPARATED",
+            ),
+            (
+                "anonymous-ordered-slots",
+                2,
+                vec![vec![0, 2], vec![1], vec![3, 4]],
+                true,
+                "SEPARATED",
+            ),
+            (
+                "unordered-slots",
+                2,
+                vec![vec![0, 2], vec![1], vec![3, 4]],
+                true,
+                "COINCIDE",
+            ),
+        ]
+    );
+    let twin_family = &orientation.twin_family;
+    assert!(twin_family.extension.contains("up to two ordinary records"));
+    assert_eq!(twin_family.structures, 4567);
+    assert_eq!(twin_family.by_extra_records, vec![1, 50, 4516]);
+    assert_eq!(
+        twin_family
+            .contracts
+            .iter()
+            .map(|tally| (
+                tally.id,
+                tally.separated,
+                tally.exchanged,
+                tally.symmetries_fixing_exactly_one_candidate,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("named-ordered-slots", 4563, 4, 0),
+            ("anonymous-ordered-slots", 4563, 4, 0),
+        ]
+    );
+    assert_eq!(
+        twin_family.exchanging_extensions,
+        vec![
+            vec![vec![5, 1, 0], vec![6, 2, 1]],
+            vec![vec![5, 2, 1], vec![6, 1, 0]],
+            vec![vec![5, 2, 10], vec![6, 10, 0]],
+            vec![vec![5, 10, 0], vec![6, 2, 10]],
+        ]
+    );
+    assert_eq!(twin_family.chiral_under_anonymous_slots, 4332);
+    assert_eq!(
+        twin_family.free_correspondences,
+        vec!["identity", "exchange"]
+    );
+    let chirality = &orientation.same_observation_pairs.chirality;
+    assert_eq!(chirality.observation, "readouts of all 16 position laws");
+    assert!(chirality.identical_observations);
+    assert_eq!(
+        [&chirality.achiral, &chirality.chiral].map(|case| (
+            case.records.clone(),
+            case.slot_reversing_symmetries,
+            case.ends_exchanged,
+            case.candidate_relation,
+            case.symmetries_fixing_exactly_one_candidate,
+        )),
+        [
+            (
+                vec![vec![3, 0, 1], vec![4, 1, 2], vec![5, 3, 4]],
+                1,
+                true,
+                "SEPARATED",
+                0,
+            ),
+            (
+                vec![vec![3, 0, 1], vec![4, 1, 2], vec![5, 3, 4], vec![8, 8, 9]],
+                0,
+                false,
+                "SEPARATED",
+                0,
+            ),
+        ]
+    );
+    let slot_order = &orientation.same_observation_pairs.slot_order;
+    assert_eq!(slot_order.observation, "records with unordered slots");
+    assert!(slot_order.identical_observations);
+    assert_eq!(
+        [&slot_order.cycle, &slot_order.detour].map(|case| (
+            case.records.clone(),
+            case.named_candidate_relation,
+            case.aligned_readout.clone(),
+            case.reversed_readout.clone(),
+        )),
+        [
+            (
+                vec![vec![3, 0, 1], vec![4, 1, 2], vec![5, 2, 10], vec![6, 10, 0]],
+                "EXCHANGED",
+                vec![vec![0, 2], vec![1, 10], vec![2, 0], vec![10, 1]],
+                vec![vec![0, 2], vec![1, 10], vec![2, 0], vec![10, 1]],
+            ),
+            (
+                vec![vec![3, 0, 1], vec![4, 1, 2], vec![5, 2, 10], vec![6, 0, 10]],
+                "SEPARATED",
+                vec![vec![0, 2], vec![1, 10]],
+                vec![vec![2, 0], vec![10, 1]],
+            ),
+        ]
+    );
+    let representations = &orientation.representations;
+    assert_eq!(representations.address_renamings, 120);
+    assert_eq!(representations.renaming_failures, 0);
+    assert_eq!(
+        representations
+            .tagged_encodings
+            .iter()
+            .map(|encoding| (
+                encoding.id,
+                encoding.symmetries,
+                encoding.tags_exchanged,
+                encoding.ends_exchanged,
+                encoding.candidate_relation,
+                encoding.symmetries_fixing_exactly_one_candidate,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("named-tags", 1, false, false, "SEPARATED", 0),
+            ("anonymous-tags", 2, true, true, "SEPARATED", 0),
+        ]
+    );
+    assert!(representations.tag_swap.isomorphic_with_tags_fixed);
+    assert_eq!(
+        representations.tag_swap.aligned_candidate_decodes_to,
+        vec![vec![0, 2], vec![2, 0]]
+    );
+    assert_eq!(
+        orientation
+            .recursion
+            .carriers
+            .iter()
+            .map(|carrier| (
+                carrier.id,
+                carrier.carrier_records.clone(),
+                carrier.carrier_symmetries,
+                carrier.carrier_records_have_equal_slots,
+                carrier.symmetries,
+                carrier.tags_exchanged,
+                carrier.ends_exchanged,
+                carrier.candidate_relation,
+                carrier.symmetries_fixing_exactly_one_candidate,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                "symmetric-self-loop-carrier",
+                vec![vec![20, 20, 20], vec![21, 21, 21]],
+                2,
+                true,
+                2,
+                true,
+                true,
+                "SEPARATED",
+                0,
+            ),
+            (
+                "rigid-self-referential-carrier",
+                vec![vec![20, 20, 20], vec![21, 20, 20]],
+                1,
+                true,
+                1,
+                false,
+                false,
+                "SEPARATED",
+                0,
+            ),
+        ]
+    );
+    assert_eq!(
+        orientation.recursion.result,
+        "SLOT_IDENTITY_FORCED_BY_SELF_INCIDENCE_CANDIDATES_STILL_UNRANKED"
+    );
+    assert_eq!(
+        orientation
+            .asymmetries
+            .iter()
+            .map(|asymmetry| (asymmetry.id, asymmetry.provenance))
+            .collect::<Vec<_>>(),
+        vec![
+            ("join-address", "FORCED_BY_INCIDENCE"),
+            ("candidate-separation", "FORCED_BY_SLOT_ORDER"),
+            ("end-asymmetry", "FORCED_BY_SLOT_NAMES_OR_CHIRAL_CONTEXT"),
+            (
+                "slot-identity",
+                "FORCED_ONLY_BY_A_RIGID_SELF_REFERENTIAL_CARRIER",
+            ),
+            ("output-correspondence", "CHOSEN_NOT_FORCED"),
+        ]
+    );
+    assert!(orientation
+        .no_go
+        .argument
+        .contains("output swap commutes with every renaming"));
+    assert_eq!(
+        orientation.no_go.strong_negative,
+        "EVERY_INTRINSIC_LINK_OBSERVATION_PRESERVED_ORIENTATION_STILL_REVERSIBLE"
+    );
+    let iteration = &orientation.iteration_boundary;
+    assert_eq!(
+        iteration.records,
+        vec![vec![3, 0, 1], vec![4, 1, 2], vec![5, 2, 9]]
+    );
+    assert_eq!(
+        iteration
+            .closures
+            .iter()
+            .map(|closure| (
+                closure.correspondence,
+                closure.closure.clone(),
+                closure.derived_pairs,
+                closure.every_path_has_joined_ends,
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                "identity",
+                vec![
+                    vec![0, 1],
+                    vec![0, 2],
+                    vec![0, 9],
+                    vec![1, 2],
+                    vec![1, 9],
+                    vec![2, 9],
+                ],
+                3,
+                true,
+            ),
+            (
+                "exchange",
+                vec![vec![0, 1], vec![1, 2], vec![2, 0], vec![2, 9], vec![9, 1]],
+                2,
+                false,
+            ),
+        ]
+    );
+    assert_eq!(
+        iteration
+            .separating_requirements
+            .iter()
+            .map(|requirement| (requirement.id, requirement.selects.clone()))
+            .collect::<Vec<_>>(),
+        vec![
+            ("every-path-has-joined-ends", vec!["identity"]),
+            ("fewest-derived-pairs", vec!["exchange"]),
+        ]
+    );
+    assert_eq!(
+        iteration.provenance,
+        "REQUIREMENT_ON_HOW_CONSEQUENCE_COMPOSES"
+    );
+    assert!(orientation
+        .missing_information
+        .contains("The records force separation, not orientation."));
+    assert!(continuation
+        .claim_boundary
+        .contains("each invariant selector has an invariant twin"));
     assert_eq!(
         structural_probe.status,
         "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION"

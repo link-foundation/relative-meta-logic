@@ -956,6 +956,167 @@ pub struct LinkOntologyConsequenceAudit {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationContract {
+    pub id: &'static str,
+    pub symmetries: usize,
+    pub element_orbits: Vec<Vec<usize>>,
+    pub ends_exchanged: bool,
+    pub candidate_relation: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationTally {
+    pub id: &'static str,
+    pub separated: usize,
+    pub exchanged: usize,
+    pub symmetries_fixing_exactly_one_candidate: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationTwinFamily {
+    pub extension: &'static str,
+    pub structures: usize,
+    pub by_extra_records: Vec<usize>,
+    pub contracts: Vec<LinkOntologyOrientationTally>,
+    pub exchanging_extensions: Vec<Vec<Vec<usize>>>,
+    pub chiral_under_anonymous_slots: usize,
+    pub free_correspondences: Vec<&'static str>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationAnonymousCase {
+    pub records: Vec<Vec<usize>>,
+    pub slot_reversing_symmetries: usize,
+    pub ends_exchanged: bool,
+    pub candidate_relation: &'static str,
+    pub symmetries_fixing_exactly_one_candidate: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationChiralityPair {
+    pub observation: &'static str,
+    pub identical_observations: bool,
+    pub achiral: LinkOntologyOrientationAnonymousCase,
+    pub chiral: LinkOntologyOrientationAnonymousCase,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationSlotOrderCase {
+    pub records: Vec<Vec<usize>>,
+    pub named_candidate_relation: &'static str,
+    pub aligned_readout: Vec<Vec<usize>>,
+    pub reversed_readout: Vec<Vec<usize>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationSlotOrderPair {
+    pub observation: &'static str,
+    pub identical_observations: bool,
+    pub cycle: LinkOntologyOrientationSlotOrderCase,
+    pub detour: LinkOntologyOrientationSlotOrderCase,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationSameObservationPairs {
+    pub chirality: LinkOntologyOrientationChiralityPair,
+    pub slot_order: LinkOntologyOrientationSlotOrderPair,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationTaggedEncoding {
+    pub id: &'static str,
+    pub symmetries: usize,
+    pub tags_exchanged: bool,
+    pub ends_exchanged: bool,
+    pub candidate_relation: &'static str,
+    pub symmetries_fixing_exactly_one_candidate: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationTagSwap {
+    pub isomorphic_with_tags_fixed: bool,
+    pub aligned_candidate_decodes_to: Vec<Vec<usize>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationRepresentations {
+    pub address_renamings: usize,
+    pub renaming_failures: usize,
+    pub tagged_encodings: Vec<LinkOntologyOrientationTaggedEncoding>,
+    pub tag_swap: LinkOntologyOrientationTagSwap,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationCarrier {
+    pub id: &'static str,
+    pub carrier_records: Vec<Vec<usize>>,
+    pub carrier_symmetries: usize,
+    pub carrier_records_have_equal_slots: bool,
+    pub symmetries: usize,
+    pub tags_exchanged: bool,
+    pub ends_exchanged: bool,
+    pub candidate_relation: &'static str,
+    pub symmetries_fixing_exactly_one_candidate: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationRecursion {
+    pub carriers: Vec<LinkOntologyOrientationCarrier>,
+    pub result: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationAsymmetry {
+    pub id: &'static str,
+    pub provenance: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationNoGo {
+    pub argument: &'static str,
+    pub strong_negative: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationClosure {
+    pub correspondence: &'static str,
+    pub closure: Vec<Vec<usize>>,
+    pub derived_pairs: usize,
+    pub every_path_has_joined_ends: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationRequirement {
+    pub id: &'static str,
+    pub selects: Vec<&'static str>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationIterationBoundary {
+    pub records: Vec<Vec<usize>>,
+    pub closures: Vec<LinkOntologyOrientationClosure>,
+    pub separating_requirements: Vec<LinkOntologyOrientationRequirement>,
+    pub provenance: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkOntologyOrientationAudit {
+    pub question: &'static str,
+    pub status: &'static str,
+    pub primitives: &'static str,
+    pub candidates: Vec<Vec<usize>>,
+    pub contracts: Vec<LinkOntologyOrientationContract>,
+    pub twin_family: LinkOntologyOrientationTwinFamily,
+    pub same_observation_pairs: LinkOntologyOrientationSameObservationPairs,
+    pub representations: LinkOntologyOrientationRepresentations,
+    pub recursion: LinkOntologyOrientationRecursion,
+    pub asymmetries: Vec<LinkOntologyOrientationAsymmetry>,
+    pub no_go: LinkOntologyOrientationNoGo,
+    pub iteration_boundary: LinkOntologyOrientationIterationBoundary,
+    pub missing_information: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LinkOntologyConditionalContinuationProbe {
     pub status: &'static str,
     pub contract: &'static str,
@@ -974,6 +1135,7 @@ pub struct LinkOntologyConditionalContinuationProbe {
     pub intrinsic_creation_or_authority_established: bool,
     pub transition_law_audit: LinkOntologyTransitionLawAudit,
     pub consequence_audit: LinkOntologyConsequenceAudit,
+    pub orientation_audit: LinkOntologyOrientationAudit,
     pub claim_boundary: &'static str,
 }
 
@@ -2926,6 +3088,753 @@ fn link_ontology_continuation_consequence_audit() -> LinkOntologyConsequenceAudi
     }
 }
 
+// Orientation audit over the same two premises (R148). It uses only address
+// equality and, per contract, slot order: no completion, exclusion, or
+// position law decides anything here. A contract symmetry renames addresses
+// and, when slots are anonymous, may also reverse every record's slots, so it
+// acts on an unrecorded pair exactly as it would act on a record.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum OrientationContract {
+    Named,
+    Anonymous,
+    Unordered,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+struct OrientationSymmetry {
+    map: BTreeMap<usize, usize>,
+    reversed: bool,
+}
+
+const ORIENTATION_FORWARD: [usize; 2] = [0, 2];
+const ORIENTATION_REVERSE: [usize; 2] = [2, 0];
+const ORIENTATION_TAGS: [usize; 2] = [20, 21];
+const ORIENTATION_ALIGNED_LAW: ConsequencePositionLaw = [0, 3];
+const ORIENTATION_REVERSED_LAW: ConsequencePositionLaw = [3, 0];
+
+fn orientation_contract_id(contract: OrientationContract) -> &'static str {
+    match contract {
+        OrientationContract::Named => "named-ordered-slots",
+        OrientationContract::Anonymous => "anonymous-ordered-slots",
+        OrientationContract::Unordered => "unordered-slots",
+    }
+}
+
+// A symmetry maps records to records, so once the record permutation and the
+// slot treatment are fixed, every referenced address has one image. Unordered
+// slots may flip each record separately.
+fn orientation_symmetries(
+    records: &[Vec<usize>],
+    contract: OrientationContract,
+) -> Vec<OrientationSymmetry> {
+    let by_address = records
+        .iter()
+        .map(|record| (record[0], record))
+        .collect::<BTreeMap<_, _>>();
+    let addresses = records.iter().map(|record| record[0]).collect::<Vec<_>>();
+    let flip_choices = match contract {
+        OrientationContract::Named => vec![vec![false; records.len()]],
+        OrientationContract::Anonymous => {
+            vec![vec![false; records.len()], vec![true; records.len()]]
+        }
+        OrientationContract::Unordered => (0..1usize << records.len())
+            .map(|mask| {
+                (0..records.len())
+                    .map(|index| mask & (1 << index) != 0)
+                    .collect()
+            })
+            .collect(),
+    };
+    let mut found: Vec<OrientationSymmetry> = Vec::new();
+    for image in finite_permutations(&addresses) {
+        for flips in &flip_choices {
+            let mut map = addresses
+                .iter()
+                .copied()
+                .zip(image.iter().copied())
+                .collect::<BTreeMap<_, _>>();
+            let consistent = records.iter().zip(flips).all(|(record, flipped)| {
+                let target = by_address[&map[&record[0]]];
+                let images = if *flipped {
+                    [target[2], target[1]]
+                } else {
+                    [target[1], target[2]]
+                };
+                [record[1], record[2]]
+                    .into_iter()
+                    .zip(images)
+                    .all(|(value, image)| *map.entry(value).or_insert(image) == image)
+            });
+            if !consistent || map.values().collect::<BTreeSet<_>>().len() != map.len() {
+                continue;
+            }
+            let symmetry = OrientationSymmetry {
+                map,
+                reversed: contract == OrientationContract::Anonymous
+                    && flips.first() == Some(&true),
+            };
+            if !found.contains(&symmetry) {
+                found.push(symmetry);
+            }
+        }
+    }
+    found
+}
+
+fn orientation_act(symmetry: &OrientationSymmetry, pair: [usize; 2]) -> [usize; 2] {
+    let [left, right] = pair.map(|value| symmetry.map[&value]);
+    if symmetry.reversed {
+        [right, left]
+    } else {
+        [left, right]
+    }
+}
+
+fn orientation_fixes(symmetry: &OrientationSymmetry, pair: [usize; 2]) -> bool {
+    orientation_act(symmetry, pair) == pair
+}
+
+fn orientation_exchanges_candidates(group: &[OrientationSymmetry]) -> bool {
+    group
+        .iter()
+        .any(|symmetry| orientation_act(symmetry, ORIENTATION_FORWARD) == ORIENTATION_REVERSE)
+}
+
+fn orientation_fixing_exactly_one_candidate(group: &[OrientationSymmetry]) -> usize {
+    group
+        .iter()
+        .filter(|symmetry| {
+            orientation_fixes(symmetry, ORIENTATION_FORWARD)
+                != orientation_fixes(symmetry, ORIENTATION_REVERSE)
+        })
+        .count()
+}
+
+fn orientation_ends_exchanged(group: &[OrientationSymmetry]) -> bool {
+    group
+        .iter()
+        .any(|symmetry| symmetry.map[&ORIENTATION_FORWARD[0]] == ORIENTATION_FORWARD[1])
+}
+
+fn orientation_candidate_relation(
+    group: &[OrientationSymmetry],
+    contract: OrientationContract,
+) -> &'static str {
+    if contract == OrientationContract::Unordered {
+        "COINCIDE"
+    } else if orientation_exchanges_candidates(group) {
+        "EXCHANGED"
+    } else {
+        "SEPARATED"
+    }
+}
+
+fn orientation_element_orbits(
+    group: &[OrientationSymmetry],
+    records: &[Vec<usize>],
+) -> Vec<Vec<usize>> {
+    let mut orbits: Vec<Vec<usize>> = Vec::new();
+    for address in records.iter().flatten().copied().collect::<BTreeSet<_>>() {
+        if orbits.iter().any(|orbit| orbit.contains(&address)) {
+            continue;
+        }
+        orbits.push(
+            group
+                .iter()
+                .map(|symmetry| symmetry.map[&address])
+                .collect::<BTreeSet<_>>()
+                .into_iter()
+                .collect(),
+        );
+    }
+    orbits
+}
+
+// References of added records range over every existing address and fresh
+// addresses 10, 11, ... numbered in order of first use.
+fn orientation_reference_sequences(length: usize, existing: &[usize]) -> Vec<Vec<usize>> {
+    fn extend(
+        length: usize,
+        existing: &[usize],
+        prefix: &mut Vec<usize>,
+        fresh_count: usize,
+        output: &mut Vec<Vec<usize>>,
+    ) {
+        if prefix.len() == length {
+            output.push(prefix.clone());
+            return;
+        }
+        for value in existing {
+            prefix.push(*value);
+            extend(length, existing, prefix, fresh_count, output);
+            prefix.pop();
+        }
+        for fresh in 0..=fresh_count {
+            prefix.push(10 + fresh);
+            extend(length, existing, prefix, fresh_count.max(fresh + 1), output);
+            prefix.pop();
+        }
+    }
+    let mut output = Vec::new();
+    extend(length, existing, &mut Vec::new(), 0, &mut output);
+    output
+}
+
+// Tagged incidence: [a,x,y] becomes the triples (a,t0,x) and (a,t1,y), so slot
+// identity is carried by tag addresses 20 and 21. Symmetries permute every
+// address and preserve the triple set; named tags stay fixed.
+fn orientation_encode(records: &[Vec<usize>], tags: [usize; 2]) -> Vec<Vec<usize>> {
+    records
+        .iter()
+        .flat_map(|record| {
+            [
+                vec![record[0], tags[0], record[1]],
+                vec![record[0], tags[1], record[2]],
+            ]
+        })
+        .collect()
+}
+
+fn orientation_rename_items(
+    items: &[Vec<usize>],
+    rename: impl Fn(usize) -> usize,
+) -> Vec<Vec<usize>> {
+    let mut renamed = items
+        .iter()
+        .map(|item| item.iter().map(|symbol| rename(*symbol)).collect())
+        .collect::<Vec<Vec<usize>>>();
+    renamed.sort();
+    renamed
+}
+
+fn orientation_triple_symmetries(
+    triples: &[Vec<usize>],
+    fixed: &[usize],
+) -> Vec<BTreeMap<usize, usize>> {
+    let symbols = triples
+        .iter()
+        .flatten()
+        .copied()
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let original = orientation_rename_items(triples, |symbol| symbol);
+    finite_permutations(&symbols)
+        .into_iter()
+        .map(|image| {
+            symbols
+                .iter()
+                .copied()
+                .zip(image)
+                .collect::<BTreeMap<_, _>>()
+        })
+        .filter(|map| {
+            fixed.iter().all(|symbol| map[symbol] == *symbol)
+                && orientation_rename_items(triples, |symbol| map[&symbol]) == original
+        })
+        .collect()
+}
+
+fn orientation_tagged_candidate(pair: [usize; 2]) -> Vec<Vec<usize>> {
+    orientation_rename_items(
+        &[
+            vec![ORIENTATION_TAGS[0], pair[0]],
+            vec![ORIENTATION_TAGS[1], pair[1]],
+        ],
+        |symbol| symbol,
+    )
+}
+
+fn orientation_tagged_case(
+    id: &'static str,
+    premises: &[Vec<usize>],
+    carrier_records: &[Vec<usize>],
+    fixed: &[usize],
+) -> LinkOntologyOrientationTaggedEncoding {
+    let mut triples = orientation_encode(premises, ORIENTATION_TAGS);
+    triples.extend(orientation_encode(carrier_records, ORIENTATION_TAGS));
+    let group = orientation_triple_symmetries(&triples, fixed);
+    let tagged_forward = orientation_tagged_candidate(ORIENTATION_FORWARD);
+    let tagged_reverse = orientation_tagged_candidate(ORIENTATION_REVERSE);
+    let tagged_act = |map: &BTreeMap<usize, usize>, candidate: &[Vec<usize>]| {
+        orientation_rename_items(candidate, |symbol| map[&symbol])
+    };
+    LinkOntologyOrientationTaggedEncoding {
+        id,
+        symmetries: group.len(),
+        tags_exchanged: group
+            .iter()
+            .any(|map| map[&ORIENTATION_TAGS[0]] == ORIENTATION_TAGS[1]),
+        ends_exchanged: group
+            .iter()
+            .any(|map| map[&ORIENTATION_FORWARD[0]] == ORIENTATION_FORWARD[1]),
+        candidate_relation: if group
+            .iter()
+            .any(|map| tagged_act(map, &tagged_forward) == tagged_reverse)
+        {
+            "EXCHANGED"
+        } else {
+            "SEPARATED"
+        },
+        symmetries_fixing_exactly_one_candidate: group
+            .iter()
+            .filter(|map| {
+                (tagged_act(map, &tagged_forward) == tagged_forward)
+                    != (tagged_act(map, &tagged_reverse) == tagged_reverse)
+            })
+            .count(),
+    }
+}
+
+// Scope of the one-step result: once a conclusion is recorded and composed
+// again, its slot order is a record fact and the two correspondences build
+// different closures of a three-link chain.
+fn orientation_closure(pairs: &[Vec<usize>], law: ConsequencePositionLaw) -> Vec<Vec<usize>> {
+    let mut pairs = pairs.to_vec();
+    loop {
+        let records = pairs
+            .iter()
+            .enumerate()
+            .map(|(index, pair)| vec![100 + index, pair[0], pair[1]])
+            .collect::<Vec<_>>();
+        let derived = consequence_law_readouts(&records, law)
+            .into_iter()
+            .filter(|pair| !pairs.contains(pair))
+            .collect::<Vec<_>>();
+        if derived.is_empty() {
+            pairs.sort();
+            return pairs;
+        }
+        pairs.extend(derived);
+    }
+}
+
+fn orientation_every_path_has_joined_ends(pairs: &[Vec<usize>]) -> bool {
+    pairs.iter().all(|pair| {
+        let start = pair[0];
+        let mut reached = BTreeSet::new();
+        let mut pending = vec![start];
+        while let Some(node) = pending.pop() {
+            for edge in pairs {
+                if edge[0] == node && reached.insert(edge[1]) {
+                    pending.push(edge[1]);
+                }
+            }
+        }
+        reached.iter().all(|end| {
+            *end == start
+                || pairs.contains(&vec![start, *end])
+                || pairs.contains(&vec![*end, start])
+        })
+    })
+}
+
+fn link_ontology_continuation_orientation_audit() -> LinkOntologyOrientationAudit {
+    let (k, a, b) = (0, 1, 2);
+    let premises = vec![vec![3, k, a], vec![4, a, b]];
+    let contracts = [
+        OrientationContract::Named,
+        OrientationContract::Anonymous,
+        OrientationContract::Unordered,
+    ]
+    .into_iter()
+    .map(|contract| {
+        let group = orientation_symmetries(&premises, contract);
+        LinkOntologyOrientationContract {
+            id: orientation_contract_id(contract),
+            symmetries: group.len(),
+            element_orbits: orientation_element_orbits(&group, &premises),
+            ends_exchanged: orientation_ends_exchanged(&group),
+            candidate_relation: orientation_candidate_relation(&group, contract),
+        }
+    })
+    .collect::<Vec<_>>();
+
+    // Premises plus up to two ordinary records at addresses 5 and 6.
+    let family = (0..=2usize)
+        .flat_map(|extra| {
+            let existing = (0..premises.len() + 3 + extra).collect::<Vec<_>>();
+            orientation_reference_sequences(2 * extra, &existing)
+                .into_iter()
+                .map(|references| {
+                    let mut records = premises.clone();
+                    records.extend((0..extra).map(|index| {
+                        vec![5 + index, references[2 * index], references[2 * index + 1]]
+                    }));
+                    records
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>();
+    let correspondences: [(&'static str, fn([usize; 2]) -> [usize; 2]); 2] = [
+        ("identity", |pair| pair),
+        ("exchange", |[left, right]| [right, left]),
+    ];
+    let mut tallies = [OrientationContract::Named, OrientationContract::Anonymous]
+        .into_iter()
+        .map(|contract| LinkOntologyOrientationTally {
+            id: orientation_contract_id(contract),
+            separated: 0,
+            exchanged: 0,
+            symmetries_fixing_exactly_one_candidate: 0,
+        })
+        .collect::<Vec<_>>();
+    let mut exchanging_extensions = Vec::new();
+    let mut chiral_under_anonymous_slots = 0;
+    let mut free = [true; 2];
+    for records in &family {
+        // Named symmetries are exactly the anonymous ones that keep slots in place.
+        let anonymous_group = orientation_symmetries(records, OrientationContract::Anonymous);
+        let named_group = anonymous_group
+            .iter()
+            .filter(|symmetry| !symmetry.reversed)
+            .cloned()
+            .collect::<Vec<_>>();
+        for (tally, group) in tallies.iter_mut().zip([&named_group, &anonymous_group]) {
+            tally.symmetries_fixing_exactly_one_candidate +=
+                orientation_fixing_exactly_one_candidate(group);
+            if orientation_exchanges_candidates(group) {
+                tally.exchanged += 1;
+            } else {
+                tally.separated += 1;
+            }
+            for (still_free, (_, correspondence)) in free.iter_mut().zip(&correspondences) {
+                *still_free = *still_free
+                    && group.iter().all(|symmetry| {
+                        orientation_act(symmetry, correspondence(ORIENTATION_FORWARD))
+                            == correspondence(orientation_act(symmetry, ORIENTATION_FORWARD))
+                    });
+            }
+        }
+        if orientation_exchanges_candidates(&named_group) {
+            exchanging_extensions.push(records[premises.len()..].to_vec());
+        }
+        if !anonymous_group.iter().any(|symmetry| symmetry.reversed) {
+            chiral_under_anonymous_slots += 1;
+        }
+    }
+    let free_correspondences = correspondences
+        .iter()
+        .zip(free)
+        .filter(|(_, still_free)| *still_free)
+        .map(|((id, _), _)| *id)
+        .collect::<Vec<_>>();
+
+    let laws = (0..4)
+        .flat_map(|first| (0..4).map(move |second| [first, second]))
+        .collect::<Vec<ConsequencePositionLaw>>();
+    let anonymous_case = |records: Vec<Vec<usize>>| {
+        let group = orientation_symmetries(&records, OrientationContract::Anonymous);
+        LinkOntologyOrientationAnonymousCase {
+            slot_reversing_symmetries: group.iter().filter(|symmetry| symmetry.reversed).count(),
+            ends_exchanged: orientation_ends_exchanged(&group),
+            candidate_relation: orientation_candidate_relation(
+                &group,
+                OrientationContract::Anonymous,
+            ),
+            symmetries_fixing_exactly_one_candidate: orientation_fixing_exactly_one_candidate(
+                &group,
+            ),
+            records,
+        }
+    };
+    let mut achiral = premises.clone();
+    achiral.push(vec![5, 3, 4]);
+    let mut chiral = achiral.clone();
+    chiral.push(vec![8, 8, 9]);
+    let unordered_shadow = |records: &[Vec<usize>]| {
+        records
+            .iter()
+            .map(|record| {
+                vec![
+                    record[0],
+                    record[1].min(record[2]),
+                    record[1].max(record[2]),
+                ]
+            })
+            .collect::<Vec<_>>()
+    };
+    let slot_order_case = |records: Vec<Vec<usize>>| LinkOntologyOrientationSlotOrderCase {
+        named_candidate_relation: orientation_candidate_relation(
+            &orientation_symmetries(&records, OrientationContract::Named),
+            OrientationContract::Named,
+        ),
+        aligned_readout: consequence_law_readouts(&records, ORIENTATION_ALIGNED_LAW),
+        reversed_readout: consequence_law_readouts(&records, ORIENTATION_REVERSED_LAW),
+        records,
+    };
+    let mut cycle = premises.clone();
+    cycle.extend([vec![5, b, 10], vec![6, 10, k]]);
+    let mut detour = premises.clone();
+    detour.extend([vec![5, b, 10], vec![6, k, 10]]);
+
+    let renamings = finite_permutations(&[0, 1, 2, 3, 4]);
+    let renaming_failures = renamings
+        .iter()
+        .filter(|image| {
+            let renamed = premises
+                .iter()
+                .map(|record| record.iter().map(|value| image[*value]).collect())
+                .collect::<Vec<Vec<usize>>>();
+            let group = orientation_symmetries(&renamed, OrientationContract::Anonymous);
+            let renamed_forward = ORIENTATION_FORWARD.map(|value| image[value]);
+            let renamed_reverse = ORIENTATION_REVERSE.map(|value| image[value]);
+            group.iter().any(|symmetry| {
+                orientation_act(symmetry, renamed_forward) == renamed_reverse
+                    || orientation_fixes(symmetry, renamed_forward)
+                        != orientation_fixes(symmetry, renamed_reverse)
+            })
+        })
+        .count();
+
+    let tagged_encodings = vec![
+        orientation_tagged_case("named-tags", &premises, &[], &ORIENTATION_TAGS),
+        orientation_tagged_case("anonymous-tags", &premises, &[], &[]),
+    ];
+    let carrier = |id: &'static str, carrier_records: Vec<Vec<usize>>| {
+        let tagged = orientation_tagged_case(id, &premises, &carrier_records, &[]);
+        LinkOntologyOrientationCarrier {
+            id,
+            carrier_symmetries: orientation_triple_symmetries(
+                &orientation_encode(&carrier_records, ORIENTATION_TAGS),
+                &[],
+            )
+            .len(),
+            carrier_records_have_equal_slots: carrier_records
+                .iter()
+                .all(|record| record[1] == record[2]),
+            carrier_records,
+            symmetries: tagged.symmetries,
+            tags_exchanged: tagged.tags_exchanged,
+            ends_exchanged: tagged.ends_exchanged,
+            candidate_relation: tagged.candidate_relation,
+            symmetries_fixing_exactly_one_candidate: tagged.symmetries_fixing_exactly_one_candidate,
+        }
+    };
+    let carriers = vec![
+        carrier(
+            "symmetric-self-loop-carrier",
+            vec![vec![20, 20, 20], vec![21, 21, 21]],
+        ),
+        carrier(
+            "rigid-self-referential-carrier",
+            vec![vec![20, 20, 20], vec![21, 20, 20]],
+        ),
+    ];
+    let original = orientation_encode(&premises, ORIENTATION_TAGS);
+    let tag_swapped = orientation_encode(&premises, [ORIENTATION_TAGS[1], ORIENTATION_TAGS[0]]);
+    let sorted_tag_swapped = orientation_rename_items(&tag_swapped, |symbol| symbol);
+    let isomorphic_with_tags_fixed = renamings.iter().any(|image| {
+        orientation_rename_items(&original, |symbol| {
+            if ORIENTATION_TAGS.contains(&symbol) {
+                symbol
+            } else {
+                image[symbol]
+            }
+        }) == sorted_tag_swapped
+    });
+    // The aligned candidate keeps each end with the tag it has in its premise;
+    // decoding reads tag 20 as the first slot.
+    let aligned_decoding = |triples: &[Vec<usize>]| {
+        let tag_of = |address: usize, value: usize| {
+            triples
+                .iter()
+                .find(|triple| triple[0] == address && triple[2] == value)
+                .map_or(usize::MAX, |triple| triple[1])
+        };
+        let mut tagged = vec![(tag_of(3, k), k), (tag_of(4, b), b)];
+        tagged.sort();
+        tagged
+            .into_iter()
+            .map(|(_, value)| value)
+            .collect::<Vec<_>>()
+    };
+
+    let chain = vec![vec![3, k, a], vec![4, a, b], vec![5, b, 9]];
+    let chain_pairs = chain
+        .iter()
+        .map(|record| vec![record[1], record[2]])
+        .collect::<Vec<_>>();
+    let closures = [
+        ("identity", ORIENTATION_ALIGNED_LAW),
+        ("exchange", ORIENTATION_REVERSED_LAW),
+    ]
+    .into_iter()
+    .map(|(correspondence, law)| {
+        let closure = orientation_closure(&chain_pairs, law);
+        LinkOntologyOrientationClosure {
+            correspondence,
+            derived_pairs: closure.len() - chain_pairs.len(),
+            every_path_has_joined_ends: orientation_every_path_has_joined_ends(&closure),
+            closure,
+        }
+    })
+    .collect::<Vec<_>>();
+    let fewest_derived = closures
+        .iter()
+        .map(|item| item.derived_pairs)
+        .min()
+        .unwrap_or_default();
+
+    let chirality = LinkOntologyOrientationChiralityPair {
+        observation: "readouts of all 16 position laws",
+        identical_observations: laws
+            .iter()
+            .map(|law| consequence_law_readouts(&achiral, *law))
+            .collect::<Vec<_>>()
+            == laws
+                .iter()
+                .map(|law| consequence_law_readouts(&chiral, *law))
+                .collect::<Vec<_>>(),
+        achiral: anonymous_case(achiral),
+        chiral: anonymous_case(chiral),
+    };
+    let (named, anonymous, unordered) = (&contracts[0], &contracts[1], &contracts[2]);
+    let rigid_carrier = &carriers[1];
+    let asymmetries = vec![
+        LinkOntologyOrientationAsymmetry {
+            id: "join-address",
+            provenance: if contracts.iter().all(|contract| {
+                contract
+                    .element_orbits
+                    .iter()
+                    .any(|orbit| orbit == &vec![a])
+            }) {
+                "FORCED_BY_INCIDENCE"
+            } else {
+                "NOT_FORCED"
+            },
+        },
+        LinkOntologyOrientationAsymmetry {
+            id: "candidate-separation",
+            provenance: if named.candidate_relation == "SEPARATED"
+                && anonymous.candidate_relation == "SEPARATED"
+                && unordered.candidate_relation == "COINCIDE"
+            {
+                "FORCED_BY_SLOT_ORDER"
+            } else {
+                "NOT_FORCED"
+            },
+        },
+        LinkOntologyOrientationAsymmetry {
+            id: "end-asymmetry",
+            provenance: if !named.ends_exchanged
+                && anonymous.ends_exchanged
+                && !chirality.chiral.ends_exchanged
+            {
+                "FORCED_BY_SLOT_NAMES_OR_CHIRAL_CONTEXT"
+            } else {
+                "NOT_FORCED"
+            },
+        },
+        LinkOntologyOrientationAsymmetry {
+            id: "slot-identity",
+            provenance: if tagged_encodings[1].tags_exchanged && !rigid_carrier.tags_exchanged {
+                "FORCED_ONLY_BY_A_RIGID_SELF_REFERENTIAL_CARRIER"
+            } else {
+                "NOT_FORCED"
+            },
+        },
+        LinkOntologyOrientationAsymmetry {
+            id: "output-correspondence",
+            provenance: if free_correspondences.len() == correspondences.len() {
+                "CHOSEN_NOT_FORCED"
+            } else {
+                "FORCED"
+            },
+        },
+    ];
+    let recursion_result = if rigid_carrier.carrier_records_have_equal_slots
+        && rigid_carrier.carrier_symmetries == 1
+        && !rigid_carrier.tags_exchanged
+        && rigid_carrier.candidate_relation == "SEPARATED"
+        && rigid_carrier.symmetries_fixing_exactly_one_candidate == 0
+    {
+        "SLOT_IDENTITY_FORCED_BY_SELF_INCIDENCE_CANDIDATES_STILL_UNRANKED"
+    } else {
+        "CARRIER_RESULT_CHANGED"
+    };
+    let separating_requirements = vec![
+        LinkOntologyOrientationRequirement {
+            id: "every-path-has-joined-ends",
+            selects: closures
+                .iter()
+                .filter(|item| item.every_path_has_joined_ends)
+                .map(|item| item.correspondence)
+                .collect(),
+        },
+        LinkOntologyOrientationRequirement {
+            id: "fewest-derived-pairs",
+            selects: closures
+                .iter()
+                .filter(|item| item.derived_pairs == fewest_derived)
+                .map(|item| item.correspondence)
+                .collect(),
+        },
+    ];
+
+    LinkOntologyOrientationAudit {
+        question: "What structural property, if any, breaks the K⟼B / B⟼K symmetry without merely encoding the desired direction?",
+        status: "CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED",
+        primitives: "address equality and, per contract, slot order; no completion, exclusion, or position law",
+        candidates: vec![ORIENTATION_FORWARD.to_vec(), ORIENTATION_REVERSE.to_vec()],
+        twin_family: LinkOntologyOrientationTwinFamily {
+            extension: "the premises plus up to two ordinary records whose references range over every existing address and fresh addresses",
+            structures: family.len(),
+            by_extra_records: (0..=2)
+                .map(|extra| {
+                    family
+                        .iter()
+                        .filter(|records| records.len() == premises.len() + extra)
+                        .count()
+                })
+                .collect(),
+            contracts: tallies,
+            exchanging_extensions,
+            chiral_under_anonymous_slots,
+            free_correspondences,
+        },
+        same_observation_pairs: LinkOntologyOrientationSameObservationPairs {
+            chirality,
+            slot_order: LinkOntologyOrientationSlotOrderPair {
+                observation: "records with unordered slots",
+                identical_observations: unordered_shadow(&cycle) == unordered_shadow(&detour),
+                cycle: slot_order_case(cycle),
+                detour: slot_order_case(detour),
+            },
+        },
+        representations: LinkOntologyOrientationRepresentations {
+            address_renamings: renamings.len(),
+            renaming_failures,
+            tagged_encodings,
+            tag_swap: LinkOntologyOrientationTagSwap {
+                isomorphic_with_tags_fixed,
+                aligned_candidate_decodes_to: vec![
+                    aligned_decoding(&original),
+                    aligned_decoding(&tag_swapped),
+                ],
+            },
+        },
+        recursion: LinkOntologyOrientationRecursion {
+            carriers,
+            result: recursion_result,
+        },
+        asymmetries,
+        no_go: LinkOntologyOrientationNoGo {
+            argument: "Every contract symmetry renames addresses and may reverse every record's slots, so it acts on an unrecorded pair as on a record. The output swap commutes with every renaming and acts on pairs as that reversal does, so it commutes with every contract symmetry of every structure. Hence [0,2] and [2,0] have equal stabilizers, the orbit of [2,0] is the swapped orbit of [0,2], and composing any invariant selector with the swap gives an invariant selector that chooses the opposite orientation.",
+            strong_negative: "EVERY_INTRINSIC_LINK_OBSERVATION_PRESERVED_ORIENTATION_STILL_REVERSIBLE",
+        },
+        iteration_boundary: LinkOntologyOrientationIterationBoundary {
+            records: chain,
+            closures,
+            separating_requirements,
+            provenance: "REQUIREMENT_ON_HOW_CONSEQUENCE_COMPOSES",
+        },
+        contracts,
+        missing_information: "Slot order separates [K,B] from [B,K] but never ranks them. What is missing is the correspondence between the premise slot order and the unrecorded conclusion slot order: the identity correspondence is the neutral one, which makes [K,B] the default reading, but requiring consequence to use it is R147's slot-position preservation, which no record states. The records force separation, not orientation.",
+    }
+}
+
 fn link_ontology_conditional_continuation_probe() -> LinkOntologyConditionalContinuationProbe {
     let premises = vec![vec![3, 0, 1], vec![4, 1, 2]];
     let forward_witness = vec![5, 3, 4];
@@ -3079,7 +3988,8 @@ fn link_ontology_conditional_continuation_probe() -> LinkOntologyConditionalCont
             law_self_application_established: false,
         },
         consequence_audit: link_ontology_continuation_consequence_audit(),
-        claim_boundary: "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established. Read over every completion of the premises, nothing new follows without an exclusion; the transitive and circular exclusions restate the two surviving projections and make opposite orientations follow, and every admitted genericity criterion is blind to that orientation.",
+        orientation_audit: link_ontology_continuation_orientation_audit(),
+        claim_boundary: "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established. Read over every completion of the premises, nothing new follows without an exclusion; the transitive and circular exclusions restate the two surviving projections and make opposite orientations follow, and every admitted genericity criterion is blind to that orientation. With address equality and slot order alone, slot order separates the two orientations but never ranks them: the output swap commutes with every contract symmetry, so each invariant selector has an invariant twin, and even a rigid self-referential slot carrier leaves the premise-to-conclusion slot correspondence free.",
     }
 }
 
@@ -4750,8 +5660,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
     let observation_boundary = link_ontology_observation_boundary();
 
     LinkOntologySymmetryReport {
-        schema: "rml-link-ontology-symmetry-experiment/v14",
-        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier, and what, if anything, turns a possible continuation into one that follows?",
+        schema: "rml-link-ontology-symmetry-experiment/v15",
+        question: "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier, what, if anything, turns a possible continuation into one that follows, and does any Link structure force which orientation follows?",
         starting_contract: "unoriented-binary-reference-observation",
         occurrence_count,
         assumptions: vec![
@@ -4898,6 +5808,11 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "Over all 128 completions of the recorded pairs [0,1] and [1,2], positive link facts alone make no new pair follow. A transitive exclusion makes [0,2] follow and a circular exclusion makes [2,0] follow, but each exclusion's meet equals the least model of one surviving projection, so the selecting fact restates the law. Address renaming, arbitrary substitution, record reordering, nested encoding, slot reversal, non-degeneracy, and novelty all commute with the output swap, which fixes no non-degenerate law, so none of them selects an orientation.",
             },
             LinkOntologyResult {
+                id: "continuation-orientation",
+                result: "CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED",
+                evidence: "Using only address equality and slot order, the premises [3,0,1] and [4,1,2] keep [0,2] and [2,0] in different orbits whenever slots are ordered, while unordered slots make them coincide. The output swap commutes with every renaming and with the global slot reversal, so in all 4567 extensions by up to two ordinary records no symmetry fixes exactly one candidate, and both premise-to-conclusion slot correspondences remain compatible. Chirality, address renaming, tagged encodings, and a rigid self-referential tag carrier change which ends or slots are distinguishable, but never which candidate follows.",
+            },
+            LinkOntologyResult {
                 id: "addressable-quotient-assumptions",
                 result: "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
                 evidence: "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract.",
@@ -4908,8 +5823,8 @@ pub fn link_ontology_symmetry_report() -> LinkOntologySymmetryReport {
                 evidence: "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved.",
             },
         ],
-        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain. Over every completion of two chained premise pairs, a continuation follows only relative to an exclusion the records do not state, and the transitive and circular exclusions make opposite orientations follow.",
-        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, and that ordinary links can carry conditionally checkable exact-cover certificates. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive which exclusion or orientation makes a continuation follow, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
+        admissible_conclusion: "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain. Over every completion of two chained premise pairs, a continuation follows only relative to an exclusion the records do not state, and the transitive and circular exclusions make opposite orientations follow. With address equality and slot order alone, slot order separates the two orientations but never ranks them: the output swap commutes with every contract symmetry, so each invariant selector has an invariant twin.",
+        remaining_boundary: "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, that ordinary links can carry conditionally checkable exact-cover certificates, and that slot order separates the two continuation orientations without ranking them. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive which exclusion or orientation makes a continuation follow, exhibit a Link structure that forces that orientation, derive execution semantics, or generalize every finite enumeration beyond its stated argument.",
     }
 }
 
