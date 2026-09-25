@@ -2743,6 +2743,7 @@ var DEFAULT_MAX_BUFFER_SIZE = 10 * 1024 * 1024;
 // src/rml-lino-frontend.mjs
 var MAX_LINO_NESTING_DEPTH = 64;
 var MAX_LINO_SOURCE_UNITS = 10 * 1024 * 1024;
+var LINO_PIECE_DEPTH = 2;
 var LinoParseError = class extends Error {
   /**
    * @param {string} detail - What went wrong, without the `LiNo parse failure` prefix.
@@ -2766,41 +2767,93 @@ function normalizeLinoSource(text) {
   const withoutBom = source.charCodeAt(0) === 65279 ? source.slice(1) : source;
   return withoutBom.replace(/\r\n?/g, "\n");
 }
-function hasSubstantiveQuotedBody(text) {
-  let depth = 0;
-  let visible = false;
-  for (const character of text) {
-    if (character === "(") depth += 1;
-    if (character === ")") {
-      depth -= 1;
-      if (depth < 0) return false;
-    }
-    if (!/\s/.test(character)) visible = true;
+var REFERENCE_BOUNDARY = /* @__PURE__ */ new Set(["\n", " ", "	", "(", ")", ":"]);
+function firstAtLeast(list, value) {
+  let low = 0;
+  let high = list.length;
+  while (low < high) {
+    const middle = low + high >> 1;
+    if (list[middle] < value) low = middle + 1;
+    else high = middle;
   }
-  return visible && depth === 0;
+  return low;
 }
-function quotedReferenceEnd2(text, start) {
-  const quote2 = text[start];
-  if (quote2 !== '"' && quote2 !== "'" && quote2 !== "`") return null;
-  let width = 1;
-  while (text[start + width] === quote2) width += 1;
-  const delimiter = quote2.repeat(width);
-  const escape = delimiter.repeat(2);
-  const emptyEnd = width % 2 === 0 ? start + width : null;
-  let position = start + width;
-  while (position < text.length) {
-    if (text.startsWith(escape, position)) {
-      position += escape.length;
-      continue;
-    }
-    if (text.startsWith(delimiter, position) && text[position + width] !== quote2) {
-      const end = position + width;
-      const body = text.slice(start + width, position);
-      return width % 2 !== 0 || hasSubstantiveQuotedBody(body) ? end : emptyEnd;
-    }
-    position += 1;
+function quoteRuns(text, quote2) {
+  const starts = [];
+  const lengths = [];
+  let start = text.indexOf(quote2);
+  while (start !== -1) {
+    let end = start + 1;
+    while (text[end] === quote2) end += 1;
+    starts.push(start);
+    lengths.push(end - start);
+    start = text.indexOf(quote2, end);
   }
-  return emptyEnd;
+  const levels = [lengths.map((length, index) => index)];
+  for (let bits = 1; ; bits += 1) {
+    const level = levels[bits - 1].filter((index) => lengths[index] >= 2 ** bits);
+    if (level.length === 0) break;
+    levels.push(level);
+  }
+  return { starts, lengths, levels };
+}
+function parenthesesOf(text) {
+  const at = [];
+  const depths = [0];
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (character === "(" || character === ")") {
+      at.push(index);
+      depths.push(depths[depths.length - 1] + (character === "(" ? 1 : -1));
+    }
+  }
+  const drops = depths.map(() => at.length);
+  const pending = [];
+  at.forEach((position, index) => {
+    pending.push(index);
+    if (text[position] !== ")") return;
+    while (pending.length > 0 && depths[pending[pending.length - 1]] >= depths[index]) {
+      drops[pending.pop()] = index;
+    }
+  });
+  return { at, depths, drops };
+}
+function balancedBetween({ at, depths, drops }, start, end) {
+  const first = firstAtLeast(at, start);
+  const last = firstAtLeast(at, end);
+  return depths[first] === depths[last] && drops[first] >= last;
+}
+function quoteReader(text) {
+  const runs = /* @__PURE__ */ new Map();
+  let parentheses = null;
+  return (start) => {
+    const quote2 = text[start];
+    if (!runs.has(quote2)) runs.set(quote2, quoteRuns(text, quote2));
+    const { starts, lengths, levels } = runs.get(quote2);
+    const run2 = firstAtLeast(starts, start);
+    const width = lengths[run2];
+    const level = levels[31 - Math.clz32(width)];
+    let close = firstAtLeast(level, run2 + 1);
+    while (close < level.length && Math.floor(lengths[level[close]] / width) % 2 === 0) close += 1;
+    if (close === level.length) {
+      if (width % 2 === 0) return { end: start + width, value: "" };
+      let end = start + width;
+      while (end < text.length && !REFERENCE_BOUNDARY.has(text[end])) end += 1;
+      return { end, value: text.slice(start, end) };
+    }
+    const bodyStart = start + width;
+    const bodyEnd = starts[level[close]] + lengths[level[close]] - width;
+    if (width % 2 === 0) {
+      let visible = bodyStart;
+      while (visible < bodyEnd && /\s/.test(text[visible])) visible += 1;
+      if (parentheses === null) parentheses = parenthesesOf(text);
+      if (visible === bodyEnd || !balancedBetween(parentheses, bodyStart, bodyEnd)) {
+        return { end: start + width, value: "" };
+      }
+    }
+    const delimiter = quote2.repeat(width);
+    return { end: bodyEnd + width, value: text.slice(bodyStart, bodyEnd).replaceAll(delimiter + delimiter, delimiter) };
+  };
 }
 function positionAt(source, offset) {
   let line = 1;
@@ -2852,6 +2905,8 @@ function prepareLinoSource(text) {
   }
   const parts = [];
   const lines = [];
+  const quotes = [];
+  const readQuote = quoteReader(source);
   const levels = [0];
   let base = null;
   let lineDepth = 0;
@@ -2893,14 +2948,13 @@ function prepareLinoSource(text) {
     }
     const character = source[index];
     if (!inReference && (character === '"' || character === "'" || character === "`")) {
-      const end = quotedReferenceEnd2(source, index);
-      if (end !== null) {
-        for (let inner = source.indexOf("\n", index); inner !== -1 && inner < end; inner = source.indexOf("\n", inner + 1)) {
-          line += 1;
-        }
-        index = end;
-        continue;
+      const { end, value } = readQuote(index);
+      quotes.push({ start: index, end, value });
+      for (let inner = index; inner < end; inner += 1) {
+        if (source[inner] === "\n") line += 1;
       }
+      index = end;
+      continue;
     }
     if (character === "\n") {
       line += 1;
@@ -2929,16 +2983,20 @@ function prepareLinoSource(text) {
     index += 1;
   }
   parts.push(source.slice(copied));
-  return { source, prepared: parts.join(""), lines };
+  return { source, prepared: parts.join(""), lines, quotes };
 }
 function isIndentedIdItem(item) {
   return item.id !== void 0 && item.id !== null && (!item.values || item.values.length === 0);
 }
-var RecordingParser = class extends Parser {
-  transformResult(rawResult) {
-    this.rawItems = Array.isArray(rawResult) ? rawResult : [rawResult];
-    return super.transformResult(rawResult);
+var ItemParser = class extends Parser {
+  constructor() {
+    super({ comments: false, maxInputSize: Infinity });
   }
+  transformResult(rawResult) {
+    return Array.isArray(rawResult) ? rawResult : [rawResult];
+  }
+};
+var LinkBuilder = class extends Parser {
   // links-notation 0.20 reads each line under an indented id through its
   // single value, which drops the name of a line such as `b: c`. Keep such a
   // line whole, `(a: (b: c))`, the way the line `(b: c)` reads.
@@ -2952,6 +3010,141 @@ var RecordingParser = class extends Parser {
     super.collectLinks(item, parentPath, result);
   }
 };
+function unusedPair(text) {
+  const counts = /* @__PURE__ */ new Map();
+  for (const [character2] of text.matchAll(/[\ue000-\uf8ff]/g)) counts.set(character2, (counts.get(character2) || 0) + 1);
+  let first = 57344;
+  while ((counts.get(String.fromCharCode(first)) || 0) >= 6400) first += 1;
+  const followers = /* @__PURE__ */ new Set();
+  const character = String.fromCharCode(first);
+  for (let index = text.indexOf(character); index !== -1; index = text.indexOf(character, index + 1)) {
+    followers.add(text[index + 1]);
+  }
+  let second = 57344;
+  while (followers.has(String.fromCharCode(second))) second += 1;
+  return String.fromCharCode(first, second);
+}
+function append(out, slice, to, verbatim) {
+  if (slice.length === 0) return;
+  out.segments.push([out.text.length, to, verbatim]);
+  out.text += slice;
+}
+function appendLast(out, slice, to) {
+  out.segments.push([out.text.length, to, true]);
+  out.text += slice;
+}
+function unmapOffset(segments, offset) {
+  let low = 0;
+  let high = segments.length - 1;
+  while (low < high) {
+    const middle = low + high + 1 >> 1;
+    if (segments[middle][0] <= offset) low = middle;
+    else high = middle - 1;
+  }
+  const [from, to, verbatim] = segments[low];
+  return verbatim ? to + (offset - from) : to;
+}
+function tokenize(prepared, quotes, marker) {
+  const out = { text: "", segments: [] };
+  const tokens = /* @__PURE__ */ new Map();
+  let at = 0;
+  quotes.forEach(({ start, end, value }, index) => {
+    append(out, prepared.slice(at, start), at, true);
+    const token = `${marker}q${index}`;
+    tokens.set(token, value);
+    append(out, token, start, false);
+    if (end < prepared.length && !REFERENCE_BOUNDARY.has(prepared[end])) append(out, " ", end, false);
+    at = end;
+  });
+  appendLast(out, prepared.slice(at), at);
+  return { ...out, tokens };
+}
+function findGroups(text) {
+  const groups = [];
+  const open = [];
+  const parentheses = /[()]/g;
+  for (let match = parentheses.exec(text); match !== null; match = parentheses.exec(text)) {
+    if (match[0] === "(") {
+      groups.push({ open: match.index, close: -1, parent: open.length > 0 ? open[open.length - 1] : -1 });
+      open.push(groups.length - 1);
+    } else if (open.length > 0) {
+      groups[open.pop()].close = match.index;
+    }
+  }
+  const missing = open.length;
+  for (let extra = 0; open.length > 0; extra += 1) groups[open.pop()].close = text.length + extra;
+  return { groups, missing };
+}
+function readItems(source, prepared, quotes) {
+  const marker = unusedPair(source);
+  const tokenized = tokenize(prepared, quotes, marker);
+  const { groups, missing } = findGroups(tokenized.text);
+  const text = tokenized.text + ")".repeat(missing);
+  const height = groups.map(() => 1);
+  const alone = groups.map(() => false);
+  for (let index = groups.length - 1; index >= 0; index -= 1) {
+    alone[index] = height[index] >= LINO_PIECE_DEPTH;
+    const { parent } = groups[index];
+    if (parent >= 0) height[parent] = Math.max(height[parent], (alone[index] ? 1 : height[index]) + 1);
+  }
+  const inner = /* @__PURE__ */ new Map([[-1, []]]);
+  const owner = groups.map(() => -1);
+  groups.forEach(({ parent }, index) => {
+    owner[index] = parent < 0 || alone[parent] ? parent : owner[parent];
+    if (alone[index]) {
+      inner.set(index, []);
+      inner.get(owner[index]).push(index);
+    }
+  });
+  const nameOf = (index) => `${marker}g${index}`;
+  const parser = new ItemParser();
+  let failure = Infinity;
+  const read = (start, end, index) => {
+    const piece = { text: "", segments: [] };
+    let at = start;
+    for (const group of inner.get(index)) {
+      const { open, close } = groups[group];
+      append(piece, text.slice(at, open), at, true);
+      append(piece, `(${nameOf(group)})`, open, false);
+      at = close + 1;
+    }
+    appendLast(piece, text.slice(at, end), at);
+    try {
+      return parser.parse(piece.text);
+    } catch (error) {
+      if (error && typeof error.offset === "number") {
+        failure = Math.min(failure, unmapOffset(piece.segments, error.offset));
+        return null;
+      }
+      throw new LinoParseError(error && error.message ? error.message : String(error));
+    }
+  };
+  const top = read(0, text.length, -1);
+  const bodies = /* @__PURE__ */ new Map();
+  for (const index of inner.keys()) {
+    if (index < 0 || groups[index].open >= failure) continue;
+    const items = read(groups[index].open, groups[index].close + 1, index);
+    if (items !== null) bodies.set(nameOf(index), items[0].nested);
+  }
+  if (failure !== Infinity) throw unexpectedAt(source, unmapOffset(tokenized.segments, failure));
+  if (missing > 0) throw unexpectedAt(source, source.length);
+  const { tokens } = tokenized;
+  if (tokens.size === 0 && bodies.size === 0) return top;
+  const placeheld = (nested) => {
+    const values = nested.length === 1 && nested[0] ? nested[0].values : null;
+    return values && values.length === 1 && values[0] ? bodies.get(values[0].id) : void 0;
+  };
+  const splice = (item) => {
+    if (item === null || typeof item !== "object") return item;
+    const copy = { ...item };
+    if (tokens.has(item.id)) copy.id = tokens.get(item.id);
+    if (item.values) copy.values = item.values.map(splice);
+    if (item.children) copy.children = item.children.map(splice);
+    if (item.nested) copy.nested = (placeheld(item.nested) || item.nested).map(splice);
+    return copy;
+  };
+  return top.map(splice);
+}
 var DROPPED_LINE = "unexpected indentation under a value of an indented id";
 function traceLinkLines(rawItems, lineCount) {
   const indexes = [];
@@ -2996,17 +3189,11 @@ function isCommentLink(link) {
   return head.id === "#" && (head.values || []).length === 0;
 }
 function parseLinoDocument(text) {
-  const { source, prepared, lines } = prepareLinoSource(text);
+  const { source, prepared, lines, quotes } = prepareLinoSource(text);
   if (/^\p{White_Space}*$/u.test(prepared)) return [];
-  const parser = new RecordingParser({ comments: false });
-  let links;
-  try {
-    links = parser.parse(prepared);
-  } catch (error) {
-    if (error && typeof error.offset === "number") throw unexpectedAt(source, error.offset);
-    throw new LinoParseError(error && error.message ? error.message : String(error));
-  }
-  const { indexes, dropped } = traceLinkLines(parser.rawItems || [], lines.length);
+  const items = readItems(source, prepared, quotes);
+  const links = new LinkBuilder().transformResult(items);
+  const { indexes, dropped } = traceLinkLines(items, lines.length);
   if (dropped !== null) {
     const at = indexes !== null ? lines[dropped] : null;
     throw new LinoParseError(DROPPED_LINE, at ? { line: at.line, col: at.col, length: 1 } : {});
