@@ -19,7 +19,7 @@ Diagnostic {
   span: {
     file:   "kb.lino" | null, // input file, when known
     line:   1,                // 1-based line of the offending form
-    col:    1,                // 1-based column
+    col:    1,                // 1-based column, counted in code points
     length: 1,                // length used to render carets ("^^^")
   }
 }
@@ -56,6 +56,25 @@ panics raised by the evaluator are caught and converted into diagnostics —
 the panic hook is silenced for the duration of the call so a stack trace
 never leaks to stderr.
 
+### Reading the source
+
+Both runtimes read the whole source through the same LiNo front end
+(`js/src/rml-lino-frontend.mjs` and `rust/src/lino_frontend.rs`) before any
+form runs, so a source is read all or nothing:
+
+- Text that is not valid LiNo yields exactly one `E006` diagnostic at the
+  position the front end names, and no form runs.
+- A form that is valid LiNo but does not read as a link, such as
+  `(b "(" c)` whose quoted reference holds a parenthesis, yields exactly one
+  `E002` diagnostic at the span of that form, and no form runs.
+- Once every form has been read, an evaluation error does not stop the
+  forms after it.
+
+A form's span points at the first character of the line it starts on that
+is neither a space nor a tab. Columns count Unicode code points, so an
+emoji is one column; the language server converts them to the UTF-16
+positions LSP expects (see [`LANGUAGE_SERVER.md`](./LANGUAGE_SERVER.md)).
+
 ## CLI output
 
 Both CLIs (`node js/src/rml-links.mjs <file>` and `rml <file>`) print
@@ -75,11 +94,11 @@ The exit code is `1` whenever any diagnostic is emitted, `0` otherwise.
 |------|----------------------------------------------------------------|
 | `E000` | Generic / unclassified error fallback. |
 | `E001` | Reference to an undefined operator (`Unknown op: <name>`). Triggered, for example, by composing one operator from an unknown one: `(=: foo bar)`. |
-| `E002` | Token-level parse error inside a single link (missing `)`, extra tokens, etc.). |
+| `E002` | A top-level form that is valid LiNo does not read as a link (`expected ")"`, `extra tokens after link`), e.g. `(b "(" c)`, whose quoted reference holds a parenthesis. The span is the form's; no form runs. |
 | `E003` | An operator definition has the right head but the wrong shape, e.g. `(=: a b c)` — the operator is real but the body is unsupported. |
 | `E004` | Unknown aggregator selector, e.g. `(and: bogus_agg)`. Valid selectors are `avg`, `min`, `max`, `product`/`prod`, `probabilistic_sum`/`ps`. |
 | `E005` | Empty meta-expression passed to a formalization helper. |
-| `E006` | LiNo top-level parse failure, e.g. unclosed paren in the whole file. |
+| `E006` | The source is not valid LiNo. The message is `LiNo parse failure: ` followed by `unexpected "<character>"`, `unexpected end of input` (an unclosed parenthesis), `unexpected indentation under a value of an indented id` (a line indented under a line of a `name:` block, which links-notation would drop), `nesting deeper than 64 levels`, or `source longer than 10485760 UTF-16 code units`. The span points at the failure; no form runs. |
 | `E007` | Import error: cycle in the file dependency graph, missing import target, or non-string import target. Triggered by `(import "<path>")` directives. |
 | `E008` | Shadowing warning: a top-level definition rebinds a name introduced by an earlier `(import …)`. Triggered, for example, by `(import "lib.lino") (myop: max)` when `lib.lino` already defines `myop`. The redefinition still takes effect — `E008` is informational, not fatal. |
 | `E009` | Namespace or alias error: invalid namespace name (empty or dotted, e.g. `(namespace foo.bar)`), or an alias collision between two `(import "..." as <alias>)` directives in the same file. |

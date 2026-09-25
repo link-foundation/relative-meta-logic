@@ -17,19 +17,29 @@
 (grammar lino-grammar has start document)
 (grammar lino-grammar has host-ast-presentation host-parser-presentation)
 
-# RML evaluates `.lino` examples after removing comments. The LiNo grammar
-# starts at `document`; `source-for-evaluation` records the host wrapper that
-# turns source files with comments into parser input.
+# RML reads `.lino` source through the shared LiNo front end
+# (`js/src/rml-lino-frontend.mjs` and `rust/src/lino_frontend.rs`) before the
+# grammar sees it. The front end drops a leading byte order mark, reads CRLF
+# and a lone CR as a newline, blanks comments, reads a line break inside
+# parentheses as a space, and rejects nesting deeper than 64 levels. A `#`
+# inside a quoted reference is an ordinary character, and a comment link such
+# as `(# note)` is left out of the forms. The LiNo grammar starts at
+# `document`; `source-for-evaluation` records the front end that turns source
+# files with comments into parser input.
 
 (rule source-for-evaluation
-  (sequence (zero-or-more source-line) end-of-input)
+  (sequence (optional byte-order-mark) (zero-or-more source-line) end-of-input)
   (normalizes-to document))
+
+(rule source-line-break
+  (choice (sequence carriage-return newline) carriage-return newline)
+  (emits newline))
 
 (rule source-line
   (choice full-line-comment inline-comment-after-link lino-code-line blank-line))
 
 (rule full-line-comment
-  (sequence indentation hash-sign (zero-or-more any-character) end-of-line)
+  (sequence horizontal-whitespace hash-sign (zero-or-more any-character) end-of-line)
   (emits blank-line))
 
 (rule inline-comment-after-link
@@ -238,6 +248,7 @@
 (terminal single-quote)
 (terminal backtick-quote)
 (terminal input-end)
+(terminal byte-order-mark)
 
 # AST and host presentation. The official parser stores id links as
 # `(ast id-link id values)`, while the RML host presentation prints them as
@@ -264,9 +275,24 @@
   (sequence value-link with one reference value)
   (produces (ast reference reference-text)))
 
+# Each line under an indented id gives one value of the link: a line that
+# holds one value and no name gives that value, and any other line gives
+# itself, so `a:` over the line `b: c` reads as `(a: (b: c))`. A line indented
+# under one of those lines has no place in the link; the front end rejects it
+# with E006 instead of dropping it.
 (rule ast-indented-id-link
-  (sequence indented-id-link indented-children)
+  (sequence indented-id-link indented-id-values)
   (produces (ast link reference child-values)))
+
+(rule indented-id-values
+  (sequence push-indentation (one-or-more indented-id-value) pop-indentation)
+  (rejects indented-children))
+
+(rule indented-id-value
+  (choice
+    (sequence single-line-value-link with one value and no reference id)
+    any-link)
+  (produces child-value))
 
 (rule ast-parent-child-link
   (sequence parent-link child-link)

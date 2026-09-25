@@ -656,8 +656,20 @@ Queries are evaluated and their truth value is printed to stdout.
 
 ```lino
 # Line comments start with #
-(a: a is a)  # Inline comments are also supported
+(a: a is a)  # A comment can also follow a closing parenthesis
+(# A comment link is left out as well)
+# A comment may hold an unmatched ( or a quote: it's
+(? (a = a))
 ```
+
+A line whose first character other than a space or a tab is `#` is a
+comment, and so is the rest of a line from a `#` that follows a `)` and at
+least one space or tab. A `#` inside a quoted reference, as in `'#'`, is an
+ordinary character. Both runtimes apply these rules in the shared LiNo front
+end (`js/src/rml-lino-frontend.mjs` and `rust/src/lino_frontend.rs`), which
+reads the whole file before any form runs: text that is not valid LiNo is
+reported once as `E006` at the position of the failure (see
+[`docs/DIAGNOSTICS.md`](docs/DIAGNOSTICS.md)).
 
 ### Dependent Type System
 

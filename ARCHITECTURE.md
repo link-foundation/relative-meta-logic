@@ -30,6 +30,7 @@ This document describes the internal architecture of **Relative Meta-Logic (RML,
 ├── js/                      # JavaScript implementation
 │   ├── package.json
 │   ├── src/
+│   │   ├── rml-lino-frontend.mjs  # Shared LiNo front end (source to link strings)
 │   │   └── rml-links.mjs    # Core implementation
 │   └── tests/
 │       ├── rml-links.test.mjs
@@ -39,13 +40,18 @@ This document describes the internal architecture of **Relative Meta-Logic (RML,
     ├── Cargo.lock
     ├── src/
     │   ├── lib.rs           # Core implementation
+    │   ├── lino_frontend.rs # Shared LiNo front end (source to link strings)
     │   └── main.rs          # CLI entry point
     └── tests/
         ├── rml_tests.rs
         └── shared_examples.rs         # Runs every /examples/*.lino file
 ```
 
-Both implementations are equivalent: they pass the same 122 tests and produce identical results for all inputs.
+Both implementations are kept equivalent. Most test files have a counterpart in the other language
+(for example `js/tests/diagnostics.test.mjs` and `rust/tests/diagnostics_tests.rs`), both suites run
+every file in `examples/` and `test-corpus/` against the same expected output, and the `parity`
+workflow runs both command-line tools on each `test-corpus/*.lino` file and fails if the exit status,
+stdout, or stderr differ.
 
 ## Processing Pipeline
 
@@ -59,18 +65,40 @@ LiNo text → Parse → AST → Evaluate → Results
 
 **Input:** Raw text in LiNo (Links Notation) format.
 
-**Output:** A list of link strings, where each link is a top-level parenthesized expression.
+**Output:** A list of link strings, where each link is a top-level parenthesized expression,
+together with the position each one starts at.
 
-- **JavaScript:** Uses the official [`links-notation`](https://www.npmjs.com/package/links-notation) parser.
-- **Rust:** Uses the official [`links-notation`](https://crates.io/crates/links-notation) crate.
+Both runtimes read source through the same front end, `js/src/rml-lino-frontend.mjs` and
+`rust/src/lino_frontend.rs`, which wraps the official
+[`links-notation`](https://www.npmjs.com/package/links-notation) parser
+([crate](https://crates.io/crates/links-notation)) in the same steps:
 
-Lines starting with `#` are treated as comments and skipped.
+1. **Normalize:** drop a leading byte order mark; CRLF and a lone CR each become LF.
+2. **Prepare:** one pass that knows about quotes blanks comments, joins the lines of a
+   parenthesized form that spans several lines, and records where each logical line starts. A line
+   whose first character other than a space or a tab is `#` is a comment, and so is a `#` after a
+   `)` and one or more spaces or tabs, up to the end of the line. A `#` or a parenthesis inside a
+   quoted reference is text. Nesting deeper than 64 levels and source longer than 10485760 UTF-16
+   code units are refused here, before the parser runs.
+3. **Parse:** the `links-notation` parser reads the prepared text. Each top-level link is formatted
+   back to a link string, and comment links such as `(# note)` are left out. Two repairs keep the
+   runtimes reading the same forms where `links-notation` 0.20 does not. A line under an indented
+   id keeps its name, so `a:` over `b: c` reads as `(a: (b: c))`, and a line indented under such a
+   line is refused instead of dropped. The Rust parser also does not see a last line that holds
+   only spaces and tabs, which the Rust `links-notation` parser reads as the indentation of a line
+   that never comes and the JavaScript one as trailing space.
+
+The read is all or nothing. Text that is not LiNo stops it with `E006` at the position of the
+failure, and a form that is LiNo but that the next stage cannot read stops it with `E002`; in both
+cases no form runs. Each form's span starts at the first character other than a space or a tab on
+the line it starts on, and columns count Unicode code points. See
+[docs/DIAGNOSTICS.md](./docs/DIAGNOSTICS.md) for the messages.
 
 ### Stage 2: Tokenization and AST Construction
 
 Each link string goes through two sub-steps:
 
-1. **Tokenize** (`tokenize_one` / `tokenizeOne`): Splits a link string into tokens (parentheses and words). Also strips inline comments (everything after `#`) and balances parentheses after stripping.
+1. **Tokenize** (`tokenize_one` / `tokenizeOne`): Splits a link string into tokens (parentheses and words). It also removes everything from a `#` to the end of the link string and balances parentheses after that, which is why a quoted reference holding `#`, a space, or a parenthesis does not survive this step: such a form stops the read with `E002`.
 
 2. **Parse** (`parse_one` / `parseOne`): Converts the token list into an AST (Abstract Syntax Tree). The AST is a recursive structure:
    - **Leaf nodes:** Strings (symbols, numbers, operators).
@@ -501,17 +529,17 @@ Operators are redefinable at runtime via LiNo syntax:
 
 1. **No operator precedence:** All grouping is explicit via parentheses. This keeps the parser minimal and unambiguous.
 
-2. **Decimal rounding over arbitrary precision:** Using 12-digit decimal rounding instead of arbitrary-precision decimal libraries. This is sufficient for logic/probability use cases and keeps both implementations dependency-free (Rust has zero external dependencies; JavaScript uses only the LiNo parser).
+2. **Decimal rounding over arbitrary precision:** Using 12-digit decimal rounding instead of arbitrary-precision decimal libraries. This is sufficient for logic/probability use cases and keeps numeric code free of extra libraries. The runtime dependencies are `links-notation` and `meta-language` in both languages, plus `sha2` in Rust and `events` in JavaScript.
 
 3. **Arithmetic is unclamped:** Arithmetic results are not restricted to the logic range `[lo, hi]`. Clamping only happens when results enter the logical domain (queries, logical operators). This allows natural arithmetic while preserving logic semantics.
 
-4. **Equivalent dual implementations:** JavaScript and Rust implementations are kept in sync with identical test suites (122 tests each), ensuring behavioral equivalence.
+4. **Equivalent dual implementations:** JavaScript and Rust implementations are kept in sync with mirrored test suites, shared example and corpus files, and the `parity` workflow that compares both command-line tools.
 
 5. **Redefinable operators:** All operators can be redefined at runtime, enabling exploration of different logical semantics within the same framework.
 
 ## Testing
 
-Both implementations share 122 identical tests organized in these categories:
+Both suites cover the same ground; the original shared tests fall into these categories, and later features add their own test files in both languages:
 
 - **Tokenization** (4 tests): Simple/nested links, inline comments, paren balancing
 - **Parsing** (3 tests): Simple/nested/deeply nested AST construction

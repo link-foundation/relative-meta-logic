@@ -611,9 +611,9 @@ The companion helpers `encodeAnum` / `decodeAnum` (JS) and
 that four-character alphabet:
 
 ```js
-import { encodeAnum, decodeAnum, parseLino } from 'relative-meta-logic';
+import { encodeAnum, decodeAnum, parseLinoForms } from 'relative-meta-logic';
 
-const node = parseLino('(? (1 + 2))')[0];
+const node = parseLinoForms('(? (1 + 2))')[0];
 const wire = encodeAnum(node);
 // wire is a string drawn only from [ ] 0 1
 const back = decodeAnum(wire);

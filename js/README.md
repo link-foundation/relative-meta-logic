@@ -101,6 +101,9 @@ import {
   Diagnostic,
   RmlError,
   parseLino,
+  parseLinoDocument,
+  parseLinoForms,
+  LinoParseError,
   tokenizeOne,
   parseOne,
   Env,
@@ -137,6 +140,20 @@ const results2 = run(linoText, { lo: -1, hi: 1, valence: 3 });
 const { results: out, diagnostics } = evaluate(linoText, { file: 'kb.lino' });
 for (const d of diagnostics) {
   console.error(formatDiagnostic(d, linoText));
+}
+
+// Read LiNo text through the shared front end that evaluate() uses: the
+// texts of its top-level forms, the forms with their positions, or the ASTs.
+// Text that is not valid LiNo throws a LinoParseError (code E006) that names
+// the 1-based line and code-point column of the failure.
+parseLino('(a: a is a)\n(? (a = a))'); // -> ['(a: a is a)', '(? (a = a))']
+parseLinoDocument('  (? (a = a))'); // -> [{ text: '(? (a = a))', line: 1, col: 3, length: 1 }]
+parseLinoForms('(? (a = a))'); // -> [['?', ['a', '=', 'a']]]
+try {
+  parseLino('(a: a is a)\n(? (a = a)');
+} catch (err) {
+  if (!(err instanceof LinoParseError)) throw err;
+  // err.message === 'LiNo parse failure: unexpected end of input'; err.line === 2, err.col === 11
 }
 
 // Parse and evaluate individual expressions
