@@ -3,21 +3,56 @@ import path from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 
-export const ISSUE_183_CLOSING_DIRECTIVE =
-  /^\s*(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(?:183|184)\b/im;
+// GitHub's closing-keyword grammar: the keyword may appear anywhere, may be
+// followed by a colon, and may name the issue as #N, owner/repo#N, or its URL.
+const CLOSING_DIRECTIVE_SOURCE = String.raw`\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)(?:\s+|\s*:\s*)(?:#|[\w.-]+/[\w.-]+#|https://github\.com/[^/\s]+/[^/\s]+/issues/)(?:183|184)\b`;
+
+export const ISSUE_183_CLOSING_DIRECTIVE = new RegExp(
+  CLOSING_DIRECTIVE_SOURCE,
+  'i',
+);
+const CLOSING_DIRECTIVE_LINE = new RegExp(
+  String.raw`^\s*${CLOSING_DIRECTIVE_SOURCE}\.?\s*$`,
+  'i',
+);
 
 const ISSUE_183_PR_NUMBER = 184;
 const ISSUE_183_BRANCH = 'issue-183-7fedfddffe9c';
 const REPAIRED_EVENT_ENVIRONMENT = 'ISSUE_183_REPAIRED_EVENT_PATH';
 
 export function removeIssue183ClosingDirectives(body) {
-  if (!ISSUE_183_CLOSING_DIRECTIVE.test(body)) return body;
+  const lines = body.split(/\r?\n/);
+  const keptLines = lines.filter(line => !CLOSING_DIRECTIVE_LINE.test(line));
+  if (keptLines.length === lines.length) return body;
 
-  return body
-    .split(/\r?\n/)
-    .filter(line => !ISSUE_183_CLOSING_DIRECTIVE.test(line))
-    .join('\n')
-    .replace(/\n+$/, '');
+  return keptLines.join('\n').replace(/\n+$/, '');
+}
+
+async function requestPullRequest({ token, repository, apiUrl, request, body }) {
+  const method = body === undefined ? 'GET' : 'PATCH';
+  const response = await request(
+    `${apiUrl}/repos/${repository}/pulls/${ISSUE_183_PR_NUMBER}`,
+    {
+      method,
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify({ body }) }),
+    },
+  );
+
+  if (!response.ok) {
+    const details =
+      typeof response.text === 'function'
+        ? await response.text()
+        : 'no response body';
+    const verb = method === 'GET' ? 'read' : 'update';
+    throw new Error(`could not ${verb} PR 184: HTTP ${response.status}: ${details}`);
+  }
+  return response;
 }
 
 export async function preserveIssue183Open({
@@ -27,17 +62,12 @@ export async function preserveIssue183Open({
   apiUrl = 'https://api.github.com',
   request = globalThis.fetch,
 }) {
-  const pullRequest = event?.pull_request;
   if (
     event?.number !== ISSUE_183_PR_NUMBER ||
-    pullRequest?.head?.ref !== ISSUE_183_BRANCH
+    event?.pull_request?.head?.ref !== ISSUE_183_BRANCH
   ) {
     return { action: 'ignored' };
   }
-
-  const body = pullRequest.body ?? '';
-  const updatedBody = removeIssue183ClosingDirectives(body);
-  if (updatedBody === body) return { action: 'unchanged' };
 
   if (!token) throw new Error('GITHUB_TOKEN is required to update PR 184');
   if (!repository?.includes('/')) {
@@ -47,29 +77,22 @@ export async function preserveIssue183Open({
     throw new Error('a Fetch-compatible request function is required');
   }
 
-  const response = await request(
-    `${apiUrl}/repos/${repository}/pulls/${ISSUE_183_PR_NUMBER}`,
-    {
-      method: 'PATCH',
-      headers: {
-        Accept: 'application/vnd.github+json',
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
-      body: JSON.stringify({ body: updatedBody }),
-    },
-  );
-
-  if (!response.ok) {
-    const details =
-      typeof response.text === 'function'
-        ? await response.text()
-        : 'no response body';
-    throw new Error(`could not update PR 184: HTTP ${response.status}: ${details}`);
+  // The event body is a snapshot: a queued, cancelled, or re-run event can
+  // carry text that has been edited since, so only the live body is repaired
+  // and checked.
+  const api = { token, repository, apiUrl, request };
+  const current = await requestPullRequest(api);
+  const liveBody = (await current.json()).body ?? '';
+  const body = removeIssue183ClosingDirectives(liveBody);
+  if (ISSUE_183_CLOSING_DIRECTIVE.test(body)) {
+    throw new Error(
+      'PR 184 has an issue-closing directive inside other text; remove it by hand',
+    );
   }
+  if (body === liveBody) return { action: 'unchanged', body };
 
-  return { action: 'updated', body: updatedBody };
+  await requestPullRequest({ ...api, body });
+  return { action: 'updated', body };
 }
 
 export async function repairIssue183PrBody({
@@ -91,7 +114,7 @@ export async function repairIssue183PrBody({
     apiUrl,
     request,
   });
-  if (result.action === 'updated') {
+  if (result.body !== undefined) {
     event.pull_request.body = result.body;
     fs.writeFileSync(outputEventPath, `${JSON.stringify(event)}\n`);
     if (environmentFile) {

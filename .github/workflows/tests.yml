@@ -34,10 +34,11 @@ jobs:
           node-version: '20'
           cache: npm
           cache-dependency-path: js/package-lock.json
+      # Runs on every PR 184 event type, since a newer run can cancel the
+      # `edited` run that saw an externally appended closing directive.
       - name: Remove premature issue-closing metadata
         if: >-
           github.event_name == 'pull_request' &&
-          github.event.action == 'edited' &&
           github.event.number == 184 &&
           github.event.pull_request.head.ref == 'issue-183-7fedfddffe9c'
         env:

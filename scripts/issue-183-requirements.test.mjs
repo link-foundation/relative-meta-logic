@@ -229,39 +229,40 @@ describe('issue 183 requirement traceability', () => {
 
   it('rejects issue-closing metadata while foundational requirements remain open', () => {
     assert.doesNotThrow(() => assertIssue183RemainsOpen('Summary\n\nAdvances #183'));
+    assert.doesNotThrow(() =>
+      assertIssue183RemainsOpen('See #184, #1830, and prefix #183.\n\nAdvances #183'),
+    );
     for (const directive of [
       'Fixes #183',
       'Closes #183',
       'Resolved #183',
       'Fixes #184',
+      'fixes: #183',
+      'This PR fixes #183 in part.',
+      'Closes link-foundation/relative-meta-logic#183',
+      'Resolves https://github.com/link-foundation/relative-meta-logic/issues/184',
     ]) {
       assert.throws(
         () => assertIssue183RemainsOpen(`Advances #183\n\n${directive}`),
         directive,
       );
     }
-    assert.equal(
-      removeIssue183ClosingDirectives('Advances #183\n\nFixes #184'),
-      'Advances #183',
-    );
+    for (const [body, expected] of [
+      ['Advances #183\n\nFixes #184', 'Advances #183'],
+      ['Advances #183\n\n\n\nFixes #184', 'Advances #183'],
+      ['Summary\r\n\r\nAdvances #183\r\n\r\nFixes #184', 'Summary\n\nAdvances #183'],
+      [
+        'Advances #183\n\nCloses: link-foundation/relative-meta-logic#183.',
+        'Advances #183',
+      ],
+    ]) {
+      assert.equal(removeIssue183ClosingDirectives(body), expected);
+    }
+    const inlineDirective = 'This PR fixes #183 in part.\n\nAdvances #183';
+    assert.equal(removeIssue183ClosingDirectives(inlineDirective), inlineDirective);
   });
 
-  it('repairs a premature closing directive without weakening the live guard', async context => {
-    const body = [
-      'This PR does not complete or close the issue.',
-      '',
-      'Advances #183',
-      '',
-      'Fixes #183',
-    ].join('\n');
-    const updatedBody = removeIssue183ClosingDirectives(body);
-
-    assert.equal(
-      updatedBody,
-      'This PR does not complete or close the issue.\n\nAdvances #183',
-    );
-    assertIssue183RemainsOpen(updatedBody);
-
+  function writeIssue183Event(context, { number = 184, body }) {
     const temporaryDirectory = fs.mkdtempSync(
       path.join(os.tmpdir(), 'rml-issue-183-pr-body-'),
     );
@@ -269,50 +270,139 @@ describe('issue 183 requirement traceability', () => {
       fs.rmSync(temporaryDirectory, { recursive: true, force: true }),
     );
     const eventPath = path.join(temporaryDirectory, 'event.json');
-    const outputEventPath = path.join(temporaryDirectory, 'repaired-event.json');
-    const environmentFile = path.join(temporaryDirectory, 'github-env');
     fs.writeFileSync(
       eventPath,
       JSON.stringify({
-        number: 184,
-        pull_request: {
-          body,
-          head: { ref: 'issue-183-7fedfddffe9c' },
-        },
+        number,
+        pull_request: { body, head: { ref: 'issue-183-7fedfddffe9c' } },
       }),
     );
-
-    let requestArguments;
-    const result = await repairIssue183PrBody({
+    return {
       eventPath,
-      outputEventPath,
-      environmentFile,
+      outputEventPath: path.join(temporaryDirectory, 'repaired-event.json'),
+      environmentFile: path.join(temporaryDirectory, 'github-env'),
+    };
+  }
+
+  function repairAgainstLiveBody(paths, liveBody) {
+    const requests = [];
+    const result = repairIssue183PrBody({
+      ...paths,
       token: 'test-token',
       repository: 'link-foundation/relative-meta-logic',
-      request: async (...args) => {
-        requestArguments = args;
-        return { ok: true, status: 200 };
+      request: async (url, options) => {
+        requests.push({ url, ...options });
+        return options.method === 'GET'
+          ? { ok: true, status: 200, json: async () => ({ body: liveBody }) }
+          : { ok: true, status: 200 };
       },
     });
+    return { requests, result };
+  }
 
-    assert.equal(result.action, 'updated');
-    assert.equal(
-      requestArguments[0],
-      'https://api.github.com/repos/link-foundation/relative-meta-logic/pulls/184',
+  it('repairs the live PR body rather than a stale event snapshot', async context => {
+    const staleBody = 'Earlier summary.\n\nAdvances #183\n\nFixes #183';
+    const liveBody = [
+      'This PR does not complete or close the issue.',
+      '',
+      'Advances #183',
+      '',
+      '',
+      '',
+      'Fixes #184',
+    ].join('\n');
+    const updatedBody = 'This PR does not complete or close the issue.\n\nAdvances #183';
+    const paths = writeIssue183Event(context, { body: staleBody });
+    const { requests, result } = repairAgainstLiveBody(paths, liveBody);
+
+    assert.deepEqual(await result, { action: 'updated', body: updatedBody });
+    assertIssue183RemainsOpen(updatedBody);
+    assert.deepEqual(
+      requests.map(({ url, method }) => [method, url]),
+      [
+        'GET',
+        'PATCH',
+      ].map(method => [
+        method,
+        'https://api.github.com/repos/link-foundation/relative-meta-logic/pulls/184',
+      ]),
     );
-    assert.equal(requestArguments[1].method, 'PATCH');
-    assert.deepEqual(JSON.parse(requestArguments[1].body), { body: updatedBody });
+    assert.equal(requests[0].body, undefined);
+    assert.deepEqual(JSON.parse(requests[1].body), { body: updatedBody });
     assert.equal(
-      JSON.parse(fs.readFileSync(outputEventPath, 'utf8')).pull_request.body,
+      JSON.parse(fs.readFileSync(paths.outputEventPath, 'utf8')).pull_request.body,
       updatedBody,
     );
     assert.equal(
-      fs.readFileSync(environmentFile, 'utf8'),
-      `ISSUE_183_REPAIRED_EVENT_PATH=${outputEventPath}\n`,
+      fs.readFileSync(paths.environmentFile, 'utf8'),
+      `ISSUE_183_REPAIRED_EVENT_PATH=${paths.outputEventPath}\n`,
     );
   });
 
-  it('checks the live PR 184 body supplied by every GitHub PR event', () => {
+  it('only reads a live body that no longer needs repair', async context => {
+    const liveBody = 'Summary\n\nAdvances #183';
+    const paths = writeIssue183Event(context, {
+      body: `${liveBody}\n\nFixes #184`,
+    });
+    const { requests, result } = repairAgainstLiveBody(paths, liveBody);
+
+    assert.deepEqual(await result, { action: 'unchanged', body: liveBody });
+    assert.deepEqual(
+      requests.map(({ method }) => method),
+      ['GET'],
+    );
+    assert.equal(
+      JSON.parse(fs.readFileSync(paths.outputEventPath, 'utf8')).pull_request.body,
+      liveBody,
+    );
+  });
+
+  it('refuses to rewrite a closing directive inside other text', async context => {
+    const liveBody = 'This PR fixes #183 in part.\n\nAdvances #183';
+    const paths = writeIssue183Event(context, { body: liveBody });
+    const { requests, result } = repairAgainstLiveBody(paths, liveBody);
+
+    await assert.rejects(result, /inside other text/);
+    assert.deepEqual(
+      requests.map(({ method }) => method),
+      ['GET'],
+    );
+    assert.equal(fs.existsSync(paths.outputEventPath), false);
+  });
+
+  it('ignores every other pull request', async context => {
+    const paths = writeIssue183Event(context, { number: 185, body: 'Fixes #183' });
+    const { requests, result } = repairAgainstLiveBody(paths, 'Fixes #183');
+
+    assert.deepEqual(await result, { action: 'ignored' });
+    assert.deepEqual(requests, []);
+    assert.equal(fs.existsSync(paths.outputEventPath), false);
+  });
+
+  it('runs the PR 184 metadata repair on every pull-request event type', () => {
+    const workflow = fs.readFileSync(
+      path.join(REPOSITORY_ROOT, '.github/workflows/tests.yml'),
+      'utf8',
+    );
+    const stepStart = workflow.indexOf(
+      '- name: Remove premature issue-closing metadata',
+    );
+    assert.ok(stepStart >= 0, 'missing PR 184 metadata repair step');
+    const step = workflow.slice(stepStart, workflow.indexOf('- name:', stepStart + 1));
+    const condition = step.slice(step.indexOf('if:'), step.indexOf('env:'));
+
+    assert.match(condition, /github\.event_name == 'pull_request'/);
+    assert.match(condition, /github\.event\.number == 184/);
+    assert.match(
+      condition,
+      /github\.event\.pull_request\.head\.ref == 'issue-183-7fedfddffe9c'/,
+    );
+    assert.doesNotMatch(condition, /github\.event\.action/);
+    assert.match(step, /run: node scripts\/issue-183-pr-body\.mjs/);
+    assert.match(workflow, /types: \[opened, edited, reopened, synchronize, ready_for_review\]/);
+  });
+
+  it('checks the live PR 184 body on every GitHub PR event', () => {
     const eventPath =
       process.env.ISSUE_183_REPAIRED_EVENT_PATH ?? process.env.GITHUB_EVENT_PATH;
     if (!eventPath) return;
