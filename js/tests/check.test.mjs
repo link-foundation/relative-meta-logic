@@ -188,6 +188,29 @@ describe('pairing mutations', () => {
     );
     assert.ok(!isOk(r));
   });
+
+  it('reports a source that is not LiNo against its role and position', () => {
+    assert.deepStrictEqual(
+      checkProgram('(? (1 + 2)', '(by sum (by literal 1) (by literal 2))'),
+      {
+        ok: [],
+        errors: [{
+          path: ['program'],
+          message: 'LiNo parse failure: unexpected end of input at 1:11',
+        }],
+      },
+    );
+    assert.deepStrictEqual(
+      checkProgram('(? (1 + 2))', '(by sum (by literal 1) (by literal 2)))'),
+      {
+        ok: [],
+        errors: [{
+          path: ['proofs'],
+          message: 'LiNo parse failure: unexpected ")" at 1:39',
+        }],
+      },
+    );
+  });
 });
 
 describe('composite chains', () => {

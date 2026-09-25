@@ -3,9 +3,7 @@
 //! The exporter translates declaration syntax into a Lean-checkable artifact
 //! and rejects probabilistic forms instead of assigning them a Lean meaning.
 
-use crate::{
-    compute_form_spans, is_num, key_of, parse_lino, parse_one, tokenize_one, Diagnostic, Node, Span,
-};
+use crate::{is_num, key_of, read_lino_forms, Diagnostic, Node, Span};
 use std::collections::{HashMap, HashSet};
 
 const HEADER: &[&str] = &[
@@ -107,19 +105,6 @@ fn probabilistic_heads() -> HashSet<&'static str> {
 
 fn diagnostic(message: impl Into<String>, span: &Span) -> Diagnostic {
     Diagnostic::new("E050", message, span.clone())
-}
-
-fn parse_forms(text: &str) -> Result<Vec<Node>, String> {
-    let mut out = Vec::new();
-    for link in parse_lino(text) {
-        let trimmed = link.trim();
-        if trimmed.starts_with("(# ") {
-            continue;
-        }
-        let toks = tokenize_one(&link);
-        out.push(parse_one(&toks)?);
-    }
-    Ok(out)
 }
 
 fn unwrap_form(mut form: Node) -> Node {
@@ -649,27 +634,18 @@ fn export_form(form: Node, ctx: &mut ExportCtx, span: &Span) -> Result<(), Strin
 
 /// Export the supported typed RML fragment to Lean 4 source.
 pub fn export_lean(text: &str, file: Option<&str>) -> LeanExportResult {
-    let spans = compute_form_spans(text, file);
-    let forms = match parse_forms(text) {
+    let forms = match read_lino_forms(text, file) {
         Ok(forms) => forms,
-        Err(e) => {
+        Err(diagnostic) => {
             return LeanExportResult {
                 source: String::new(),
-                diagnostics: vec![Diagnostic::new(
-                    "E006",
-                    format!("LiNo parse failure: {}", e),
-                    Span::new(file.map(|s| s.to_string()), 1, 1, 0),
-                )],
+                diagnostics: vec![diagnostic],
             };
         }
     };
     let mut ctx = ExportCtx::default();
     let mut diagnostics = Vec::new();
-    for (idx, form) in forms.into_iter().enumerate() {
-        let span = spans
-            .get(idx)
-            .cloned()
-            .unwrap_or_else(|| Span::new(file.map(|s| s.to_string()), 1, 1, 0));
+    for (form, span) in forms {
         if let Err(message) = export_form(form, &mut ctx, &span) {
             diagnostics.push(diagnostic(message, &span));
         }

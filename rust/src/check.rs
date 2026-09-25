@@ -87,13 +87,25 @@ fn collect_assignments(forms: &[Node]) -> HashSet<String> {
     out
 }
 
-// Parse a `.lino` source into top-level forms via the kernel parser.
-fn parse_forms(src: &str) -> Vec<Node> {
-    parse_lino(src)
-        .into_iter()
-        .filter(|s| !s.trim_start().starts_with("(#"))
-        .filter_map(|s| parse_one(&tokenize_one(&s)).ok())
-        .collect()
+// Parse a `.lino` source into top-level forms via the kernel parser. A source
+// that is not LiNo at all is reported against its role (`program` or
+// `proofs`) at the position the front end names. Forms the kernel parser
+// rejects are skipped; the checker reports a count mismatch downstream if
+// this hides a real query.
+fn parse_forms(src: &str, role: &str, errors: &mut Vec<CheckError>) -> Vec<Node> {
+    match parse_lino(src) {
+        Ok(links) => links
+            .iter()
+            .filter_map(|link| parse_one(&tokenize_one(link)).ok())
+            .collect(),
+        Err(error) => {
+            errors.push(CheckError {
+                path: vec![role.to_string()],
+                message: format!("{error} at {}:{}", error.line, error.col),
+            });
+            Vec::new()
+        }
+    }
 }
 
 // Strip `(? expr)` wrappers and the optional `with proof` keyword pair.
@@ -766,12 +778,15 @@ fn check_prefix(
 /// `CheckResult` with one `CheckOk` per replayed derivation or a list of
 /// `CheckError`s describing the first divergence per query.
 pub fn check_program(program_src: &str, proofs_src: &str) -> CheckResult {
-    let program_forms = parse_forms(program_src);
-    let proof_forms = parse_forms(proofs_src);
+    let mut result = CheckResult::default();
+    let program_forms = parse_forms(program_src, "program", &mut result.errors);
+    let proof_forms = parse_forms(proofs_src, "proofs", &mut result.errors);
+    if !result.errors.is_empty() {
+        return result;
+    }
     let queries: Vec<Node> = program_forms.iter().filter_map(query_target).collect();
     let ops = collect_operators(&program_forms);
     let assigned = collect_assignments(&program_forms);
-    let mut result = CheckResult::default();
     if queries.len() != proof_forms.len() {
         result.errors.push(CheckError {
             path: vec![],

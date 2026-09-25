@@ -13,6 +13,63 @@ a network of doublets and triplets") to the concrete LiNo forms that
 `examples/nat-links.lino` and `examples/typed-kernel-links.lino` parse
 into.
 
+For the separate question of which transition authority makes such networks
+executable, see the
+[architecture-neutral foundation search](./case-studies/issue-183/foundation-search.md).
+It executes three mechanisms without treating S/K as a native Links Theory
+law or ranking unequally reduced controls. Its two-model witness establishes
+only that the tested ordered-link host signature does not select between two
+transition functions. Its v14 finite symmetry experiment independently derives
+the equality partition of two unlabelled reference occurrences, eliminates an
+invariant source/target selector and unique dynamics for that contract, and
+makes reification representation-dependent at the tested projection. The same
+vocabulary across widths one through four derives multiplicity spectra, while
+an explicitly conditional second equivalence measures 33 joint classes and
+5–9 refinements per coarse projection without being promoted to ontology. Its
+singleton-orbit histogram and provenance split distinguish base-forced,
+refinement-present, interaction-only, and symmetric classes while keeping the
+width-one-through-four scope explicit. Every tested candidate observation
+that preserves the base symmetries also preserves its occurrence orbits; the
+interaction-only conditional does not, so it is not derived from that base.
+The audit also classifies self-incidence per ordered reference slot: all `2/4/8/16`
+masks occur at widths one through four, remain fixed under address renaming,
+and move equivariantly under slot permutation. The equality matrix plus that
+mask classifies the tested ordered address/equality patterns without assigning
+endpoint semantics. The local descriptor nevertheless collapses
+`10/77/799` shared-address classes to `4/8/16` products at two through four
+ordered one-reference links. Cross-reference equality plus
+reference-to-link-address incidence restores completeness for that tested
+shared contract without giving incidence a semantic role. The report leaves
+link ontology, intrinsic authority, primitive categories, the
+structure/transformation relation, and comparative minimality open; the three
+executed mechanisms are controls and do not define the ontology search space.
+
+The v11 structural probe additionally shows that the two proposed recursive
+application shapes coincide only after the still-unestablished uniform slot
+reversal. Its connected identity/self-incidence/shared-address/recursion
+countermodel keeps `P`/`Q` distinct from `K`/`A`/`B`, contains `[2,0]` but not
+proposed `[0,2]`, and preserves every premise when `[7,0,2]` is added. Link
+formation admits all 49 pairs over the seven existing addresses and selects
+none. Accordingly, no function role,
+composition rule, logical implication, or execution authority is inferred
+from the raw structure.
+
+An additional ordinary link can distinguish duplicate candidate links by
+incidence, but it does not uniquely interpret that distinction. Both the
+referenced and unreferenced singleton readings are equivariant, and the tested
+removal, replacement, duplication, forgery, context-relocation, and recursive
+variants supply no authenticity, activation, or execution law. The result is
+a boundary on link-carried authority, not a proof that authority must remain
+external.
+
+The linked structural-admissibility probe then encodes a description, mapping
+certificate, candidate, and context as ordinary records. A declared finite
+exact-cover verifier rejects incomplete or inconsistent certificates and
+observes `ZERO`/`ONE`/`MANY`, but an isomorphic second candidate still passes.
+The verifier and experimental roles are not derived from those records, so the
+result remains conditional and does not publish, activate, or execute a
+candidate.
+
 If you have not read it yet, the companion piece is
 [`case-studies/issue-13/README.md`](./case-studies/issue-13/README.md),
 which establishes the same correspondence for the
@@ -132,8 +189,8 @@ primitives the trust report enumerates.
 This makes **rule application** a doublet between a proof-object
 reference and a rule reference; **dependencies** are doublets between a
 proof-object reference and one or more witness references; the
-**proof-object itself** is a small associative network whose nodes are
-references and whose edges are doublets/triplets. The
+**proof-object itself** is a small associative network whose references are
+connected by doublets/triplets. The
 `(proof-report <name>)` view added in this PR (commit `c6f5a14`)
 prints exactly that network.
 
@@ -168,9 +225,11 @@ the closure on demand. In the meta-theory, "closure under a rule" is
 **not** a primitive; it is the result of replaying a rule application
 zero or more times.
 
-## 5. The trust report as a meta-theory graph
+## 5. The trust report as a derived graph view of the links network
 
-`(foundation-report)` exposes the registry as a labelled graph:
+`(foundation-report)` exposes a labelled-graph projection of the registry.
+This graph is a constrained view derived from the surrounding links network,
+not the ambient representation of the meta-logic or meta-theory:
 
 | Graph element | Report field | Meta-theory shape |
 |---------------|--------------|-------------------|
@@ -213,7 +272,12 @@ Each `uses` doublet's right component is itself a node with its own
 `(depends-on)` doublets — the network is recursive and finite, which is
 exactly the shape the meta-theory takes as its primitive.
 
-## 6. What stays host-primitive — and why
+## 6. Legacy typed-kernel host boundary
+
+This section describes the older `typed-kernel-links` and general evaluator
+surface, not the issue #183 linked-program verifier. The latter defines and
+executes its own de Bruijn binding, substitution, and beta rules from
+`universal.lino`; it does not invoke these host primitives.
 
 Three operations cannot be reduced to a finite associative network of
 the form above without losing decidability, so they remain
@@ -251,7 +315,55 @@ mechanically.
   `rust/tests/proof_substrate_tests.rs`).
 
 Together those four documents describe a complete instance of the
-meta-theory at work: an associative network whose nodes are
-references, whose edges are doublets and triplets, whose semantics is
+meta-theory at work: an associative network of references connected by
+doublets and triplets, whose semantics is
 a small bounded set of host primitives, and whose audit trail is the
-foundation report.
+foundation report. Section 8 describes the newer linked-program execution
+path, whose host boundary is instead generic structural matching,
+substitution, traversal, and explicit resource bounds.
+
+## 8. Executable cross-theory network
+
+Issue #183 turns this mapping into executable data in
+[`lib/meta-theory/universal.lino`](../lib/meta-theory/universal.lino) and
+[`lib/meta-theory/core.lino`](../lib/meta-theory/core.lino), checked against the
+independently selected
+[`lib/meta-theory/foundation.lino`](../lib/meta-theory/foundation.lino) trust
+profile. The matching JavaScript and Rust `TheoryNetwork` APIs load both through
+`meta-language`, resolve and translate theory-local terms through shared concept
+addresses, and search the cyclic definition network safely. Every definition link names an
+implementation manifest and a proof object. Network construction requires the
+manifest's proposed subject/foundation pair and contract's exact kind and
+obligation set; executes every conformance case with one generic linked-program
+machine; replays the proof
+through the existing proof substrate; and requires the checked conclusion to
+match that exact link. Candidate theory documents cannot declare the rules,
+axioms, implementation contracts, conformance cases, or expected judgements
+used to verify themselves.
+Links Theory has explicit definitions through set theory, type theory, and
+itself; set theory and type theory have reverse links definitions; and Relative
+Meta-Logic has an explicit Links Theory foundation.
+
+Addressed doublet stores implement meta-theory 0.0.3 balanced/left/right finite
+sequence trees, canonical ordered-unique set trees, and an independent
+membership-link interpretation with finite set algebra. A separate bounded
+right-spine traversal observes direct or indirect self-reference without
+assuming termination. The ambient API is deliberately a `LinkNetwork`;
+`TypedLinkNetwork` enforces declared endpoint types, `LinkGraph` is introduced
+only as a vertex-constrained subset with typed edges, and `FiniteRelation`
+implements typed ordered-pair sets with converse, union, intersection, and
+composition. Checked set/type definition witnesses connect both derived
+theories back into the same links network. See
+[`META_THEORY.md`](./META_THEORY.md) for the source forms, APIs, guarantees, and
+verification boundary.
+
+The separately contracted
+[`upstream-0.0.3.lino`](../lib/meta-theory/upstream-0.0.3.lino) semantic corpus
+stores the complete normalized token streams of all pinned Lean and Rocq
+modules. Every declaration links to its full signature, body or source proof,
+recursion status, and resolved dependencies. CI re-extracts and compares that
+content declaration by declaration before building the exact sources with
+both native kernels; four admitted Lean declarations remain explicitly visible
+rather than being counted as completed proofs. These builds are provenance
+checks, not the RML reasoning path: reduction, inference, and contract
+conformance execute directly from links.

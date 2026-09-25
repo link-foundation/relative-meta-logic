@@ -23,6 +23,7 @@ For versioning, deprecations, and release expectations, see
 - [Product feature comparison](./docs/FEATURE-COMPARISON.md) - RML vs the same systems by authoring workflow, automation, libraries, tooling, and distribution.
 - [Configurability and operator redefinition](./docs/CONFIGURABILITY.md) - Why every operator, truth constant, range, and valence is redefinable at runtime, with the precedence rules and a comparison to Lean/Rocq fixed semantics.
 - [Foundations and root-construct registry](./docs/FOUNDATIONS.md) - The trust catalogue of every primitive the kernel depends on, the `(foundation …)` / `(with-foundation …)` / `(foundation-report)` surface, the bundled Boolean and Kleene foundations, and the backward-compatibility guarantee.
+- [Executable meta-theory](./docs/META_THEORY.md) - A theory-independent linked rewrite/inference machine with link-defined lambda, set, type, graph, relation, and RML programs; checked cross-theory witnesses; and a non-authoritative Lean/Rocq provenance corpus.
 - [Typed kernel rules](./docs/KERNEL.md) - The implemented D1 rules for `Pi`, `lambda`, `apply`, `(expr of Type)`, and `(type of expr)`.
 - [Soundness statement](./docs/SOUNDNESS.md) - The trusted-kernel guarantee, proof-replay checker, trusted operator base, and aggregator-relative scope of soundness.
 - [Metatheorem checker](./docs/METATHEOREMS.md) - The C3 Twelf-style guarantee that composes D12 totality, D14 coverage, D15 modes, and D13 termination, plus the `rml-meta` CLI.
@@ -53,6 +54,114 @@ For versioning, deprecations, and release expectations, see
 
 RML (Relative Meta-Logic, formerly Associative-Dependent Logic / ADL) is a minimal probabilistic logic system built on top of [LiNo (Links Notation)](https://github.com/link-foundation/links-notation). It supports [many-valued logics](https://en.wikipedia.org/wiki/Many-valued_logic) from unary (1-valued) through continuous probabilistic ([fuzzy](https://en.wikipedia.org/wiki/Fuzzy_logic)), allowing you to:
 
+Its executable meta-theory makes the bootstrap boundary explicit. An audited
+addressed-link program executes matching, substitution, traversal, import
+rebinding, inference, and verification over two externally primitive S/K
+transition laws;
+user-selected foundations then instantiate unchanged object theories. The
+measured semantic host surface is two contractions (`S` and `K`), both
+experimentally necessary for the current representation and probe. Parsing
+and resource bounds remain explicit non-semantic boundary layers. The report
+records zero derived host semantic services, zero host/linked duplication,
+6/6 self-hosting closure, 2/8 foundation compression, and zero undocumented
+runtime paths. The authoritative semantic source is represented as addressed
+links rather than emitted by a host-language semantic builder, but S/K are not
+presented as native Links Theory laws:
+the current host model represents the upstream addressed network as passive
+structure and supplies execution separately. Its zero-transition candidate
+fails the finite acceptance probe. This is not a claim about link ontology or
+globally irreducible semantics: an executable iota witness reconstructs
+identity, K, and S with one surface equation, but observes both residual
+contractions. It therefore demonstrates vocabulary compression without
+claiming less external semantic information.
+An architecture-neutral follow-up now runs the same nine-operation workload
+through the S/K bootstrap, an independent direct structural interpreter, and
+a monotone Horn interpreter. It fault-injects all 13 residual laws, executes a
+complete two-counter-machine instruction basis, and checks linked
+JavaScript/Rust operational cores plus Lean/Rocq dependent cores in both
+runtimes. The comparison still makes no global minimality or production
+language claim. It also enforces a symmetric comparison gate: the direct and
+Horn implementations remain executable controls, but their host/self
+duplication excludes them from ranking against the fully reduced S/K
+candidate. The report therefore names no winner. An executable two-model
+witness shows only that one ordered-link host representation does not select
+between two tested transition functions. A separate v14 experiment starts from
+two unlabelled reference occurrences plus equality and exhausts their finite
+symmetries. It derives exactly the same-reference/distinct-reference quotient,
+no invariant source/target selector, no unique equivariant dynamics, and
+representation-dependent reification. It then retains that vocabulary across
+widths one through four and derives 1, 2, 3, and 5 multiplicity classes. A
+conditional, explicitly unestablished second equivalence yields 33 joint
+classes whose reference-only fibres contain 5–9 refinements. Their singleton-
+orbit histogram is 20/5/7/1 classes with 0/1/2/4 singleton orbits. Provenance
+separates 7 base-forced, 5 refinement-present, 1 interaction-only, and 20
+symmetric classes; a same-base countermodel demonstrates refinement-dependent
+outcomes. An exhaustive forcedness check then examines all 255 base/candidate
+pairs at widths one through four. All 73 candidates that preserve their base
+symmetries preserve its occurrence orbits; the interaction-only conditional
+instead breaks a relabelling that fixes its base. Its distinctions therefore
+require information not derived from that base. These are measured observation
+boundaries. A further starting-representation audit compares direct-self
+`[0,0,1]` with fresh-external `[0,1,2]`: both project to `[1,1]`, proving that
+forgetting the link address loses self-reference. It enumerates
+`2/4/7/12` addressable classes versus `1/2/3/5` reference-only classes at
+widths one through four and proves non-injectivity for every nonzero finite
+arity. A quotient audit then derives address-renaming equivalence from the
+complete equality matrix but marks occurrence permutation
+`UNESTABLISHED_EQUIVALENCE`; that step collapses `0/1/8/40` ordered classes.
+Only after declaring unlabelled occurrences do reference multiplicity and
+direct-self multiplicity form a complete descriptor of the addressable
+classes. Before that quotient, an explicit Boolean mask classifies
+self-incidence per ordered reference slot: all `2/4/8/16` masks occur at
+widths one through four, address renaming preserves them, and slot permutation
+transports them equivariantly. The reference-equality matrix plus this mask is
+complete for the tested ordered address/equality patterns, without proving
+that slot identity or endpoint meaning is intrinsic. That local descriptor
+does not compose across multiple links: at two through four ordered
+one-reference links, products of the local descriptors collapse
+`10/77/799` shared-address classes to `4/8/16`. An external-reference pair
+and a two-link incidence cycle have the same local descriptors but are
+inequivalent in the shared address space. Cross-reference equality plus
+reference-to-link-address
+incidence restores a complete descriptor for the tested contract, without
+calling that incidence a source, target, dependency, transition, or execution
+edge. These results do not complete link ontology or establish an unbounded
+classification theorem. A v11 structural probe also keeps mathematical
+implication separate from binary links. The recursive candidates
+`[[3,0,1],[4,3,2]]` and `[[3,1,2],[4,0,3]]` coincide only after the
+still-unestablished uniform slot reversal. The connected raw structure
+`[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` keeps `P`/`Q` distinct from `K`/`A`/`B`
+and has self-incidence, shared address, recursion, and `[2,0]`, but no proposed
+`[0,2]` result. Adding `[7,0,2]` preserves every premise, while formation
+admits all 49 ordered pairs over the existing addresses. Thus the result is
+formable but not entailed or selected;
+function roles, composition, and execution require additional justified
+structure. The v11 authority follow-up adds one ordinary incidence link to two
+duplicate result candidates. That link breaks their swap symmetry, making
+singleton selection expressible, but both opposite singleton readings remain
+equivariant. Removal, replacement, duplication, isomorphic forgery, context
+relocation, and finite/self-referential authority chains show that incidence
+can carry a distinction without authenticating or activating it. This does not
+prove that external authority is irreducible. A linked-certificate follow-up
+checks exact-cover reconstruction and explicit context incidence. It rejects
+missing, duplicated, foreign, and wrong evidence and observes
+`ZERO`/`ONE`/`MANY` passing candidates, but a locally isomorphic second
+candidate also passes. The verifier, role assignment, and cardinality reading
+remain explicitly external rather than self-authorized by those links. The
+v11 local-verifier probe replaces specialized record reconstruction with a
+reusable three-position incidence join and records each match as four ordinary
+links. Trace replay and self-application work conditionally, while host
+iteration, equality, counting, and the choice of description and mapping role
+remain external. The report keeps link ontology, intrinsic authority,
+primitive categories, the structure/transformation
+relation, and comparative minimality unresolved; classifies all three
+implementations as executable controls that cannot constrain the ontology
+search; and selects no target architecture. See the
+[foundation-search report](./docs/case-studies/issue-183/foundation-search.md).
+Lambda, set, type, graph, relation, and RML semantics remain linked programs,
+not host callbacks or external-kernel decisions. Lean/Rocq artifacts are
+parity evidence only.
+
 - Define terms
 - Assign probabilities (truth values) to logical expressions
 - Redefine logical operators with different semantics
@@ -65,6 +174,10 @@ RML (Relative Meta-Logic, formerly Associative-Dependent Logic / ADL) is a minim
 - Query the truth value of complex expressions
 - Define dependent types as links — universe hierarchy, Pi-types, lambdas, type queries
 - Combine types with probabilistic logic in a unified framework
+- Relate user-defined theories in a cycle-safe links network with shared concept addresses
+- Define new executable logics and proof systems entirely as linked programs
+- Reuse one theory over replaceable user foundations through rebound imports
+- Execute graph theory as a constrained links-network subset and finite typed relational algebra
 - Delegate domain-specific decision blocks through evaluator plugins, including
   `(domain automatic-sequences (theorem thue-morse-cube-free))`
 - Reuse the evaluator as a library, including a meta-expression adapter that accepts selected interpretations and explicit dependencies while keeping underspecified claims partial
@@ -543,8 +656,20 @@ Queries are evaluated and their truth value is printed to stdout.
 
 ```lino
 # Line comments start with #
-(a: a is a)  # Inline comments are also supported
+(a: a is a)  # A comment can also follow a closing parenthesis
+(# A comment link is left out as well)
+# A comment may hold an unmatched ( or a quote: it's
+(? (a = a))
 ```
+
+A line whose first character other than a space or a tab is `#` is a
+comment, and so is the rest of a line from a `#` that follows a `)` and at
+least one space or tab. A `#` inside a quoted reference, as in `'#'`, is an
+ordinary character. Both runtimes apply these rules in the shared LiNo front
+end (`js/src/rml-lino-frontend.mjs` and `rust/src/lino_frontend.rs`), which
+reads the whole file before any form runs: text that is not valid LiNo is
+reported once as `E006` at the position of the failure (see
+[`docs/DIAGNOSTICS.md`](docs/DIAGNOSTICS.md)).
 
 ### Dependent Type System
 
@@ -1012,6 +1137,9 @@ cd js && npm test
 
 # Rust
 cd rust && cargo test
+
+# Machine-readable bootstrap boundary and previous/current delta
+cd ../js && npm run report:bootstrap-metrics
 ```
 
 The test suites cover:

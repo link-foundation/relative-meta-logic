@@ -1,0 +1,960 @@
+{
+  "description": "Cases every runtime reads through the shared LiNo front end (js/src/rml-lino-frontend.mjs and rust/src/lino_frontend.rs). A source is a string, or a list of strings and {\"repeat\", \"times\"} parts joined in order. A case expects either \"forms\" (the text, 1-based line, code-point column, and length of every top-level form) or an E006 \"error\"; \"prepared\", \"lines\" (the [line, column] of every logical line), and \"quotes\" (the [line, column, text, value] of every reference that starts with a quote: where it starts, the source text it spans, and the reference it reads as) are what the prepare step returns, and a case without them expects the prepare step to fail with the same error. The prepare step puts a space in place of each UTF-16 code unit it blanks in JavaScript and of each UTF-8 byte in Rust, so every character a case blanks is ASCII.",
+  "cases": [
+    {
+      "name": "a reference on its own line",
+      "source": "a",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "an empty link",
+      "source": "()",
+      "forms": [
+        {"text":"()","line":1,"col":1,"length":1}
+      ],
+      "prepared": "()",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "an empty link as a value",
+      "source": "(a ())",
+      "forms": [
+        {"text":"(a ())","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a ())",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a named link",
+      "source": "(a: a is a)",
+      "forms": [
+        {"text":"(a: a is a)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a: a is a)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a quoted reference with a space",
+      "source": "(\"a b\" c)",
+      "forms": [
+        {"text":"('a b' c)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(\"a b\" c)",
+      "lines": [[1,1]],
+      "quotes": [[1,2,"\"a b\"","a b"]]
+    },
+    {
+      "name": "a quoted parenthesis",
+      "source": "(a \"(\" b)",
+      "forms": [
+        {"text":"(a '(' b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a \"(\" b)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"\"(\"","("]]
+    },
+    {
+      "name": "a quoted hash",
+      "source": "(a \"#\" b)",
+      "forms": [
+        {"text":"(a '#' b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a \"#\" b)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"\"#\"","#"]]
+    },
+    {
+      "name": "quotes inside quoted references",
+      "source": "(a \"it's\" 'say \"hi\"')",
+      "forms": [
+        {"text":"(a \"it's\" 'say \"hi\"')","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a \"it's\" 'say \"hi\"')",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"\"it's\"","it's"],[1,11,"'say \"hi\"'","say \"hi\""]]
+    },
+    {
+      "name": "a quote inside a word",
+      "source": "(it's fine)",
+      "forms": [
+        {"text":"(\"it's\" fine)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(it's fine)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "quotes inside words over several lines",
+      "source": "(it's\n  x)\n(y's z)",
+      "forms": [
+        {"text":"(\"it's\" x)","line":1,"col":1,"length":1},
+        {"text":"(\"y's\" z)","line":3,"col":1,"length":1}
+      ],
+      "prepared": "(it's   x)\n(y's z)",
+      "lines": [[1,1],[3,1]],
+      "quotes": []
+    },
+    {
+      "name": "a quoted reference over several lines",
+      "source": "(note \"first\n# kept\nlast\")\n(b)",
+      "forms": [
+        {"text":"(note 'first\n# kept\nlast')","line":1,"col":1,"length":1},
+        {"text":"(b)","line":4,"col":1,"length":1}
+      ],
+      "prepared": "(note \"first\n# kept\nlast\")\n(b)",
+      "lines": [[1,1],[4,1]],
+      "quotes": [[1,7,"\"first\n# kept\nlast\"","first\n# kept\nlast"]]
+    },
+    {
+      "name": "a backtick quote",
+      "source": "(x `a b`)",
+      "forms": [
+        {"text":"(x 'a b')","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(x `a b`)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"`a b`","a b"]]
+    },
+    {
+      "name": "a doubled quote inside a quoted reference",
+      "source": "(x \"a\"\"b\")",
+      "forms": [
+        {"text":"(x 'a\"b')","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(x \"a\"\"b\")",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"\"a\"\"b\"","a\"b"]]
+    },
+    {
+      "name": "a word right after a quoted reference",
+      "source": "(\"a\"b)",
+      "forms": [
+        {"text":"(a b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(\"a\"b)",
+      "lines": [[1,1]],
+      "quotes": [[1,2,"\"a\"","a"]]
+    },
+    {
+      "name": "an unclosed quote",
+      "source": "(a \"b)",
+      "forms": [
+        {"text":"(a '\"b')","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a \"b)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"\"b","\"b"]]
+    },
+    {
+      "name": "a wide quote",
+      "source": "('''it's '' here''' c)",
+      "forms": [
+        {"text":"(\"it's '' here\" c)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "('''it's '' here''' c)",
+      "lines": [[1,1]],
+      "quotes": [[1,2,"'''it's '' here'''","it's '' here"]]
+    },
+    {
+      "name": "a doubled wide quote",
+      "source": "('''a'''''' b''' c)",
+      "forms": [
+        {"text":"(\"a''' b\" c)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "('''a'''''' b''' c)",
+      "lines": [[1,1]],
+      "quotes": [[1,2,"'''a'''''' b'''","a''' b"]]
+    },
+    {
+      "name": "a wide quote closed by the end of a longer run",
+      "source": "('''a''''''''' c)",
+      "forms": [
+        {"text":"(\"a'''\" c)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "('''a''''''''' c)",
+      "lines": [[1,1]],
+      "quotes": [[1,2,"'''a'''''''''","a'''"]]
+    },
+    {
+      "name": "an even quote around spaces",
+      "source": "(a ''  '' b)",
+      "forms": [
+        {"text":"(a \"\" \"\" b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a ''  '' b)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"''",""],[1,8,"''",""]]
+    },
+    {
+      "name": "an even quote around unbalanced parentheses",
+      "source": "(a ''(b'' c))",
+      "forms": [
+        {"text":"(a \"\" (\"b''\" c))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a ''(b'' c))",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"''",""]]
+    },
+    {
+      "name": "an even quote around a next line character",
+      "source": "(a ''\u0085'' b)",
+      "forms": [
+        {"text":"(a \u0085 b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a ''\u0085'' b)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"''\u0085''","\u0085"]]
+    },
+    {
+      "name": "an even quote around a byte order mark",
+      "source": "(a ''\ufeff'' b)",
+      "forms": [
+        {"text":"(a \"\" \"\ufeff''\" b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a ''\ufeff'' b)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"''",""]]
+    },
+    {
+      "name": "an unclosed even quote",
+      "source": "(a ''b c)",
+      "forms": [
+        {"text":"(a \"\" b c)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a ''b c)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"''",""]]
+    },
+    {
+      "name": "an unclosed quote before a colon",
+      "source": "('a: b)",
+      "forms": [
+        {"text":"(\"'a\": b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "('a: b)",
+      "lines": [[1,1]],
+      "quotes": [[1,2,"'a","'a"]]
+    },
+    {
+      "name": "an even quote before a comment line with parentheses",
+      "source": "(a ''\n# ((\nb'' c)",
+      "forms": [
+        {"text":"(a \"\" \"b''\" c)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a ''      b'' c)",
+      "lines": [[1,1]],
+      "quotes": [[1,4,"''",""]]
+    },
+    {
+      "name": "a hash as a reference",
+      "source": "(x #)",
+      "forms": [
+        {"text":"(x '#')","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(x #)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a comment link",
+      "source": "(# note)\n(b)",
+      "forms": [
+        {"text":"(b)","line":2,"col":1,"length":1}
+      ],
+      "prepared": "(# note)\n(b)",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "a full-line comment with an unmatched parenthesis and a quote",
+      "source": "# it's (\n(a)",
+      "forms": [
+        {"text":"(a)","line":2,"col":1,"length":1}
+      ],
+      "prepared": "        \n(a)",
+      "lines": [[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "an indented full-line comment",
+      "source": "  # note\n(a)",
+      "forms": [
+        {"text":"(a)","line":2,"col":1,"length":1}
+      ],
+      "prepared": "        \n(a)",
+      "lines": [[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "a comment after a closing parenthesis",
+      "source": "(a) # note (\n(b)",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1},
+        {"text":"(b)","line":2,"col":1,"length":1}
+      ],
+      "prepared": "(a)         \n(b)",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "a comment that holds parentheses",
+      "source": "(a b) # c ) (d",
+      "forms": [
+        {"text":"(a b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a b)         ",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a hash right after a closing parenthesis",
+      "source": "(a)#b",
+      "forms": [
+        {"text":"((a) '#b')","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a)#b",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a comment line inside a form",
+      "source": "(a\n# inner\n  b)",
+      "forms": [
+        {"text":"(a b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a           b)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a comment after a closing parenthesis inside a form",
+      "source": "(a (b) # c )\n  d)",
+      "forms": [
+        {"text":"(a (b) d)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a (b)         d)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a line of prose after a heading comment",
+      "source": "# Title\r\n\r\nSome prose would break it.\r\n",
+      "forms": [
+        {"text":"(Some prose would break it.)","line":3,"col":1,"length":1}
+      ],
+      "prepared": "       \n\nSome prose would break it.\n",
+      "lines": [[3,1]],
+      "quotes": []
+    },
+    {
+      "name": "a byte order mark",
+      "source": "\ufeff(a)\n(b)",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1},
+        {"text":"(b)","line":2,"col":1,"length":1}
+      ],
+      "prepared": "(a)\n(b)",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "CRLF line endings",
+      "source": "(a)\r\n(b)\r\n",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1},
+        {"text":"(b)","line":2,"col":1,"length":1}
+      ],
+      "prepared": "(a)\n(b)\n",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "lone CR line endings",
+      "source": "(a)\r(b)\r",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1},
+        {"text":"(b)","line":2,"col":1,"length":1}
+      ],
+      "prepared": "(a)\n(b)\n",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "blank lines",
+      "source": "\n\n(a)\n\n\n(b)\n",
+      "forms": [
+        {"text":"(a)","line":3,"col":1,"length":1},
+        {"text":"(b)","line":6,"col":1,"length":1}
+      ],
+      "prepared": "\n\n(a)\n\n\n(b)\n",
+      "lines": [[3,1],[6,1]],
+      "quotes": []
+    },
+    {
+      "name": "a form over several lines",
+      "source": "(a\n  b\n  c)\n(d)",
+      "forms": [
+        {"text":"(a b c)","line":1,"col":1,"length":1},
+        {"text":"(d)","line":4,"col":1,"length":1}
+      ],
+      "prepared": "(a   b   c)\n(d)",
+      "lines": [[1,1],[4,1]],
+      "quotes": []
+    },
+    {
+      "name": "a next line character inside a reference",
+      "source": "(a\u0085b)",
+      "forms": [
+        {"text":"(a\u0085b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a\u0085b)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a no-break space inside a reference",
+      "source": "(a\u00a0b)",
+      "forms": [
+        {"text":"(a\u00a0b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a\u00a0b)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a line separator inside a reference",
+      "source": "(a\u2028b)",
+      "forms": [
+        {"text":"(a\u2028b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a\u2028b)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a tab between references",
+      "source": "(a\tb)",
+      "forms": [
+        {"text":"(a b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a\tb)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "several forms on one line",
+      "source": "(a) (b)",
+      "forms": [
+        {"text":"((a) (b))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a) (b)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "indented lines under a form",
+      "source": "(a)\n  (b)\n  (c)",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1},
+        {"text":"((a) (b))","line":2,"col":3,"length":1},
+        {"text":"((a) (c))","line":3,"col":3,"length":1}
+      ],
+      "prepared": "(a)\n  (b)\n  (c)",
+      "lines": [[1,1],[2,3],[3,3]],
+      "quotes": []
+    },
+    {
+      "name": "an indented first line",
+      "source": "  (a)\n  (b)",
+      "forms": [
+        {"text":"(a)","line":1,"col":3,"length":1},
+        {"text":"(b)","line":2,"col":3,"length":1}
+      ],
+      "prepared": "  (a)\n  (b)",
+      "lines": [[1,3],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "an emoji before a form",
+      "source": "(😀 a)\n  (b 😀) (c)",
+      "forms": [
+        {"text":"(😀 a)","line":1,"col":1,"length":1},
+        {"text":"((😀 a) ((b 😀) (c)))","line":2,"col":3,"length":1}
+      ],
+      "prepared": "(😀 a)\n  (b 😀) (c)",
+      "lines": [[1,1],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "a tab before a form",
+      "source": "\t(b)",
+      "forms": [
+        {"text":"((b))","line":1,"col":2,"length":1}
+      ],
+      "prepared": "\t(b)",
+      "lines": [[1,2]],
+      "quotes": []
+    },
+    {
+      "name": "a tab before references",
+      "source": "\tb c",
+      "forms": [
+        {"text":"(b c)","line":1,"col":2,"length":1}
+      ],
+      "prepared": "\tb c",
+      "lines": [[1,2]],
+      "quotes": []
+    },
+    {
+      "name": "a space then a tab before a form",
+      "source": "(a)\n \t(b)",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1},
+        {"text":"((a) ((b)))","line":2,"col":3,"length":1}
+      ],
+      "prepared": "(a)\n \t(b)",
+      "lines": [[1,1],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "a tab then a space before a form",
+      "source": "(a)\n\t (b)",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1},
+        {"text":"((b))","line":2,"col":3,"length":1}
+      ],
+      "prepared": "(a)\n\t (b)",
+      "lines": [[1,1],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "a name on its own",
+      "source": "a:",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "references under an indented id",
+      "source": "a:\n  b\n  c",
+      "forms": [
+        {"text":"(a: b c)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b\n  c",
+      "lines": [[1,1],[2,3],[3,3]],
+      "quotes": []
+    },
+    {
+      "name": "a named line under an indented id",
+      "source": "a:\n  b: c",
+      "forms": [
+        {"text":"(a: (b: c))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b: c",
+      "lines": [[1,1],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "a named link under an indented id",
+      "source": "a:\n  (b: c)",
+      "forms": [
+        {"text":"(a: (b: c))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  (b: c)",
+      "lines": [[1,1],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "a line of references under an indented id",
+      "source": "a:\n  b c",
+      "forms": [
+        {"text":"(a: (b c))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b c",
+      "lines": [[1,1],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "a name on its own under an indented id",
+      "source": "a:\n  b:",
+      "forms": [
+        {"text":"(a: b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b:",
+      "lines": [[1,1],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "a form after an indented id",
+      "source": "a:\n  b\n(c)",
+      "forms": [
+        {"text":"(a: b)","line":1,"col":1,"length":1},
+        {"text":"(c)","line":3,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b\n(c)",
+      "lines": [[1,1],[2,3],[3,1]],
+      "quotes": []
+    },
+    {
+      "name": "an indented id under an indented line",
+      "source": "(x)\n  a:\n    b: c",
+      "forms": [
+        {"text":"(x)","line":1,"col":1,"length":1},
+        {"text":"((x) (a: (b: c)))","line":2,"col":3,"length":1}
+      ],
+      "prepared": "(x)\n  a:\n    b: c",
+      "lines": [[1,1],[2,3],[3,5]],
+      "quotes": []
+    },
+    {
+      "name": "an indented id under an indented id",
+      "source": "a:\n  b:\n    c",
+      "forms": [
+        {"text":"(a: (b: c))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b:\n    c",
+      "lines": [[1,1],[2,3],[3,5]],
+      "quotes": []
+    },
+    {
+      "name": "indented ids nested three deep",
+      "source": "a:\n  b:\n    c:\n      d",
+      "forms": [
+        {"text":"(a: (b: (c: d)))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b:\n    c:\n      d",
+      "lines": [[1,1],[2,3],[3,5],[4,7]],
+      "quotes": []
+    },
+    {
+      "name": "the hierarchical nesting of the links-notation grammar",
+      "source": "outer:\n  inner:\n    value1\n    value2\n  value3",
+      "forms": [
+        {"text":"(outer: (inner: value1 value2) value3)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "outer:\n  inner:\n    value1\n    value2\n  value3",
+      "lines": [[1,1],[2,3],[3,5],[4,5],[5,3]],
+      "quotes": []
+    },
+    {
+      "name": "the indented nesting example of the links-notation grammar",
+      "source": "statement:\n  subject:\n    I\n  verb:\n    love\n  object:\n    you:\n      very\n      much",
+      "forms": [
+        {"text":"(statement: (subject: I) (verb: love) (object: (you: very much)))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "statement:\n  subject:\n    I\n  verb:\n    love\n  object:\n    you:\n      very\n      much",
+      "lines": [[1,1],[2,3],[3,5],[4,3],[5,5],[6,3],[7,5],[8,7],[9,7]],
+      "quotes": []
+    },
+    {
+      "name": "the mixed syntax example of the links-notation grammar",
+      "source": "document:\n  (metadata: title author date)\n  content:\n    paragraph1\n    (paragraph2: text (with: nested structure))\n    paragraph3",
+      "forms": [
+        {"text":"(document: (metadata: title author date) (content: paragraph1 (paragraph2: text (with: nested structure)) paragraph3))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "document:\n  (metadata: title author date)\n  content:\n    paragraph1\n    (paragraph2: text (with: nested structure))\n    paragraph3",
+      "lines": [[1,1],[2,3],[3,3],[4,5],[5,5],[6,5]],
+      "quotes": []
+    },
+    {
+      "name": "nested indented ids under an indented line",
+      "source": "(x)\n  a:\n    b:\n      c",
+      "forms": [
+        {"text":"(x)","line":1,"col":1,"length":1},
+        {"text":"((x) (a: (b: c)))","line":2,"col":3,"length":1}
+      ],
+      "prepared": "(x)\n  a:\n    b:\n      c",
+      "lines": [[1,1],[2,3],[3,5],[4,7]],
+      "quotes": []
+    },
+    {
+      "name": "a line indented under a line of an indented id",
+      "source": "a:\n  b\n    c\n(d)",
+      "error": {"message":"LiNo parse failure: unexpected indentation under a value of an indented id","line":3,"col":5,"length":1},
+      "prepared": "a:\n  b\n    c\n(d)",
+      "lines": [[1,1],[2,3],[3,5],[4,1]],
+      "quotes": []
+    },
+    {
+      "name": "a line indented under a named line of an indented id",
+      "source": "a:\n  b: c\n    d",
+      "error": {"message":"LiNo parse failure: unexpected indentation under a value of an indented id","line":3,"col":5,"length":1},
+      "prepared": "a:\n  b: c\n    d",
+      "lines": [[1,1],[2,3],[3,5]],
+      "quotes": []
+    },
+    {
+      "name": "a line indented under a value of an indented id under an indented line",
+      "source": "(x)\n  a:\n    b\n      c",
+      "error": {"message":"LiNo parse failure: unexpected indentation under a value of an indented id","line":4,"col":7,"length":1},
+      "prepared": "(x)\n  a:\n    b\n      c",
+      "lines": [[1,1],[2,3],[3,5],[4,7]],
+      "quotes": []
+    },
+    {
+      "name": "a line indented under a value of a nested indented id",
+      "source": "a:\n  b:\n    c\n      d",
+      "error": {"message":"LiNo parse failure: unexpected indentation under a value of an indented id","line":4,"col":7,"length":1},
+      "prepared": "a:\n  b:\n    c\n      d",
+      "lines": [[1,1],[2,3],[3,5],[4,7]],
+      "quotes": []
+    },
+    {
+      "name": "a line of spaces at the end",
+      "source": "(a)\n   ",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a)\n   ",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a comment on the last line",
+      "source": "(a)\n# end",
+      "forms": [
+        {"text":"(a)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a)\n     ",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a line of spaces at the end under an indented id",
+      "source": "a:\n  b\n     ",
+      "forms": [
+        {"text":"(a: b)","line":1,"col":1,"length":1}
+      ],
+      "prepared": "a:\n  b\n     ",
+      "lines": [[1,1],[2,3]],
+      "quotes": []
+    },
+    {
+      "name": "an unclosed form before a line of spaces",
+      "source": "(a)\n(b\n   ",
+      "error": {"message":"LiNo parse failure: unexpected end of input","line":3,"col":4,"length":1},
+      "prepared": "(a)\n(b    ",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "only comments",
+      "source": "# one\n# two\n",
+      "forms": [],
+      "prepared": "     \n     \n",
+      "lines": [],
+      "quotes": []
+    },
+    {
+      "name": "an empty source",
+      "source": "",
+      "forms": [],
+      "prepared": "",
+      "lines": [],
+      "quotes": []
+    },
+    {
+      "name": "only whitespace",
+      "source": " \n\t\n",
+      "forms": [],
+      "prepared": " \n\t\n",
+      "lines": [],
+      "quotes": []
+    },
+    {
+      "name": "an unclosed form",
+      "source": "(a: a is a)\n(? (a = a))\n(b",
+      "error": {"message":"LiNo parse failure: unexpected end of input","line":3,"col":3,"length":1},
+      "prepared": "(a: a is a)\n(? (a = a))\n(b",
+      "lines": [[1,1],[2,1],[3,1]],
+      "quotes": []
+    },
+    {
+      "name": "an extra closing parenthesis",
+      "source": "(a: a is a)\n(? (a = a))\n(b))",
+      "error": {"message":"LiNo parse failure: unexpected \")\"","line":3,"col":4,"length":1},
+      "prepared": "(a: a is a)\n(? (a = a))\n(b))",
+      "lines": [[1,1],[2,1],[3,1]],
+      "quotes": []
+    },
+    {
+      "name": "a stray closing parenthesis",
+      "source": "a)",
+      "error": {"message":"LiNo parse failure: unexpected \")\"","line":1,"col":2,"length":1},
+      "prepared": "a)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a colon without a name",
+      "source": "(: a)",
+      "error": {"message":"LiNo parse failure: unexpected \":\"","line":1,"col":2,"length":1},
+      "prepared": "(: a)",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "an emoji before a failure",
+      "source": "(a)\n(b)\n(😀 c))",
+      "error": {"message":"LiNo parse failure: unexpected \")\"","line":3,"col":6,"length":1},
+      "prepared": "(a)\n(b)\n(😀 c))",
+      "lines": [[1,1],[2,1],[3,1]],
+      "quotes": []
+    },
+    {
+      "name": "a failure after CRLF",
+      "source": "(a)\r\n(b",
+      "error": {"message":"LiNo parse failure: unexpected end of input","line":2,"col":3,"length":1},
+      "prepared": "(a)\n(b",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "a named link deep inside groups",
+      "source": "(a (b (c (d: e f))))",
+      "forms": [
+        {"text":"(a (b (c (d: e f))))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a (b (c (d: e f))))",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "names on every level of deep groups",
+      "source": "(a: (b: (c: (d: e))))",
+      "forms": [
+        {"text":"(a: (b: (c: (d: e))))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a: (b: (c: (d: e))))",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a name after a deep group",
+      "source": "((((a)))): b",
+      "error": {"message":"LiNo parse failure: unexpected \":\"","line":1,"col":10,"length":1},
+      "prepared": "((((a)))): b",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a colon without a name deep inside groups",
+      "source": "(a (b (c (: d))))",
+      "error": {"message":"LiNo parse failure: unexpected \":\"","line":1,"col":11,"length":1},
+      "prepared": "(a (b (c (: d))))",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a deep group left unclosed",
+      "source": "(a (b (c (d)))",
+      "error": {"message":"LiNo parse failure: unexpected end of input","line":1,"col":15,"length":1},
+      "prepared": "(a (b (c (d)))",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "an extra closing parenthesis after deep groups",
+      "source": "(a (b (c (d))))) e",
+      "error": {"message":"LiNo parse failure: unexpected \")\"","line":1,"col":16,"length":1},
+      "prepared": "(a (b (c (d))))) e",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "glued deep groups",
+      "source": "((a)((b)(c))((d)))",
+      "forms": [
+        {"text":"((a) ((b) (c)) ((d)))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "((a)((b)(c))((d)))",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a deep group over several lines",
+      "source": "(a (b\n  (c (d\n    e))\n  f))",
+      "forms": [
+        {"text":"(a (b (c (d e)) f))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a (b   (c (d     e))   f))",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a named line inside deep groups",
+      "source": "(((a\nb: c)))",
+      "error": {"message":"LiNo parse failure: unexpected \":\"","line":2,"col":2,"length":1},
+      "prepared": "(((a b: c)))",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "a comment inside deep groups",
+      "source": "(a (b (c) # note (\n  d))",
+      "forms": [
+        {"text":"(a (b (c) d))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a (b (c)            d))",
+      "lines": [[1,1]],
+      "quotes": []
+    },
+    {
+      "name": "quoted parentheses inside deep groups",
+      "source": "(a (b ('(' (c ')'))))",
+      "forms": [
+        {"text":"(a (b ('(' (c ')'))))","line":1,"col":1,"length":1}
+      ],
+      "prepared": "(a (b ('(' (c ')'))))",
+      "lines": [[1,1]],
+      "quotes": [[1,8,"'('","("],[1,15,"')'",")"]]
+    },
+    {
+      "name": "a failure in the second of two deep forms",
+      "source": "((a (b)))\n((c (: d)))",
+      "error": {"message":"LiNo parse failure: unexpected \":\"","line":2,"col":6,"length":1},
+      "prepared": "((a (b)))\n((c (: d)))",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "a failure in each of two deep forms",
+      "source": "((a (: b)))\n((c (: d)))",
+      "error": {"message":"LiNo parse failure: unexpected \":\"","line":1,"col":6,"length":1},
+      "prepared": "((a (: b)))\n((c (: d)))",
+      "lines": [[1,1],[2,1]],
+      "quotes": []
+    },
+    {
+      "name": "parentheses nested deeper than the limit",
+      "source": [{"repeat":"(","times":65},{"repeat":")","times":65}],
+      "error": {"message":"LiNo parse failure: nesting deeper than 64 levels","line":1,"col":65,"length":1}
+    },
+    {
+      "name": "parentheses nested deeper than the limit on a later line",
+      "source": ["(a)\n",{"repeat":"(","times":65}],
+      "error": {"message":"LiNo parse failure: nesting deeper than 64 levels","line":2,"col":65,"length":1}
+    },
+    {
+      "name": "a source longer than the limit",
+      "source": [{"repeat":"a","times":10485761}],
+      "error": {"message":"LiNo parse failure: source longer than 10485760 UTF-16 code units","line":1,"col":1,"length":0}
+    },
+    {
+      "name": "a source longer than the limit in UTF-16 code units",
+      "source": [{"repeat":"😀","times":5242881}],
+      "error": {"message":"LiNo parse failure: source longer than 10485760 UTF-16 code units","line":1,"col":1,"length":0}
+    }
+  ]
+}

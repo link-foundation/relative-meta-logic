@@ -11,6 +11,7 @@
 // fails both test suites.
 
 import {
+  LinoParseError,
   parseLino,
   parseOne,
   tokenizeOne,
@@ -57,16 +58,26 @@ function collectAssignments(forms) {
   return out;
 }
 
-// Parse a `.lino` source into top-level forms via the kernel parser.
-function parseForms(src) {
+// Parse a `.lino` source into top-level forms via the kernel parser. A source
+// that is not LiNo at all is reported against its role (`program` or
+// `proofs`) at the position the front end names. Forms the kernel parser
+// rejects are skipped; the checker reports a count mismatch downstream if
+// this hides a real query.
+function parseForms(src, role, errors) {
+  let links;
+  try {
+    links = parseLino(src);
+  } catch (err) {
+    if (!(err instanceof LinoParseError)) throw err;
+    errors.push({ path: [role], message: `${err.message} at ${err.line}:${err.col}` });
+    return [];
+  }
   const out = [];
-  for (const s of parseLino(src)) {
-    if (s.trimStart().startsWith('(#')) continue;
+  for (const s of links) {
     try {
       out.push(parseOne(tokenizeOne(s)));
     } catch (_) {
-      // Skip unparseable forms. The checker reports a count mismatch
-      // downstream if this hides a real query.
+      // Skip unparseable forms.
     }
   }
   return out;
@@ -543,12 +554,13 @@ function checkPrefix(expr, rule, subs, ops, assigned, nextPath, path) {
  * `{ ok: [{rule, expr}, ...], errors: [{path, message}, ...] }`.
  */
 export function checkProgram(programSrc, proofsSrc) {
-  const programForms = parseForms(programSrc);
-  const proofForms = parseForms(proofsSrc);
+  const result = { ok: [], errors: [] };
+  const programForms = parseForms(programSrc, 'program', result.errors);
+  const proofForms = parseForms(proofsSrc, 'proofs', result.errors);
+  if (result.errors.length > 0) return result;
   const queries = programForms.map(queryTarget).filter(q => q !== null);
   const ops = collectOperators(programForms);
   const assigned = collectAssignments(programForms);
-  const result = { ok: [], errors: [] };
 
   if (queries.length !== proofForms.length) {
     result.errors.push({

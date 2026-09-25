@@ -66,6 +66,13 @@ describe('runTactics applies link tactics to proof states', () => {
     assert.deepStrictEqual(out.state.proof.map(keyOf), ['(reflexivity)']);
   });
 
+  it('rejects tactic text that is not LiNo instead of running part of it', () => {
+    assert.throws(
+      () => runTactics(state('(a = a)'), '(reflexivity) (symmetry'),
+      { name: 'LinoParseError', message: 'LiNo parse failure: unexpected end of input' },
+    );
+  });
+
   it('transforms equality goals with symmetry and transitivity', () => {
     const out = runTactics(state('(a = c)'), [
       link('(symmetry)'),

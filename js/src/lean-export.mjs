@@ -7,13 +7,10 @@
 import {
   Diagnostic,
   RmlError,
-  computeFormSpans,
   isNum,
   keyOf,
   parseBinding,
-  parseLino,
-  parseOne,
-  tokenizeOne,
+  readLinoForms,
 } from './rml-links.mjs';
 
 const HEADER = [
@@ -57,15 +54,6 @@ function resolveName(name, scope) {
 
 function unsupported(message, span) {
   throw new RmlError('E050', message, span);
-}
-
-function parseForms(text) {
-  return parseLino(text)
-    .filter(linkStr => {
-      const s = String(linkStr).trim();
-      return !s.match(/^\(#\s/);
-    })
-    .map(linkStr => parseOne(tokenizeOne(String(linkStr))));
 }
 
 function unwrapForm(form) {
@@ -327,15 +315,15 @@ function exportForm(form, ctx, span) {
 function exportLean(text, options = {}) {
   const sourceText = String(text);
   const file = options.file || null;
-  const spans = computeFormSpans(sourceText, file);
   let forms;
+  let spans;
   try {
-    forms = parseForms(sourceText);
+    ({ forms, spans } = readLinoForms(sourceText, file));
   } catch (err) {
     const diag = new Diagnostic({
-      code: 'E006',
-      message: `LiNo parse failure: ${err && err.message ? err.message : String(err)}`,
-      span: { file, line: 1, col: 1, length: 0 },
+      code: (err && err.code) || 'E000',
+      message: err && err.message ? err.message : String(err),
+      span: (err && err.span) || { file, line: 1, col: 1, length: 0 },
     });
     return { source: '', diagnostics: [diag] };
   }
@@ -348,7 +336,7 @@ function exportLean(text, options = {}) {
   };
 
   for (let idx = 0; idx < forms.length; idx++) {
-    const span = spans[idx] || { file, line: 1, col: 1, length: 0 };
+    const span = spans[idx];
     try {
       exportForm(forms[idx], ctx, span);
     } catch (err) {

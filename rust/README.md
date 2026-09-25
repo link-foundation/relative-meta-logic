@@ -134,6 +134,105 @@ let evaluation = evaluate_formalization(&formalization);
 
 The meta-expression adapter deliberately keeps unsupported real-world claims partial. A selected interpretation such as `moon orbits the Sun` is returned as non-computable with explicit unknowns until a consumer supplies a formal shape and reproducible dependencies.
 
+The `rml::theory_network` module loads the shared linked programs from
+`lib/meta-theory/universal.lino`, declarations from
+`lib/meta-theory/core.lino`, and the independently selected
+`lib/meta-theory/foundation.lino` trust profile through `meta-language`.
+`TheoryNetwork` provides proof-checked executable definition links,
+unified-address lookup and translation, inspectable implementation contracts,
+and cycle-safe definition chains. All contract operations run through the
+same structural rewrite/inference machine; object theories are not Rust
+callbacks. Imports support `(rebind abstract-concept selected-concept)` for
+foundation polymorphism, and
+`LinkedProgramRegistry::bootstrap_kernel_report()` exposes the complete
+theory-independent boundary: `S` and `K` contraction, representation parsing,
+and external resource control. Matching, substitution, rule traversal,
+import/rebinding, inference saturation, and verification execute as closed
+combinator terms, leaving no derived host semantic services or object
+semantics.
+`LinkedProgramRegistry::audit_bootstrap_kernel()` rejects an unreported host
+operation or a graph path that does not terminate in K0. The report identifies
+the current bootstrap boundary reached by the experiments; it does not call
+that boundary irreducible.
+`LinkedProgramRegistry::bootstrap_metrics_report(universal_source)` executes
+the mirrored runtime and removal probes. It reports two semantic contractions,
+zero duplication, 6/6 linked closure, and 2/8 foundation compression, while
+checking observed paths against graph reachability. S/K necessity is scoped to
+the current representation and probe rather than presented as global
+irreducibility.
+`LinkedProgramRegistry::from_rml_with_basis` additionally exposes
+`ExecutionBasis::{ClosedSk, DirectStructural, HornRelational}` for the
+architecture-neutral comparison. The mirrored foundation-search suite runs
+the same workload, counter-machine and language cores, guarded referential
+witness, and all 13 primitive-removal experiments without allowing the two
+non-combinator mechanisms to observe S/K. The same suite checks the
+host-representation boundary witness; the machine-readable report excludes
+the less-reduced controls from ranking and names no foundation winner.
+`link_ontology_symmetry_report` independently exhausts the binary contract and
+its observation boundary. Equality gives two width-two classes; the same
+vocabulary gives 1, 2, 3, and 5 multiplicity classes at widths one through
+four. A conditional second equivalence has 33 joint classes and 5–9
+refinements per coarse fibre. Its singleton-orbit histogram is 20/5/7/1 for
+0/1/2/4 singleton orbits, and provenance separates 7 base-forced, 5
+refinement-present, 1 interaction-only, and 20 symmetric classes. All 73
+candidate observations at widths one through four that preserve their base
+symmetries leave the base occurrence orbits unchanged. The interaction-only
+conditional breaks a relabelling that fixes its base, so it requires
+information not derived from that base. The v11 starting-representation audit
+also shows that direct-self `[0,0,1]` and fresh-external `[0,1,2]` links share
+the `[1,1]` reference-only projection. Forgetting the link address collapses
+`2/4/7/12` addressable classes to `1/2/3/5` at widths one through four and is
+non-injective at every nonzero finite arity. Before occurrence permutation,
+all `2/4/8/16` slotwise self-incidence masks occur at widths one through four;
+they are invariant under address renaming and equivariant under slot
+permutation. Together with the reference-equality matrix they classify the
+tested ordered patterns without assigning intrinsic endpoint meaning.
+Across two through four ordered one-reference links, those local descriptors
+collapse `10/77/799` shared-address classes to `4/8/16`. The
+external-reference pair `[[0,1],[2,3]]` and two-link incidence cycle
+`[[0,2],[2,0]]` form a concrete countermodel. Cross-reference equality plus
+reference-to-link-address incidence classifies the tested shared contract
+without assigning incidence an endpoint, dependency, transition, or execution
+role. The structural application/composition probe keeps `→`, `⟼`,
+composition, and execution distinct. Its connected
+`[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` countermodel keeps `P`/`Q` distinct from
+`K`/`A`/`B` and has `K ⟼ A`, `A ⟼ B`, direct self-incidence, a shared address,
+and recursion without `K ⟼ B`; adding `K ⟼ B` preserves those premises.
+Binary formation permits all `49` ordered pairs on the seven addresses but
+selects none, and the recursive candidates
+recover no unique function/argument/result roles. A positive application or
+composition semantics therefore requires an additional selection/closure law.
+Adding ordinary evidence link `[9,7,7]` to duplicate candidates `[7,0,2]` and
+`[8,0,2]` breaks their swap symmetry but leaves both opposite singleton
+readings equivariant. Removal, replacement, duplication, isomorphic forgery,
+context relocation, and finite/self-referential authority variants do not
+confer authenticity, activation, or execution. Link-carried incidence can
+therefore permit selection without forcing authority, and the probe does not
+prove that external authority is irreducible.
+An exact-cover certificate follow-up conditionally rejects missing, duplicate,
+foreign, and wrong linked evidence and enumerates `ZERO`/`ONE`/`MANY` passing
+candidates. A locally isomorphic second candidate remains admissible; the
+verifier, role assignment, cardinality classification, admission, activation,
+and execution remain external or unresolved.
+The v11 local-verifier probe replaces the bespoke record reconstruction check
+with a reusable incidence join and emits four-link traces. Trace replay is
+possible, but the join still depends on host iteration, position access,
+equality, counting, and externally selected roles.
+The v14 report treats these as finite, provenance-labelled constraints,
+not a link ontology or execution law. Primitive categories, the
+structure/transformation relation, intrinsic
+authority, and comparative minimality remain unresolved; A/B/C cannot
+constrain the independent search or select its target architecture.
+`MembershipSetStore` provides addressed
+membership links and finite set algebra;
+`DoubletSequenceStore` provides finite balanced/left/right sequence trees,
+canonical and order-preserving sets, and bounded observation of
+self-referential right spines. `LinkNetwork` is the unconstrained substrate;
+`TypedLinkNetwork` enforces endpoint types, `LinkGraph` is its
+vertex-constrained graph subset with typed edges, and `FiniteRelation` executes
+typed converse, union, intersection, and composition. See
+[`docs/META_THEORY.md`](../docs/META_THEORY.md) for the complete contract.
+
 ## Testing
 
 ```bash
@@ -150,6 +249,7 @@ The test suite covers:
 - Dependent type system: universes, Pi-types, lambdas, application, definitional equality, capture-avoiding substitution, freshness, type queries
 - Link-based tactic engine: reflexivity, symmetry, transitivity, induction, suppose, introduce, by, rewrite, simplify, exact
 - Domain plugins: Pecan-style automatic-sequence theorem decisions
+- Checked cross-theory definitions, unified concept translation, two finite-set interpretations, nested doublet trees, and bounded cyclic sequences
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
 
 ## Implementation Notes

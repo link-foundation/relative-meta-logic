@@ -16,8 +16,9 @@
 //        node scripts/lint-english.mjs --allowlist scripts/lint-english.allowlist.json examples/*.lino
 //
 // Exits with a non-zero status when any violation is reported. An allow-list
-// file (JSON) may contain `identifiers` (array of strings) and `links`
-// (array of `file:line` strings) to silence specific known cases.
+// file (JSON) may contain `identifiers` (array of strings), `identifierFiles`
+// (array of basenames whose identifiers must preserve external spelling), and
+// `links` (array of `file:line` strings) to silence specific known cases.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -254,7 +255,7 @@ function isOperatorOnlyDefinition(node) {
 
 // ---------- Allow-list ----------
 function loadAllowlist(allowlistPath) {
-  const empty = { identifiers: new Set(), links: new Set() };
+  const empty = { identifiers: new Set(), identifierFiles: new Set(), links: new Set() };
   if (!allowlistPath) return empty;
   if (!fs.existsSync(allowlistPath)) {
     throw new Error(`Allow-list file not found: ${allowlistPath}`);
@@ -268,6 +269,9 @@ function loadAllowlist(allowlistPath) {
   }
   return {
     identifiers: new Set(Array.isArray(parsed.identifiers) ? parsed.identifiers : []),
+    identifierFiles: new Set(
+      Array.isArray(parsed.identifierFiles) ? parsed.identifierFiles : [],
+    ),
     links: new Set(Array.isArray(parsed.links) ? parsed.links : []),
   };
 }
@@ -323,7 +327,8 @@ function lintFile(filePath, source, allowlist) {
       // Strip a trailing ':' that the tokenizer keeps attached to definition heads.
       let value = atom.value;
       if (value.endsWith(':') && value.length > 1) value = value.slice(0, -1);
-      if (allowlist.identifiers.has(value)) continue;
+      if (allowlist.identifiers.has(value) ||
+          allowlist.identifierFiles?.has(path.basename(filePath))) continue;
       const finding = checkIdentifierShape(value);
       if (finding) {
         violations.push({
@@ -380,9 +385,9 @@ function printHelp() {
     '  identifiers-without-hyphens  identifiers with `_` or camelCase',
     '  operator-only-link           operator definitions with no word form',
     '',
-    'The optional allow-list is a JSON file with two arrays: `identifiers`',
-    'and `links` (entries of the form "<basename>:<line>"). Listed entries',
-    'are exempted from their respective rule.',
+    'The optional allow-list is a JSON file with `identifiers`,',
+    '`identifierFiles`, and `links` ("<basename>:<line>") arrays.',
+    'Listed entries are exempted from their respective rule.',
     '',
   ].join('\n'));
 }

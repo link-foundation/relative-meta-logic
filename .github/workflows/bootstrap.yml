@@ -6,7 +6,14 @@ on:
     paths:
       - '.github/workflows/bootstrap.yml'
       - 'js/**'
+      - 'rust/src/linked_program.rs'
+      - 'rust/tests/linked_program_tests.rs'
+      - 'rust/tests/foundation_search_tests.rs'
+      - 'lib/meta-theory/**'
       - 'lib/self/**'
+      - 'scripts/report-bootstrap-metrics.mjs'
+      - 'scripts/report-foundation-search.mjs'
+      - 'scripts/foundation-search.test.mjs'
       - 'test-corpus/**'
       - 'README.md'
   push:
@@ -14,7 +21,14 @@ on:
     paths:
       - '.github/workflows/bootstrap.yml'
       - 'js/**'
+      - 'rust/src/linked_program.rs'
+      - 'rust/tests/linked_program_tests.rs'
+      - 'rust/tests/foundation_search_tests.rs'
+      - 'lib/meta-theory/**'
       - 'lib/self/**'
+      - 'scripts/report-bootstrap-metrics.mjs'
+      - 'scripts/report-foundation-search.mjs'
+      - 'scripts/foundation-search.test.mjs'
       - 'test-corpus/**'
       - 'README.md'
   workflow_dispatch:
@@ -24,8 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: npm
@@ -36,3 +50,9 @@ jobs:
       - name: Replay corpus through encoded RML
         working-directory: js
         run: npm run test:bootstrap
+      - name: Publish measured bootstrap boundary
+        working-directory: js
+        run: npm run report:bootstrap-metrics
+      - name: Compare independent foundation candidates
+        working-directory: js
+        run: npm run report:foundation-search

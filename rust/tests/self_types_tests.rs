@@ -12,7 +12,7 @@ const REQUIRED_SYNTH_RULES: &[&str] = &[
     "(synth symbol)",
     "(synth numeric-literal)",
     "(synth (Type level))",
-    "(synth Prop)",
+    "(synth (Prop))",
     "(synth (Pi binding body))",
     "(synth (forall type-variable body))",
     "(synth (lambda binding body))",
@@ -47,6 +47,7 @@ fn parse_forms() -> Vec<Node> {
     let text = fs::read_to_string(&path)
         .unwrap_or_else(|e| panic!("could not read {}: {}", path.display(), e));
     parse_lino(&text)
+        .unwrap_or_else(|e| panic!("{} is not valid LiNo: {}", path.display(), e))
         .into_iter()
         .map(|link| {
             parse_one(&tokenize_one(&link))

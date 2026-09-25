@@ -68,7 +68,7 @@ main "RML in RML" file because it records the host evaluator surface as rule
 data:
 
 ```lino
-(evaluator rml-evaluator matches relative-meta-logic version-0-19-0)
+(evaluator rml-evaluator matches relative-meta-logic version-0-21-0)
 
 (rule (eval (? expression))
   (query (clamp (eval expression))))
@@ -214,7 +214,31 @@ host RML on the shared corpus.
 
 The broader `npm test` suite also checks the grammar, type layer, operators, and
 metatheorem files. The dedicated bootstrap workflow is narrower on purpose: it
-is the CI gate for evaluator divergence.
+is the CI gate for evaluator divergence and for the measured K0/K1 boundary.
+It executes the host-operation fault-injection test and prints the versioned
+bootstrap metrics report.
+
+The report now exposes the residual S/K semantic basis directly. The
+authoritative program is the addressed-link network in
+`lib/meta-theory/fixed-point-source.lino`; generation lowers it to the runtime
+DAG shared by both runtimes. Matching, substitution, traversal,
+import/rebinding, inference saturation, and result verification are derived
+inside that network. S/K remain two explicitly external transition laws, and
+the zero-transition experiment fails the complete probe. The report therefore
+records zero external host-language semantic descriptions, 2/8 foundation
+compression, 6/6 self-hosting closure, and no duplicated host/linked
+semantics. Parsing and resource bounds remain visible as non-semantic boundary
+layers.
+
+Inspect the machine-readable evidence locally:
+
+```bash
+cd js
+npm run report:bootstrap-metrics
+```
+
+See the [measured bootstrap boundary](../case-studies/issue-183/bootstrap-metrics.md)
+for definitions, limitations, layer counts, and the previous/current table.
 
 ## A Concrete Trace
 
@@ -310,6 +334,10 @@ After reading the six files, you should be able to explain:
 - Which metatheorem checks are encoded today, and which diagnostics they emit.
 - How `npm run test:bootstrap` catches divergence between encoded RML and host
   RML.
+- Why the measured semantic host surface is exactly S and K, why their
+  necessity is scoped to the current representation/probe, and how the
+  executable iota witness distinguishes one surface rule from a reduction in
+  external semantic information.
 
 That is the capstone claim of "RML in RML": the language now has a readable,
 test-backed description of its own core behavior, written in the same notation
