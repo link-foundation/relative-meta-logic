@@ -1461,6 +1461,8 @@ describe('architecture-neutral alternative-foundation search', () => {
     });
     assert.match(orientation.missingInformation,
       /The records force separation, not orientation\./);
+    assert.match(continuation.claimBoundary,
+      /each invariant selector has an invariant twin/);
     assert.deepEqual(
       startingRepresentation.quotientAudit.finiteEnumeration,
       [

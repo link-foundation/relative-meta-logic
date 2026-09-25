@@ -16,7 +16,7 @@ use the closed-term compiler. Language constructors used by the workload
 remain opaque link data.
 
 The executable report is
-`rml-alternative-foundation-search/v17`. Run it with:
+`rml-alternative-foundation-search/v18`. Run it with:
 
 ```bash
 cd js
@@ -105,7 +105,7 @@ derived from the intrinsic nature of links.
 
 ## Exhaustive symmetry and observation-loss result
 
-The binary baseline of `rml-link-ontology-symmetry-experiment/v14` starts from a
+The binary baseline of `rml-link-ontology-symmetry-experiment/v15` starts from a
 strictly weaker contract than the upstream model or candidates A/B/C: there
 are exactly two **unlabelled reference occurrences**, and reference equality
 can be observed. It deliberately assumes no link identity, endpoint order,
@@ -948,6 +948,133 @@ laws. It does not show that no richer Links-derived principle can exist, and a
 host-free generic principle deriving `K ⟼ B` from `K ⟼ A` and `A ⟼ B` remains
 open.
 
+## Where consequence orientation can come from
+
+The consequence audit ends with two mirror-image exclusions. The next step is
+therefore not another tie-breaker between them. The v15 orientation audit asks
+where the orientation of `K ⟼ B` over `B ⟼ K` could come from, and whether a
+more primitive property of Links derives it. It takes none of source/target,
+premise/conclusion, time, rewrite direction, function/argument, cause/effect,
+truth, or proof as a primitive. Its only primitives are address equality and, depending on
+the contract, the order of each record's two reference slots. Completions,
+exclusions, and position laws are not used, so the model-theoretic reading of
+R147 stays a search instrument rather than a new foundation.
+
+Two candidate readings are **separated** when no symmetry of the records maps
+one to the other, **exchanged** when some symmetry does, and **coincide** when
+the contract cannot tell them apart. Separation lets an invariant selector
+choose an orientation. The orientation is **structurally forced** only if the
+records also rule out the opposite choice. The audit keeps these apart:
+an orientation that can be chosen is not thereby forced.
+
+| Contract on `P=[3,0,1]`, `Q=[4,1,2]` | Symmetries | Address orbits | K and B exchanged | `[0,2]` versus `[2,0]` |
+|---|---|---|---|---|
+| named ordered slots | `1` | `{K}`, `{A}`, `{B}`, `{P}`, `{Q}` | no | separated |
+| anonymous ordered slots (a symmetry may reverse every record's slots together) | `2` | `{K,B}`, `{A}`, `{P,Q}` | yes | separated |
+| unordered slots | `2` | `{K,B}`, `{A}`, `{P,Q}` | yes | coincide |
+
+Under anonymous slots the second symmetry exchanges `K` with `B` and `P` with
+`Q`, but it also reverses both records, so it maps `[0,2]` to itself.
+Exchanging the ends therefore does not exchange the candidates. Only slot
+order separates them, and dropping it makes them one unordered pair.
+
+The audit then extends the premises by up to two ordinary records at
+addresses `5` and `6`. Their references range over every existing address and
+fresh addresses, which gives `4567` structures (`1`, `50`, and `4516` with zero,
+one, and two extra records). Under both ordered contracts, `4563` keep the
+candidates separated and `4` exchange them. The four exchanging extensions are
+`[5,1,0]`, `[6,2,1]`; `[5,2,1]`, `[6,1,0]`; `[5,2,10]`, `[6,10,0]`; and
+`[5,10,0]`, `[6,2,10]`. Two add the converse of both premises and two close a
+four-cycle through a fresh address. Each makes the candidates
+indistinguishable rather than ranking one. `4332` structures are chiral under
+anonymous slots, meaning no symmetry reverses their slots. In no structure,
+under either ordered contract, does a symmetry fix exactly one candidate. Both
+premise-to-conclusion slot correspondences, identity and exchange, commute
+with every symmetry of every structure.
+
+Two same-observation pairs locate what each asymmetry contributes:
+
+| Pair | Shared observation | Structural difference | Candidates |
+|---|---|---|---|
+| achiral `P`, `Q`, `[5,3,4]` versus chiral, which adds `[8,8,9]` | all `16` position-law readouts | `1` versus `0` slot-reversing symmetries, so the ends are exchangeable only in the achiral structure | separated in both, and no symmetry fixes exactly one |
+| cycle `P`, `Q`, `[5,2,10]`, `[6,10,0]` versus detour `P`, `Q`, `[5,2,10]`, `[6,0,10]` | the same records with unordered slots | a named symmetry exchanges the candidates in the cycle only | the aligned `[P.first,Q.second]` and reversed `[Q.second,P.first]` laws both read `[0,2]`, `[1,10]`, `[2,0]`, `[10,1]` in the cycle, but `[0,2]`, `[1,10]` versus `[2,0]`, `[10,1]` in the detour |
+
+A chiral context can make the ends distinguishable without making either
+candidate the consequence. The two structures in the second pair differ only
+in the slot order of record `6`, and that difference alone decides whether the
+two laws agree.
+
+Representation changes give the same answer. All `120` renamings of the five
+premise addresses keep the candidates separated, with no symmetry fixing
+exactly one. A tagged encoding replaces `[a,x,y]` with the triples
+`(a,20,x)` and `(a,21,y)`, so tag addresses carry slot identity. With the tags
+held fixed there is `1` symmetry. With anonymous tags there are `2`, and the
+second exchanges both the tags and the ends. Both encodings keep the candidates
+separated, and neither has a symmetry fixing exactly one. Swapping the tags
+yields a structure isomorphic to the original with the tags held fixed, so the
+aligned candidate decodes to `[0,2]` under one reading of the tags and to
+`[2,0]` under the other.
+
+Recursion on the carrier asks whether more links, rather than an observer's
+naming, can make the tags distinguishable. Both carriers below use records
+whose two slots are equal, so neither adds an order through its own slots.
+
+| Carrier | Carrier symmetries | Encoded premise symmetries | Tags and ends exchanged | Candidates |
+|---|---|---|---|---|
+| symmetric `[20,20,20]`, `[21,21,21]` | `2` | `2` | yes | separated, unranked |
+| rigid `[20,20,20]`, `[21,20,20]` | `1` | `1` | no | separated, unranked |
+
+In the rigid carrier, tag `21`'s record refers to tag `20` but not conversely.
+That fixes which slot is first, yet no symmetry fixes exactly one candidate.
+The result is `SLOT_IDENTITY_FORCED_BY_SELF_INCIDENCE_CANDIDATES_STILL_UNRANKED`.
+A self-referential carrier can say which slot is first. It cannot say that the
+conclusion must copy that order.
+
+| Asymmetry | Provenance |
+|---|---|
+| the join address `A`, the only address in both premises | `FORCED_BY_INCIDENCE` |
+| `[0,2]` and `[2,0]` as distinct candidates | `FORCED_BY_SLOT_ORDER` |
+| `K` and `B` as distinct ends | `FORCED_BY_SLOT_NAMES_OR_CHIRAL_CONTEXT` |
+| which slot is first | `FORCED_ONLY_BY_A_RIGID_SELF_REFERENTIAL_CARRIER` |
+| which premise slot order the conclusion copies | `CHOSEN_NOT_FORCED` |
+
+The enumeration checks a general argument for these contracts. Every
+contract symmetry renames addresses and may reverse every record's slots, so it
+acts on an unrecorded pair as it acts on a record. The output swap commutes
+with every renaming and acts on pairs as that reversal does, so it commutes
+with every contract symmetry of every structure. Hence `[0,2]` and `[2,0]`
+have equal stabilizers, and the orbit of `[2,0]` is the swapped orbit of
+`[0,2]`. Composing any invariant selector with the swap gives an invariant
+selector that chooses the opposite orientation. The strong negative is
+`EVERY_INTRINSIC_LINK_OBSERVATION_PRESERVED_ORIENTATION_STILL_REVERSIBLE`:
+every observation built from address equality and slot order is preserved,
+yet the orientation of the consequence can still be reversed.
+
+The one-step result has a precise boundary. Once a conclusion is recorded and
+composed again, its slot order is a record fact. On the chain `[3,0,1]`,
+`[4,1,2]`, `[5,2,9]`, the two correspondences build different closures:
+
+| Correspondence | Closure | Derived pairs | Every path has joined ends |
+|---|---|---|---|
+| identity | `[0,1]`, `[0,2]`, `[0,9]`, `[1,2]`, `[1,9]`, `[2,9]` | `3` | yes |
+| exchange | `[0,1]`, `[1,2]`, `[2,0]`, `[2,9]`, `[9,1]` | `2` | no |
+
+Requiring every path to have joined ends selects identity, and requiring the
+fewest derived pairs selects exchange. Either is a
+`REQUIREMENT_ON_HOW_CONSEQUENCE_COMPOSES`, not a fact recorded by the links.
+
+The status is `CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED`. Slot
+order separates `[K,B]` from `[B,K]` but never ranks them. The missing
+information is the correspondence between the premise slot order and the
+unrecorded conclusion slot order. Identity is the neutral correspondence, which
+makes `[K,B]` the default reading, but requiring consequence to use it is
+R147's slot-position preservation, which no record states. The records force
+separation, not orientation. This is a finite no-go for address equality and
+slot order under the named, anonymous, and unordered contracts. It adds no
+direction bit and does not exclude a more primitive Link property outside
+those observations, so the question of what breaks the `K ⟼ B` / `B ⟼ K`
+symmetry without encoding the desired direction remains open.
+
 ## Reproducibility and claim boundary
 
 The JavaScript suite executes the versioned report and synchronizes it with
@@ -965,8 +1092,8 @@ two-class quotient of the stated two-occurrence observation contract. That
 quotient falsifies endpoint direction and unique dynamics under its symmetries
 and makes reification representation-dependent at its projection boundary.
 What is not established is that this contract exhausts the ontology of links,
-whether execution can arise from links themselves, a comparable alternative
-cohort, a winning foundation, global minimality, pairwise candidate
+whether execution can arise from links themselves, an intrinsic orientation
+of consequence, a comparable alternative cohort, a winning foundation, global minimality, pairwise candidate
 equivalence, enumeration of every formal system, or full production
 implementations of Lean, Rocq, Rust, and JavaScript.
 

@@ -80,6 +80,7 @@ const REQUIREMENT_SOURCES = [
     5820555614,
     5820560691,
     5821335636,
+    5823272578,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -102,7 +103,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 147, `expected at least 147 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 148, `expected at least 148 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -151,7 +152,7 @@ describe('issue 183 requirement traceability', () => {
       'primitive categories: UNRESOLVED',
       'EXECUTABLE_CONTROLS_ONLY',
       'represented-as-addressed-links',
-      'rml-link-ontology-symmetry-experiment/v14',
+      'rml-link-ontology-symmetry-experiment/v15',
       'COMPLETE_INVARIANT_FOR_CONTRACT',
       'NOT_DERIVABLE',
       'REPRESENTATION_DEPENDENT',
@@ -216,6 +217,11 @@ describe('issue 183 requirement traceability', () => {
       '5820560691',
       '5821335636',
       'CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION',
+      '5823272578',
+      'CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED',
+      'EVERY_INTRINSIC_LINK_OBSERVATION_PRESERVED_ORIENTATION_STILL_REVERSIBLE',
+      'CHOSEN_NOT_FORCED',
+      'The records force separation, not orientation',
       'logical implication',
       'contract-forced, representation-stable, observer-added',
       'The result uses no set,',

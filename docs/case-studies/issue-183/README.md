@@ -230,13 +230,23 @@ circular exclusions make `[0,2]` and `[2,0]` follow respectively, each one
 restates a surviving projection, and every tested genericity criterion is
 blind to that orientation. The status is
 `CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION`.
+An orientation audit then asks where that orientation could come from,
+using only address equality and slot order. Ordered slots keep `[0,2]` and
+`[2,0]` in different symmetry orbits, but the output swap commutes with every
+renaming and slot reversal, so in none of the `4567` structures formed by
+adding up to two records to the premises does a symmetry fix exactly one of
+them. Chirality, renaming, tagged encodings, and a rigid self-referential
+slot carrier change which ends or slots can be told apart, never which
+candidate follows. The status is
+`CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED`: the records force
+separation, not orientation.
 The linked local-verifier trace retains the same distinction between
 representation, execution, and authority.
 
 Those results are eliminations and complete finite classifications at the
 tested widths, not unbounded theorems or positive execution laws. The older
 host witness marks passivity and external transition as experimental assumptions,
-and it leaves link ontology and intrinsic authority unresolved. The v17 result does
+and it leaves link ontology and intrinsic authority unresolved. The v18 result does
 not count its starting contract as the ontology: it also keeps
 primitive categories, the structure/transformation relation, and comparative
 minimality open, marks A/B/C as `EXECUTABLE_CONTROLS_ONLY`, and prevents them
