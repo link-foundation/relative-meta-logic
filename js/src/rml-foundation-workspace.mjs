@@ -95,7 +95,7 @@ const RESULT_STATUSES = Object.freeze([
   },
   {
     status: 'exhausted',
-    meaning: 'A declared bound on rounds, facts, or rewrite steps stopped the work first. Nothing is established.',
+    meaning: 'A declared bound on rounds, facts, or rewrite steps, or the contraction budget of the closed S/K kernel, stopped the work first. Nothing is established.',
     provesQuery: false,
     provesRefutation: false,
   },
@@ -564,8 +564,12 @@ function reductionOutcome(registry, program, term, maxSteps) {
   }
 }
 
+// A spent step or contraction budget stops the work; a rewrite cycle or stall
+// leaves the term without a normal form under the foundation's rules.
+const EXHAUSTING_FAILURES = new Set(['rewrite-limit', 'contraction-limit']);
+
 function failureStatus(error) {
-  return error.reductionFailure === 'rewrite-limit' ? 'exhausted' : 'unsupported';
+  return EXHAUSTING_FAILURES.has(error.reductionFailure) ? 'exhausted' : 'unsupported';
 }
 
 function outcomeOf(result) {
@@ -604,15 +608,22 @@ class FoundationWorkspace {
 
   /**
    * Parse linked source through the linked-program front end and load every
-   * foundation, theory, and instance in it.
+   * foundation, theory, and instance in it. `maxContractions` bounds the S/K
+   * contractions of each closed kernel call that a question makes; it
+   * defaults to the registry's budget.
    */
-  static fromRml(source, { executionBasis = 's-k', disabledOperations = [] } = {}) {
+  static fromRml(source, {
+    executionBasis = 's-k',
+    disabledOperations = [],
+    maxContractions,
+  } = {}) {
     FoundationWorkspace.#requireRewriting(executionBasis);
     let forms = null;
     let plan = null;
     const registry = LinkedProgramRegistry.fromRml(source, {
       executionBasis,
       disabledOperations,
+      maxContractions,
       expandForms: parsed => {
         forms = parsed.map(cloneTerm);
         plan = planWorkspace(forms);
@@ -622,11 +633,16 @@ class FoundationWorkspace {
     return new FoundationWorkspace(CONSTRUCT, forms, plan, registry, {
       executionBasis,
       disabledOperations: [...disabledOperations],
+      maxContractions,
     });
   }
 
   /** Load already parsed top-level forms. */
-  static fromForms(forms, { executionBasis = 's-k', disabledOperations = [] } = {}) {
+  static fromForms(forms, {
+    executionBasis = 's-k',
+    disabledOperations = [],
+    maxContractions,
+  } = {}) {
     FoundationWorkspace.#requireRewriting(executionBasis);
     if (!Array.isArray(forms)) throw new Error('foundation workspace forms must be a list');
     const copied = forms.map(cloneTerm);
@@ -634,10 +650,12 @@ class FoundationWorkspace {
     const registry = LinkedProgramRegistry.fromForms([...copied, ...plan.synthesized], {
       executionBasis,
       disabledOperations,
+      maxContractions,
     });
     return new FoundationWorkspace(CONSTRUCT, copied, plan, registry, {
       executionBasis,
       disabledOperations: [...disabledOperations],
+      maxContractions,
     });
   }
 
@@ -658,6 +676,11 @@ class FoundationWorkspace {
   /** List the roles a foundation may declare and the rule kind each admits. */
   static roles() {
     return ROLES.map(role => ({ role, kind: ROLE_KINDS[role] }));
+  }
+
+  /** The S/K contractions each closed kernel call of a question may make. */
+  get maxContractions() {
+    return this.#registry.maxContractions;
   }
 
   /** List loaded foundations as `{name, version}`, sorted. */
@@ -770,9 +793,7 @@ class FoundationWorkspace {
     });
 
     const outside = this.#outsideSignature(instance, [query, ...assumptions], session);
-    if (outside !== null) {
-      return finish({ status: 'unsupported', reason: 'outside-signature', detail: outside });
-    }
+    if (outside !== null) return finish(outside);
 
     const registry = session.registry([...data.forms, ...instance.forms.program]);
     const normalizedAssumptions = [];
@@ -1271,20 +1292,27 @@ class FoundationWorkspace {
 
   // Check the query and assumptions against the signature in a registry
   // that holds only the signature program, so no theory rule can admit a
-  // judgement.  One rewrite per position suffices.
+  // judgement.  One rewrite per position suffices.  Return the outcome of a
+  // term outside the signature or of a check that spent its budget, or null.
   #outsideSignature(instance, terms, session) {
     if (instance.forms.signature.length === 0) return null;
     const { signature } = instance.names;
     const registry = session.registry(instance.forms.signature);
-    const checked = registry.reduce(
+    const checked = reductionOutcome(
+      registry,
       signature,
       ['checks', ...terms.map(term => [signature, cloneTerm(term)])],
-      { maxSteps: terms.length + 1 },
-    ).term;
-    const outside = terms.filter((_, index) => checked[index + 1] !== ADMITTED);
+      terms.length + 1,
+    );
+    if (checked.failure !== null) return this.#failure('signature', checked.failure, []);
+    const outside = terms.filter((_, index) => checked.term[index + 1] !== ADMITTED);
     if (outside.length === 0) return null;
-    return `signature: ${outside.map(keyOf).join(', ')} matches no signature pattern of ` +
-      `${instance.foundation.name} version ${instance.foundation.version}`;
+    return {
+      status: 'unsupported',
+      reason: 'outside-signature',
+      detail: `signature: ${outside.map(keyOf).join(', ')} matches no signature pattern of ` +
+        `${instance.foundation.name} version ${instance.foundation.version}`,
+    };
   }
 
   #rejectReserved(instance, terms) {

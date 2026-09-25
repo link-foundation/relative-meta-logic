@@ -147,6 +147,9 @@ pub enum GoalNormalization {
     RewriteLimit,
     RewriteCycle,
     RewriteStalled,
+    /// A closed S/K kernel call spent its contraction budget, set with
+    /// [`LinkedProgramRegistry::with_max_contractions`].
+    ContractionLimit,
 }
 
 impl GoalNormalization {
@@ -156,6 +159,7 @@ impl GoalNormalization {
             Self::RewriteLimit => "rewrite-limit",
             Self::RewriteCycle => "rewrite-cycle",
             Self::RewriteStalled => "rewrite-stalled",
+            Self::ContractionLimit => "contraction-limit",
         }
     }
 }
@@ -190,23 +194,29 @@ pub struct LinkedSearch {
 /// [`LinkedProgramRegistry::reduce_or_stop`] as a value instead of an error.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReductionStopped {
-    /// `RewriteLimit`, `RewriteCycle`, or `RewriteStalled`; never `Normal`.
+    /// `RewriteLimit`, `RewriteCycle`, `RewriteStalled`, or
+    /// `ContractionLimit`; never `Normal`.
     pub normalization: GoalNormalization,
     pub detail: String,
 }
 
-/// The three ways an ordered reduction can fail to reach a normal form, kept
-/// apart from other errors so that `search` can report them as outcomes.
+/// The ways an ordered reduction can stop without a normal form, kept apart
+/// from other errors so that `search` can report them as outcomes.
 enum ReduceFailure {
     Limit(String),
     Cycle(String),
     Stalled(String),
+    ContractionLimit(String),
     Other(String),
 }
 
 impl From<String> for ReduceFailure {
     fn from(message: String) -> Self {
-        Self::Other(message)
+        if combinator_kernel::is_contraction_limit(&message) {
+            Self::ContractionLimit(message)
+        } else {
+            Self::Other(message)
+        }
     }
 }
 
@@ -216,8 +226,25 @@ impl ReduceFailure {
             Self::Limit(message)
             | Self::Cycle(message)
             | Self::Stalled(message)
+            | Self::ContractionLimit(message)
             | Self::Other(message) => message,
         }
+    }
+
+    /// How a reduction stopped without a normal form, or the message of any
+    /// other failure.
+    fn into_stopped(self) -> Result<ReductionStopped, String> {
+        let (normalization, detail) = match self {
+            Self::Limit(detail) => (GoalNormalization::RewriteLimit, detail),
+            Self::Cycle(detail) => (GoalNormalization::RewriteCycle, detail),
+            Self::Stalled(detail) => (GoalNormalization::RewriteStalled, detail),
+            Self::ContractionLimit(detail) => (GoalNormalization::ContractionLimit, detail),
+            Self::Other(message) => return Err(message),
+        };
+        Ok(ReductionStopped {
+            normalization,
+            detail,
+        })
     }
 }
 
@@ -6166,12 +6193,25 @@ pub fn intrinsic_link_authority_report() -> IntrinsicLinkAuthorityReport {
     link_representation_boundary_report()
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct LinkedProgramRegistry {
     programs: BTreeMap<String, LinkedProgram>,
     disabled_operations: BTreeSet<String>,
+    max_contractions: usize,
     runtime_trace: RefCell<BootstrapRuntimeTraceState>,
     execution_basis: ExecutionBasis,
+}
+
+impl Default for LinkedProgramRegistry {
+    fn default() -> Self {
+        Self {
+            programs: BTreeMap::new(),
+            disabled_operations: BTreeSet::new(),
+            max_contractions: combinator_kernel::DEFAULT_MAX_CONTRACTIONS,
+            runtime_trace: RefCell::default(),
+            execution_basis: ExecutionBasis::default(),
+        }
+    }
 }
 
 fn leaf<'a>(node: &'a Node, context: &str) -> Result<&'a str, String> {
@@ -6374,6 +6414,13 @@ impl LinkedProgramRegistry {
                 });
         }
         Ok(())
+    }
+
+    fn kernel_options(&self) -> combinator_kernel::KernelOptions<'_> {
+        combinator_kernel::KernelOptions {
+            disabled: &self.disabled_operations,
+            max_contractions: self.max_contractions,
+        }
     }
 
     fn observe_combinator(
@@ -7262,6 +7309,18 @@ impl LinkedProgramRegistry {
         Ok(registry)
     }
 
+    /// Bound the S/K contractions of each closed kernel call, like the
+    /// `maxContractions` option of `LinkedProgramRegistry.fromRml` in
+    /// `js/src/rml-linked-program.mjs`. A call that spends the budget stops
+    /// with [`GoalNormalization::ContractionLimit`].
+    pub fn with_max_contractions(mut self, max_contractions: usize) -> Result<Self, String> {
+        if max_contractions == 0 {
+            return Err("max_contractions must be positive".to_string());
+        }
+        self.max_contractions = max_contractions;
+        Ok(self)
+    }
+
     fn add_program(&mut self, form: &Node) -> Result<(), String> {
         let children = form_children(form).ok_or("linked-program must be a link")?;
         if children.len() < 2 {
@@ -7526,6 +7585,11 @@ impl LinkedProgramRegistry {
         self.execution_basis
     }
 
+    /// The S/K contractions each closed kernel call of this registry may make.
+    pub fn max_contractions(&self) -> usize {
+        self.max_contractions
+    }
+
     fn effective_rewrites(
         &self,
         name: &str,
@@ -7692,29 +7756,19 @@ impl LinkedProgramRegistry {
     }
 
     /// Reduce like [`reduce`](Self::reduce), but return a reduction that
-    /// stops without a normal form (the step limit, a revisited term, or a
-    /// rewrite that made no progress) as `Ok(Err(..))`, the way `search`
-    /// classifies its goals. Other failures stay errors.
+    /// stops without a normal form (the step limit, a revisited term, a
+    /// rewrite that made no progress, or a closed kernel call that spent its
+    /// contraction budget) as `Ok(Err(..))`, the way `search` classifies its
+    /// goals. Other failures stay errors.
     pub fn reduce_or_stop(
         &self,
         name: &str,
         input: &Node,
         max_steps: usize,
     ) -> Result<Result<ReductionResult, ReductionStopped>, String> {
-        let stopped = |normalization, detail| {
-            Ok(Err(ReductionStopped {
-                normalization,
-                detail,
-            }))
-        };
         match self.reduce_classified(name, input, max_steps) {
             Ok(result) => Ok(Ok(result)),
-            Err(ReduceFailure::Limit(detail)) => stopped(GoalNormalization::RewriteLimit, detail),
-            Err(ReduceFailure::Cycle(detail)) => stopped(GoalNormalization::RewriteCycle, detail),
-            Err(ReduceFailure::Stalled(detail)) => {
-                stopped(GoalNormalization::RewriteStalled, detail)
-            }
-            Err(ReduceFailure::Other(message)) => Err(message),
+            Err(failure) => failure.into_stopped().map(Err),
         }
     }
 
@@ -7779,14 +7833,13 @@ impl LinkedProgramRegistry {
             )));
         }
         let rules =
-            combinator_kernel::resolve_rewrites(&self.programs, name, &self.disabled_operations)?;
+            combinator_kernel::resolve_rewrites(&self.programs, name, self.kernel_options())?;
         self.observe_combinator(&semantic_paths, &rules.observed, &["import-and-rebinding"])?;
         let mut term = input.clone();
         let mut trace = Vec::new();
         let mut seen = BTreeSet::from([key_of(&term)]);
         while trace.len() < max_steps {
-            let execution =
-                combinator_kernel::rewrite_once(&term, &rules, &self.disabled_operations)?;
+            let execution = combinator_kernel::rewrite_once(&term, &rules, self.kernel_options())?;
             self.observe_combinator(
                 &semantic_paths,
                 &execution.observed,
@@ -7872,10 +7925,12 @@ impl LinkedProgramRegistry {
     /// host semantic operation. The search stops when every normalizable goal
     /// has a proof, when no rule derives a new fact, when the transition bound
     /// is spent, or when the known facts exceed `max_facts`. A goal whose
-    /// ordered reduction has no normal form within `max_steps` is reported
-    /// with its [`GoalNormalization`] and is not searched for. With no
-    /// normalizable goal the search runs to a fixed point or a bound, so
-    /// `derived` then reports the whole closure.
+    /// ordered reduction has no normal form within `max_steps`, or whose
+    /// closed kernel call spends its contraction budget, is reported with its
+    /// [`GoalNormalization`] and is not searched for. A saturation kernel
+    /// call that spends the budget is an error. With no normalizable goal the
+    /// search runs to a fixed point or a bound, so `derived` then reports the
+    /// whole closure.
     pub fn search(
         &self,
         name: &str,
@@ -7895,8 +7950,9 @@ impl LinkedProgramRegistry {
     /// [`reduce_or_stop`](Self::reduce_or_stop) reports a reduction. Direct
     /// saturation normalizes each input and derived fact with the ordered
     /// rewrites, so such a fact stops the whole search. The closed S/K basis
-    /// normalizes facts inside the combinator kernel, whose bounds stay
-    /// errors. Other failures stay errors.
+    /// normalizes facts inside the combinator kernel, so there a saturation
+    /// kernel call that spends its contraction budget stops the whole search
+    /// the same way, with `ContractionLimit`. Other failures stay errors.
     pub fn search_or_stop(
         &self,
         name: &str,
@@ -7906,20 +7962,9 @@ impl LinkedProgramRegistry {
         max_facts: usize,
         max_steps: usize,
     ) -> Result<Result<LinkedSearch, ReductionStopped>, String> {
-        let stopped = |normalization, detail| {
-            Ok(Err(ReductionStopped {
-                normalization,
-                detail,
-            }))
-        };
         match self.search_classified(name, goals, facts, max_rounds, max_facts, max_steps) {
             Ok(search) => Ok(Ok(search)),
-            Err(ReduceFailure::Limit(detail)) => stopped(GoalNormalization::RewriteLimit, detail),
-            Err(ReduceFailure::Cycle(detail)) => stopped(GoalNormalization::RewriteCycle, detail),
-            Err(ReduceFailure::Stalled(detail)) => {
-                stopped(GoalNormalization::RewriteStalled, detail)
-            }
-            Err(ReduceFailure::Other(message)) => Err(message),
+            Err(failure) => failure.into_stopped().map(Err),
         }
     }
 
@@ -7949,15 +7994,9 @@ impl LinkedProgramRegistry {
             let (normalized, normalization, detail) =
                 match self.reduce_classified(name, goal, max_steps) {
                     Ok(result) => (Some(result.term), GoalNormalization::Normal, None),
-                    Err(other @ ReduceFailure::Other(_)) => return Err(other),
-                    Err(ReduceFailure::Limit(message)) => {
-                        (None, GoalNormalization::RewriteLimit, Some(message))
-                    }
-                    Err(ReduceFailure::Cycle(message)) => {
-                        (None, GoalNormalization::RewriteCycle, Some(message))
-                    }
-                    Err(ReduceFailure::Stalled(message)) => {
-                        (None, GoalNormalization::RewriteStalled, Some(message))
+                    Err(failure) => {
+                        let stopped = failure.into_stopped().map_err(ReduceFailure::Other)?;
+                        (None, stopped.normalization, Some(stopped.detail))
                     }
                 };
             entries.push(SearchGoal {
@@ -8006,7 +8045,7 @@ impl LinkedProgramRegistry {
             if proof.is_some() {
                 continue;
             }
-            let found = combinator_kernel::find_proof(state, goal, &self.disabled_operations)?;
+            let found = combinator_kernel::find_proof(state, goal, self.kernel_options())?;
             self.observe_combinator(semantic_paths, &found.observed, &["result-verification"])?;
             *proof = found.proof;
         }
@@ -8039,7 +8078,7 @@ impl LinkedProgramRegistry {
             &self.programs,
             name,
             input_facts,
-            &self.disabled_operations,
+            self.kernel_options(),
         )?;
         self.observe_combinator(
             semantic_paths,
@@ -8062,7 +8101,7 @@ impl LinkedProgramRegistry {
         // One legacy round could add many facts. The closed kernel emits one
         // derivation per transition, so preserve that capacity per round.
         for _ in 0..max_rounds.saturating_mul(max_facts) {
-            let next = combinator_kernel::infer_once(state, &self.disabled_operations)?;
+            let next = combinator_kernel::infer_once(state, self.kernel_options())?;
             self.observe_combinator(
                 semantic_paths,
                 &next.observed,

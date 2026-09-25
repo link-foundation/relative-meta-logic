@@ -111,7 +111,7 @@ const RESULT_STATUSES: &[ResultStatus] = &[
     },
     ResultStatus {
         status: "exhausted",
-        meaning: "A declared bound on rounds, facts, or rewrite steps stopped the work first. Nothing is established.",
+        meaning: "A declared bound on rounds, facts, or rewrite steps, or the contraction budget of the closed S/K kernel, stopped the work first. Nothing is established.",
         proves_query: false,
         proves_refutation: false,
     },
@@ -1317,11 +1317,12 @@ fn synthesize_instance(
     (vec![Node::List(program)], guarded, signature)
 }
 
+// A spent step or contraction budget stops the work; a rewrite cycle or stall
+// leaves the term without a normal form under the foundation's rules.
 fn failure_status(normalization: GoalNormalization) -> &'static str {
-    if normalization == GoalNormalization::RewriteLimit {
-        "exhausted"
-    } else {
-        "unsupported"
+    match normalization {
+        GoalNormalization::RewriteLimit | GoalNormalization::ContractionLimit => "exhausted",
+        _ => "unsupported",
     }
 }
 
@@ -1429,11 +1430,14 @@ impl<'a> Session<'a> {
     }
 
     fn registry(&self, forms: &[Node]) -> Result<Rc<LinkedProgramRegistry>, String> {
-        let registry = Rc::new(LinkedProgramRegistry::from_forms_with_basis(
-            forms,
-            self.workspace.execution_basis,
-            &self.workspace.disabled(),
-        )?);
+        let registry = Rc::new(
+            LinkedProgramRegistry::from_forms_with_basis(
+                forms,
+                self.workspace.execution_basis,
+                &self.workspace.disabled(),
+            )?
+            .with_max_contractions(self.workspace.registry.max_contractions())?,
+        );
         self.registries.borrow_mut().push(Rc::clone(&registry));
         Ok(registry)
     }
@@ -1543,6 +1547,15 @@ impl FoundationWorkspace {
         Self::assemble(forms, plan, registry, execution_basis, disabled_operations)
     }
 
+    /// Bound the S/K contractions of each closed kernel call that a question
+    /// makes, like the `maxContractions` option of `FoundationWorkspace.fromRml`
+    /// in `js/src/rml-foundation-workspace.mjs`. A question that spends the
+    /// budget ends `exhausted` with reason `contraction-limit`.
+    pub fn with_max_contractions(mut self, max_contractions: usize) -> Result<Self, String> {
+        self.registry = self.registry.with_max_contractions(max_contractions)?;
+        Ok(self)
+    }
+
     fn require_rewriting(execution_basis: ExecutionBasis) -> Result<(), String> {
         if execution_basis == ExecutionBasis::HornRelational {
             return Err(
@@ -1596,6 +1609,11 @@ impl FoundationWorkspace {
     /// The execution basis every question of this workspace runs on.
     pub fn execution_basis(&self) -> ExecutionBasis {
         self.execution_basis
+    }
+
+    /// The S/K contractions each closed kernel call of a question may make.
+    pub fn max_contractions(&self) -> usize {
+        self.registry.max_contractions()
     }
 
     /// List loaded foundations, sorted by name and version.
@@ -1728,13 +1746,7 @@ impl FoundationWorkspace {
             },
         };
         let session = Session::new(self);
-        if let Some(detail) = self.outside_signature(&question, &terms, &session)? {
-            let outcome = Outcome {
-                status: "unsupported",
-                reason: "outside-signature",
-                detail: Some(detail),
-                ..Outcome::default()
-            };
+        if let Some(outcome) = self.outside_signature(&question, &terms, &session)? {
             return Ok(self.result(&question, &session, outcome));
         }
 
@@ -1855,11 +1867,10 @@ impl FoundationWorkspace {
         let validated = self.validate_change(change)?;
         let workspace = match &validated {
             ValidatedChange::Assumption { .. } => Cow::Borrowed(self),
-            ValidatedChange::Rule { forms, .. } => Cow::Owned(Self::from_forms_with_basis(
-                forms,
-                self.execution_basis,
-                &self.disabled(),
-            )?),
+            ValidatedChange::Rule { forms, .. } => Cow::Owned(
+                Self::from_forms_with_basis(forms, self.execution_basis, &self.disabled())?
+                    .with_max_contractions(self.registry.max_contractions())?,
+            ),
         };
         let replaced = |assumptions: &[Node]| -> Vec<Node> {
             match &validated {
@@ -2404,13 +2415,14 @@ impl FoundationWorkspace {
 
     // Check the query and assumptions against the signature in a registry
     // that holds only the signature program, so no theory rule can admit a
-    // judgement. One rewrite per position suffices.
+    // judgement. One rewrite per position suffices. Return the outcome of a
+    // term outside the signature or of a check that spent its budget.
     fn outside_signature(
         &self,
         question: &Question,
         terms: &[&Node],
         session: &Session,
-    ) -> Result<Option<String>, String> {
+    ) -> Result<Option<Outcome>, String> {
         let instance = question.instance;
         if instance.signature_forms.is_empty() {
             return Ok(None);
@@ -2423,9 +2435,11 @@ impl FoundationWorkspace {
                 .iter()
                 .map(|term| Node::List(vec![name_node(signature), (*term).clone()])),
         );
-        let checked = registry
-            .reduce(signature, &Node::List(checks), terms.len() + 1)?
-            .term;
+        let checked =
+            match registry.reduce_or_stop(signature, &Node::List(checks), terms.len() + 1)? {
+                Ok(reduced) => reduced.term,
+                Err(stopped) => return Ok(Some(failure("signature", stopped, Vec::new()))),
+            };
         let admitted = name_node(ADMITTED);
         let outside: Vec<String> = terms
             .iter()
@@ -2438,12 +2452,17 @@ impl FoundationWorkspace {
         if outside.is_empty() {
             return Ok(None);
         }
-        Ok(Some(format!(
-            "signature: {} matches no signature pattern of {} version {}",
-            outside.join(", "),
-            question.foundation.name,
-            question.foundation.version
-        )))
+        Ok(Some(Outcome {
+            status: "unsupported",
+            reason: "outside-signature",
+            detail: Some(format!(
+                "signature: {} matches no signature pattern of {} version {}",
+                outside.join(", "),
+                question.foundation.name,
+                question.foundation.version
+            )),
+            ..Outcome::default()
+        }))
     }
 
     fn reject_reserved(instance: &Instance, terms: &[&Node]) -> Result<(), String> {

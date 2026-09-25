@@ -243,6 +243,52 @@ describe('links-defined universal program evaluator', () => {
     assert.throws(() => programs.search('graph', [], { maxFacts: 0 }), /proof bounds must be positive safe integers/);
   });
 
+  it('bounds each closed kernel call by a contraction budget', () => {
+    const counterSource = `
+      (linked-program counter)
+      (linked-fact counter zero (judgement (count z)))
+      (linked-inference counter next (premise (count ?n)) (conclusion (seen ?n)))
+    `;
+    const spent = budget => error =>
+      error.reductionFailure === 'contraction-limit' &&
+      error.message === `combinator contraction limit ${budget} exceeded`;
+    assert.equal(LinkedProgramRegistry.fromRml(counterSource).maxContractions, 100_000_000);
+    assert.throws(
+      () => LinkedProgramRegistry.fromRml(counterSource, { maxContractions: 0 }),
+      /maxContractions must be a positive safe integer/,
+    );
+    const tiny = LinkedProgramRegistry.fromRml(counterSource, { maxContractions: 100 });
+    assert.equal(tiny.maxContractions, 100);
+    assert.throws(() => tiny.reduce('counter', ['count', 'z']), spent(100));
+
+    // The budget applies to each kernel call separately. The reduction of a
+    // wide goal spends it and is reported like a goal without a normal form,
+    // while the saturation that finds the other goal fits.
+    const wide = ['row', ...Array.from({ length: 200 }, () => 'item')];
+    const bounded = LinkedProgramRegistry.fromRml(counterSource, { maxContractions: 60_000 });
+    const found = bounded.search('counter', [wide, ['seen', 'z']]);
+    assert.equal(found.ended, 'found');
+    assert.deepEqual(found.goals.map(goal => goal.normalization), ['contraction-limit', 'normal']);
+    assert.equal(found.goals[0].normalized, null);
+    assert.equal(found.goals[0].detail, 'combinator contraction limit 60000 exceeded');
+    assert.equal(found.goals[1].proof.rule, 'next');
+    // A saturation call that spends the budget stops the whole search.
+    const small = LinkedProgramRegistry.fromRml(counterSource, { maxContractions: 20_000 });
+    assert.equal(small.reduce('counter', ['seen', 'z']).term[0], 'seen');
+    assert.throws(() => small.search('counter', [['seen', 'z']]), spent(20000));
+
+    // The direct basis makes no kernel call, so the budget does not bound it:
+    // the wide goal normalizes and is searched for without a proof.
+    const direct = LinkedProgramRegistry.fromRml(counterSource, {
+      executionBasis: 'direct-structural',
+      maxContractions: 1,
+    });
+    const searched = direct.search('counter', [wide, ['seen', 'z']]);
+    assert.equal(searched.ended, 'saturated');
+    assert.deepEqual(searched.goals.map(goal => goal.normalization), ['normal', 'normal']);
+    assert.deepEqual(searched.goals.map(goal => goal.proof?.rule ?? null), [null, 'next']);
+  });
+
   it('loads the forms a layer derives from the same parse', () => {
     const layered = `
       (linked-program base)

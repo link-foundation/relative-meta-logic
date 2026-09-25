@@ -359,6 +359,101 @@ fn reports_a_fact_without_a_normal_form_as_a_stopped_search() {
 }
 
 #[test]
+fn bounds_each_closed_kernel_call_by_a_contraction_budget() {
+    let source = "(linked-program counter)\n\
+         (linked-fact counter zero (judgement (count z)))\n\
+         (linked-inference counter next (premise (count ?n)) (conclusion (seen ?n)))";
+    let budget = |basis, max_contractions| {
+        LinkedProgramRegistry::from_rml_with_basis(source, basis, &[])
+            .expect("programs load")
+            .with_max_contractions(max_contractions)
+    };
+    let programs = LinkedProgramRegistry::from_rml(source).expect("programs load");
+    assert_eq!(programs.max_contractions(), 100_000_000);
+    assert_eq!(
+        budget(ExecutionBasis::ClosedSk, 0).expect_err("a zero budget is rejected"),
+        "max_contractions must be positive"
+    );
+
+    // `reduce` reports a kernel call that spends the budget as an error and
+    // `reduce_or_stop` as a reduction without a normal form.
+    let tiny = budget(ExecutionBasis::ClosedSk, 100).expect("the budget is positive");
+    let stopped = tiny
+        .reduce_or_stop("counter", &node("(count z)"), 10_000)
+        .expect("reduction runs")
+        .expect_err("the budget is spent");
+    assert_eq!(stopped.normalization, GoalNormalization::ContractionLimit);
+    assert_eq!(stopped.normalization.as_str(), "contraction-limit");
+    assert_eq!(stopped.detail, "combinator contraction limit 100 exceeded");
+    assert_eq!(
+        tiny.reduce("counter", &node("(count z)"), 10_000)
+            .expect_err("the budget is spent"),
+        stopped.detail
+    );
+
+    // The budget applies to each kernel call separately. The reduction of a
+    // wide goal spends it and is reported like a goal without a normal form,
+    // while the saturation that finds the other goal fits.
+    let wide = Node::List(
+        std::iter::once(Node::Leaf("row".to_string()))
+            .chain(std::iter::repeat_n(Node::Leaf("item".to_string()), 200))
+            .collect(),
+    );
+    let goals = [wide, node("(seen z)")];
+    let bounded = budget(ExecutionBasis::ClosedSk, 60_000).expect("the budget is positive");
+    let found = bounded
+        .search("counter", &goals, &[], 128, 10_000, 10_000)
+        .expect("search runs");
+    assert_eq!(found.ended, SearchEnd::Found);
+    assert_eq!(
+        found.goals[0].normalization,
+        GoalNormalization::ContractionLimit
+    );
+    assert!(found.goals[0].normalized.is_none());
+    assert_eq!(
+        found.goals[0].detail.as_deref(),
+        Some("combinator contraction limit 60000 exceeded")
+    );
+    assert_eq!(
+        found.goals[1].proof.as_ref().expect("goal proved").rule,
+        "next"
+    );
+
+    // A saturation call that spends the budget stops the whole search.
+    let small = budget(ExecutionBasis::ClosedSk, 20_000).expect("the budget is positive");
+    assert!(small.reduce("counter", &node("(seen z)"), 10_000).is_ok());
+    let spent = small
+        .search_or_stop("counter", &[node("(seen z)")], &[], 128, 10_000, 10_000)
+        .expect("search runs")
+        .expect_err("the saturation spends the budget");
+    assert_eq!(spent.normalization, GoalNormalization::ContractionLimit);
+    assert_eq!(spent.detail, "combinator contraction limit 20000 exceeded");
+    assert_eq!(
+        small
+            .search("counter", &[node("(seen z)")], &[], 128, 10_000, 10_000)
+            .expect_err("search reports the budget as an error"),
+        spent.detail
+    );
+
+    // The direct basis makes no kernel call, so the budget does not bound it:
+    // the wide goal normalizes and is searched for without a proof.
+    let direct = budget(ExecutionBasis::DirectStructural, 1).expect("the budget is positive");
+    let searched = direct
+        .search("counter", &goals, &[], 128, 10_000, 10_000)
+        .expect("search runs");
+    assert_eq!(searched.ended, SearchEnd::Saturated);
+    let rules = searched
+        .goals
+        .iter()
+        .map(|goal| {
+            assert_eq!(goal.normalization, GoalNormalization::Normal);
+            goal.proof.as_ref().map(|proof| proof.rule.as_str())
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(rules, [None, Some("next")]);
+}
+
+#[test]
 fn loads_the_forms_a_layer_derives_from_the_same_parse() {
     let layered = "(linked-program base)\n\
          (linked-rewrite base finish (from (start ?x)) (to (done ?x)))\n\

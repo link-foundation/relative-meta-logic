@@ -1076,6 +1076,7 @@ fn rejects_malformed_foundations_and_instances() {
 fn runs_the_same_witnesses_on_the_closed_s_k_basis_inside_k0() {
     let workspace = FoundationWorkspace::from_rml(&packages()).expect("closed S/K packages");
     assert_eq!(workspace.execution_basis(), ExecutionBasis::ClosedSk);
+    assert_eq!(workspace.max_contractions(), 100_000_000);
 
     let streams: Vec<FoundationResult> = ["countdown", "ones", "loop"]
         .iter()
@@ -1142,4 +1143,98 @@ fn runs_the_same_witnesses_on_the_closed_s_k_basis_inside_k0() {
     assert!(streams[1]
         .host_operations
         .contains(&"contract-s-link".to_string()));
+}
+
+#[test]
+fn reports_a_spent_contraction_budget_of_the_closed_kernel_as_exhaustion() {
+    let bounded = |max_contractions| {
+        FoundationWorkspace::from_rml(&packages())
+            .expect("closed S/K packages")
+            .with_max_contractions(max_contractions)
+    };
+    assert_error(bounded(0), "max_contractions must be positive");
+    // Each closed kernel call of a question has the whole budget, so a larger
+    // budget moves the stage that spends it from the signature check through
+    // the assumptions, the goal, and the derivation to the guarded cycle.
+    let stages = [
+        (
+            1000,
+            "lawn-in-classical-logic",
+            "(holds wet-lawn)",
+            Vec::new(),
+            "signature",
+        ),
+        (
+            200_000,
+            "lawn-in-minimal-logic",
+            "(holds frost)",
+            contradiction(),
+            "assumption 1",
+        ),
+        (
+            250_000,
+            "lawn-in-classical-logic",
+            "(holds wet-lawn)",
+            Vec::new(),
+            "goal",
+        ),
+        (
+            450_000,
+            "lawn-in-minimal-logic",
+            "(holds wet-lawn)",
+            Vec::new(),
+            "derivation",
+        ),
+        (
+            1_000_000,
+            "productive-stream-examples",
+            "(stream ones)",
+            Vec::new(),
+            "hypothesis",
+        ),
+    ];
+    for (max_contractions, instance, query, assumptions, stage) in stages {
+        let workspace = bounded(max_contractions).expect("the budget is positive");
+        let result = ask_with(&workspace, instance, query, &assumptions);
+        assert_eq!(result.status, "exhausted");
+        assert_eq!(result.reason, "contraction-limit");
+        assert_eq!(
+            result.detail,
+            Some(format!(
+                "{stage}: combinator contraction limit {max_contractions} exceeded"
+            ))
+        );
+        assert!(result.proof.is_none());
+        assert_inside_k0(&result);
+    }
+
+    let tight = bounded(3000).expect("the budget is positive");
+    let execution = tight
+        .execute(
+            "cafe-with-consumable-resources",
+            &node("(at-most (combine one one) two)"),
+            10_000,
+        )
+        .expect("execution");
+    assert_eq!(execution.status, "exhausted");
+    assert_eq!(execution.reason, "contraction-limit");
+    assert_eq!(
+        execution.detail.as_deref(),
+        Some("combinator contraction limit 3000 exceeded")
+    );
+    assert_eq!(execution.output, None);
+
+    // A rule change builds the revised workspace with the same budget.
+    let workspace = bounded(250_000).expect("the budget is positive");
+    let wet = ask(&workspace, "lawn-in-classical-logic", "(holds wet-lawn)");
+    let revision = workspace
+        .revise(
+            std::slice::from_ref(&wet),
+            &remove_rule("excluded-middle", "excluded-middle-for-proposition"),
+        )
+        .expect("revision");
+    assert_eq!(revision.workspace.max_contractions(), 250_000);
+    let revised = &revision.revisions[0];
+    assert_eq!((revised.action, revised.changed), ("rechecked", false));
+    assert_eq!(revised.after.detail, wet.detail);
 }

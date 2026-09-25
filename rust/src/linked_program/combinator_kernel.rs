@@ -5,7 +5,25 @@ use std::sync::{Arc, OnceLock};
 
 const ARTIFACT: &str = include_str!("../../../lib/meta-theory/fixed-point.ski");
 const SOURCE: &str = include_str!("../../../lib/meta-theory/fixed-point-source.lino");
-const MAX_CONTRACTIONS: usize = 100_000_000;
+/// Contractions one kernel call may perform unless its caller sets a budget.
+pub(super) const DEFAULT_MAX_CONTRACTIONS: usize = 100_000_000;
+const CONTRACTION_LIMIT_PREFIX: &str = "combinator contraction limit ";
+
+/// Whether a kernel error reports a spent contraction budget, which callers
+/// report as a bounded outcome instead of an error, like the
+/// `contraction-limit` tag of `CombinatorRunner` in
+/// `js/src/rml-combinator-kernel.mjs`.
+pub(super) fn is_contraction_limit(message: &str) -> bool {
+    message.starts_with(CONTRACTION_LIMIT_PREFIX)
+}
+
+/// What one kernel call may do: the host semantic operations it must not
+/// perform and how many contractions it may spend.
+#[derive(Clone, Copy)]
+pub(super) struct KernelOptions<'a> {
+    pub(super) disabled: &'a BTreeSet<String>,
+    pub(super) max_contractions: usize,
+}
 
 pub(super) struct KernelSourceSummary {
     pub(super) artifact: &'static str,
@@ -401,7 +419,10 @@ pub(super) fn iota_equivalence_operations() -> Result<BTreeSet<&'static str>, St
     let derived_k = app(iota.clone(), app(iota.clone(), derived_identity.clone()));
     let derived_s = app(iota, derived_k.clone());
     let disabled = BTreeSet::new();
-    let mut runner = Runner::new(&disabled);
+    let mut runner = Runner::new(KernelOptions {
+        disabled: &disabled,
+        max_contractions: DEFAULT_MAX_CONTRACTIONS,
+    });
     let witnesses = [
         (
             "identity",
@@ -438,14 +459,16 @@ pub(super) struct Runner {
     disabled: BTreeSet<String>,
     pub(super) observed: BTreeSet<&'static str>,
     contractions: usize,
+    max_contractions: usize,
 }
 
 impl Runner {
-    pub(super) fn new(disabled: &BTreeSet<String>) -> Self {
+    pub(super) fn new(options: KernelOptions<'_>) -> Self {
         Self {
-            disabled: disabled.clone(),
+            disabled: options.disabled.clone(),
             observed: BTreeSet::new(),
             contractions: 0,
+            max_contractions: options.max_contractions,
         }
     }
 
@@ -455,9 +478,10 @@ impl Runner {
         }
         self.observed.insert(operation);
         self.contractions += 1;
-        if self.contractions > MAX_CONTRACTIONS {
+        if self.contractions > self.max_contractions {
             return Err(format!(
-                "combinator contraction limit {MAX_CONTRACTIONS} exceeded"
+                "{CONTRACTION_LIMIT_PREFIX}{} exceeded",
+                self.max_contractions
             ));
         }
         Ok(())
@@ -647,10 +671,10 @@ pub(super) struct FindProofOutput {
 pub(super) fn resolve_rewrites(
     programs: &BTreeMap<String, LinkedProgram>,
     name: &str,
-    disabled: &BTreeSet<String>,
+    options: KernelOptions<'_>,
 ) -> Result<ResolvedRules, String> {
     let kernel = Kernel::shared()?;
-    let mut runner = Runner::new(disabled);
+    let mut runner = Runner::new(options);
     let encoded = kernel.resolve("RESOLVE_REWRITES", programs, name, &mut runner)?;
     Ok(ResolvedRules {
         encoded,
@@ -661,10 +685,10 @@ pub(super) fn resolve_rewrites(
 pub(super) fn rewrite_once(
     term: &Node,
     rules: &ResolvedRules,
-    disabled: &BTreeSet<String>,
+    options: KernelOptions<'_>,
 ) -> Result<RewriteOutput, String> {
     let kernel = Kernel::shared()?;
-    let mut runner = Runner::new(disabled);
+    let mut runner = Runner::new(options);
     let output = apply_many(
         kernel.root("REWRITE_ONCE"),
         [rules.encoded.clone(), kernel.encode_node(term)],
@@ -705,10 +729,10 @@ pub(super) fn create_proof_state(
     programs: &BTreeMap<String, LinkedProgram>,
     name: &str,
     input_facts: &[Node],
-    disabled: &BTreeSet<String>,
+    options: KernelOptions<'_>,
 ) -> Result<ProofStateOutput, String> {
     let kernel = Kernel::shared()?;
-    let mut runner = Runner::new(disabled);
+    let mut runner = Runner::new(options);
     let encoded_rules = kernel.resolve("RESOLVE_REWRITES", programs, name, &mut runner)?;
     let encoded_facts = kernel.resolve("RESOLVE_FACTS", programs, name, &mut runner)?;
     let encoded_inferences = kernel.resolve("RESOLVE_INFERENCES", programs, name, &mut runner)?;
@@ -744,10 +768,10 @@ pub(super) fn create_proof_state(
 
 pub(super) fn infer_once(
     mut state: ProofState,
-    disabled: &BTreeSet<String>,
+    options: KernelOptions<'_>,
 ) -> Result<InferenceOutput, String> {
     let kernel = Kernel::shared()?;
-    let mut runner = Runner::new(disabled);
+    let mut runner = Runner::new(options);
     let output = apply_many(
         kernel.root("INFER_ONCE"),
         [
@@ -805,10 +829,10 @@ pub(super) fn infer_once(
 pub(super) fn find_proof(
     state: &ProofState,
     judgement: &Node,
-    disabled: &BTreeSet<String>,
+    options: KernelOptions<'_>,
 ) -> Result<FindProofOutput, String> {
     let kernel = Kernel::shared()?;
-    let mut runner = Runner::new(disabled);
+    let mut runner = Runner::new(options);
     let output = apply_many(
         kernel.root("FIND_KNOWN_PROOF"),
         [kernel.encode_node(judgement), state.encoded_known.clone()],

@@ -240,8 +240,14 @@ function encodePrograms(programs) {
   );
 }
 
+// Contractions one kernel call may perform unless its caller sets a budget.
+const DEFAULT_MAX_CONTRACTIONS = 100_000_000;
+
 class CombinatorRunner {
-  constructor({ disabledOperations = [], maxContractions = 100_000_000 } = {}) {
+  constructor({
+    disabledOperations = [],
+    maxContractions = DEFAULT_MAX_CONTRACTIONS,
+  } = {}) {
     this.disabledOperations = new Set(disabledOperations);
     this.maxContractions = maxContractions;
     this.contractions = 0;
@@ -255,7 +261,11 @@ class CombinatorRunner {
     this.observedOperations.add(operation);
     this.contractions += 1;
     if (this.contractions > this.maxContractions) {
-      throw new Error(`combinator contraction limit ${this.maxContractions} exceeded`);
+      // Tagged like a reduction without a normal form, so that callers can
+      // report a spent budget as a bounded outcome instead of rethrowing it.
+      const error = new Error(`combinator contraction limit ${this.maxContractions} exceeded`);
+      error.reductionFailure = 'contraction-limit';
+      throw error;
     }
   }
 
@@ -665,6 +675,7 @@ function combinatorFindProof(state, judgement, options = {}) {
 
 export {
   CombinatorRunner,
+  DEFAULT_MAX_CONTRACTIONS,
   combinatorCreateProofState,
   combinatorFindProof,
   combinatorInferOnce,

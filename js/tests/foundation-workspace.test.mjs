@@ -620,6 +620,7 @@ describe('linked foundation workspace', () => {
   it('runs the same witnesses on the closed S/K basis inside K0', () => {
     const workspace = FoundationWorkspace.fromRml(packages);
     assert.equal(workspace.executionBasis, 's-k');
+    assert.equal(workspace.maxContractions, 100_000_000);
 
     const streams = ['countdown', 'ones', 'loop'].map(stream =>
       workspace.ask('productive-stream-examples', ['stream', stream]));
@@ -652,5 +653,52 @@ describe('linked foundation workspace', () => {
       assert.equal(result.executionBasis, 's-k');
     }
     assert.ok(streams[1].hostOperations.includes('contract-s-link'));
+  });
+
+  it('reports a spent contraction budget of the closed kernel as exhaustion', () => {
+    assert.throws(
+      () => FoundationWorkspace.fromRml(packages, { maxContractions: 0 }),
+      /maxContractions must be a positive safe integer/,
+    );
+    // Each closed kernel call of a question has the whole budget, so a larger
+    // budget moves the stage that spends it from the signature check through
+    // the assumptions, the goal, and the derivation to the guarded cycle.
+    const stages = [
+      [1000, 'lawn-in-classical-logic', ['holds', 'wet-lawn'], [], 'signature'],
+      [200_000, 'lawn-in-minimal-logic', ['holds', 'frost'], contradiction, 'assumption 1'],
+      [250_000, 'lawn-in-classical-logic', ['holds', 'wet-lawn'], [], 'goal'],
+      [450_000, 'lawn-in-minimal-logic', ['holds', 'wet-lawn'], [], 'derivation'],
+      [1_000_000, 'productive-stream-examples', ['stream', 'ones'], [], 'hypothesis'],
+    ];
+    for (const [maxContractions, instance, query, assumptions, stage] of stages) {
+      const workspace = FoundationWorkspace.fromRml(packages, { maxContractions });
+      const result = workspace.ask(instance, query, { assumptions });
+      assert.equal(result.status, 'exhausted');
+      assert.equal(result.reason, 'contraction-limit');
+      assert.equal(result.detail, `${stage}: combinator contraction limit ${maxContractions} exceeded`);
+      assert.equal(result.proof, null);
+      assertInsideK0(result);
+    }
+
+    const tight = FoundationWorkspace.fromRml(packages, { maxContractions: 3000 });
+    const execution = tight.execute(
+      'cafe-with-consumable-resources',
+      ['at-most', ['combine', 'one', 'one'], 'two'],
+    );
+    assert.equal(execution.status, 'exhausted');
+    assert.equal(execution.reason, 'contraction-limit');
+    assert.equal(execution.detail, 'combinator contraction limit 3000 exceeded');
+    assert.equal(execution.output, null);
+
+    // A rule change builds the revised workspace with the same budget.
+    const bounded = FoundationWorkspace.fromRml(packages, { maxContractions: 250_000 });
+    const wet = bounded.ask('lawn-in-classical-logic', ['holds', 'wet-lawn']);
+    const { workspace, revisions } = bounded.revise([wet], {
+      removeRule: ['excluded-middle', 'excluded-middle-for-proposition'],
+    });
+    assert.equal(workspace.maxContractions, 250_000);
+    assert.equal(revisions[0].action, 'rechecked');
+    assert.equal(revisions[0].changed, false);
+    assert.equal(revisions[0].after.detail, wet.detail);
   });
 });

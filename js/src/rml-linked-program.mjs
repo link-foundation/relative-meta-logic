@@ -6,6 +6,7 @@ import {
   tokenizeOne,
 } from './rml-links.mjs';
 import {
+  DEFAULT_MAX_CONTRACTIONS,
   combinatorCreateProofState,
   combinatorFindProof,
   combinatorInferOnce,
@@ -20,7 +21,9 @@ function cloneTerm(term) {
 }
 
 // Tag the three ways an ordered reduction can fail to reach a normal form so
-// that `search` can report them as outcomes instead of rethrowing them.
+// that `search` can report them as outcomes instead of rethrowing them. The
+// combinator kernel tags a spent contraction budget as `contraction-limit`
+// the same way.
 function reductionFailure(kind, message) {
   const error = new Error(message);
   error.reductionFailure = kind;
@@ -355,19 +358,28 @@ function cloneReportValue(value) {
  */
 class LinkedProgramRegistry {
   #disabledOperations;
+  #maxContractions;
   #observedOperations;
   #observedPaths;
   #observedPathSegments;
   #observedLinkedCapabilities;
   #observedLinkedCapabilitySegments;
 
-  constructor({ disabledOperations = [], executionBasis = 's-k' } = {}) {
+  constructor({
+    disabledOperations = [],
+    executionBasis = 's-k',
+    maxContractions = DEFAULT_MAX_CONTRACTIONS,
+  } = {}) {
     if (!['s-k', 'direct-structural', 'horn-relational'].includes(executionBasis)) {
       throw new Error(`unknown linked-program execution basis ${executionBasis}`);
+    }
+    if (!Number.isSafeInteger(maxContractions) || maxContractions <= 0) {
+      throw new Error('maxContractions must be a positive safe integer');
     }
     this.programs = new Map();
     this.executionBasis = executionBasis;
     this.#disabledOperations = new Set(disabledOperations);
+    this.#maxContractions = maxContractions;
     this.#observedOperations = new Set();
     this.#observedPaths = new Set();
     this.#observedPathSegments = new Set();
@@ -380,10 +392,12 @@ class LinkedProgramRegistry {
    * parsed top-level forms and returns further forms to load with them, so a
    * layer that declares programs through its own forms reads the source
    * through this single front end instead of parsing it a second time.
+   * `maxContractions` bounds the S/K contractions of each closed kernel call.
    */
   static fromRml(source, {
     disabledOperations = [],
     executionBasis = 's-k',
+    maxContractions = DEFAULT_MAX_CONTRACTIONS,
     expandForms = null,
   } = {}) {
     const disabled = new Set(disabledOperations);
@@ -396,13 +410,22 @@ class LinkedProgramRegistry {
     const registry = LinkedProgramRegistry.fromForms(forms, {
       disabledOperations,
       executionBasis,
+      maxContractions,
     });
     registry.#observe(['load-linked-program'], 'parse-linked-forms');
     return registry;
   }
 
-  static fromForms(forms, { disabledOperations = [], executionBasis = 's-k' } = {}) {
-    const registry = new LinkedProgramRegistry({ disabledOperations, executionBasis });
+  static fromForms(forms, {
+    disabledOperations = [],
+    executionBasis = 's-k',
+    maxContractions = DEFAULT_MAX_CONTRACTIONS,
+  } = {}) {
+    const registry = new LinkedProgramRegistry({
+      disabledOperations,
+      executionBasis,
+      maxContractions,
+    });
     registry.#observePath('load-linked-program');
     for (const form of forms) {
       if (!Array.isArray(form) || form[0] !== 'linked-program') continue;
@@ -416,6 +439,11 @@ class LinkedProgramRegistry {
     }
     registry.#validate();
     return registry;
+  }
+
+  /** The S/K contractions each closed kernel call of this registry may make. */
+  get maxContractions() {
+    return this.#maxContractions;
   }
 
   #observePath(path) {
@@ -1090,13 +1118,18 @@ class LinkedProgramRegistry {
     return null;
   }
 
+  #kernelOptions() {
+    return {
+      disabledOperations: this.#disabledOperations,
+      maxContractions: this.#maxContractions,
+    };
+  }
+
   #rewriteOnce(term, rules, semanticPaths) {
     if (this.executionBasis === 'direct-structural') {
       return this.#directRewriteOnce(term, rules, semanticPaths);
     }
-    const execution = combinatorRewriteOnce(term, rules, {
-      disabledOperations: this.#disabledOperations,
-    });
+    const execution = combinatorRewriteOnce(term, rules, this.#kernelOptions());
     this.#observeExecution(semanticPaths, execution);
     if (execution.step === null) return null;
     const program = this.#program(execution.step.rule.program, 'combinator rewrite');
@@ -1125,9 +1158,7 @@ class LinkedProgramRegistry {
     }
     const resolved = this.executionBasis === 'direct-structural'
       ? this.#directEffective(name, 'rewrites', semanticPaths)
-      : combinatorResolveRewrites(this.programs, name, {
-        disabledOperations: this.#disabledOperations,
-      });
+      : combinatorResolveRewrites(this.programs, name, this.#kernelOptions());
     if (this.executionBasis !== 'direct-structural') {
       this.#observeExecution(semanticPaths, resolved);
     }
@@ -1188,10 +1219,13 @@ class LinkedProgramRegistry {
    * transition bound is spent (`inference-limit`), or when the known facts
    * exceed `maxFacts` (`fact-limit`). A goal whose ordered reduction has no
    * normal form within `maxSteps` is reported with `rewrite-limit`,
-   * `rewrite-cycle`, or `rewrite-stalled` and is not searched for. With no
-   * normalizable goal the search runs to a fixed point or a bound, so
-   * `derived` then reports the whole closure. `derived` lists every derived
-   * fact in derivation order with its normalized judgement.
+   * `rewrite-cycle`, or `rewrite-stalled` and is not searched for, and so is a
+   * goal whose closed kernel call spends its contraction budget, with
+   * `contraction-limit`. A saturation kernel call that spends the budget
+   * throws an error tagged `contraction-limit`. With no normalizable goal the
+   * search runs to a fixed point or a bound, so `derived` then reports the
+   * whole closure. `derived` lists every derived fact in derivation order
+   * with its normalized judgement.
    */
   search(name, goals, {
     facts = [],
@@ -1252,12 +1286,7 @@ class LinkedProgramRegistry {
       return this.#directSaturate(name, entries, facts, semanticPaths, maxRounds, maxFacts);
     }
     const derived = [];
-    let state = combinatorCreateProofState(
-      this.programs,
-      name,
-      facts,
-      { disabledOperations: this.#disabledOperations },
-    );
+    let state = combinatorCreateProofState(this.programs, name, facts, this.#kernelOptions());
     const observe = execution => this.#observeExecution(semanticPaths, execution);
     observe(state);
     const end = ended => ({ ended, derived, facts: state.size });
@@ -1265,9 +1294,7 @@ class LinkedProgramRegistry {
     const allFound = () => {
       for (const entry of entries) {
         if (entry.proof !== null) continue;
-        const found = combinatorFindProof(state, entry.normalized, {
-          disabledOperations: this.#disabledOperations,
-        });
+        const found = combinatorFindProof(state, entry.normalized, this.#kernelOptions());
         observe(found);
         entry.proof = found.proof;
       }
@@ -1280,9 +1307,7 @@ class LinkedProgramRegistry {
     // one fact-capacity of transitions per requested round.
     const maxTransitions = Math.min(Number.MAX_SAFE_INTEGER, maxRounds * maxFacts);
     for (let transition = 0; transition < maxTransitions; transition += 1) {
-      const next = combinatorInferOnce(state, {
-        disabledOperations: this.#disabledOperations,
-      });
+      const next = combinatorInferOnce(state, this.#kernelOptions());
       observe(next);
       if (next.derivation === null) return end('saturated');
       state = next.state;
