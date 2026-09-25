@@ -7885,20 +7885,71 @@ impl LinkedProgramRegistry {
         max_facts: usize,
         max_steps: usize,
     ) -> Result<LinkedSearch, String> {
+        self.search_classified(name, goals, facts, max_rounds, max_facts, max_steps)
+            .map_err(ReduceFailure::into_message)
+    }
+
+    /// Search like [`search`](Self::search), but return a fact that has no
+    /// normal form (the step limit, a revisited term, or a rewrite that made
+    /// no progress) as `Ok(Err(..))`, the way
+    /// [`reduce_or_stop`](Self::reduce_or_stop) reports a reduction. Direct
+    /// saturation normalizes each input and derived fact with the ordered
+    /// rewrites, so such a fact stops the whole search. The closed S/K basis
+    /// normalizes facts inside the combinator kernel, whose bounds stay
+    /// errors. Other failures stay errors.
+    pub fn search_or_stop(
+        &self,
+        name: &str,
+        goals: &[Node],
+        facts: &[Node],
+        max_rounds: usize,
+        max_facts: usize,
+        max_steps: usize,
+    ) -> Result<Result<LinkedSearch, ReductionStopped>, String> {
+        let stopped = |normalization, detail| {
+            Ok(Err(ReductionStopped {
+                normalization,
+                detail,
+            }))
+        };
+        match self.search_classified(name, goals, facts, max_rounds, max_facts, max_steps) {
+            Ok(search) => Ok(Ok(search)),
+            Err(ReduceFailure::Limit(detail)) => stopped(GoalNormalization::RewriteLimit, detail),
+            Err(ReduceFailure::Cycle(detail)) => stopped(GoalNormalization::RewriteCycle, detail),
+            Err(ReduceFailure::Stalled(detail)) => {
+                stopped(GoalNormalization::RewriteStalled, detail)
+            }
+            Err(ReduceFailure::Other(message)) => Err(message),
+        }
+    }
+
+    fn search_classified(
+        &self,
+        name: &str,
+        goals: &[Node],
+        facts: &[Node],
+        max_rounds: usize,
+        max_facts: usize,
+        max_steps: usize,
+    ) -> Result<LinkedSearch, ReduceFailure> {
         let semantic_paths = ["prove-linked-judgement"];
         self.observe(&semantic_paths, "enforce-cycle-and-resource-bounds")?;
         if max_rounds == 0 || max_facts == 0 {
-            return Err("proof bounds must be positive".to_string());
+            return Err(ReduceFailure::Other(
+                "proof bounds must be positive".to_string(),
+            ));
         }
         if max_steps == 0 {
-            return Err("max_steps must be positive".to_string());
+            return Err(ReduceFailure::Other(
+                "max_steps must be positive".to_string(),
+            ));
         }
         let mut entries = Vec::with_capacity(goals.len());
         for goal in goals {
             let (normalized, normalization, detail) =
                 match self.reduce_classified(name, goal, max_steps) {
                     Ok(result) => (Some(result.term), GoalNormalization::Normal, None),
-                    Err(ReduceFailure::Other(message)) => return Err(message),
+                    Err(other @ ReduceFailure::Other(_)) => return Err(other),
                     Err(ReduceFailure::Limit(message)) => {
                         (None, GoalNormalization::RewriteLimit, Some(message))
                     }
@@ -7973,7 +8024,7 @@ impl LinkedProgramRegistry {
         max_rounds: usize,
         max_facts: usize,
         semantic_paths: &[&str],
-    ) -> Result<(SearchEnd, Vec<SearchDerivation>, usize), String> {
+    ) -> Result<(SearchEnd, Vec<SearchDerivation>, usize), ReduceFailure> {
         if self.execution_basis != ExecutionBasis::ClosedSk {
             return self.direct_saturate(
                 name,
@@ -8045,7 +8096,7 @@ impl LinkedProgramRegistry {
         max_rounds: usize,
         max_facts: usize,
         semantic_paths: &[&str],
-    ) -> Result<(SearchEnd, Vec<SearchDerivation>, usize), String> {
+    ) -> Result<(SearchEnd, Vec<SearchDerivation>, usize), ReduceFailure> {
         match self.execution_basis {
             ExecutionBasis::DirectStructural => {
                 self.observe(semantic_paths, "saturate-inference-rules")?;
@@ -8054,11 +8105,15 @@ impl LinkedProgramRegistry {
                 self.observe(semantic_paths, "schedule-horn-saturation")?;
             }
             ExecutionBasis::ClosedSk => {
-                return Err("the closed S/K basis has no direct saturation".to_string());
+                return Err(ReduceFailure::Other(
+                    "the closed S/K basis has no direct saturation".to_string(),
+                ));
             }
         }
 
         // `derived` is `Some` only for facts that an inference rule concluded.
+        // A fact without a normal form keeps its classified failure, so a
+        // caller can tell a rewrite limit from a cycle, as in JavaScript.
         fn add_known(
             registry: &LinkedProgramRegistry,
             program: &str,
@@ -8068,8 +8123,8 @@ impl LinkedProgramRegistry {
             max_facts: usize,
             semantic_paths: &[&str],
             derived: Option<&mut Vec<SearchDerivation>>,
-        ) -> Result<AddedFact, String> {
-            let normalized = registry.reduce(program, judgement, 10_000)?.term;
+        ) -> Result<AddedFact, ReduceFailure> {
+            let normalized = registry.reduce_classified(program, judgement, 10_000)?.term;
             let key = key_of(&normalized);
             if known.contains_key(&key) {
                 return Ok(AddedFact::Duplicate);

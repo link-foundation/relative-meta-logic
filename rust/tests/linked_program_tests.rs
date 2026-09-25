@@ -321,6 +321,44 @@ fn reports_why_a_proof_search_ended_in_every_execution_basis() {
 }
 
 #[test]
+fn reports_a_fact_without_a_normal_form_as_a_stopped_search() {
+    // Direct saturation normalizes every input and derived fact with the
+    // ordered rewrites. `search_or_stop` returns a fact without a normal form
+    // as a value, like `reduce_or_stop`, and `search` keeps it an error.
+    let source = "(linked-program loops)\n\
+         (linked-rewrite loops flip (from (flip ?x)) (to (flop ?x)))\n\
+         (linked-rewrite loops flop (from (flop ?x)) (to (flip ?x)))\n\
+         (linked-program spinner (uses loops))\n\
+         (linked-fact spinner seed (judgement (start a)))\n\
+         (linked-inference spinner spin (premise (start ?x)) (conclusion (flip ?x)))";
+    let programs =
+        LinkedProgramRegistry::from_rml_with_basis(source, ExecutionBasis::DirectStructural, &[])
+            .expect("programs load");
+    for (name, facts) in [("loops", vec![node("(flip a)")]), ("spinner", Vec::new())] {
+        let stopped = programs
+            .search_or_stop(name, &[], &facts, 128, 10_000, 10_000)
+            .expect("search runs")
+            .expect_err("the fact has no normal form");
+        assert_eq!(stopped.normalization, GoalNormalization::RewriteCycle);
+        assert_eq!(stopped.detail, "rewrite cycle after 2 steps at (flip a)");
+        assert_eq!(
+            programs
+                .search(name, &[], &facts, 128, 10_000, 10_000)
+                .expect_err("search reports the failure as an error"),
+            stopped.detail
+        );
+    }
+    let normal = programs
+        .search_or_stop("loops", &[], &[node("(edge a b)")], 128, 10_000, 10_000)
+        .expect("search runs")
+        .expect("every fact is normal");
+    assert_eq!(normal.ended, SearchEnd::Saturated);
+    assert!(programs
+        .search_or_stop("missing", &[], &[], 128, 10_000, 10_000)
+        .is_err());
+}
+
+#[test]
 fn loads_the_forms_a_layer_derives_from_the_same_parse() {
     let layered = "(linked-program base)\n\
          (linked-rewrite base finish (from (start ?x)) (to (done ?x)))\n\
