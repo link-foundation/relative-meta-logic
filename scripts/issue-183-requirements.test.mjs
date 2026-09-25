@@ -81,6 +81,7 @@ const REQUIREMENT_SOURCES = [
     5820560691,
     5821335636,
     5823272578,
+    5831357798,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
