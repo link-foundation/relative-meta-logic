@@ -633,7 +633,8 @@ pub(super) struct ProofStateOutput {
 }
 
 pub(super) struct InferenceOutput {
-    pub(super) derivation: Option<LinkedProof>,
+    /// The normalized judgement the transition added, with its proof.
+    pub(super) derivation: Option<(Node, LinkedProof)>,
     pub(super) state: ProofState,
     pub(super) observed: BTreeSet<&'static str>,
 }
@@ -778,6 +779,7 @@ pub(super) fn infer_once(
         if !is_atom_head(&decoded, "decoded-derivation") || arguments.len() != 2 {
             return Err("combinator output is not a derivation".to_string());
         }
+        let judgement = runner.decode_node(arguments[0].clone())?;
         let proof = runner.decode_proof(arguments[1].clone())?;
         state.encoded_inferences = transition_arguments[1].clone();
         state.encoded_known = apply_many(
@@ -791,7 +793,7 @@ pub(super) fn infer_once(
             ],
         );
         state.size += 1;
-        Some(proof)
+        Some((judgement, proof))
     };
     Ok(InferenceOutput {
         derivation,

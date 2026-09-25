@@ -19,6 +19,16 @@ function cloneTerm(term) {
   return Array.isArray(term) ? term.map(cloneTerm) : term;
 }
 
+// Tag the three ways an ordered reduction can fail to reach a normal form so
+// that `search` can report them as outcomes instead of rethrowing them.
+function reductionFailure(kind, message) {
+  const error = new Error(message);
+  error.reductionFailure = kind;
+  return error;
+}
+
+const FACT_LIMIT = Symbol('proof fact limit');
+
 function leaf(value, context) {
   if (typeof value !== 'string' || value.length === 0) {
     throw new Error(`${context} must be a non-empty reference`);
@@ -1118,7 +1128,10 @@ class LinkedProgramRegistry {
       const step = this.#rewriteOnce(term, rules, semanticPaths);
       if (step === null) return { term, trace, steps: trace.length };
       if (isStructurallySame(term, step.term)) {
-        throw new Error(`linked rewrite ${step.rule.program}.${step.rule.name} made no progress`);
+        throw reductionFailure(
+          'rewrite-stalled',
+          `linked rewrite ${step.rule.program}.${step.rule.name} made no progress`,
+        );
       }
       const before = term;
       term = step.term;
@@ -1129,30 +1142,105 @@ class LinkedProgramRegistry {
         after: cloneTerm(term),
       }));
       const key = keyOf(term);
-      if (seen.has(key)) throw new Error(`rewrite cycle after ${trace.length} steps at ${key}`);
+      if (seen.has(key)) {
+        throw reductionFailure(
+          'rewrite-cycle',
+          `rewrite cycle after ${trace.length} steps at ${key}`,
+        );
+      }
       seen.add(key);
     }
-    throw new Error(`rewrite step limit ${maxSteps} exceeded`);
+    throw reductionFailure('rewrite-limit', `rewrite step limit ${maxSteps} exceeded`);
   }
 
   prove(name, goal, { facts = [], maxRounds = 128, maxFacts = 10_000 } = {}) {
     const semanticPaths = ['prove-linked-judgement'];
     this.#observe(semanticPaths, 'enforce-cycle-and-resource-bounds');
-    if (!Number.isSafeInteger(maxRounds) || maxRounds <= 0 ||
-        !Number.isSafeInteger(maxFacts) || maxFacts <= 0) {
-      throw new Error('proof bounds must be positive safe integers');
+    requireProofBounds(maxRounds, maxFacts);
+    const entry = { normalized: this.reduce(name, goal).term, proof: null };
+    const outcome = this.#saturate(name, [entry], facts, semanticPaths, maxRounds, maxFacts);
+    if (outcome.ended === 'fact-limit') {
+      throw new Error(`proof fact limit ${maxFacts} exceeded`);
     }
-    const normalizedGoal = this.reduce(name, goal).term;
+    return entry.proof === null ? { ok: false, proof: null } : { ok: true, proof: entry.proof };
+  }
+
+  /**
+   * Search for several judgements in one saturation and report why it ended.
+   *
+   * `prove` answers one goal and collapses a fixed point and an exhausted
+   * bound into the same `ok: false`. A caller that must tell "no proof exists
+   * under these rules" from "the search stopped early" uses this instead. It
+   * runs the same inference engine as `prove`, so it adds no host semantic
+   * operation. The search stops when every normalizable goal has a proof
+   * (`found`), when no rule derives a new fact (`saturated`), when the
+   * transition bound is spent (`inference-limit`), or when the known facts
+   * exceed `maxFacts` (`fact-limit`). A goal whose ordered reduction has no
+   * normal form within `maxSteps` is reported with `rewrite-limit`,
+   * `rewrite-cycle`, or `rewrite-stalled` and is not searched for. With no
+   * normalizable goal the search runs to a fixed point or a bound, so
+   * `derived` then reports the whole closure. `derived` lists every derived
+   * fact in derivation order with its normalized judgement.
+   */
+  search(name, goals, {
+    facts = [],
+    maxRounds = 128,
+    maxFacts = 10_000,
+    maxSteps = 10_000,
+  } = {}) {
+    const semanticPaths = ['prove-linked-judgement'];
+    this.#observe(semanticPaths, 'enforce-cycle-and-resource-bounds');
+    requireProofBounds(maxRounds, maxFacts);
+    if (!Number.isSafeInteger(maxSteps) || maxSteps <= 0) {
+      throw new Error('maxSteps must be a positive safe integer');
+    }
+    if (!Array.isArray(goals)) throw new Error('search goals must be a list');
+    const entries = goals.map(goal => {
+      try {
+        return {
+          goal: cloneTerm(goal),
+          normalized: this.reduce(name, goal, { maxSteps }).term,
+          normalization: 'normal',
+          detail: null,
+          proof: null,
+        };
+      } catch (error) {
+        if (error.reductionFailure === undefined) throw error;
+        return {
+          goal: cloneTerm(goal),
+          normalized: null,
+          normalization: error.reductionFailure,
+          detail: error.message,
+          proof: null,
+        };
+      }
+    });
+    const outcome = this.#saturate(
+      name,
+      entries.filter(entry => entry.normalized !== null),
+      facts,
+      semanticPaths,
+      maxRounds,
+      maxFacts,
+    );
+    return {
+      schema: 'rml-linked-search/v1',
+      program: name,
+      executionBasis: this.executionBasis,
+      ended: outcome.ended,
+      goals: entries,
+      derived: outcome.derived,
+      facts: outcome.facts,
+    };
+  }
+
+  // Shared by `prove` and `search`: fill `entries[i].proof` for each
+  // normalized goal and report why saturation stopped.
+  #saturate(name, entries, facts, semanticPaths, maxRounds, maxFacts) {
     if (this.executionBasis !== 's-k') {
-      return this.#directProve(
-        name,
-        normalizedGoal,
-        facts,
-        semanticPaths,
-        maxRounds,
-        maxFacts,
-      );
+      return this.#directSaturate(name, entries, facts, semanticPaths, maxRounds, maxFacts);
     }
+    const derived = [];
     let state = combinatorCreateProofState(
       this.programs,
       name,
@@ -1161,14 +1249,20 @@ class LinkedProgramRegistry {
     );
     const observe = execution => this.#observeExecution(semanticPaths, execution);
     observe(state);
-    if (state.size > maxFacts) {
-      throw new Error(`proof fact limit ${maxFacts} exceeded`);
-    }
-    let found = combinatorFindProof(state, normalizedGoal, {
-      disabledOperations: this.#disabledOperations,
-    });
-    observe(found);
-    if (found.proof !== null) return { ok: true, proof: found.proof };
+    const end = ended => ({ ended, derived, facts: state.size });
+    if (state.size > maxFacts) return end('fact-limit');
+    const allFound = () => {
+      for (const entry of entries) {
+        if (entry.proof !== null) continue;
+        const found = combinatorFindProof(state, entry.normalized, {
+          disabledOperations: this.#disabledOperations,
+        });
+        observe(found);
+        entry.proof = found.proof;
+      }
+      return entries.length > 0 && entries.every(entry => entry.proof !== null);
+    };
+    if (allFound()) return end('found');
 
     // A legacy "round" could add many novel facts. The closed kernel emits
     // one derivation at a time, so retain that public bound by allowing up to
@@ -1179,21 +1273,16 @@ class LinkedProgramRegistry {
         disabledOperations: this.#disabledOperations,
       });
       observe(next);
-      if (next.derivation === null) return { ok: false, proof: null };
+      if (next.derivation === null) return end('saturated');
       state = next.state;
-      if (state.size > maxFacts) {
-        throw new Error(`proof fact limit ${maxFacts} exceeded`);
-      }
-      found = combinatorFindProof(state, normalizedGoal, {
-        disabledOperations: this.#disabledOperations,
-      });
-      observe(found);
-      if (found.proof !== null) return { ok: true, proof: found.proof };
+      derived.push(next.derivation);
+      if (state.size > maxFacts) return end('fact-limit');
+      if (allFound()) return end('found');
     }
-    return { ok: false, proof: null };
+    return end('inference-limit');
   }
 
-  #directProve(name, normalizedGoal, facts, semanticPaths, maxRounds, maxFacts) {
+  #directSaturate(name, entries, facts, semanticPaths, maxRounds, maxFacts) {
     this.#observe(
       semanticPaths,
       this.executionBasis === 'horn-relational'
@@ -1201,85 +1290,104 @@ class LinkedProgramRegistry {
         : 'saturate-inference-rules',
     );
     const known = new Map();
-    const add = (judgement, proof, derived = false) => {
+    const derived = [];
+    const end = ended => ({ ended, derived, facts: known.size });
+    const goalKeys = entries.map(entry => keyOf(entry.normalized));
+    const allFound = () => {
+      entries.forEach((entry, index) => {
+        if (entry.proof === null && known.has(goalKeys[index])) {
+          entry.proof = known.get(goalKeys[index]).proof;
+        }
+      });
+      return entries.length > 0 && entries.every(entry => entry.proof !== null);
+    };
+    const add = (judgement, proof, isDerived = false) => {
       const normalized = this.reduce(name, judgement).term;
       const key = keyOf(normalized);
       if (known.has(key)) return false;
-      if (derived && this.executionBasis === 'horn-relational') {
+      if (isDerived && this.executionBasis === 'horn-relational') {
         this.#observe(semanticPaths, 'insert-derived-fact');
       }
       known.set(key, { judgement: normalized, proof });
-      if (known.size > maxFacts) {
-        throw new Error(`proof fact limit ${maxFacts} exceeded`);
-      }
+      if (isDerived) derived.push({ judgement: normalized, proof });
+      if (known.size > maxFacts) throw FACT_LIMIT;
       return true;
     };
-    for (const fact of this.#directEffective(name, 'facts', semanticPaths)) {
-      add(fact.judgement, {
-        judgement: cloneTerm(fact.judgement),
-        program: fact.program,
-        rule: fact.name,
+    try {
+      for (const fact of this.#directEffective(name, 'facts', semanticPaths)) {
+        add(fact.judgement, {
+          judgement: cloneTerm(fact.judgement),
+          program: fact.program,
+          rule: fact.name,
+          premises: [],
+        });
+      }
+      facts.forEach((fact, index) => add(fact, {
+        judgement: cloneTerm(fact),
+        program: '<input>',
+        rule: `input-${index + 1}`,
         premises: [],
-      });
-    }
-    facts.forEach((fact, index) => add(fact, {
-      judgement: cloneTerm(fact),
-      program: '<input>',
-      rule: `input-${index + 1}`,
-      premises: [],
-    }));
-    const goalKey = keyOf(normalizedGoal);
-    if (known.has(goalKey)) return { ok: true, proof: known.get(goalKey).proof };
+      }));
+      if (allFound()) return end('found');
 
-    const rules = this.#directEffective(name, 'inferences', semanticPaths);
-    for (let round = 0; round < maxRounds; round += 1) {
-      let changed = false;
-      for (const rule of rules) {
-        let candidates = [{ substitution: new Map(), premises: [] }];
-        for (const premise of rule.premises) {
-          const next = [];
-          for (const candidate of candidates) {
-            for (const entry of known.values()) {
-              const substitution = new Map(candidate.substitution);
-              if (directMatchTerm(
-                premise,
-                entry.judgement,
-                substitution,
-                operation => this.#observe(semanticPaths, operation),
-              ) !== null) {
-                next.push({
+      const rules = this.#directEffective(name, 'inferences', semanticPaths);
+      for (let round = 0; round < maxRounds; round += 1) {
+        let changed = false;
+        for (const rule of rules) {
+          let candidates = [{ substitution: new Map(), premises: [] }];
+          for (const premise of rule.premises) {
+            const next = [];
+            for (const candidate of candidates) {
+              for (const entry of known.values()) {
+                const substitution = new Map(candidate.substitution);
+                if (directMatchTerm(
+                  premise,
+                  entry.judgement,
                   substitution,
-                  premises: [...candidate.premises, entry.proof],
-                });
+                  operation => this.#observe(semanticPaths, operation),
+                ) !== null) {
+                  next.push({
+                    substitution,
+                    premises: [...candidate.premises, entry.proof],
+                  });
+                }
               }
             }
+            candidates = next;
+            if (candidates.length === 0) break;
           }
-          candidates = next;
-          if (candidates.length === 0) break;
-        }
-        for (const candidate of candidates) {
-          const judgement = directInstantiate(
-            rule.conclusion,
-            candidate.substitution,
-            operation => this.#observe(semanticPaths, operation),
-          );
-          const proof = {
-            judgement: cloneTerm(judgement),
-            program: rule.program,
-            rule: rule.name,
-            premises: candidate.premises,
-          };
-          if (add(judgement, proof, true)) {
-            changed = true;
-            if (known.has(goalKey)) {
-              return { ok: true, proof: known.get(goalKey).proof };
+          for (const candidate of candidates) {
+            const judgement = directInstantiate(
+              rule.conclusion,
+              candidate.substitution,
+              operation => this.#observe(semanticPaths, operation),
+            );
+            const proof = {
+              judgement: cloneTerm(judgement),
+              program: rule.program,
+              rule: rule.name,
+              premises: candidate.premises,
+            };
+            if (add(judgement, proof, true)) {
+              changed = true;
+              if (allFound()) return end('found');
             }
           }
         }
+        if (!changed) return end('saturated');
       }
-      if (!changed) break;
+      return end('inference-limit');
+    } catch (error) {
+      if (error === FACT_LIMIT) return end('fact-limit');
+      throw error;
     }
-    return { ok: false, proof: null };
+  }
+}
+
+function requireProofBounds(maxRounds, maxFacts) {
+  if (!Number.isSafeInteger(maxRounds) || maxRounds <= 0 ||
+      !Number.isSafeInteger(maxFacts) || maxFacts <= 0) {
+    throw new Error('proof bounds must be positive safe integers');
   }
 }
 

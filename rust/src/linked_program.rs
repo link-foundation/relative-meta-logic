@@ -110,6 +110,108 @@ pub struct LinkedProof {
     pub premises: Vec<LinkedProof>,
 }
 
+/// Why [`LinkedProgramRegistry::search`] stopped.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SearchEnd {
+    /// Every normalizable goal has a proof.
+    Found,
+    /// No rule derives a new fact: the fixed point was reached.
+    Saturated,
+    /// The transition bound was spent before the fixed point.
+    InferenceLimit,
+    /// The known facts exceeded `max_facts`.
+    FactLimit,
+}
+
+impl SearchEnd {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Found => "found",
+            Self::Saturated => "saturated",
+            Self::InferenceLimit => "inference-limit",
+            Self::FactLimit => "fact-limit",
+        }
+    }
+}
+
+/// Whether a search goal reached a normal form before the search began.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GoalNormalization {
+    Normal,
+    RewriteLimit,
+    RewriteCycle,
+    RewriteStalled,
+}
+
+impl GoalNormalization {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Normal => "normal",
+            Self::RewriteLimit => "rewrite-limit",
+            Self::RewriteCycle => "rewrite-cycle",
+            Self::RewriteStalled => "rewrite-stalled",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SearchGoal {
+    pub goal: Node,
+    pub normalized: Option<Node>,
+    pub normalization: GoalNormalization,
+    pub detail: Option<String>,
+    pub proof: Option<LinkedProof>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SearchDerivation {
+    pub judgement: Node,
+    pub proof: LinkedProof,
+}
+
+/// Explicit outcome of one saturation for several goals.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkedSearch {
+    pub program: String,
+    pub execution_basis: ExecutionBasis,
+    pub ended: SearchEnd,
+    pub goals: Vec<SearchGoal>,
+    pub derived: Vec<SearchDerivation>,
+    pub facts: usize,
+}
+
+/// The three ways an ordered reduction can fail to reach a normal form, kept
+/// apart from other errors so that `search` can report them as outcomes.
+enum ReduceFailure {
+    Limit(String),
+    Cycle(String),
+    Stalled(String),
+    Other(String),
+}
+
+impl From<String> for ReduceFailure {
+    fn from(message: String) -> Self {
+        Self::Other(message)
+    }
+}
+
+impl ReduceFailure {
+    fn into_message(self) -> String {
+        match self {
+            Self::Limit(message)
+            | Self::Cycle(message)
+            | Self::Stalled(message)
+            | Self::Other(message) => message,
+        }
+    }
+}
+
+enum AddedFact {
+    Duplicate,
+    New,
+    OverLimit,
+}
+
 /// Complete theory-independent host boundary for linked-program execution.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BootstrapKernelReport {
@@ -7535,13 +7637,25 @@ impl LinkedProgramRegistry {
         input: &Node,
         max_steps: usize,
     ) -> Result<ReductionResult, String> {
+        self.reduce_classified(name, input, max_steps)
+            .map_err(ReduceFailure::into_message)
+    }
+
+    fn reduce_classified(
+        &self,
+        name: &str,
+        input: &Node,
+        max_steps: usize,
+    ) -> Result<ReductionResult, ReduceFailure> {
         let mut semantic_paths = vec!["reduce-linked-program"];
         if name == "links-meta-foundation" {
             semantic_paths.push("execute-links-meta-foundation");
         }
         self.observe(&semantic_paths, "enforce-cycle-and-resource-bounds")?;
         if max_steps == 0 {
-            return Err("max_steps must be positive".to_string());
+            return Err(ReduceFailure::Other(
+                "max_steps must be positive".to_string(),
+            ));
         }
         if self.execution_basis == ExecutionBasis::HornRelational {
             return Ok(ReductionResult {
@@ -7563,10 +7677,10 @@ impl LinkedProgramRegistry {
                 };
                 let rule = &rules[rule_index];
                 if next == term {
-                    return Err(format!(
+                    return Err(ReduceFailure::Stalled(format!(
                         "linked rewrite {}.{} made no progress",
                         rule.program, rule.name
-                    ));
+                    )));
                 }
                 trace.push(RewriteTraceStep {
                     program: rule.program.clone(),
@@ -7577,13 +7691,15 @@ impl LinkedProgramRegistry {
                 term = next;
                 let key = key_of(&term);
                 if !seen.insert(key.clone()) {
-                    return Err(format!(
+                    return Err(ReduceFailure::Cycle(format!(
                         "rewrite cycle after {} steps at {key}",
                         trace.len()
-                    ));
+                    )));
                 }
             }
-            return Err(format!("rewrite step limit {max_steps} exceeded"));
+            return Err(ReduceFailure::Limit(format!(
+                "rewrite step limit {max_steps} exceeded"
+            )));
         }
         let rules =
             combinator_kernel::resolve_rewrites(&self.programs, name, &self.disabled_operations)?;
@@ -7607,13 +7723,15 @@ impl LinkedProgramRegistry {
                 .get(&program_name)
                 .and_then(|program| program.rewrites.iter().find(|rule| rule.name == rule_name))
                 .ok_or_else(|| {
-                    format!("combinator kernel selected unknown rule {program_name}.{rule_name}")
+                    ReduceFailure::Other(format!(
+                        "combinator kernel selected unknown rule {program_name}.{rule_name}"
+                    ))
                 })?;
             if next == term {
-                return Err(format!(
+                return Err(ReduceFailure::Stalled(format!(
                     "linked rewrite {}.{} made no progress",
                     rule.program, rule.name
-                ));
+                )));
             }
             trace.push(RewriteTraceStep {
                 program: rule.program.clone(),
@@ -7624,13 +7742,15 @@ impl LinkedProgramRegistry {
             term = next;
             let key = key_of(&term);
             if !seen.insert(key.clone()) {
-                return Err(format!(
+                return Err(ReduceFailure::Cycle(format!(
                     "rewrite cycle after {} steps at {key}",
                     trace.len()
-                ));
+                )));
             }
         }
-        Err(format!("rewrite step limit {max_steps} exceeded"))
+        Err(ReduceFailure::Limit(format!(
+            "rewrite step limit {max_steps} exceeded"
+        )))
     }
 
     pub fn prove(
@@ -7648,25 +7768,153 @@ impl LinkedProgramRegistry {
             return None;
         }
         let normalized_goal = self.reduce(name, goal, 10_000).ok()?.term;
-        if self.execution_basis != ExecutionBasis::ClosedSk {
-            return self.direct_prove(
+        let mut goals = vec![(normalized_goal, None)];
+        let (ended, _, _) = self
+            .saturate(
                 name,
-                &normalized_goal,
+                &mut goals,
                 facts,
                 max_rounds,
                 max_facts,
                 &semantic_paths,
+            )
+            .ok()?;
+        if ended == SearchEnd::FactLimit {
+            return None;
+        }
+        goals.pop().and_then(|(_, proof)| proof)
+    }
+
+    /// Search for several judgements in one saturation and report why it
+    /// ended.
+    ///
+    /// `prove` answers one goal and collapses a fixed point, an exhausted
+    /// bound, and an error into `None`. A caller that must tell "no proof
+    /// exists under these rules" from "the search stopped early" uses this
+    /// instead. It runs the same inference engine as `prove`, so it adds no
+    /// host semantic operation. The search stops when every normalizable goal
+    /// has a proof, when no rule derives a new fact, when the transition bound
+    /// is spent, or when the known facts exceed `max_facts`. A goal whose
+    /// ordered reduction has no normal form within `max_steps` is reported
+    /// with its [`GoalNormalization`] and is not searched for. With no
+    /// normalizable goal the search runs to a fixed point or a bound, so
+    /// `derived` then reports the whole closure.
+    pub fn search(
+        &self,
+        name: &str,
+        goals: &[Node],
+        facts: &[Node],
+        max_rounds: usize,
+        max_facts: usize,
+        max_steps: usize,
+    ) -> Result<LinkedSearch, String> {
+        let semantic_paths = ["prove-linked-judgement"];
+        self.observe(&semantic_paths, "enforce-cycle-and-resource-bounds")?;
+        if max_rounds == 0 || max_facts == 0 {
+            return Err("proof bounds must be positive".to_string());
+        }
+        if max_steps == 0 {
+            return Err("max_steps must be positive".to_string());
+        }
+        let mut entries = Vec::with_capacity(goals.len());
+        for goal in goals {
+            let (normalized, normalization, detail) =
+                match self.reduce_classified(name, goal, max_steps) {
+                    Ok(result) => (Some(result.term), GoalNormalization::Normal, None),
+                    Err(ReduceFailure::Other(message)) => return Err(message),
+                    Err(ReduceFailure::Limit(message)) => {
+                        (None, GoalNormalization::RewriteLimit, Some(message))
+                    }
+                    Err(ReduceFailure::Cycle(message)) => {
+                        (None, GoalNormalization::RewriteCycle, Some(message))
+                    }
+                    Err(ReduceFailure::Stalled(message)) => {
+                        (None, GoalNormalization::RewriteStalled, Some(message))
+                    }
+                };
+            entries.push(SearchGoal {
+                goal: goal.clone(),
+                normalized,
+                normalization,
+                detail,
+                proof: None,
+            });
+        }
+        let mut searched = entries
+            .iter()
+            .filter_map(|entry| entry.normalized.clone().map(|goal| (goal, None)))
+            .collect::<Vec<_>>();
+        let (ended, derived, known) = self.saturate(
+            name,
+            &mut searched,
+            facts,
+            max_rounds,
+            max_facts,
+            &semantic_paths,
+        )?;
+        let mut proofs = searched.into_iter().map(|(_, proof)| proof);
+        for entry in &mut entries {
+            if entry.normalized.is_some() {
+                entry.proof = proofs.next().flatten();
+            }
+        }
+        Ok(LinkedSearch {
+            program: name.to_string(),
+            execution_basis: self.execution_basis,
+            ended,
+            goals: entries,
+            derived,
+            facts: known,
+        })
+    }
+
+    fn find_goals(
+        &self,
+        state: &combinator_kernel::ProofState,
+        goals: &mut [(Node, Option<LinkedProof>)],
+        semantic_paths: &[&str],
+    ) -> Result<bool, String> {
+        for (goal, proof) in goals.iter_mut() {
+            if proof.is_some() {
+                continue;
+            }
+            let found = combinator_kernel::find_proof(state, goal, &self.disabled_operations)?;
+            self.observe_combinator(semantic_paths, &found.observed, &["result-verification"])?;
+            *proof = found.proof;
+        }
+        Ok(!goals.is_empty() && goals.iter().all(|(_, proof)| proof.is_some()))
+    }
+
+    /// Shared by `prove` and `search`: fill the proof of each normalized goal
+    /// and report why saturation stopped, the derived facts, and the number of
+    /// known facts.
+    fn saturate(
+        &self,
+        name: &str,
+        goals: &mut [(Node, Option<LinkedProof>)],
+        input_facts: &[Node],
+        max_rounds: usize,
+        max_facts: usize,
+        semantic_paths: &[&str],
+    ) -> Result<(SearchEnd, Vec<SearchDerivation>, usize), String> {
+        if self.execution_basis != ExecutionBasis::ClosedSk {
+            return self.direct_saturate(
+                name,
+                goals,
+                input_facts,
+                max_rounds,
+                max_facts,
+                semantic_paths,
             );
         }
         let created = combinator_kernel::create_proof_state(
             &self.programs,
             name,
-            facts,
+            input_facts,
             &self.disabled_operations,
-        )
-        .ok()?;
+        )?;
         self.observe_combinator(
-            &semantic_paths,
+            semantic_paths,
             &created.observed,
             &[
                 "import-and-rebinding",
@@ -7674,26 +7922,21 @@ impl LinkedProgramRegistry {
                 "substitution",
                 "rule-selection-and-traversal",
             ],
-        )
-        .ok()?;
+        )?;
         let mut state = created.state;
+        let mut derived = Vec::new();
         if state.size > max_facts {
-            return None;
+            return Ok((SearchEnd::FactLimit, derived, state.size));
         }
-        let found =
-            combinator_kernel::find_proof(&state, &normalized_goal, &self.disabled_operations)
-                .ok()?;
-        self.observe_combinator(&semantic_paths, &found.observed, &["result-verification"])
-            .ok()?;
-        if found.proof.is_some() {
-            return found.proof;
+        if self.find_goals(&state, goals, semantic_paths)? {
+            return Ok((SearchEnd::Found, derived, state.size));
         }
         // One legacy round could add many facts. The closed kernel emits one
         // derivation per transition, so preserve that capacity per round.
         for _ in 0..max_rounds.saturating_mul(max_facts) {
-            let next = combinator_kernel::infer_once(state, &self.disabled_operations).ok()?;
+            let next = combinator_kernel::infer_once(state, &self.disabled_operations)?;
             self.observe_combinator(
-                &semantic_paths,
+                semantic_paths,
                 &next.observed,
                 &[
                     "matching",
@@ -7701,46 +7944,44 @@ impl LinkedProgramRegistry {
                     "rule-selection-and-traversal",
                     "inference-saturation",
                 ],
-            )
-            .ok()?;
+            )?;
             state = next.state;
-            next.derivation.as_ref()?;
+            let Some((judgement, proof)) = next.derivation else {
+                return Ok((SearchEnd::Saturated, derived, state.size));
+            };
+            derived.push(SearchDerivation { judgement, proof });
             if state.size > max_facts {
-                return None;
+                return Ok((SearchEnd::FactLimit, derived, state.size));
             }
-            let found =
-                combinator_kernel::find_proof(&state, &normalized_goal, &self.disabled_operations)
-                    .ok()?;
-            self.observe_combinator(&semantic_paths, &found.observed, &["result-verification"])
-                .ok()?;
-            if found.proof.is_some() {
-                return found.proof;
+            if self.find_goals(&state, goals, semantic_paths)? {
+                return Ok((SearchEnd::Found, derived, state.size));
             }
         }
-        None
+        Ok((SearchEnd::InferenceLimit, derived, state.size))
     }
 
-    fn direct_prove(
+    fn direct_saturate(
         &self,
         name: &str,
-        normalized_goal: &Node,
+        goals: &mut [(Node, Option<LinkedProof>)],
         input_facts: &[Node],
         max_rounds: usize,
         max_facts: usize,
         semantic_paths: &[&str],
-    ) -> Option<LinkedProof> {
+    ) -> Result<(SearchEnd, Vec<SearchDerivation>, usize), String> {
         match self.execution_basis {
             ExecutionBasis::DirectStructural => {
-                self.observe(semantic_paths, "saturate-inference-rules")
-                    .ok()?;
+                self.observe(semantic_paths, "saturate-inference-rules")?;
             }
             ExecutionBasis::HornRelational => {
-                self.observe(semantic_paths, "schedule-horn-saturation")
-                    .ok()?;
+                self.observe(semantic_paths, "schedule-horn-saturation")?;
             }
-            ExecutionBasis::ClosedSk => return None,
+            ExecutionBasis::ClosedSk => {
+                return Err("the closed S/K basis has no direct saturation".to_string());
+            }
         }
 
+        // `derived` is `Some` only for facts that an inference rule concluded.
         fn add_known(
             registry: &LinkedProgramRegistry,
             program: &str,
@@ -7749,26 +7990,45 @@ impl LinkedProgramRegistry {
             proof: LinkedProof,
             max_facts: usize,
             semantic_paths: &[&str],
-            derived: bool,
-        ) -> Option<bool> {
-            let normalized = registry.reduce(program, judgement, 10_000).ok()?.term;
+            derived: Option<&mut Vec<SearchDerivation>>,
+        ) -> Result<AddedFact, String> {
+            let normalized = registry.reduce(program, judgement, 10_000)?.term;
             let key = key_of(&normalized);
             if known.contains_key(&key) {
-                return Some(false);
+                return Ok(AddedFact::Duplicate);
             }
-            if derived && registry.execution_basis == ExecutionBasis::HornRelational {
-                registry
-                    .observe(semantic_paths, "insert-derived-fact")
-                    .ok()?;
+            if let Some(derived) = derived {
+                if registry.execution_basis == ExecutionBasis::HornRelational {
+                    registry.observe(semantic_paths, "insert-derived-fact")?;
+                }
+                derived.push(SearchDerivation {
+                    judgement: normalized.clone(),
+                    proof: proof.clone(),
+                });
             }
             known.insert(key, (normalized, proof));
-            (known.len() <= max_facts).then_some(true)
+            Ok(if known.len() <= max_facts {
+                AddedFact::New
+            } else {
+                AddedFact::OverLimit
+            })
+        }
+
+        fn all_found(
+            known: &BTreeMap<String, (Node, LinkedProof)>,
+            goals: &mut [(Node, Option<LinkedProof>)],
+        ) -> bool {
+            for (goal, proof) in goals.iter_mut() {
+                if proof.is_none() {
+                    *proof = known.get(&key_of(goal)).map(|(_, found)| found.clone());
+                }
+            }
+            !goals.is_empty() && goals.iter().all(|(_, proof)| proof.is_some())
         }
 
         let mut known = BTreeMap::new();
-        let declared = self
-            .effective_facts(name, semantic_paths, &mut BTreeSet::new(), &[])
-            .ok()?;
+        let mut derived = Vec::new();
+        let declared = self.effective_facts(name, semantic_paths, &mut BTreeSet::new(), &[])?;
         for fact in declared {
             let proof = LinkedProof {
                 judgement: fact.judgement.clone(),
@@ -7776,7 +8036,7 @@ impl LinkedProgramRegistry {
                 rule: fact.name,
                 premises: Vec::new(),
             };
-            add_known(
+            if let AddedFact::OverLimit = add_known(
                 self,
                 name,
                 &mut known,
@@ -7784,8 +8044,10 @@ impl LinkedProgramRegistry {
                 proof,
                 max_facts,
                 semantic_paths,
-                false,
-            )?;
+                None,
+            )? {
+                return Ok((SearchEnd::FactLimit, derived, known.len()));
+            }
         }
         for (index, fact) in input_facts.iter().enumerate() {
             let proof = LinkedProof {
@@ -7794,7 +8056,7 @@ impl LinkedProgramRegistry {
                 rule: format!("input-{}", index + 1),
                 premises: Vec::new(),
             };
-            add_known(
+            if let AddedFact::OverLimit = add_known(
                 self,
                 name,
                 &mut known,
@@ -7802,17 +8064,16 @@ impl LinkedProgramRegistry {
                 proof,
                 max_facts,
                 semantic_paths,
-                false,
-            )?;
+                None,
+            )? {
+                return Ok((SearchEnd::FactLimit, derived, known.len()));
+            }
         }
-        let goal_key = key_of(normalized_goal);
-        if let Some((_, proof)) = known.get(&goal_key) {
-            return Some(proof.clone());
+        if all_found(&known, goals) {
+            return Ok((SearchEnd::Found, derived, known.len()));
         }
 
-        let rules = self
-            .effective_inferences(name, semantic_paths, &mut BTreeSet::new(), &[])
-            .ok()?;
+        let rules = self.effective_inferences(name, semantic_paths, &mut BTreeSet::new(), &[])?;
         for _ in 0..max_rounds {
             let mut changed = false;
             for rule in &rules {
@@ -7828,9 +8089,7 @@ impl LinkedProgramRegistry {
                                 judgement,
                                 &mut substitution,
                                 &mut observe,
-                            )
-                            .ok()?
-                            {
+                            )? {
                                 let mut premises = candidate_premises.clone();
                                 premises.push(proof.clone());
                                 next.push((substitution, premises));
@@ -7845,14 +8104,14 @@ impl LinkedProgramRegistry {
                 for (substitution, premises) in candidates {
                     let mut observe = |operation| self.observe(semantic_paths, operation);
                     let judgement =
-                        direct_instantiate(&rule.conclusion, &substitution, &mut observe).ok()?;
+                        direct_instantiate(&rule.conclusion, &substitution, &mut observe)?;
                     let proof = LinkedProof {
                         judgement: judgement.clone(),
                         program: rule.program.clone(),
                         rule: rule.name.clone(),
                         premises,
                     };
-                    if add_known(
+                    match add_known(
                         self,
                         name,
                         &mut known,
@@ -7860,19 +8119,25 @@ impl LinkedProgramRegistry {
                         proof,
                         max_facts,
                         semantic_paths,
-                        true,
+                        Some(&mut derived),
                     )? {
-                        changed = true;
-                        if let Some((_, proof)) = known.get(&goal_key) {
-                            return Some(proof.clone());
+                        AddedFact::Duplicate => {}
+                        AddedFact::OverLimit => {
+                            return Ok((SearchEnd::FactLimit, derived, known.len()));
+                        }
+                        AddedFact::New => {
+                            changed = true;
+                            if all_found(&known, goals) {
+                                return Ok((SearchEnd::Found, derived, known.len()));
+                            }
                         }
                     }
                 }
             }
             if !changed {
-                break;
+                return Ok((SearchEnd::Saturated, derived, known.len()));
             }
         }
-        None
+        Ok((SearchEnd::InferenceLimit, derived, known.len()))
     }
 }

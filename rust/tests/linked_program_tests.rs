@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 
-use rml::linked_program::LinkedProgramRegistry;
+use rml::linked_program::{ExecutionBasis, GoalNormalization, LinkedProgramRegistry, SearchEnd};
 use rml::{parse_one, tokenize_one, Node};
 
 fn node(source: &str) -> Node {
@@ -198,6 +198,105 @@ fn applies_proof_fact_bound_to_declared_and_input_facts() {
             1,
         )
         .is_none());
+}
+
+#[test]
+fn reports_why_a_proof_search_ended_in_every_execution_basis() {
+    let source = "(linked-program graph)\n\
+         (linked-fact graph ab (judgement (edge a b)))\n\
+         (linked-fact graph bc (judgement (edge b c)))\n\
+         (linked-inference graph base (premise (edge ?x ?y)) (conclusion (path ?x ?y)))\n\
+         (linked-inference graph step\n\
+           (premise (edge ?x ?y)) (premise (path ?y ?z)) (conclusion (path ?x ?z)))\n\
+         (linked-program counter)\n\
+         (linked-fact counter zero (judgement (count z)))\n\
+         (linked-inference counter next (premise (count ?n)) (conclusion (count (s ?n))))\n\
+         (linked-program loops)\n\
+         (linked-rewrite loops flip (from (flip ?x)) (to (flop ?x)))\n\
+         (linked-rewrite loops flop (from (flop ?x)) (to (flip ?x)))";
+    let closure = vec![node("(path a b)"), node("(path b c)"), node("(path a c)")];
+    for basis in [
+        ExecutionBasis::ClosedSk,
+        ExecutionBasis::DirectStructural,
+        ExecutionBasis::HornRelational,
+    ] {
+        let programs = LinkedProgramRegistry::from_rml_with_basis(source, basis, &[])
+            .expect("search programs load");
+        let search = |name: &str, goals: &[Node], rounds: usize, facts: usize| {
+            programs
+                .search(name, goals, &[], rounds, facts, 10_000)
+                .expect("search runs")
+        };
+
+        let found = search(
+            "graph",
+            &[node("(path a c)"), node("(path b c)")],
+            128,
+            10_000,
+        );
+        assert_eq!(found.execution_basis, basis);
+        assert_eq!(found.ended, SearchEnd::Found);
+        assert_eq!(found.ended.as_str(), "found");
+        let rules = found
+            .goals
+            .iter()
+            .map(|goal| {
+                assert_eq!(goal.normalization, GoalNormalization::Normal);
+                goal.proof.as_ref().expect("goal proved").rule.as_str()
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(rules, ["step", "base"]);
+        let derived = |outcome: &rml::linked_program::LinkedSearch| {
+            outcome
+                .derived
+                .iter()
+                .map(|entry| entry.judgement.clone())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(derived(&found), closure);
+
+        // A fixed point without the goal is not the same outcome as a spent bound.
+        let saturated = search("graph", &[node("(path c a)")], 128, 10_000);
+        assert_eq!(saturated.ended, SearchEnd::Saturated);
+        assert!(saturated.goals[0].proof.is_none());
+        assert_eq!(saturated.facts, 5);
+        let whole = search("graph", &[], 128, 10_000);
+        assert_eq!(whole.ended, SearchEnd::Saturated);
+        assert_eq!(derived(&whole), closure);
+
+        let facts = search("counter", &[node("(count never)")], 64, 3);
+        assert_eq!(facts.ended, SearchEnd::FactLimit);
+        assert_eq!(facts.facts, 4);
+        // The closed kernel spends one transition per derived fact, so it meets
+        // the fact bound where a direct round runs out first.
+        let rounds = search("counter", &[node("(count never)")], 1, 3);
+        let expected = if basis == ExecutionBasis::ClosedSk {
+            SearchEnd::FactLimit
+        } else {
+            SearchEnd::InferenceLimit
+        };
+        assert_eq!(rounds.ended, expected);
+        assert!(rounds.goals[0].proof.is_none());
+
+        // The Horn control has no ordered reduction, so only the other two bases
+        // can fail to normalize a goal.
+        if basis != ExecutionBasis::HornRelational {
+            let cycle = search("loops", &[node("(flip a)")], 128, 10_000);
+            assert_eq!(cycle.ended, SearchEnd::Saturated);
+            assert_eq!(
+                cycle.goals[0].normalization,
+                GoalNormalization::RewriteCycle
+            );
+            assert!(cycle.goals[0].normalized.is_none());
+            assert!(cycle.goals[0]
+                .detail
+                .as_deref()
+                .is_some_and(|detail| detail.contains("rewrite cycle after")));
+        }
+    }
+    let programs = LinkedProgramRegistry::from_rml(source).expect("search programs load");
+    assert!(programs.search("graph", &[], &[], 128, 10_000, 0).is_err());
+    assert!(programs.search("graph", &[], &[], 128, 0, 10_000).is_err());
 }
 
 #[test]

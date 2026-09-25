@@ -182,6 +182,67 @@ describe('links-defined universal program evaluator', () => {
     );
   });
 
+  it('reports why a proof search ended in every execution basis', () => {
+    const searchSource = `
+      (linked-program graph)
+      (linked-fact graph ab (judgement (edge a b)))
+      (linked-fact graph bc (judgement (edge b c)))
+      (linked-inference graph base (premise (edge ?x ?y)) (conclusion (path ?x ?y)))
+      (linked-inference graph step
+        (premise (edge ?x ?y)) (premise (path ?y ?z)) (conclusion (path ?x ?z)))
+      (linked-program counter)
+      (linked-fact counter zero (judgement (count z)))
+      (linked-inference counter next (premise (count ?n)) (conclusion (count (s ?n))))
+      (linked-program loops)
+      (linked-rewrite loops flip (from (flip ?x)) (to (flop ?x)))
+      (linked-rewrite loops flop (from (flop ?x)) (to (flip ?x)))
+    `;
+    const closure = [['path', 'a', 'b'], ['path', 'b', 'c'], ['path', 'a', 'c']];
+    for (const executionBasis of ['s-k', 'direct-structural', 'horn-relational']) {
+      const programs = LinkedProgramRegistry.fromRml(searchSource, { executionBasis });
+
+      const found = programs.search('graph', [['path', 'a', 'c'], ['path', 'b', 'c']]);
+      assert.equal(found.schema, 'rml-linked-search/v1');
+      assert.equal(found.executionBasis, executionBasis);
+      assert.equal(found.ended, 'found');
+      assert.deepEqual(found.goals.map(goal => goal.normalization), ['normal', 'normal']);
+      assert.deepEqual(found.goals.map(goal => goal.proof.rule), ['step', 'base']);
+      assert.deepEqual(found.derived.map(entry => entry.judgement), closure);
+
+      // A fixed point without the goal is not the same outcome as a spent bound.
+      const saturated = programs.search('graph', [['path', 'c', 'a']]);
+      assert.equal(saturated.ended, 'saturated');
+      assert.equal(saturated.goals[0].proof, null);
+      assert.equal(saturated.facts, 5);
+      const whole = programs.search('graph', []);
+      assert.equal(whole.ended, 'saturated');
+      assert.deepEqual(whole.derived.map(entry => entry.judgement), closure);
+
+      const facts = programs.search('counter', [['count', 'never']], { maxRounds: 64, maxFacts: 3 });
+      assert.equal(facts.ended, 'fact-limit');
+      assert.equal(facts.facts, 4);
+      // The closed kernel spends one transition per derived fact, so it meets
+      // the fact bound where a direct round runs out first.
+      const rounds = programs.search('counter', [['count', 'never']], { maxRounds: 1, maxFacts: 3 });
+      assert.equal(rounds.ended, executionBasis === 's-k' ? 'fact-limit' : 'inference-limit');
+      assert.equal(rounds.goals[0].proof, null);
+
+      // The Horn control has no ordered reduction, so only the other two bases
+      // can fail to normalize a goal.
+      if (executionBasis !== 'horn-relational') {
+        const cycle = programs.search('loops', [['flip', 'a']]);
+        assert.equal(cycle.ended, 'saturated');
+        assert.equal(cycle.goals[0].normalization, 'rewrite-cycle');
+        assert.equal(cycle.goals[0].normalized, null);
+        assert.match(cycle.goals[0].detail, /rewrite cycle after/);
+      }
+    }
+    const programs = LinkedProgramRegistry.fromRml(searchSource);
+    assert.throws(() => programs.search('graph', 'path'), /search goals must be a list/);
+    assert.throws(() => programs.search('graph', [], { maxSteps: 0 }), /maxSteps must be a positive safe integer/);
+    assert.throws(() => programs.search('graph', [], { maxFacts: 0 }), /proof bounds must be positive safe integers/);
+  });
+
   it('instantiates one unchanged theory over replaceable foundations', () => {
     const programs = registry(`
       (linked-program portable-classifier)
