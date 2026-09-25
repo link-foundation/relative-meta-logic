@@ -124,6 +124,16 @@ fn indented_lines(count: usize) -> Vec<String> {
         .collect()
 }
 
+/// `count` indented ids `a:`, each one space deeper than the one before it,
+/// over the value `b` one space deeper than the last of them.
+fn nested_indented_ids(count: usize) -> String {
+    let mut lines: Vec<String> = (0..count)
+        .map(|level| format!("{}a:", " ".repeat(level)))
+        .collect();
+    lines.push(format!("{}b", " ".repeat(count)));
+    lines.join("\n")
+}
+
 fn nesting_error(line: usize, col: usize) -> LinoParseError {
     LinoParseError {
         detail: format!("nesting deeper than {MAX_LINO_NESTING_DEPTH} levels"),
@@ -223,6 +233,32 @@ fn refuses_one_indentation_level_more_than_the_limit() {
                 MAX_LINO_NESTING_DEPTH + 2,
                 MAX_LINO_NESTING_DEPTH + 2
             ))
+        );
+    });
+}
+
+#[test]
+fn reads_indented_ids_nested_as_deep_as_the_nesting_limit_allows() {
+    on_small_stack(|| {
+        let depth = MAX_LINO_NESTING_DEPTH;
+        let forms = parse_lino_document(&nested_indented_ids(depth)).expect("the limit is allowed");
+        assert_eq!(forms.len(), 1);
+        let form = &forms[0];
+        assert_eq!(
+            form.text,
+            format!("{}b{}", "(a: ".repeat(depth), ")".repeat(depth))
+        );
+        assert_eq!((form.line, form.col, form.length), (1, 1, 1));
+    });
+}
+
+#[test]
+fn refuses_indented_ids_nested_one_level_more_than_the_limit() {
+    on_small_stack(|| {
+        let depth = MAX_LINO_NESTING_DEPTH + 1;
+        assert_eq!(
+            parse_lino_document(&nested_indented_ids(depth)),
+            Err(nesting_error(depth + 1, depth + 1))
         );
     });
 }

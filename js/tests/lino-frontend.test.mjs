@@ -57,6 +57,13 @@ function indentedLines(count) {
   return Array.from({ length: count }, (_, level) => `${' '.repeat(level)}a`);
 }
 
+// `count` indented ids `a:`, each one space deeper than the one before it,
+// over the value `b` one space deeper than the last of them.
+function nestedIndentedIds(count) {
+  const lines = Array.from({ length: count }, (_, level) => `${' '.repeat(level)}a:`);
+  return [...lines, `${' '.repeat(count)}b`].join('\n');
+}
+
 // How long reading any of the sources built to be slow to read may take.
 const READ_LIMIT_MS = 5000;
 
@@ -132,6 +139,23 @@ describe('shared LiNo front end limits', () => {
       message: `LiNo parse failure: nesting deeper than ${MAX_LINO_NESTING_DEPTH} levels`,
       line: MAX_LINO_NESTING_DEPTH + 2,
       col: MAX_LINO_NESTING_DEPTH + 2,
+      length: 1,
+    }));
+  });
+
+  it('reads indented ids nested as deep as the nesting limit allows', () => {
+    const depth = MAX_LINO_NESTING_DEPTH;
+    assert.deepStrictEqual(parseLinoDocument(nestedIndentedIds(depth)), [
+      { text: `${'(a: '.repeat(depth)}b${')'.repeat(depth)}`, line: 1, col: 1, length: 1 },
+    ]);
+  });
+
+  it('refuses indented ids nested one level more than the limit', () => {
+    const depth = MAX_LINO_NESTING_DEPTH + 1;
+    assert.throws(() => parseLinoDocument(nestedIndentedIds(depth)), matchesError({
+      message: `LiNo parse failure: nesting deeper than ${MAX_LINO_NESTING_DEPTH} levels`,
+      line: depth + 1,
+      col: depth + 1,
       length: 1,
     }));
   });
