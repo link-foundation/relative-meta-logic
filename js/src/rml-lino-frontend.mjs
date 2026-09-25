@@ -52,10 +52,10 @@
 //   step 2 read, so every step reads the same references, even where
 //   links-notation alone would end one inside a comment step 2 blanked;
 // - a group whose parentheses nest `LINO_PIECE_DEPTH` deep is parsed on its
-//   own, and the text around it holds a group of one token in its place.
-// Tokens and groups are named with two private-use characters that never
-// stand side by side in the source, so no reference of the source reads as
-// one.
+//   own, and the text around it holds, in its place, a group of one name
+//   the front end turns back into what the group read as.
+// Tokens and names start with two private-use characters that never stand
+// side by side in the source, so no reference of the source reads as one.
 // A group reads the same wherever it stands, since it starts afresh at
 // indentation level zero, and a group that fails fails the whole document. So
 // the pieces put together read as the whole document does, and a document

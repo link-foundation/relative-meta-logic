@@ -15,6 +15,9 @@
 //!      ordinary character;
 //!    - flatten layout: a line break inside parentheses reads as a space, which
 //!      keeps the flat-list meaning of RML's parenthesized forms;
+//!    - record every reference that starts with a quote and what it reads as:
+//!      a quoted reference, the empty reference, or, where the quote opens no
+//!      quoted reference, the ordinary reference it starts;
 //!    - record the logical lines, the lines that start outside parentheses and
 //!      quoted references and hold more than spaces and tabs;
 //!    - reject nesting deeper than [`MAX_LINO_NESTING_DEPTH`] (parentheses plus
@@ -23,14 +26,15 @@
 //!
 //!    Every byte of the prepared text stands where the byte it replaces stood,
 //!    so parser positions are source positions.
-//! 3. Parse with links-notation and format every top-level link the way the
-//!    JavaScript links-notation parser builds it, with one repair: a line under
-//!    an indented id keeps its name, so `a:` over `b: c` reads as
-//!    `(a: (b: c))`, and a line indented under such a line is refused where
-//!    links-notation 0.20 would drop it. The parser does not see a last line
-//!    that holds only spaces and tabs: the Rust links-notation 0.20 parser
-//!    reads its spaces as the indentation of a line that never comes and
-//!    fails, where the JavaScript parser reads them as trailing space.
+//! 3. Parse with links-notation, one piece at a time as described below, and
+//!    format every top-level link the way the JavaScript links-notation parser
+//!    builds it, with one repair: a line under an indented id keeps its name,
+//!    so `a:` over `b: c` reads as `(a: (b: c))`, and a line indented under
+//!    such a line is refused where links-notation 0.20 would drop it. The
+//!    parser does not see a last line that holds only spaces and tabs: the
+//!    Rust links-notation 0.20 parser reads its spaces as the indentation of a
+//!    line that never comes and fails, where the JavaScript parser reads them
+//!    as trailing space.
 //! 4. Drop comment links such as `(# note)`, and give every other form the
 //!    position of the first character other than a space or a tab on the line
 //!    it starts on.
@@ -42,12 +46,31 @@
 //! start of a line or after a space, a tab, `(`, `)`, `:`, or another quoted
 //! reference. A quote inside a word, as in `it's`, is part of that word.
 //!
-//! The nesting limit protects the stack, not the time: links-notation 0.20
-//! backtracks without memoizing, so its parse time grows exponentially with the
-//! nesting depth of parentheses.
+//! links-notation 0.20 backtracks without memoizing, so where a group is left
+//! unclosed, fails, or has a value after it, the time it takes grows
+//! exponentially with how deeply parentheses nest. It also looks for the end
+//! of a quoted reference one character at a time, comparing as many characters
+//! as the opening quotes are wide, and again each time it backtracks. So the
+//! parser reads neither directly:
+//! - step 2 reads every reference that starts with a quote in time that grows
+//!   with the length of the text times its logarithm, and each reaches the
+//!   parser as a token, a plain reference the front end turns back into what
+//!   step 2 read, so every step reads the same references, even where
+//!   links-notation alone would end one inside a comment step 2 blanked;
+//! - a group whose parentheses nest `LINO_PIECE_DEPTH` deep is parsed on its
+//!   own, and the text around it holds, in its place, a group of one name
+//!   the front end turns back into what the group read as.
+//!
+//! Tokens and names start with two private-use characters that never stand
+//! side by side in the source, so no reference of the source reads as one.
+//! A group reads the same wherever it stands, since it starts afresh at
+//! indentation level zero, and a group that fails fails the whole document. So
+//! the pieces put together read as the whole document does, and a document
+//! fails where the earliest failure of a piece is.
 
 use crate::{Diagnostic, Span};
-use links_notation::parser::{parse_document_with_diagnostics, quoted_reference_end, Link};
+use links_notation::parser::{parse_document_with_diagnostics, Link};
+use std::collections::HashMap;
 use std::fmt;
 
 /// Deepest nesting of parentheses plus indentation levels a document may use.
@@ -55,6 +78,10 @@ pub const MAX_LINO_NESTING_DEPTH: usize = 64;
 
 /// Longest source, in UTF-16 code units, the links-notation parser accepts.
 pub const MAX_LINO_SOURCE_UNITS: usize = 10 * 1024 * 1024;
+
+// A group whose parentheses nest this deep, itself included, is parsed on its
+// own; a group in it that is parsed on its own counts as one level.
+const LINO_PIECE_DEPTH: usize = 2;
 
 /// A LiNo document that could not be read, located in the normalized source.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -123,6 +150,215 @@ pub fn normalize_lino_source(text: &str) -> String {
     without_bom.replace("\r\n", "\n").replace('\r', "\n")
 }
 
+// Characters a reference can be followed by with nothing between: the
+// characters the links-notation grammar leaves out of an unquoted reference.
+fn is_reference_boundary(byte: u8) -> bool {
+    matches!(byte, b'\n' | b' ' | b'\t' | b'(' | b')' | b':')
+}
+
+// The characters the JavaScript pattern `\s` matches, which the JavaScript
+// links-notation grammar reads as blank in a quoted reference. The Rust grammar
+// asks `char::is_whitespace`, which also takes U+0085 and leaves out U+FEFF.
+fn is_js_whitespace(character: char) -> bool {
+    matches!(character, '\u{2000}'..='\u{200a}')
+        || "\t\n\u{b}\u{c}\r \u{a0}\u{1680}\u{2028}\u{2029}\u{202f}\u{205f}\u{3000}\u{feff}"
+            .contains(character)
+}
+
+// The runs of one quote in a text, in order, each with the byte offset it
+// starts at and how many quotes long it is, and `levels`, where level b lists
+// the indexes of the runs at least 2^b quotes long.
+struct QuoteRuns {
+    starts: Vec<usize>,
+    lengths: Vec<usize>,
+    levels: Vec<Vec<usize>>,
+}
+
+impl QuoteRuns {
+    fn of(bytes: &[u8], quote: u8) -> Self {
+        let mut starts = Vec::new();
+        let mut lengths = Vec::new();
+        let mut index = 0;
+        while index < bytes.len() {
+            if bytes[index] != quote {
+                index += 1;
+                continue;
+            }
+            let start = index;
+            while index < bytes.len() && bytes[index] == quote {
+                index += 1;
+            }
+            starts.push(start);
+            lengths.push(index - start);
+        }
+        let mut levels: Vec<Vec<usize>> = vec![(0..lengths.len()).collect()];
+        for bits in 1.. {
+            let level: Vec<usize> = levels[bits - 1]
+                .iter()
+                .copied()
+                .filter(|&run| lengths[run] >= 1 << bits)
+                .collect();
+            if level.is_empty() {
+                break;
+            }
+            levels.push(level);
+        }
+        Self {
+            starts,
+            lengths,
+            levels,
+        }
+    }
+}
+
+// Where the parentheses of a text stand, `depths`, the depth before each, with
+// `(` one level deeper and `)` one level shallower, and `drops`, for each the
+// first parenthesis at or after it that leaves the depth below the depth before
+// it, or the number of parentheses when none does. Both lists end with an entry
+// for the end of the text.
+struct Parentheses {
+    at: Vec<usize>,
+    depths: Vec<isize>,
+    drops: Vec<usize>,
+}
+
+impl Parentheses {
+    fn of(bytes: &[u8]) -> Self {
+        let mut at = Vec::new();
+        let mut depths: Vec<isize> = vec![0];
+        for (index, &byte) in bytes.iter().enumerate() {
+            let step = match byte {
+                b'(' => 1,
+                b')' => -1,
+                _ => continue,
+            };
+            at.push(index);
+            depths.push(depths[depths.len() - 1] + step);
+        }
+        let mut drops = vec![at.len(); depths.len()];
+        let mut pending: Vec<usize> = Vec::new();
+        for (index, &position) in at.iter().enumerate() {
+            pending.push(index);
+            if bytes[position] != b')' {
+                continue;
+            }
+            while let Some(&last) = pending.last() {
+                if depths[last] < depths[index] {
+                    break;
+                }
+                drops[last] = index;
+                pending.pop();
+            }
+        }
+        Self { at, depths, drops }
+    }
+
+    // Whether the parentheses of the text from byte offset `start` to byte
+    // offset `end` balance: every `)` closes a `(` between the two, and every
+    // `(` is closed.
+    fn balanced_between(&self, start: usize, end: usize) -> bool {
+        let first = self.at.partition_point(|&position| position < start);
+        let last = self.at.partition_point(|&position| position < end);
+        self.depths[first] == self.depths[last] && self.drops[first] >= last
+    }
+}
+
+// Reads the reference starting with a quote at a byte offset of `text` where
+// the grammar starts a reference, as the offset after it and what it reads as,
+// with the links-notation 0.20 N-quote rules: a run of N quotes opens a quoted
+// reference that the next run of exactly N closes and in which 2N quotes read
+// as N. When N is even, a body that holds nothing visible, or whose
+// parentheses do not balance, leaves the N quotes alone, the empty reference.
+// When N is odd and no run closes it, the quotes start an ordinary reference,
+// which runs to the next character `is_reference_boundary` accepts. A body
+// holds something visible when it holds a character that `is_js_whitespace`
+// refuses, the way the JavaScript grammar reads it.
+//
+// A reference only opens at the start of a run, since the character before it
+// never is the same quote. Every other run of the quote reads as escapes, one
+// for each 2N quotes, and closes the reference with its last N quotes when at
+// least N are left over, which a run shorter than N never does. So instead of
+// looking at every character, the search looks at the runs, and skips all but
+// the runs at least 2^floor(log2 N) quotes long. The references whose searches
+// pass over the same run have different N, so each run of length L is looked
+// at fewer than 2L times, and reading all the references of a text takes time
+// that grows with its length times the logarithm of its length.
+struct QuoteReader<'a> {
+    text: &'a str,
+    // The runs of `"`, `'`, and `` ` ``, found when first needed.
+    runs: [Option<QuoteRuns>; 3],
+    parentheses: Option<Parentheses>,
+}
+
+impl<'a> QuoteReader<'a> {
+    fn new(text: &'a str) -> Self {
+        Self {
+            text,
+            runs: [None, None, None],
+            parentheses: None,
+        }
+    }
+
+    fn read(&mut self, start: usize) -> QuoteReference {
+        let text = self.text;
+        let bytes = text.as_bytes();
+        let quote = bytes[start];
+        let slot = match quote {
+            b'"' => 0,
+            b'\'' => 1,
+            _ => 2,
+        };
+        let runs = self.runs[slot].get_or_insert_with(|| QuoteRuns::of(bytes, quote));
+        let run = runs.starts.partition_point(|&at| at < start);
+        let width = runs.lengths[run];
+        let level = &runs.levels[width.ilog2() as usize];
+        let mut close = level.partition_point(|&index| index <= run);
+        while close < level.len() && (runs.lengths[level[close]] / width).is_multiple_of(2) {
+            close += 1;
+        }
+        let empty = QuoteReference {
+            start,
+            end: start + width,
+            value: String::new(),
+        };
+        if close == level.len() {
+            if width.is_multiple_of(2) {
+                return empty;
+            }
+            let end = bytes[start + width..]
+                .iter()
+                .position(|&byte| is_reference_boundary(byte))
+                .map_or(bytes.len(), |offset| start + width + offset);
+            return QuoteReference {
+                start,
+                end,
+                value: text[start..end].to_string(),
+            };
+        }
+        let body_start = start + width;
+        let body_end = runs.starts[level[close]] + runs.lengths[level[close]] - width;
+        if width.is_multiple_of(2) {
+            // Every body scanned here starts after a quote and stops at the
+            // first visible character, which no other such body can reach past.
+            let visible = text[body_start..body_end]
+                .chars()
+                .any(|character| !is_js_whitespace(character));
+            let parentheses = self
+                .parentheses
+                .get_or_insert_with(|| Parentheses::of(bytes));
+            if !visible || !parentheses.balanced_between(body_start, body_end) {
+                return empty;
+            }
+        }
+        let delimiter = &text[start..body_start];
+        QuoteReference {
+            start,
+            end: body_end + width,
+            value: text[body_start..body_end].replace(&delimiter.repeat(2), delimiter),
+        }
+    }
+}
+
 // The 1-based line and code-point column of a byte offset in `source`.
 fn position_at(source: &str, offset: usize) -> (usize, usize) {
     let before = &source[..offset];
@@ -186,6 +422,18 @@ pub struct LogicalLine {
     pub col: usize,
 }
 
+/// A reference that starts with a quote: a quoted reference, the empty
+/// reference, or the ordinary reference an unclosed quote starts.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct QuoteReference {
+    /// Byte offset of its first character.
+    pub start: usize,
+    /// Byte offset of the character after it.
+    pub end: usize,
+    /// The reference it reads as.
+    pub value: String,
+}
+
 /// A LiNo source ready for the links-notation parser.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PreparedLino {
@@ -196,6 +444,8 @@ pub struct PreparedLino {
     pub prepared: String,
     /// The logical lines, in source order.
     pub lines: Vec<LogicalLine>,
+    /// The references that start with a quote, in source order.
+    pub quotes: Vec<QuoteReference>,
 }
 
 /// Prepare a LiNo source for the links-notation parser.
@@ -203,7 +453,11 @@ pub struct PreparedLino {
 /// The prepared text has the length of the normalized source, and every byte
 /// in it sits at the position of the byte it stands for. `lines` lists the
 /// logical lines, each with the offset, line, and column of its first
-/// character other than a space or a tab.
+/// character other than a space or a tab. `quotes` lists the references that
+/// start with a quote, in source order: the quoted references, the empty
+/// references, and the ordinary references that an unclosed quote starts.
+/// Each has the offsets of its first character and of the character after it,
+/// and the reference it reads as.
 ///
 /// # Errors
 ///
@@ -223,6 +477,8 @@ pub fn prepare_lino_source(text: &str) -> Result<PreparedLino, LinoParseError> {
     let length = bytes.len();
     let mut prepared = bytes.to_vec();
     let mut lines = Vec::new();
+    let mut quotes = Vec::new();
+    let mut quote_reader = QuoteReader::new(&source);
     // Indentation levels the way the links-notation grammar stacks them: the
     // first logical line sets the base, a deeper line opens a level, and a
     // shallower line closes every level deeper than itself.
@@ -282,11 +538,14 @@ pub fn prepare_lino_source(text: &str) -> Result<PreparedLino, LinoParseError> {
         }
         let byte = bytes[index];
         if !in_reference && matches!(byte, b'"' | b'\'' | b'`') {
-            if let Some(end) = quoted_reference_end(&source, index) {
-                line += bytes[index..end].iter().filter(|&&b| b == b'\n').count();
-                index = end;
-                continue;
-            }
+            let quote = quote_reader.read(index);
+            line += bytes[index..quote.end]
+                .iter()
+                .filter(|&&byte| byte == b'\n')
+                .count();
+            index = quote.end;
+            quotes.push(quote);
+            continue;
         }
         match byte {
             b'\n' => {
@@ -326,6 +585,7 @@ pub fn prepare_lino_source(text: &str) -> Result<PreparedLino, LinoParseError> {
         source,
         prepared,
         lines,
+        quotes,
     })
 }
 
@@ -655,6 +915,314 @@ fn parser_input(prepared: &str) -> &str {
     }
 }
 
+// The first code point of the private use area, U+E000 to U+F8FF, and how many
+// code points it holds.
+const PRIVATE_USE_START: u32 = 0xe000;
+const PRIVATE_USE_COUNT: usize = 6400;
+
+// The index of a character in the private use area.
+fn private_use_index(character: char) -> Option<usize> {
+    let index = (character as u32).checked_sub(PRIVATE_USE_START)? as usize;
+    (index < PRIVATE_USE_COUNT).then_some(index)
+}
+
+fn private_use_character(index: usize) -> char {
+    char::from_u32(PRIVATE_USE_START + index as u32).expect("the private use area holds characters")
+}
+
+// Two characters of the private use area that never stand side by side in
+// `text`, so a name that starts with them is no reference of the text. The
+// first is one the text holds fewer than 6400 times, which there is since the
+// text is shorter than 6400 × 6400 UTF-16 code units, and the second is one of
+// the 6400 that never follows the first.
+fn unused_pair(text: &str) -> String {
+    let mut counts = vec![0usize; PRIVATE_USE_COUNT];
+    for index in text.chars().filter_map(private_use_index) {
+        counts[index] += 1;
+    }
+    let first = counts
+        .iter()
+        .position(|&count| count < PRIVATE_USE_COUNT)
+        .expect("a text within the source limit leaves a character out");
+    let first = private_use_character(first);
+    let mut followers = vec![false; PRIVATE_USE_COUNT];
+    let mut characters = text.chars().peekable();
+    while let Some(character) = characters.next() {
+        if character != first {
+            continue;
+        }
+        if let Some(index) = characters.peek().copied().and_then(private_use_index) {
+            followers[index] = true;
+        }
+    }
+    let second = followers
+        .iter()
+        .position(|&follows| !follows)
+        .expect("fewer than 6400 characters follow the first");
+    [first, private_use_character(second)].iter().collect()
+}
+
+// A text made of slices of another text and of inserted text. `segments` maps
+// a byte offset in `text` back: each `(from, to, verbatim)` covers `text` from
+// `from` on, and maps a verbatim slice to `to` onwards, an inserted one to `to`
+// itself.
+#[derive(Default)]
+struct MappedText {
+    text: String,
+    segments: Vec<(usize, usize, bool)>,
+}
+
+impl MappedText {
+    fn append(&mut self, slice: &str, to: usize, verbatim: bool) {
+        if slice.is_empty() {
+            return;
+        }
+        self.segments.push((self.text.len(), to, verbatim));
+        self.text.push_str(slice);
+    }
+
+    // Append the last slice, which also maps the offset after it.
+    fn append_last(&mut self, slice: &str, to: usize) {
+        self.segments.push((self.text.len(), to, true));
+        self.text.push_str(slice);
+    }
+
+    // The offset in the other text of `offset` in this one.
+    fn unmap(&self, offset: usize) -> usize {
+        let segment = self
+            .segments
+            .partition_point(|&(from, _, _)| from <= offset)
+            - 1;
+        let (from, to, verbatim) = self.segments[segment];
+        if verbatim {
+            to + (offset - from)
+        } else {
+            to
+        }
+    }
+}
+
+// The prepared text with every reference that starts with a quote replaced by
+// a token, a plain reference the returned map turns into the reference it
+// stands for.
+fn tokenize(
+    prepared: &str,
+    quotes: &[QuoteReference],
+    marker: &str,
+) -> (MappedText, HashMap<String, String>) {
+    let mut out = MappedText::default();
+    let mut tokens = HashMap::new();
+    let mut at = 0;
+    for (index, quote) in quotes.iter().enumerate() {
+        out.append(&prepared[at..quote.start], at, true);
+        let token = format!("{marker}q{index}");
+        out.append(&token, quote.start, false);
+        // Keep a reference right after the quoted one apart from the token.
+        if prepared
+            .as_bytes()
+            .get(quote.end)
+            .is_some_and(|&byte| !is_reference_boundary(byte))
+        {
+            out.append(" ", quote.end, false);
+        }
+        tokens.insert(token, quote.value.clone());
+        at = quote.end;
+    }
+    out.append_last(&prepared[at..], at);
+    (out, tokens)
+}
+
+// A parenthesized group: the byte offsets of its `(` and `)`, and the group
+// around it.
+struct Group {
+    open: usize,
+    close: usize,
+    parent: Option<usize>,
+}
+
+// The groups of `text` in the order they open, and how many `)` are missing. A
+// group left open closes where its `)` would stand if the missing ones
+// followed the text, innermost first.
+fn find_groups(text: &str) -> (Vec<Group>, usize) {
+    let mut groups: Vec<Group> = Vec::new();
+    let mut open: Vec<usize> = Vec::new();
+    for (index, byte) in text.bytes().enumerate() {
+        if byte == b'(' {
+            groups.push(Group {
+                open: index,
+                close: 0,
+                parent: open.last().copied(),
+            });
+            open.push(groups.len() - 1);
+        } else if byte == b')' {
+            if let Some(group) = open.pop() {
+                groups[group].close = index;
+            }
+        }
+    }
+    let missing = open.len();
+    for (extra, &group) in open.iter().rev().enumerate() {
+        groups[group].close = text.len() + extra;
+    }
+    (groups, missing)
+}
+
+// Parse the piece of `text` from `start` to `end` with every group of `inner`
+// replaced by a placeholder, a group that holds the reference `name(group)`.
+// A failure is an offset in `text`.
+fn read_piece(
+    text: &str,
+    groups: &[Group],
+    inner: &[usize],
+    (start, end): (usize, usize),
+    name: impl Fn(usize) -> String,
+) -> Result<Vec<Link>, usize> {
+    let mut piece = MappedText::default();
+    let mut at = start;
+    for &group in inner {
+        let Group { open, close, .. } = groups[group];
+        piece.append(&text[at..open], at, true);
+        piece.append(&format!("({})", name(group)), open, false);
+        at = close + 1;
+    }
+    piece.append_last(&text[at..end], at);
+    let input = parser_input(&piece.text);
+    parse_document_with_diagnostics(input).map_err(|failure| {
+        // A failure at the end of what the parser reads is one at the end of
+        // the piece: all the parser does not see is trailing space.
+        let offset = if failure.offset >= input.len() {
+            piece.text.len()
+        } else {
+            failure.offset
+        };
+        piece.unmap(offset)
+    })
+}
+
+// The body of the group a placeholder stands for, read as a group whose one
+// line holds one reference. Every placeholder stands in one piece once, so its
+// body is taken out.
+fn placeheld(
+    nested: &[RawItem],
+    bodies: &mut HashMap<String, Vec<RawItem>>,
+) -> Option<Vec<RawItem>> {
+    let [line] = nested else {
+        return None;
+    };
+    let [value] = line.values.as_deref()? else {
+        return None;
+    };
+    bodies.remove(value.id.as_ref()?)
+}
+
+// The item with every token turned into the reference it stands for and every
+// placeholder into the body of the group it stands for.
+fn splice(
+    item: RawItem,
+    tokens: &HashMap<String, String>,
+    bodies: &mut HashMap<String, Vec<RawItem>>,
+) -> RawItem {
+    let mut splice_all = |items: Vec<RawItem>| -> Vec<RawItem> {
+        items
+            .into_iter()
+            .map(|item| splice(item, tokens, bodies))
+            .collect()
+    };
+    let RawItem {
+        id,
+        values,
+        children,
+        nested,
+    } = item;
+    RawItem {
+        id: id.map(|id| tokens.get(&id).cloned().unwrap_or(id)),
+        values: values.map(&mut splice_all),
+        children: splice_all(children),
+        nested: nested.map(|nested| {
+            let body = placeheld(&nested, bodies).unwrap_or(nested);
+            body.into_iter()
+                .map(|item| splice(item, tokens, bodies))
+                .collect()
+        }),
+    }
+}
+
+// The items links-notation reads from the prepared text, read one piece at a
+// time as the header of this file describes, or the failure it reports.
+fn read_items(
+    source: &str,
+    prepared: &str,
+    quotes: &[QuoteReference],
+) -> Result<Vec<RawItem>, LinoParseError> {
+    let marker = unused_pair(source);
+    let (tokenized, tokens) = tokenize(prepared, quotes, &marker);
+    let (groups, missing) = find_groups(&tokenized.text);
+    let text = format!("{}{}", tokenized.text, ")".repeat(missing));
+    // A group's height counts the levels of parentheses it nests, itself
+    // included, where a group parsed on its own counts as one level.
+    let mut height = vec![1usize; groups.len()];
+    let mut alone = vec![false; groups.len()];
+    for index in (0..groups.len()).rev() {
+        alone[index] = height[index] >= LINO_PIECE_DEPTH;
+        if let Some(parent) = groups[index].parent {
+            let counted = if alone[index] { 1 } else { height[index] };
+            height[parent] = height[parent].max(counted + 1);
+        }
+    }
+    // The groups parsed on their own that each piece holds in its text: piece 0
+    // is the whole text, and piece `index + 1` the group `index` when it is
+    // parsed on its own.
+    let mut inner: Vec<Vec<usize>> = vec![Vec::new(); groups.len() + 1];
+    let mut owner = vec![0usize; groups.len()];
+    for (index, group) in groups.iter().enumerate() {
+        owner[index] = match group.parent {
+            None => 0,
+            Some(parent) if alone[parent] => parent + 1,
+            Some(parent) => owner[parent],
+        };
+        if alone[index] {
+            inner[owner[index]].push(index);
+        }
+    }
+    let name = |group: usize| format!("{marker}g{group}");
+    // The earliest failure, as an offset in `text`.
+    let mut failure = usize::MAX;
+    let top = read_piece(&text, &groups, &inner[0], (0, text.len()), name);
+    if let Err(offset) = top {
+        failure = offset;
+    }
+    // A group can only fail after its `(`, so one that opens at or after the
+    // earliest failure so far cannot move it.
+    let mut bodies = HashMap::new();
+    for (index, group) in groups.iter().enumerate() {
+        if !alone[index] || group.open >= failure {
+            continue;
+        }
+        let span = (group.open, group.close + 1);
+        match read_piece(&text, &groups, &inner[index + 1], span, name) {
+            Ok(links) => {
+                let body = line_item(&links[0]).nested.unwrap_or_default();
+                bodies.insert(name(index), body);
+            }
+            Err(offset) => failure = failure.min(offset),
+        }
+    }
+    if failure != usize::MAX {
+        return Err(unexpected_at(source, tokenized.unmap(failure)));
+    }
+    if missing > 0 {
+        return Err(unexpected_at(source, source.len()));
+    }
+    let top = top.expect("a piece that failed is reported");
+    let items = top.iter().map(line_item);
+    if tokens.is_empty() && bodies.is_empty() {
+        return Ok(items.collect());
+    }
+    Ok(items
+        .map(|item| splice(item, &tokens, &mut bodies))
+        .collect())
+}
+
 /// Parse RML source text into its top-level forms.
 ///
 /// Each form carries its text (a parenthesized LiNo link) and the 1-based line
@@ -670,22 +1238,12 @@ pub fn parse_lino_document(text: &str) -> Result<Vec<LinoForm>, LinoParseError> 
         source,
         prepared,
         lines,
+        quotes,
     } = prepare_lino_source(text)?;
     if prepared.trim().is_empty() {
         return Ok(Vec::new());
     }
-    let input = parser_input(&prepared);
-    let parsed = parse_document_with_diagnostics(input).map_err(|failure| {
-        // A failure at the end of what the parser reads is one at the end of
-        // the source: all the parser does not see is trailing space.
-        let offset = if failure.offset >= input.len() {
-            source.len()
-        } else {
-            failure.offset
-        };
-        unexpected_at(&source, offset)
-    })?;
-    let items: Vec<RawItem> = parsed.iter().map(line_item).collect();
+    let items = read_items(&source, &prepared, &quotes)?;
     let mut links = Vec::new();
     for item in &items {
         collect_links(item, &[], &mut links);
