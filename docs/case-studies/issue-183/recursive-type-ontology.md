@@ -43,6 +43,13 @@ promoted to an impredicative logical `Type : Type` rule. A logical foundation
 must separately declare its universes, inference rules, assumptions, and
 soundness conditions.
 
+This ontology and its link-cli mapping below are therefore a candidate default
+construction, not a premise that settles what links intrinsically are.
+Mirrored tests check both sides of that boundary. The constructor's definition
+is the only line of either runtime's sources that names it. The evaluator keeps
+its stratified universes: `(? (Type of Type))` is `0` unless the source
+declares `(Type: Type Type)`, and `(Type 1)` is not of type `(Type 0)`.
+
 ## link-cli interoperability
 
 The comparison is pinned to link-cli revision

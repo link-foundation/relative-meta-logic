@@ -9,7 +9,8 @@ use rml::theory_network::{
 };
 use rml::{evaluate, RunResult};
 use std::collections::BTreeSet;
-use std::path::PathBuf;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 const CORE: &str = include_str!("../../lib/meta-theory/core.lino");
 const UNIVERSAL: &str = include_str!("../../lib/meta-theory/universal.lino");
@@ -24,6 +25,19 @@ fn network_from(source: &str) -> Result<TheoryNetwork, String> {
 
 fn bundled_network() -> TheoryNetwork {
     network_from(CORE).expect("bundled meta-theory must be valid")
+}
+
+fn files_under(directory: &Path) -> Vec<PathBuf> {
+    let mut files = Vec::new();
+    for entry in fs::read_dir(directory).expect("source directory exists") {
+        let path = entry.expect("source directory entry").path();
+        if path.is_dir() {
+            files.extend(files_under(&path));
+        } else {
+            files.push(path);
+        }
+    }
+    files
 }
 
 #[test]
@@ -830,6 +844,60 @@ fn provides_a_selectable_recursively_linked_default_type_ontology() {
     assert!(interop.unicode_type_fact_orientation_compatible);
     assert!(!interop.unicode_canonical_definition_orientation_compatible);
     assert!(!interop.names_require_numeric_identity);
+}
+
+#[test]
+fn leaves_the_default_type_ontology_to_the_callers_that_select_it() {
+    // The ontology's `Type: (Type, Type)` link is not a `Type : Type` rule of
+    // the evaluator, whose universes stay stratified and which answers
+    // `Type of Type` only for a source that declares it.
+    let ontology = TypedLinkNetwork::with_default_ontology();
+    assert_eq!(ontology.doublet("Type"), Some(("Type", "Type")));
+    let out = evaluate(
+        r#"
+(? (Type of Type))
+(? ((Type 0) of (Type 1)))
+(? ((Type 1) of (Type 0)))
+"#,
+        None,
+        None,
+    );
+    assert!(out.diagnostics.is_empty(), "{:?}", out.diagnostics);
+    assert_eq!(
+        out.results,
+        vec![
+            RunResult::Num(0.0),
+            RunResult::Num(1.0),
+            RunResult::Num(0.0),
+        ]
+    );
+    assert_eq!(
+        evaluate("(Type: Type Type)\n(? (Type of Type))", None, None).results,
+        vec![RunResult::Num(1.0)]
+    );
+
+    // No runtime module selects the ontology: its definition is the only line
+    // under `rust/src` that names it.
+    let source_directory = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
+    let mut files = files_under(&source_directory);
+    files.sort();
+    let mut selections = Vec::new();
+    for path in files {
+        let name = path
+            .strip_prefix(&source_directory)
+            .expect("file under the source directory")
+            .to_string_lossy()
+            .into_owned();
+        for line in fs::read_to_string(&path).expect("readable source").lines() {
+            if line.contains("with_default_ontology") {
+                selections.push(format!("{name}: {}", line.trim()));
+            }
+        }
+    }
+    assert_eq!(
+        selections,
+        vec!["theory_network.rs: pub fn with_default_ontology() -> Self {"]
+    );
 }
 
 #[test]

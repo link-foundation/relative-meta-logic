@@ -4,9 +4,9 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import {
   DoubletSequenceStore,
   FiniteRelation,
@@ -41,6 +41,13 @@ function networkFrom(source, trustedFoundation = foundationSource) {
 
 function bundledNetwork() {
   return networkFrom(readFileSync(corePath, 'utf8'));
+}
+
+function filesUnder(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const path = join(directory, entry.name);
+    return entry.isDirectory() ? filesUnder(path) : [path];
+  });
 }
 
 describe('meta-theory network', () => {
@@ -663,6 +670,35 @@ describe('graph theory as a constrained links-network subset', () => {
       canonicalDefinitionOrientationCompatible: false,
     });
     assert.strictEqual(interop.names.numericIdentityRequired, false);
+  });
+
+  it('leaves the default type ontology to the callers that select it', () => {
+    // The ontology's `Type: (Type, Type)` link is not a `Type : Type` rule of
+    // the evaluator, whose universes stay stratified and which answers
+    // `Type of Type` only for a source that declares it.
+    const ontology = TypedLinkNetwork.withDefaultOntology();
+    assert.deepStrictEqual(ontology.doublet('Type'), { source: 'Type', target: 'Type' });
+    const out = evaluate(`
+(? (Type of Type))
+(? ((Type 0) of (Type 1)))
+(? ((Type 1) of (Type 0)))
+`);
+    assert.deepStrictEqual(out.diagnostics, []);
+    assert.deepStrictEqual(out.results, [0, 1, 0]);
+    assert.deepStrictEqual(evaluate('(Type: Type Type)\n(? (Type of Type))').results, [1]);
+
+    // No runtime module selects the ontology: its definition is the only line
+    // under `js/src` that names it.
+    const sourceDirectory = join(repoRoot, 'js', 'src');
+    const selections = filesUnder(sourceDirectory)
+      .sort()
+      .flatMap(path => readFileSync(path, 'utf8')
+        .split('\n')
+        .filter(line => line.includes('withDefaultOntology'))
+        .map(line => `${relative(sourceDirectory, path)}: ${line.trim()}`));
+    assert.deepStrictEqual(selections, [
+      'rml-theory-network.mjs: static withDefaultOntology() {',
+    ]);
   });
 
   it('stores directed graphs as vertex-membership and typed edge links', () => {
