@@ -260,6 +260,27 @@ selection/application, and result verification. Its stronger witness executes
 an encoded copy of its own repeated-variable matching rule and agrees with
 direct bootstrap execution in both runtimes.
 
+Its linked definitions also drive its execution, not only describe it. The
+mirrored `executes a replaced linked definition of K1 on the unchanged runtime`
+tests replace one rule in the `universal.lino` text at a time: for repeated-variable
+matching, pair substitution, the step after a missed rule, and result
+verification. Each replacement changes the answer to the same request on the
+same runtime, which observes the same S/K, parsing, and bounds operations
+under both definitions and names none of the constructors those rules use.
+The boundary is K0: with pair substitution mirrored, K1's interpretation of
+its own rule follows the new definition and stops agreeing with direct
+execution, because direct execution substitutes inside the compiled
+`fixed-point.ski`, which a new linked definition cannot replace without
+regenerating the artifact.
+
+That witness is one part of the foundational acceptance gate recorded as R149
+in the ledger. The S/K `6/6` closure is a current implementation bootstrap,
+not completion. Completion needs at least two genuinely different minimal
+meta-foundations, each replaceable below an unchanged upper linked layer with
+preserved observations and no hidden host authority, and (R151) a Link
+representation for every RML-specific semantic decision down to code
+generation. Both remain open.
+
 Program imports accept `(rebind abstract-concept selected-concept)` clauses.
 One unchanged classifier is tested over strict and permissive user
 foundations, producing different results. The bundled set theory is also

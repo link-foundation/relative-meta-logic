@@ -82,6 +82,7 @@ const REQUIREMENT_SOURCES = [
     5821335636,
     5823272578,
     5831357798,
+    5836717056,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -104,7 +105,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 148, `expected at least 148 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 151, `expected at least 151 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),
@@ -117,7 +118,7 @@ describe('issue 183 requirement traceability', () => {
       assert.ok(evidence.includes('`'), `R${id} has no concrete repository evidence or gap`);
     }
 
-    for (const id of [11, 18, 21, 47, 49, 51, 52, 55, 56, 62, 63, 64, 66, 71, 73, 74]) {
+    for (const id of [11, 18, 21, 47, 49, 51, 52, 55, 56, 62, 63, 64, 66, 71, 73, 74, 149, 150, 151]) {
       const row = rows.find(candidate => candidate.id === id);
       assert.ok(row, `R${id} is missing`);
       assert.doesNotMatch(row.status, /^Complete(?: |$)/, `R${id} must retain its audited gap`);
