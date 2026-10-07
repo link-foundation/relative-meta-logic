@@ -1,0 +1,283 @@
+# Additive finite nominal records and Boolean/list operations.
+# An aggregate must import this program before formal-semantics, whose generic
+# checking fallback comes last. This program deliberately imports nothing.
+# Field labels and record identities are data: no source declaration selects
+# a semantic implementation. All fields have independently checked types;
+# dependent record fields and generated Repr/BEq instances are not implemented.
+
+(linked-program formal-records)
+
+# Formation evaluates each field type and rejects repeated field labels.
+(linked-rewrite formal-records record-type
+  (from (fs-infer (fs-record-type ?identity ?fields) ?locals ?globals))
+  (to (fs-record-type-result ?identity (fs-record-fields ?fields ?locals ?globals))))
+(linked-rewrite formal-records record-fields-empty
+  (from (fs-record-fields fs-fields-end ?locals ?globals))
+  (to (fs-record-fields-ok fs-fields-end)))
+(linked-rewrite formal-records record-fields-next
+  (from (fs-record-fields (fs-field ?name ?type ?rest) ?locals ?globals))
+  (to (fs-record-field-unique ?name ?type ?rest ?locals ?globals
+    (fs-record-name-absent ?name ?rest))))
+(linked-rewrite formal-records record-name-absent-empty
+  (from (fs-record-name-absent ?name fs-fields-end))
+  (to fs-record-name-absent-ok))
+(linked-rewrite formal-records record-name-duplicate
+  (from (fs-record-name-absent ?name (fs-field ?name ?type ?rest)))
+  (to (fs-error duplicate-record-field)))
+(linked-rewrite formal-records record-name-absent-next
+  (from (fs-record-name-absent ?name (fs-field ?other ?type ?rest)))
+  (to (fs-record-name-absent ?name ?rest)))
+(linked-rewrite formal-records record-field-unique
+  (from (fs-record-field-unique ?name ?type ?rest ?locals ?globals fs-record-name-absent-ok))
+  (to (fs-record-field-type ?name ?rest ?locals ?globals (fs-infer ?type ?locals ?globals))))
+(linked-rewrite formal-records record-field-duplicate-error
+  (from (fs-record-field-unique ?name ?type ?rest ?locals ?globals (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records record-field-type
+  (from (fs-record-field-type ?name ?rest ?locals ?globals (fs-ok fs-kind ?type)))
+  (to (fs-record-field-tail ?name ?type (fs-record-fields ?rest ?locals ?globals))))
+(linked-rewrite formal-records record-field-not-type
+  (from (fs-record-field-type ?name ?rest ?locals ?globals (fs-ok ?kind ?value)))
+  (to (fs-error expected-record-field-type)))
+(linked-rewrite formal-records record-field-type-error
+  (from (fs-record-field-type ?name ?rest ?locals ?globals (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records record-field-tail
+  (from (fs-record-field-tail ?name ?type (fs-record-fields-ok ?rest)))
+  (to (fs-record-fields-ok (fs-field ?name ?type ?rest))))
+(linked-rewrite formal-records record-field-tail-error
+  (from (fs-record-field-tail ?name ?type (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records record-type-result
+  (from (fs-record-type-result ?identity (fs-record-fields-ok ?fields)))
+  (to (fs-ok fs-kind (fs-t-record ?identity ?fields))))
+(linked-rewrite formal-records record-type-error
+  (from (fs-record-type-result ?identity (fs-error ?reason)))
+  (to (fs-error ?reason)))
+
+# Typed constructors infer their nominal type. Anonymous constructors require
+# a contextual record type and share the same exact-arity field checker.
+(linked-rewrite formal-records record-constructor
+  (from (fs-infer (fs-record ?annotation ?values) ?locals ?globals))
+  (to (fs-record-constructor-type (fs-infer ?annotation ?locals ?globals)
+    ?values ?locals ?globals)))
+(linked-rewrite formal-records record-constructor-type
+  (from (fs-record-constructor-type (fs-ok fs-kind (fs-t-record ?identity ?fields))
+    ?values ?locals ?globals))
+  (to (fs-record-value-result ?identity ?fields
+    (fs-record-values ?fields ?values ?locals ?globals))))
+(linked-rewrite formal-records record-constructor-not-type
+  (from (fs-record-constructor-type (fs-ok ?kind ?type) ?values ?locals ?globals))
+  (to (fs-error expected-record-type)))
+(linked-rewrite formal-records record-constructor-type-error
+  (from (fs-record-constructor-type (fs-error ?reason) ?values ?locals ?globals))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records check-record-untyped
+  (from (fs-check (fs-record-untyped ?values) (fs-t-record ?identity ?fields) ?locals ?globals))
+  (to (fs-record-value-result ?identity ?fields
+    (fs-record-values ?fields ?values ?locals ?globals))))
+(linked-rewrite formal-records record-values-empty
+  (from (fs-record-values fs-fields-end fs-field-values-end ?locals ?globals))
+  (to (fs-record-values-ok fs-field-values-end)))
+(linked-rewrite formal-records record-values-next
+  (from (fs-record-values (fs-field ?name ?type ?fields) (fs-field-value ?value ?values)
+    ?locals ?globals))
+  (to (fs-record-value-head ?type ?fields ?values ?locals ?globals
+    (fs-check ?value ?type ?locals ?globals))))
+(linked-rewrite formal-records record-values-missing
+  (from (fs-record-values (fs-field ?name ?type ?fields) fs-field-values-end ?locals ?globals))
+  (to (fs-error record-arity-mismatch)))
+(linked-rewrite formal-records record-values-extra
+  (from (fs-record-values fs-fields-end (fs-field-value ?value ?values) ?locals ?globals))
+  (to (fs-error record-arity-mismatch)))
+(linked-rewrite formal-records record-value-head
+  (from (fs-record-value-head ?type ?fields ?values ?locals ?globals (fs-ok ?type ?value)))
+  (to (fs-record-value-tail ?value (fs-record-values ?fields ?values ?locals ?globals))))
+(linked-rewrite formal-records record-value-head-error
+  (from (fs-record-value-head ?type ?fields ?values ?locals ?globals (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records record-value-tail
+  (from (fs-record-value-tail ?value (fs-record-values-ok ?values)))
+  (to (fs-record-values-ok (fs-field-value ?value ?values))))
+(linked-rewrite formal-records record-value-tail-error
+  (from (fs-record-value-tail ?value (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records record-value-result
+  (from (fs-record-value-result ?identity ?fields (fs-record-values-ok ?values)))
+  (to (fs-ok (fs-t-record ?identity ?fields) (fs-v-record ?identity ?values))))
+(linked-rewrite formal-records record-value-error
+  (from (fs-record-value-result ?identity ?fields (fs-error ?reason)))
+  (to (fs-error ?reason)))
+
+# Projection preserves nominal identity, including in residual neutral terms.
+(linked-rewrite formal-records record-project
+  (from (fs-infer (fs-project ?name ?record) ?locals ?globals))
+  (to (fs-record-project-result ?name (fs-infer ?record ?locals ?globals))))
+(linked-rewrite formal-records record-project-concrete
+  (from (fs-record-project-result ?name
+    (fs-ok (fs-t-record ?identity ?fields) (fs-v-record ?identity ?values))))
+  (to (fs-record-project-value ?name ?fields ?values)))
+(linked-rewrite formal-records record-project-neutral
+  (from (fs-record-project-result ?name
+    (fs-ok (fs-t-record ?identity ?fields) (fs-neutral ?record))))
+  (to (fs-record-project-neutral-field ?name ?identity ?fields ?record)))
+(linked-rewrite formal-records record-project-not-record
+  (from (fs-record-project-result ?name (fs-ok ?type ?value)))
+  (to (fs-error expected-record-value)))
+(linked-rewrite formal-records record-project-error
+  (from (fs-record-project-result ?name (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records record-project-value-head
+  (from (fs-record-project-value ?name (fs-field ?name ?type ?fields)
+    (fs-field-value ?value ?values)))
+  (to (fs-ok ?type ?value)))
+(linked-rewrite formal-records record-project-value-tail
+  (from (fs-record-project-value ?name (fs-field ?other ?type ?fields)
+    (fs-field-value ?value ?values)))
+  (to (fs-record-project-value ?name ?fields ?values)))
+(linked-rewrite formal-records record-project-value-missing
+  (from (fs-record-project-value ?name fs-fields-end fs-field-values-end))
+  (to (fs-error unknown-record-field)))
+(linked-rewrite formal-records record-project-neutral-head
+  (from (fs-record-project-neutral-field ?name ?identity (fs-field ?name ?type ?fields) ?record))
+  (to (fs-ok ?type (fs-neutral (fs-neutral-project ?identity ?name ?record)))))
+(linked-rewrite formal-records record-project-neutral-tail
+  (from (fs-record-project-neutral-field ?name ?identity (fs-field ?other ?type ?fields) ?record))
+  (to (fs-record-project-neutral-field ?name ?identity ?fields ?record)))
+(linked-rewrite formal-records record-project-neutral-missing
+  (from (fs-record-project-neutral-field ?name ?identity fs-fields-end ?record))
+  (to (fs-error unknown-record-field)))
+
+(linked-rewrite formal-records boolean-type
+  (from (fs-infer (fs-bool-type) ?locals ?globals))
+  (to (fs-ok fs-kind fs-t-bool)))
+(linked-rewrite formal-records boolean-true
+  (from (fs-infer (fs-true) ?locals ?globals))
+  (to (fs-ok fs-t-bool fs-v-true)))
+(linked-rewrite formal-records boolean-false
+  (from (fs-infer (fs-false) ?locals ?globals))
+  (to (fs-ok fs-t-bool fs-v-false)))
+
+# Equality only concludes false from distinct concrete Nat constructors.
+# Unknown neutrals, including two differently named neutrals, stay unknown.
+(linked-rewrite formal-records natural-equal
+  (from (fs-infer (fs-nat-equal ?left ?right) ?locals ?globals))
+  (to (fs-natural-equal-result (fs-check ?left fs-t-nat ?locals ?globals)
+    (fs-check ?right fs-t-nat ?locals ?globals))))
+(linked-rewrite formal-records natural-equal-result
+  (from (fs-natural-equal-result (fs-ok fs-t-nat ?left) (fs-ok fs-t-nat ?right)))
+  (to (fs-natural-equal-values ?left ?right)))
+(linked-rewrite formal-records natural-equal-left-error
+  (from (fs-natural-equal-result (fs-error ?reason) ?right))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records natural-equal-right-error
+  (from (fs-natural-equal-result ?left (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records natural-equal-zero
+  (from (fs-natural-equal-values fs-v-zero fs-v-zero))
+  (to (fs-ok fs-t-bool fs-v-true)))
+(linked-rewrite formal-records natural-equal-successors
+  (from (fs-natural-equal-values (fs-v-successor ?left) (fs-v-successor ?right)))
+  (to (fs-natural-equal-values ?left ?right)))
+(linked-rewrite formal-records natural-equal-zero-successor
+  (from (fs-natural-equal-values fs-v-zero (fs-v-successor ?right)))
+  (to (fs-ok fs-t-bool fs-v-false)))
+(linked-rewrite formal-records natural-equal-successor-zero
+  (from (fs-natural-equal-values (fs-v-successor ?left) fs-v-zero))
+  (to (fs-ok fs-t-bool fs-v-false)))
+(linked-rewrite formal-records natural-equal-left-neutral
+  (from (fs-natural-equal-values (fs-neutral ?left) ?right))
+  (to (fs-ok fs-t-bool (fs-neutral (fs-neutral-nat-equal (fs-neutral ?left) ?right)))))
+(linked-rewrite formal-records natural-equal-right-neutral
+  (from (fs-natural-equal-values ?left (fs-neutral ?right)))
+  (to (fs-ok fs-t-bool (fs-neutral (fs-neutral-nat-equal ?left (fs-neutral ?right))))))
+
+# Contextual cons checking supports empty nested lists and anonymous records.
+(linked-rewrite formal-records check-list-cons
+  (from (fs-check (fs-cons ?head ?tail) (fs-t-list ?type) ?locals ?globals))
+  (to (fs-record-list-head ?type ?tail ?locals ?globals (fs-check ?head ?type ?locals ?globals))))
+(linked-rewrite formal-records check-list-head
+  (from (fs-record-list-head ?type ?tail ?locals ?globals (fs-ok ?type ?head)))
+  (to (fs-cons-result ?type ?head (fs-check ?tail (fs-t-list ?type) ?locals ?globals))))
+(linked-rewrite formal-records check-list-head-error
+  (from (fs-record-list-head ?type ?tail ?locals ?globals (fs-error ?reason)))
+  (to (fs-error ?reason)))
+
+(linked-rewrite formal-records list-length
+  (from (fs-infer (fs-length ?list) ?locals ?globals))
+  (to (fs-list-length-typed (fs-infer ?list ?locals ?globals))))
+(linked-rewrite formal-records list-length-typed
+  (from (fs-list-length-typed (fs-ok (fs-t-list ?type) ?list)))
+  (to (fs-list-length-value ?list)))
+(linked-rewrite formal-records list-length-not-list
+  (from (fs-list-length-typed (fs-ok ?type ?value)))
+  (to (fs-error expected-list)))
+(linked-rewrite formal-records list-length-error
+  (from (fs-list-length-typed (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records list-length-empty
+  (from (fs-list-length-value fs-v-nil))
+  (to (fs-ok fs-t-nat fs-v-zero)))
+(linked-rewrite formal-records list-length-cons
+  (from (fs-list-length-value (fs-v-cons ?head ?tail)))
+  (to (fs-successor-result (fs-list-length-value ?tail))))
+(linked-rewrite formal-records list-length-neutral
+  (from (fs-list-length-value (fs-neutral ?list)))
+  (to (fs-ok fs-t-nat (fs-neutral (fs-neutral-length ?list)))))
+
+# Untyped source lambdas are only accepted against an independently obtained
+# arrow type. Fresh binder levels are fully computed before checking the body.
+(linked-rewrite formal-records check-lambda-inferred
+  (from (fs-check (fs-lambda-inferred ?body) (fs-t-arrow ?domain ?codomain) ?locals ?globals))
+  (to (fs-check-lambda-depth ?domain ?codomain ?body ?locals ?globals (fs-depth ?locals))))
+
+# Infer the list first so its actual element type determines predicate typing.
+# Applications use the base closure/neutral application machinery, never a
+# source-name callback. An empty list still requires a well-typed predicate.
+(linked-rewrite formal-records list-all
+  (from (fs-infer (fs-all ?predicate ?list) ?locals ?globals))
+  (to (fs-list-all-typed (fs-infer ?list ?locals ?globals) ?predicate ?locals ?globals)))
+(linked-rewrite formal-records list-all-typed
+  (from (fs-list-all-typed (fs-ok (fs-t-list ?type) ?list) ?predicate ?locals ?globals))
+  (to (fs-list-all-predicate ?type ?list ?globals
+    (fs-check ?predicate (fs-t-arrow ?type fs-t-bool) ?locals ?globals))))
+(linked-rewrite formal-records list-all-not-list
+  (from (fs-list-all-typed (fs-ok ?type ?list) ?predicate ?locals ?globals))
+  (to (fs-error expected-list)))
+(linked-rewrite formal-records list-all-list-error
+  (from (fs-list-all-typed (fs-error ?reason) ?predicate ?locals ?globals))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records list-all-predicate
+  (from (fs-list-all-predicate ?type ?list ?globals (fs-ok (fs-t-arrow ?type fs-t-bool) ?predicate)))
+  (to (fs-list-all-values ?type ?predicate ?list ?globals)))
+(linked-rewrite formal-records list-all-predicate-error
+  (from (fs-list-all-predicate ?type ?list ?globals (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records list-all-empty
+  (from (fs-list-all-values ?type ?predicate fs-v-nil ?globals))
+  (to (fs-ok fs-t-bool fs-v-true)))
+(linked-rewrite formal-records list-all-cons
+  (from (fs-list-all-values ?type ?predicate (fs-v-cons ?head ?tail) ?globals))
+  (to (fs-list-all-head ?type ?predicate ?tail ?globals
+    (fs-application-argument ?type fs-t-bool ?predicate (fs-ok ?type ?head) ?globals))))
+(linked-rewrite formal-records list-all-neutral
+  (from (fs-list-all-values ?type ?predicate (fs-neutral ?list) ?globals))
+  (to (fs-ok fs-t-bool (fs-neutral (fs-neutral-all ?type ?predicate ?list)))))
+(linked-rewrite formal-records list-all-head-true
+  (from (fs-list-all-head ?type ?predicate ?tail ?globals (fs-ok fs-t-bool fs-v-true)))
+  (to (fs-list-all-values ?type ?predicate ?tail ?globals)))
+(linked-rewrite formal-records list-all-head-false
+  (from (fs-list-all-head ?type ?predicate ?tail ?globals (fs-ok fs-t-bool fs-v-false)))
+  (to (fs-ok fs-t-bool fs-v-false)))
+(linked-rewrite formal-records list-all-head-neutral
+  (from (fs-list-all-head ?type ?predicate ?tail ?globals (fs-ok fs-t-bool (fs-neutral ?head))))
+  (to (fs-list-all-neutral-tail ?head (fs-list-all-values ?type ?predicate ?tail ?globals))))
+(linked-rewrite formal-records list-all-head-error
+  (from (fs-list-all-head ?type ?predicate ?tail ?globals (fs-error ?reason)))
+  (to (fs-error ?reason)))
+(linked-rewrite formal-records list-all-neutral-tail
+  (from (fs-list-all-neutral-tail ?head (fs-ok fs-t-bool ?tail)))
+  (to (fs-ok fs-t-bool (fs-neutral (fs-neutral-bool-and ?head ?tail)))))
+(linked-rewrite formal-records list-all-neutral-tail-error
+  (from (fs-list-all-neutral-tail ?head (fs-error ?reason)))
+  (to (fs-error ?reason)))
