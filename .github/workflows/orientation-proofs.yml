@@ -1,0 +1,112 @@
+name: orientation-proofs
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/orientation-proofs.yml'
+      - 'test-corpus/orientation-independence/**'
+      - 'scripts/check-orientation-independence.mjs'
+      - 'scripts/orientation-independence.test.mjs'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docker/run-owned.sh'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/orientation-proofs.yml'
+      - 'test-corpus/orientation-independence/**'
+      - 'scripts/check-orientation-independence.mjs'
+      - 'scripts/orientation-independence.test.mjs'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docker/run-owned.sh'
+  workflow_dispatch:
+
+jobs:
+  lean:
+    name: Lean orientation and consequence proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Install official Lean 4.28.0 toolchain
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:v4.28.0
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Check all theorems, absence of axioms, and false-claim rejection
+        env:
+          ELAN_TOOLCHAIN: leanprover/lean4:v4.28.0
+        run: |
+          mkdir -p .rml-cache/evidence
+          node scripts/run-with-cache.mjs --cache .rml-cache/lean --class lean -- bash -euo pipefail -c 'node scripts/check-orientation-independence.mjs --languages=Lean > .rml-cache/evidence/orientation-lean.json'
+          node --test scripts/orientation-independence.test.mjs
+      - name: Upload proof and cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orientation-lean-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
+
+  rocq:
+    name: Rocq orientation and consequence proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Prepare owned official Rocq 9.1 compiler wrapper
+        run: |
+          mkdir -p .rml-cache/rocq/orientation-native .rml-cache/evidence
+          cat > .rml-cache/rocq/rocq-orientation <<'WRAPPER'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
+          runner_owner="$(id -u):$(id -g)"
+          trap 'sudo chown -R "$runner_owner" "$TMPDIR"' EXIT
+          sudo chown -R 1000:1000 "$TMPDIR"
+          bash "$repo_root/docker/run-owned.sh" --init \
+            --volume "$TMPDIR:$TMPDIR" --workdir "$TMPDIR" \
+            rocq/rocq-prover:9.1 /bin/bash --login -ec 'exec rocq "$@"' rocq-wrapper "$@"
+          WRAPPER
+          chmod +x .rml-cache/rocq/rocq-orientation
+      - name: Check all theorems, absence of axioms, and false-claim rejection
+        run: |
+          TMPDIR="$PWD/.rml-cache/rocq/orientation-native" \
+          ROCQ="$PWD/.rml-cache/rocq/rocq-orientation" \
+          node scripts/run-with-cache.mjs --cache .rml-cache/rocq --class rocq -- bash -euo pipefail -c 'node scripts/check-orientation-independence.mjs --languages=Rocq > .rml-cache/evidence/orientation-rocq.json'
+      - name: Upload proof and cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orientation-rocq-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
