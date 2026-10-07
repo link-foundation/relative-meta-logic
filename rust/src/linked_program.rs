@@ -10,6 +10,7 @@ mod combinator_kernel;
 use crate::{key_of, parse_lino, parse_one, tokenize_one, Node};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
 
 const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS: &[&str] = &[
     "parse-linked-forms",
@@ -6200,6 +6201,7 @@ pub struct LinkedProgramRegistry {
     max_contractions: usize,
     runtime_trace: RefCell<BootstrapRuntimeTraceState>,
     execution_basis: ExecutionBasis,
+    kernel: Option<Arc<combinator_kernel::Kernel>>,
 }
 
 impl Default for LinkedProgramRegistry {
@@ -6210,6 +6212,7 @@ impl Default for LinkedProgramRegistry {
             max_contractions: combinator_kernel::DEFAULT_MAX_CONTRACTIONS,
             runtime_trace: RefCell::default(),
             execution_basis: ExecutionBasis::default(),
+            kernel: None,
         }
     }
 }
@@ -6391,6 +6394,23 @@ fn parse_linked_forms(source: &str) -> Result<Vec<Node>, String> {
 }
 
 impl LinkedProgramRegistry {
+    /// Load a closed linked K0 artifact without replacing the host runtime.
+    /// The replacement belongs only to this registry and its clones. This
+    /// changes semantic data, not the external S/K contraction equations.
+    pub fn with_kernel_artifact(mut self, artifact: &str) -> Result<Self, String> {
+        if self.execution_basis != ExecutionBasis::ClosedSk {
+            return Err("a linked kernel artifact requires the s-k execution basis".to_string());
+        }
+        self.kernel = Some(Arc::new(combinator_kernel::Kernel::from_artifact(artifact)?));
+        Ok(self)
+    }
+
+    /// Counts of the caller-selected runtime artifact, if one was loaded.
+    /// Static bootstrap audits describe the built-in kernel only.
+    pub fn loaded_kernel_artifact_counts(&self) -> Option<(usize, usize)> {
+        self.kernel.as_ref().map(|kernel| (kernel.node_count, kernel.root_count))
+    }
+
     fn observe_path(&self, path: &str) {
         self.runtime_trace
             .borrow_mut()
@@ -6420,6 +6440,7 @@ impl LinkedProgramRegistry {
         combinator_kernel::KernelOptions {
             disabled: &self.disabled_operations,
             max_contractions: self.max_contractions,
+            kernel: self.kernel.as_deref(),
         }
     }
 

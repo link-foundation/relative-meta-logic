@@ -23,6 +23,16 @@ pub(super) fn is_contraction_limit(message: &str) -> bool {
 pub(super) struct KernelOptions<'a> {
     pub(super) disabled: &'a BTreeSet<String>,
     pub(super) max_contractions: usize,
+    pub(super) kernel: Option<&'a Kernel>,
+}
+
+impl<'a> KernelOptions<'a> {
+    fn kernel(&self) -> Result<&Kernel, String> {
+        match self.kernel {
+            Some(kernel) => Ok(kernel),
+            None => Kernel::shared(),
+        }
+    }
 }
 
 pub(super) struct KernelSourceSummary {
@@ -58,15 +68,22 @@ fn apply_many(head: LinkedTerm, arguments: impl IntoIterator<Item = LinkedTerm>)
 }
 
 #[derive(Debug)]
-struct Kernel {
+pub(super) struct Kernel {
     roots: BTreeMap<String, LinkedTerm>,
-    node_count: usize,
-    root_count: usize,
+    pub(super) node_count: usize,
+    pub(super) root_count: usize,
 }
 
 impl Kernel {
     fn load() -> Result<Self, String> {
-        let mut lines = ARTIFACT.lines();
+        Self::from_artifact(ARTIFACT)
+    }
+
+    pub(super) fn from_artifact(artifact: &str) -> Result<Self, String> {
+        if artifact.len() > 16 * 1024 * 1024 {
+            return Err("fixed-point artifact must be text of at most 16 MiB".to_string());
+        }
+        let mut lines = artifact.lines();
         if lines.next() != Some("rml-addressed-link-dag-v1") {
             return Err("invalid fixed-point kernel header".to_string());
         }
@@ -78,6 +95,9 @@ impl Kernel {
             .collect::<Result<_, _>>()?;
         if counts.len() != 2 {
             return Err("invalid fixed-point kernel counts".to_string());
+        }
+        if counts[0] > 1_000_000 || counts[1] > 256 {
+            return Err("fixed-point kernel counts exceed resource bounds".to_string());
         }
         let s = Arc::new(Term::S);
         let k = Arc::new(Term::K);
@@ -131,6 +151,17 @@ impl Kernel {
         }
         if lines.any(|line| !line.is_empty()) {
             return Err("unexpected data after fixed-point root table".to_string());
+        }
+        for name in [
+            "TRUE", "FALSE", "NIL", "CONS", "ATOM", "LIST", "PATTERN_VARIABLE",
+            "PATTERN_ATOM", "PATTERN_LIST", "NAMED_RULE", "FACT", "INFERENCE",
+            "REBINDING", "PROGRAM_IMPORT", "PROGRAM", "PROOF", "KNOWN", "APPEND",
+            "RESOLVE_REWRITES", "RESOLVE_FACTS", "RESOLVE_INFERENCES", "REWRITE_ONCE",
+            "ADD_FACTS", "INFER_ONCE", "FIND_KNOWN_PROOF",
+        ] {
+            if !roots.contains_key(name) {
+                return Err(format!("missing fixed-point root {name}"));
+            }
         }
         Ok(Self {
             roots,
@@ -422,6 +453,7 @@ pub(super) fn iota_equivalence_operations() -> Result<BTreeSet<&'static str>, St
     let mut runner = Runner::new(KernelOptions {
         disabled: &disabled,
         max_contractions: DEFAULT_MAX_CONTRACTIONS,
+        kernel: None,
     });
     let witnesses = [
         (
@@ -673,7 +705,7 @@ pub(super) fn resolve_rewrites(
     name: &str,
     options: KernelOptions<'_>,
 ) -> Result<ResolvedRules, String> {
-    let kernel = Kernel::shared()?;
+    let kernel = options.kernel()?;
     let mut runner = Runner::new(options);
     let encoded = kernel.resolve("RESOLVE_REWRITES", programs, name, &mut runner)?;
     Ok(ResolvedRules {
@@ -687,7 +719,7 @@ pub(super) fn rewrite_once(
     rules: &ResolvedRules,
     options: KernelOptions<'_>,
 ) -> Result<RewriteOutput, String> {
-    let kernel = Kernel::shared()?;
+    let kernel = options.kernel()?;
     let mut runner = Runner::new(options);
     let output = apply_many(
         kernel.root("REWRITE_ONCE"),
@@ -731,7 +763,7 @@ pub(super) fn create_proof_state(
     input_facts: &[Node],
     options: KernelOptions<'_>,
 ) -> Result<ProofStateOutput, String> {
-    let kernel = Kernel::shared()?;
+    let kernel = options.kernel()?;
     let mut runner = Runner::new(options);
     let encoded_rules = kernel.resolve("RESOLVE_REWRITES", programs, name, &mut runner)?;
     let encoded_facts = kernel.resolve("RESOLVE_FACTS", programs, name, &mut runner)?;
@@ -770,7 +802,7 @@ pub(super) fn infer_once(
     mut state: ProofState,
     options: KernelOptions<'_>,
 ) -> Result<InferenceOutput, String> {
-    let kernel = Kernel::shared()?;
+    let kernel = options.kernel()?;
     let mut runner = Runner::new(options);
     let output = apply_many(
         kernel.root("INFER_ONCE"),
@@ -831,7 +863,7 @@ pub(super) fn find_proof(
     judgement: &Node,
     options: KernelOptions<'_>,
 ) -> Result<FindProofOutput, String> {
-    let kernel = Kernel::shared()?;
+    let kernel = options.kernel()?;
     let mut runner = Runner::new(options);
     let output = apply_many(
         kernel.root("FIND_KNOWN_PROOF"),

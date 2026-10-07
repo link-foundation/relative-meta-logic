@@ -267,11 +267,13 @@ matching, pair substitution, the step after a missed rule, and result
 verification. Each replacement changes the answer to the same request on the
 same runtime, which observes the same S/K, parsing, and bounds operations
 under both definitions and names none of the constructors those rules use.
-The boundary is K0: with pair substitution mirrored, K1's interpretation of
-its own rule follows the new definition and stops agreeing with direct
-execution, because direct execution substitutes inside the compiled
-`fixed-point.ski`, which a new linked definition cannot replace without
-regenerating the artifact.
+Changing only K1 leaves K0 substitution unchanged. The separate
+[runtime K0 replacement witness](runtime-kernel-replacement.md) now loads a
+replacement compiled Links artifact into one registry without modifying the
+runtime or another live registry. Mirroring the linked recursive substitution
+definition changes `(pair (nested value) done)` to `(done (value nested) pair)`.
+The host bracket-abstraction compiler still compiles both definitions; that
+compiler and the external S/K equations remain explicitly outside this witness.
 
 That witness is one part of the foundational acceptance gate recorded as R149
 in the ledger. The S/K `6/6` closure is a current implementation bootstrap,

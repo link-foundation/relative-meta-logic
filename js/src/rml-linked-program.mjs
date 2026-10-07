@@ -7,13 +7,9 @@ import {
 } from './rml-links.mjs';
 import {
   DEFAULT_MAX_CONTRACTIONS,
-  combinatorCreateProofState,
-  combinatorFindProof,
-  combinatorInferOnce,
+  createCombinatorKernel,
   combinatorIotaEquivalenceReport,
   combinatorKernelSourceReport,
-  combinatorResolveRewrites,
-  combinatorRewriteOnce,
 } from './rml-combinator-kernel.mjs';
 
 function cloneTerm(term) {
@@ -357,6 +353,7 @@ function cloneReportValue(value) {
  * for lambda calculus, sets, types, graphs, relations, or another object theory.
  */
 class LinkedProgramRegistry {
+  #kernel;
   #disabledOperations;
   #maxContractions;
   #observedOperations;
@@ -368,6 +365,7 @@ class LinkedProgramRegistry {
   constructor({
     disabledOperations = [],
     executionBasis = 's-k',
+    kernelArtifact = undefined,
     maxContractions = DEFAULT_MAX_CONTRACTIONS,
   } = {}) {
     if (!['s-k', 'direct-structural', 'horn-relational'].includes(executionBasis)) {
@@ -376,6 +374,10 @@ class LinkedProgramRegistry {
     if (!Number.isSafeInteger(maxContractions) || maxContractions <= 0) {
       throw new Error('maxContractions must be a positive safe integer');
     }
+    if (kernelArtifact !== undefined && executionBasis !== 's-k') {
+      throw new Error('a linked kernel artifact requires the s-k execution basis');
+    }
+    this.#kernel = createCombinatorKernel(kernelArtifact);
     this.programs = new Map();
     this.executionBasis = executionBasis;
     this.#disabledOperations = new Set(disabledOperations);
@@ -397,6 +399,7 @@ class LinkedProgramRegistry {
   static fromRml(source, {
     disabledOperations = [],
     executionBasis = 's-k',
+    kernelArtifact = undefined,
     maxContractions = DEFAULT_MAX_CONTRACTIONS,
     expandForms = null,
   } = {}) {
@@ -410,6 +413,7 @@ class LinkedProgramRegistry {
     const registry = LinkedProgramRegistry.fromForms(forms, {
       disabledOperations,
       executionBasis,
+      kernelArtifact,
       maxContractions,
     });
     registry.#observe(['load-linked-program'], 'parse-linked-forms');
@@ -419,11 +423,13 @@ class LinkedProgramRegistry {
   static fromForms(forms, {
     disabledOperations = [],
     executionBasis = 's-k',
+    kernelArtifact = undefined,
     maxContractions = DEFAULT_MAX_CONTRACTIONS,
   } = {}) {
     const registry = new LinkedProgramRegistry({
       disabledOperations,
       executionBasis,
+      kernelArtifact,
       maxContractions,
     });
     registry.#observePath('load-linked-program');
@@ -1118,6 +1124,11 @@ class LinkedProgramRegistry {
     return null;
   }
 
+  /** Describe this registry's actual linked kernel, independently of the built-in audit. */
+  kernelSourceReport() {
+    return this.#kernel.combinatorKernelSourceReport();
+  }
+
   #kernelOptions() {
     return {
       disabledOperations: this.#disabledOperations,
@@ -1129,7 +1140,7 @@ class LinkedProgramRegistry {
     if (this.executionBasis === 'direct-structural') {
       return this.#directRewriteOnce(term, rules, semanticPaths);
     }
-    const execution = combinatorRewriteOnce(term, rules, this.#kernelOptions());
+    const execution = this.#kernel.combinatorRewriteOnce(term, rules, this.#kernelOptions());
     this.#observeExecution(semanticPaths, execution);
     if (execution.step === null) return null;
     const program = this.#program(execution.step.rule.program, 'combinator rewrite');
@@ -1158,7 +1169,7 @@ class LinkedProgramRegistry {
     }
     const resolved = this.executionBasis === 'direct-structural'
       ? this.#directEffective(name, 'rewrites', semanticPaths)
-      : combinatorResolveRewrites(this.programs, name, this.#kernelOptions());
+      : this.#kernel.combinatorResolveRewrites(this.programs, name, this.#kernelOptions());
     if (this.executionBasis !== 'direct-structural') {
       this.#observeExecution(semanticPaths, resolved);
     }
@@ -1286,7 +1297,7 @@ class LinkedProgramRegistry {
       return this.#directSaturate(name, entries, facts, semanticPaths, maxRounds, maxFacts);
     }
     const derived = [];
-    let state = combinatorCreateProofState(this.programs, name, facts, this.#kernelOptions());
+    let state = this.#kernel.combinatorCreateProofState(this.programs, name, facts, this.#kernelOptions());
     const observe = execution => this.#observeExecution(semanticPaths, execution);
     observe(state);
     const end = ended => ({ ended, derived, facts: state.size });
@@ -1294,7 +1305,7 @@ class LinkedProgramRegistry {
     const allFound = () => {
       for (const entry of entries) {
         if (entry.proof !== null) continue;
-        const found = combinatorFindProof(state, entry.normalized, this.#kernelOptions());
+        const found = this.#kernel.combinatorFindProof(state, entry.normalized, this.#kernelOptions());
         observe(found);
         entry.proof = found.proof;
       }
@@ -1307,7 +1318,7 @@ class LinkedProgramRegistry {
     // one fact-capacity of transitions per requested round.
     const maxTransitions = Math.min(Number.MAX_SAFE_INTEGER, maxRounds * maxFacts);
     for (let transition = 0; transition < maxTransitions; transition += 1) {
-      const next = combinatorInferOnce(state, this.#kernelOptions());
+      const next = this.#kernel.combinatorInferOnce(state, this.#kernelOptions());
       observe(next);
       if (next.derivation === null) return end('saturated');
       state = next.state;
