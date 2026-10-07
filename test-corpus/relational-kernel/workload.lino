@@ -1,0 +1,12 @@
+# One upper program for the source-defined Horn and compiled S/K controls.
+(linked-program rules)
+(linked-rewrite rules repeated (from (same ?x ?x)) (to (equal ?x)))
+(linked-rewrite rules first (from (choose ?x)) (to (selected first ?x)))
+(linked-rewrite rules second (from (choose ?x)) (to (selected second ?x)))
+(linked-rewrite rules nested (from (input ?x)) (to (pair (nested ?x) done)))
+(linked-program imported (uses rules (rebind input renamed)))
+(linked-program evidence)
+(linked-fact evidence seed (judgement (holds seed)))
+(linked-inference evidence extend (premise (holds ?x)) (conclusion (reached ?x)))
+(linked-inference evidence finish (premise (reached ?x)) (conclusion (finished ?x)))
+(linked-program proof (uses evidence (rebind holds ready) (rebind reached arrived)))

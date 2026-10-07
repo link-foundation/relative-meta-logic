@@ -1,0 +1,47 @@
+name: relational-kernel
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-defined-horn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: js/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Install JavaScript dependencies
+        run: node scripts/run-with-cache.mjs -- npm ci --prefix js
+      - name: Verify JavaScript relational foundation
+        run: node scripts/run-with-cache.mjs -- node --test --test-concurrency=1 js/tests/relational-*.test.mjs
+      - name: Verify complete companion Rust package
+        run: node scripts/run-with-cache.mjs --cache rust/relational-kernel/target --class rust -- cargo test --manifest-path rust/relational-kernel/Cargo.toml --all-targets --locked -j 2 -- --test-threads=1
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-diagnostics-relational-kernel-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
