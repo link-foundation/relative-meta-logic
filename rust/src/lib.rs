@@ -14084,6 +14084,8 @@ pub mod repl;
 pub mod check;
 pub mod meta;
 pub mod meta_language_support;
+pub mod meta_language_structure;
+pub mod js_rename;
 pub mod formal_corpus;
 pub mod theory_network;
 pub mod linked_program;

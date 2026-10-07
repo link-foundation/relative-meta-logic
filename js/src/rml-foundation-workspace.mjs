@@ -77,7 +77,7 @@ const RESULT_STATUSES = Object.freeze([
   },
   {
     status: 'refuted',
-    meaning: 'The foundation derives the judgement its proof role gives as the refutation of the query and does not derive the query.',
+    meaning: 'The foundation derives the judgement its proof role gives as the refutation of the query; this search did not derive the query. This does not certify consistency.',
     provesQuery: false,
     provesRefutation: true,
   },
@@ -144,7 +144,8 @@ function positiveBound(value, name) {
 }
 
 function foundationKey(name, version) {
-  return `${name}@${version}`;
+  // Keep the two fields distinct even when either contains a delimiter.
+  return JSON.stringify([name, version]);
 }
 
 function ruleKey(kind, program, rule) {
@@ -449,14 +450,15 @@ function planFoundation(foundation, programs, rules) {
   const seen = new Set();
   const visit = (member, path) => {
     const key = foundationKey(member.name, member.version);
+    const label = `${member.name}@${member.version}`;
     if (visiting.has(key)) {
-      throw new Error(`linked-foundation dependency cycle ${[...path, key].join(' -> ')}`);
+      throw new Error(`linked-foundation dependency cycle ${[...path, label].join(' -> ')}`);
     }
     if (seen.has(key)) return;
     seen.add(key);
     visiting.add(key);
     closure.push(member);
-    for (const dependency of member.dependencies) visit(dependency, [...path, key]);
+    for (const dependency of member.dependencies) visit(dependency, [...path, label]);
     visiting.delete(key);
   };
   visit(foundation, []);
@@ -829,6 +831,13 @@ class FoundationWorkspace {
       schema: EXECUTION_SCHEMA,
       instance: instance.name,
       foundation: { name: instance.foundation.name, version: instance.foundation.version },
+      theory: {
+        name: instance.theory.name,
+        rebind: instance.theory.rebind.map(binding => ({ ...binding })),
+      },
+      assumptions: [],
+      cyclePolicy: this.#cyclePolicy(instance.foundation),
+      bounds: { maxSteps },
       executionBasis: this.executionBasis,
       input: cloneTerm(term),
     };
@@ -970,20 +979,56 @@ class FoundationWorkspace {
           : refutationProof !== null ? 'derived'
             : bounded ? 'not-derived-within-bounds' : 'not-derived',
         proof: refutationProof === null ? null : mapper(refutationProof),
+        coinduction: null,
       },
       search: { ended: search.ended, facts: search.facts },
       traces,
     };
-    if (goalProof !== null && refutationProof !== null) {
+    // Each side gets a fresh hypothesis environment. In particular, a
+    // proof of the refutation must not suppress a guarded proof of the
+    // query, and the query's hypothetical evidence must not prove its
+    // refutation. The declared cycle policy applies to both judgements.
+    let stopped = null;
+    if (!bounded && instance.foundation.cyclePolicy.kind === 'guarded-coinductive') {
+      if (outcome.proof === null) {
+        const attempt = this.#askGuarded(context, { normalized: goal.term, traces: [] });
+        outcome.proof = attempt.proof ?? null;
+        outcome.coinduction = attempt.coinduction ?? null;
+        if (['exhausted', 'unsupported'].includes(attempt.status)) stopped = attempt;
+      }
+      if (defined && outcome.refutation.proof === null) {
+        const attempt = this.#askGuarded(context, { normalized: refutation.term, traces: [] });
+        outcome.refutation.proof = attempt.proof ?? null;
+        outcome.refutation.coinduction = attempt.coinduction ?? null;
+        outcome.refutation.status = attempt.proof ? 'derived'
+          : attempt.status === 'exhausted' ? 'not-derived-within-bounds'
+            : attempt.status === 'unsupported' ? 'unsupported' : 'not-derived';
+        if (stopped === null && ['exhausted', 'unsupported'].includes(attempt.status)) {
+          stopped = attempt;
+        }
+      }
+    }
+    if (outcome.proof !== null && outcome.refutation.proof !== null) {
       return { ...outcome, status: 'contradictory', reason: 'goal-and-refutation-derived' };
     }
-    if (goalProof !== null) return { ...outcome, status: 'proved', reason: 'goal-derived' };
-    if (refutationProof !== null) {
-      return { ...outcome, status: 'refuted', reason: 'refutation-derived' };
+    if (outcome.proof !== null) {
+      return {
+        ...outcome,
+        status: 'proved',
+        reason: outcome.coinduction?.status === 'derived' ? 'guarded-coinduction' : 'goal-derived',
+      };
+    }
+    if (outcome.refutation.proof !== null) {
+      return {
+        ...outcome,
+        status: 'refuted',
+        reason: outcome.refutation.coinduction?.status === 'derived'
+          ? 'guarded-coinductive-refutation' : 'refutation-derived',
+      };
     }
     if (bounded) return { ...outcome, status: 'exhausted', reason: search.ended };
-    if (instance.foundation.cyclePolicy.kind === 'guarded-coinductive') {
-      return this.#askGuarded(context, outcome);
+    if (stopped !== null) {
+      return { ...outcome, status: stopped.status, reason: stopped.reason, detail: stopped.detail };
     }
     return { ...outcome, status: 'unknown', reason: 'saturated-without-proof' };
   }

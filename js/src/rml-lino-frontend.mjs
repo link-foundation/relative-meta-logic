@@ -703,7 +703,7 @@ export function isCommentLink(link) {
 }
 
 /**
- * Parse RML source text into its top-level forms.
+ * Parse RML source into top-level forms and their original LiNo trees.
  *
  * Each form carries its text (a parenthesized LiNo link) and the 1-based line
  * and code-point column of the first character other than a space or a tab on
@@ -711,10 +711,10 @@ export function isCommentLink(link) {
  * traced.
  *
  * @param {string} text - LiNo source text.
- * @returns {Array.<{text: string, line: number, col: number, length: number}>}
+ * @returns {Array.<{form: {text: string, line: number, col: number, length: number}, link: Link}>}
  * @throws {LinoParseError} When the document is not valid LiNo.
  */
-export function parseLinoDocument(text) {
+export function parseLinoLinkDocument(text) {
   const { source, prepared, lines, quotes } = prepareLinoSource(text);
   if (/^\p{White_Space}*$/u.test(prepared)) return [];
   const items = readItems(source, prepared, quotes);
@@ -730,11 +730,20 @@ export function parseLinoDocument(text) {
     if (isCommentLink(link)) return;
     const start = traced ? lines[indexes[position]] : null;
     forms.push({
-      text: formatParsedLink(link),
-      line: start ? start.line : 1,
-      col: start ? start.col : 1,
-      length: start ? 1 : 0,
+      link,
+      form: {
+        text: formatParsedLink(link),
+        line: start ? start.line : 1,
+        col: start ? start.col : 1,
+        length: start ? 1 : 0,
+      },
     });
   });
   return forms;
+}
+
+/** Read forms with the stable text/location API. Structured consumers use
+ * parseLinoLinkDocument to keep the parser tree without reparsing source. */
+export function parseLinoDocument(text) {
+  return parseLinoLinkDocument(text).map(({ form }) => form);
 }

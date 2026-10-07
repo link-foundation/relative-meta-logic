@@ -1965,6 +1965,7 @@ version = "0.39.0"
 dependencies = [
  "links-notation 0.20.0",
  "meta-language",
+ "regex",
  "serde_json",
  "sha2",
 ]

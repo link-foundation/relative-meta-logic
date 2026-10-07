@@ -6401,14 +6401,18 @@ impl LinkedProgramRegistry {
         if self.execution_basis != ExecutionBasis::ClosedSk {
             return Err("a linked kernel artifact requires the s-k execution basis".to_string());
         }
-        self.kernel = Some(Arc::new(combinator_kernel::Kernel::from_artifact(artifact)?));
+        self.kernel = Some(Arc::new(combinator_kernel::Kernel::from_artifact(
+            artifact,
+        )?));
         Ok(self)
     }
 
     /// Counts of the caller-selected runtime artifact, if one was loaded.
     /// Static bootstrap audits describe the built-in kernel only.
     pub fn loaded_kernel_artifact_counts(&self) -> Option<(usize, usize)> {
-        self.kernel.as_ref().map(|kernel| (kernel.node_count, kernel.root_count))
+        self.kernel
+            .as_ref()
+            .map(|kernel| (kernel.node_count, kernel.root_count))
     }
 
     fn observe_path(&self, path: &str) {

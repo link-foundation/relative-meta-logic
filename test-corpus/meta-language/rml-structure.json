@@ -1,0 +1,11 @@
+{
+  "schema": "rml:structure-tests:1",
+  "cases": [
+    {"name":"all syntactic roles without fabricated semantics", "source":"# kept only in the exact source plane\n(namespace sample)\n(T: (Type 0) T)\n(rule copy (premise ?x) (conclusion ?x))\n(assumption pending (P α))\n(proof p (step unknown-rule))\n(substitution (?x α))\n(unrecognized-proof-code (admit false))\n", "categories":["theory","declaration","rule","assumption","proof","substitution","form"]},
+    {"name":"quoted references and indentation", "source":"root:\n  named: \"# ( α )\"\n  empty: ()\n", "categories":["declaration"]},
+    {"name":"normalization and trivia", "source":"\ufeff# leading (\r\n(a \"(\" \"#\") # trailing )\r\n", "categories":["form"]},
+    {"name":"unknown syntax retained as structure", "source":"(future-language (macro syntax) (proof unproved))\n", "categories":["form"]},
+    {"name":"empty", "source":"", "categories":[]},
+    {"name":"invalid source", "source":"(rule unfinished\n", "error":"LiNo parse failure: unexpected end of input"}
+  ]
+}

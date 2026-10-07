@@ -93,7 +93,7 @@ const RESULT_STATUSES: &[ResultStatus] = &[
     },
     ResultStatus {
         status: "refuted",
-        meaning: "The foundation derives the judgement its proof role gives as the refutation of the query and does not derive the query.",
+        meaning: "The foundation derives the judgement its proof role gives as the refutation of the query; this search did not derive the query. This does not certify consistency.",
         proves_query: false,
         proves_refutation: true,
     },
@@ -237,12 +237,13 @@ pub struct FoundationAnswer {
 
 /// The refutation of a ground query as the foundation's proof role defines
 /// it. `status` is `undefined`, `derived`, `not-derived-within-bounds`, or
-/// `not-derived`.
+/// `not-derived`, or `unsupported`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Refutation {
     pub judgement: Option<Node>,
     pub status: &'static str,
     pub proof: Option<FoundationProof>,
+    pub coinduction: Option<Coinduction>,
 }
 
 /// How one saturation ended and how many facts it knew.
@@ -333,12 +334,23 @@ pub struct ExecutionStep {
     pub after: Node,
 }
 
+/// The declared rewrite bound of one execution.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ExecutionBounds {
+    pub max_steps: usize,
+}
+
 /// A reduction, as returned by [`FoundationWorkspace::execute`].
 #[derive(Debug, Clone, PartialEq)]
 pub struct FoundationExecution {
     pub schema: &'static str,
     pub instance: String,
     pub foundation: FoundationRef,
+    pub theory: TheoryRef,
+    /// Rewriting does not introduce logical assumptions.
+    pub assumptions: Vec<Node>,
+    pub cycle_policy: CyclePolicy,
+    pub bounds: ExecutionBounds,
     pub execution_basis: ExecutionBasis,
     pub input: Node,
     pub status: &'static str,
@@ -454,7 +466,7 @@ struct Instance {
 #[derive(Debug, Clone)]
 struct Plan {
     foundations: Vec<Foundation>,
-    foundation_index: BTreeMap<String, usize>,
+    foundation_index: BTreeMap<(String, String), usize>,
     versions: BTreeMap<String, Vec<String>>,
     instances: Vec<Instance>,
     instance_index: BTreeMap<String, usize>,
@@ -580,8 +592,8 @@ fn positive_bound(value: usize, name: &str) -> Result<usize, String> {
     Ok(value)
 }
 
-fn foundation_key(name: &str, version: &str) -> String {
-    format!("{name}@{version}")
+fn foundation_key(name: &str, version: &str) -> (String, String) {
+    (name.to_string(), version.to_string())
 }
 
 fn rule_key(kind: &str, program: &str, rule: &str) -> String {
@@ -937,7 +949,7 @@ fn inference_clauses(parts: &[Node], context: &str) -> Result<GuardClauses, Stri
 }
 
 fn resolve(
-    foundation_index: &BTreeMap<String, usize>,
+    foundation_index: &BTreeMap<(String, String), usize>,
     versions: &BTreeMap<String, Vec<String>>,
     reference: &Reference,
     context: &str,
@@ -1129,7 +1141,10 @@ fn plan_foundation(
         seen: &mut BTreeSet<usize>,
         closure: &mut Vec<usize>,
     ) -> Result<(), String> {
-        let key = foundation_key(&foundations[member].name, &foundations[member].version);
+        let key = format!(
+            "{}@{}",
+            foundations[member].name, foundations[member].version
+        );
         if visiting.contains(&member) {
             let mut cycle = path.clone();
             cycle.push(key);
@@ -1799,6 +1814,12 @@ impl FoundationWorkspace {
             schema: EXECUTION_SCHEMA,
             instance: instance.name.clone(),
             foundation: self.foundation_ref(instance),
+            theory: instance.theory.clone(),
+            assumptions: Vec::new(),
+            cycle_policy: self.plan.foundations[instance.foundation]
+                .cycle_policy
+                .clone(),
+            bounds: ExecutionBounds { max_steps },
             execution_basis: self.execution_basis,
             input: term.clone(),
             status: "normal",
@@ -1991,13 +2012,14 @@ impl FoundationWorkspace {
         } else {
             "not-derived"
         };
-        let outcome = Outcome {
+        let mut outcome = Outcome {
             normalized: Some(goal.clone()),
             proof: goal_proof.map(|proof| self.map_proof(context, proof, None)),
             refutation: Some(Refutation {
                 judgement: defined.then_some(refutation),
                 status: refutation_status,
                 proof: refutation_proof.map(|proof| self.map_proof(context, proof, None)),
+                coinduction: None,
             }),
             search: Some(SearchSummary {
                 ended: search.ended,
@@ -2006,15 +2028,86 @@ impl FoundationWorkspace {
             traces,
             ..Outcome::default()
         };
-        let (status, reason) = match (goal_proof.is_some(), refutation_proof.is_some()) {
-            (true, true) => ("contradictory", "goal-and-refutation-derived"),
-            (true, false) => ("proved", "goal-derived"),
-            (false, true) => ("refuted", "refutation-derived"),
-            (false, false) if bounded => ("exhausted", search.ended.as_str()),
-            (false, false) if question.foundation.cycle_policy.kind == GUARDED_COINDUCTIVE => {
-                return self.ask_guarded(context, goal, outcome)
+        // Check each side in a fresh hypothesis environment. A proof on
+        // either side must not suppress the other side's guarded search,
+        // and hypothetical evidence must never cross between the searches.
+        let mut stopped = None;
+        if !bounded && question.foundation.cycle_policy.kind == GUARDED_COINDUCTIVE {
+            if outcome.proof.is_none() {
+                let attempt = self.ask_guarded(context, goal, Outcome::default())?;
+                outcome.proof = attempt.proof;
+                outcome.coinduction = attempt.coinduction;
+                if matches!(attempt.status, "exhausted" | "unsupported") {
+                    stopped = Some((attempt.status, attempt.reason, attempt.detail));
+                }
             }
-            (false, false) => ("unknown", "saturated-without-proof"),
+            let refutation = outcome
+                .refutation
+                .as_mut()
+                .expect("ground refutation status");
+            if refutation.proof.is_none() {
+                if let Some(judgement) = &refutation.judgement {
+                    let attempt =
+                        self.ask_guarded(context, judgement.clone(), Outcome::default())?;
+                    refutation.status = if attempt.proof.is_some() {
+                        "derived"
+                    } else if attempt.status == "exhausted" {
+                        "not-derived-within-bounds"
+                    } else if attempt.status == "unsupported" {
+                        "unsupported"
+                    } else {
+                        "not-derived"
+                    };
+                    refutation.proof = attempt.proof;
+                    refutation.coinduction = attempt.coinduction;
+                    if stopped.is_none() && matches!(attempt.status, "exhausted" | "unsupported") {
+                        stopped = Some((attempt.status, attempt.reason, attempt.detail));
+                    }
+                }
+            }
+        }
+        let refutation = outcome
+            .refutation
+            .as_ref()
+            .expect("ground refutation status");
+        let (status, reason) = match (outcome.proof.is_some(), refutation.proof.is_some()) {
+            (true, true) => ("contradictory", "goal-and-refutation-derived"),
+            (true, false) => (
+                "proved",
+                if outcome
+                    .coinduction
+                    .as_ref()
+                    .is_some_and(|item| item.status == "derived")
+                {
+                    "guarded-coinduction"
+                } else {
+                    "goal-derived"
+                },
+            ),
+            (false, true) => (
+                "refuted",
+                if refutation
+                    .coinduction
+                    .as_ref()
+                    .is_some_and(|item| item.status == "derived")
+                {
+                    "guarded-coinductive-refutation"
+                } else {
+                    "refutation-derived"
+                },
+            ),
+            (false, false) if bounded => ("exhausted", search.ended.as_str()),
+            (false, false) => {
+                if let Some((status, reason, detail)) = stopped {
+                    return Ok(Outcome {
+                        status,
+                        reason,
+                        detail,
+                        ..outcome
+                    });
+                }
+                ("unknown", "saturated-without-proof")
+            }
         };
         Ok(Outcome {
             status,

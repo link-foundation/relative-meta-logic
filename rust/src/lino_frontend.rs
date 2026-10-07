@@ -1258,7 +1258,7 @@ fn read_items(
 /// # Errors
 ///
 /// A [`LinoParseError`] when the document is not valid LiNo.
-pub fn parse_lino_document(text: &str) -> Result<Vec<LinoForm>, LinoParseError> {
+pub fn parse_lino_link_document(text: &str) -> Result<Vec<(LinoForm, ParsedLink)>, LinoParseError> {
     let PreparedLino {
         source,
         prepared,
@@ -1285,17 +1285,32 @@ pub fn parse_lino_document(text: &str) -> Result<Vec<LinoForm>, LinoParseError> 
     }
     let indexes = indexes.filter(|indexes| indexes.len() == links.len());
     Ok(links
-        .iter()
+        .into_iter()
         .enumerate()
         .filter(|(_, link)| !is_comment_link(link))
         .map(|(position, link)| {
             let start = indexes.as_ref().map(|indexes| &lines[indexes[position]]);
-            LinoForm {
-                text: format_parsed_link(link),
-                line: start.map_or(1, |start| start.line),
-                col: start.map_or(1, |start| start.col),
-                length: usize::from(start.is_some()),
-            }
+            (
+                LinoForm {
+                    text: format_parsed_link(&link),
+                    line: start.map_or(1, |start| start.line),
+                    col: start.map_or(1, |start| start.col),
+                    length: usize::from(start.is_some()),
+                },
+                link,
+            )
         })
+        .collect())
+}
+
+/// Read forms through the stable text/location API. Structured consumers use
+/// `parse_lino_link_document` to keep the parser tree without reparsing source.
+///
+/// # Errors
+/// Returns the shared frontend parse diagnostic for invalid LiNo.
+pub fn parse_lino_document(text: &str) -> Result<Vec<LinoForm>, LinoParseError> {
+    Ok(parse_lino_link_document(text)?
+        .into_iter()
+        .map(|(form, _)| form)
         .collect())
 }

@@ -153,11 +153,31 @@ impl Kernel {
             return Err("unexpected data after fixed-point root table".to_string());
         }
         for name in [
-            "TRUE", "FALSE", "NIL", "CONS", "ATOM", "LIST", "PATTERN_VARIABLE",
-            "PATTERN_ATOM", "PATTERN_LIST", "NAMED_RULE", "FACT", "INFERENCE",
-            "REBINDING", "PROGRAM_IMPORT", "PROGRAM", "PROOF", "KNOWN", "APPEND",
-            "RESOLVE_REWRITES", "RESOLVE_FACTS", "RESOLVE_INFERENCES", "REWRITE_ONCE",
-            "ADD_FACTS", "INFER_ONCE", "FIND_KNOWN_PROOF",
+            "TRUE",
+            "FALSE",
+            "NIL",
+            "CONS",
+            "ATOM",
+            "LIST",
+            "PATTERN_VARIABLE",
+            "PATTERN_ATOM",
+            "PATTERN_LIST",
+            "NAMED_RULE",
+            "FACT",
+            "INFERENCE",
+            "REBINDING",
+            "PROGRAM_IMPORT",
+            "PROGRAM",
+            "PROOF",
+            "KNOWN",
+            "APPEND",
+            "RESOLVE_REWRITES",
+            "RESOLVE_FACTS",
+            "RESOLVE_INFERENCES",
+            "REWRITE_ONCE",
+            "ADD_FACTS",
+            "INFER_ONCE",
+            "FIND_KNOWN_PROOF",
         ] {
             if !roots.contains_key(name) {
                 return Err(format!("missing fixed-point root {name}"));

@@ -1,0 +1,103 @@
+# Load together with packages.lino for the linked unary-arithmetic package.
+# Probability and confidence are different fields. Proving an estimate does
+# not prove its statement. All arithmetic and policies below are linked data.
+
+(linked-program confidence-validation)
+(linked-rewrite confidence-validation positive-denominator
+  (from (degree-admitted (ratio ?part (s ?rest))))
+  (to (at-most ?part (s ?rest))))
+(linked-rewrite confidence-validation zero-denominator
+  (from (degree-admitted (ratio ?part z)))
+  (to no))
+(linked-rewrite confidence-validation probability-product
+  (from (probability-product (ratio ?a ?whole-a) (ratio ?b ?whole-b)))
+  (to (ratio (times ?a ?b) (times ?whole-a ?whole-b))))
+
+(linked-program confidence-observations)
+(linked-inference confidence-observations check-observation
+  (premise (observation ?source ?statement ?probability ?confidence))
+  (conclusion
+    (checked-observation ?source ?statement ?probability ?confidence
+      (degree-admitted ?probability) (degree-admitted ?confidence))))
+(linked-inference confidence-observations source-estimate
+  (premise (checked-observation ?source ?statement ?probability ?confidence yes yes))
+  (conclusion
+    (estimate ?statement (probability ?probability) (confidence ?confidence)
+      (depends (source ?source)))))
+
+# A minimum is an explicitly selected confidence score, not an unconditional
+# probability lower bound. Version 2 instead multiplies confidence scores,
+# and therefore requires a separate independence-of-confidence assumption.
+(linked-program conservative-confidence)
+(linked-rewrite conservative-confidence combine-confidence
+  (from (confidence-combine (ratio ?a ?whole-a) (ratio ?b ?whole-b)))
+  (to (ratio (min (times ?a ?whole-b) (times ?b ?whole-a))
+        (times ?whole-a ?whole-b))))
+(linked-program independent-confidence)
+(linked-rewrite independent-confidence combine-confidence
+  (from (confidence-combine (ratio ?a ?whole-a) (ratio ?b ?whole-b)))
+  (to (ratio (times ?a ?b) (times ?whole-a ?whole-b))))
+
+# Factor the join into linked intermediate judgements. Each rule has at
+# most two premises, so evaluating the policy does not need a six-way join.
+(linked-program confidence-dependencies (uses confidence-observations))
+(linked-inference confidence-dependencies select-left
+  (premise (joint ?target ?left ?right))
+  (premise (estimate ?left (probability ?p) (confidence ?cp) (depends ?left-sources)))
+  (conclusion (left-estimate ?target ?left ?right ?p ?cp ?left-sources)))
+(linked-inference confidence-dependencies select-right
+  (premise (left-estimate ?target ?left ?right ?p ?cp ?left-sources))
+  (premise (estimate ?right (probability ?q) (confidence ?cq) (depends ?right-sources)))
+  (conclusion (paired-estimate ?target ?left ?right ?p ?q ?cp ?cq
+    (joint ?left-sources ?right-sources))))
+(linked-inference confidence-dependencies admit-event-independence
+  (premise (paired-estimate ?target ?left ?right ?p ?q ?cp ?cq ?sources))
+  (premise (independent-events ?left ?right))
+  (conclusion (independent-estimate ?target ?left ?right
+    (probability-product ?p ?q) ?cp ?cq ?sources)))
+
+(linked-program conservative-estimation (uses confidence-dependencies))
+(linked-inference conservative-estimation joint-estimate
+  (premise (independent-estimate ?target ?left ?right ?p ?cp ?cq ?sources))
+  (conclusion
+    (estimate ?target (probability ?p)
+      (confidence (confidence-combine ?cp ?cq))
+      (depends ?sources))))
+
+(linked-program independent-estimation (uses confidence-dependencies))
+(linked-inference independent-estimation joint-estimate
+  (premise (independent-estimate ?target ?left ?right ?p ?cp ?cq ?sources))
+  (premise (independent-confidence ?left ?right))
+  (conclusion
+    (estimate ?target (probability ?p)
+      (confidence (confidence-combine ?cp ?cq))
+      (depends ?sources))))
+
+(linked-foundation confidence-estimation (version 1)
+  (depends-on unary-arithmetic (version 1))
+  (inference conservative-estimation)
+  (reduction confidence-validation)
+  (truth conservative-confidence)
+  (signature
+    (observation ?source ?statement ?probability ?confidence)
+    (checked-observation ?source ?statement ?probability ?confidence ?valid-p ?valid-c)
+    (estimate ?statement (probability ?p) (confidence ?c) (depends ?sources))
+    (joint ?target ?left ?right)
+    (independent-events ?left ?right)
+    (independent-confidence ?left ?right)
+    (holds ?statement))
+  (cycle-policy inductive))
+(linked-foundation confidence-estimation (version 2)
+  (depends-on unary-arithmetic (version 1))
+  (inference independent-estimation)
+  (reduction confidence-validation)
+  (truth independent-confidence)
+  (signature
+    (observation ?source ?statement ?probability ?confidence)
+    (checked-observation ?source ?statement ?probability ?confidence ?valid-p ?valid-c)
+    (estimate ?statement (probability ?p) (confidence ?c) (depends ?sources))
+    (joint ?target ?left ?right)
+    (independent-events ?left ?right)
+    (independent-confidence ?left ?right)
+    (holds ?statement))
+  (cycle-policy inductive))

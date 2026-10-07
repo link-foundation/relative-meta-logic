@@ -12,23 +12,16 @@ import {
   TranslationRuleSet,
   TruthValue,
 } from 'meta-language';
-import { leaves } from './cst.mjs';
-import { parseJs, printJs } from './cst-js.mjs';
+import { rewriteJavaScriptIdentifier } from './rml-js-rename.mjs';
 import { evaluate, parseLino } from './rml-links.mjs';
+import { attachRmlStructure, rmlStructuredForms, rmlRepresentationStages } from './rml-meta-structure.mjs';
+export * from './rml-meta-structure.mjs';
 
 const RML_META_LANGUAGE = 'RML';
 const JAVA_SCRIPT_LANGUAGE = 'JavaScript';
-const JS_IDENTIFIER_RE = /^[$_\p{ID_Start}][$\u200C\u200D_\p{ID_Continue}]*$/u;
-const JS_IDENTIFIER_TAG = 'lino-cst.js.ident';
 
 function sameJson(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
-}
-
-function assertJavaScriptIdentifier(value, role) {
-  if (!JS_IDENTIFIER_RE.test(value)) {
-    throw new Error(`${role} must be a JavaScript identifier`);
-  }
 }
 
 function defaultConfiguration(configuration) {
@@ -39,41 +32,14 @@ function linkIdValue(id) {
   return typeof id?.asU64 === 'function' ? id.asU64() : Number(id);
 }
 
-function advanceSourceLocation(location, text) {
-  const next = { ...location };
-
-  for (let index = 0; index < text.length; index += 1) {
-    const codePoint = text.codePointAt(index);
-    const character = String.fromCodePoint(codePoint);
-
-    if (character === '\r' && text[index + 1] === '\n') {
-      next.offset += 2;
-      next.line += 1;
-      next.column = 1;
-      index += 1;
-    } else if (character === '\r' || character === '\n') {
-      next.offset += 1;
-      next.line += 1;
-      next.column = 1;
-    } else {
-      next.offset += character.length;
-      next.column += 1;
-      index += character.length - 1;
-    }
-  }
-
-  return next;
-}
-
 /**
- * Parse RML source into the shared meta-language lossless network.
+ * Preserve source tokens and attach the registered RML syntax extension.
  */
 function parseRmlToMetaLanguage(source, options = {}) {
-  return LinkNetwork.parse(
-    String(source),
-    options.language ?? RML_META_LANGUAGE,
-    defaultConfiguration(options.configuration),
-  );
+  const language = options.language ?? RML_META_LANGUAGE;
+  const network = LinkNetwork.parse(String(source), language, defaultConfiguration(options.configuration));
+  attachRmlStructure(network, String(source), language);
+  return network;
 }
 
 /**
@@ -89,10 +55,7 @@ function reconstructRmlFromMetaLanguage(network, language = RML_META_LANGUAGE) {
 }
 
 function parseRmlLinksViaMetaLanguage(source, options = {}) {
-  return parseLino(reconstructRmlFromMetaLanguage(
-    parseRmlToMetaLanguage(source, options),
-    options.language ?? RML_META_LANGUAGE,
-  ));
+  return rmlStructuredForms(parseRmlToMetaLanguage(source, options), options.language ?? RML_META_LANGUAGE);
 }
 
 function rmlMetaLanguageParityReport(source, options = {}) {
@@ -101,12 +64,13 @@ function rmlMetaLanguageParityReport(source, options = {}) {
   const network = parseRmlToMetaLanguage(text, options);
   const reconstructed = reconstructRmlFromMetaLanguage(network, language);
   const directLinks = parseLino(text);
-  const metaLinks = parseLino(reconstructed);
+  const metaLinks = rmlStructuredForms(network, language);
   const direct = evaluate(text, options.evaluationOptions ?? {});
   const meta = evaluate(reconstructed, options.evaluationOptions ?? {});
 
   return {
     language,
+    stages: rmlRepresentationStages(network, language),
     reconstructed,
     networkLinkCount: network.len(),
     roundTripOk: reconstructed === text,
@@ -123,51 +87,8 @@ function rmlMetaLanguageParityReport(source, options = {}) {
 }
 
 function rewriteJavaScriptIdentifierViaMetaLanguage(source, from, to) {
-  assertJavaScriptIdentifier(from, 'from');
-  assertJavaScriptIdentifier(to, 'to');
-
-  // Keep the package boundary explicit: meta-language owns the lossless
-  // source network, while RML's JavaScript CST supplies the lexical precision
-  // that meta-language 0.46 does not yet expose for strings and comments.
-  const network = LinkNetwork.parse(
-    String(source),
-    JAVA_SCRIPT_LANGUAGE,
-    ParseConfiguration.default(),
-  );
-  const cst = parseJs(network.reconstructText());
-  const matches = [];
-  let location = { offset: 0, line: 1, column: 1 };
-
-  for (const leaf of leaves(cst)) {
-    const originalText = leaf.text;
-
-    if (leaf.kind === 'token' && leaf.tag === JS_IDENTIFIER_TAG && originalText === from) {
-      const start = { ...location };
-      const end = advanceSourceLocation(start, originalText);
-      matches.push({ from, to, start, end });
-      leaf.text = to;
-    }
-
-    location = advanceSourceLocation(location, originalText);
-  }
-
-  const report = {
-    replacements: matches,
-    isEmpty() {
-      return this.replacements.length === 0;
-    },
-    substitution() {
-      return undefined;
-    },
-  };
-
-  return {
-    source: printJs(cst),
-    matchCount: matches.length,
-    changed: matches.length > 0,
-    matches,
-    report,
-  };
+  const network = LinkNetwork.parse(String(source), JAVA_SCRIPT_LANGUAGE, ParseConfiguration.default());
+  return rewriteJavaScriptIdentifier(network.renderSource(JAVA_SCRIPT_LANGUAGE), from, to);
 }
 
 function metaLanguageSubstitutionSmoke() {

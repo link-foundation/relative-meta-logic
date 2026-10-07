@@ -1,0 +1,420 @@
+{
+  "schema": "rml:language-coverage:1",
+  "auditedAt": "2026-10-07",
+  "requirementScope": "Full four-language grammar, semantic representation, and twelve directed faithful translations remain required. Inventory statuses do not narrow acceptance.",
+  "publishedDependencies": {
+    "npmMetaLanguage": "0.46.0",
+    "rustMetaLanguage": "0.58.2",
+    "issue195": "closed 2026-10-06; matching newly published implementation not verified"
+  },
+  "rmlExtension": {
+    "schema": "rml:structure:1",
+    "coverage": "complete shared LiNo frontend syntax tree, categorized forms and source locations; unrecognized forms retained",
+    "sourcePreservation": "exact independent source-token plane",
+    "canonicalRoundTrip": "structured network with source tokens discarded",
+    "resolution": "not-run",
+    "elaboration": "not-run",
+    "execution": "not-run",
+    "verification": "not-run"
+  },
+  "languages": [
+    {
+      "language": "JavaScript",
+      "languageVersion": "No complete grammar/version-conformance claim; production edition and extensions remain unpinned",
+      "preservation": {
+        "status": "token-cst",
+        "evidence": [
+          "js/src/cst-js.mjs",
+          "rust/src/cst_js.rs"
+        ]
+      },
+      "grammar": "token-level only; full grammar open",
+      "structure": "flat token CST; not complete editable semantic structure",
+      "scopeAndBindings": "conservative lexical-block rename only",
+      "typesAndUniverses": "open",
+      "modulesAndImports": "open",
+      "recursion": "tokens preserved; full semantics open",
+      "proofForms": "not native proof syntax; faithful proof encoding open",
+      "runtimeFacilitiesAndEffects": "open",
+      "standardsAndExtensions": "open",
+      "resolution": "not implemented for full language",
+      "elaboration": "not implemented for full language",
+      "execution": "limited language-core demonstrations only",
+      "verification": "no full semantic-equivalence claim"
+    },
+    {
+      "language": "Rust",
+      "languageVersion": "No complete grammar/version-conformance claim; production edition and extensions remain unpinned",
+      "preservation": {
+        "status": "token-cst",
+        "evidence": [
+          "js/src/cst-rust.mjs",
+          "rust/src/cst_rust.rs"
+        ]
+      },
+      "grammar": "token-level only; full grammar open",
+      "structure": "flat token CST; not complete editable semantic structure",
+      "scopeAndBindings": "open",
+      "typesAndUniverses": "open",
+      "modulesAndImports": "open",
+      "recursion": "tokens preserved; full semantics open",
+      "proofForms": "not native proof syntax; faithful proof encoding open",
+      "runtimeFacilitiesAndEffects": "open",
+      "standardsAndExtensions": "open",
+      "resolution": "not implemented for full language",
+      "elaboration": "not implemented for full language",
+      "execution": "limited language-core demonstrations only",
+      "verification": "no full semantic-equivalence claim"
+    },
+    {
+      "language": "Rocq",
+      "languageVersion": "No complete grammar/version-conformance claim; production edition and extensions remain unpinned",
+      "preservation": {
+        "status": "token-cst",
+        "evidence": [
+          "js/src/cst-rocq.mjs",
+          "rust/src/cst_rocq.rs"
+        ]
+      },
+      "grammar": "token-level only; full grammar open",
+      "structure": "flat token CST; not complete editable semantic structure",
+      "scopeAndBindings": "open",
+      "typesAndUniverses": "open",
+      "modulesAndImports": "open",
+      "recursion": "tokens preserved; full semantics open",
+      "proofForms": "tokens preserved; elaboration/checking open",
+      "runtimeFacilitiesAndEffects": "open",
+      "standardsAndExtensions": "open",
+      "resolution": "not implemented for full language",
+      "elaboration": "not implemented for full language",
+      "execution": "limited language-core demonstrations only",
+      "verification": "no full semantic-equivalence claim"
+    },
+    {
+      "language": "Lean",
+      "languageVersion": "No complete grammar/version-conformance claim; production edition and extensions remain unpinned",
+      "preservation": {
+        "status": "token-cst",
+        "evidence": [
+          "js/src/cst-lean.mjs",
+          "rust/src/cst_lean.rs"
+        ]
+      },
+      "grammar": "token-level only; full grammar open",
+      "structure": "flat token CST; not complete editable semantic structure",
+      "scopeAndBindings": "open",
+      "typesAndUniverses": "open",
+      "modulesAndImports": "open",
+      "recursion": "tokens preserved; full semantics open",
+      "proofForms": "tokens preserved; elaboration/checking open",
+      "runtimeFacilitiesAndEffects": "open",
+      "standardsAndExtensions": "open",
+      "resolution": "not implemented for full language",
+      "elaboration": "not implemented for full language",
+      "execution": "limited language-core demonstrations only",
+      "verification": "no full semantic-equivalence claim"
+    }
+  ],
+  "translations": [
+    {
+      "source": "JavaScript",
+      "target": "Rust",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "JavaScript",
+      "target": "Rocq",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "JavaScript",
+      "target": "Lean",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Rust",
+      "target": "JavaScript",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Rust",
+      "target": "Rocq",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Rust",
+      "target": "Lean",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Rocq",
+      "target": "JavaScript",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Rocq",
+      "target": "Rust",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Rocq",
+      "target": "Lean",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Lean",
+      "target": "JavaScript",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Lean",
+      "target": "Rust",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    },
+    {
+      "source": "Lean",
+      "target": "Rocq",
+      "status": "unsupported",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource"
+      ],
+      "doesNotEstablish": [
+        "target-code validity",
+        "behavior",
+        "effects",
+        "ownership",
+        "types",
+        "universes",
+        "assumptions",
+        "proof obligations"
+      ],
+      "requiredRuntimeOrEncoding": "not yet implemented",
+      "evidence": [
+        "languageTranslationObligation",
+        "language_translation_obligation"
+      ],
+      "targetSource": null
+    }
+  ]
+}
