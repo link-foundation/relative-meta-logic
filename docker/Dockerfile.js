@@ -13,7 +13,7 @@
 #   docker run --rm -v "$PWD/my.lino:/work/my.lino" rml-js \
 #     node src/rml-links.mjs /work/my.lino
 
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Required for the lifecycle guard to detect unleased build processes.
 RUN apk add --no-cache procps
@@ -31,6 +31,10 @@ RUN node ../scripts/run-with-cache.mjs -- npm ci --omit=dev \
 
 # Copy the JS sources alongside the cached node_modules.
 COPY js/src ./src
+COPY js/vendor/meta-language/js/src ./vendor/meta-language/js/src
+COPY js/vendor/meta-language/js/package.json ./vendor/meta-language/js/
+COPY js/vendor/meta-language/LICENSE ./vendor/meta-language/
+COPY js/vendor/LICENSE.meta-language js/vendor/meta-language-provenance.json ./vendor/
 COPY js/tests ./tests
 
 # Copy the language-agnostic resources the entry points read at runtime.

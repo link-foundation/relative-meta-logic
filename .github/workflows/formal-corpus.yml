@@ -43,14 +43,17 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/checkout@v7
         with:
+          submodules: recursive
           repository: link-foundation/meta-theory
           ref: ${{ env.META_THEORY_REVISION }}
           path: upstream-meta-theory
       - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: js/package-lock.json
       - name: Install repository build lifecycle
@@ -81,14 +84,17 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/checkout@v7
         with:
+          submodules: recursive
           repository: link-foundation/meta-theory
           ref: ${{ env.META_THEORY_REVISION }}
           path: upstream-meta-theory
       - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install repository build lifecycle
         run: node scripts/bootstrap.mjs
       - name: Install Elan
@@ -124,14 +130,17 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/checkout@v7
         with:
+          submodules: recursive
           repository: link-foundation/meta-theory
           ref: ${{ env.META_THEORY_REVISION }}
           path: upstream-meta-theory
       - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install repository build lifecycle
         run: node scripts/bootstrap.mjs
       - name: Build pinned Rocq corpus in an owned scratch copy

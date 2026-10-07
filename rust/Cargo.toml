@@ -2,6 +2,7 @@
 name = "relative-meta-logic"
 version = "0.39.0"
 edition = "2021"
+rust-version = "1.90"
 description = "A prototype for logic framework that can reason about anything relative to given probability of input statements"
 license = "Unlicense"
 
@@ -22,8 +23,8 @@ name = "rml"
 path = "src/lib.rs"
 
 [dependencies]
-links-notation = "0.20.0"
-meta-language = "0.58.2"
+links-notation = "0.23.0"
+meta-language = { git = "https://github.com/link-foundation/meta-language.git", rev = "679a3b3c3c56177b8df1ad82672690c6e9889aeb", default-features = false }
 sha2 = "0.11.0"
 
 serde_json = "1.0.151"

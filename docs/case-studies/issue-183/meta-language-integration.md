@@ -1,30 +1,31 @@
-# Published meta-language integration audit
+# Source-pinned meta-language integration audit
 
-Audit date: 2026-10-07. This is an intermediate implementation, not completion
-of R101–R109 or of the four-language translation requirement.
+Audit date: 2026-10-07. The official source-integration obligation R102 is delivered. Full
+language acceptance R101 and R103–R109 remains incomplete.
 
-## Published artifacts and upstream closure
+## Official source integration and registry status
 
-[Upstream issue 195](https://github.com/link-foundation/meta-language/issues/195)
-was closed as completed on 2026-10-06 at 21:17:21 UTC. Its closure must not be
-reported as an open issue. However, the following public-package checks on
-2026-10-07 still returned:
+The implementation merged for [upstream issue 195](https://github.com/link-foundation/meta-language/issues/195)
+on 2026-10-06 is now consumed at exact commit
+`679a3b3c3c56177b8df1ad82672690c6e9889aeb`: the JavaScript runtime is an immutable
+source submodule and Rust uses the same Git revision. The previous published
+artifacts (npm 0.46.0 and crate 0.58.2) remain older than that implementation;
+their publication gap no longer prevents source integration. This does not
+claim a matched new registry release.
 
-- `npm view meta-language dist-tags versions --json`:
-  `latest: 0.46.0`, with `0.46.0` the only published version.
-- `https://index.crates.io/me/ta/meta-language`: last version `0.58.2`, not yanked.
-- Upstream main's `js/package.json` and `rust/Cargo.toml`: version `0.58.2`;
-  the source has considerably newer infrastructure than the npm artifact.
+[Upstream language source](../../UPSTREAM_LANGUAGE_SOURCE.md) documents the
+installation, file hashes, licenses, package-consumer behavior and exact API
+boundary. The new `rml-upstream-language.mjs` / `upstream_language.rs` interfaces
+expose upstream grammar CSTs, scoped bindings, project-context resolution,
+structured edits, snapshots and translation contracts directly. The official
+shared four-language fixture is exercised in both runtimes, including invalid
+input and missing-context/capture refusal. Full semantic translation remains
+open: upstream's unsupported-input envelopes do not satisfy that requirement.
 
-RML therefore retains npm `^0.46.0` and crate `0.58.2`. Installing a nonexistent
-npm version or relabelling the already-published Rust version would not consume
-the implementation that closed issue 195. Upstream source is evidence for work
-available to inspect, not evidence that it shipped in either consumed artifact.
-A future integration must identify actual publication contents and test them.
-
-The only new direct Rust dependency is `regex 1.13.1`, already present in the
-lockfile transitively, for ECMAScript Unicode identifier validation. The existing
-`serde_json 1.0.151` moves from test-only to runtime for interoperable snapshots.
+RML now uses maintained links-notation 0.23.0 in both runtimes, with its existing
+LiNo frontend and structured-links-network corpus checked for compatibility. Existing
+RML-specific syntax and portable-natural behavior remain separate from the
+newly consumed general-language APIs.
 
 ## RML structure schema 1
 
@@ -70,8 +71,9 @@ Two deliberately distinct representations coexist:
 `serializeRmlStructure` / `serialize_rml_structure` and matching deserializers
 share JSON schema `rml:structure:1`: language plus Link records containing IDs,
 ordered references, link type, language, definition, and optional term. This
-explicit snapshot is needed because published npm 0.46's `toLino()` omits
-metadata. Rust may reindex IDs during import; shared references retain identity.
+explicit snapshot was originally introduced because published npm 0.46's
+`toLino()` omitted metadata; it remains the versioned RML interchange contract
+after source integration. Rust may reindex IDs during import; shared references retain identity.
 The snapshot does not preserve the source-token plane. Import retains sharing
 when multiple references in the snapshot name one node, but `rmlStructureOnly`
 and serialization deliberately project syntax into occurrence trees; they are

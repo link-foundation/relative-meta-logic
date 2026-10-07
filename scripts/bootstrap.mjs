@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { initializeMetaLanguage } from './initialize-meta-language.mjs';
 
 const rootHere = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const marker = '# RML composed cache hook v1';
@@ -17,6 +18,7 @@ export function bootstrap(root = rootHere) {
     git(['ls-files', '--error-unmatch', 'scripts/bootstrap.mjs', 'scripts/cache-policy.json', 'js/package.json', 'rust/Cargo.toml']);
     if (process.env.npm_lifecycle_event === 'prepare' && process.env.INIT_CWD && !path.resolve(process.env.INIT_CWD).startsWith(`${root}${path.sep}`) && path.resolve(process.env.INIT_CWD) !== root) return { installed: false, reason: 'downstream package installation' };
   } catch { return { installed: false, reason: 'not a tracked RML developer checkout' }; }
+  initializeMetaLanguage(root);
   const gitDir = git(['rev-parse', '--absolute-git-dir']);
   const local = path.join(gitDir, 'rml-hooks');
   const configured = (() => { try { return git(['config', '--path', '--get', 'core.hooksPath']); } catch { return null; } })();

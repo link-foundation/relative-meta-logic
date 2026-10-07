@@ -1,0 +1,59 @@
+name: issue-183-acceptance
+
+# This job is selected for every PR revision, including documentation-only edits.
+# Repository branch protection must separately require its check; YAML cannot
+# configure or establish that setting. Open requirements intentionally fail it.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: issue-183-acceptance-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  complete-delivery:
+    name: Issue 183 complete delivery
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: js/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Install JavaScript dependencies
+        working-directory: js
+        run: node ../scripts/run-with-cache.mjs -- npm ci
+      - name: Enforce complete execution-backed delivery
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/run-with-cache.mjs -- node scripts/check-issue-183-completion.mjs --report .rml-cache/evidence/issue-183-acceptance.json
+      - name: Archive acceptance evidence before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-183-acceptance-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

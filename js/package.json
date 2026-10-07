@@ -42,14 +42,27 @@
   "license": "Unlicense",
   "dependencies": {
     "events": "^3.3.0",
-    "links-notation": "^0.20.0",
-    "meta-language": "^0.46.0"
+    "links-notation": "0.23.0",
+    "web-tree-sitter": "0.27.0"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
     "jsdoc": "^4.0.5"
   },
   "engines": {
-    "node": ">=18.15.0"
-  }
+    "node": ">=22"
+  },
+  "imports": {
+    "#meta-language": "./vendor/meta-language/js/src/index.js"
+  },
+  "files": [
+    "src",
+    "vendor/meta-language/js/src",
+    "vendor/meta-language/js/package.json",
+    "vendor/meta-language/js/README.md",
+    "vendor/meta-language/LICENSE",
+    "vendor/LICENSE.meta-language",
+    "vendor/meta-language-provenance.json",
+    "README.md"
+  ]
 }

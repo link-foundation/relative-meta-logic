@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { LinkMetadata, LinkNetwork, LinkType, SubstitutionRule } from 'meta-language';
+import { LinkMetadata, LinkNetwork, LinkType, SubstitutionRule } from '#meta-language';
 import {
   attachRmlStructure, deserializeRmlStructure, emitRmlFromStructure, parseRmlToMetaLanguage,
   reconstructRmlFromMetaLanguage, rmlRepresentationStages, rmlStructuredDocument,

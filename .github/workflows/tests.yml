@@ -29,9 +29,11 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: js/package-lock.json
       # Runs on every PR 184 event type, since a newer run can cancel the
@@ -73,9 +75,11 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
       - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '22'
       - uses: dtolnay/rust-toolchain@stable
       - name: Install repository build lifecycle
         run: node scripts/bootstrap.mjs

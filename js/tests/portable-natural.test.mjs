@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { LinkMetadata, LinkType, SubstitutionRule } from 'meta-language';
+import { LinkMetadata, LinkType, SubstitutionRule } from '#meta-language';
 import { deserializeRmlStructure, emitRmlFromStructure, serializeRmlStructure } from '../src/rml-meta-language.mjs';
 import { parsePortableNatural, emitPortableNatural, translatePortableNatural, evaluatePortableNatural, PORTABLE_NATURAL_CONTRACT } from '../src/rml-portable-natural.mjs';
 const corpus = JSON.parse(readFileSync(new URL('../../test-corpus/portable-natural/cases.json', import.meta.url), 'utf8'));

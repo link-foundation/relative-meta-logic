@@ -4,6 +4,8 @@ Rust implementation of the Relative Meta-Logic (RML) framework.
 
 ## Prerequisites
 
+The source-pinned meta-language dependency requires Rust 1.90 or later and a C compiler.
+
 - [Rust](https://rustup.rs/) (edition 2021)
 
 ## Building

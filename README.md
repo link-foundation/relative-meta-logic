@@ -18,6 +18,8 @@ For versioning, deprecations, and release expectations, see
 [Compatibility and release policy](./docs/COMPATIBILITY.md).
 For the developer bootstrap, automatic cache cleanup, and safe build wrappers, see
 [Build cache lifecycle](./docs/BUILD_CACHE.md).
+For the pinned upstream grammar/project APIs, installation provenance and
+translation boundaries, see [Upstream language source](./docs/UPSTREAM_LANGUAGE_SOURCE.md).
 
 ## Comparisons
 

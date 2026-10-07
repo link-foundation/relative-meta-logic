@@ -16,7 +16,7 @@
   "homepage": "https://github.com/link-foundation/relative-meta-logic#readme",
   "engines": {
     "vscode": "^1.82.0",
-    "node": ">=18.15.0"
+    "node": ">=22"
   },
   "categories": [
     "Programming Languages"
@@ -83,7 +83,7 @@
     "package:raw": "npm run copy-server && vsce package --out relative-meta-logic.vsix"
   },
   "dependencies": {
-    "links-notation": "^0.20.0",
+    "links-notation": "0.23.0",
     "vscode-languageclient": "^10.1.1"
   },
   "devDependencies": {

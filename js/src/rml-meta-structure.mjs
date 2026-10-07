@@ -1,6 +1,6 @@
 /** Versioned RML syntax extension over the published meta-language public API.
  * These links represent LiNo structure, not elaborated judgements or proofs. */
-import { LanguageProfile, LinkMetadata, LinkNetwork, LinkType } from 'meta-language';
+import { LanguageProfile, LinkMetadata, LinkNetwork, LinkType } from '#meta-language';
 import {
   formatParsedLink, LinoParseError, MAX_LINO_NESTING_DEPTH,
   parseLinoLinkDocument,

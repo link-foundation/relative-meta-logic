@@ -7,8 +7,8 @@ another project, a home-directory package cache, or the machine's Docker daemon.
 
 ## Start here
 
-Node.js 18.15 or later, Git, and process inspection (`ps` on Unix, also `lsof` on macOS; PowerShell on
-Windows) are required. CI uses Node.js 20.
+Node.js 22 or later, Git, and process inspection (`ps` on Unix, also `lsof` on macOS; PowerShell on
+Windows) are required. CI uses Node.js 22.
 
 ```sh
 # Install the composed hooks and JavaScript dependencies from the repository root.

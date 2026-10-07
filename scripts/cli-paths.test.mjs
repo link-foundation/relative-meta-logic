@@ -13,6 +13,11 @@ test('fresh checkout with spaces executes evaluator/exporter, meta checker and L
   execFileSync('git', ['clone', '--local', '--no-hardlinks', '-q', source, root]);
   // Include the current working version so this regression also runs before commit.
   fs.cpSync(path.join(source, 'js/src'), path.join(root, 'js/src'), { recursive: true });
+  fs.copyFileSync(path.join(source, 'js/package.json'), path.join(root, 'js/package.json'));
+  const upstream = 'js/vendor/meta-language/js';
+  fs.mkdirSync(path.join(root, upstream), { recursive: true });
+  fs.copyFileSync(path.join(source, upstream, 'package.json'), path.join(root, upstream, 'package.json'));
+  fs.cpSync(path.join(source, upstream, 'src'), path.join(root, upstream, 'src'), { recursive: true });
   fs.copyFileSync(path.join(source, 'scripts/lint-english.mjs'), path.join(root, 'scripts/lint-english.mjs'));
   fs.symlinkSync(path.join(source, 'js/node_modules'), path.join(root, 'js/node_modules'), 'junction');
   const run = (args, options = {}) => spawnSync(process.execPath, args, { cwd: path.join(root, 'js'), encoding: 'utf8', timeout: 15000, ...options });

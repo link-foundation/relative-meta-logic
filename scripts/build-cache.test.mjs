@@ -11,7 +11,7 @@ const node = process.execPath;
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml cache spaces '));
   fs.mkdirSync(path.join(root, 'scripts'));
-  for (const name of ['build-cache.mjs', 'cache-policy.json', 'run-with-cache.mjs', 'bootstrap.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
+  for (const name of ['build-cache.mjs', 'cache-policy.json', 'run-with-cache.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
   fs.mkdirSync(path.join(root, 'js'));
   fs.mkdirSync(path.join(root, 'rust'));
   fs.writeFileSync(path.join(root, 'js/package.json'), '{"name":"fixture"}\n');

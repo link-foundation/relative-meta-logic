@@ -1,5 +1,5 @@
 /** A deliberately bounded semantic translation fragment, not a full-language frontend. */
-import { LinkNetwork } from 'meta-language';
+import { LinkNetwork } from '#meta-language';
 import { attachRmlStructure, rmlStructuredDocument } from './rml-meta-language.mjs';
 
 export const PORTABLE_NATURAL_CONTRACT = Object.freeze({

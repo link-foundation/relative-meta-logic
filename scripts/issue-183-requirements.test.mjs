@@ -83,6 +83,7 @@ const REQUIREMENT_SOURCES = [
     5823272578,
     5831357798,
     5836717056,
+    5856764556,
   ].map(id =>
     `https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-${id}`,
   ),
@@ -105,7 +106,7 @@ describe('issue 183 requirement traceability', () => {
     const ledger = readLedger();
     const rows = parseIssue183Requirements(ledger);
 
-    assert.ok(rows.length >= 151, `expected at least 151 requirements, found ${rows.length}`);
+    assert.ok(rows.length >= 164, `expected at least 164 requirements, found ${rows.length}`);
     assert.deepEqual(
       rows.map(row => row.id),
       Array.from({ length: rows.length }, (_, index) => index + 1),

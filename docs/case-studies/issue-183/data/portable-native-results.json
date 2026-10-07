@@ -1,0 +1,125 @@
+{
+  "schema": "rml:portable-native-results:1",
+  "status": "passed-all-oracles",
+  "versions": {
+    "JavaScript": "v24.19.0",
+    "Rust": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "Lean": "Lean (version 4.28.0, x86_64-unknown-linux-gnu, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b, Release)",
+    "Rocq": "The Rocq Prover, version 9.1.1"
+  },
+  "sourceHashes": {
+    "js/src/rml-portable-natural.mjs": "6f19cc70fbfdd3ed614ba43b91a7828469457ddc2625c9e0a1d42c326a6556d0",
+    "rust/src/portable_natural.rs": "4ec04b05b690c1bb67f5fc26f2cf17970034b96260fb055c81fec569127fa1bd",
+    "js/src/rml-meta-language.mjs": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757",
+    "js/src/rml-meta-structure.mjs": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924",
+    "rust/src/meta_language_support.rs": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289",
+    "rust/src/meta_language_structure.rs": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc",
+    "test-corpus/portable-natural/cases.json": "bed3e3997e8dd61ba3ce5730296ec917b08d7dc61341c47a38e7a645add59060",
+    "scripts/check-portable-native.mjs": "da970cf516d05ac376694099144cc7ee6e51e8fe8fb96102aa50c164523fa302"
+  },
+  "checks": [
+    {
+      "sourceLanguage": "JavaScript",
+      "targetLanguage": "Rust",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "JavaScript",
+      "targetLanguage": "Lean",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "JavaScript",
+      "targetLanguage": "Rocq",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Rust",
+      "targetLanguage": "JavaScript",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Rust",
+      "targetLanguage": "Lean",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Rust",
+      "targetLanguage": "Rocq",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Lean",
+      "targetLanguage": "JavaScript",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Lean",
+      "targetLanguage": "Rust",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Lean",
+      "targetLanguage": "Rocq",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Rocq",
+      "targetLanguage": "JavaScript",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Rocq",
+      "targetLanguage": "Rust",
+      "status": "passed",
+      "observations": 8
+    },
+    {
+      "sourceLanguage": "Rocq",
+      "targetLanguage": "Lean",
+      "status": "passed",
+      "observations": 8
+    }
+  ],
+  "negativeChecks": [
+    {
+      "sourceLanguage": "JavaScript",
+      "targetLanguage": "Rocq",
+      "status": "rejected-false-observation",
+      "expression": "rml_guard 3 5",
+      "correctResult": "15",
+      "rejectedResult": "16",
+      "exitCode": 1
+    },
+    {
+      "sourceLanguage": "Rust",
+      "targetLanguage": "Rocq",
+      "status": "rejected-false-observation",
+      "expression": "rml_guard 3 5",
+      "correctResult": "15",
+      "rejectedResult": "16",
+      "exitCode": 1
+    },
+    {
+      "sourceLanguage": "Lean",
+      "targetLanguage": "Rocq",
+      "status": "rejected-false-observation",
+      "expression": "rml_guard 3 5",
+      "correctResult": "15",
+      "rejectedResult": "16",
+      "exitCode": 1
+    }
+  ],
+  "skipped": [],
+  "missingRequired": []
+}

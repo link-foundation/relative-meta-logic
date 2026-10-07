@@ -20,3 +20,13 @@ _site
 **/.nyc_output
 **/dist
 upstream-meta-theory
+
+# Only the pinned upstream JavaScript runtime belongs in the build context.
+**/.git
+js/vendor/meta-language/*
+!js/vendor/meta-language/js
+!js/vendor/meta-language/LICENSE
+js/vendor/meta-language/js/*
+!js/vendor/meta-language/js/src
+!js/vendor/meta-language/js/package.json
+!js/vendor/meta-language/js/README.md

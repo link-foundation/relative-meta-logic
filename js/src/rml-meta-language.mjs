@@ -11,7 +11,7 @@ import {
   TranslationRule,
   TranslationRuleSet,
   TruthValue,
-} from 'meta-language';
+} from '#meta-language';
 import { rewriteJavaScriptIdentifier } from './rml-js-rename.mjs';
 import { evaluate, parseLino } from './rml-links.mjs';
 import { attachRmlStructure, rmlStructuredForms, rmlRepresentationStages } from './rml-meta-structure.mjs';
@@ -164,3 +164,5 @@ export {
   rewriteJavaScriptIdentifierViaMetaLanguage,
   rmlMetaLanguageParityReport,
 };
+
+export * from './rml-upstream-language.mjs';

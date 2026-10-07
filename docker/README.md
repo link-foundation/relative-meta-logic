@@ -5,7 +5,7 @@ Meta-Logic (RML).
 
 ## Files
 
-- [`Dockerfile.js`](./Dockerfile.js) - Node.js 20 image that runs the
+- [`Dockerfile.js`](./Dockerfile.js) - Node.js 22 image that runs the
   JavaScript evaluator (`js/src/rml-links.mjs`).
 - [`Dockerfile.rust`](./Dockerfile.rust) - Multi-stage Rust image that
   compiles the `rml`, `rml-check`, and `rml-meta` binaries and ships

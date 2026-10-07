@@ -4,7 +4,7 @@ JavaScript implementation of the Relative Meta-Logic (RML) framework.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 18.0.0
+- [Node.js](https://nodejs.org/) >= 22.0.0
 
 ## Installation
 
