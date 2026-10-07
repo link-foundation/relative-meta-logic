@@ -13,6 +13,20 @@ const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const sorted = values => [...values].sort();
 const git = (root, ...args) => execFileSync('git', ['-c', 'core.autocrlf=false', '-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trimEnd();
 const split = text => text.split('\0').filter(Boolean);
+export function sameDirectory(left, right) {
+  // Windows can report one directory using both its long name and an 8.3 alias.
+  // Compare native filesystem identity, not path spelling or case folding.
+  const identity = directory => {
+    const stat = fs.statSync(fs.realpathSync.native(directory), { bigint: true });
+    assert.ok(stat.isDirectory() && stat.ino > 0n, 'Cannot establish filesystem directory identity');
+    return stat;
+  };
+  const first = identity(left), second = identity(right);
+  return first.dev === second.dev && first.ino === second.ino;
+}
+export function assertSeparateCheckout(root, packageRoot) {
+  assert.ok(!sameDirectory(root, packageRoot), 'Refusing to patch the publishing checkout');
+}
 const observedFiles = root => Object.fromEntries(repairPaths.map(name => {
   const file = path.join(root, name);
   const stat = fs.lstatSync(file, { throwIfNoEntry: false });
@@ -36,7 +50,7 @@ export function loadPackage(packageDir = here) {
 }
 
 function checkIdentity(root, manifest) {
-  assert.equal(fs.realpathSync(git(root, 'rev-parse', '--show-toplevel')), fs.realpathSync(root), 'Candidate must be a separate checkout root');
+  assert.ok(sameDirectory(git(root, 'rev-parse', '--show-toplevel'), root), 'Candidate must be a separate checkout root');
   assert.equal(git(root, 'rev-parse', 'HEAD'), manifest.baselineCommit, 'Candidate baseline commit drifted');
   assert.equal(git(root, 'rev-parse', 'HEAD^{tree}'), manifest.baselineTree, 'Candidate baseline tree drifted');
 }
@@ -97,9 +111,9 @@ function main() {
   const [operation] = process.argv.slice(2);
   assert.ok(operation === 'apply' || operation === 'verify', 'Usage: validate.mjs apply|verify (RML_CACHE_CANDIDATE_ROOT required)');
   assert.ok(process.env.RML_CACHE_CANDIDATE_ROOT, 'Set RML_CACHE_CANDIDATE_ROOT to the disposable baseline checkout');
-  const root = fs.realpathSync(process.env.RML_CACHE_CANDIDATE_ROOT);
-  const packageRoot = fs.realpathSync(path.resolve(here, '../../..'));
-  assert.notEqual(root, packageRoot, 'Refusing to patch the publishing checkout');
+  const root = fs.realpathSync.native(process.env.RML_CACHE_CANDIDATE_ROOT);
+  const packageRoot = fs.realpathSync.native(path.resolve(here, '../../..'));
+  assertSeparateCheckout(root, packageRoot);
   assert.equal(git(packageRoot, 'status', '--porcelain=v1', '--untracked-files=all'), '', 'Publishing checkout must remain clean');
   const candidate = loadPackage();
   const packageRevision = git(packageRoot, 'rev-parse', 'HEAD');

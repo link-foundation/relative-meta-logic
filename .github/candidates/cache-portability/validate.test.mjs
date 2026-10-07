@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { applyCandidate, loadPackage, repairPaths, verifyCandidate } from './validate.mjs';
+import { applyCandidate, assertSeparateCheckout, loadPackage, repairPaths, sameDirectory, verifyCandidate } from './validate.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
@@ -49,6 +49,22 @@ test('candidate validation applies exactly the five reviewed files and records t
   const evidence = path.join(f.root, '.rml-cache/evidence/cache-portability-candidate');
   assert.equal(hash(fs.readFileSync(path.join(evidence, 'applied-repair.patch'))), f.manifest.patchSha256);
   assert.equal(JSON.parse(fs.readFileSync(path.join(evidence, 'before.json'))).baselineTree, f.manifest.baselineTree);
+});
+
+test('directory aliases preserve checkout identity while distinct directories remain separate', t => {
+  const f = fixture(t);
+  const alias = path.join(path.dirname(f.root), 'candidate-alias');
+  // Directory junctions do not require Windows symlink privileges. On Unix use
+  // a directory symlink to exercise the same real-directory identity contract.
+  fs.symlinkSync(f.root, alias, process.platform === 'win32' ? 'junction' : 'dir');
+  assert.equal(sameDirectory(f.root, alias), true);
+  assert.equal(sameDirectory(f.root, f.packageDir), false);
+  assert.throws(() => assertSeparateCheckout(alias, f.root), /Refusing to patch the publishing checkout/);
+  assert.doesNotThrow(() => assertSeparateCheckout(alias, f.packageDir));
+  assert.throws(() => applyCandidate(path.join(f.root, 'scripts'), f.candidate), /separate checkout root/);
+  const result = applyCandidate(alias, f.candidate);
+  assert.equal(result.candidateTree, f.manifest.candidateTree);
+  assert.deepEqual(verifyCandidate(f.root, f.candidate), result);
 });
 
 for (const kind of ['tracked', 'untracked', 'ignored']) {
