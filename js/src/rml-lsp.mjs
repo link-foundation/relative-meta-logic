@@ -7,7 +7,7 @@
 // completion.
 
 import process from 'node:process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   Env,
   evaluate,
@@ -564,7 +564,7 @@ function runServer() {
   new RmlLanguageServer().start();
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   runServer();
 }
 

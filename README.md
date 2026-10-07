@@ -16,6 +16,8 @@ Both implementations pass the same comprehensive test suites and produce identic
 For implementation details, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 For versioning, deprecations, and release expectations, see
 [Compatibility and release policy](./docs/COMPATIBILITY.md).
+For the developer bootstrap, automatic cache cleanup, and safe build wrappers, see
+[Build cache lifecycle](./docs/BUILD_CACHE.md).
 
 ## Comparisons
 

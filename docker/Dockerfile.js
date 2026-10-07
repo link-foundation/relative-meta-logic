@@ -15,11 +15,19 @@
 
 FROM node:20-alpine
 
+# Required for the lifecycle guard to detect unleased build processes.
+RUN apk add --no-cache procps
+
+ENV RML_CACHE_SOURCE_ARCHIVE=1
+
+WORKDIR /repo
+COPY scripts ./scripts
 WORKDIR /repo/js
 
 # Install JS dependencies first so they are cached across source changes.
 COPY js/package.json js/package-lock.json ./
-RUN npm ci --omit=dev
+RUN node ../scripts/run-with-cache.mjs -- npm ci --omit=dev \
+    && node ../scripts/build-cache.mjs --full
 
 # Copy the JS sources alongside the cached node_modules.
 COPY js/src ./src
@@ -30,7 +38,6 @@ WORKDIR /repo
 COPY examples ./examples
 COPY lib ./lib
 COPY test-corpus ./test-corpus
-COPY scripts ./scripts
 
 WORKDIR /repo/js
 

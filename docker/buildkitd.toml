@@ -1,0 +1,14 @@
+# Applies only to the dedicated RML builder created by ci-build.sh.
+# This is periodic BuildKit GC, not a hard in-flight filesystem quota.
+[worker.oci]
+  gc = true
+  reservedSpace = "256MB"
+  maxUsedSpace = "2GB"
+  minFreeSpace = "2GB"
+
+[[worker.oci.gcpolicy]]
+  all = true
+  reservedSpace = "256MB"
+  maxUsedSpace = "2GB"
+  minFreeSpace = "2GB"
+  keepDuration = "24h"

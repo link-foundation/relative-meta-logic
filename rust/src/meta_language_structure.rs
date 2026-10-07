@@ -208,7 +208,7 @@ fn read_tree(
     })
 }
 
-/// Decode from ordered graph links. Never consult source tokens or invoke a parser.
+/// Decode from ordered Link references. Never consult source tokens or invoke a parser.
 ///
 /// # Errors
 /// Returns the retained source diagnostic or a malformed-network error.
@@ -329,7 +329,7 @@ pub fn rml_structure_only(network: &LinkNetwork) -> Result<LinkNetwork, LinoPars
     Ok(structured)
 }
 
-/// Serialize the versioned shared JS/Rust graph snapshot, retaining node metadata.
+/// Serialize the versioned shared JS/Rust links-network snapshot, retaining node metadata.
 /// # Errors
 /// Rejects an invalid source or malformed structure.
 pub fn serialize_rml_structure(network: &LinkNetwork) -> Result<String, LinoParseError> {
@@ -349,7 +349,7 @@ pub fn serialize_rml_structure(network: &LinkNetwork) -> Result<String, LinoPars
     )
 }
 
-/// Read the shared JS/Rust graph snapshot. IDs may be reindexed; sharing is preserved.
+/// Read the shared JS/Rust links-network snapshot. IDs may be reindexed; sharing is preserved.
 /// # Errors
 /// Rejects invalid schemas, dangling references, cycles, depths, and malformed nodes.
 pub fn deserialize_rml_structure(serialized: &str) -> Result<LinkNetwork, String> {

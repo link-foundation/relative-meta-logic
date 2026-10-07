@@ -95,3 +95,19 @@ docker compose -f docker/docker-compose.yml run --rm rml-rust \
 Both images are built on every pull request that touches `docker/`,
 the implementations, the shared examples, or the corpora. See
 [`.github/workflows/docker.yml`](../.github/workflows/docker.yml).
+
+## Build-cache ownership
+
+CI uses a fresh project/run-scoped builder and removes its labelled images and
+builder state after the smoke tests. To run that same disposable verification
+locally, use:
+
+```bash
+node scripts/run-with-cache.mjs -- bash docker/ci-build.sh
+```
+
+The command removes its test images. The ordinary build and Compose examples
+above retain the images you requested; their shared Docker daemon cache is not
+managed by the repository cleaner. Neither route prunes other projects' images,
+builders or volumes. See [Build cache lifecycle](../docs/BUILD_CACHE.md) for exact
+ownership checks, budgets, artifact retention and source-safety boundaries.

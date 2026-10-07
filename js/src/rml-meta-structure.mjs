@@ -105,7 +105,7 @@ function readTree(network, id, language, active, depth, budget) {
   return { id: meta.term ?? null, values, _isFromPathCombination: kind === 'compound' };
 }
 
-/** Decode solely from ordered graph links. No source token or parser is consulted. */
+/** Decode solely from ordered Link references. No source token or parser is consulted. */
 export function rmlStructuredDocument(network, language = 'RML') {
   const links = network.links().filter(link => link.metadata().linkType === LinkType.Syntax && link.metadata().language === language);
   const diagnostics = links.filter(link => link.metadata().definition === definition('diagnostic'));
@@ -148,7 +148,7 @@ export function rmlStructureOnly(network, language = 'RML') {
   return structured;
 }
 
-/** A JSON-safe graph snapshot. Unlike upstream npm 0.46 toLino, it retains metadata. */
+/** A JSON-safe links-network snapshot. Unlike upstream npm 0.46 toLino, it retains metadata. */
 export function serializeRmlStructure(network, language = 'RML') {
   const structured = rmlStructureOnly(network, language);
   return JSON.stringify({ schema: RML_STRUCTURE_SCHEMA, language, links: structured.links().map(link => ({

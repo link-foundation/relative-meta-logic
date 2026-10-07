@@ -14085,11 +14085,16 @@ pub mod check;
 pub mod meta;
 pub mod meta_language_support;
 pub mod meta_language_structure;
+pub mod portable_natural;
 pub mod js_rename;
 pub mod formal_corpus;
 pub mod theory_network;
 pub mod linked_program;
+pub mod lambda_kernel;
+pub mod linked_proof;
 pub mod foundation_workspace;
+pub mod foundation_packages;
+pub mod semantic_archive;
 pub mod rocq;
 
 // Universal CST converters (issue #138).

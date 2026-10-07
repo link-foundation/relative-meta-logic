@@ -13,24 +13,31 @@
 #   docker run --rm -v "$PWD/my.lino:/work/my.lino" rml-rust /work/my.lino
 
 # ---------- Build stage ----------
+# Copy the supported Node runtime for the same lifecycle used outside Docker.
+FROM node:20-bookworm-slim AS node-runtime
 FROM rust:1-slim-bookworm AS builder
+COPY --from=node-runtime /usr/local/bin/node /usr/local/bin/node
+ENV RML_CACHE_SOURCE_ARCHIVE=1
+# Required by the lifecycle guard; this is confined to the build stage.
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends procps \
+    && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /build
+COPY scripts ./scripts
+COPY rust/Cargo.toml rust/Cargo.lock ./rust/
+COPY rust/src ./rust/src
+COPY lib/meta-theory /build/lib/meta-theory
 WORKDIR /build/rust
 
-# Copy only the manifests first so the dependency layer is cached.
-COPY rust/Cargo.toml rust/Cargo.lock ./
-RUN mkdir -p src src/bin \
-    && echo "fn main() {}" > src/main.rs \
-    && echo "" > src/lib.rs \
-    && echo "fn main() {}" > src/bin/rml-check.rs \
-    && echo "fn main() {}" > src/bin/rml-meta.rs \
-    && cargo build --release --bin rml --bin rml-check --bin rml-meta \
-    && rm -rf src
-
-# Build the real sources.
-COPY rust/src ./src
-COPY lib/meta-theory /build/lib/meta-theory
-RUN cargo build --release --bin rml --bin rml-check --bin rml-meta
+# Consume final binaries before cleanup, in the same layer as compilation.
+# There is deliberately no persistent Cargo target cache mount or dummy build.
+RUN node ../scripts/run-with-cache.mjs -- sh -ec \
+    'cargo build --release --bin rml --bin rml-check --bin rml-meta; \
+     mkdir -p /out; \
+     cp target/release/rml target/release/rml-check target/release/rml-meta /out/' \
+    && node ../scripts/build-cache.mjs --full
 
 # ---------- Runtime stage ----------
 FROM debian:bookworm-slim
@@ -42,9 +49,9 @@ RUN apt-get update \
 
 WORKDIR /repo
 
-COPY --from=builder /build/rust/target/release/rml /usr/local/bin/rml
-COPY --from=builder /build/rust/target/release/rml-check /usr/local/bin/rml-check
-COPY --from=builder /build/rust/target/release/rml-meta /usr/local/bin/rml-meta
+COPY --from=builder /out/rml /usr/local/bin/rml
+COPY --from=builder /out/rml-check /usr/local/bin/rml-check
+COPY --from=builder /out/rml-meta /usr/local/bin/rml-meta
 
 COPY examples ./examples
 COPY lib ./lib

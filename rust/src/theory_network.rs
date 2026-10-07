@@ -1102,6 +1102,44 @@ impl TypedLinkNetwork {
         network
     }
 
+    /// Restore exact addressed identities without trusting a disposable type index.
+    pub fn from_snapshot(
+        snapshot: &TypedLinkNetworkSnapshot,
+        require_closed: bool,
+    ) -> Result<Self, String> {
+        let mut network = Self::new();
+        for (address, source, target) in &snapshot.links {
+            network.links.define(address, source, target)?;
+        }
+        for (address, subject, kind) in &snapshot.type_facts {
+            if network.links.doublet(address).is_some() {
+                return Err(format!(
+                    "typed network address {address} has conflicting roles"
+                ));
+            }
+            network.type_fact_links.define(address, subject, kind)?;
+        }
+        network.rebuild_type_index();
+        let closure = network.validate_closure();
+        if require_closed && !closure.closed {
+            return Err(format!(
+                "typed network has dangling references: {}",
+                closure.missing_references.join(", ")
+            ));
+        }
+        Ok(network)
+    }
+
+    /// Both storage tables inhabit one address namespace.
+    pub fn identity_conflicts(&self) -> Vec<String> {
+        self.type_fact_links
+            .links
+            .keys()
+            .filter(|address| self.links.doublet(address).is_some())
+            .cloned()
+            .collect()
+    }
+
     pub fn declare(&mut self, address: &str, r#type: &str) -> Result<String, String> {
         require_reference(address, "typed reference address")?;
         require_reference(r#type, "typed reference type")?;
@@ -1112,7 +1150,9 @@ impl TypedLinkNetwork {
         let mut fact_index = 0;
         let fact_address = loop {
             let candidate = format!("rml.type-fact.{fact_index}");
-            if self.type_fact_links.doublet(&candidate).is_none() {
+            if self.type_fact_links.doublet(&candidate).is_none()
+                && self.links.doublet(&candidate).is_none()
+            {
                 break candidate;
             }
             fact_index += 1;
@@ -1140,6 +1180,11 @@ impl TypedLinkNetwork {
         require_reference(target_type, "link target type")?;
         self.require_type(source, source_type, "source")?;
         self.require_type(target, target_type, "target")?;
+        if self.type_fact_links.doublet(address).is_some() {
+            return Err(format!(
+                "typed network address {address} has conflicting roles"
+            ));
+        }
         let address = self.links.define(address, source, target)?;
         self.declare(&address, &format!("(Pair {source_type} {target_type})"))?;
         Ok(address)
@@ -1151,17 +1196,11 @@ impl TypedLinkNetwork {
 
     pub fn type_of(&self, address: &str) -> Option<&str> {
         let declared = self.types_of(address);
-        (declared.len() == 1).then_some(declared[0])
+        (declared.len() == 1).then(|| declared[0])
     }
 
     pub fn types_of(&self, address: &str) -> Vec<&str> {
-        if let Some(index) = &self.type_index {
-            return index
-                .get(address)
-                .into_iter()
-                .flat_map(|declared| declared.iter().map(String::as_str))
-                .collect();
-        }
+        // Read the authoritative linked facts, never treating a cache as an axiom.
         self.type_fact_links
             .links
             .values()
@@ -1209,7 +1248,9 @@ impl TypedLinkNetwork {
     pub fn validate_closure(&self) -> LinkClosureReport {
         let mut missing = BTreeSet::new();
         let mut require_defined = |reference: &str| {
-            if self.links.doublet(reference).is_none() {
+            if self.links.doublet(reference).is_none()
+                && self.type_fact_links.doublet(reference).is_none()
+            {
                 missing.insert(reference.to_string());
             }
         };
@@ -1223,7 +1264,7 @@ impl TypedLinkNetwork {
         }
         let missing_references = missing.into_iter().collect::<Vec<_>>();
         LinkClosureReport {
-            closed: missing_references.is_empty(),
+            closed: missing_references.is_empty() && self.identity_conflicts().is_empty(),
             missing_references,
         }
     }

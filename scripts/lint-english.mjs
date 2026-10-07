@@ -22,6 +22,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 
 // ---------- Reserved vocabulary ----------
@@ -451,7 +452,7 @@ export {
 // Run as CLI when invoked directly.
 const invokedDirectly = (() => {
   try {
-    const thisFile = path.resolve(new URL(import.meta.url).pathname);
+    const thisFile = fileURLToPath(import.meta.url);
     const argv1 = process.argv[1] ? path.resolve(process.argv[1]) : '';
     return thisFile === argv1;
   } catch { return false; }

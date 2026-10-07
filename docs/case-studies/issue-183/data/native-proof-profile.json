@@ -1,0 +1,28 @@
+{
+  "schema": "rml-native-proof-profile/v1",
+  "checkedAt": "2026-10-07",
+  "rustVersion": "1.99.0",
+  "scope": "same full linked certificate, independent replay and exact golden observations; guarded ingress adds three tests in final run",
+  "unoptimized": {
+    "tests": 7,
+    "passed": 7,
+    "testSeconds": 518.21,
+    "binaryBytes": 5591608
+  },
+  "packageOptLevel1": {
+    "tests": 10,
+    "passed": 10,
+    "testSeconds": 336.82,
+    "compileSeconds": 117,
+    "wrappedElapsedSeconds": 463.885,
+    "binaryBytes": 4920408,
+    "cacheBeforeCleanupBytes": 2486783367,
+    "cacheAfterCleanupBytes": 958855035
+  },
+  "witness": {
+    "linkedReductions": 261,
+    "perKernelCallContractionBudget": 100000000,
+    "totalContractions": null
+  },
+  "note": "Wall times are observations from this shared task environment, not a controlled universal benchmark. No tests, golden trace checks or proof observations were removed."
+}

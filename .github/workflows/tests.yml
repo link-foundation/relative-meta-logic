@@ -36,6 +36,8 @@ jobs:
           cache-dependency-path: js/package-lock.json
       # Runs on every PR 184 event type, since a newer run can cancel the
       # `edited` run that saw an externally appended closing directive.
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Remove premature issue-closing metadata
         if: >-
           github.event_name == 'pull_request' &&
@@ -46,10 +48,24 @@ jobs:
         run: node scripts/issue-183-pr-body.mjs
       - name: Install JavaScript dependencies
         working-directory: js
-        run: npm ci
+        run: node ../scripts/run-with-cache.mjs -- npm ci
       - name: Run full JS test suite
         working-directory: js
         run: npm test
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-diagnostics-tests-js-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
 
   rust:
     name: Rust (cargo test)
@@ -57,10 +73,26 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v7
         with:
-          workspaces: rust
+          node-version: '20'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Run full Rust test suite
         working-directory: rust
-        run: cargo test --all-targets
+        run: node ../scripts/run-with-cache.mjs -- cargo test --all-targets
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-diagnostics-tests-rust-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

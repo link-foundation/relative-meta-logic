@@ -704,6 +704,29 @@ class TypedLinkNetwork {
     return network;
   }
 
+  /** Restore exact addressed identities without copying the disposable type index. */
+  static fromSnapshot(snapshot, { requireClosed = false } = {}) {
+    if (!snapshot || !Array.isArray(snapshot.links) || !Array.isArray(snapshot.typeFacts)) {
+      throw new Error('typed network snapshot requires links and typeFacts');
+    }
+    const network = new TypedLinkNetwork();
+    for (const { address, source, target } of snapshot.links) network.links.define(address, source, target);
+    for (const { address, subject, type } of snapshot.typeFacts) {
+      if (network.links.doublet(address) !== null) throw new Error(`typed network address ${address} has conflicting roles`);
+      network.typeFactLinks.define(address, subject, type);
+    }
+    network.rebuildTypeIndex();
+    const closure = network.validateClosure();
+    if (requireClosed && !closure.closed) throw new Error(`typed network has dangling references: ${closure.missingReferences.join(', ')}`);
+    return network;
+  }
+
+  /** Ordinary links and type facts share address identity, even across storage tables. */
+  identityConflicts() {
+    return this.typeFacts().filter(fact => this.links.doublet(fact.address) !== null)
+      .map(fact => fact.address).sort(compareReferences);
+  }
+
   declare(address, type) {
     requireLeaf(address, 'typed reference address');
     requireLeaf(type, 'typed reference type');
@@ -711,7 +734,7 @@ class TypedLinkNetwork {
 
     let factIndex = 0;
     let factAddress = `rml.type-fact.${factIndex}`;
-    while (this.typeFactLinks.doublet(factAddress) !== null) {
+    while (this.typeFactLinks.doublet(factAddress) !== null || this.links.doublet(factAddress) !== null) {
       factAddress = `rml.type-fact.${++factIndex}`;
     }
     this.typeFactLinks.define(factAddress, address, type);
@@ -729,6 +752,7 @@ class TypedLinkNetwork {
     requireLeaf(targetType, 'link target type');
     this.#requireType(source, sourceType, 'source');
     this.#requireType(target, targetType, 'target');
+    if (this.typeFactLinks.doublet(address) !== null) throw new Error(`typed network address ${address} has conflicting roles`);
     this.links.define(address, source, target);
     this.declare(address, `(Pair ${sourceType} ${targetType})`);
     return address;
@@ -744,9 +768,7 @@ class TypedLinkNetwork {
   }
 
   typesOf(address) {
-    if (this.typeIndex !== null) {
-      return [...(this.typeIndex.get(address) ?? [])].sort(compareReferences);
-    }
+    // Linked facts remain authoritative even if a caller altered the optional cache.
     return this.typeFacts()
       .filter(fact => fact.subject === address)
       .map(fact => fact.type)
@@ -793,7 +815,7 @@ class TypedLinkNetwork {
   validateClosure() {
     const missing = new Set();
     const requireDefined = reference => {
-      if (this.links.doublet(reference) === null) missing.add(reference);
+      if (this.links.doublet(reference) === null && this.typeFactLinks.doublet(reference) === null) missing.add(reference);
     };
     for (const { source, target } of this.links.entries()) {
       requireDefined(source);
@@ -804,7 +826,7 @@ class TypedLinkNetwork {
       requireDefined(type);
     }
     const missingReferences = [...missing].sort(compareReferences);
-    return { closed: missingReferences.length === 0, missingReferences };
+    return { closed: missingReferences.length === 0 && this.identityConflicts().length === 0, missingReferences };
   }
 
   /**

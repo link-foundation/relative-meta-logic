@@ -12,6 +12,7 @@
 // - Query: (? <expr>)
 
 import fs from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
@@ -9005,7 +9006,7 @@ async function runExportCli(args) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   runCli().catch(err => {
     console.error(err && err.stack ? err.stack : err);
     process.exit(1);

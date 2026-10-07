@@ -30,7 +30,7 @@ lockfile transitively, for ECMAScript Unicode identifier validation. The existin
 
 `js/src/rml-meta-structure.mjs` and `rust/src/meta_language_structure.rs` register
 `rml:structure:1` using upstream `LanguageProfile.declareIn` / `declare_in`,
-`LinkNetwork`, `LinkMetadata`, and ordered graph references. There is no private
+`LinkNetwork`, `LinkMetadata`, and ordered Link references. There is no private
 upstream API dependency.
 
 The shared LiNo frontend now exposes the trees it already parsed through
@@ -52,7 +52,7 @@ Form roles distinguish declarations, theories, rules, assumptions, proofs,
 substitutions, and otherwise unknown forms. These roles are syntactic labels,
 not claims that a declaration has resolved, a rule is admitted, or a proof has
 checked. Bodies, nested binders, references, proof steps, and unknown syntax stay
-as ordered nested graph data. Unknown source is never converted into a proof or
+as ordered nested links-network data. Unknown source is never converted into a proof or
 dropped because it does not match a known role. A LiNo-invalid document keeps
 its complete source plane plus an E006 diagnostic; it has no parsed-document root.
 
@@ -68,13 +68,22 @@ Two deliberately distinct representations coexist:
    retains parsed structure, not original formatting or comments.
 
 `serializeRmlStructure` / `serialize_rml_structure` and matching deserializers
-share JSON schema `rml:structure:1`: language plus graph records containing IDs,
+share JSON schema `rml:structure:1`: language plus Link records containing IDs,
 ordered references, link type, language, definition, and optional term. This
 explicit snapshot is needed because published npm 0.46's `toLino()` omits
-metadata. Rust may reindex IDs during snapshot import; explicit sharing retains identity there. The source-free syntax projection and serialization materialize occurrence trees, preserving syntax rather than arbitrary DAG identity. Expanded-node and UTF-16 text budgets proportional to the graph reject exponential acyclic expansion.
-The snapshot does not preserve the source-token plane. Cycles, dangling
-references, duplicated IDs/document roots, unsupported schemas, and over-deep
-syntax are rejected. Snapshot input is syntax data, not execution authority.
+metadata. Rust may reindex IDs during import; shared references retain identity.
+The snapshot does not preserve the source-token plane. Import retains sharing
+when multiple references in the snapshot name one node, but `rmlStructureOnly`
+and serialization deliberately project syntax into occurrence trees; they are
+not archives of arbitrary links-network identity or cycles. Cycles, dangling references,
+duplicated IDs/document roots, unsupported schemas, and over-deep syntax are
+rejected. Reconstructing a compact shared acyclic links network is additionally bounded: expanded
+nodes may not exceed `max(1024, 4 × syntax-node count)`, and expanded reference
+text plus one unit per node may not exceed `max(4096, 4 × stored syntax-term
+UTF-16 units including one unit per syntax node)`. These budgets span all forms
+in a document and return an explicit expansion-limit error rather than allowing
+exponential materialization. They are independent of the preserved source-token
+plane. Snapshot input is syntax data, not execution authority.
 
 Stage reports explicitly separate preservation, parsing, resolution,
 elaboration, execution, and verification. Parsing syntax does not run any of the
@@ -113,12 +122,17 @@ must not be used to certify native syntax or full ECMAScript conformance.
 
 `languageTranslationObligation` / `language_translation_obligation` expose the
 same versioned unsupported-obligation model for all twelve directed pairs.
-They return `status: unsupported`, unchanged `preservedSource`, a null
+For arbitrary full-language inputs they return `status: unsupported`, unchanged `preservedSource`, a null
 `targetSource`, and `RML_TRANSLATION_UNIMPLEMENTED` with the pending structure,
 binding/type resolution, encoding, and preservation obligations. This is a
 refusal interface, not twelve implemented translators.
 
-No path currently promises behavior/effect preservation, Rust ownership,
+The separate [portable natural-number translators](portable-natural-translation.md)
+now implement all twelve paths for a bounded pure-function fragment through the
+registered RML links network. All twelve directed native target paths pass eight
+observations each in JavaScript/Rust/Lean/Rocq; three false Rocq observation proofs
+are rejected. The full-language and arbitrary-proof gaps remain explicit. No full-language path currently
+promises behavior/effect preservation, Rust ownership,
 JavaScript host facilities, module linking, type correspondence, Lean/Rocq
 universe correspondence, preservation of assumptions, or proof validity.
 Native compiler/prover success would be one validation layer, not a proof of
@@ -133,7 +147,10 @@ Shared fixtures:
 - `test-corpus/meta-language/rml-structure.json`: roles, quotes, nested syntax,
   indentation, Unicode, normalization, unknown proofs, and invalid source
 - `test-corpus/meta-language/structured-snapshot.json`: a JavaScript-produced
-  graph consumed without source tokens by Rust
+  links network consumed without source tokens by Rust
+- `test-corpus/meta-language/expansion-cases.json`: shared positive/negative shared-network
+  cases, including exponential node expansion, repeated long references, UTF-16
+  text accounting, and empty references
 - `test-corpus/meta-language/identifier-rewrites.json`: shared positive,
   capture/shadowing, Unicode/location, ambiguous, unsupported, and invalid cases
 - `test-corpus/lino-frontend/cases.json`: entire frontend structure/diagnostic
@@ -141,8 +158,8 @@ Shared fixtures:
 
 Runtime tests are `meta-language-structure.test.mjs`,
 `meta-language-rename.test.mjs`, `meta-language-support.test.mjs` and their Rust
-`meta_language_*_tests.rs` mirrors. They test actual upstream graph substitution
-changing emitted syntax, graph-only serialization, mutation rejection, exact
+`meta_language_*_tests.rs` mirrors. They test actual upstream links-network substitution
+changing emitted syntax, source-free structured links-network serialization, mutation rejection, exact
 source preservation, and all twelve unsupported outcomes. They do not establish
 full-language grammar, elaboration, native validity, execution equivalence, or
 proof equivalence. Final test outcomes belong in the integration run report,

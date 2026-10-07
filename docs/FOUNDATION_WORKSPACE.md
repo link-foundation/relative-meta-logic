@@ -13,8 +13,10 @@ programs by role, can depend on other named/versioned packages, and declares a
 signature and a cycle policy. Multiple versions can be loaded together. An
 unversioned reference is rejected when it is ambiguous. The name/version pair is
 an identity, so delimiter characters in names or versions cannot alias another
-package. Programs still have workspace-global names; package-private program
-namespaces and dynamic package fetching are not provided.
+package. The lower-level workspace uses globally unique program names. Independent
+source-package namespaces and explicit versioned imports are provided by
+[`FoundationPackages`](FOUNDATION_PACKAGES.md). Dynamic package fetching is
+not provided.
 
 Every `ask` result includes the selected instance, theory and rebindings,
 foundation name/version, the complete assumptions for that query, cycle policy,

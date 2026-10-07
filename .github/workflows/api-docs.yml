@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/api-docs.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - 'docs/api/**'
       - 'docs/playground/**'
       - 'js/**'
@@ -18,6 +23,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/api-docs.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - 'docs/api/**'
       - 'docs/playground/**'
       - 'js/**'
@@ -51,26 +61,25 @@ jobs:
           node-version: '20'
           cache: npm
           cache-dependency-path: js/package-lock.json
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Install JavaScript dependencies
         working-directory: js
-        run: npm ci
-      - name: Build browser playground runtime
-        working-directory: js
-        run: npm run build:playground
-      - name: Run playground regression tests
-        working-directory: js
-        run: npm run test:playground
-      - name: Build JavaScript API docs
-        working-directory: js
-        run: npm run docs -- --destination ../_site/api/js
-      - name: Build Rust API docs
-        run: cargo doc --manifest-path rust/Cargo.toml --no-deps --target-dir target/api-docs/rust
-      - name: Copy Rust API docs
+        run: node ../scripts/run-with-cache.mjs -- npm ci
+      - name: Build and assemble API docs and playground
         run: |
-          mkdir -p _site/api/rust
-          cp -R target/api-docs/rust/doc/. _site/api/rust/
-      - name: Add reference docs landing page
-        run: node scripts/write-docs-index.mjs _site
+          # Retain the deployable site until the upload steps consume it.
+          node scripts/run-with-cache.mjs --retain _site -- bash -euo pipefail -c '
+            cd js
+            npm run build:playground
+            npm run test:playground
+            npm run docs -- --destination ../_site/api/js
+            cd ..
+            cargo doc --manifest-path rust/Cargo.toml --no-deps --target-dir target/api-docs/rust
+            mkdir -p _site/api/rust
+            cp -R target/api-docs/rust/doc/. _site/api/rust/
+            node scripts/write-docs-index.mjs _site
+          '
       - name: List built site (debug)
         run: |
           echo "::group::_site tree"
@@ -93,6 +102,20 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-diagnostics-api-docs-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
 
   deploy:
     if: |

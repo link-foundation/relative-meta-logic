@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/formal-corpus.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - 'js/**'
       - 'rust/**'
       - 'lib/meta-theory/**'
@@ -15,6 +20,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/formal-corpus.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - 'js/**'
       - 'rust/**'
       - 'lib/meta-theory/**'
@@ -43,11 +53,27 @@ jobs:
           node-version: '20'
           cache: npm
           cache-dependency-path: js/package-lock.json
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Install JavaScript dependencies
         working-directory: js
-        run: npm ci
+        run: node ../scripts/run-with-cache.mjs -- npm ci
       - name: Compare linked syntax, declarations, and dependencies with pinned sources
-        run: node scripts/check-meta-theory-corpus.mjs upstream-meta-theory
+        run: node scripts/run-with-cache.mjs -- node scripts/check-meta-theory-corpus.mjs upstream-meta-theory
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-diagnostics-formal-semantic-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
 
   lean:
     name: Lean build
@@ -55,16 +81,42 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: link-foundation/meta-theory
           ref: ${{ env.META_THEORY_REVISION }}
+          path: upstream-meta-theory
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Install Elan
         run: |
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Build pinned Lean corpus
-        working-directory: drafts/0.0.3/src/lean
-        run: lake build
+      - name: Build pinned Lean corpus in an owned scratch copy
+        run: |
+          node scripts/run-with-cache.mjs --cache .rml-cache/lean --class lean -- bash -euo pipefail -c '
+            mkdir -p .rml-cache/lean/pinned
+            cp -R upstream-meta-theory/drafts/0.0.3/src/lean/. .rml-cache/lean/pinned/
+            cd .rml-cache/lean/pinned
+            lake build
+          '
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-diagnostics-formal-lean-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
 
   rocq:
     name: Rocq build
@@ -72,19 +124,40 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: link-foundation/meta-theory
           ref: ${{ env.META_THEORY_REVISION }}
-      - name: Set container-compatible permissions
-        run: sudo chown -R 1000:1000 .
-      - name: Build pinned Rocq corpus
-        uses: coq-community/docker-coq-action@v1
+          path: upstream-meta-theory
+      - uses: actions/setup-node@v7
         with:
-          custom_image: 'rocq/rocq-prover:9.1'
-          custom_script: |
-            cd drafts/0.0.3/src/rocq
-            rocq makefile -f _CoqProject -o Makefile.coq
-            make -f Makefile.coq
-      - name: Restore runner permissions
+          node-version: '20'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Build pinned Rocq corpus in an owned scratch copy
+        run: |
+          node scripts/run-with-cache.mjs --cache .rml-cache/rocq --class rocq -- bash -euo pipefail -c '
+            mkdir -p .rml-cache/rocq/pinned
+            cp -R upstream-meta-theory/drafts/0.0.3/src/rocq/. .rml-cache/rocq/pinned/
+            runner_owner="$(id -u):$(id -g)"
+            trap "sudo chown -R $runner_owner .rml-cache/rocq" EXIT
+            sudo chown -R 1000:1000 .rml-cache/rocq
+            bash docker/run-owned.sh --init \
+              --volume "$PWD/.rml-cache/rocq/pinned:/work" --workdir /work \
+              rocq/rocq-prover:9.1 /bin/bash --login -ec \
+              "rocq makefile -f _CoqProject -o Makefile.coq; make -f Makefile.coq"
+          '
+      - name: Upload cache diagnostics before teardown
         if: always()
-        run: sudo chown -R 1001:116 .
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-diagnostics-formal-rocq-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

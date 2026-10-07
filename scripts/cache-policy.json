@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "budgetBytes": 1073741824,
+  "minimumFreeBytes": 268435456,
+  "staleHours": 24,
+  "classes": [
+    "rust",
+    "javascript",
+    "package",
+    "parser",
+    "compiler",
+    "lean",
+    "rocq",
+    "acceptance",
+    "benchmark",
+    "container"
+  ],
+  "roots": [
+    {
+      "path": "rust/target",
+      "class": "rust"
+    },
+    {
+      "path": "target",
+      "class": "rust"
+    },
+    {
+      "path": "js/.cache",
+      "class": "javascript"
+    },
+    {
+      "path": "js/node_modules/.cache",
+      "class": "javascript"
+    },
+    {
+      "path": "js/coverage",
+      "class": "javascript"
+    },
+    {
+      "path": "js/.nyc_output",
+      "class": "javascript"
+    },
+    {
+      "path": "js/dist",
+      "class": "javascript"
+    },
+    {
+      "path": "_site",
+      "class": "javascript"
+    },
+    {
+      "path": "vscode/server",
+      "class": "package"
+    },
+    {
+      "path": "vscode/.vscode-test",
+      "class": "package"
+    },
+    {
+      "path": "vscode/relative-meta-logic.vsix",
+      "class": "package"
+    },
+    {
+      "path": ".rml-cache/scratch",
+      "class": "acceptance",
+      "disposable": true
+    },
+    {
+      "path": ".rml-cache/consumers",
+      "class": "package",
+      "disposable": true
+    },
+    {
+      "path": ".rml-cache/parser",
+      "class": "parser",
+      "disposable": true
+    },
+    {
+      "path": ".rml-cache/compiler",
+      "class": "compiler",
+      "disposable": true
+    },
+    {
+      "path": ".rml-cache/lean",
+      "class": "lean",
+      "disposable": true
+    },
+    {
+      "path": ".rml-cache/rocq",
+      "class": "rocq",
+      "disposable": true
+    },
+    {
+      "path": ".rml-cache/acceptance",
+      "class": "acceptance",
+      "disposable": true
+    },
+    {
+      "path": ".rml-cache/benchmark",
+      "class": "benchmark",
+      "disposable": true
+    },
+    {
+      "path": ".rml-cache/containers",
+      "class": "container",
+      "disposable": true
+    },
+    {
+      "path": "node_modules/.cache",
+      "class": "javascript"
+    },
+    {
+      "path": ".cache",
+      "class": "javascript"
+    },
+    {
+      "path": "coverage",
+      "class": "javascript"
+    },
+    {
+      "path": ".nyc_output",
+      "class": "javascript"
+    },
+    {
+      "path": "js/out",
+      "class": "javascript"
+    },
+    {
+      "path": "vscode/out",
+      "class": "javascript"
+    }
+  ],
+  "patterns": [
+    {
+      "parent": "vscode",
+      "suffix": ".vsix",
+      "class": "package"
+    },
+    {
+      "parent": "js",
+      "suffix": ".tgz",
+      "class": "package"
+    },
+    {
+      "parent": "vscode",
+      "suffix": ".tgz",
+      "class": "package"
+    }
+  ]
+}

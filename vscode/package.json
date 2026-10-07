@@ -15,7 +15,8 @@
   },
   "homepage": "https://github.com/link-foundation/relative-meta-logic#readme",
   "engines": {
-    "vscode": "^1.82.0"
+    "vscode": "^1.82.0",
+    "node": ">=18.15.0"
   },
   "categories": [
     "Programming Languages"
@@ -74,11 +75,12 @@
     }
   },
   "scripts": {
-    "copy-server": "node scripts/copy-server.mjs",
+    "copy-server": "node ../scripts/run-with-cache.mjs -- node scripts/copy-server.mjs",
     "pretest": "npm run copy-server",
-    "test": "node --test test/*.test.mjs",
+    "test": "node ../scripts/run-with-cache.mjs -- node --test --test-concurrency=2 test/*.test.mjs",
     "vscode:prepublish": "npm run copy-server",
-    "package": "npm run copy-server && vsce package --out relative-meta-logic.vsix"
+    "package": "node ../scripts/run-with-cache.mjs -- npm run package:raw",
+    "package:raw": "npm run copy-server && vsce package --out relative-meta-logic.vsix"
   },
   "dependencies": {
     "links-notation": "^0.20.0",

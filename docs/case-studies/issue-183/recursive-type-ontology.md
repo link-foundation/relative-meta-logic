@@ -24,8 +24,9 @@ recursively expanding an infinite host object.
 Type declarations are themselves addressed doublets. For example, the first
 fact is `rml.type-fact.0: (Type, Type)`, where the source is the subject and the
 target is its type. These type-fact links are the authority. The host
-`Map`/`BTreeMap` is only an acceleration index: it can be cleared, queries still
-read the same linked facts, and rebuilding it does not change the semantic
+`Map`/`BTreeMap` is a disposable compatibility index: typing queries read the
+authoritative linked facts, so even a stale or forged JavaScript cache cannot
+add a typing judgement. Clearing or rebuilding it does not change the semantic
 snapshot. Mirrored tests exercise that invariant.
 
 `validateClosure`/`validate_closure` reports references that lack defining
@@ -80,5 +81,9 @@ adapter cannot silently reverse endpoints. `linkCliInteropProfile` and
 This finite ontology does not yet recursively close every RML rule,
 substitution, judgement, proof, foundation, or physical encoding. Pair types
 created by general typed networks are still textual references until their
-own links are supplied. Identity- and cycle-preserving serialization of the
-entire semantic surface remains a separate open requirement.
+own links are supplied. Strict identity- and cycle-preserving serialization,
+restoration, unified-address closure checks and explicit linked universe-policy
+witnesses are now available for typed graphs; see
+[Semantic archives](../../SEMANTIC_ARCHIVE.md). Automatic projection of the
+entire host-side semantic surface remains open, and graph closure does not
+certify logical soundness.

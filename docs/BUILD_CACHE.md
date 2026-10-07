@@ -1,0 +1,283 @@
+# Build cache lifecycle
+
+RML build outputs are disposable; sources, proof corpora and useful diagnostic
+records are not. The normal developer commands and every checkout-based CI job
+use the same repository-scoped lifecycle. This policy does not take ownership of
+another project, a home-directory package cache, or the machine's Docker daemon.
+
+## Start here
+
+Node.js 18.15 or later, Git, and process inspection (`ps` on Unix, also `lsof` on macOS; PowerShell on
+Windows) are required. CI uses Node.js 20.
+
+```sh
+# Install the composed hooks and JavaScript dependencies from the repository root.
+node scripts/bootstrap.mjs --install
+
+# Normal JavaScript commands already enter the lifecycle.
+npm --prefix js test
+npm --prefix js run docs
+
+# Wrap an entire Rust producer/consumer operation in one lease.
+node scripts/run-with-cache.mjs -- cargo test --manifest-path rust/Cargo.toml --all-targets
+
+# Inspect, perform normal bounded cleanup, or remove all provably owned outputs.
+node scripts/build-cache.mjs --report --json
+node scripts/build-cache.mjs
+node scripts/build-cache.mjs --full
+```
+
+`npm ci` in `js/` invokes `prepare`, which installs the repository-local hook
+composition. The runner also bootstraps before a top-level operation. Exported
+source archives and downstream npm installations do not rewrite the consumer's
+Git configuration. Docker source archives explicitly set
+`RML_CACHE_SOURCE_ARCHIVE=1`; the default requires a real worktree.
+
+The installed pre-commit hook runs normal bounded cleanup and delegates existing
+hooks, retaining their arguments and exit status. It does not replace a user's
+hook files or edit global Git configuration. Hook installation is idempotent. The installer enables Git's per-worktree
+configuration and sets only this worktree's hook path, preserving peer worktrees.
+Unusual bare/core.worktree configurations require manual hook setup.
+Git's explicit hook bypasses still bypass hooks; the build runner is the primary
+lifecycle boundary. A raw native `cargo build` does not install hooks; use
+bootstrap, npm installation, or the wrapper first.
+
+## Lifecycle and budgets
+
+A top-level runner:
+
+1. Obtains one worktree lease, deferring if another owned build holds it.
+2. Performs safe bounded cleanup and checks free space before spawning the build.
+3. Records a baseline of recognized generated paths, points `TMPDIR`/`TMP`/`TEMP`
+   at a per-run repository-owned scratch directory, then executes the command.
+4. Captures output and the command's exit status in `.rml-cache/evidence/`.
+5. Registers newly generated files and cleans up after success, failure or a
+   handled signal without converting a failed build into success. An already
+   nonzero command status is preserved. A successful command becomes exit 2 when
+   cleanup or archiving fails or the aggregate remains over budget.
+
+A blocked aggregate budget refuses the build before execution. Handled signals
+allow child cleanup a bounded grace period: `RML_CACHE_SIGNAL_GRACE_MS` defaults
+to 15000 milliseconds before escalation to a forced stop.
+
+Nested npm tasks share the outer lease. Keep a build and its immediate consumers
+inside one wrapper so cleanup cannot race the consumer. For example, the parity
+workflow builds the Rust binary and compares corpus output inside one operation.
+The docs workflow retains `_site` until the Pages artifact has been uploaded.
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `RML_CACHE_BUDGET_BYTES` | 1 GiB | Aggregate limit across registered local generated files |
+| `RML_CACHE_MIN_FREE_BYTES` | 256 MiB | Minimum available bytes at the pre-build check |
+| `RML_CACHE_STALE_HOURS` | 24 hours | Maximum warm-cache age since the last content or modification-time update |
+
+Normal cleanup drops owned disposable scratch outputs and stale files, then
+oldest owned warm files until the aggregate budget is satisfied. Rust incremental
+sessions and example outputs are disposable; compiler artifacts can remain warm
+within the budget. Development and test Cargo profiles disable debug information
+and incremental compilation. `--full` also releases artifact-retention requests
+and removes all currently provable generated files in registered roots.
+
+These are cleanup-time limits, not a hard filesystem quota. An active compiler
+can exceed them; the free-space check happens before execution, not continuously.
+Protected pre-existing or edited data can keep the reported total above budget.
+The report marks this as blocked rather than deleting data to force compliance.
+Byte accounting uses logical regular-file sizes, not physical filesystem blocks;
+hard links, sparse files and directory/metadata allocation are not a hard quota.
+Evidence and reports are intentionally outside the disposable byte budget and
+survive full cleanup; manage their retention separately. Routine CI artifacts retain them
+for seven days; the issue acceptance workflow uses thirty days.
+
+## Ownership and source safety
+
+The registry lives in the worktree's own Git administrative directory. Ownership
+comes from observing a file being created during a leased operation, with its
+content hash and size, rather than from a broad directory name or extension.
+Files that predate registration are not retroactively adopted. A user-modified
+output loses cleanup ownership, even when it is ignored by Git.
+
+Tracked files, unknown/pre-existing files, symlinks and paths crossing a filesystem
+or another worktree boundary are protected. Nested Git clones are independent
+source boundaries: their metadata and both tracked and untracked source are
+preserved, even if the build created the clone. Only recognized generated roots
+inside those clones are considered for ownership and cleanup. A source tree
+cannot be registered as a cache. Empty directories are removed only after owned
+files have been removed. Full cleanup is idempotent; it is not a recursive purge
+of arbitrary directories. In particular, the tracked `vscode/server/.gitignore`
+and original Lean/Rocq proofs remain intact.
+
+Do not edit output roots while a leased build is running. A user-created file
+added there during that build is indistinguishable from command-created output.
+The lifecycle therefore cannot promise absolute safety for concurrent edits
+inside generated-output directories.
+
+The lease records the process realm as well as the hostname and PID. Linux uses
+its kernel boot ID and PID namespace. macOS uses XNU's `kern.bootsessionuuid`
+and the single Darwin host PID realm. Windows queries CIM read-only for the machine UUID, OS boot time and the
+observed process-tree root's PID/creation time. The process-root discriminator
+keeps ordinary nested npm/cmd/Node wrappers together without equating unrelated
+process trees solely because they share machine/boot metadata. PID liveness is
+consulted only after a known, matching identity. Foreign, legacy or unknown
+identities wait/defer; they are never called abandoned based on a local PID miss.
+Inherited tokens also require a matching realm. An unavailable identity provider
+therefore defers nested reuse instead of silently bypassing the lease. Windows
+and macOS branches have mocked regression coverage; actual execution there still
+requires platform CI. Windows field definitions are documented in
+[Win32_Process](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-process),
+[Win32_OperatingSystem](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-operatingsystem), and
+[Win32_ComputerSystemProduct](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-computersystemproduct).
+
+The process guard checks for unleased build tools visible in its own process
+namespace. It cannot establish that a raw build in another namespace is absent;
+shared-checkout builds must use the lifecycle wrapper so their filesystem lease
+is visible across namespaces. Lease recovery after a hard-killed process requires
+independently verifying that no descendants remain in its original namespace. SIGKILL, host loss and
+forced runner termination cannot execute any program's cleanup handler; the
+next safe invocation can clean registered leftovers, while ambiguous files stay
+protected. Do not work around a safety refusal with a broad recursive deletion.
+
+## Generated-path coverage
+
+The checked-in `scripts/cache-policy.json` is the source of truth. It covers:
+
+- Rust `rust/target` and root `target`, including docs, tests and examples
+- JavaScript generated docs/site, coverage, distribution and package-local caches
+- VS Code staged server and extension-package outputs
+- Owned scratch, consumer, parser, compiler, Lean, Rocq, acceptance, benchmark and
+  container-output directories under `.rml-cache/`
+- Explicitly registered repository-relative custom output roots
+
+A custom target must stay inside this repository and outside source/protected
+paths. Direct Cargo target arguments and `CARGO_TARGET_DIR` are checked by the
+runner; absolute targets outside the worktree are rejected. When the command is
+a shell expression or third-party build tool, register its output explicitly:
+
+```sh
+node scripts/run-with-cache.mjs --cache build-output/cargo --class rust -- \
+  cargo build --manifest-path rust/Cargo.toml --target-dir build-output/cargo
+
+node scripts/run-with-cache.mjs --cache .rml-cache/parser --class parser -- \
+  your-parser-build-command
+```
+
+`--retain <registered-root>` protects a consumer's required outputs across
+intermediate bounded cleanups. It is not permission to delete a source directory.
+Always finish the handoff with `--full`. A raw `cargo`, `lake`, `make`, direct Node
+build script, or third-party tool launched outside the runner is not silently
+intercepted. Existing outputs from those commands stay unowned until a safe
+explicit migration; using the documented wrappers avoids that gap.
+
+## CI integration and pinned formal sources
+
+Every checkout-based job installs the lifecycle, uploads diagnostics using
+`actions/upload-artifact`, and ends with `if: always()` full teardown. The Pages
+job uploads the assembled site before teardown. The deploy-only Pages job has no
+checkout or generated repository data to clean. Rust build caches are no longer
+exported through a post-job `rust-cache` action after teardown.
+
+The formal workflow checks out RML at the root and the exact pinned meta-theory
+revision under `upstream-meta-theory`. Lean and Rocq build disposable copies in
+`.rml-cache/lean/pinned` and `.rml-cache/rocq/pinned`. This contains `.lake`, generated
+Makefiles, `.vo`, `.vos`, `.vok`, `.glob`, `.aux` and any future tool-generated files
+without classifying proof/source files in the upstream checkout as garbage.
+Rocq changes permissions only on its scratch copy and restores runner ownership
+before the wrapper inventories or deletes it.
+
+The same adaptation applies when running a pinned formal-ai source corpus:
+keep its checkout immutable, copy the required build inputs to a dedicated owned
+scratch root, run the complete formal build under the wrapper, and upload evidence
+before full teardown. No external repository is rewritten by this policy, and
+there is no claim that another repository's own CI has been changed.
+
+## Docker boundary
+
+For a self-contained build-and-smoke-test operation:
+
+```sh
+node scripts/run-with-cache.mjs -- bash docker/ci-build.sh
+```
+
+This command intentionally removes its resulting test images. For images you want
+to keep, the ordinary build/Compose commands in `docker/README.md` still work;
+their daemon cache and image retention are outside this lifecycle.
+
+The CI helper creates a uniquely named project/run-scoped Buildx builder. Its
+state volume and output images have project/run ownership labels. Cleanup checks
+those labels, the builder container's exact ID and state-volume mount, and removes
+only that builder and exact image IDs. The smoke/formal container helper also
+verifies each immutable container ID and its labels, then stops, waits for, and
+removes it before allowing scratch cleanup. An unresolved Docker resource leaves
+a protected external-resource lease; filesystem cleanup refuses to run until
+the resource has been independently stopped and that lease safely resolved. A changed identity fails closed. It never
+uses global system/image/container/volume pruning, force-removes unrelated
+images, or exports an unbounded remote GitHub Actions cache.
+
+`docker/buildkitd.toml` applies periodic GC only to this dedicated builder: a 2 GB
+maximum-used-space target, 256 MB reserved space, 2 GB minimum-free-space target,
+and a 24-hour age policy. BuildKit GC is not a hard in-flight quota and is not
+included in the Node runner's filesystem byte accounting. Docker's shared base
+images, unrelated builders, other named volumes, package-manager caches and
+remote registry caches remain outside scope.
+
+The Rust Dockerfile copies runnable binaries to `/out` before cleanup in the same
+layer that compiles them. The final runtime image copies only those binaries and
+runtime resources. Neither Dockerfile uses persistent Cargo target cache mounts.
+Build stages provide Node and process-inspection tools, and explicitly enable the
+source-archive ownership mode because `.git` is excluded from the build context.
+
+The policy test exercises successful and failed Docker commands, termination and
+ownership mismatches against a fake Docker CLI. That is safety/control-flow
+coverage, not proof of a real image build or measured Docker disk reclamation;
+the Docker CI job provides the real integration check.
+
+## Formal-ai adaptation record
+
+The implementation reviewed the pinned formal-ai revision
+[`d209aac6461b355f1a527831202af3423135f7e6`](https://github.com/link-assistant/formal-ai/tree/d209aac6461b355f1a527831202af3423135f7e6), specifically its
+[installed hook](https://github.com/link-assistant/formal-ai/blob/d209aac6461b355f1a527831202af3423135f7e6/.githooks/pre-commit),
+[pre-commit integration](https://github.com/link-assistant/formal-ai/blob/d209aac6461b355f1a527831202af3423135f7e6/.pre-commit-config.yaml),
+[pruner](https://github.com/link-assistant/formal-ai/blob/d209aac6461b355f1a527831202af3423135f7e6/scripts/prune-build-cache.sh),
+[test wrapper](https://github.com/link-assistant/formal-ai/blob/d209aac6461b355f1a527831202af3423135f7e6/scripts/cargo-test.sh), and
+[disk-policy checks](https://github.com/link-assistant/formal-ai/blob/d209aac6461b355f1a527831202af3423135f7e6/scripts/check-disk-usage-policy.rs).
+
+Adopted: installation during ordinary bootstrap; an every-commit hook without
+file filters; bounded concurrency and development profiles; a default budget;
+cleanup after failed tests; and executable checks covering workflows rather than
+only a hand-picked subset. Adapted: the installed hook composes the user's hooks
+and uses per-worktree configuration, while a lease spans the complete producer /
+consumer operation. Hook/cleanup failures are visible rather than always ignored.
+
+Not copied: host-wide Docker deletion, deletion based only on modification time,
+and allowing an optional missing sweeper to silently leave an unenforced budget.
+The hash/size/mtime/mode registry prioritizes preserving unknown and edited files.
+It does not claim Cargo dependency-graph-aware eviction: missing compiler
+artifacts are rebuilt using Cargo's own fingerprint validation, and eviction may
+cost recompilation. This remains a narrower optimization than `cargo-sweep`.
+The complete language/semantic formal-ai adoption map is a separate requirement;
+this cache adaptation does not satisfy it.
+
+## Reproduce the measured development cycle
+
+After installing JavaScript development dependencies, run:
+
+```sh
+node scripts/measure-build-cache.mjs docs/case-studies/issue-183/data/build-cache-measurement.json
+```
+
+The script copies the current source into an isolated Git checkout whose path
+contains spaces, installs its hooks, builds real JSDoc output, records bytes,
+fully cleans that output, rebuilds it, and runs the complete JavaScript suite.
+It archives each command's output and status before removing its fixture, and
+writes a failure report rather than reporting a failed verification as passing.
+The report distinguishes this JavaScript/docs cycle from native Rust/formal and
+Docker verification; it cannot close the complete issue-183 acceptance gate.
+
+## Linked-kernel test profile
+
+Only the RML package uses test optimization level 1. Dependencies keep their
+existing test profile. The same complete linked proof and independent replay
+witness took 336.82 seconds with this setting versus 518.21 seconds without it
+in the task environment; its binary was also smaller (4,920,408 versus
+5,591,608 bytes). The final run included all ten tests, including the new
+bounded-input regressions. These are measured observations, not a portable
+performance guarantee. See `case-studies/issue-183/data/native-proof-profile.json`.
