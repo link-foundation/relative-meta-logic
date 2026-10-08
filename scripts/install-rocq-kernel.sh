@@ -4,6 +4,14 @@
 set -euo pipefail
 command -v opam >/dev/null
 opam update --yes
+# The bootstrap image pins its development compiler. Drop only pins for the
+# exact packages this disposable container is about to replace.
+pins=$(opam pin list --short)
+for package in rocq-runtime rocq-core coq-core rocq-stdlib; do
+  if printf '%s\n' "$pins" | grep -Fxq "$package"; then
+    opam pin remove --yes --no-action "$package"
+  fi
+done
 opam install --yes --jobs=2 \
   rocq-runtime.9.3.0 rocq-core.9.3.0 coq-core.9.3.0 rocq-stdlib.9.2.0
 eval "$(opam env)"

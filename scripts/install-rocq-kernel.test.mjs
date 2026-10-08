@@ -14,6 +14,7 @@ function probe(t, overrides = {}) {
   writeFileSync(join(bin, 'opam'), `#!/bin/sh
 printf 'opam %s\\n' "$*" >> "$RML_INSTALL_LOG"
 case "$1" in
+  pin) if [ "$2" = list ]; then printf '%s\\n' "\${RML_INSTALL_PINS:-}"; fi ;;
   install) exit "\${RML_INSTALL_STATUS:-0}" ;;
   env) printf ':\\n' ;;
 esac
@@ -32,9 +33,19 @@ printf '%s\\n' "$RML_INSTALL_VERSION"
 test('the bootstrap installs exact stable core and library packages before checking the oracle', { skip: process.platform === 'win32' }, t => {
   const result = probe(t);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.operations, /opam update --yes\nopam install --yes --jobs=2 rocq-runtime\.9\.3\.0 rocq-core\.9\.3\.0 coq-core\.9\.3\.0 rocq-stdlib\.9\.2\.0\n/);
+  assert.match(result.operations, /opam update --yes\n/);
+  assert.match(result.operations, /opam install --yes --jobs=2 rocq-runtime\.9\.3\.0 rocq-core\.9\.3\.0 coq-core\.9\.3\.0 rocq-stdlib\.9\.2\.0\n/);
   assert.ok(result.operations.indexOf('opam install') < result.operations.indexOf('rocq --version'));
   assert.match(result.stdout, /version 9\.3\.0/);
+});
+
+test('only replaced compiler-package pins are removed from the disposable image', { skip: process.platform === 'win32' }, t => {
+  const result = probe(t, { RML_INSTALL_PINS: 'rocq-runtime\nrocq-core\nunrelated-package' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.operations, /opam pin remove --yes --no-action rocq-runtime\n/);
+  assert.match(result.operations, /opam pin remove --yes --no-action rocq-core\n/);
+  assert.doesNotMatch(result.operations, /opam pin remove .*unrelated-package/);
+  assert.ok(result.operations.indexOf('opam pin remove') < result.operations.indexOf('opam install'));
 });
 
 test('a stale release-candidate image cannot masquerade as the installed stable oracle', { skip: process.platform === 'win32' }, t => {
