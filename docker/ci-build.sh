@@ -35,7 +35,9 @@ cleanup() {
   trap - EXIT INT TERM HUP
   set +e
   cleanup_status=0
-  for image_id in "${images[@]}"; do
+  # Bash 3.2 (the macOS system shell) treats an empty array as unset under -u.
+  for image_id in "${images[@]-}"; do
+    [[ -n $image_id ]] || continue
     # Inspect the immutable ID, not a possibly reassigned tag. Never force-remove.
     if [[ $(docker image inspect "$image_id" --format "{{ index .Config.Labels \"$owner_label\" }}") == "$owner" ]] &&
        [[ $(docker image inspect "$image_id" --format "{{ index .Config.Labels \"$run_label\" }}") == "$run" ]]; then

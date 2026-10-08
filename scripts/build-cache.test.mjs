@@ -11,7 +11,7 @@ const node = process.execPath;
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml cache spaces '));
   fs.mkdirSync(path.join(root, 'scripts'));
-  for (const name of ['build-cache.mjs', 'cache-policy.json', 'run-with-cache.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
+  for (const name of ['build-cache.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
   fs.mkdirSync(path.join(root, 'js'));
   fs.mkdirSync(path.join(root, 'rust'));
   fs.writeFileSync(path.join(root, 'js/package.json'), '{"name":"fixture"}\n');
@@ -191,7 +191,11 @@ test('a fresh actual git clone installs executable hooks during bootstrap', t =>
   ok(result);
   const hookPath = execFileSync('git', ['-C', clone, 'config', '--get', 'core.hooksPath'], { encoding: 'utf8' }).trim();
   assert.match(fs.readFileSync(path.join(hookPath, 'pre-commit'), 'utf8'), /node .*build-cache\.mjs/);
-  assert.ok(fs.statSync(path.join(hookPath, 'pre-commit')).mode & 0o100);
+  // Windows does not expose POSIX execute bits through stat; Git must actually
+  // invoke the installed hook on every supported platform.
+  const commit = spawnSync('git', ['-C', clone, '-c', 'user.name=Cache fixture', '-c', 'user.email=cache@example.invalid', 'commit', '--allow-empty', '-m', 'exercise installed hooks'], { encoding: 'utf8', env: { ...process.env, RML_CACHE_MIN_FREE_BYTES: '0' } });
+  ok(commit);
+  assert.ok(fs.existsSync(path.join(clone, '.rml-cache/reports/last-cleanup.json')));
 });
 
 test('an existing failing hook still runs cleanup and keeps its nonzero result', t => {
@@ -218,6 +222,63 @@ test('unleased active Node build is preserved; cleanup succeeds after it exits',
   await done;
   ok(f.clean('--full'));
   assert.equal(exists(f, 'target/live'), false);
+});
+
+test('an active Node process in another directory does not block this worktree cleanup', async t => {
+  const f = fixture(t);
+  ok(f.wrap(writeProgram('target/owned')));
+  const child = spawn(node, ['-e', 'setInterval(()=>{},1000)'], { cwd: os.tmpdir(), stdio: 'ignore' });
+  const done = finished(child);
+  t.after(async () => { if (child.exitCode === null) child.kill(); await done; });
+  await new Promise(r => setTimeout(r, 100));
+  ok(f.clean('--full'));
+  assert.equal(exists(f, 'target/owned'), false);
+  assert.equal(child.exitCode, null);
+});
+
+test('macOS process inspection distinguishes exited and zombie builders from inaccessible live builders', async t => {
+  const { assertNoUnleasedBuilders } = await import('./build-cache.mjs');
+  const root = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), 'rml-macos-inspection-')));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const builder = 2147483000;
+  const inspect = ({ alive = true, initialState = 'S', currentState = 'S', cwd, missingField = false } = {}) => assertNoUnleasedBuilders({ root }, {
+    platform: 'darwin', isAlive: () => alive,
+    run(command, args) {
+      if (command === 'ps' && args[0] === '-axo') return `${builder} 1 ${initialState} /usr/local/bin/node\n${builder + 1} 1 S /usr/bin/python3\n`;
+      if (command === 'ps') return `${currentState}\n`;
+      if (cwd) return `p${builder}\nn${cwd}\n`;
+      if (missingField) return `p${builder}\n`;
+      throw Object.assign(new Error('lsof: no matching process or permission denied'), { status: 1 });
+    },
+  });
+  assert.doesNotThrow(() => inspect({ alive: false }));
+  assert.doesNotThrow(() => inspect({ initialState: 'Z' }));
+  assert.doesNotThrow(() => inspect({ currentState: 'Z' }));
+  assert.throws(() => inspect(), /Cannot establish active builder/);
+  assert.throws(() => inspect({ missingField: true }), /Cannot establish active builder/);
+  assert.throws(() => inspect({ cwd: root }), /Active unleased build process/);
+  assert.doesNotThrow(() => inspect({ cwd: os.tmpdir() }));
+});
+
+test('Windows process inspection uses executable identity and real cwd, preserving unknown live builders', async () => {
+  const { assertNoUnleasedBuilders } = await import('./build-cache.mjs');
+  const root = 'C:\\cache worktree';
+  const inspect = records => assertNoUnleasedBuilders({ root }, {
+    platform: 'win32', realPath: value => value,
+    run(command, args) {
+      assert.equal(command, 'powershell.exe');
+      assert.ok(args.includes('-File'));
+      assert.match(args.at(-1), /build-cache-windows\.ps1$/);
+      return JSON.stringify(records);
+    },
+  });
+  const builder = { pid: 2147483000, parent: 1, executable: 'C:\\Program Files\\nodejs\\node.exe', state: 'live' };
+  assert.throws(() => inspect([{ ...builder, cwd: 'c:/CACHE WORKTREE/target' }]), /Active unleased build process/);
+  assert.throws(() => inspect([builder]), /unknown working directory/);
+  assert.doesNotThrow(() => inspect([{ ...builder, cwd: 'C:\\cache worktree-other' }]));
+  assert.doesNotThrow(() => inspect([{ ...builder, state: 'gone' }]));
+  assert.doesNotThrow(() => inspect([{ ...builder, executable: 'powershell.exe', command: 'node cargo rustc' }]));
+  assert.throws(() => inspect([]), /Cannot inspect active builders/);
 });
 
 test('source archives require explicit opt-in and still preserve baseline source', t => {

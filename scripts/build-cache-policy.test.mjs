@@ -160,7 +160,6 @@ if (args[0] === 'run') {
   s.containers ??= {};
   s.containers[cid]={owner:value('--label').split('=').slice(1).join('='),run:args[args.lastIndexOf('--label')+1].split('=').slice(1).join('=')};
   fs.writeFileSync(value('--cidfile'),cid);
-  if (process.env.MOCK_SIGNAL) { save(); process.kill(process.ppid,'SIGTERM'); stop(); }
   stop(process.env.MOCK_SMOKE_FAIL ? 23 : 0);
 }
 if (args[0] === 'compose') stop();
@@ -174,11 +173,21 @@ function exerciseDocker(env = {}) {
     mkdirSync(join(fixture, 'bin'));
     copyFileSync(join(root, 'docker/ci-build.sh'), join(fixture, 'docker/ci-build.sh'));
     copyFileSync(join(root, 'docker/run-owned.sh'), join(fixture, 'docker/run-owned.sh'));
-    writeFileSync(join(fixture, 'bin/docker'), fakeDocker, { mode: 0o755 });
+    writeFileSync(join(fixture, 'bin/fake-docker.cjs'), fakeDocker);
+    // Generate a real Bash signal: Node's process.kill on Windows terminates a
+    // native PID and cannot exercise Git Bash's POSIX signal/trap semantics.
+    writeFileSync(join(fixture, 'bin/docker'), `#!/usr/bin/env bash
+node "$MOCK_DOCKER_PROGRAM" "$@"
+status=$?
+if [[ -n \${MOCK_SIGNAL:-} && \${1:-} == run && $status == 0 ]]; then
+  kill -TERM "$PPID" || exit 91
+fi
+exit "$status"
+`, { mode: 0o755 });
     const state = join(fixture, 'docker.json');
     const result = spawnSync('bash', ['docker/ci-build.sh'], {
       cwd: fixture,
-      env: { ...process.env, PATH: `${join(fixture, 'bin')}:${process.env.PATH}`, MOCK_DOCKER_STATE: state, ...env },
+      env: { ...process.env, PATH: `${join(fixture, 'bin')}:${process.env.PATH}`, MOCK_DOCKER_PROGRAM: join(fixture, 'bin/fake-docker.cjs'), MOCK_DOCKER_STATE: state, ...env },
       encoding: 'utf8', timeout: 20000,
     });
     assert.ifError(result.error);

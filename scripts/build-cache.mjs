@@ -309,37 +309,72 @@ async function main() {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(error => { console.error(`build-cache: ${error.message}`); process.exitCode = 1; });
 
 /** Conservative backstop for raw cargo/node/lake/rocq runs outside the wrapper. */
-export function assertNoUnleasedBuilders(c) {
+export function assertNoUnleasedBuilders(c, { platform = process.platform, run = execFileSync, readLink = fs.readlinkSync, realPath = fs.realpathSync.native, isAlive = alive } = {}) {
   const evidence = path.join(c.root, '.rml-cache', 'evidence');
   if (fs.existsSync(evidence) && fs.readdirSync(evidence).some(name => name.startsWith('external-lease-') && name.endsWith('.json'))) throw new Error('Active or unresolved external-resource lease; stop and verify owned Docker resources before cleanup');
+  const queryOptions = { encoding: 'utf8', timeout: 20000, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] };
   let processes;
   try {
-    if (process.platform === 'win32') {
-      const data = execFileSync('powershell.exe', ['-NoProfile', '-Command', 'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CommandLine | ConvertTo-Json -Compress'], { encoding: 'utf8' });
-      processes = [].concat(JSON.parse(data)).map(p => ({ pid: p.ProcessId, parent: p.ParentProcessId, command: `${p.Name} ${p.CommandLine ?? ''}` }));
+    if (platform === 'win32') {
+      // Command-line paths do not prove a process's working directory. Query its
+      // actual process parameters; inaccessible live builders remain protected.
+      const data = run('powershell.exe', ['-NoProfile', '-NonInteractive', '-File', fileURLToPath(new URL('./build-cache-windows.ps1', import.meta.url))], queryOptions);
+      processes = [].concat(JSON.parse(data));
     } else {
-      processes = execFileSync('ps', ['-axo', 'pid=,ppid=,command='], { encoding: 'utf8' }).trim().split('\n').map(line => {
-        const m = line.trim().match(/^(\d+)\s+(\d+)\s+(.*)$/);
-        return m && { pid: Number(m[1]), parent: Number(m[2]), command: m[3] };
+      // Match the executable, never an argument mentioning e.g. "node". Include
+      // state so zombies, which cannot write files, do not become active leases.
+      processes = run('ps', ['-axo', 'pid=,ppid=,stat=,comm='], queryOptions).trim().split('\n').map(line => {
+        const m = line.trim().match(/^(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/);
+        return m && { pid: Number(m[1]), parent: Number(m[2]), state: m[3], executable: m[4] };
       }).filter(Boolean);
     }
+    if (!processes.length || processes.some(p => !p || !Number.isInteger(p.pid) || !Number.isInteger(p.parent) || typeof p.executable !== 'string')) throw new Error('Invalid process inventory');
   } catch { throw new Error('Cannot inspect active builders; cleanup is disabled safely (ps/PowerShell required)'); }
   const ancestors = new Set([process.pid]);
   let cursor = process.pid;
   while (true) { const p = processes.find(p => p.pid === cursor); if (!p || ancestors.has(p.parent)) break; ancestors.add(p.parent); cursor = p.parent; }
+  const builder = /^(cargo|rustc|rustdoc|node|lake|lean|rocq|coqc|coq_makefile|make|docker)(\.exe)?$/i;
   for (const p of processes) {
-    if (ancestors.has(p.pid) || !/(^|[\s/\\])(cargo|rustc|rustdoc|node|lake|lean|rocq|coqc|coq_makefile|make|docker)(\.exe)?(?:\s|$)/.test(p.command)) continue;
+    if (ancestors.has(p.pid) || p.state === 'gone' || /^Z/.test(p.state ?? '')) continue;
+    let executable = p.executable;
+    if (platform === 'linux') {
+      // Node/npm can change their process title. Prefer the kernel executable
+      // link where visible, retaining the ps name as a conservative fallback.
+      try { executable = readLink(`/proc/${p.pid}/exe`).replace(/ \(deleted\)$/, ''); } catch { /* cwd inspection below must still fail closed for a known builder. */ }
+    }
+    if (!builder.test(executable.split(/[\\/]/).at(-1))) continue;
     let cwd;
-    if (process.platform === 'linux') {
-      try { cwd = fs.readlinkSync(`/proc/${p.pid}/cwd`); } catch (error) {
+    if (platform === 'linux') {
+      try { cwd = readLink(`/proc/${p.pid}/cwd`); } catch (error) {
         if (error.code === 'ENOENT' || error.code === 'ESRCH') continue;
         throw new Error(`Cannot inspect active builder ${p.pid}; cleanup deferred`);
       }
-    } else if (process.platform === 'darwin') {
-      try { cwd = execFileSync('lsof', ['-a', '-p', String(p.pid), '-d', 'cwd', '-Fn'], { encoding: 'utf8' }).split('\n').find(x => x.startsWith('n'))?.slice(1); }
-      catch { throw new Error(`Cannot establish active builder ${p.pid}'s worktree; cleanup deferred`); }
-    } else if (p.command.includes(c.root)) cwd = c.root;
-    else if (/\b(cargo|rustc|rustdoc|node|lake|lean|rocq|coqc|make|docker)(\.exe)?\b/.test(p.command)) throw new Error(`Unleased compiler ${p.pid} has unknown working directory; cleanup deferred`);
-    if (cwd && (cwd === c.root || cwd.startsWith(`${c.root}${path.sep}`))) throw new Error(`Active unleased build process ${p.pid}; cleanup deferred`);
+    } else if (platform === 'darwin') {
+      try { cwd = run('lsof', ['-a', '-p', String(p.pid), '-d', 'cwd', '-Fn'], queryOptions).split('\n').find(x => x.startsWith('n'))?.slice(1); }
+      catch { /* A process can exit between ps and lsof; verify before deferring. */ }
+      if (!cwd) {
+        if (!isAlive(p.pid)) continue;
+        try {
+          const state = run('ps', ['-p', String(p.pid), '-o', 'stat='], queryOptions).trim();
+          if (/^Z/.test(state)) continue;
+        } catch { /* Missing/failed ps alone is not evidence of process death. */ }
+        if (!isAlive(p.pid)) continue;
+        throw new Error(`Cannot establish active builder ${p.pid}'s worktree; cleanup deferred`);
+      }
+    } else cwd = p.cwd;
+    if (!cwd) throw new Error(`Unleased compiler ${p.pid} has unknown working directory; cleanup deferred${p.reason ? `: ${p.reason}` : ''}`);
+    // Resolve /var versus /private/var on macOS and normalize Windows drive
+    // spelling/case before comparing a cwd with the canonical repository root.
+    let root = c.root;
+    try { cwd = realPath(cwd); } catch {
+      if (!isAlive(p.pid)) continue;
+      throw new Error(`Cannot establish active builder ${p.pid}'s worktree; cleanup deferred`);
+    }
+    if (platform === 'win32') {
+      cwd = path.win32.normalize(cwd).toLowerCase();
+      root = path.win32.normalize(root).toLowerCase();
+    }
+    const separator = platform === 'win32' ? path.win32.sep : path.sep;
+    if (cwd === root || cwd.startsWith(`${root}${separator}`)) throw new Error(`Active unleased build process ${p.pid}; cleanup deferred`);
   }
 }
