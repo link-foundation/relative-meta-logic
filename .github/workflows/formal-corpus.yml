@@ -97,16 +97,19 @@ jobs:
           node-version: '22'
       - name: Install repository build lifecycle
         run: node scripts/bootstrap.mjs
-      - name: Install Elan
+      - name: Install official Lean 4.34.1 toolchain
         run: |
-          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:v4.34.1
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Build pinned Lean corpus in an owned scratch copy
+        env:
+          ELAN_TOOLCHAIN: leanprover/lean4:v4.34.1
         run: |
           node scripts/run-with-cache.mjs --cache .rml-cache/lean --class lean -- bash -euo pipefail -c '
             mkdir -p .rml-cache/lean/pinned
             cp -R upstream-meta-theory/drafts/0.0.3/src/lean/. .rml-cache/lean/pinned/
             cd .rml-cache/lean/pinned
+            lean --version
             lake build
           '
       - name: Upload cache diagnostics before teardown
@@ -153,8 +156,8 @@ jobs:
             sudo chown -R 1000:1000 .rml-cache/rocq
             bash docker/run-owned.sh --init \
               --volume "$PWD/.rml-cache/rocq/pinned:/work" --workdir /work \
-              rocq/rocq-prover:9.1 /bin/bash --login -ec \
-              "rocq makefile -f _CoqProject -o Makefile.coq; make -f Makefile.coq"
+              rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782 /bin/bash --login -ec \
+              "set -o pipefail; rocq --version | grep -E \"version 9[.]3[.]0([[:space:]]|$)\"; rocq makefile -f _CoqProject -o Makefile.coq; make -f Makefile.coq"
           '
       - name: Upload cache diagnostics before teardown
         if: always()

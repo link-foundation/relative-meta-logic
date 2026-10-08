@@ -34,6 +34,17 @@ export function inspectProofSources(sources = Object.fromEntries(
   return { sources, theoremNames: lean };
 }
 
+export const NATIVE_PROOF_TOOLCHAINS = Object.freeze({ Lean: '4.34.1', Rocq: '9.3.0' });
+
+export function assertNativeKernelVersion(language, version) {
+  const expected = NATIVE_PROOF_TOOLCHAINS[language];
+  if (!expected || typeof version !== 'string') throw new Error('Unknown native proof kernel');
+  const escaped = expected.replaceAll('.', '\\.');
+  if (!new RegExp(`\\bversion\\s+${escaped}(?:\\s|,|\\)|$)`).test(version)) {
+    throw new Error(`Unsupported kernel version for this proof contract: ${version}`);
+  }
+}
+
 const negativeCases = [
   {
     id: 'equal-stabilizers-do-not-imply-same-orbit',
@@ -81,9 +92,7 @@ export function checkNativeProofs(languages = ['Lean', 'Rocq']) {
       const versionResult = run(command, ['--version'], directory);
       if (versionResult.status !== 0) throw new Error(`${language} version probe failed: ${versionResult.diagnostic}`);
       const version = versionResult.diagnostic.split('\n')[0];
-      if (!(language === 'Lean' ? /version 4\.28\.0\b/ : /version 9\.1(?:\.\d+)?\b/).test(version)) {
-        throw new Error(`Unsupported kernel version for this proof contract: ${version}`);
-      }
+      assertNativeKernelVersion(language, version);
       const extension = language === 'Lean' ? 'lean' : 'v';
       const proofFile = join(directory, `OrientationIndependence.${extension}`);
       writeFileSync(proofFile, sources[language]);

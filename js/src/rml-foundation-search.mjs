@@ -2237,12 +2237,15 @@ function linkedVerifierStepProbe() {
   };
 }
 
-function linkedCertificateCandidates({
+/** Finite observer-side certificate check; this is not Link-derived proof or admission authority. */
+export function linkedCertificateCandidates({
   description,
   records,
   candidateAddresses,
   contextAddress,
 }) {
+  if (!description.length || [...description, ...records].some(record => !Array.isArray(record) || record.length !== 3)) return [];
+  if (new Set(records.map(record => record[0])).size !== records.length) return [];
   const descriptionAddresses = [...new Set(description.flat())]
     .sort((left, right) => left - right);
   const descriptionRecordAddresses = description.map(([address]) => address);
@@ -2265,6 +2268,8 @@ function linkedCertificateCandidates({
     if (applicabilityLinks.length !== 1) continue;
     const membershipLinks = records.filter(([address, first]) =>
       address !== bundleAddress && first === bundleAddress);
+    // Every declared member must resolve; malformed extras cannot disappear.
+    if (membershipLinks.length !== descriptionAddresses.length) continue;
     const mappingRecords = membershipLinks.flatMap(([, , mappingAddress]) => {
       const addressed = recordByAddress.get(mappingAddress) ?? [];
       return addressed.length === 1 ? addressed : [];

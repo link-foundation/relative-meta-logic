@@ -172,7 +172,7 @@ Proof sources and their exact theorem inventory:
 - [Rocq](../../../test-corpus/orientation-independence/OrientationIndependence.v)
 - [Recorded native result](../../../test-corpus/orientation-independence/verification.json)
 
-From the repository root, with Lean 4.28.0 and Rocq 9.1 on `PATH`:
+From the repository root, with Lean 4.34.1 and Rocq 9.3.0 on `PATH`:
 
 ```bash
 node scripts/run-with-cache.mjs -- node scripts/check-orientation-independence.mjs
@@ -188,12 +188,13 @@ Node tests check its freshness but do not replace native re-execution.
 
 The additive [orientation-proofs workflow](../../../.github/workflows/orientation-proofs.yml)
 executes both kernels on relevant pull requests and main-branch updates. It uses
-the official Lean/Elan source and owned Rocq 9.1 Docker lifecycle, uploads proof
+the official Lean 4.34.1/Elan source and owned Rocq 9.3 Docker lifecycle (pinned image digest, with an exact 9.3.0 compiler-version check), uploads proof
 and cache evidence, and always invokes repository cache teardown. The runner
 uses fresh temporary directories and removes compiler outputs even after
-failure. No compiled proof artifacts belong in the source tree. The Docker
-workflow itself still needs its first hosted run; the recorded local run used
-the installed official native compilers directly.
+failure. No compiled proof artifacts belong in the source tree. The historical local record above remains unchanged. The updated toolchain
+configuration requires a fresh hosted run checking all 33 theorem obligations
+and all four false claims in each kernel; configuration tests alone do not
+certify compatibility with the newer compilers.
 
 ## Remaining requirement scope
 

@@ -31,6 +31,47 @@ function ok(result) { assert.equal(result.status, 0, `${result.stdout}\n${result
 const exists = (f, p) => fs.existsSync(path.join(f.root, p));
 const read = (f, p) => fs.readFileSync(path.join(f.root, p), 'utf8');
 
+test('cleanup report hard links never overwrite another file', t => {
+  const f = fixture(t);
+  ok(f.clean('--full'));
+  const report = path.join(f.root, '.rml-cache/reports/last-cleanup.json');
+  const protectedFile = path.join(f.root, 'preserved-report-copy.json');
+  fs.linkSync(report, protectedFile);
+  const before = fs.readFileSync(protectedFile);
+  const result = f.clean('--full');
+  assert.deepEqual(fs.readFileSync(protectedFile), before);
+  assert.ok(result.status === 0 || /hard link/i.test(result.stderr), result.stderr);
+});
+
+test('managed hook hard links never overwrite another file', t => {
+  const f = fixture(t);
+  ok(f.run(['scripts/bootstrap.mjs']));
+  const hook = path.join(f.git('config', '--get', 'core.hooksPath').trim(), 'pre-commit');
+  const protectedFile = path.join(f.root, 'preserved-hook-copy');
+  fs.linkSync(hook, protectedFile);
+  fs.appendFileSync(protectedFile, '\n# User-maintained content must survive\n');
+  const before = fs.readFileSync(protectedFile);
+  const result = f.run(['scripts/bootstrap.mjs']);
+  assert.deepEqual(fs.readFileSync(protectedFile), before);
+  assert.ok(result.status === 0 || /hard link/i.test(result.stderr), result.stderr);
+});
+
+test('hook composition hard links never overwrite another file', t => {
+  const f = fixture(t);
+  ok(f.run(['scripts/bootstrap.mjs']));
+  const hooks = f.git('config', '--get', 'core.hooksPath').trim();
+  const record = path.join(hooks, 'previous-hooks.json');
+  const protectedFile = path.join(f.root, 'preserved-composition.json');
+  fs.linkSync(record, protectedFile);
+  const before = fs.readFileSync(protectedFile);
+  const alternate = path.join(f.root, 'alternate hooks');
+  fs.mkdirSync(alternate);
+  f.git('config', '--worktree', 'core.hooksPath', alternate);
+  const result = f.run(['scripts/bootstrap.mjs']);
+  assert.deepEqual(fs.readFileSync(protectedFile), before);
+  assert.ok(result.status === 0 || /hard link/i.test(result.stderr), result.stderr);
+});
+
 test('all declared cache classes are reclaimed; full is idempotent; evidence/source survive', t => {
   const f = fixture(t);
   const caches = [
@@ -137,12 +178,12 @@ test('dependency install skips hooks and cannot change consuming Git configurati
   assert.equal(f.git('config', '--local', '--list'), before);
 });
 
-test('symlink escapes and other worktree artifacts cannot be registered or removed', { skip: process.platform === 'win32' }, t => {
+test('symlink escapes and other worktree artifacts cannot be registered or removed', t => {
   const f = fixture(t);
   const external = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-external-'));
   t.after(() => fs.rmSync(external, { recursive: true, force: true }));
   fs.writeFileSync(path.join(external, 'secret'), 'external');
-  fs.symlinkSync(external, path.join(f.root, 'target'));
+  fs.symlinkSync(external, path.join(f.root, 'target'), process.platform === 'win32' ? 'junction' : 'dir');
   assert.notEqual(f.wrap('process.exit(0)', ['--cache', 'target', '--class', 'rust']).status, 0);
   ok(f.clean('--full'));
   assert.equal(fs.readFileSync(path.join(external, 'secret'), 'utf8'), 'external');
@@ -372,12 +413,12 @@ test('unresolved external resource lease preserves active output and fails the w
   assert.match(f.clean('--full').stderr, /external-resource lease/);
 });
 
-test('source-archive symlink state is rejected before creating anything outside the repository', { skip: process.platform === 'win32' }, t => {
+test('source-archive symlink state is rejected before creating anything outside the repository', t => {
   const f = fixture(t);
   fs.rmSync(path.join(f.root, '.git'), { recursive: true });
   const external = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-state-outside-'));
   t.after(() => fs.rmSync(external, { recursive: true, force: true }));
-  fs.symlinkSync(external, path.join(f.root, '.rml-cache'));
+  fs.symlinkSync(external, path.join(f.root, '.rml-cache'), process.platform === 'win32' ? 'junction' : 'dir');
   const result = f.wrap('process.exit(0)', [], { RML_CACHE_SOURCE_ARCHIVE: '1' });
   assert.notEqual(result.status, 0);
   assert.deepEqual(fs.readdirSync(external), []);

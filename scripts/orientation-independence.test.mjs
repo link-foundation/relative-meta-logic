@@ -51,8 +51,8 @@ test('dedicated CI requires real Lean and Rocq checks and owned-cache teardown',
   const workflow = readFileSync(new URL('.github/workflows/orientation-proofs.yml', root), 'utf8');
   assert.match(workflow, /check-orientation-independence\.mjs --languages=Lean/);
   assert.match(workflow, /check-orientation-independence\.mjs --languages=Rocq/);
-  assert.match(workflow, /leanprover\/lean4:v4\.28\.0/);
-  assert.match(workflow, /rocq\/rocq-prover:9\.1/);
+  assert.match(workflow, /leanprover\/lean4:v4\.34\.1/);
+  assert.match(workflow, /rocq\/rocq-prover:9\.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782/);
   assert.match(workflow, /docker\/run-owned\.sh/);
   assert.equal((workflow.match(/node scripts\/build-cache\.mjs --full/g) ?? []).length, 2);
   assert.doesNotMatch(workflow, /continue-on-error|\|\| true/);

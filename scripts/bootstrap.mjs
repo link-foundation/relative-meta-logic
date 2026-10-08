@@ -27,6 +27,7 @@ export function bootstrap(root = rootHere) {
   if (fs.lstatSync(local).isSymbolicLink()) throw new Error('Refusing symlink hook installation directory');
   const sourceFile = path.join(local, 'previous-hooks.json');
   if (fs.lstatSync(sourceFile, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error('Refusing symlink hook composition record');
+  if ((fs.lstatSync(sourceFile, { throwIfNoEntry: false })?.nlink ?? 0) > 1) throw new Error('Refusing hard link hook composition record');
   let source = previous;
   if (previous === local) {
     if (!fs.existsSync(sourceFile)) throw new Error('Existing hook installation is missing its composition record');
@@ -38,6 +39,7 @@ export function bootstrap(root = rootHere) {
   for (const name of names) {
     const target = path.join(local, name);
     if (fs.lstatSync(target, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error(`Refusing symlink hook ${target}`);
+    if ((fs.lstatSync(target, { throwIfNoEntry: false })?.nlink ?? 0) > 1) throw new Error(`Refusing hard link hook ${target}`);
     if (fs.existsSync(target) && !fs.readFileSync(target, 'utf8').includes(marker)) throw new Error(`Refusing to overwrite unknown hook ${target}`);
     const old = path.join(source, name);
     let script = `#!/bin/sh\n${marker}\nstatus=0\nif [ -x ${quote(old)} ]; then\n  ${quote(old)} "$@" || status=$?\nfi\n`;

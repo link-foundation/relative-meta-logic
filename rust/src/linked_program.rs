@@ -4723,12 +4723,27 @@ fn link_ontology_linked_verifier_step_probe() -> LinkOntologyVerifierStepProbe {
     }
 }
 
-fn linked_certificate_candidates(
+/// Finite observer-side certificate check, not Link-derived proof or admission authority.
+pub fn linked_certificate_candidates(
     description: &[Vec<usize>],
     records: &[Vec<usize>],
     candidate_addresses: &[usize],
     context_address: usize,
 ) -> Vec<usize> {
+    if description.is_empty()
+        || description
+            .iter()
+            .chain(records.iter())
+            .any(|record| record.len() != 3)
+        || records
+            .iter()
+            .map(|record| record[0])
+            .collect::<BTreeSet<_>>()
+            .len()
+            != records.len()
+    {
+        return Vec::new();
+    }
     let description_addresses = description
         .iter()
         .flatten()
@@ -4766,6 +4781,10 @@ fn linked_certificate_candidates(
             .iter()
             .filter(|record| record[0] != bundle_address && record[1] == bundle_address)
             .collect::<Vec<_>>();
+        // Every declared member must resolve; malformed extras cannot disappear.
+        if membership_links.len() != description_addresses.len() {
+            continue;
+        }
         let mapping_records = membership_links
             .iter()
             .filter_map(|membership| {

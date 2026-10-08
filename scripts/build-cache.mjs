@@ -279,6 +279,7 @@ export function cleanup(c, { full = false, reportOnly = false } = {}) {
     const reports = path.join(c.root, '.rml-cache', 'reports');
     fs.mkdirSync(reports, { recursive: true });
     if (fs.lstatSync(path.join(reports, 'last-cleanup.json'), { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error('Cache report may not be a symlink');
+    if ((fs.lstatSync(path.join(reports, 'last-cleanup.json'), { throwIfNoEntry: false })?.nlink ?? 0) > 1) throw new Error('Cache report may not be a hard link');
     fs.writeFileSync(path.join(reports, 'last-cleanup.json'), `${JSON.stringify(result, null, 2)}\n`);
   }
   return result;
