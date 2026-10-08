@@ -1,0 +1,135 @@
+# Generic non-dependent case elimination and finite collection operations.
+# Import before formal-indexed/formal-records/formal-semantics. No imports here.
+(linked-program formal-collections)
+
+(linked-rewrite formal-collections ascription
+  (from (fs-infer (fs-ascribe ?value ?annotation) ?locals ?globals))
+  (to (fc-ascription (fs-infer ?annotation ?locals ?globals) ?value ?locals ?globals)))
+(linked-rewrite formal-collections ascription-type
+  (from (fc-ascription (fs-ok fs-kind ?type) ?value ?locals ?globals))
+  (to (fs-check ?value ?type ?locals ?globals)))
+
+(linked-rewrite formal-collections pair-first
+  (from (fs-infer (fs-first ?pair) ?locals ?globals))
+  (to (fc-first (fs-infer ?pair ?locals ?globals))))
+(linked-rewrite formal-collections pair-first-value
+  (from (fc-first (fs-ok (fs-t-product ?left ?right) (fs-v-pair ?value ?other))))
+  (to (fs-ok ?left ?value)))
+(linked-rewrite formal-collections pair-first-neutral
+  (from (fc-first (fs-ok (fs-t-product ?left ?right) (fs-neutral ?value))))
+  (to (fs-ok ?left (fs-neutral (fc-first-neutral ?value)))))
+(linked-rewrite formal-collections pair-second
+  (from (fs-infer (fs-second ?pair) ?locals ?globals))
+  (to (fc-second (fs-infer ?pair ?locals ?globals))))
+(linked-rewrite formal-collections pair-second-value
+  (from (fc-second (fs-ok (fs-t-product ?left ?right) (fs-v-pair ?other ?value))))
+  (to (fs-ok ?right ?value)))
+(linked-rewrite formal-collections pair-second-neutral
+  (from (fc-second (fs-ok (fs-t-product ?left ?right) (fs-neutral ?value))))
+  (to (fs-ok ?right (fs-neutral (fc-second-neutral ?value)))))
+
+(linked-rewrite formal-collections add
+  (from (fs-infer (fs-add ?left ?right) ?locals ?globals))
+  (to (fc-add-ready (fs-check ?left fs-t-nat ?locals ?globals) (fs-check ?right fs-t-nat ?locals ?globals))))
+(linked-rewrite formal-collections add-ready
+  (from (fc-add-ready (fs-ok fs-t-nat ?left) (fs-ok fs-t-nat ?right)))
+  (to (fc-add ?left ?right)))
+(linked-rewrite formal-collections add-zero
+  (from (fc-add ?left fs-v-zero))
+  (to (fs-ok fs-t-nat ?left)))
+(linked-rewrite formal-collections add-next
+  (from (fc-add ?left (fs-v-successor ?right)))
+  (to (fs-successor-result (fc-add ?left ?right))))
+(linked-rewrite formal-collections add-neutral
+  (from (fc-add ?left (fs-neutral ?right)))
+  (to (fs-ok fs-t-nat (fs-neutral (fc-add-neutral ?left ?right)))))
+
+(linked-rewrite formal-collections append
+  (from (fs-infer (fs-append ?left ?right) ?locals ?globals))
+  (to (fc-append-left (fs-infer ?left ?locals ?globals) ?right ?locals ?globals)))
+(linked-rewrite formal-collections append-left
+  (from (fc-append-left (fs-ok (fs-t-list ?type) ?left) ?right ?locals ?globals))
+  (to (fc-append-ready ?type ?left (fs-check ?right (fs-t-list ?type) ?locals ?globals))))
+(linked-rewrite formal-collections append-ready
+  (from (fc-append-ready ?type ?left (fs-ok (fs-t-list ?type) ?right)))
+  (to (fc-append ?type ?left ?right)))
+(linked-rewrite formal-collections append-empty
+  (from (fc-append ?type fs-v-nil ?right))
+  (to (fs-ok (fs-t-list ?type) ?right)))
+(linked-rewrite formal-collections append-cons
+  (from (fc-append ?type (fs-v-cons ?head ?tail) ?right))
+  (to (fs-cons-result ?type ?head (fc-append ?type ?tail ?right))))
+(linked-rewrite formal-collections append-neutral
+  (from (fc-append ?type (fs-neutral ?left) ?right))
+  (to (fs-ok (fs-t-list ?type) (fs-neutral (fc-append-neutral ?type ?left ?right)))))
+
+# Both branches are checked before selection, including on a concrete guard.
+(linked-rewrite formal-collections conditional-check
+  (from (fs-check (fs-if ?condition ?yes ?no) ?type ?locals ?globals))
+  (to (fc-if (fs-check ?condition fs-t-bool ?locals ?globals)
+    (fs-check ?yes ?type ?locals ?globals) (fs-check ?no ?type ?locals ?globals))))
+(linked-rewrite formal-collections conditional-true
+  (from (fc-if (fs-ok fs-t-bool fs-v-true) (fs-ok ?type ?yes) (fs-ok ?type ?no)))
+  (to (fs-ok ?type ?yes)))
+(linked-rewrite formal-collections conditional-false
+  (from (fc-if (fs-ok fs-t-bool fs-v-false) (fs-ok ?type ?yes) (fs-ok ?type ?no)))
+  (to (fs-ok ?type ?no)))
+(linked-rewrite formal-collections conditional-neutral
+  (from (fc-if (fs-ok fs-t-bool (fs-neutral ?condition)) (fs-ok ?type ?yes) (fs-ok ?type ?no)))
+  (to (fs-ok ?type (fs-neutral (fc-if-neutral ?condition ?yes ?no)))))
+
+# A non-dependent list case checks its result type, nil case and both cons
+# binders, even when the supplied target happens to be nil or neutral.
+(linked-rewrite formal-collections list-case
+  (from (fs-infer (fs-list-case ?result-type ?target ?nil ?cons) ?locals ?globals))
+  (to (fc-list-case-types (fs-infer ?result-type ?locals ?globals)
+    (fs-infer ?target ?locals ?globals) ?nil ?cons ?locals ?globals)))
+(linked-rewrite formal-collections list-case-types
+  (from (fc-list-case-types (fs-ok fs-kind ?result) (fs-ok (fs-t-list ?element) ?target)
+    ?nil ?cons ?locals ?globals))
+  (to (fc-list-case-checked ?result ?element ?target ?globals
+    (fs-check ?nil ?result ?locals ?globals)
+    (fs-check ?cons (fs-t-arrow ?element (fs-t-arrow (fs-t-list ?element) ?result)) ?locals ?globals))))
+(linked-rewrite formal-collections list-case-empty
+  (from (fc-list-case-checked ?result ?element fs-v-nil ?globals (fs-ok ?result ?nil)
+    (fs-ok (fs-t-arrow ?element (fs-t-arrow (fs-t-list ?element) ?result)) ?cons)))
+  (to (fs-ok ?result ?nil)))
+(linked-rewrite formal-collections list-case-cons
+  (from (fc-list-case-checked ?result ?element (fs-v-cons ?head ?tail) ?globals (fs-ok ?result ?nil)
+    (fs-ok (fs-t-arrow ?element (fs-t-arrow (fs-t-list ?element) ?result)) ?cons)))
+  (to (fc-list-case-head ?result ?element ?tail ?globals
+    (fs-application-argument ?element (fs-t-arrow (fs-t-list ?element) ?result) ?cons
+      (fs-ok ?element ?head) ?globals))))
+(linked-rewrite formal-collections list-case-head
+  (from (fc-list-case-head ?result ?element ?tail ?globals
+    (fs-ok (fs-t-arrow (fs-t-list ?element) ?result) ?function)))
+  (to (fs-application-argument (fs-t-list ?element) ?result ?function
+    (fs-ok (fs-t-list ?element) ?tail) ?globals)))
+(linked-rewrite formal-collections list-case-neutral
+  (from (fc-list-case-checked ?result ?element (fs-neutral ?target) ?globals (fs-ok ?result ?nil)
+    (fs-ok (fs-t-arrow ?element (fs-t-arrow (fs-t-list ?element) ?result)) ?cons)))
+  (to (fs-ok ?result (fs-neutral (fc-list-case-neutral ?result ?element ?target ?nil ?cons)))))
+
+# The natural case checks both branches, including the predecessor binder.
+(linked-rewrite formal-collections nat-case
+  (from (fs-infer (fs-nat-case ?result-type ?target ?zero ?step) ?locals ?globals))
+  (to (fc-nat-case-types (fs-infer ?result-type ?locals ?globals)
+    (fs-check ?target fs-t-nat ?locals ?globals) ?zero ?step ?locals ?globals)))
+(linked-rewrite formal-collections nat-case-types
+  (from (fc-nat-case-types (fs-ok fs-kind ?result) (fs-ok fs-t-nat ?target)
+    ?zero ?step ?locals ?globals))
+  (to (fc-nat-case-checked ?result ?target ?globals
+    (fs-check ?zero ?result ?locals ?globals)
+    (fs-check ?step (fs-t-arrow fs-t-nat ?result) ?locals ?globals))))
+(linked-rewrite formal-collections nat-case-zero
+  (from (fc-nat-case-checked ?result fs-v-zero ?globals (fs-ok ?result ?zero)
+    (fs-ok (fs-t-arrow fs-t-nat ?result) ?step)))
+  (to (fs-ok ?result ?zero)))
+(linked-rewrite formal-collections nat-case-successor
+  (from (fc-nat-case-checked ?result (fs-v-successor ?predecessor) ?globals (fs-ok ?result ?zero)
+    (fs-ok (fs-t-arrow fs-t-nat ?result) ?step)))
+  (to (fs-application-argument fs-t-nat ?result ?step (fs-ok fs-t-nat ?predecessor) ?globals)))
+(linked-rewrite formal-collections nat-case-neutral
+  (from (fc-nat-case-checked ?result (fs-neutral ?target) ?globals (fs-ok ?result ?zero)
+    (fs-ok (fs-t-arrow fs-t-nat ?result) ?step)))
+  (to (fs-ok ?result (fs-neutral (fc-nat-case-neutral ?result ?target ?zero ?step)))))
