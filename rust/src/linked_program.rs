@@ -12,6 +12,31 @@ use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
+// Public display keys intentionally leave atoms unquoted. Add an injective
+// length-delimited structural tie-breaker for internal identity, retaining the
+// existing BTreeMap traversal order whenever display keys do not collide.
+fn linked_term_key(node: &Node) -> (String, String) {
+    fn encode(node: &Node, output: &mut String) {
+        match node {
+            Node::Leaf(value) => {
+                output.push_str(&value.len().to_string());
+                output.push(':');
+                output.push_str(value);
+            }
+            Node::List(children) => {
+                output.push('[');
+                for child in children {
+                    encode(child, output);
+                }
+                output.push(']');
+            }
+        }
+    }
+    let mut structural = String::new();
+    encode(node, &mut structural);
+    (key_of(node), structural)
+}
+
 const IMPLEMENTED_HOST_SEMANTIC_OPERATIONS: &[&str] = &[
     "parse-linked-forms",
     "contract-s-link",
@@ -8133,7 +8158,7 @@ impl LinkedProgramRegistry {
             let dispatch = DirectRuleDispatch::new(&rules);
             let mut term = input.clone();
             let mut trace = Vec::new();
-            let mut seen = BTreeSet::from([key_of(&term)]);
+            let mut seen = BTreeSet::from([linked_term_key(&term)]);
             while trace.len() < max_steps {
                 let Some((next, rule_index)) =
                     self.direct_rewrite_once(&term, &rules, &semantic_paths, &dispatch)?
@@ -8154,11 +8179,12 @@ impl LinkedProgramRegistry {
                     after: next.clone(),
                 });
                 term = next;
-                let key = key_of(&term);
+                let key = linked_term_key(&term);
                 if !seen.insert(key.clone()) {
                     return Err(ReduceFailure::Cycle(format!(
-                        "rewrite cycle after {} steps at {key}",
-                        trace.len()
+                        "rewrite cycle after {} steps at {}",
+                        trace.len(),
+                        key.0
                     )));
                 }
             }
@@ -8171,7 +8197,7 @@ impl LinkedProgramRegistry {
         self.observe_combinator(&semantic_paths, &rules.observed, &["import-and-rebinding"])?;
         let mut term = input.clone();
         let mut trace = Vec::new();
-        let mut seen = BTreeSet::from([key_of(&term)]);
+        let mut seen = BTreeSet::from([linked_term_key(&term)]);
         while trace.len() < max_steps {
             let execution = combinator_kernel::rewrite_once(&term, &rules, self.kernel_options())?;
             self.observe_combinator(
@@ -8204,11 +8230,12 @@ impl LinkedProgramRegistry {
                 after: next.clone(),
             });
             term = next;
-            let key = key_of(&term);
+            let key = linked_term_key(&term);
             if !seen.insert(key.clone()) {
                 return Err(ReduceFailure::Cycle(format!(
-                    "rewrite cycle after {} steps at {key}",
-                    trace.len()
+                    "rewrite cycle after {} steps at {}",
+                    trace.len(),
+                    key.0
                 )));
             }
         }
@@ -8490,7 +8517,7 @@ impl LinkedProgramRegistry {
         fn add_known(
             registry: &LinkedProgramRegistry,
             program: &str,
-            known: &mut BTreeMap<String, (Node, LinkedProof)>,
+            known: &mut BTreeMap<(String, String), (Node, LinkedProof)>,
             judgement: &Node,
             proof: LinkedProof,
             max_facts: usize,
@@ -8498,7 +8525,7 @@ impl LinkedProgramRegistry {
             derived: Option<&mut Vec<SearchDerivation>>,
         ) -> Result<AddedFact, ReduceFailure> {
             let normalized = registry.reduce_classified(program, judgement, 10_000)?.term;
-            let key = key_of(&normalized);
+            let key = linked_term_key(&normalized);
             if known.contains_key(&key) {
                 return Ok(AddedFact::Duplicate);
             }
@@ -8520,12 +8547,12 @@ impl LinkedProgramRegistry {
         }
 
         fn all_found(
-            known: &BTreeMap<String, (Node, LinkedProof)>,
+            known: &BTreeMap<(String, String), (Node, LinkedProof)>,
             goals: &mut [(Node, Option<LinkedProof>)],
         ) -> bool {
             for (goal, proof) in goals.iter_mut() {
                 if proof.is_none() {
-                    *proof = known.get(&key_of(goal)).map(|(_, found)| found.clone());
+                    *proof = known.get(&linked_term_key(goal)).map(|(_, found)| found.clone());
                 }
             }
             !goals.is_empty() && goals.iter().all(|(_, proof)| proof.is_some())

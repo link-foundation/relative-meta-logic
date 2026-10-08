@@ -16,6 +16,15 @@ function cloneTerm(term) {
   return Array.isArray(term) ? term.map(cloneTerm) : term;
 }
 
+// Display keys are intentionally unquoted LiNo: '(a)' and ['a'] print alike.
+// Internal identity must also preserve shape and atom boundaries. Keep the
+// public formatter unchanged, including its existing scalar string coercion.
+function linkedTermKey(term) {
+  return Array.isArray(term)
+    ? '[' + term.map(linkedTermKey).join(',') + ']'
+    : JSON.stringify(String(term));
+}
+
 function cloneReductionInput(term, ancestors = new Set()) {
   if (typeof term === 'string') return term;
   if (!Array.isArray(term)) {
@@ -99,17 +108,19 @@ function directMatchTerm(pattern, candidate, substitution = new Map(), observe =
 }
 
 // Private synchronous matching may borrow candidate subtrees: neither the
-// matcher nor its observer mutates them, and directInstantiate clones every
-// successful replacement before this map can leave the current rewrite step.
+// matcher nor its observer mutates them. Full reduction clones each replacement;
+// result-only reduction borrows only inside one private immutable reduction and
+// clones the final result before returning it to the caller.
 // The exported directMatchTerm continues to return detached owned bindings.
-function directMatchBorrowed(pattern, candidate, substitution = new Map(), observe = () => {}) {
+function directMatchBorrowed(pattern, candidate, substitution = new Map(), observe = () => {}, immutable = false) {
   const variable = variableName(pattern);
   if (variable !== null) {
     observe('bind-pattern-variables');
     const previous = substitution.get(variable);
     if (previous !== undefined) {
       observe('compare-link-structure');
-      return isStructurallySame(previous, candidate) ? substitution : null;
+      return (immutable ? sameImmutableTerm(previous, candidate) : isStructurallySame(previous, candidate))
+        ? substitution : null;
     }
     substitution.set(variable, candidate);
     return substitution;
@@ -120,27 +131,41 @@ function directMatchBorrowed(pattern, candidate, substitution = new Map(), obser
   }
   if (pattern.length !== candidate.length) return null;
   for (let index = 0; index < pattern.length; index += 1) {
-    if (directMatchBorrowed(pattern[index], candidate[index], substitution, observe) === null) return null;
+    if (directMatchBorrowed(pattern[index], candidate[index], substitution, observe, immutable) === null) return null;
   }
   return substitution;
 }
 
-function directInstantiate(term, substitution, observe = () => {}) {
+// Identical private immutable subtrees are equal without another traversal.
+// Distinct arrays retain recursive comparison. The public comparator keeps
+// leaves distinct from lists and preserves string coercion between two leaves.
+function sameImmutableTerm(left, right) {
+  if (left === right) return true;
+  if (!Array.isArray(left) || !Array.isArray(right)) return isStructurallySame(left, right);
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    if (!sameImmutableTerm(left[index], right[index])) return false;
+  }
+  return true;
+}
+
+function directInstantiate(term, substitution, observe = () => {}, shareBindings = false) {
   const variable = variableName(term);
   if (variable !== null) {
     observe('substitute-bound-structures');
     if (!substitution.has(variable)) throw new Error(`unbound variable ${variable}`);
-    return cloneTerm(substitution.get(variable));
+    const binding = substitution.get(variable);
+    return shareBindings ? binding : cloneTerm(binding);
   }
   return Array.isArray(term)
-    ? term.map(child => directInstantiate(child, substitution, observe))
+    ? term.map(child => directInstantiate(child, substitution, observe, shareBindings))
     : term;
 }
 
 // A private per-reduction index of definitely incompatible fixed leading
 // symbols. All wildcard, empty, leaf and nested-head patterns stay in fallback.
-// In particular, JS's existing leaf/array stringification equality means that
-// leaf candidates and candidates with nested heads must use the full matcher.
+// Leaf candidates and candidates with nested heads conservatively use the full
+// matcher; structural comparison keeps leaves distinct from every list shape.
 function* mergeDirectRuleIndices(matches, fallback) {
   let left = 0;
   let right = 0;
@@ -1208,7 +1233,12 @@ class LinkedProgramRegistry {
     return result;
   }
 
-  #directRewriteOnce(term, rules, semanticPaths, dispatch) {
+  #directRewriteOnce(term, rules, semanticPaths, dispatch, normalTerms = null) {
+    // This cache exists only for result-only reduction under one detached rule
+    // snapshot. Its private terms are immutable; the first complete visit has
+    // already performed every guard and recorded all set-valued observations.
+    if (normalTerms !== null &&
+        (Array.isArray(term) ? normalTerms.arrays : normalTerms.leaves).has(term)) return null;
     this.#observe(semanticPaths, 'select-and-traverse-rewrite-rules');
     const candidates = dispatch(term);
     let nextIndex = 0;
@@ -1224,28 +1254,37 @@ class LinkedProgramRegistry {
         term,
         new Map(),
         operation => this.#observe(semanticPaths, operation),
+        normalTerms !== null,
       );
       if (substitution !== null) {
-        return {
-          term: directInstantiate(
-            rule.replacement,
-            substitution,
-            operation => this.#observe(semanticPaths, operation),
-          ),
-          rule,
+        const replacement = directInstantiate(
+          rule.replacement,
+          substitution,
+          operation => this.#observe(semanticPaths, operation),
+          normalTerms !== null,
+        );
+        // Unchanged ancestors preserve structural equality, so testing the
+        // rewritten subtree is exactly the whole-term stall test without
+        // rescanning the untouched siblings of every ancestor.
+        return normalTerms === null ? { term: replacement, rule } : {
+          term: replacement, rule, stalled: sameImmutableTerm(term, replacement),
         };
       }
     }
     if (nextIndex < rules.length) this.#observe(semanticPaths, 'compare-link-structure');
-    if (!Array.isArray(term)) return null;
+    if (!Array.isArray(term)) {
+      normalTerms?.leaves.add(term);
+      return null;
+    }
     for (let index = 0; index < term.length; index += 1) {
-      const rewritten = this.#directRewriteOnce(term[index], rules, semanticPaths, dispatch);
+      const rewritten = this.#directRewriteOnce(term[index], rules, semanticPaths, dispatch, normalTerms);
       if (rewritten !== null) {
-        const result = term.map(cloneTerm);
+        const result = normalTerms === null ? term.map(cloneTerm) : term.slice();
         result[index] = rewritten.term;
-        return { term: result, rule: rewritten.rule };
+        return { ...rewritten, term: result };
       }
     }
+    normalTerms?.arrays.add(term);
     return null;
   }
 
@@ -1261,9 +1300,9 @@ class LinkedProgramRegistry {
     };
   }
 
-  #rewriteOnce(term, rules, semanticPaths, dispatch) {
+  #rewriteOnce(term, rules, semanticPaths, dispatch, normalTerms = null) {
     if (this.executionBasis === 'direct-structural') {
-      return this.#directRewriteOnce(term, rules, semanticPaths, dispatch);
+      return this.#directRewriteOnce(term, rules, semanticPaths, dispatch, normalTerms);
     }
     const execution = this.#kernel.combinatorRewriteOnce(term, rules, this.#kernelOptions());
     this.#observeExecution(semanticPaths, execution);
@@ -1286,6 +1325,9 @@ class LinkedProgramRegistry {
    * before the step limit is reached. Stalled rewrites still fail immediately;
    * other cycles spend the fuel bound instead of retaining visited-term keys.
    * This changes cycle detection timing, not rule selection or normal forms.
+   * The direct backend shares immutable subtrees only within this call, caching
+   * completed normal-form scans under its fixed effective rules. Returned terms
+   * are detached, including distinct copies of repeated variable bindings.
    */
   reduceResult(name, input, { maxSteps } = {}) {
     const semanticPaths = ['reduce-linked-program'];
@@ -1306,10 +1348,12 @@ class LinkedProgramRegistry {
       this.#observeExecution(semanticPaths, rules);
     }
     const dispatch = this.executionBasis === 'direct-structural' ? directRuleDispatch(rules) : null;
+    const normalTerms = this.executionBasis === 'direct-structural'
+      ? { arrays: new WeakSet(), leaves: new Set() } : null;
     for (let steps = 0; steps < maxSteps; steps += 1) {
-      const step = this.#rewriteOnce(term, rules, semanticPaths, dispatch);
-      if (step === null) return { term, steps };
-      if (isStructurallySame(term, step.term)) {
+      const step = this.#rewriteOnce(term, rules, semanticPaths, dispatch, normalTerms);
+      if (step === null) return { term: normalTerms === null ? term : cloneTerm(term), steps };
+      if (normalTerms === null ? isStructurallySame(term, step.term) : step.stalled) {
         throw reductionFailure(
           'rewrite-stalled',
           `linked rewrite ${step.rule.program}.${step.rule.name} made no progress`,
@@ -1342,7 +1386,7 @@ class LinkedProgramRegistry {
     const dispatch = this.executionBasis === 'direct-structural' ? directRuleDispatch(rules) : null;
     let term = cloneTerm(input);
     const trace = [];
-    const seen = new Set([keyOf(term)]);
+    const seen = new Set([linkedTermKey(term)]);
     while (trace.length < maxSteps) {
       const step = this.#rewriteOnce(term, rules, semanticPaths, dispatch);
       if (step === null) return { term, trace, steps: trace.length };
@@ -1360,11 +1404,11 @@ class LinkedProgramRegistry {
         before: cloneTerm(before),
         after: cloneTerm(term),
       }));
-      const key = keyOf(term);
+      const key = linkedTermKey(term);
       if (seen.has(key)) {
         throw reductionFailure(
           'rewrite-cycle',
-          `rewrite cycle after ${trace.length} steps at ${key}`,
+          `rewrite cycle after ${trace.length} steps at ${keyOf(term)}`,
         );
       }
       seen.add(key);
@@ -1505,7 +1549,7 @@ class LinkedProgramRegistry {
     const known = new Map();
     const derived = [];
     const end = ended => ({ ended, derived, facts: known.size });
-    const goalKeys = entries.map(entry => keyOf(entry.normalized));
+    const goalKeys = entries.map(entry => linkedTermKey(entry.normalized));
     const allFound = () => {
       entries.forEach((entry, index) => {
         if (entry.proof === null && known.has(goalKeys[index])) {
@@ -1516,7 +1560,7 @@ class LinkedProgramRegistry {
     };
     const add = (judgement, proof, isDerived = false) => {
       const normalized = this.reduce(name, judgement).term;
-      const key = keyOf(normalized);
+      const key = linkedTermKey(normalized);
       if (known.has(key)) return false;
       if (isDerived && this.executionBasis === 'horn-relational') {
         this.#observe(semanticPaths, 'insert-derived-fact');

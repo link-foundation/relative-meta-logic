@@ -7,10 +7,10 @@ ordered fallback list. Matching and fallback indices merge lazily in original
 rule order. Each rule index is stored once, with constant additional merge state
 per active traversal. An index is never cached on the mutable public registry.
 
-Leaf terms, empty arrays, and terms with nested heads still try every rule. This
-conservative domain preserves JavaScript's existing leaf/array stringification
-equality, including singleton and comma-containing nested heads. Rust keeps the
-same dispatch boundary even though its node equality is strictly structural.
+Leaf terms, empty arrays, and terms with nested heads still try every rule.
+Both ports distinguish leaves from lists, including singleton, nested, and
+empty lists. JavaScript retains string coercion between two scalar leaves.
+The conservative dispatch boundary stays the same in both ports.
 
 A skipped rule has a different fixed string head. It can only fail while
 observing `compare-link-structure`. Each omitted contiguous run is observed at
@@ -21,11 +21,37 @@ and copied on construction. Ordered public matcher callbacks remain unchanged.
 An occurrence counter, mutable disabled-operation set, or new private callback
 would require reviewing this compression before changing those contracts.
 
-The private direct matcher borrows candidate subtrees only during the
-synchronous rewrite. Instantiation still clones every replacement occurrence,
-so returned normal forms and complete before/after trace snapshots remain
-independently owned. The exported JavaScript `directMatchTerm` still returns
-detached substitutions. The Rust inference path retains its owned matcher.
+The private direct matcher borrows candidate subtrees during synchronous
+execution. Full-trace reduction clones every replacement occurrence, so
+complete before/after trace snapshots remain independently owned. The exported
+JavaScript `directMatchTerm` still returns detached substitutions. The Rust
+inference path retains its owned matcher.
+
+JavaScript's bounded `reduceResult` direct backend instead keeps a private
+immutable term graph during each call. Substitution may reuse a captured
+subtree, and rebuilding a rewritten ancestor copies only that ancestor's array.
+Each logical rewrite still happens in its original root-first order, including
+separate rewrites of multiple occurrences that temporarily share a subtree.
+The final term is recursively cloned, giving the caller independent owned
+copies of all occurrences without aliases to inputs, rules, or earlier results.
+
+A per-call `WeakSet` remembers array subtrees, and a `Set` remembers string
+leaves, only after the ordered matcher and traversal find no rewrite anywhere
+in them. This avoids scanning the same immutable normal subtree repeatedly.
+Every first visit executes all guards and
+records the existing operation/path sets before caching. Effective rules and
+rebindings are detached snapshots for that call; neither the term graph nor
+the normal-subtree cache survives a reduction or a changed program/import.
+
+Equality may skip identical private immutable subtrees, while distinct arrays
+retain structural comparison. Leaves remain distinct from lists, and two
+scalar leaves retain string coercion. A stall is checked at the rewritten subtree: its
+unchanged array ancestors preserve exactly the same equality result. This
+avoids rescanning untouched siblings and still reports the selected rule's
+immediate stall failure. The API continues requiring an explicit positive
+safe-integer step bound and a normal-form probe before the bound. Cycles spend
+that fuel rather than retaining a visited-term history. Full `reduce` traces
+and cycle detection, S/K reduction, and Horn reduction remain unchanged.
 
 The change preserves root-first traversal, rule priority, source rebinding,
 normal forms, logical step counts, complete traces, stall/cycle/step-limit
@@ -47,6 +73,7 @@ Focused checks:
 
 ```sh
 node scripts/run-with-cache.mjs -- node --test --test-concurrency=1 scripts/linked-dispatch-*.test.mjs
+node --test scripts/linked-result-sharing.test.mjs js/tests/linked-reduction-result.test.mjs
 node scripts/run-with-cache.mjs -- cargo test --manifest-path rust/Cargo.toml --lib dispatch_contract_tests
 ```
 
@@ -57,6 +84,12 @@ the npm package's published source files. The Rust oracle is the original owned
 matcher and ordered reducer in a private `#[cfg(test)]` module. Neither oracle
 adds a production API.
 
+The JavaScript snapshot imports the production structural comparator, so it
+checks dispatch equivalence under the current comparator contract. It is not an
+independent equality oracle. The structural-equality tests assert explicit
+expected results from shared fixtures in JavaScript and Rust and compare the
+direct and closed S/K paths.
+
 Tests compare normal forms, every complete trace entry, and complete semantic
 reports for the frozen 37-case typed-recursion workload in
 `test-corpus/linked-dispatch`. Its provenance records the independent pure case
@@ -65,7 +98,17 @@ archive or add a production formal-language surface. Adversarial tests cover fir
 priority, invalid or exhausted fuel, repeated variables, wildcard priority,
 rebinding, public registry mutation between reductions, callback order, and
 independent ownership of input, result, and trace trees. JavaScript also covers
-its historical stringification cases and shared input subtrees.
+historical stringification counterexamples and shared input subtrees. The shared
+`test-corpus/structural-equality` cases check shape distinctions, repeated
+variables, raw foundation matching, and public proof-context identity in both
+ports and execution bases.
+
+Public `keyOf` / `key_of` formatting remains unchanged. The linked reducer's
+cycle detector and direct/Horn fact indexes use private structural keys, so
+parentheses, spaces, and empty atoms cannot conflate distinct terms or produce
+false proofs. Rust keeps display-key order as the primary sort key, preserving
+fact traversal order when there is no collision. Public quoted proof inputs
+retain their existing injective codec.
 
 Set `RML_DISPATCH_JS_REPORT` or `RML_DISPATCH_RUST_REPORT` to an existing-parent
 output path to record per-case timings and equality outcomes during the focused
