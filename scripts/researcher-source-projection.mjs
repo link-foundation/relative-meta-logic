@@ -5,7 +5,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseRmlToMetaLanguage, reconstructRmlFromMetaLanguage, rmlRepresentationStages, LinkNetwork, LinkType } from '../js/src/rml-meta-language.mjs';
-import { LinkMetadata, SourceSpan, ByteRange, Point } from '../js/vendor/meta-language/js/src/index.js';
+import { LinkMetadata, SourceSpan, ByteRange, Point } from '../js/src/rml-meta-language.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 export const sha256 = source => createHash('sha256').update(source).digest('hex');
 

@@ -9,54 +9,161 @@ import { context, register, roots, validatePath, inventory, capture, lock, inher
 import { bootstrap } from './bootstrap.mjs';
 
 function options(argv) {
-  const options = { caches: [], retain: [], archive: [], command: [] };
+  const options = { caches: [], retain: [], archive: [], command: [], sourceMigration: false };
   let category = 'rust';
   for (let i = 0; i < argv.length; i++) {
     const value = argv[i];
     if (value === '--') { options.command = argv.slice(i + 1); break; }
     if (['--cache', '--class', '--retain', '--archive'].includes(value) && !argv[i + 1]) throw new Error(`Missing ${value} value`);
-    if (value === '--class') { category = argv[++i]; if (options.caches.length) options.caches.at(-1).class = category; }
+    if (value === '--source-migration') options.sourceMigration = true;
+    else if (value === '--class') { category = argv[++i]; if (options.caches.length) options.caches.at(-1).class = category; }
     else if (value === '--cache') options.caches.push({ path: argv[++i], class: category });
     else if (value === '--retain') options.retain.push(argv[++i]);
     else if (value === '--archive') options.archive.push(argv[++i]);
     else throw new Error(`Unknown wrapper argument ${value}; put the command after --`);
   }
-  if (!options.command.length) throw new Error('Usage: node scripts/run-with-cache.mjs [--cache path --class category] [--retain path] [--archive path] -- command args...');
+  if (!options.command.length) throw new Error('Usage: node scripts/run-with-cache.mjs [--cache path --class category] [--retain path] [--archive path] [--source-migration] -- command args...');
   return options;
 }
 function signalTree(child, signal) {
   if (process.platform === 'win32') spawnSync('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
   else { try { process.kill(-child.pid, signal); } catch (error) { if (error.code !== 'ESRCH') throw error; } }
 }
-async function execute(command, env, log, onSpawn) {
+export async function execute(command, env, log, onSpawn, checkResources, onResourceLimit) {
+  // Node clamps overflowing timer delays to 1 ms. Reject those values before a
+  // child starts, rather than silently changing the monitor or signal grace.
+  const grace = Number(env.RML_CACHE_SIGNAL_GRACE_MS ?? 15000);
+  const interval = Number(env.RML_CACHE_RESOURCE_INTERVAL_MS ?? 1000);
+  if (!Number.isInteger(grace) || grace < 0 || grace > 2147483647) throw new Error('RML_CACHE_SIGNAL_GRACE_MS must be an integer from 0 to 2147483647');
+  if (!Number.isInteger(interval) || interval < 1 || interval > 2147483647) throw new Error('RML_CACHE_RESOURCE_INTERVAL_MS must be an integer from 1 to 2147483647');
   const [name, ...args] = command;
   const child = spawn(name, args, { env, detached: process.platform !== 'win32', stdio: ['inherit', 'pipe', 'pipe'], shell: process.platform === 'win32' && /^(npm|npx)(\.cmd)?$/.test(name) });
-  if (child.pid) onSpawn?.(child.pid);
   let interrupted;
   let force;
-  const grace = Number(process.env.RML_CACHE_SIGNAL_GRACE_MS ?? 15000);
-  if (!Number.isFinite(grace) || grace < 0) throw new Error('RML_CACHE_SIGNAL_GRACE_MS must be non-negative');
-  const handlers = new Map(['SIGINT', 'SIGTERM', 'SIGHUP'].map(signal => [signal, () => {
+  let monitor;
+  let failure;
+  let resourceFailure;
+  let exited = false;
+  let spawnFailed = false;
+  const rememberFailure = error => { failure ??= error instanceof Error ? error : new Error(String(error)); };
+  const report = message => {
+    try { console.error(message); } catch (error) { rememberFailure(error); }
+  };
+  const kill = signal => {
+    if (!child.pid) return;
+    try { signalTree(child, signal); } catch (error) { rememberFailure(error); }
+  };
+  const stop = signal => {
+    if (exited || child.exitCode !== null || child.signalCode !== null) return;
     interrupted ??= signal;
-    signalTree(child, signal);
-    force ??= setTimeout(() => signalTree(child, 'SIGKILL'), grace);
-  }]));
+    kill(signal);
+    force ??= setTimeout(() => kill('SIGKILL'), grace);
+  };
+  const fail = error => { rememberFailure(error); stop('SIGTERM'); };
+  // Install completion listeners before ownership recording or any other
+  // callback can fail. Always drain the pipes and await close before cleanup.
+  const completion = new Promise(resolve => {
+    child.once('error', error => { spawnFailed = true; report(error.message); });
+    child.once('exit', () => {
+      exited = true;
+      clearInterval(monitor);
+      clearTimeout(force);
+      // A finished shell may leave grandchildren holding its output pipes open.
+      // Kill the owned POSIX group now, before waiting for those pipes to close.
+      if (process.platform !== 'win32') kill('SIGKILL');
+    });
+    child.once('close', (status, signal) => resolve(spawnFailed ? 127 : status ?? 128 + (os.constants.signals[signal] ?? 1)));
+  });
+  const handlers = new Map(['SIGINT', 'SIGTERM', 'SIGHUP'].map(signal => [signal, () => stop(signal)]));
   for (const [signal, handler] of handlers) process.on(signal, handler);
-  for (const [stream, output] of [[child.stdout, process.stdout], [child.stderr, process.stderr]]) stream.on('data', data => { output.write(data); if (log) fs.writeSync(log, data); });
-  const result = await new Promise(resolve => { child.once('error', error => { console.error(error.message); resolve(127); }); child.once('close', (status, signal) => resolve(status ?? 128 + (os.constants.signals[signal] ?? 1))); });
-  // A shell may exit while grandchildren remain alive. Terminate the entire owned
-  // process group before inspecting or deleting any generated output.
-  if (child.pid) signalTree(child, 'SIGKILL');
-  if (force) clearTimeout(force);
-  for (const [signal, handler] of handlers) process.removeListener(signal, handler);
-  return interrupted ? 128 + (os.constants.signals[interrupted] ?? 1) : result;
+  const outputHandlers = [];
+  let pendingOutput = 0;
+  let outputDrained;
+  for (const [stream, output] of [[child.stdout, process.stdout], [child.stderr, process.stderr]]) {
+    // Output destinations can emit an asynchronous EPIPE as well as throw.
+    // Neither may abandon the detached build or bypass its lease cleanup.
+    output.on('error', fail);
+    outputHandlers.push([output, fail]);
+    stream.on('error', fail);
+    stream.on('data', data => {
+      if (failure) return; // Continue draining after the first output failure.
+      let settled = false;
+      const written = error => {
+        if (settled) return;
+        settled = true;
+        if (error) fail(error);
+        if (--pendingOutput === 0) outputDrained?.();
+      };
+      pendingOutput++;
+      try { output.write(data, written); }
+      catch (error) { written(error); }
+      if (!failure && log !== undefined) {
+        try {
+          for (let offset = 0; offset < data.length;) {
+            const bytes = fs.writeSync(log, data, offset, data.length - offset);
+            if (bytes <= 0) throw new Error('Evidence log write made no progress');
+            offset += bytes;
+          }
+        } catch (error) { fail(error); }
+      }
+    });
+  }
+  try {
+    if (child.pid) {
+      try { onSpawn?.(child.pid); }
+      catch (error) {
+        rememberFailure(error);
+        // Ownership recording may fail on a full filesystem. Stop this group
+        // immediately; it must never escape the wrapper's lease lifecycle.
+        kill('SIGKILL');
+      }
+    }
+    if (checkResources && !failure) monitor = setInterval(() => {
+      if (resourceFailure !== undefined || interrupted || exited || child.exitCode !== null || child.signalCode !== null) return;
+      try { checkResources(); }
+      catch (error) {
+        resourceFailure = error instanceof Error ? error.message : String(error);
+        // Stop before invoking reporting callbacks, which may themselves fail.
+        stop('SIGTERM');
+        try { onResourceLimit?.(resourceFailure); } catch (cause) { rememberFailure(cause); }
+        report(`build-cache: stopping active command: ${resourceFailure}`);
+      }
+    }, interval);
+    const result = await completion;
+    if (pendingOutput) await new Promise(resolve => { outputDrained = resolve; });
+    // Writable callbacks run before their error events. Keep the handlers until
+    // the corresponding next-tick error notifications have also been delivered.
+    await new Promise(resolve => setImmediate(resolve));
+    const status = interrupted ? 128 + (os.constants.signals[interrupted] ?? 1) : result;
+    if (failure) {
+      throw Object.assign(new Error(failure.message, { cause: failure }), { commandExitCode: status || 1 });
+    }
+    return status;
+  } finally {
+    clearInterval(monitor);
+    clearTimeout(force);
+    for (const [signal, handler] of handlers) process.removeListener(signal, handler);
+    for (const [output, handler] of outputHandlers) output.removeListener('error', handler);
+  }
 }
 async function main() {
   const opts = options(process.argv.slice(2));
   const c = context();
+  const authorityGuard = path.join(c.root, 'scripts/check-linked-implementation.mjs');
+  const checkAuthority = async () => {
+    if (!fs.existsSync(authorityGuard)) {
+      if (opts.sourceMigration) throw new Error('Source migration requires the linked implementation guard');
+      return;
+    }
+    const { checkCurrentLinkedImplementation } = await import(new URL('./check-linked-implementation.mjs', import.meta.url));
+    checkCurrentLinkedImplementation(c.root);
+  };
+  if (!opts.sourceMigration) await checkAuthority();
+  else if (!fs.existsSync(authorityGuard)) throw new Error('Source migration requires the linked implementation guard');
   if (inheritedLease(c)) {
     // The outer operation owns both lifecycle and cleanup, including all nested npm scripts.
     process.exitCode = await execute(opts.command, process.env);
+    if (opts.sourceMigration && process.exitCode === 0) await checkAuthority();
     return;
   }
   bootstrap(c.root);
@@ -66,6 +173,8 @@ async function main() {
   let log;
   let archiveFailed = false;
   let cleanupFailed = false;
+  let sourceValidationFailed = false;
+  let resourceLimit;
   try {
     assertNoUnleasedBuilders(c);
     for (const item of opts.caches) register(c, item.path, item.class);
@@ -95,18 +204,28 @@ async function main() {
     const temporary = path.join(c.root, '.rml-cache', 'scratch', id);
     fs.mkdirSync(temporary, { recursive: true });
     const env = { CARGO_BUILD_JOBS: String(jobs), RUST_TEST_THREADS: String(jobs), CARGO_INCREMENTAL: '0', SCCACHE_CACHE_SIZE: '512M', ...process.env, TMPDIR: temporary, TMP: temporary, TEMP: temporary, RML_CACHE_LEASE: lease.token };
-    status = await execute(opts.command, env, log, pid => lease.child(pid));
-    fs.writeFileSync(path.join(evidence, `${id}.json`), JSON.stringify({ command: opts.command, exitCode: status, timestamp: new Date().toISOString() }, null, 2));
+    status = await execute(opts.command, env, log, pid => lease.child(pid), () => lowDisk(c), reason => { resourceLimit = reason; });
+    if (opts.sourceMigration && status === 0) {
+      try { await checkAuthority(); }
+      catch (error) { sourceValidationFailed = true; console.error(`build-cache: source migration did not produce a consistent linked implementation: ${error.message}`); }
+    }
+    fs.writeFileSync(path.join(evidence, `${id}.json`), JSON.stringify({ command: opts.command, exitCode: status || (sourceValidationFailed ? 2 : 0), ...(resourceLimit ? { resourceLimit } : {}), ...(opts.sourceMigration ? { commandExitCode: status, sourceMigration: true, sourceValidationPassed: status === 0 && !sourceValidationFailed } : {}), timestamp: new Date().toISOString() }, null, 2));
     for (const relative of opts.archive) {
       const full = validatePath(c, relative);
       if (fs.existsSync(full)) fs.cpSync(full, path.join(evidence, id, relative), { recursive: true, dereference: false, errorOnExist: true });
     }
   } catch (error) {
+    // Execution failures are reported only after the owned child has stopped.
+    // Keep its failure status and retain outputs when evidence could not be saved.
+    status ??= error.commandExitCode;
     if (status === undefined) throw error;
     archiveFailed = true;
     console.error(`build-cache: evidence archive failed; cache retained: ${error.message}`);
   } finally {
-    if (log !== undefined) fs.closeSync(log);
+    if (log !== undefined) {
+      try { fs.closeSync(log); }
+      catch (error) { archiveFailed = true; console.error(`build-cache: cannot close evidence log: ${error.message}`); }
+    }
     try {
       if (baseline) {
         assertNoUnleasedBuilders(c);
@@ -126,6 +245,6 @@ async function main() {
       try { lease.release(); } catch (error) { cleanupFailed = true; console.error(`build-cache: cannot release lease: ${error.message}`); }
     }
   }
-  process.exitCode = status || (cleanupFailed || archiveFailed ? 2 : 0);
+  process.exitCode = status || (cleanupFailed || archiveFailed || sourceValidationFailed ? 2 : 0);
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(error => { console.error(`run-with-cache: ${error.message}`); process.exitCode = 1; });

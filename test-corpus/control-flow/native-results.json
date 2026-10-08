@@ -1,0 +1,30 @@
+{
+  "schema": "rml-control-flow-native-results/v1",
+  "node": "v24.19.0",
+  "lean": "Lean (version 4.28.0, x86_64-unknown-linux-gnu, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b, Release)",
+  "rocq": "The Rocq Prover, version 9.1.1\ncompiled with OCaml 4.14.2",
+  "sourceSha256": {
+    "js/src/rml-control-flow-ast.mjs": "cb993d1b31d38006dc23f235f558ccb196e57f3fabdd282e00d05fb68cdea7d9",
+    "js/src/rml-control-flow.mjs": "6a27488723131bbf59d88393f51af8243cca88966812e7193b1a021cbcd89592",
+    "js/src/rml-control-flow-javascript.mjs": "c70de7220c4e6b0703ba8c479777b16fe3661d847c064be74c33efd56d601929",
+    "js/src/rml-control-flow-rust.mjs": "7dcc40445526920fcdffb7ce39d34837fe7800852a07b2b84236edde9d7f52d7",
+    "js/src/rml-control-flow-codegen.mjs": "03694b8aaccf9956070819c080abcf0602d9f520a16d653711d912d85ef6dd79",
+    "js/src/rml-control-flow-proof-codegen.mjs": "3bca74ade8bbbf5394c8bda73afd5b089c68446f70cf302d79278d238cda942f",
+    "rust/control-flow/src/control_flow.rs": "5df3ab95fe2c0ffc6bfa92a19a5e0eeb37ddc6366ef092855221348c8614b400",
+    "test-corpus/control-flow/cases.json": "f9f895d97d22ba3fbaa7a386b57e3c40495ccaf60be0616db7e2680055644451",
+    "test-corpus/control-flow/rust-syntax.json": "96b7dc2796c4a847057eea3c81be27076a0e1fbd6d7acc64851d0aae7f6124ef",
+    "test-corpus/control-flow/operations.json": "c8e9ce23e090ca139e902fd614d7d8b92ba28673c4d86dc11bb7c48bde5971f0"
+  },
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "programs": 31,
+  "targets": {
+    "JavaScript": 31,
+    "Rust": 31,
+    "Lean": 31,
+    "Rocq": 31
+  },
+  "observations": 139,
+  "negativeProofControls": 2,
+  "failed": 0,
+  "scope": "checked scalar control-flow only; no full-language or proof-equivalence claim"
+}

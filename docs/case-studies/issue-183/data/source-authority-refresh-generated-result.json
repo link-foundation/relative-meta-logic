@@ -1,0 +1,10 @@
+{
+  "schema": "rml-refreshed-generated-authority-checks/v1",
+  "sourceFree": true,
+  "ownedJavaScriptModules": 158,
+  "genericRecursionFixtureGenerationExact": true,
+  "generatedGenericAssertions": 70,
+  "orientationTheoremInventory": 42,
+  "orientationRecordedSourceHashesMatch": true,
+  "nativeKernelsReexecuted": false
+}

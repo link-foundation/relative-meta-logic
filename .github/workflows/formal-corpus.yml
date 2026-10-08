@@ -65,7 +65,7 @@ jobs:
         run: node scripts/run-with-cache.mjs -- node scripts/check-meta-theory-corpus.mjs upstream-meta-theory
       - name: Upload cache diagnostics before teardown
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cache-diagnostics-formal-semantic-${{ github.run_attempt }}
           path: |
@@ -114,7 +114,7 @@ jobs:
           '
       - name: Upload cache diagnostics before teardown
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cache-diagnostics-formal-lean-${{ github.run_attempt }}
           path: |
@@ -162,7 +162,7 @@ jobs:
           '
       - name: Upload cache diagnostics before teardown
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cache-diagnostics-formal-rocq-${{ github.run_attempt }}
           path: |

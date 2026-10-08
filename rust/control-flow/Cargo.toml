@@ -1,0 +1,28 @@
+[package]
+name = "relative-meta-logic-control-flow"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.90"
+license = "Unlicense"
+description = "Checked scalar control-flow semantics over structured RML links"
+
+[lib]
+name = "rml_control_flow"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rml-control-flow"
+path = "src/main.rs"
+
+[dependencies]
+rml_base = { package = "relative-meta-logic", path = ".." }
+meta-language = { git = "https://github.com/link-foundation/meta-language.git", rev = "679a3b3c3c56177b8df1ad82672690c6e9889aeb", default-features = false }
+serde_json = "1.0.151"
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false

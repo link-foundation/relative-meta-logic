@@ -3562,57 +3562,46 @@ function parseLinoDocument(text) {
 }
 
 // src/rml-links-browser-entry.mjs
-var process = {
-  argv: [],
-  env: {},
-  cwd: () => "/",
-  exit(code = 0) {
-    throw new Error(`The RML CLI is not available in the browser playground (exit ${code}).`);
-  }
-};
+var process = { argv: [], env: {}, cwd: (() => "/"), exit(code = 0) {
+  throw new Error(`The RML CLI is not available in the browser playground (exit ${code}).`);
+} };
 function unavailableNodeApi(name) {
-  return () => {
+  return (() => {
     throw new Error(`${name} is not available in the browser playground. Paste dependencies inline instead.`);
-  };
+  });
 }
-var fs = {
-  readFileSync: unavailableNodeApi("File system reads"),
-  writeFileSync: unavailableNodeApi("File system writes")
-};
-var path = {
-  basename(input) {
-    const value = String(input || "").replace(/\\/g, "/").replace(/\/+$/g, "");
-    const index = value.lastIndexOf("/");
-    return index === -1 ? value : value.slice(index + 1);
-  },
-  dirname(input) {
-    const value = String(input || "").replace(/\\/g, "/").replace(/\/+$/g, "");
-    const index = value.lastIndexOf("/");
-    if (index <= 0) return "/";
-    return value.slice(0, index);
-  },
-  isAbsolute(input) {
-    return String(input || "").startsWith("/");
-  },
-  resolve(...parts) {
-    const joined = parts.filter(Boolean).map(String).join("/");
-    const absolute = joined.startsWith("/") ? joined : `/${joined}`;
-    const stack = [];
-    for (const part of absolute.split("/")) {
-      if (!part || part === ".") continue;
-      if (part === "..") stack.pop();
-      else stack.push(part);
-    }
-    return `/${stack.join("/")}`;
+var fs = { readFileSync: unavailableNodeApi("File system reads"), writeFileSync: unavailableNodeApi("File system writes") };
+var path = { basename(input) {
+  const value = String(input || "").replace(/\\/g, "/").replace(/\/+$/g, "");
+  const index = value.lastIndexOf("/");
+  return index === -1 ? value : value.slice(index + 1);
+}, dirname(input) {
+  const value = String(input || "").replace(/\\/g, "/").replace(/\/+$/g, "");
+  const index = value.lastIndexOf("/");
+  if (index <= 0) {
+    return "/";
   }
-};
+  return value.slice(0, index);
+}, isAbsolute(input) {
+  return String(input || "").startsWith("/");
+}, resolve(...parts) {
+  const joined = parts.filter(Boolean).map(String).join("/");
+  const absolute = joined.startsWith("/") ? joined : `/${joined}`;
+  const stack = [];
+  for (const part of absolute.split("/")) {
+    if (!part || part === ".") {
+      continue;
+    }
+    if (part === "..") {
+      stack.pop();
+    } else {
+      stack.push(part);
+    }
+  }
+  return `/${stack.join("/")}`;
+} };
 function spawnSync() {
-  return {
-    status: 127,
-    stdout: "",
-    stderr: "External solver processes are not available in the browser playground.",
-    error: new Error("External solver processes are not available in the browser playground.")
-  };
+  return { status: 127, stdout: "", stderr: "External solver processes are not available in the browser playground.", error: new Error("External solver processes are not available in the browser playground.") };
 }
 var Diagnostic = class {
   constructor({ code, message, span }) {
@@ -3662,8 +3651,13 @@ function tokenizeOne(s) {
     s = s.substring(0, commentIdx);
     let depth = 0;
     for (let i2 = 0; i2 < s.length; i2++) {
-      if (s[i2] === "(") depth++;
-      else if (s[i2] === ")") depth--;
+      if (s[i2] === "(") {
+        depth++;
+      } else {
+        if (s[i2] === ")") {
+          depth--;
+        }
+      }
     }
     while (depth > 0) {
       s += ")";
@@ -3672,7 +3666,7 @@ function tokenizeOne(s) {
   }
   const out = [];
   let i = 0;
-  const isWS = (c) => /\p{White_Space}/u.test(c);
+  const isWS = ((c) => /\p{White_Space}/u.test(c));
   while (i < s.length) {
     const c = s[i];
     if (isWS(c)) {
@@ -3685,7 +3679,9 @@ function tokenizeOne(s) {
       continue;
     }
     let j = i;
-    while (j < s.length && !isWS(s[j]) && s[j] !== "(" && s[j] !== ")") j++;
+    while (j < s.length && !isWS(s[j]) && s[j] !== "(" && s[j] !== ")") {
+      j++;
+    }
     out.push(s.slice(i, j));
     i = j;
   }
@@ -3694,55 +3690,81 @@ function tokenizeOne(s) {
 function parseOne(tokens) {
   let i = 0;
   function read() {
-    if (tokens[i] !== "(") throw new RmlError("E002", 'expected "("');
+    if (tokens[i] !== "(") {
+      throw new RmlError("E002", 'expected "("');
+    }
     i++;
     const arr = [];
     while (i < tokens.length && tokens[i] !== ")") {
-      if (tokens[i] === "(") arr.push(read());
-      else {
+      if (tokens[i] === "(") {
+        arr.push(read());
+      } else {
         arr.push(tokens[i]);
         i++;
       }
     }
-    if (tokens[i] !== ")") throw new RmlError("E002", 'expected ")"');
+    if (tokens[i] !== ")") {
+      throw new RmlError("E002", 'expected ")"');
+    }
     i++;
     return arr;
   }
   const ast = read();
-  if (i !== tokens.length) throw new RmlError("E002", "extra tokens after link");
+  if (i !== tokens.length) {
+    throw new RmlError("E002", "extra tokens after link");
+  }
   return ast;
 }
-var isNum = (s) => /^-?(\d+(\.\d+)?|\.\d+)$/.test(s);
+var isNum = ((s) => /^-?(\d+(\.\d+)?|\.\d+)$/.test(s));
 var DECIMAL_PRECISION = 12;
 function decRound(x) {
-  if (!Number.isFinite(x)) return x;
+  if (!Number.isFinite(x)) {
+    return x;
+  }
   return +(Math.round(x + "e" + DECIMAL_PRECISION) + "e-" + DECIMAL_PRECISION);
 }
 function keyOf(node) {
-  if (Array.isArray(node)) return "(" + node.map(keyOf).join(" ") + ")";
+  if (Array.isArray(node)) {
+    return "(" + node.map(keyOf).join(" ") + ")";
+  }
   return String(node);
 }
 function isStructurallySame(a, b) {
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) if (!isStructurallySame(a[i], b[i])) return false;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b)) {
+      return false;
+    }
+    if (a.length !== b.length) {
+      return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+      if (!isStructurallySame(a[i], b[i])) {
+        return false;
+      }
+    }
     return true;
   }
   return String(a) === String(b);
 }
 function parseUniverseLevelToken(token) {
-  if (typeof token !== "string" || !/^(0|[1-9]\d*)$/.test(token)) return null;
+  if (typeof token !== "string" || !/^(0|[1-9]\d*)$/.test(token)) {
+    return null;
+  }
   const level = Number(token);
   return Number.isSafeInteger(level) ? level : null;
 }
 function universeTypeKey(node) {
-  if (!Array.isArray(node) || node.length !== 2 || node[0] !== "Type") return null;
+  if (!Array.isArray(node) || node.length !== 2 || node[0] !== "Type") {
+    return null;
+  }
   const level = parseUniverseLevelToken(node[1]);
   return level === null ? null : `(Type ${level + 1})`;
 }
 function inferTypeKey(node, env) {
   const recorded = env.getType(node);
-  if (recorded) return recorded;
+  if (recorded) {
+    return recorded;
+  }
   const universeType = universeTypeKey(node);
   if (universeType) {
     env.setType(node, universeType);
@@ -3751,7 +3773,9 @@ function inferTypeKey(node, env) {
   return null;
 }
 function quantize(x, valence, lo, hi) {
-  if (valence < 2) return x;
+  if (valence < 2) {
+    return x;
+  }
   const step = (hi - lo) / (valence - 1);
   const level = Math.round((x - lo) / step);
   return lo + Math.max(0, Math.min(valence - 1, level)) * step;
@@ -3795,60 +3819,44 @@ var Env = class {
     this.lo = opts.lo !== void 0 ? opts.lo : 0;
     this.hi = opts.hi !== void 0 ? opts.hi : 1;
     this.valence = opts.valence !== void 0 ? opts.valence : 0;
-    this.ops = new Map(Object.entries({
-      "not": (x) => this.hi - (x - this.lo),
-      // negation: mirrors around midpoint
-      "and": (...xs) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : this.lo,
-      // avg
-      "or": (...xs) => xs.length ? Math.max(...xs) : this.lo,
-      // Belnap operators: AND-altering operators for four-valued logic
-      // "both" (gullibility): avg — contradiction resolves to midpoint
-      "both": (...xs) => xs.length ? decRound(xs.reduce((a, b) => a + b, 0) / xs.length) : this.lo,
-      // "neither" (consensus): product — gap resolves to zero (no info propagates)
-      "neither": (...xs) => xs.length ? decRound(xs.reduce((a, b) => a * b, 1)) : this.lo,
-      "=": (L, R, ctx) => {
-        const kPrefix = keyOf(["=", L, R]);
-        if (this.assign.has(kPrefix)) {
-          const v = this.assign.get(kPrefix);
-          this.trace("lookup", `${kPrefix} \u2192 ${formatTraceValue(v)}`);
-          return v;
-        }
-        const kInfix = keyOf([L, "=", R]);
-        if (this.assign.has(kInfix)) {
-          const v = this.assign.get(kInfix);
-          this.trace("lookup", `${kInfix} \u2192 ${formatTraceValue(v)}`);
-          return v;
-        }
-        return isStructurallySame(L, R) ? this.hi : this.lo;
+    this.ops = new Map(Object.entries({ "not": ((x) => this.hi - (x - this.lo)), "and": ((...xs) => xs.length ? xs.reduce(((a, b) => a + b), 0) / xs.length : this.lo), "or": ((...xs) => xs.length ? Math.max(...xs) : this.lo), "both": ((...xs) => xs.length ? decRound(xs.reduce(((a, b) => a + b), 0) / xs.length) : this.lo), "neither": ((...xs) => xs.length ? decRound(xs.reduce(((a, b) => a * b), 1)) : this.lo), "=": ((L, R, ctx) => {
+      const kPrefix = keyOf(["=", L, R]);
+      if (this.assign.has(kPrefix)) {
+        const v = this.assign.get(kPrefix);
+        this.trace("lookup", `${kPrefix} \u2192 ${formatTraceValue(v)}`);
+        return v;
       }
-    }));
-    this.defineOp("!=", (...args) => this.getOp("not")(this.getOp("=")(...args)));
-    this.defineOp("+", (a, b) => decRound(a + b));
-    this.defineOp("-", (a, b) => decRound(a - b));
-    this.defineOp("*", (a, b) => decRound(a * b));
-    this.defineOp("/", (a, b) => b === 0 ? 0 : decRound(a / b));
-    this.defineOp("<", (a, b) => a < b ? this.hi : this.lo);
-    this.defineOp("<=", (a, b) => a <= b ? this.hi : this.lo);
+      const kInfix = keyOf([L, "=", R]);
+      if (this.assign.has(kInfix)) {
+        const v = this.assign.get(kInfix);
+        this.trace("lookup", `${kInfix} \u2192 ${formatTraceValue(v)}`);
+        return v;
+      }
+      return isStructurallySame(L, R) ? this.hi : this.lo;
+    }) }));
+    this.defineOp("!=", ((...args) => this.getOp("not")(this.getOp("=")(...args))));
+    this.defineOp("+", ((a, b) => decRound(a + b)));
+    this.defineOp("-", ((a, b) => decRound(a - b)));
+    this.defineOp("*", ((a, b) => decRound(a * b)));
+    this.defineOp("/", ((a, b) => b === 0 ? 0 : decRound(a / b)));
+    this.defineOp("<", ((a, b) => a < b ? this.hi : this.lo));
+    this.defineOp("<=", ((a, b) => a <= b ? this.hi : this.lo));
     this._initTruthConstants();
     this.registerDomainPlugin("automatic-sequences", automaticSequencesDomainPlugin);
   }
-  // Clamp and optionally quantize a value to the valid range
   clamp(x) {
     const clamped = Math.max(this.lo, Math.min(this.hi, x));
-    if (this.valence >= 2) return quantize(clamped, this.valence, this.lo, this.hi);
+    if (this.valence >= 2) {
+      return quantize(clamped, this.valence, this.lo, this.hi);
+    }
     return clamped;
   }
-  // Parse a numeric string respecting current range
   toNum(s) {
     return this.clamp(parseFloat(s));
   }
-  // Midpoint of the range (useful for paradox resolution, default symbol prob, etc.)
   get mid() {
     return (this.lo + this.hi) / 2;
   }
-  // Initialize truth constants based on current range.
-  // (false: min(range)), (true: max(range)),
-  // (unknown: mid(range)), (undefined: mid(range))
   _initTruthConstants() {
     this.symbolProb.set("true", this.hi);
     this.symbolProb.set("false", this.lo);
@@ -3856,13 +3864,19 @@ var Env = class {
     this.symbolProb.set("undefined", this.mid);
   }
   getOp(name) {
-    if (this.ops.has(name)) return this.ops.get(name);
+    if (this.ops.has(name)) {
+      return this.ops.get(name);
+    }
     const resolved = this._resolveQualified(name);
-    if (resolved !== name && this.ops.has(resolved)) return this.ops.get(resolved);
+    if (resolved !== name && this.ops.has(resolved)) {
+      return this.ops.get(resolved);
+    }
     throw new RmlError("E001", `Unknown op: ${name}`);
   }
   hasOp(name) {
-    if (this.ops.has(name)) return true;
+    if (this.ops.has(name)) {
+      return true;
+    }
     const resolved = this._resolveQualified(name);
     return resolved !== name && this.ops.has(resolved);
   }
@@ -3887,9 +3901,13 @@ var Env = class {
   }
   getType(exprNode) {
     const key = typeof exprNode === "string" ? exprNode : keyOf(exprNode);
-    if (this.types.has(key)) return this.types.get(key);
+    if (this.types.has(key)) {
+      return this.types.get(key);
+    }
     const resolved = this._resolveQualified(key);
-    if (resolved !== key && this.types.has(resolved)) return this.types.get(resolved);
+    if (resolved !== key && this.types.has(resolved)) {
+      return this.types.get(resolved);
+    }
     return null;
   }
   setLambda(name, param, paramType, body) {
@@ -3902,7 +3920,9 @@ var Env = class {
     this.symbolProb.set(sym, this.clamp(p));
   }
   getSymbolProb(sym) {
-    if (this.symbolProb.has(sym)) return this.symbolProb.get(sym);
+    if (this.symbolProb.has(sym)) {
+      return this.symbolProb.get(sym);
+    }
     const resolved = this._resolveQualified(sym);
     if (resolved !== sym && this.symbolProb.has(resolved)) {
       return this.symbolProb.get(resolved);
@@ -3910,26 +3930,23 @@ var Env = class {
     return this.mid;
   }
   trace(kind, detail) {
-    if (this._tracer) this._tracer(kind, detail, this._currentSpan);
+    if (this._tracer) {
+      this._tracer(kind, detail, this._currentSpan);
+    }
   }
-  // ---------- Namespace helpers (issue #34) ----------
-  // Apply the active namespace to a freshly declared name, e.g. inside
-  // `(namespace classical)` the form `(and: min)` registers `classical.and`,
-  // not `and`. Names that already contain a `.` are passed through.
   qualifyName(name) {
-    if (typeof name !== "string") return name;
-    if (this.namespace && !name.includes(".")) return `${this.namespace}.${name}`;
+    if (typeof name !== "string") {
+      return name;
+    }
+    if (this.namespace && !name.includes(".")) {
+      return `${this.namespace}.${name}`;
+    }
     return name;
   }
-  // Resolve a possibly-qualified name to its canonical storage key. Order:
-  //   1. Alias prefix: `cl.foo` with alias `cl -> classical` becomes
-  //      `classical.foo`.
-  //   2. Active namespace: an unqualified name lives in `<ns>.<name>`.
-  //   3. Bare name: returned unchanged.
-  // Used by lookup helpers (operators, symbol probabilities) to find
-  // namespaced bindings without forcing every call site to spell them out.
   _resolveQualified(name) {
-    if (typeof name !== "string") return name;
+    if (typeof name !== "string") {
+      return name;
+    }
     const dotIdx = name.indexOf(".");
     if (dotIdx > 0) {
       const prefix = name.slice(0, dotIdx);
@@ -3947,129 +3964,12 @@ var Env = class {
     }
     return name;
   }
-  // ---------- Foundation / root-construct registry (issue #97) ----------
-  // Preregister the default `default-rml` foundation and bake in the
-  // built-in root-construct descriptors that describe the current host
-  // implementation. These are *data only*; they never change behaviour.
   _registerDefaultFoundation() {
-    this.foundations.set("default-rml", {
-      name: "default-rml",
-      description: "Default RML foundation: host-implemented configurable kernel",
-      uses: [],
-      defines: /* @__PURE__ */ new Map(),
-      extends: null,
-      numericDomain: "decimal-12",
-      truthDomain: "default-truth"
-    });
-    this.foundations.set("mtc-anum", {
-      name: "mtc-anum",
-      description: "experimental metatheory-of-links foundation (anum serialization)",
-      uses: [],
-      defines: /* @__PURE__ */ new Map(),
-      extends: null,
-      numericDomain: null,
-      truthDomain: "mtc-abits",
-      carrier: null,
-      strictCarrier: false,
-      truthTables: null,
-      experimental: true,
-      root: "\u221E",
-      abits: [
-        { symbol: "[", meaning: "start-of-meaning" },
-        { symbol: "]", meaning: "end-of-meaning" },
-        { symbol: "1", meaning: "unit-of-meaning" },
-        { symbol: "0", meaning: "zero-of-meaning" }
-      ]
-    });
-    this.foundations.set("boolean-links", {
-      name: "boolean-links",
-      description: "links-defined two-valued Boolean logic via finite truth tables",
-      uses: [],
-      defines: /* @__PURE__ */ new Map(),
-      extends: null,
-      numericDomain: "boolean-zero-one",
-      truthDomain: "boolean-two-valued",
-      carrier: ["0", "1"],
-      strictCarrier: true,
-      truthTables: /* @__PURE__ */ new Map([
-        ["and", [
-          { inputs: ["1", "1"], output: "1" },
-          { inputs: ["1", "0"], output: "0" },
-          { inputs: ["0", "1"], output: "0" },
-          { inputs: ["0", "0"], output: "0" }
-        ]],
-        ["or", [
-          { inputs: ["1", "1"], output: "1" },
-          { inputs: ["1", "0"], output: "1" },
-          { inputs: ["0", "1"], output: "1" },
-          { inputs: ["0", "0"], output: "0" }
-        ]],
-        ["not", [
-          { inputs: ["1"], output: "0" },
-          { inputs: ["0"], output: "1" }
-        ]]
-      ]),
-      experimental: false,
-      root: null,
-      abits: null
-    });
-    this.foundations.set("typed-kernel-links", {
-      name: "typed-kernel-links",
-      description: "links-defined typed-kernel fragment (Pi/lambda/apply/beta as proof rules)",
-      uses: [
-        "pi-formation",
-        "lambda-introduction",
-        "application-elimination",
-        "beta-conversion"
-      ],
-      defines: /* @__PURE__ */ new Map(),
-      extends: "default-rml",
-      numericDomain: "decimal-12",
-      truthDomain: "default-truth",
-      carrier: null,
-      strictCarrier: false,
-      truthTables: null,
-      experimental: false,
-      root: null,
-      abits: null
-    });
-    this.foundations.set("nat-links", {
-      name: "nat-links",
-      description: "links-defined Peano naturals (zero/succ formation, add by recursion, induction with explicit forall/implication/predicate-application, nat-equality with reflexivity and successor congruence, nat-recursion/nat-eliminator, multiplication, rule-driven eval-nat normalizer)",
-      uses: [
-        "nat-zero-formation",
-        "nat-succ-formation",
-        "nat-add-zero",
-        "nat-add-succ",
-        "nat-induction",
-        "nat-equality",
-        "nat-refl",
-        "nat-cong-succ",
-        "forall",
-        "implication",
-        "predicate-application",
-        "nat-recursion",
-        "nat-eliminator",
-        "nat-rec-zero",
-        "nat-rec-succ",
-        "mul",
-        "nat-mul-zero",
-        "nat-mul-succ",
-        "eval-nat-normalize",
-        "eval-nat",
-        "nat-normal-form-to-host-number"
-      ],
-      defines: /* @__PURE__ */ new Map(),
-      extends: "default-rml",
-      numericDomain: "decimal-12",
-      truthDomain: "default-truth",
-      carrier: null,
-      strictCarrier: false,
-      truthTables: null,
-      experimental: false,
-      root: null,
-      abits: null
-    });
+    this.foundations.set("default-rml", { name: "default-rml", description: "Default RML foundation: host-implemented configurable kernel", uses: [], defines: /* @__PURE__ */ new Map(), extends: null, numericDomain: "decimal-12", truthDomain: "default-truth" });
+    this.foundations.set("mtc-anum", { name: "mtc-anum", description: "experimental metatheory-of-links foundation (anum serialization)", uses: [], defines: /* @__PURE__ */ new Map(), extends: null, numericDomain: null, truthDomain: "mtc-abits", carrier: null, strictCarrier: false, truthTables: null, experimental: true, root: "\u221E", abits: [{ symbol: "[", meaning: "start-of-meaning" }, { symbol: "]", meaning: "end-of-meaning" }, { symbol: "1", meaning: "unit-of-meaning" }, { symbol: "0", meaning: "zero-of-meaning" }] });
+    this.foundations.set("boolean-links", { name: "boolean-links", description: "links-defined two-valued Boolean logic via finite truth tables", uses: [], defines: /* @__PURE__ */ new Map(), extends: null, numericDomain: "boolean-zero-one", truthDomain: "boolean-two-valued", carrier: ["0", "1"], strictCarrier: true, truthTables: /* @__PURE__ */ new Map([["and", [{ inputs: ["1", "1"], output: "1" }, { inputs: ["1", "0"], output: "0" }, { inputs: ["0", "1"], output: "0" }, { inputs: ["0", "0"], output: "0" }]], ["or", [{ inputs: ["1", "1"], output: "1" }, { inputs: ["1", "0"], output: "1" }, { inputs: ["0", "1"], output: "1" }, { inputs: ["0", "0"], output: "0" }]], ["not", [{ inputs: ["1"], output: "0" }, { inputs: ["0"], output: "1" }]]]), experimental: false, root: null, abits: null });
+    this.foundations.set("typed-kernel-links", { name: "typed-kernel-links", description: "links-defined typed-kernel fragment (Pi/lambda/apply/beta as proof rules)", uses: ["pi-formation", "lambda-introduction", "application-elimination", "beta-conversion"], defines: /* @__PURE__ */ new Map(), extends: "default-rml", numericDomain: "decimal-12", truthDomain: "default-truth", carrier: null, strictCarrier: false, truthTables: null, experimental: false, root: null, abits: null });
+    this.foundations.set("nat-links", { name: "nat-links", description: "links-defined Peano naturals (zero/succ formation, add by recursion, induction with explicit forall/implication/predicate-application, nat-equality with reflexivity and successor congruence, nat-recursion/nat-eliminator, multiplication, rule-driven eval-nat normalizer)", uses: ["nat-zero-formation", "nat-succ-formation", "nat-add-zero", "nat-add-succ", "nat-induction", "nat-equality", "nat-refl", "nat-cong-succ", "forall", "implication", "predicate-application", "nat-recursion", "nat-eliminator", "nat-rec-zero", "nat-rec-succ", "mul", "nat-mul-zero", "nat-mul-succ", "eval-nat-normalize", "eval-nat", "nat-normal-form-to-host-number"], defines: /* @__PURE__ */ new Map(), extends: "default-rml", numericDomain: "decimal-12", truthDomain: "default-truth", carrier: null, strictCarrier: false, truthTables: null, experimental: false, root: null, abits: null });
     seedBuiltinRootConstructs(this);
   }
   registerRootConstruct(descriptor) {
@@ -4085,7 +3985,7 @@ var Env = class {
     return this.rootConstructs.get(name) || null;
   }
   listRootConstructs() {
-    return [...this.rootConstructs.values()].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    return [...this.rootConstructs.values()].sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   }
   registerFoundation(foundation) {
     if (!foundation || typeof foundation.name !== "string" || !foundation.name) {
@@ -4106,29 +4006,23 @@ var Env = class {
     }
     const snapshot = /* @__PURE__ */ new Map();
     const implementationSnapshot = /* @__PURE__ */ new Map();
-    const snapshotImplementation = (opName) => {
-      if (implementationSnapshot.has(opName)) return;
+    const snapshotImplementation = ((opName) => {
+      if (implementationSnapshot.has(opName)) {
+        return;
+      }
       const current = this.activeImplementations.get(opName);
-      implementationSnapshot.set(opName, current ? {
-        ...current,
-        dependsOn: Array.isArray(current.dependsOn) ? current.dependsOn.slice() : []
-      } : null);
-    };
+      implementationSnapshot.set(opName, current ? { ...current, dependsOn: Array.isArray(current.dependsOn) ? current.dependsOn.slice() : [] } : null);
+    });
     if (foundation.defines && foundation.defines.size > 0) {
       for (const [opName, implName] of foundation.defines.entries()) {
         const fn = aggregatorOpFromName(this, implName);
-        if (fn === null) continue;
+        if (fn === null) {
+          continue;
+        }
         snapshotImplementation(opName);
         snapshot.set(opName, this.ops.has(opName) ? this.ops.get(opName) : null);
         this.ops.set(opName, fn);
-        this.activeImplementations.set(opName, {
-          construct: opName,
-          foundation: name,
-          implementation: implName,
-          status: "host-primitive",
-          semanticStatus: "host-trusted",
-          dependsOn: [implName]
-        });
+        this.activeImplementations.set(opName, { construct: opName, foundation: name, implementation: implName, status: "host-primitive", semanticStatus: "host-trusted", dependsOn: [implName] });
       }
     }
     if (foundation.truthTables instanceof Map && foundation.truthTables.size > 0) {
@@ -4139,26 +4033,17 @@ var Env = class {
         const previous = this.ops.has(opName) ? this.ops.get(opName) : null;
         const previousImpl = this.activeImplementations.get(opName) || null;
         const fn = truthTableOpFromRows(this, opName, rows, previous);
-        if (fn === null) continue;
+        if (fn === null) {
+          continue;
+        }
         snapshotImplementation(opName);
         const isTotal2 = truthTableRowsCompleteForCarrier(this, rows, foundation);
         const fallbackDeps = isTotal2 ? [] : truthTableFallbackDependencies(this, opName, previousImpl);
         this.ops.set(opName, fn);
-        this.activeImplementations.set(opName, {
-          construct: opName,
-          foundation: name,
-          implementation: `truth-table:${name}/${opName}`,
-          status: "links-defined",
-          semanticStatus: "links-checked",
-          dependsOn: fallbackDeps
-        });
+        this.activeImplementations.set(opName, { construct: opName, foundation: name, implementation: `truth-table:${name}/${opName}`, status: "links-defined", semanticStatus: "links-checked", dependsOn: fallbackDeps });
       }
     }
-    const carrierFrame = {
-      strictCarrier: this._strictCarrier === true,
-      carrier: this._carrier instanceof Set ? new Set(this._carrier) : null,
-      carrierLabel: this._carrierLabel || null
-    };
+    const carrierFrame = { strictCarrier: this._strictCarrier === true, carrier: this._carrier instanceof Set ? new Set(this._carrier) : null, carrierLabel: this._carrierLabel || null };
     if (foundation.strictCarrier === true && Array.isArray(foundation.carrier) && foundation.carrier.length > 0) {
       this._strictCarrier = true;
       this._carrier = /* @__PURE__ */ new Set();
@@ -4216,21 +4101,19 @@ var Env = class {
     }
     this.activeFoundation = frame && typeof frame.name === "string" ? frame.name : "default-rml";
   }
-  // Check `value` against the active foundation's carrier. Returns null when
-  // the carrier is inactive or the value is legal, or a human-readable
-  // message otherwise (consumed by the caller to build an E063 diagnostic).
   checkCarrierValue(value) {
     if (this._strictCarrier !== true || !(this._carrier instanceof Set) || this._carrier.size === 0) {
       return null;
     }
-    if (typeof value !== "number" || !Number.isFinite(value)) return null;
-    if (this._carrier.has(value)) return null;
-    const allowed = [...this._carrier].sort((a, b) => a - b).join(", ");
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+      return null;
+    }
+    if (this._carrier.has(value)) {
+      return null;
+    }
+    const allowed = [...this._carrier].sort(((a, b) => a - b)).join(", ");
     return `value ${formatTraceValue(value)} is not in active carrier {${allowed}}`;
   }
-  // Build a structured trust / foundation report. The shape is intentionally
-  // plain so callers can stringify it (CLI, docs) or test against it (unit
-  // tests).
   foundationReport() {
     const active = this.activeFoundation || "default-rml";
     const foundation = this.foundations.get(active) || null;
@@ -4238,10 +4121,14 @@ var Env = class {
     const bySemanticStatus = /* @__PURE__ */ new Map();
     for (const rc of this.listRootConstructs()) {
       const status = rc.status || "unknown";
-      if (!byStatus.has(status)) byStatus.set(status, []);
+      if (!byStatus.has(status)) {
+        byStatus.set(status, []);
+      }
       byStatus.get(status).push(rc.name);
       const semanticStatus = semanticStatusForDescriptor(rc) || "unknown";
-      if (!bySemanticStatus.has(semanticStatus)) bySemanticStatus.set(semanticStatus, []);
+      if (!bySemanticStatus.has(semanticStatus)) {
+        bySemanticStatus.set(semanticStatus, []);
+      }
       bySemanticStatus.get(semanticStatus).push(rc.name);
     }
     const buckets = {};
@@ -4252,105 +4139,24 @@ var Env = class {
     for (const [status, names] of bySemanticStatus.entries()) {
       semanticBuckets[status] = names.slice().sort();
     }
-    return {
-      activeFoundation: active,
-      description: foundation ? foundation.description : null,
-      numericDomain: foundation ? foundation.numericDomain : null,
-      truthDomain: foundation ? foundation.truthDomain : null,
-      rootConstructs: this.listRootConstructs().map((rc) => ({
-        name: rc.name,
-        kind: rc.kind || null,
-        status: rc.status || null,
-        semanticStatus: semanticStatusForDescriptor(rc),
-        dependsOn: (rc.dependsOn || []).slice(),
-        encodedAs: rc.encodedAs || null,
-        pureLinksReady: typeof rc.pureLinksReady === "boolean" ? rc.pureLinksReady : null,
-        override: rc.override || null,
-        plannedAs: rc.plannedAs || null
-      })),
-      byStatus: buckets,
-      bySemanticStatus: semanticBuckets,
-      foundations: [...this.foundations.values()].map((f) => ({
-        name: f.name,
-        description: f.description || null,
-        uses: (f.uses || []).slice(),
-        defines: [...(f.defines || /* @__PURE__ */ new Map()).entries()].map(([k, v]) => ({ construct: k, implementation: v })),
-        extends: f.extends || null,
-        numericDomain: f.numericDomain || null,
-        truthDomain: f.truthDomain || null,
-        carrier: Array.isArray(f.carrier) ? f.carrier.slice() : null,
-        strictCarrier: f.strictCarrier === true,
-        truthTables: f.truthTables instanceof Map && f.truthTables.size > 0 ? [...f.truthTables.entries()].sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([op, rows]) => ({
-          op,
-          rows: rows.map((r) => ({ inputs: r.inputs.slice(), output: r.output }))
-        })) : null,
-        experimental: f.experimental === true,
-        root: f.root || null,
-        abits: Array.isArray(f.abits) && f.abits.length > 0 ? f.abits.map((a) => ({ symbol: a.symbol, meaning: a.meaning })) : null
-      })).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
-      activeImplementations: [...this.activeImplementations.entries()].map(([construct, impl]) => ({
-        construct,
-        foundation: impl.foundation || null,
-        implementation: impl.implementation || null,
-        status: impl.status || null,
-        semanticStatus: impl.semanticStatus || semanticStatusForTrustStatus(impl.status) || null,
-        dependsOn: Array.isArray(impl.dependsOn) ? impl.dependsOn.slice() : []
-      })).sort((a, b) => a.construct < b.construct ? -1 : a.construct > b.construct ? 1 : 0),
-      proofRules: [...this.proofRules.entries()].map(([name, r]) => ({
-        name,
-        premises: r.premises.map((p) => keyOf(p)),
-        conclusion: keyOf(r.conclusion)
-      })).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
-      proofAssumptions: [...this.proofAssumptions.entries()].map(([name, a]) => ({
-        name,
-        kind: a.kind,
-        judgement: keyOf(a.judgement)
-      })).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
-      proofObjects: [...this.proofObjects.entries()].map(([name, po]) => ({
-        name,
-        rule: po.rule,
-        premises: po.premises.map((p) => keyOf(p)),
-        premiseRefs: (po.premiseRefs || []).slice(),
-        conclusion: keyOf(po.conclusion)
-      })).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
-      strictPureLinks: this.strictPureLinks === true,
-      allowedHostPrimitives: [...this.allowedHostPrimitives].sort(),
-      dependencyGraph: buildDependencyGraph(this)
-    };
+    return { activeFoundation: active, description: foundation ? foundation.description : null, numericDomain: foundation ? foundation.numericDomain : null, truthDomain: foundation ? foundation.truthDomain : null, rootConstructs: this.listRootConstructs().map(((rc) => ({ name: rc.name, kind: rc.kind || null, status: rc.status || null, semanticStatus: semanticStatusForDescriptor(rc), dependsOn: (rc.dependsOn || []).slice(), encodedAs: rc.encodedAs || null, pureLinksReady: typeof rc.pureLinksReady === "boolean" ? rc.pureLinksReady : null, override: rc.override || null, plannedAs: rc.plannedAs || null }))), byStatus: buckets, bySemanticStatus: semanticBuckets, foundations: [...this.foundations.values()].map(((f) => ({ name: f.name, description: f.description || null, uses: (f.uses || []).slice(), defines: [...(f.defines || /* @__PURE__ */ new Map()).entries()].map((([k, v]) => ({ construct: k, implementation: v }))), extends: f.extends || null, numericDomain: f.numericDomain || null, truthDomain: f.truthDomain || null, carrier: Array.isArray(f.carrier) ? f.carrier.slice() : null, strictCarrier: f.strictCarrier === true, truthTables: f.truthTables instanceof Map && f.truthTables.size > 0 ? [...f.truthTables.entries()].sort((([a], [b]) => a < b ? -1 : a > b ? 1 : 0)).map((([op, rows]) => ({ op, rows: rows.map(((r) => ({ inputs: r.inputs.slice(), output: r.output }))) }))) : null, experimental: f.experimental === true, root: f.root || null, abits: Array.isArray(f.abits) && f.abits.length > 0 ? f.abits.map(((a) => ({ symbol: a.symbol, meaning: a.meaning }))) : null }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), activeImplementations: [...this.activeImplementations.entries()].map((([construct, impl]) => ({ construct, foundation: impl.foundation || null, implementation: impl.implementation || null, status: impl.status || null, semanticStatus: impl.semanticStatus || semanticStatusForTrustStatus(impl.status) || null, dependsOn: Array.isArray(impl.dependsOn) ? impl.dependsOn.slice() : [] }))).sort(((a, b) => a.construct < b.construct ? -1 : a.construct > b.construct ? 1 : 0)), proofRules: [...this.proofRules.entries()].map((([name, r]) => ({ name, premises: r.premises.map(((p) => keyOf(p))), conclusion: keyOf(r.conclusion) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), proofAssumptions: [...this.proofAssumptions.entries()].map((([name, a]) => ({ name, kind: a.kind, judgement: keyOf(a.judgement) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), proofObjects: [...this.proofObjects.entries()].map((([name, po]) => ({ name, rule: po.rule, premises: po.premises.map(((p) => keyOf(p))), premiseRefs: (po.premiseRefs || []).slice(), conclusion: keyOf(po.conclusion) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), strictPureLinks: this.strictPureLinks === true, allowedHostPrimitives: [...this.allowedHostPrimitives].sort(), dependencyGraph: buildDependencyGraph(this) };
   }
-  // Build a per-proof report (issue #97, Phase 13). The shape mirrors the
-  // foundation report so a CLI or test can stringify or assert against it.
-  // Reported fields:
-  //   - kind: 'proof-report'
-  //   - name, rule, conclusion, premises, premiseRefs
-  //   - verdict { ok, error? }
-  //   - dependencies: transitive list of (proof-object | axiom | assumption)
-  //     names with their kinds, in topological order
-  //   - rules: rule names that this proof transitively applies
-  //   - rootConstructsUsed: registered root-construct names that appear as
-  //     leaf operators in the proof's premises/conclusion/rule patterns
-  //   - bySemanticStatus: rootConstructsUsed bucketed by semantic-status
-  //   - byTrustStatus: rootConstructsUsed bucketed by trust status
-  //   - activeFoundation
-  //   - strictPureLinks
   proofReport(name) {
     if (typeof name !== "string" || !name) {
       return { kind: "proof-report", name: null, verdict: { ok: false, error: "proof name required" } };
     }
     const po = this.getProofObject(name);
     if (!po) {
-      return {
-        kind: "proof-report",
-        name,
-        verdict: { ok: false, error: `unknown proof-object ${name}` }
-      };
+      return { kind: "proof-report", name, verdict: { ok: false, error: `unknown proof-object ${name}` } };
     }
     const verdict = checkProofObject(this, name);
     const dependencies = [];
     const seen = /* @__PURE__ */ new Set();
     const rules = /* @__PURE__ */ new Set();
-    const walk = (refName) => {
-      if (seen.has(refName)) return;
+    const walk = ((refName) => {
+      if (seen.has(refName)) {
+        return;
+      }
       seen.add(refName);
       const ax = this.getProofAssumption(refName);
       if (ax) {
@@ -4362,90 +4168,87 @@ var Env = class {
         dependencies.push({ name: refName, kind: "unknown", judgement: null });
         return;
       }
-      for (const sub of dep.premiseRefs || []) walk(sub);
-      if (dep.rule) rules.add(dep.rule);
-      dependencies.push({
-        name: dep.name,
-        kind: "proof-object",
-        rule: dep.rule,
-        judgement: keyOf(dep.conclusion)
-      });
-    };
-    for (const ref of po.premiseRefs || []) walk(ref);
-    if (po.rule) rules.add(po.rule);
-    const rootNames = /* @__PURE__ */ new Set([
-      "proof-replay",
-      "structural-equality",
-      "structural-matcher",
-      "substitution"
-    ]);
-    const collectFromTerm = (term) => {
+      for (const sub of dep.premiseRefs || []) {
+        walk(sub);
+      }
+      if (dep.rule) {
+        rules.add(dep.rule);
+      }
+      dependencies.push({ name: dep.name, kind: "proof-object", rule: dep.rule, judgement: keyOf(dep.conclusion) });
+    });
+    for (const ref of po.premiseRefs || []) {
+      walk(ref);
+    }
+    if (po.rule) {
+      rules.add(po.rule);
+    }
+    const rootNames = /* @__PURE__ */ new Set(["proof-replay", "structural-equality", "structural-matcher", "substitution"]);
+    const collectFromTerm = ((term) => {
       if (!Array.isArray(term)) {
-        if (typeof term === "string" && this.rootConstructs.has(term)) rootNames.add(term);
+        if (typeof term === "string" && this.rootConstructs.has(term)) {
+          rootNames.add(term);
+        }
         return;
       }
-      for (const t of term) collectFromTerm(t);
-    };
+      for (const t of term) {
+        collectFromTerm(t);
+      }
+    });
     collectFromTerm(po.conclusion);
-    for (const p of po.premises || []) collectFromTerm(p);
+    for (const p of po.premises || []) {
+      collectFromTerm(p);
+    }
     for (const ruleName of rules) {
       const rule = this.getProofRule(ruleName);
-      if (!rule) continue;
+      if (!rule) {
+        continue;
+      }
       collectFromTerm(rule.conclusion);
-      for (const prem of rule.premises || []) collectFromTerm(prem);
+      for (const prem of rule.premises || []) {
+        collectFromTerm(prem);
+      }
     }
     const rootConstructsUsed = [...rootNames].sort();
     const bySemanticStatus = {};
     const byTrustStatus = {};
     for (const rcName of rootConstructsUsed) {
       const rc = this.rootConstructs.get(rcName);
-      if (!rc) continue;
+      if (!rc) {
+        continue;
+      }
       const semantic = semanticStatusForDescriptor(rc) || "unknown";
       const trust = rc.status || "unknown";
-      if (!bySemanticStatus[semantic]) bySemanticStatus[semantic] = [];
+      if (!bySemanticStatus[semantic]) {
+        bySemanticStatus[semantic] = [];
+      }
       bySemanticStatus[semantic].push(rcName);
-      if (!byTrustStatus[trust]) byTrustStatus[trust] = [];
+      if (!byTrustStatus[trust]) {
+        byTrustStatus[trust] = [];
+      }
       byTrustStatus[trust].push(rcName);
     }
-    for (const key of Object.keys(bySemanticStatus)) bySemanticStatus[key].sort();
-    for (const key of Object.keys(byTrustStatus)) byTrustStatus[key].sort();
-    return {
-      kind: "proof-report",
-      name,
-      rule: po.rule,
-      conclusion: keyOf(po.conclusion),
-      premises: (po.premises || []).map(keyOf),
-      premiseRefs: (po.premiseRefs || []).slice(),
-      verdict: verdict.ok ? { ok: true } : { ok: false, error: verdict.error },
-      dependencies,
-      rules: [...rules].sort(),
-      rootConstructsUsed,
-      bySemanticStatus,
-      byTrustStatus,
-      activeFoundation: this.activeFoundation || "default-rml",
-      strictPureLinks: this.strictPureLinks === true
-    };
+    for (const key of Object.keys(bySemanticStatus)) {
+      bySemanticStatus[key].sort();
+    }
+    for (const key of Object.keys(byTrustStatus)) {
+      byTrustStatus[key].sort();
+    }
+    return { kind: "proof-report", name, rule: po.rule, conclusion: keyOf(po.conclusion), premises: (po.premises || []).map(keyOf), premiseRefs: (po.premiseRefs || []).slice(), verdict: verdict.ok ? { ok: true } : { ok: false, error: verdict.error }, dependencies, rules: [...rules].sort(), rootConstructsUsed, bySemanticStatus, byTrustStatus, activeFoundation: this.activeFoundation || "default-rml", strictPureLinks: this.strictPureLinks === true };
   }
-  // Return the transitive closure of a construct's dependencies, breadth-first
-  // and deterministically sorted at every level. Unknown construct names
-  // return `null`. Missing intermediate deps are silently skipped so a
-  // foundation that references a construct it has not yet registered can
-  // still report cleanly.
   dependencyClosure(name) {
-    if (typeof name !== "string" || !name) return null;
-    if (!this.rootConstructs.has(name)) return null;
+    if (typeof name !== "string" || !name) {
+      return null;
+    }
+    if (!this.rootConstructs.has(name)) {
+      return null;
+    }
     return closureFor(this, name);
   }
-  // ---------- Proof-object substrate (issue #97, Phase 3) ----------
   registerProofRule(rule) {
     if (!rule || typeof rule.name !== "string" || !rule.name) {
       throw new RmlError("E064", "rule declaration requires a name");
     }
-    this.proofRules.set(rule.name, {
-      name: rule.name,
-      premises: rule.premises ? rule.premises.slice() : [],
-      conclusion: rule.conclusion
-    });
+    this.proofRules.set(rule.name, { name: rule.name, premises: rule.premises ? rule.premises.slice() : [], conclusion: rule.conclusion });
     return this.proofRules.get(rule.name);
   }
   getProofRule(name) {
@@ -4458,11 +4261,7 @@ var Env = class {
     if (assumption.judgement === null || assumption.judgement === void 0) {
       throw new RmlError("E064", `${assumption.kind || "assumption"} ${assumption.name} requires a judgement`);
     }
-    this.proofAssumptions.set(assumption.name, {
-      name: assumption.name,
-      kind: assumption.kind || "assumption",
-      judgement: assumption.judgement
-    });
+    this.proofAssumptions.set(assumption.name, { name: assumption.name, kind: assumption.kind || "assumption", judgement: assumption.judgement });
     return this.proofAssumptions.get(assumption.name);
   }
   getProofAssumption(name) {
@@ -4475,13 +4274,7 @@ var Env = class {
     if (typeof po.rule !== "string" || !po.rule) {
       throw new RmlError("E064", `proof-object ${po.name} must include (applies <rule>)`);
     }
-    this.proofObjects.set(po.name, {
-      name: po.name,
-      rule: po.rule,
-      premises: po.premises ? po.premises.slice() : [],
-      premiseRefs: po.premiseRefs ? po.premiseRefs.slice() : [],
-      conclusion: po.conclusion
-    });
+    this.proofObjects.set(po.name, { name: po.name, rule: po.rule, premises: po.premises ? po.premises.slice() : [], premiseRefs: po.premiseRefs ? po.premiseRefs.slice() : [], conclusion: po.conclusion });
     return this.proofObjects.get(po.name);
   }
   getProofObject(name) {
@@ -4489,22 +4282,17 @@ var Env = class {
   }
 };
 function mergeRootConstructDescriptors(previous, next) {
-  const base = previous ? { ...previous } : {
-    name: next.name,
-    status: null,
-    semanticStatus: null,
-    kind: null,
-    dependsOn: [],
-    encodedAs: null,
-    pureLinksReady: null,
-    override: null,
-    plannedAs: null,
-    foundation: null
-  };
+  const base = previous ? { ...previous } : { name: next.name, status: null, semanticStatus: null, kind: null, dependsOn: [], encodedAs: null, pureLinksReady: null, override: null, plannedAs: null, foundation: null };
   base.name = next.name;
-  if (next.status !== void 0 && next.status !== null) base.status = next.status;
-  if (next.semanticStatus !== void 0 && next.semanticStatus !== null) base.semanticStatus = next.semanticStatus;
-  if (next.kind !== void 0 && next.kind !== null) base.kind = next.kind;
+  if (next.status !== void 0 && next.status !== null) {
+    base.status = next.status;
+  }
+  if (next.semanticStatus !== void 0 && next.semanticStatus !== null) {
+    base.semanticStatus = next.semanticStatus;
+  }
+  if (next.kind !== void 0 && next.kind !== null) {
+    base.kind = next.kind;
+  }
   if (Array.isArray(next.dependsOn) && next.dependsOn.length > 0) {
     const seen = new Set(base.dependsOn || []);
     const deps = (base.dependsOn || []).slice();
@@ -4515,23 +4303,29 @@ function mergeRootConstructDescriptors(previous, next) {
       }
     }
     base.dependsOn = deps;
-  } else if (!Array.isArray(base.dependsOn)) {
-    base.dependsOn = [];
+  } else {
+    if (!Array.isArray(base.dependsOn)) {
+      base.dependsOn = [];
+    }
   }
-  if (next.encodedAs !== void 0 && next.encodedAs !== null) base.encodedAs = next.encodedAs;
-  if (typeof next.pureLinksReady === "boolean") base.pureLinksReady = next.pureLinksReady;
-  if (next.override !== void 0 && next.override !== null) base.override = next.override;
-  if (next.plannedAs !== void 0 && next.plannedAs !== null) base.plannedAs = next.plannedAs;
-  if (next.foundation !== void 0 && next.foundation !== null) base.foundation = next.foundation;
+  if (next.encodedAs !== void 0 && next.encodedAs !== null) {
+    base.encodedAs = next.encodedAs;
+  }
+  if (typeof next.pureLinksReady === "boolean") {
+    base.pureLinksReady = next.pureLinksReady;
+  }
+  if (next.override !== void 0 && next.override !== null) {
+    base.override = next.override;
+  }
+  if (next.plannedAs !== void 0 && next.plannedAs !== null) {
+    base.plannedAs = next.plannedAs;
+  }
+  if (next.foundation !== void 0 && next.foundation !== null) {
+    base.foundation = next.foundation;
+  }
   return base;
 }
-var SEMANTIC_STATUS_ORDER = [
-  "host-trusted",
-  "links-described",
-  "links-checked",
-  "links-evaluated",
-  "self-hosted"
-];
+var SEMANTIC_STATUS_ORDER = ["host-trusted", "links-described", "links-checked", "links-evaluated", "self-hosted"];
 function semanticStatusForTrustStatus(status) {
   switch (status) {
     case "host-primitive":
@@ -4550,24 +4344,36 @@ function semanticStatusForTrustStatus(status) {
   }
 }
 function semanticStatusForDescriptor(descriptor) {
-  if (!descriptor) return null;
+  if (!descriptor) {
+    return null;
+  }
   return descriptor.semanticStatus || semanticStatusForTrustStatus(descriptor.status) || null;
 }
 function closureFor(env, name) {
-  if (!env.rootConstructs.has(name)) return null;
+  if (!env.rootConstructs.has(name)) {
+    return null;
+  }
   const seen = /* @__PURE__ */ new Set();
   const order = [];
   const queue = [name];
   while (queue.length > 0) {
     const next = queue.shift();
-    if (seen.has(next)) continue;
+    if (seen.has(next)) {
+      continue;
+    }
     seen.add(next);
-    if (next !== name) order.push(next);
+    if (next !== name) {
+      order.push(next);
+    }
     const rc = env.rootConstructs.get(next);
-    if (!rc) continue;
+    if (!rc) {
+      continue;
+    }
     const deps = Array.isArray(rc.dependsOn) ? rc.dependsOn.slice().sort() : [];
     for (const dep of deps) {
-      if (!seen.has(dep)) queue.push(dep);
+      if (!seen.has(dep)) {
+        queue.push(dep);
+      }
     }
   }
   return order.sort();
@@ -4583,7 +4389,9 @@ function buildDependencyGraph(env) {
 function encodeAnum(node) {
   if (Array.isArray(node)) {
     let out = "[1";
-    for (const child of node) out += encodeAnum(child);
+    for (const child of node) {
+      out += encodeAnum(child);
+    }
     return out + "]";
   }
   if (typeof node === "string") {
@@ -4597,15 +4405,14 @@ function encodeAnum(node) {
 function stringToBitstring(s) {
   const bytes = new TextEncoder().encode(s);
   let bits = "";
-  for (const byte of bytes) bits += byte.toString(2).padStart(8, "0");
+  for (const byte of bytes) {
+    bits += byte.toString(2).padStart(8, "0");
+  }
   return bits;
 }
 function bitstringToString(bits) {
   if (bits.length % 8 !== 0) {
-    throw new RmlError(
-      "E066",
-      `anum-decode: leaf bit-count ${bits.length} is not byte-aligned`
-    );
+    throw new RmlError("E066", `anum-decode: leaf bit-count ${bits.length} is not byte-aligned`);
   }
   const bytes = new Uint8Array(bits.length / 8);
   for (let i = 0; i < bytes.length; i++) {
@@ -4634,10 +4441,7 @@ function decodeAnumAt(s, pos) {
     let bits = "";
     while (pos < s.length && s[pos] !== "]") {
       if (s[pos] !== "0" && s[pos] !== "1") {
-        throw new RmlError(
-          "E066",
-          `anum-decode: leaf payload may only contain '0' or '1' (got '${s[pos]}' at ${pos})`
-        );
+        throw new RmlError("E066", `anum-decode: leaf payload may only contain '0' or '1' (got '${s[pos]}' at ${pos})`);
       }
       bits += s[pos];
       pos++;
@@ -4653,10 +4457,7 @@ function decodeAnumAt(s, pos) {
     const items = [];
     while (pos < s.length && s[pos] !== "]") {
       if (s[pos] !== "[") {
-        throw new RmlError(
-          "E066",
-          `anum-decode: list child must start with '[' (got '${s[pos]}' at ${pos})`
-        );
+        throw new RmlError("E066", `anum-decode: list child must start with '[' (got '${s[pos]}' at ${pos})`);
       }
       const { node, pos: next } = decodeAnumAt(s, pos);
       items.push(node);
@@ -4668,43 +4469,14 @@ function decodeAnumAt(s, pos) {
     pos++;
     return { node: items, pos };
   }
-  throw new RmlError(
-    "E066",
-    `anum-decode: expected tag '0' or '1' after '[' at position ${pos}`
-  );
+  throw new RmlError("E066", `anum-decode: expected tag '0' or '1' after '[' at position ${pos}`);
 }
 function mergeFoundationDescriptors(previous, next) {
-  const base = previous ? {
-    name: previous.name,
-    description: previous.description || null,
-    uses: (previous.uses || []).slice(),
-    defines: new Map(previous.defines || []),
-    extends: previous.extends || null,
-    numericDomain: previous.numericDomain || null,
-    truthDomain: previous.truthDomain || null,
-    carrier: Array.isArray(previous.carrier) ? previous.carrier.slice() : null,
-    strictCarrier: previous.strictCarrier === true,
-    truthTables: previous.truthTables instanceof Map ? new Map([...previous.truthTables.entries()].map(([k, rows]) => [k, rows.map((r) => ({ inputs: r.inputs.slice(), output: r.output }))])) : null,
-    experimental: previous.experimental === true,
-    root: previous.root || null,
-    abits: Array.isArray(previous.abits) ? previous.abits.map((a) => ({ symbol: a.symbol, meaning: a.meaning })) : null
-  } : {
-    name: next.name,
-    description: null,
-    uses: [],
-    defines: /* @__PURE__ */ new Map(),
-    extends: null,
-    numericDomain: null,
-    truthDomain: null,
-    carrier: null,
-    strictCarrier: false,
-    truthTables: null,
-    experimental: false,
-    root: null,
-    abits: null
-  };
+  const base = previous ? { name: previous.name, description: previous.description || null, uses: (previous.uses || []).slice(), defines: new Map(previous.defines || []), extends: previous.extends || null, numericDomain: previous.numericDomain || null, truthDomain: previous.truthDomain || null, carrier: Array.isArray(previous.carrier) ? previous.carrier.slice() : null, strictCarrier: previous.strictCarrier === true, truthTables: previous.truthTables instanceof Map ? new Map([...previous.truthTables.entries()].map((([k, rows]) => [k, rows.map(((r) => ({ inputs: r.inputs.slice(), output: r.output })))]))) : null, experimental: previous.experimental === true, root: previous.root || null, abits: Array.isArray(previous.abits) ? previous.abits.map(((a) => ({ symbol: a.symbol, meaning: a.meaning }))) : null } : { name: next.name, description: null, uses: [], defines: /* @__PURE__ */ new Map(), extends: null, numericDomain: null, truthDomain: null, carrier: null, strictCarrier: false, truthTables: null, experimental: false, root: null, abits: null };
   base.name = next.name;
-  if (next.description) base.description = next.description;
+  if (next.description) {
+    base.description = next.description;
+  }
   if (Array.isArray(next.uses) && next.uses.length > 0) {
     const seen = new Set(base.uses);
     for (const u of next.uses) {
@@ -4715,26 +4487,44 @@ function mergeFoundationDescriptors(previous, next) {
     }
   }
   if (next.defines instanceof Map) {
-    for (const [k, v] of next.defines.entries()) base.defines.set(k, v);
+    for (const [k, v] of next.defines.entries()) {
+      base.defines.set(k, v);
+    }
   }
-  if (next.extends) base.extends = next.extends;
-  if (next.numericDomain) base.numericDomain = next.numericDomain;
-  if (next.truthDomain) base.truthDomain = next.truthDomain;
+  if (next.extends) {
+    base.extends = next.extends;
+  }
+  if (next.numericDomain) {
+    base.numericDomain = next.numericDomain;
+  }
+  if (next.truthDomain) {
+    base.truthDomain = next.truthDomain;
+  }
   if (Array.isArray(next.carrier) && next.carrier.length > 0) {
     base.carrier = next.carrier.slice();
   }
-  if (next.strictCarrier === true) base.strictCarrier = true;
+  if (next.strictCarrier === true) {
+    base.strictCarrier = true;
+  }
   if (next.truthTables instanceof Map && next.truthTables.size > 0) {
-    if (!(base.truthTables instanceof Map)) base.truthTables = /* @__PURE__ */ new Map();
+    if (!(base.truthTables instanceof Map)) {
+      base.truthTables = /* @__PURE__ */ new Map();
+    }
     for (const [k, rows] of next.truthTables.entries()) {
-      base.truthTables.set(k, rows.map((r) => ({ inputs: r.inputs.slice(), output: r.output })));
+      base.truthTables.set(k, rows.map(((r) => ({ inputs: r.inputs.slice(), output: r.output }))));
     }
   }
-  if (next.experimental === true) base.experimental = true;
-  if (next.root) base.root = next.root;
+  if (next.experimental === true) {
+    base.experimental = true;
+  }
+  if (next.root) {
+    base.root = next.root;
+  }
   if (Array.isArray(next.abits) && next.abits.length > 0) {
-    if (!Array.isArray(base.abits)) base.abits = [];
-    const seen = new Set(base.abits.map((a) => a.symbol));
+    if (!Array.isArray(base.abits)) {
+      base.abits = [];
+    }
+    const seen = new Set(base.abits.map(((a) => a.symbol)));
     for (const a of next.abits) {
       if (!seen.has(a.symbol)) {
         seen.add(a.symbol);
@@ -4745,34 +4535,48 @@ function mergeFoundationDescriptors(previous, next) {
   return base;
 }
 function aggregatorOpFromName(env, sel) {
-  if (typeof sel !== "string") return null;
+  if (typeof sel !== "string") {
+    return null;
+  }
   const lo = env.lo;
-  const agg = sel === "avg" ? (xs) => xs.reduce((a, b) => a + b, 0) / xs.length : sel === "min" ? (xs) => xs.length ? Math.min(...xs) : lo : sel === "max" ? (xs) => xs.length ? Math.max(...xs) : lo : sel === "product" || sel === "prod" ? (xs) => xs.reduce((a, b) => a * b, 1) : sel === "probabilistic_sum" || sel === "ps" ? (xs) => 1 - xs.reduce((a, b) => a * (1 - b), 1) : null;
-  if (!agg) return null;
-  return (...xs) => xs.length ? agg(xs) : lo;
+  const agg = sel === "avg" ? ((xs) => xs.reduce(((a, b) => a + b), 0) / xs.length) : sel === "min" ? ((xs) => xs.length ? Math.min(...xs) : lo) : sel === "max" ? ((xs) => xs.length ? Math.max(...xs) : lo) : sel === "product" || sel === "prod" ? ((xs) => xs.reduce(((a, b) => a * b), 1)) : sel === "probabilistic_sum" || sel === "ps" ? ((xs) => 1 - xs.reduce(((a, b) => a * (1 - b)), 1)) : null;
+  if (!agg) {
+    return null;
+  }
+  return ((...xs) => xs.length ? agg(xs) : lo);
 }
 function resolveTruthTableValue(env, tok) {
-  if (typeof tok !== "string") return null;
+  if (typeof tok !== "string") {
+    return null;
+  }
   const num = Number(tok);
-  if (Number.isFinite(num)) return num;
-  if (env.symbolProb.has(tok)) return env.symbolProb.get(tok);
+  if (Number.isFinite(num)) {
+    return num;
+  }
+  if (env.symbolProb.has(tok)) {
+    return env.symbolProb.get(tok);
+  }
   return null;
 }
 function truthTableOpFromRows(env, opName, rows, previous) {
   const resolved = [];
   for (const row of rows) {
-    const inputs = row.inputs.map((t) => resolveTruthTableValue(env, t));
+    const inputs = row.inputs.map(((t) => resolveTruthTableValue(env, t)));
     const output = resolveTruthTableValue(env, row.output);
-    if (inputs.some((v) => v === null) || output === null) {
+    if (inputs.some(((v) => v === null)) || output === null) {
       continue;
     }
     resolved.push({ inputs, output });
   }
-  if (resolved.length === 0) return null;
+  if (resolved.length === 0) {
+    return null;
+  }
   const fallback = typeof previous === "function" ? previous : null;
-  return (...xs) => {
+  return ((...xs) => {
     for (const row of resolved) {
-      if (row.inputs.length !== xs.length) continue;
+      if (row.inputs.length !== xs.length) {
+        continue;
+      }
       let match = true;
       for (let i = 0; i < xs.length; i++) {
         if (typeof xs[i] !== "number" || !Number.isFinite(xs[i])) {
@@ -4784,14 +4588,18 @@ function truthTableOpFromRows(env, opName, rows, previous) {
           break;
         }
       }
-      if (match) return row.output;
+      if (match) {
+        return row.output;
+      }
     }
-    if (fallback) return fallback(...xs);
+    if (fallback) {
+      return fallback(...xs);
+    }
     return env.lo;
-  };
+  });
 }
 function _truthTableKey(values) {
-  return values.map((v) => Number(v).toPrecision(15)).join("");
+  return values.map(((v) => Number(v).toPrecision(15))).join("");
 }
 function _resolvedCarrierValues(env, foundation) {
   if (!foundation || foundation.strictCarrier !== true || !Array.isArray(foundation.carrier) || foundation.carrier.length === 0) {
@@ -4801,7 +4609,9 @@ function _resolvedCarrierValues(env, foundation) {
   const seen = /* @__PURE__ */ new Set();
   for (const tok of foundation.carrier) {
     const value = resolveTruthTableValue(env, tok);
-    if (value === null) return null;
+    if (value === null) {
+      return null;
+    }
     const key = _truthTableKey([value]);
     if (!seen.has(key)) {
       seen.add(key);
@@ -4812,28 +4622,46 @@ function _resolvedCarrierValues(env, foundation) {
 }
 function truthTableRowsCompleteForCarrier(env, rows, foundation) {
   const carrier = _resolvedCarrierValues(env, foundation);
-  if (carrier === null) return false;
+  if (carrier === null) {
+    return false;
+  }
   let arity = null;
   const seenRows = /* @__PURE__ */ new Set();
   for (const row of rows) {
-    if (!row || !Array.isArray(row.inputs)) return false;
-    if (arity === null) arity = row.inputs.length;
-    if (row.inputs.length !== arity) return false;
-    const inputs = row.inputs.map((t) => resolveTruthTableValue(env, t));
+    if (!row || !Array.isArray(row.inputs)) {
+      return false;
+    }
+    if (arity === null) {
+      arity = row.inputs.length;
+    }
+    if (row.inputs.length !== arity) {
+      return false;
+    }
+    const inputs = row.inputs.map(((t) => resolveTruthTableValue(env, t)));
     const output = resolveTruthTableValue(env, row.output);
-    if (inputs.some((v) => v === null) || output === null) return false;
+    if (inputs.some(((v) => v === null)) || output === null) {
+      return false;
+    }
     seenRows.add(_truthTableKey(inputs));
   }
-  if (arity === null) return false;
+  if (arity === null) {
+    return false;
+  }
   const required = carrier.length ** arity;
-  if (seenRows.size < required) return false;
-  const visit = (prefix, depth) => {
-    if (depth === arity) return seenRows.has(_truthTableKey(prefix));
+  if (seenRows.size < required) {
+    return false;
+  }
+  const visit = ((prefix, depth) => {
+    if (depth === arity) {
+      return seenRows.has(_truthTableKey(prefix));
+    }
     for (const value of carrier) {
-      if (!visit(prefix.concat([value]), depth + 1)) return false;
+      if (!visit(prefix.concat([value]), depth + 1)) {
+        return false;
+      }
     }
     return true;
-  };
+  });
   return visit([], 0);
 }
 function truthTableFallbackDependencies(env, opName, previousImpl) {
@@ -4850,121 +4678,7 @@ function truthTableFallbackDependencies(env, opName, previousImpl) {
   return [...new Set(deps)];
 }
 function seedBuiltinRootConstructs(env) {
-  const seeds = [
-    // Parsing / LiNo layer
-    { name: "lino-parser", kind: "parser", status: "external-trusted", encodedAs: "links-notation", pureLinksReady: false },
-    { name: "canonical-printer", kind: "printer", status: "host-primitive", encodedAs: "keyOf" },
-    { name: "structural-equality", kind: "equality-layer", status: "host-primitive", encodedAs: "isStructurallySame" },
-    { name: "structural-matcher", kind: "matcher", status: "external-trusted", semanticStatus: "host-trusted", encodedAs: "matchProofPattern" },
-    // Numeric layer
-    { name: "decimal-12-arithmetic", kind: "numeric-domain", status: "host-primitive", encodedAs: "decRound", pureLinksReady: false },
-    { name: "+", kind: "arithmetic-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] },
-    { name: "-", kind: "arithmetic-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] },
-    { name: "*", kind: "arithmetic-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] },
-    { name: "/", kind: "arithmetic-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] },
-    { name: "<", kind: "comparison-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] },
-    { name: "<=", kind: "comparison-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] },
-    // Truth / aggregator layer
-    { name: "truth-range", kind: "truth-domain", status: "user-configurable", encodedAs: "Env.lo/Env.hi" },
-    { name: "valence", kind: "truth-domain", status: "user-configurable", encodedAs: "Env.valence" },
-    { name: "clamp", kind: "truth-normalization", status: "host-primitive", encodedAs: "Env.clamp" },
-    { name: "quantize", kind: "truth-normalization", status: "host-primitive", encodedAs: "quantize" },
-    { name: "true", kind: "truth-constant", status: "user-configurable" },
-    { name: "false", kind: "truth-constant", status: "user-configurable" },
-    { name: "unknown", kind: "truth-constant", status: "user-configurable" },
-    { name: "undefined", kind: "truth-constant", status: "user-configurable" },
-    { name: "avg", kind: "aggregator", status: "host-primitive" },
-    { name: "min", kind: "aggregator", status: "host-primitive" },
-    { name: "max", kind: "aggregator", status: "host-primitive" },
-    { name: "product", kind: "aggregator", status: "host-primitive" },
-    { name: "probabilistic_sum", kind: "aggregator", status: "host-primitive" },
-    { name: "truth-table-fallback", kind: "truth-table-fallback", status: "host-derived" },
-    // Logical layer
-    { name: "not", kind: "truth-operator", status: "user-configurable", dependsOn: ["truth-range", "decimal-12-arithmetic"] },
-    { name: "and", kind: "truth-operator", status: "user-configurable", dependsOn: ["avg"] },
-    { name: "or", kind: "truth-operator", status: "user-configurable", dependsOn: ["max"] },
-    { name: "both", kind: "truth-operator", status: "user-configurable", dependsOn: ["avg"] },
-    { name: "neither", kind: "truth-operator", status: "user-configurable", dependsOn: ["product"] },
-    // Equality layer
-    { name: "=", kind: "equality-layer", status: "host-primitive", dependsOn: ["structural-equality", "decimal-12-arithmetic"] },
-    { name: "!=", kind: "equality-layer", status: "host-derived", dependsOn: ["=", "not"] },
-    { name: "assigned-equality", kind: "equality-layer", status: "host-primitive" },
-    { name: "numeric-equality", kind: "equality-layer", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] },
-    { name: "definitional-equality", kind: "equality-layer", status: "host-primitive", dependsOn: ["beta-reduction", "structural-equality"] },
-    // Typed kernel layer
-    { name: "Type", kind: "universe-form", status: "host-primitive", pureLinksReady: false, plannedAs: "links-defined" },
-    { name: "Prop", kind: "universe-form", status: "host-primitive", dependsOn: ["Type"] },
-    { name: "Pi", kind: "binder", status: "host-primitive", dependsOn: ["Type", "substitution", "freshness"] },
-    { name: "lambda", kind: "binder", status: "host-primitive", dependsOn: ["Pi", "substitution"] },
-    { name: "apply", kind: "eliminator", status: "host-primitive", dependsOn: ["lambda", "beta-reduction"] },
-    { name: "beta-reduction", kind: "reduction-rule", status: "host-primitive", dependsOn: ["substitution", "freshness", "alpha-renaming"] },
-    { name: "substitution", kind: "meta-operation", status: "host-primitive", encodedAs: "substitute" },
-    { name: "freshness", kind: "meta-operation", status: "host-primitive", encodedAs: "evalFresh" },
-    { name: "alpha-renaming", kind: "meta-operation", status: "host-primitive" },
-    { name: "normalization", kind: "reduction-rule", status: "host-primitive", encodedAs: "normalizeTerm", dependsOn: ["beta-reduction"] },
-    { name: "whnf", kind: "reduction-rule", status: "host-primitive", encodedAs: "whnfTerm", dependsOn: ["beta-reduction"] },
-    { name: "conversion", kind: "equality-layer", status: "host-primitive", dependsOn: ["beta-reduction", "normalization", "structural-equality"] },
-    // Phase 5 typed-kernel-links proof-substrate rules: links-defined
-    // mirrors of `Pi`, `lambda`, `apply`, `beta-reduction` that the
-    // `typed-kernel-links` foundation selects. Pre-seeded so the trust
-    // audit reports them as `links-defined`/`links-checked` immediately,
-    // matching the corresponding declarations in `lib/self/foundations.lino`.
-    { name: "pi-formation", kind: "typing-rule", status: "links-defined", dependsOn: ["Pi"] },
-    { name: "lambda-introduction", kind: "typing-rule", status: "links-defined", dependsOn: ["lambda"] },
-    { name: "application-elimination", kind: "typing-rule", status: "links-defined", dependsOn: ["apply"] },
-    { name: "beta-conversion", kind: "reduction-rule", status: "links-defined", dependsOn: ["beta-reduction"] },
-    // Inductive / coinductive
-    { name: "inductive", kind: "declaration", status: "host-primitive", dependsOn: ["Type", "Pi"] },
-    { name: "coinductive", kind: "declaration", status: "host-primitive", dependsOn: ["Type", "Pi"] },
-    // Proof / tactics layer
-    { name: "proof-replay", kind: "replay-checker", status: "host-primitive", encodedAs: "check.mjs" },
-    { name: "proof-object", kind: "proof-data", status: "links-encoded", encodedAs: "proof-object" },
-    { name: "proof-rule-declaration", kind: "proof-data", status: "links-encoded", encodedAs: "rule" },
-    { name: "proof-checking-relation", kind: "checking-relation", status: "links-defined", dependsOn: ["proof-replay", "structural-equality", "proof-object"] },
-    { name: "rule-application-check", kind: "checking-relation", status: "links-defined", dependsOn: ["proof-replay", "structural-equality", "proof-rule-declaration"] },
-    { name: "by", kind: "proof-rule", status: "host-primitive" },
-    // Links-defined Nat fragment (issue #97). These built-in registry
-    // entries let strict mode audit `(eval-nat ...)` even when a program has
-    // not loaded `lib/self/foundations.lino`.
-    { name: "Nat", kind: "inductive-type", status: "links-defined", semanticStatus: "links-checked" },
-    { name: "zero", kind: "constructor", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat"] },
-    { name: "succ", kind: "constructor", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat"] },
-    { name: "nat-equality", kind: "equality-layer", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "structural-equality"], encodedAs: "nat-equals" },
-    { name: "nat-recursion", kind: "recursor", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "zero", "succ", "nat-equality", "proof-replay", "structural-equality"] },
-    { name: "add", kind: "derived-operation", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "zero", "succ", "nat-recursion", "nat-equality"] },
-    { name: "nat-add-zero", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["add", "zero", "nat-recursion", "nat-equality"] },
-    { name: "nat-add-succ", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["add", "succ", "nat-recursion", "nat-equality"] },
-    { name: "nat-zero-formation", kind: "typing-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "zero"] },
-    { name: "nat-succ-formation", kind: "typing-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "succ"] },
-    { name: "forall", kind: "universal-quantifier", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat"] },
-    { name: "implication", kind: "logical-connective", status: "links-defined", semanticStatus: "links-checked", encodedAs: "implies" },
-    { name: "predicate-application", kind: "logical-form", status: "links-defined", semanticStatus: "links-checked", encodedAs: "at" },
-    { name: "nat-induction", kind: "proof-principle", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "forall", "implication", "predicate-application", "substitution", "freshness", "proof-replay", "structural-equality"] },
-    { name: "nat-refl", kind: "equality-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "nat-equality"] },
-    { name: "nat-cong-succ", kind: "equality-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "succ", "nat-equality"] },
-    { name: "nat-eliminator", kind: "eliminator", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "nat-recursion", "nat-induction"] },
-    { name: "nat-rec-zero", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["nat-recursion", "zero", "nat-equality"] },
-    { name: "nat-rec-succ", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["nat-recursion", "succ", "nat-equality"] },
-    { name: "mul", kind: "derived-operation", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "zero", "succ", "add", "nat-recursion", "nat-equality"] },
-    { name: "nat-mul-zero", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["mul", "zero", "nat-recursion", "nat-equality"] },
-    { name: "nat-mul-succ", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["mul", "succ", "add", "nat-recursion", "nat-equality"] },
-    { name: "eval-nat-normalize", kind: "evaluator-fragment", status: "links-defined", semanticStatus: "links-evaluated", dependsOn: ["Nat", "zero", "succ", "add", "mul", "nat-add-zero", "nat-add-succ", "nat-mul-zero", "nat-mul-succ", "structural-matcher"] },
-    { name: "eval-nat", kind: "evaluator", status: "links-defined", semanticStatus: "links-evaluated", dependsOn: ["eval-nat-normalize", "nat-normal-form-to-host-number"] },
-    { name: "nat-normal-form-to-host-number", kind: "renderer", status: "host-derived", semanticStatus: "host-trusted", dependsOn: ["eval-nat-normalize"] },
-    { name: "smt-trusted", kind: "external-decision", status: "external-trusted" },
-    { name: "atp-trusted", kind: "external-decision", status: "external-trusted" },
-    // Metatheorem layer
-    { name: "mode", kind: "mode-declaration", status: "host-primitive" },
-    { name: "totality-check", kind: "metatheorem", status: "host-primitive" },
-    { name: "coverage-check", kind: "metatheorem", status: "host-primitive" },
-    { name: "termination-check", kind: "metatheorem", status: "host-primitive" },
-    // Self-bootstrap layer
-    { name: "self.evaluator", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/evaluator.lino" },
-    { name: "self.grammar", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/grammar.lino" },
-    { name: "self.types", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/types.lino" },
-    { name: "self.operators", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/operators.lino" },
-    { name: "self.metatheorem", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/metatheorem.lino" }
-  ];
+  const seeds = [{ name: "lino-parser", kind: "parser", status: "external-trusted", encodedAs: "links-notation", pureLinksReady: false }, { name: "canonical-printer", kind: "printer", status: "host-primitive", encodedAs: "keyOf" }, { name: "structural-equality", kind: "equality-layer", status: "host-primitive", encodedAs: "isStructurallySame" }, { name: "structural-matcher", kind: "matcher", status: "external-trusted", semanticStatus: "host-trusted", encodedAs: "matchProofPattern" }, { name: "decimal-12-arithmetic", kind: "numeric-domain", status: "host-primitive", encodedAs: "decRound", pureLinksReady: false }, { name: "+", kind: "arithmetic-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] }, { name: "-", kind: "arithmetic-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] }, { name: "*", kind: "arithmetic-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] }, { name: "/", kind: "arithmetic-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] }, { name: "<", kind: "comparison-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] }, { name: "<=", kind: "comparison-operator", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] }, { name: "truth-range", kind: "truth-domain", status: "user-configurable", encodedAs: "Env.lo/Env.hi" }, { name: "valence", kind: "truth-domain", status: "user-configurable", encodedAs: "Env.valence" }, { name: "clamp", kind: "truth-normalization", status: "host-primitive", encodedAs: "Env.clamp" }, { name: "quantize", kind: "truth-normalization", status: "host-primitive", encodedAs: "quantize" }, { name: "true", kind: "truth-constant", status: "user-configurable" }, { name: "false", kind: "truth-constant", status: "user-configurable" }, { name: "unknown", kind: "truth-constant", status: "user-configurable" }, { name: "undefined", kind: "truth-constant", status: "user-configurable" }, { name: "avg", kind: "aggregator", status: "host-primitive" }, { name: "min", kind: "aggregator", status: "host-primitive" }, { name: "max", kind: "aggregator", status: "host-primitive" }, { name: "product", kind: "aggregator", status: "host-primitive" }, { name: "probabilistic_sum", kind: "aggregator", status: "host-primitive" }, { name: "truth-table-fallback", kind: "truth-table-fallback", status: "host-derived" }, { name: "not", kind: "truth-operator", status: "user-configurable", dependsOn: ["truth-range", "decimal-12-arithmetic"] }, { name: "and", kind: "truth-operator", status: "user-configurable", dependsOn: ["avg"] }, { name: "or", kind: "truth-operator", status: "user-configurable", dependsOn: ["max"] }, { name: "both", kind: "truth-operator", status: "user-configurable", dependsOn: ["avg"] }, { name: "neither", kind: "truth-operator", status: "user-configurable", dependsOn: ["product"] }, { name: "=", kind: "equality-layer", status: "host-primitive", dependsOn: ["structural-equality", "decimal-12-arithmetic"] }, { name: "!=", kind: "equality-layer", status: "host-derived", dependsOn: ["=", "not"] }, { name: "assigned-equality", kind: "equality-layer", status: "host-primitive" }, { name: "numeric-equality", kind: "equality-layer", status: "host-primitive", dependsOn: ["decimal-12-arithmetic"] }, { name: "definitional-equality", kind: "equality-layer", status: "host-primitive", dependsOn: ["beta-reduction", "structural-equality"] }, { name: "Type", kind: "universe-form", status: "host-primitive", pureLinksReady: false, plannedAs: "links-defined" }, { name: "Prop", kind: "universe-form", status: "host-primitive", dependsOn: ["Type"] }, { name: "Pi", kind: "binder", status: "host-primitive", dependsOn: ["Type", "substitution", "freshness"] }, { name: "lambda", kind: "binder", status: "host-primitive", dependsOn: ["Pi", "substitution"] }, { name: "apply", kind: "eliminator", status: "host-primitive", dependsOn: ["lambda", "beta-reduction"] }, { name: "beta-reduction", kind: "reduction-rule", status: "host-primitive", dependsOn: ["substitution", "freshness", "alpha-renaming"] }, { name: "substitution", kind: "meta-operation", status: "host-primitive", encodedAs: "substitute" }, { name: "freshness", kind: "meta-operation", status: "host-primitive", encodedAs: "evalFresh" }, { name: "alpha-renaming", kind: "meta-operation", status: "host-primitive" }, { name: "normalization", kind: "reduction-rule", status: "host-primitive", encodedAs: "normalizeTerm", dependsOn: ["beta-reduction"] }, { name: "whnf", kind: "reduction-rule", status: "host-primitive", encodedAs: "whnfTerm", dependsOn: ["beta-reduction"] }, { name: "conversion", kind: "equality-layer", status: "host-primitive", dependsOn: ["beta-reduction", "normalization", "structural-equality"] }, { name: "pi-formation", kind: "typing-rule", status: "links-defined", dependsOn: ["Pi"] }, { name: "lambda-introduction", kind: "typing-rule", status: "links-defined", dependsOn: ["lambda"] }, { name: "application-elimination", kind: "typing-rule", status: "links-defined", dependsOn: ["apply"] }, { name: "beta-conversion", kind: "reduction-rule", status: "links-defined", dependsOn: ["beta-reduction"] }, { name: "inductive", kind: "declaration", status: "host-primitive", dependsOn: ["Type", "Pi"] }, { name: "coinductive", kind: "declaration", status: "host-primitive", dependsOn: ["Type", "Pi"] }, { name: "proof-replay", kind: "replay-checker", status: "host-primitive", encodedAs: "check.mjs" }, { name: "proof-object", kind: "proof-data", status: "links-encoded", encodedAs: "proof-object" }, { name: "proof-rule-declaration", kind: "proof-data", status: "links-encoded", encodedAs: "rule" }, { name: "proof-checking-relation", kind: "checking-relation", status: "links-defined", dependsOn: ["proof-replay", "structural-equality", "proof-object"] }, { name: "rule-application-check", kind: "checking-relation", status: "links-defined", dependsOn: ["proof-replay", "structural-equality", "proof-rule-declaration"] }, { name: "by", kind: "proof-rule", status: "host-primitive" }, { name: "Nat", kind: "inductive-type", status: "links-defined", semanticStatus: "links-checked" }, { name: "zero", kind: "constructor", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat"] }, { name: "succ", kind: "constructor", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat"] }, { name: "nat-equality", kind: "equality-layer", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "structural-equality"], encodedAs: "nat-equals" }, { name: "nat-recursion", kind: "recursor", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "zero", "succ", "nat-equality", "proof-replay", "structural-equality"] }, { name: "add", kind: "derived-operation", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "zero", "succ", "nat-recursion", "nat-equality"] }, { name: "nat-add-zero", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["add", "zero", "nat-recursion", "nat-equality"] }, { name: "nat-add-succ", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["add", "succ", "nat-recursion", "nat-equality"] }, { name: "nat-zero-formation", kind: "typing-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "zero"] }, { name: "nat-succ-formation", kind: "typing-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "succ"] }, { name: "forall", kind: "universal-quantifier", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat"] }, { name: "implication", kind: "logical-connective", status: "links-defined", semanticStatus: "links-checked", encodedAs: "implies" }, { name: "predicate-application", kind: "logical-form", status: "links-defined", semanticStatus: "links-checked", encodedAs: "at" }, { name: "nat-induction", kind: "proof-principle", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "forall", "implication", "predicate-application", "substitution", "freshness", "proof-replay", "structural-equality"] }, { name: "nat-refl", kind: "equality-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "nat-equality"] }, { name: "nat-cong-succ", kind: "equality-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "succ", "nat-equality"] }, { name: "nat-eliminator", kind: "eliminator", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "nat-recursion", "nat-induction"] }, { name: "nat-rec-zero", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["nat-recursion", "zero", "nat-equality"] }, { name: "nat-rec-succ", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["nat-recursion", "succ", "nat-equality"] }, { name: "mul", kind: "derived-operation", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["Nat", "zero", "succ", "add", "nat-recursion", "nat-equality"] }, { name: "nat-mul-zero", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["mul", "zero", "nat-recursion", "nat-equality"] }, { name: "nat-mul-succ", kind: "computation-rule", status: "links-defined", semanticStatus: "links-checked", dependsOn: ["mul", "succ", "add", "nat-recursion", "nat-equality"] }, { name: "eval-nat-normalize", kind: "evaluator-fragment", status: "links-defined", semanticStatus: "links-evaluated", dependsOn: ["Nat", "zero", "succ", "add", "mul", "nat-add-zero", "nat-add-succ", "nat-mul-zero", "nat-mul-succ", "structural-matcher"] }, { name: "eval-nat", kind: "evaluator", status: "links-defined", semanticStatus: "links-evaluated", dependsOn: ["eval-nat-normalize", "nat-normal-form-to-host-number"] }, { name: "nat-normal-form-to-host-number", kind: "renderer", status: "host-derived", semanticStatus: "host-trusted", dependsOn: ["eval-nat-normalize"] }, { name: "smt-trusted", kind: "external-decision", status: "external-trusted" }, { name: "atp-trusted", kind: "external-decision", status: "external-trusted" }, { name: "mode", kind: "mode-declaration", status: "host-primitive" }, { name: "totality-check", kind: "metatheorem", status: "host-primitive" }, { name: "coverage-check", kind: "metatheorem", status: "host-primitive" }, { name: "termination-check", kind: "metatheorem", status: "host-primitive" }, { name: "self.evaluator", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/evaluator.lino" }, { name: "self.grammar", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/grammar.lino" }, { name: "self.types", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/types.lino" }, { name: "self.operators", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/operators.lino" }, { name: "self.metatheorem", kind: "self-bootstrap", status: "links-encoded", encodedAs: "lib/self/metatheorem.lino" }];
   for (const seed of seeds) {
     env.rootConstructs.set(seed.name, mergeRootConstructDescriptors(null, seed));
   }
@@ -5005,10 +4719,10 @@ function parseRootConstructForm(node) {
         descriptor.kind = rest[0];
         break;
       case "depends-on":
-        descriptor.dependsOn = rest.map((t) => Array.isArray(t) ? keyOf(t) : String(t));
+        descriptor.dependsOn = rest.map(((t) => Array.isArray(t) ? keyOf(t) : String(t)));
         break;
       case "encoded-as":
-        descriptor.encodedAs = rest.map((t) => Array.isArray(t) ? keyOf(t) : String(t)).join(" ");
+        descriptor.encodedAs = rest.map(((t) => Array.isArray(t) ? keyOf(t) : String(t))).join(" ");
         break;
       case "pure-links-ready":
         if (rest.length !== 1 || rest[0] !== "yes" && rest[0] !== "no") {
@@ -5017,10 +4731,10 @@ function parseRootConstructForm(node) {
         descriptor.pureLinksReady = rest[0] === "yes";
         break;
       case "override":
-        descriptor.override = rest.map((t) => Array.isArray(t) ? keyOf(t) : String(t)).join(" ");
+        descriptor.override = rest.map(((t) => Array.isArray(t) ? keyOf(t) : String(t))).join(" ");
         break;
       case "planned-as":
-        descriptor.plannedAs = rest.map((t) => Array.isArray(t) ? keyOf(t) : String(t)).join(" ");
+        descriptor.plannedAs = rest.map(((t) => Array.isArray(t) ? keyOf(t) : String(t))).join(" ");
         break;
       case "foundation":
         if (rest.length !== 1 || typeof rest[0] !== "string") {
@@ -5029,7 +4743,7 @@ function parseRootConstructForm(node) {
         descriptor.foundation = rest[0];
         break;
       case "implemented-by":
-        descriptor.encodedAs = rest.map((t) => Array.isArray(t) ? keyOf(t) : String(t)).join(" ");
+        descriptor.encodedAs = rest.map(((t) => Array.isArray(t) ? keyOf(t) : String(t))).join(" ");
         break;
       case "surface":
       case "description":
@@ -5059,13 +4773,15 @@ function parseFoundationForm(node) {
     const rest = child.slice(1);
     switch (key) {
       case "uses":
-        for (const u of rest) foundation.uses.push(Array.isArray(u) ? keyOf(u) : String(u));
+        for (const u of rest) {
+          foundation.uses.push(Array.isArray(u) ? keyOf(u) : String(u));
+        }
         break;
       case "defines":
         if (rest.length < 1 || typeof rest[0] !== "string") {
           throw new RmlError("E061", "(defines <construct> <implementation>) requires a construct name");
         }
-        foundation.defines.set(rest[0], rest.slice(1).map((t) => Array.isArray(t) ? keyOf(t) : String(t)).join(" ") || "links-defined");
+        foundation.defines.set(rest[0], rest.slice(1).map(((t) => Array.isArray(t) ? keyOf(t) : String(t))).join(" ") || "links-defined");
         break;
       case "extends":
         if (rest.length !== 1 || typeof rest[0] !== "string") {
@@ -5089,7 +4805,7 @@ function parseFoundationForm(node) {
         if (rest.length === 0) {
           throw new RmlError("E061", "(carrier ...) requires at least one value");
         }
-        foundation.carrier = rest.map((t) => Array.isArray(t) ? keyOf(t) : String(t));
+        foundation.carrier = rest.map(((t) => Array.isArray(t) ? keyOf(t) : String(t)));
         break;
       case "strict-carrier":
         foundation.strictCarrier = true;
@@ -5102,34 +4818,27 @@ function parseFoundationForm(node) {
         const rows = [];
         for (const raw of rest.slice(1)) {
           if (!Array.isArray(raw)) {
-            throw new RmlError(
-              "E061",
-              `(truth-table ${tableOp} ...) rows must be lists like (in1 in2 -> out)`
-            );
+            throw new RmlError("E061", `(truth-table ${tableOp} ...) rows must be lists like (in1 in2 -> out)`);
           }
-          const arrowAt = raw.findIndex((t) => t === "->");
+          const arrowAt = raw.findIndex(((t) => t === "->"));
           if (arrowAt < 1 || arrowAt !== raw.length - 2) {
-            throw new RmlError(
-              "E061",
-              `(truth-table ${tableOp} ...) row must be (input ... -> output)`
-            );
+            throw new RmlError("E061", `(truth-table ${tableOp} ...) row must be (input ... -> output)`);
           }
-          const inputs = raw.slice(0, arrowAt).map((t) => Array.isArray(t) ? keyOf(t) : String(t));
+          const inputs = raw.slice(0, arrowAt).map(((t) => Array.isArray(t) ? keyOf(t) : String(t)));
           const output = Array.isArray(raw[arrowAt + 1]) ? keyOf(raw[arrowAt + 1]) : String(raw[arrowAt + 1]);
           rows.push({ inputs, output });
         }
         if (rows.length === 0) {
-          throw new RmlError(
-            "E061",
-            `(truth-table ${tableOp} ...) requires at least one row`
-          );
+          throw new RmlError("E061", `(truth-table ${tableOp} ...) requires at least one row`);
         }
-        if (!(foundation.truthTables instanceof Map)) foundation.truthTables = /* @__PURE__ */ new Map();
+        if (!(foundation.truthTables instanceof Map)) {
+          foundation.truthTables = /* @__PURE__ */ new Map();
+        }
         foundation.truthTables.set(tableOp, rows);
         break;
       }
       case "description":
-        foundation.description = rest.map((t) => Array.isArray(t) ? keyOf(t) : String(t)).join(" ");
+        foundation.description = rest.map(((t) => Array.isArray(t) ? keyOf(t) : String(t))).join(" ");
         break;
       case "experimental":
         foundation.experimental = true;
@@ -5145,8 +4854,10 @@ function parseFoundationForm(node) {
           throw new RmlError("E061", "(abit <symbol> <meaning>) requires a symbol");
         }
         const symbol = Array.isArray(rest[0]) ? keyOf(rest[0]) : String(rest[0]);
-        const meaning = rest.slice(1).map((t) => Array.isArray(t) ? keyOf(t) : String(t)).join(" ");
-        if (!Array.isArray(foundation.abits)) foundation.abits = [];
+        const meaning = rest.slice(1).map(((t) => Array.isArray(t) ? keyOf(t) : String(t))).join(" ");
+        if (!Array.isArray(foundation.abits)) {
+          foundation.abits = [];
+        }
         foundation.abits.push({ symbol, meaning });
         break;
       }
@@ -5169,32 +4880,29 @@ function formatFoundationReport(report) {
   if (report.truthDomain) {
     lines.push(`  truth domain: ${report.truthDomain}`);
   }
-  const orderedStatuses = [
-    "host-primitive",
-    "host-derived",
-    "external-trusted",
-    "user-configurable",
-    "links-encoded",
-    "links-defined",
-    "user-overridden",
-    "planned"
-  ];
+  const orderedStatuses = ["host-primitive", "host-derived", "external-trusted", "user-configurable", "links-encoded", "links-defined", "user-overridden", "planned"];
   const seen = /* @__PURE__ */ new Set();
   for (const status of orderedStatuses) {
     const names = report.byStatus[status];
     if (Array.isArray(names) && names.length > 0) {
       lines.push("");
       lines.push(`${status}:`);
-      for (const name of names) lines.push(`  - ${name}`);
+      for (const name of names) {
+        lines.push(`  - ${name}`);
+      }
       seen.add(status);
     }
   }
   for (const [status, names] of Object.entries(report.byStatus)) {
-    if (seen.has(status)) continue;
+    if (seen.has(status)) {
+      continue;
+    }
     if (Array.isArray(names) && names.length > 0) {
       lines.push("");
       lines.push(`${status}:`);
-      for (const name of names) lines.push(`  - ${name}`);
+      for (const name of names) {
+        lines.push(`  - ${name}`);
+      }
     }
   }
   if (report.bySemanticStatus && Object.keys(report.bySemanticStatus).length > 0) {
@@ -5209,7 +4917,9 @@ function formatFoundationReport(report) {
       }
     }
     for (const [status, names] of Object.entries(report.bySemanticStatus)) {
-      if (seenSemantic.has(status)) continue;
+      if (seenSemantic.has(status)) {
+        continue;
+      }
       if (Array.isArray(names) && names.length > 0) {
         lines.push(`  ${status}: ${names.join(", ")}`);
       }
@@ -5221,20 +4931,28 @@ function formatFoundationReport(report) {
     for (const f of report.foundations) {
       const tag = f.experimental === true ? " [experimental]" : "";
       lines.push(`  - ${f.name}${tag}${f.description ? ` \u2014 ${f.description}` : ""}`);
-      if (f.numericDomain) lines.push(`      numeric domain: ${f.numericDomain}`);
-      if (f.truthDomain) lines.push(`      truth domain: ${f.truthDomain}`);
-      if (f.root) lines.push(`      root: ${f.root}`);
+      if (f.numericDomain) {
+        lines.push(`      numeric domain: ${f.numericDomain}`);
+      }
+      if (f.truthDomain) {
+        lines.push(`      truth domain: ${f.truthDomain}`);
+      }
+      if (f.root) {
+        lines.push(`      root: ${f.root}`);
+      }
       if (Array.isArray(f.abits) && f.abits.length > 0) {
-        const abitStrs = f.abits.map((a) => `${a.symbol}=${a.meaning}`);
+        const abitStrs = f.abits.map(((a) => `${a.symbol}=${a.meaning}`));
         lines.push(`      abits: ${abitStrs.join(", ")}`);
       }
-      if (f.uses && f.uses.length) lines.push(`      uses: ${f.uses.join(", ")}`);
+      if (f.uses && f.uses.length) {
+        lines.push(`      uses: ${f.uses.join(", ")}`);
+      }
       if (f.defines && f.defines.length) {
-        const defStrs = f.defines.map((d) => `${d.construct}=${d.implementation}`);
+        const defStrs = f.defines.map(((d) => `${d.construct}=${d.implementation}`));
         lines.push(`      defines: ${defStrs.join(", ")}`);
       }
       if (Array.isArray(f.truthTables) && f.truthTables.length > 0) {
-        const tt = f.truthTables.map((t) => `${t.op}(${t.rows.length} rows)`);
+        const tt = f.truthTables.map(((t) => `${t.op}(${t.rows.length} rows)`));
         lines.push(`      truth tables: ${tt.join(", ")}`);
       }
     }
@@ -5244,10 +4962,18 @@ function formatFoundationReport(report) {
     lines.push("active implementations:");
     for (const impl of report.activeImplementations) {
       const parts = [];
-      if (impl.status) parts.push(impl.status);
-      if (impl.semanticStatus) parts.push(`semantic ${impl.semanticStatus}`);
-      if (impl.implementation) parts.push(`via ${impl.implementation}`);
-      if (impl.foundation) parts.push(`foundation ${impl.foundation}`);
+      if (impl.status) {
+        parts.push(impl.status);
+      }
+      if (impl.semanticStatus) {
+        parts.push(`semantic ${impl.semanticStatus}`);
+      }
+      if (impl.implementation) {
+        parts.push(`via ${impl.implementation}`);
+      }
+      if (impl.foundation) {
+        parts.push(`foundation ${impl.foundation}`);
+      }
       if (Array.isArray(impl.dependsOn) && impl.dependsOn.length > 0) {
         parts.push(`depends on ${impl.dependsOn.join(", ")}`);
       }
@@ -5285,10 +5011,10 @@ function formatFoundationReport(report) {
   }
   if (report.dependencyGraph && typeof report.dependencyGraph === "object") {
     const names = Object.keys(report.dependencyGraph).sort();
-    const nonEmpty = names.filter((n) => {
+    const nonEmpty = names.filter(((n) => {
       const deps = report.dependencyGraph[n];
       return Array.isArray(deps) && deps.length > 0;
-    });
+    }));
     if (nonEmpty.length > 0) {
       lines.push("");
       lines.push("dependency graph (transitive):");
@@ -5300,7 +5026,7 @@ function formatFoundationReport(report) {
   return lines.join("\n");
 }
 function isProofRuleShape(node) {
-  return Array.isArray(node) && node[0] === "rule" && typeof node[1] === "string" && node[1] && node.length >= 3 && node.slice(2).every((c) => Array.isArray(c) && (c[0] === "premise" || c[0] === "conclusion")) && node.slice(2).some((c) => c[0] === "conclusion");
+  return Array.isArray(node) && node[0] === "rule" && typeof node[1] === "string" && node[1] && node.length >= 3 && node.slice(2).every(((c) => Array.isArray(c) && (c[0] === "premise" || c[0] === "conclusion"))) && node.slice(2).some(((c) => c[0] === "conclusion"));
 }
 function parseRuleForm(node) {
   if (!Array.isArray(node) || node[0] !== "rule" || node.length < 2) {
@@ -5320,16 +5046,18 @@ function parseRuleForm(node) {
         throw new RmlError("E064", `rule ${rule.name}: (premise <pat>) requires exactly one pattern`);
       }
       rule.premises.push(child[1]);
-    } else if (key === "conclusion") {
-      if (child.length !== 2) {
-        throw new RmlError("E064", `rule ${rule.name}: (conclusion <pat>) requires exactly one pattern`);
-      }
-      if (rule.conclusion !== null) {
-        throw new RmlError("E064", `rule ${rule.name}: only one (conclusion ...) clause is allowed`);
-      }
-      rule.conclusion = child[1];
     } else {
-      throw new RmlError("E064", `rule ${rule.name}: unknown clause keyword ${key}`);
+      if (key === "conclusion") {
+        if (child.length !== 2) {
+          throw new RmlError("E064", `rule ${rule.name}: (conclusion <pat>) requires exactly one pattern`);
+        }
+        if (rule.conclusion !== null) {
+          throw new RmlError("E064", `rule ${rule.name}: only one (conclusion ...) clause is allowed`);
+        }
+        rule.conclusion = child[1];
+      } else {
+        throw new RmlError("E064", `rule ${rule.name}: unknown clause keyword ${key}`);
+      }
     }
   }
   if (rule.conclusion === null) {
@@ -5384,36 +5112,44 @@ function parseProofObjectForm(node) {
         throw new RmlError("E064", `proof-object ${po.name}: (applies <rule>) requires a rule name`);
       }
       po.rule = child[1];
-    } else if (key === "premise") {
-      if (child.length !== 2) {
-        throw new RmlError("E064", `proof-object ${po.name}: (premise <judgement>) requires one argument`);
-      }
-      po.premises.push(child[1]);
-    } else if (key === "premise-by") {
-      if (child.length !== 2 || typeof child[1] !== "string" || !child[1]) {
-        throw new RmlError("E064", `proof-object ${po.name}: (premise-by <name>) requires a dependency name`);
-      }
-      po.premiseRefs.push(child[1]);
-    } else if (key === "uses") {
-      if (child.length < 2) {
-        throw new RmlError("E064", `proof-object ${po.name}: (uses <name>...) requires at least one dependency name`);
-      }
-      for (const ref of child.slice(1)) {
-        if (typeof ref !== "string" || !ref) {
-          throw new RmlError("E064", `proof-object ${po.name}: (uses ...) dependencies must be names`);
-        }
-        po.premiseRefs.push(ref);
-      }
-    } else if (key === "conclusion") {
-      if (child.length !== 2) {
-        throw new RmlError("E064", `proof-object ${po.name}: (conclusion <judgement>) requires one argument`);
-      }
-      if (po.conclusion !== null) {
-        throw new RmlError("E064", `proof-object ${po.name}: only one (conclusion ...) clause is allowed`);
-      }
-      po.conclusion = child[1];
     } else {
-      throw new RmlError("E064", `proof-object ${po.name}: unknown clause keyword ${key}`);
+      if (key === "premise") {
+        if (child.length !== 2) {
+          throw new RmlError("E064", `proof-object ${po.name}: (premise <judgement>) requires one argument`);
+        }
+        po.premises.push(child[1]);
+      } else {
+        if (key === "premise-by") {
+          if (child.length !== 2 || typeof child[1] !== "string" || !child[1]) {
+            throw new RmlError("E064", `proof-object ${po.name}: (premise-by <name>) requires a dependency name`);
+          }
+          po.premiseRefs.push(child[1]);
+        } else {
+          if (key === "uses") {
+            if (child.length < 2) {
+              throw new RmlError("E064", `proof-object ${po.name}: (uses <name>...) requires at least one dependency name`);
+            }
+            for (const ref of child.slice(1)) {
+              if (typeof ref !== "string" || !ref) {
+                throw new RmlError("E064", `proof-object ${po.name}: (uses ...) dependencies must be names`);
+              }
+              po.premiseRefs.push(ref);
+            }
+          } else {
+            if (key === "conclusion") {
+              if (child.length !== 2) {
+                throw new RmlError("E064", `proof-object ${po.name}: (conclusion <judgement>) requires one argument`);
+              }
+              if (po.conclusion !== null) {
+                throw new RmlError("E064", `proof-object ${po.name}: only one (conclusion ...) clause is allowed`);
+              }
+              po.conclusion = child[1];
+            } else {
+              throw new RmlError("E064", `proof-object ${po.name}: unknown clause keyword ${key}`);
+            }
+          }
+        }
+      }
     }
   }
   if (po.rule === null) {
@@ -5435,10 +5171,16 @@ function matchProofPattern(pattern, candidate, subs) {
     }
     return typeof candidate === "string" && candidate === pattern;
   }
-  if (!Array.isArray(pattern) || !Array.isArray(candidate)) return false;
-  if (pattern.length !== candidate.length) return false;
+  if (!Array.isArray(pattern) || !Array.isArray(candidate)) {
+    return false;
+  }
+  if (pattern.length !== candidate.length) {
+    return false;
+  }
   for (let i = 0; i < pattern.length; i++) {
-    if (!matchProofPattern(pattern[i], candidate[i], subs)) return false;
+    if (!matchProofPattern(pattern[i], candidate[i], subs)) {
+      return false;
+    }
   }
   return true;
 }
@@ -5452,7 +5194,9 @@ function _resolveProofDependency(env, ref, stack) {
     return { ok: false, error: `unknown proof dependency ${ref}` };
   }
   const verdict = checkProofObject(env, ref, stack);
-  if (!verdict.ok) return verdict;
+  if (!verdict.ok) {
+    return verdict;
+  }
   return { ok: true, judgement: po.conclusion, kind: "proof-object" };
 }
 function checkProofObject(env, name, stack = []) {
@@ -5460,9 +5204,13 @@ function checkProofObject(env, name, stack = []) {
     return { ok: false, error: `cyclic proof dependency: ${stack.concat([name]).join(" -> ")}` };
   }
   const po = env.getProofObject(name);
-  if (!po) return { ok: false, error: `unknown proof-object ${name}` };
+  if (!po) {
+    return { ok: false, error: `unknown proof-object ${name}` };
+  }
   const rule = env.getProofRule(po.rule);
-  if (!rule) return { ok: false, error: `proof-object ${name} references unknown rule ${po.rule}` };
+  if (!rule) {
+    return { ok: false, error: `proof-object ${name} references unknown rule ${po.rule}` };
+  }
   const refs = Array.isArray(po.premiseRefs) ? po.premiseRefs : [];
   let effectivePremises = po.premises.slice();
   const dependencyStack = stack.concat([name]);
@@ -5470,40 +5218,29 @@ function checkProofObject(env, name, stack = []) {
     effectivePremises = [];
     for (let i = 0; i < refs.length; i++) {
       const resolved = _resolveProofDependency(env, refs[i], dependencyStack);
-      if (!resolved.ok) return resolved;
+      if (!resolved.ok) {
+        return resolved;
+      }
       effectivePremises.push(resolved.judgement);
       if (po.premises.length > 0 && po.premises[i] !== void 0 && !isStructurallySame(po.premises[i], resolved.judgement)) {
-        return {
-          ok: false,
-          error: `proof-object ${name}: premise ${i + 1} does not match referenced judgement ${refs[i]}`
-        };
+        return { ok: false, error: `proof-object ${name}: premise ${i + 1} does not match referenced judgement ${refs[i]}` };
       }
     }
     if (po.premises.length > 0 && po.premises.length !== refs.length) {
-      return {
-        ok: false,
-        error: `proof-object ${name}: has ${po.premises.length} explicit premise(s) but ${refs.length} proof dependency reference(s)`
-      };
+      return { ok: false, error: `proof-object ${name}: has ${po.premises.length} explicit premise(s) but ${refs.length} proof dependency reference(s)` };
     }
-  } else if (po.premises.length > 0) {
-    return {
-      ok: false,
-      error: `proof-object ${name}: premise 1 is unjustified; use (premise-by <name>) or declare an assumption/axiom`
-    };
+  } else {
+    if (po.premises.length > 0) {
+      return { ok: false, error: `proof-object ${name}: premise 1 is unjustified; use (premise-by <name>) or declare an assumption/axiom` };
+    }
   }
   if (effectivePremises.length !== rule.premises.length) {
-    return {
-      ok: false,
-      error: `proof-object ${name}: expected ${rule.premises.length} premise(s) for rule ${po.rule}, got ${effectivePremises.length}`
-    };
+    return { ok: false, error: `proof-object ${name}: expected ${rule.premises.length} premise(s) for rule ${po.rule}, got ${effectivePremises.length}` };
   }
   const subs = {};
   for (let i = 0; i < rule.premises.length; i++) {
     if (!matchProofPattern(rule.premises[i], effectivePremises[i], subs)) {
-      return {
-        ok: false,
-        error: `proof-object ${name}: premise ${i + 1} does not match rule ${po.rule}`
-      };
+      return { ok: false, error: `proof-object ${name}: premise ${i + 1} does not match rule ${po.rule}` };
     }
   }
   if (!matchProofPattern(rule.conclusion, po.conclusion, subs)) {
@@ -5511,31 +5248,7 @@ function checkProofObject(env, name, stack = []) {
   }
   return { ok: true, substitution: subs, dependencies: refs.slice() };
 }
-var DEFAULT_EVAL_NAT_RULES = /* @__PURE__ */ new Map([
-  ["nat-add-zero", {
-    name: "nat-add-zero",
-    premises: [["?n", "has-type", "Nat"]],
-    conclusion: [["add", "zero", "?n"], "nat-equals", "?n"]
-  }],
-  ["nat-add-succ", {
-    name: "nat-add-succ",
-    premises: [[["add", "?m", "?n"], "nat-equals", "?k"]],
-    conclusion: [["add", ["succ", "?m"], "?n"], "nat-equals", ["succ", "?k"]]
-  }],
-  ["nat-mul-zero", {
-    name: "nat-mul-zero",
-    premises: [["?n", "has-type", "Nat"]],
-    conclusion: [["mul", "zero", "?n"], "nat-equals", "zero"]
-  }],
-  ["nat-mul-succ", {
-    name: "nat-mul-succ",
-    premises: [
-      [["mul", "?m", "?n"], "nat-equals", "?k"],
-      [["add", "?n", "?k"], "nat-equals", "?s"]
-    ],
-    conclusion: [["mul", ["succ", "?m"], "?n"], "nat-equals", "?s"]
-  }]
-]);
+var DEFAULT_EVAL_NAT_RULES = /* @__PURE__ */ new Map([["nat-add-zero", { name: "nat-add-zero", premises: [["?n", "has-type", "Nat"]], conclusion: [["add", "zero", "?n"], "nat-equals", "?n"] }], ["nat-add-succ", { name: "nat-add-succ", premises: [[["add", "?m", "?n"], "nat-equals", "?k"]], conclusion: [["add", ["succ", "?m"], "?n"], "nat-equals", ["succ", "?k"]] }], ["nat-mul-zero", { name: "nat-mul-zero", premises: [["?n", "has-type", "Nat"]], conclusion: [["mul", "zero", "?n"], "nat-equals", "zero"] }], ["nat-mul-succ", { name: "nat-mul-succ", premises: [[["mul", "?m", "?n"], "nat-equals", "?k"], [["add", "?n", "?k"], "nat-equals", "?s"]], conclusion: [["mul", ["succ", "?m"], "?n"], "nat-equals", "?s"] }]]);
 function cloneProofTerm(term) {
   return Array.isArray(term) ? term.map(cloneProofTerm) : term;
 }
@@ -5543,20 +5256,30 @@ function instantiateProofPattern(pattern, subs) {
   if (typeof pattern === "string" && pattern.startsWith("?")) {
     return Object.prototype.hasOwnProperty.call(subs, pattern) ? cloneProofTerm(subs[pattern]) : pattern;
   }
-  if (Array.isArray(pattern)) return pattern.map((p) => instantiateProofPattern(p, subs));
+  if (Array.isArray(pattern)) {
+    return pattern.map(((p) => instantiateProofPattern(p, subs)));
+  }
   return pattern;
 }
 function evalNatFoundationUses(env, foundationName, ruleName, seen = /* @__PURE__ */ new Set()) {
-  if (seen.has(foundationName)) return false;
+  if (seen.has(foundationName)) {
+    return false;
+  }
   seen.add(foundationName);
   const foundation = env && env.getFoundation(foundationName);
-  if (!foundation) return false;
-  if (Array.isArray(foundation.uses) && foundation.uses.includes(ruleName)) return true;
+  if (!foundation) {
+    return false;
+  }
+  if (Array.isArray(foundation.uses) && foundation.uses.includes(ruleName)) {
+    return true;
+  }
   return foundation.extends ? evalNatFoundationUses(env, foundation.extends, ruleName, seen) : false;
 }
 function evalNatActiveFoundationUses(env, name) {
   const active = env && env.activeFoundation ? env.activeFoundation : "default-rml";
-  if (active === "default-rml") return true;
+  if (active === "default-rml") {
+    return true;
+  }
   return evalNatFoundationUses(env, active, name);
 }
 function evalNatRule(env, name) {
@@ -5578,10 +5301,7 @@ function processEvalNatPremises(env, rule, subs, normalize, depth) {
       const premiseInput = instantiateProofPattern(premise[0], subs);
       const premiseNormal = normalize(premiseInput, depth + 1);
       if (!matchProofPattern(premise[2], premiseNormal, subs)) {
-        throw new RmlError(
-          "E067",
-          `eval-nat rule ${rule.name} premise ${keyOf(premise)} did not match normal form ${keyOf(premiseNormal)}`
-        );
+        throw new RmlError("E067", `eval-nat rule ${rule.name} premise ${keyOf(premise)} did not match normal form ${keyOf(premiseNormal)}`);
       }
       continue;
     }
@@ -5593,7 +5313,9 @@ function processEvalNatPremises(env, rule, subs, normalize, depth) {
 }
 function applyEvalNatRule(env, ruleName, term, steps, normalize, depth) {
   const rule = evalNatRule(env, ruleName);
-  if (!rule) throw new RmlError("E067", `eval-nat requires ${ruleName}, but no links-level rule is registered`);
+  if (!rule) {
+    throw new RmlError("E067", `eval-nat requires ${ruleName}, but no links-level rule is registered`);
+  }
   const { left, right } = evalNatEqualityConclusion(rule, ruleName);
   const subs = {};
   if (!matchProofPattern(left, term, subs)) {
@@ -5604,7 +5326,9 @@ function applyEvalNatRule(env, ruleName, term, steps, normalize, depth) {
   return normalize(instantiateProofPattern(right, subs), depth + 1);
 }
 function peanoNormalFormToHostNumber(term) {
-  if (term === "zero") return 0;
+  if (term === "zero") {
+    return 0;
+  }
   if (Array.isArray(term) && term.length === 2 && term[0] === "succ") {
     return 1 + peanoNormalFormToHostNumber(term[1]);
   }
@@ -5612,11 +5336,13 @@ function peanoNormalFormToHostNumber(term) {
 }
 function evalNatTerm(env, node) {
   const steps = [];
-  const normalize = (t, depth = 0) => {
+  const normalize = ((t, depth = 0) => {
     if (depth > 1e4) {
       throw new RmlError("E067", "eval-nat exceeded its structural rewrite limit");
     }
-    if (t === "zero") return "zero";
+    if (t === "zero") {
+      return "zero";
+    }
     if (Array.isArray(t)) {
       if (t.length === 2 && t[0] === "succ") {
         return ["succ", normalize(t[1], depth + 1)];
@@ -5642,11 +5368,8 @@ function evalNatTerm(env, node) {
         }
       }
     }
-    throw new RmlError(
-      "E067",
-      `eval-nat: not a closed Peano term: ${formatTraceValue(t)}`
-    );
-  };
+    throw new RmlError("E067", `eval-nat: not a closed Peano term: ${formatTraceValue(t)}`);
+  });
   const normalForm = normalize(node);
   const value = peanoNormalFormToHostNumber(normalForm);
   return { value, normalForm, steps };
@@ -5679,53 +5402,18 @@ function parseAllowHostPrimitiveForm(node) {
   }
   return { names };
 }
-var PURE_LINKS_SCANNER_IGNORED = /* @__PURE__ */ new Set([
-  "?",
-  "with",
-  "proof",
-  "by",
-  "because",
-  "let",
-  "in",
-  "where",
-  ":",
-  "::",
-  "has",
-  "probability",
-  "is",
-  "a",
-  "an",
-  "sequence",
-  "normalizes-to",
-  "applies",
-  "premise",
-  "premise-by",
-  "conclusion",
-  "uses",
-  "judgement",
-  "assumption",
-  "axiom",
-  "rule",
-  "proof-object",
-  "check-proof",
-  "proof-report",
-  "foundation",
-  "with-foundation",
-  "foundation-report",
-  "foundation-report?",
-  "root-construct",
-  "strict-carrier",
-  "truth-table",
-  "strict-foundation",
-  "allow-host-primitive"
-]);
+var PURE_LINKS_SCANNER_IGNORED = /* @__PURE__ */ new Set(["?", "with", "proof", "by", "because", "let", "in", "where", ":", "::", "has", "probability", "is", "a", "an", "sequence", "normalizes-to", "applies", "premise", "premise-by", "conclusion", "uses", "judgement", "assumption", "axiom", "rule", "proof-object", "check-proof", "proof-report", "foundation", "with-foundation", "foundation-report", "foundation-report?", "root-construct", "strict-carrier", "truth-table", "strict-foundation", "allow-host-primitive"]);
 function _isStrictlyOffendingStatus(status) {
   return status === "host-primitive" || status === "host-derived";
 }
 function _strictDependencyOffenders(env, name, path2 = []) {
   const allow = env.allowedHostPrimitives instanceof Set ? env.allowedHostPrimitives : /* @__PURE__ */ new Set();
-  if (allow.has(name)) return [];
-  if (path2.includes(name)) return [];
+  if (allow.has(name)) {
+    return [];
+  }
+  if (path2.includes(name)) {
+    return [];
+  }
   const currentPath = path2.concat([name]);
   const active = env.activeImplementations instanceof Map ? env.activeImplementations.get(name) : null;
   const rc = env.getRootConstruct(name);
@@ -5739,7 +5427,9 @@ function _strictDependencyOffenders(env, name, path2 = []) {
   }
   const offenders = [];
   for (const dep of deps) {
-    if (allow.has(dep)) continue;
+    if (allow.has(dep)) {
+      continue;
+    }
     offenders.push(..._strictDependencyOffenders(env, dep, currentPath));
   }
   if (_isStrictlyOffendingStatus(status) && offenders.length === 0) {
@@ -5748,18 +5438,28 @@ function _strictDependencyOffenders(env, name, path2 = []) {
   return offenders;
 }
 function scanPureLinksOffenders(node, env) {
-  if (env.strictPureLinks !== true) return [];
+  if (env.strictPureLinks !== true) {
+    return [];
+  }
   const offenders = /* @__PURE__ */ new Set();
   const allow = env.allowedHostPrimitives instanceof Set ? env.allowedHostPrimitives : /* @__PURE__ */ new Set();
-  const check2 = (name) => {
-    if (PURE_LINKS_SCANNER_IGNORED.has(name) || allow.has(name)) return;
-    for (const offender of _strictDependencyOffenders(env, name)) offenders.add(offender);
-  };
-  const visit = (n) => {
+  const check2 = ((name) => {
+    if (PURE_LINKS_SCANNER_IGNORED.has(name) || allow.has(name)) {
+      return;
+    }
+    for (const offender of _strictDependencyOffenders(env, name)) {
+      offenders.add(offender);
+    }
+  });
+  const visit = ((n) => {
     if (Array.isArray(n)) {
       const head = n[0];
-      if (typeof head === "string") check2(head);
-      for (let i = 0; i < n.length; i++) visit(n[i]);
+      if (typeof head === "string") {
+        check2(head);
+      }
+      for (let i = 0; i < n.length; i++) {
+        visit(n[i]);
+      }
       if (n.length === 3 && typeof n[1] === "string") {
         check2(n[1]);
       }
@@ -5768,12 +5468,14 @@ function scanPureLinksOffenders(node, env) {
     if (typeof n === "string") {
       check2(n);
     }
-  };
+  });
   visit(node);
   return [...offenders].sort();
 }
 function desugarHoas(node) {
-  if (!Array.isArray(node)) return node;
+  if (!Array.isArray(node)) {
+    return node;
+  }
   const mapped = node.map(desugarHoas);
   if (mapped.length === 3 && mapped[0] === "forall" && Array.isArray(mapped[1])) {
     return ["Pi", mapped[1], mapped[2]];
@@ -5781,7 +5483,9 @@ function desugarHoas(node) {
   return mapped;
 }
 function parseBinding(binding) {
-  if (!Array.isArray(binding)) return null;
+  if (!Array.isArray(binding)) {
+    return null;
+  }
   if (binding.length === 2 && typeof binding[0] === "string" && binding[0].endsWith(":")) {
     return { paramName: binding[0].slice(0, -1), paramType: binding[1] };
   }
@@ -5794,9 +5498,13 @@ function parseBinding(binding) {
   return null;
 }
 function parseBindings(binding) {
-  if (!Array.isArray(binding)) return null;
+  if (!Array.isArray(binding)) {
+    return null;
+  }
   const single = parseBinding(binding);
-  if (single) return [single];
+  if (single) {
+    return [single];
+  }
   const tokens = [];
   for (const tok of binding) {
     if (typeof tok === "string") {
@@ -5829,76 +5537,31 @@ function parseBindings(binding) {
   }
   return bindings.length > 0 ? bindings : null;
 }
-var NON_VARIABLE_TOKENS = /* @__PURE__ */ new Set([
-  "lambda",
-  "Pi",
-  "fresh",
-  "in",
-  "subst",
-  "apply",
-  "type",
-  "of",
-  "has",
-  "probability",
-  "with",
-  "proof",
-  "range",
-  "valence",
-  "namespace",
-  "import",
-  "as",
-  "is",
-  "?",
-  "mode",
-  "relation",
-  "total",
-  "coverage",
-  "world",
-  "inductive",
-  "coinductive",
-  "constructor",
-  "define",
-  "case",
-  "measure",
-  "lex",
-  "terminating",
-  "whnf",
-  "nf",
-  "normal-form",
-  "template",
-  "+",
-  "-",
-  "*",
-  "/",
-  "<",
-  "<=",
-  "=",
-  "!=",
-  "and",
-  "or",
-  "not",
-  "both",
-  "neither",
-  "nor"
-]);
+var NON_VARIABLE_TOKENS = /* @__PURE__ */ new Set(["lambda", "Pi", "fresh", "in", "subst", "apply", "type", "of", "has", "probability", "with", "proof", "range", "valence", "namespace", "import", "as", "is", "?", "mode", "relation", "total", "coverage", "world", "inductive", "coinductive", "constructor", "define", "case", "measure", "lex", "terminating", "whnf", "nf", "normal-form", "template", "+", "-", "*", "/", "<", "<=", "=", "!=", "and", "or", "not", "both", "neither", "nor"]);
 function cloneTerm(node) {
   return Array.isArray(node) ? node.map(cloneTerm) : node;
 }
 function tokenBaseName(token) {
-  if (typeof token !== "string") return null;
+  if (typeof token !== "string") {
+    return null;
+  }
   return token.replace(/[:,]+$/g, "");
 }
 function isVariableToken(token) {
-  if (typeof token !== "string") return false;
+  if (typeof token !== "string") {
+    return false;
+  }
   const base = tokenBaseName(token);
   return !!base && base === token && !isNum(base) && !NON_VARIABLE_TOKENS.has(base);
 }
 function bindingParamNames(binding) {
   const parsed = parseBindings(binding);
-  return parsed ? parsed.map((b) => b.paramName) : [];
+  return parsed ? parsed.map(((b) => b.paramName)) : [];
 }
 function binderInfo(expr) {
-  if (!Array.isArray(expr)) return null;
+  if (!Array.isArray(expr)) {
+    return null;
+  }
   if (expr.length === 3 && (expr[0] === "lambda" || expr[0] === "Pi")) {
     const params = bindingParamNames(expr[1]);
     if (params.length > 0) {
@@ -5913,28 +5576,40 @@ function binderInfo(expr) {
 function freeVariables(expr, bound = /* @__PURE__ */ new Set()) {
   const out = /* @__PURE__ */ new Set();
   function addAll(set) {
-    for (const v of set) out.add(v);
+    for (const v of set) {
+      out.add(v);
+    }
   }
   if (typeof expr === "string") {
-    if (isVariableToken(expr) && !bound.has(expr)) out.add(expr);
+    if (isVariableToken(expr) && !bound.has(expr)) {
+      out.add(expr);
+    }
     return out;
   }
-  if (!Array.isArray(expr)) return out;
+  if (!Array.isArray(expr)) {
+    return out;
+  }
   const binder = binderInfo(expr);
   if (binder) {
     const nested = new Set(bound);
-    for (const param of binder.params) nested.add(param);
+    for (const param of binder.params) {
+      nested.add(param);
+    }
     if (binder.kind !== "fresh") {
       const paramSet = new Set(binder.params);
       for (const child of expr[binder.bindingIndex]) {
-        if (typeof child === "string" && paramSet.has(tokenBaseName(child))) continue;
+        if (typeof child === "string" && paramSet.has(tokenBaseName(child))) {
+          continue;
+        }
         addAll(freeVariables(child, bound));
       }
     }
     addAll(freeVariables(expr[binder.bodyIndex], nested));
     return out;
   }
-  for (const child of expr) addAll(freeVariables(child, bound));
+  for (const child of expr) {
+    addAll(freeVariables(child, bound));
+  }
   return out;
 }
 function containsFree(expr, name) {
@@ -5949,18 +5624,24 @@ function envCanEvaluateName(env, name) {
 }
 function hasUnresolvedFreeVariables(expr, env) {
   for (const name of freeVariables(expr)) {
-    if (!envCanEvaluateName(env, name)) return true;
+    if (!envCanEvaluateName(env, name)) {
+      return true;
+    }
   }
   return false;
 }
 function collectNames(expr, out = /* @__PURE__ */ new Set()) {
   if (typeof expr === "string") {
     const base = tokenBaseName(expr);
-    if (base && !isNum(base) && !NON_VARIABLE_TOKENS.has(base)) out.add(base);
+    if (base && !isNum(base) && !NON_VARIABLE_TOKENS.has(base)) {
+      out.add(base);
+    }
     return out;
   }
   if (Array.isArray(expr)) {
-    for (const child of expr) collectNames(child, out);
+    for (const child of expr) {
+      collectNames(child, out);
+    }
   }
   return out;
 }
@@ -5974,23 +5655,37 @@ function freshName(base, avoid) {
   return candidate;
 }
 function renameBindingParam(binding, oldName, newName) {
-  if (!Array.isArray(binding)) return binding;
-  return binding.map((child) => {
-    if (typeof child !== "string") return cloneTerm(child);
-    if (child === oldName) return newName;
-    if (child === `${oldName},`) return `${newName},`;
-    if (child === `${oldName}:`) return `${newName}:`;
+  if (!Array.isArray(binding)) {
+    return binding;
+  }
+  return binding.map(((child) => {
+    if (typeof child !== "string") {
+      return cloneTerm(child);
+    }
+    if (child === oldName) {
+      return newName;
+    }
+    if (child === `${oldName},`) {
+      return `${newName},`;
+    }
+    if (child === `${oldName}:`) {
+      return `${newName}:`;
+    }
     return child;
-  });
+  }));
 }
 function renameBoundOccurrences(expr, oldName, newName) {
-  if (typeof expr === "string") return expr === oldName ? newName : expr;
-  if (!Array.isArray(expr)) return expr;
+  if (typeof expr === "string") {
+    return expr === oldName ? newName : expr;
+  }
+  if (!Array.isArray(expr)) {
+    return expr;
+  }
   const binder = binderInfo(expr);
   if (binder && binder.params.includes(oldName)) {
     return cloneTerm(expr);
   }
-  return expr.map((child) => renameBoundOccurrences(child, oldName, newName));
+  return expr.map(((child) => renameBoundOccurrences(child, oldName, newName)));
 }
 function renameBinder(expr, binder, oldName, newName) {
   const out = expr.map(cloneTerm);
@@ -6009,7 +5704,9 @@ function subst(expr, name, replacement) {
   if (Array.isArray(expr)) {
     const binder = binderInfo(expr);
     if (binder) {
-      if (binder.params.includes(name)) return expr;
+      if (binder.params.includes(name)) {
+        return expr;
+      }
       let current = expr.map(cloneTerm);
       const replacementFree = freeVariables(replacement);
       if (containsFree(expr[binder.bodyIndex], name)) {
@@ -6024,9 +5721,9 @@ function subst(expr, name, replacement) {
           }
         }
       }
-      return current.map((child) => subst(child, name, replacement));
+      return current.map(((child) => subst(child, name, replacement)));
     }
-    return expr.map((child) => subst(child, name, replacement));
+    return expr.map(((child) => subst(child, name, replacement)));
   }
   return expr;
 }
@@ -6034,9 +5731,13 @@ function substitute(expr, name, replacement) {
   return subst(expr, name, replacement);
 }
 function _templateKeyFor(env, name) {
-  if (env.templates.has(name)) return name;
+  if (env.templates.has(name)) {
+    return name;
+  }
   const resolved = env._resolveQualified(name);
-  if (resolved !== name && env.templates.has(resolved)) return resolved;
+  if (resolved !== name && env.templates.has(resolved)) {
+    return resolved;
+  }
   return null;
 }
 function _validateTemplatePattern(pattern) {
@@ -6067,22 +5768,20 @@ function registerTemplateForm(form, env) {
   const { name, params } = _validateTemplatePattern(form[1]);
   const storeName = env.qualifyName(name);
   _maybeWarnShadow(env, storeName);
-  env.templates.set(storeName, {
-    name: storeName,
-    params,
-    body: cloneTerm(form[2])
-  });
+  env.templates.set(storeName, { name: storeName, params, body: cloneTerm(form[2]) });
   return storeName;
 }
 function substituteTemplatePlaceholders(body, params, args) {
   let current = cloneTerm(body);
   const avoid = collectNames(current);
-  for (const arg of args) collectNames(arg, avoid);
-  const sentinels = params.map((param) => {
+  for (const arg of args) {
+    collectNames(arg, avoid);
+  }
+  const sentinels = params.map(((param) => {
     const next = freshName(`__template_${param}`, avoid);
     avoid.add(next);
     return next;
-  });
+  }));
   for (let i = 0; i < params.length; i++) {
     current = subst(current, params[i], sentinels[i]);
   }
@@ -6092,8 +5791,12 @@ function substituteTemplatePlaceholders(body, params, args) {
   return current;
 }
 function expandTemplates(node, env, stack = []) {
-  if (!Array.isArray(node)) return cloneTerm(node);
-  if (node.length === 0) return [];
+  if (!Array.isArray(node)) {
+    return cloneTerm(node);
+  }
+  if (node.length === 0) {
+    return [];
+  }
   const head = node[0];
   if (typeof head === "string") {
     const key = _templateKeyFor(env, head);
@@ -6101,17 +5804,14 @@ function expandTemplates(node, env, stack = []) {
       const decl = env.templates.get(key);
       const argCount = node.length - 1;
       if (argCount !== decl.params.length) {
-        throw new RmlError(
-          "E040",
-          `Template "${head}" expects ${decl.params.length} argument${decl.params.length === 1 ? "" : "s"}, got ${argCount}`
-        );
+        throw new RmlError("E040", `Template "${head}" expects ${decl.params.length} argument${decl.params.length === 1 ? "" : "s"}, got ${argCount}`);
       }
       const cycleStart = stack.indexOf(key);
       if (cycleStart !== -1) {
         const cycle = stack.slice(cycleStart).concat([key]).join(" -> ");
         throw new RmlError("E040", `Template expansion cycle detected: ${cycle}`);
       }
-      const expandedArgs = node.slice(1).map((arg) => expandTemplates(arg, env, stack));
+      const expandedArgs = node.slice(1).map(((arg) => expandTemplates(arg, env, stack)));
       stack.push(key);
       try {
         const instantiated = substituteTemplatePlaceholders(decl.body, decl.params, expandedArgs);
@@ -6121,11 +5821,15 @@ function expandTemplates(node, env, stack = []) {
       }
     }
   }
-  return node.map((child) => expandTemplates(child, env, stack));
+  return node.map(((child) => expandTemplates(child, env, stack)));
 }
 function formatTraceValue(v) {
-  if (typeof v !== "number") return String(v);
-  if (!Number.isFinite(v)) return String(v);
+  if (typeof v !== "number") {
+    return String(v);
+  }
+  if (!Number.isFinite(v)) {
+    return String(v);
+  }
   const rounded = +v.toFixed(6);
   const s = String(rounded);
   return s;
@@ -6134,9 +5838,17 @@ function _wrap(rule, ...subs) {
   return ["by", rule, ...subs];
 }
 function _containsLambdaOrApply(node) {
-  if (!Array.isArray(node)) return false;
-  if (node[0] === "lambda" || node[0] === "apply") return true;
-  for (const child of node) if (_containsLambdaOrApply(child)) return true;
+  if (!Array.isArray(node)) {
+    return false;
+  }
+  if (node[0] === "lambda" || node[0] === "apply") {
+    return true;
+  }
+  for (const child of node) {
+    if (_containsLambdaOrApply(child)) {
+      return true;
+    }
+  }
   return false;
 }
 function classifyEqualityRule(L, R, op, env) {
@@ -6162,7 +5874,9 @@ function classifyEqualityRule(L, R, op, env) {
   return isInequality ? "numeric-inequality" : "numeric-equality";
 }
 function _queryBody(queryForm) {
-  if (!Array.isArray(queryForm) || queryForm[0] !== "?") return null;
+  if (!Array.isArray(queryForm) || queryForm[0] !== "?") {
+    return null;
+  }
   const stripped = _stripWithProof(queryForm.slice(1));
   let body = stripped.length === 1 ? stripped[0] : stripped;
   while (Array.isArray(body) && body.length === 1 && Array.isArray(body[0])) {
@@ -6172,7 +5886,9 @@ function _queryBody(queryForm) {
 }
 function equalityProvenanceForQuery(queryForm, env) {
   const body = _queryBody(queryForm);
-  if (!Array.isArray(body)) return null;
+  if (!Array.isArray(body)) {
+    return null;
+  }
   if (body.length === 3 && typeof body[1] === "string" && (body[1] === "=" || body[1] === "!=")) {
     return classifyEqualityRule(body[0], body[2], body[1], env);
   }
@@ -6185,7 +5901,9 @@ function buildProof(node, env) {
     }
     return _wrap("symbol", node);
   }
-  if (!Array.isArray(node)) return _wrap("literal", String(node));
+  if (!Array.isArray(node)) {
+    return _wrap("literal", String(node));
+  }
   if (typeof node[0] === "string" && node[0].endsWith(":")) {
     return _wrap("definition", node);
   }
@@ -6223,7 +5941,9 @@ function buildProof(node, env) {
     }
     if (valid) {
       const subs = [];
-      for (let i = 1; i < node.length; i += 2) subs.push(buildProof(node[i], env));
+      for (let i = 1; i < node.length; i += 2) {
+        subs.push(buildProof(node[i], env));
+      }
       return _wrap(node[0], ...subs);
     }
   }
@@ -6268,7 +5988,7 @@ function buildProof(node, env) {
   }
   const head = node[0];
   if (typeof head === "string" && env.hasOp(head)) {
-    return _wrap(head, ...node.slice(1).map((arg) => buildProof(arg, env)));
+    return _wrap(head, ...node.slice(1).map(((arg) => buildProof(arg, env))));
   }
   return _wrap("reduce", node);
 }
@@ -6279,65 +5999,55 @@ function _stripWithProof(parts) {
   return parts;
 }
 function _queryRequestsProof(node) {
-  if (!Array.isArray(node) || node[0] !== "?") return false;
+  if (!Array.isArray(node) || node[0] !== "?") {
+    return false;
+  }
   const parts = node.slice(1);
   return parts.length >= 3 && parts[parts.length - 2] === "with" && parts[parts.length - 1] === "proof";
 }
 var DEFAULT_SIMPLIFY_MAX_STEPS = 100;
 var DEFAULT_ATP_TIMEOUT_MS = 5e3;
 var DEFAULT_SMT_TIMEOUT_MS = 5e3;
-var ATP_PROVED_STATUSES = /* @__PURE__ */ new Set([
-  "Theorem",
-  "Unsatisfiable",
-  "ContradictoryAxioms"
-]);
-var ATP_UNKNOWN_STATUSES = /* @__PURE__ */ new Set([
-  "Unknown",
-  "GaveUp"
-]);
-var ATP_TIMEOUT_STATUSES = /* @__PURE__ */ new Set([
-  "Timeout",
-  "ResourceOut"
-]);
+var ATP_PROVED_STATUSES = /* @__PURE__ */ new Set(["Theorem", "Unsatisfiable", "ContradictoryAxioms"]);
+var ATP_UNKNOWN_STATUSES = /* @__PURE__ */ new Set(["Unknown", "GaveUp"]);
+var ATP_TIMEOUT_STATUSES = /* @__PURE__ */ new Set(["Timeout", "ResourceOut"]);
 function _normaliseProofGoal(rawGoal, inheritedContext = []) {
   if (rawGoal && typeof rawGoal === "object" && !Array.isArray(rawGoal) && Object.prototype.hasOwnProperty.call(rawGoal, "goal")) {
-    return {
-      goal: cloneTerm(rawGoal.goal),
-      context: Array.isArray(rawGoal.context) ? rawGoal.context.map(cloneTerm) : inheritedContext.map(cloneTerm)
-    };
+    return { goal: cloneTerm(rawGoal.goal), context: Array.isArray(rawGoal.context) ? rawGoal.context.map(cloneTerm) : inheritedContext.map(cloneTerm) };
   }
-  return {
-    goal: cloneTerm(rawGoal),
-    context: inheritedContext.map(cloneTerm)
-  };
+  return { goal: cloneTerm(rawGoal), context: inheritedContext.map(cloneTerm) };
 }
 function _normaliseProofState(state = {}) {
   const inheritedContext = Array.isArray(state.context) ? state.context.map(cloneTerm) : [];
-  const goals = Array.isArray(state.goals) ? state.goals.map((goal) => _normaliseProofGoal(goal, inheritedContext)) : [];
+  const goals = Array.isArray(state.goals) ? state.goals.map(((goal) => _normaliseProofGoal(goal, inheritedContext))) : [];
   const proof = Array.isArray(state.proof) ? state.proof.map(cloneTerm) : [];
   return { goals, proof };
 }
 function _cloneProofState(state) {
-  return {
-    goals: state.goals.map((goal) => ({
-      goal: cloneTerm(goal.goal),
-      context: goal.context.map(cloneTerm)
-    })),
-    proof: state.proof.map(cloneTerm)
-  };
+  return { goals: state.goals.map(((goal) => ({ goal: cloneTerm(goal.goal), context: goal.context.map(cloneTerm) }))), proof: state.proof.map(cloneTerm) };
 }
 function _isTacticNode(value) {
   return Array.isArray(value) && value.length > 0 && typeof value[0] === "string";
 }
 function _normaliseTacticList(tactics) {
-  if (typeof tactics === "string") return parseLinoForms(tactics);
-  if (tactics === void 0 || tactics === null) return [];
-  if (_isTacticNode(tactics) || typeof tactics === "string") return [tactics];
+  if (typeof tactics === "string") {
+    return parseLinoForms(tactics);
+  }
+  if (tactics === void 0 || tactics === null) {
+    return [];
+  }
+  if (_isTacticNode(tactics) || typeof tactics === "string") {
+    return [tactics];
+  }
   return Array.isArray(tactics) ? tactics : [tactics];
 }
 function _tacticName(tactic) {
-  if (typeof tactic === "string") return tactic;
-  if (Array.isArray(tactic) && typeof tactic[0] === "string") return tactic[0];
+  if (typeof tactic === "string") {
+    return tactic;
+  }
+  if (Array.isArray(tactic) && typeof tactic[0] === "string") {
+    return tactic[0];
+  }
   return null;
 }
 function _tacticArgs(tactic) {
@@ -6353,30 +6063,24 @@ function _goalKey(goal) {
   return goal ? keyOf(goal.goal) : "<none>";
 }
 function _tacticDiagnostic(tactic, goal, reason) {
-  return new Diagnostic({
-    code: "E039",
-    message: `Tactic ${keyOf(tactic)} failed: ${reason}; current goal: ${_goalKey(goal)}`,
-    span: { file: null, line: 1, col: 1, length: 0 }
-  });
+  return new Diagnostic({ code: "E039", message: `Tactic ${keyOf(tactic)} failed: ${reason}; current goal: ${_goalKey(goal)}`, span: { file: null, line: 1, col: 1, length: 0 } });
 }
 function _replaceCurrentGoal(state, replacementGoals, recordTactic) {
-  return {
-    goals: [...replacementGoals, ...state.goals.slice(1)],
-    proof: [...state.proof, cloneTerm(recordTactic)]
-  };
+  return { goals: [...replacementGoals, ...state.goals.slice(1)], proof: [...state.proof, cloneTerm(recordTactic)] };
 }
 function _goalWithContext(current, goal) {
-  return {
-    goal: cloneTerm(goal),
-    context: current.context.map(cloneTerm)
-  };
+  return { goal: cloneTerm(goal), context: current.context.map(cloneTerm) };
 }
 function _rewriteError(message) {
   return new RmlError("E039", message);
 }
 function _normaliseSmtSolverArgs(rawArgs) {
-  if (rawArgs === void 0 || rawArgs === null) return [];
-  if (Array.isArray(rawArgs)) return rawArgs.map(String);
+  if (rawArgs === void 0 || rawArgs === null) {
+    return [];
+  }
+  if (Array.isArray(rawArgs)) {
+    return rawArgs.map(String);
+  }
   if (typeof rawArgs === "string") {
     const trimmed = rawArgs.trim();
     return trimmed ? trimmed.split(/\s+/) : [];
@@ -6394,14 +6098,12 @@ function _normaliseSmtOptions(options = {}) {
   const solver = options.smtSolverPath ?? options.smtSolver ?? process.env.RML_SMT_SOLVER ?? null;
   const solverArgs = options.smtSolverArgs ?? options.smtArgs ?? process.env.RML_SMT_ARGS ?? [];
   const timeout = options.smtTimeoutMs ?? process.env.RML_SMT_TIMEOUT_MS ?? DEFAULT_SMT_TIMEOUT_MS;
-  return {
-    solver: solver === null || solver === void 0 || String(solver).trim() === "" ? null : String(solver),
-    args: _normaliseSmtSolverArgs(solverArgs),
-    timeoutMs: _normaliseSmtTimeoutMs(timeout)
-  };
+  return { solver: solver === null || solver === void 0 || String(solver).trim() === "" ? null : String(solver), args: _normaliseSmtSolverArgs(solverArgs), timeoutMs: _normaliseSmtTimeoutMs(timeout) };
 }
 function _smtSolverProofName(smtOptions) {
-  if (!smtOptions || !smtOptions.solver) return "unconfigured";
+  if (!smtOptions || !smtOptions.solver) {
+    return "unconfigured";
+  }
   const base = path.basename(String(smtOptions.solver)) || String(smtOptions.solver);
   const safe = base.replace(/\s+/g, "_");
   return safe || "solver";
@@ -6423,21 +6125,31 @@ function _smtDeclare(ctx, raw, sort) {
 }
 function _smtNumber(raw) {
   const text = String(raw);
-  if (text.startsWith("-")) return `(- ${text.slice(1)})`;
+  if (text.startsWith("-")) {
+    return `(- ${text.slice(1)})`;
+  }
   return text;
 }
 function _smtInfix(node, operators) {
   return Array.isArray(node) && node.length === 3 && typeof node[1] === "string" && operators.includes(node[1]) ? node[1] : null;
 }
 function _smtIsBoolish(node) {
-  if (typeof node === "string") return node === "true" || node === "false";
-  if (!Array.isArray(node) || node.length === 0) return false;
-  if (_smtInfix(node, ["=", "!=", "and", "or", "=>", "implies"])) return true;
+  if (typeof node === "string") {
+    return node === "true" || node === "false";
+  }
+  if (!Array.isArray(node) || node.length === 0) {
+    return false;
+  }
+  if (_smtInfix(node, ["=", "!=", "and", "or", "=>", "implies"])) {
+    return true;
+  }
   return typeof node[0] === "string" && ["not", "and", "or", "=>", "implies"].includes(node[0]);
 }
 function _smtTerm(node, ctx) {
   if (typeof node === "string") {
-    if (isNum(node)) return _smtNumber(node);
+    if (isNum(node)) {
+      return _smtNumber(node);
+    }
     if (node === "true" || node === "false") {
       throw _rewriteError(`SMT bridge cannot use Boolean constant ${node} as a Real term`);
     }
@@ -6452,7 +6164,7 @@ function _smtTerm(node, ctx) {
   }
   const head = node[0];
   if (typeof head === "string" && ["+", "-", "*", "/"].includes(head) && node.length >= 3) {
-    return `(${head} ${node.slice(1).map((arg) => _smtTerm(arg, ctx)).join(" ")})`;
+    return `(${head} ${node.slice(1).map(((arg) => _smtTerm(arg, ctx))).join(" ")})`;
   }
   return _smtDeclare(ctx, keyOf(node), "Real");
 }
@@ -6464,17 +6176,27 @@ function _smtEquality(left, right, ctx) {
 }
 function _smtFormula(node, ctx) {
   if (typeof node === "string") {
-    if (node === "true") return "true";
-    if (node === "false") return "false";
-    if (isNum(node)) throw _rewriteError(`SMT bridge cannot use numeric literal ${node} as a Boolean formula`);
+    if (node === "true") {
+      return "true";
+    }
+    if (node === "false") {
+      return "false";
+    }
+    if (isNum(node)) {
+      throw _rewriteError(`SMT bridge cannot use numeric literal ${node} as a Boolean formula`);
+    }
     return _smtDeclare(ctx, node, "Bool");
   }
   if (!Array.isArray(node) || node.length === 0) {
     throw _rewriteError(`SMT bridge cannot translate formula ${keyOf(node)}`);
   }
   const infix = _smtInfix(node, ["=", "!=", "and", "or", "=>", "implies"]);
-  if (infix === "=") return _smtEquality(node[0], node[2], ctx);
-  if (infix === "!=") return `(not ${_smtEquality(node[0], node[2], ctx)})`;
+  if (infix === "=") {
+    return _smtEquality(node[0], node[2], ctx);
+  }
+  if (infix === "!=") {
+    return `(not ${_smtEquality(node[0], node[2], ctx)})`;
+  }
   if (infix === "and" || infix === "or") {
     return `(${infix} ${_smtFormula(node[0], ctx)} ${_smtFormula(node[2], ctx)})`;
   }
@@ -6482,10 +6204,14 @@ function _smtFormula(node, ctx) {
     return `(=> ${_smtFormula(node[0], ctx)} ${_smtFormula(node[2], ctx)})`;
   }
   const head = node[0];
-  if (head === "not" && node.length === 2) return `(not ${_smtFormula(node[1], ctx)})`;
+  if (head === "not" && node.length === 2) {
+    return `(not ${_smtFormula(node[1], ctx)})`;
+  }
   if ((head === "and" || head === "or") && node.length >= 1) {
-    if (node.length === 1) return head === "and" ? "true" : "false";
-    return `(${head} ${node.slice(1).map((arg) => _smtFormula(arg, ctx)).join(" ")})`;
+    if (node.length === 1) {
+      return head === "and" ? "true" : "false";
+    }
+    return `(${head} ${node.slice(1).map(((arg) => _smtFormula(arg, ctx))).join(" ")})`;
   }
   if ((head === "=>" || head === "implies") && node.length === 3) {
     return `(=> ${_smtFormula(node[1], ctx)} ${_smtFormula(node[2], ctx)})`;
@@ -6495,18 +6221,14 @@ function _smtFormula(node, ctx) {
 function smtLibForGoal(goal) {
   const ctx = { declarations: /* @__PURE__ */ new Map() };
   const formula = _smtFormula(goal, ctx);
-  const declarations = [...ctx.declarations.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([name, sort]) => `(declare-const ${_smtEscapeSymbol(name)} ${sort})`);
-  return [
-    ...declarations,
-    `(assert (not ${formula}))`,
-    "(check-sat)",
-    "(exit)",
-    ""
-  ].join("\n");
+  const declarations = [...ctx.declarations.entries()].sort((([a], [b]) => a.localeCompare(b))).map((([name, sort]) => `(declare-const ${_smtEscapeSymbol(name)} ${sort})`));
+  return [...declarations, `(assert (not ${formula}))`, "(check-sat)", "(exit)", ""].join("\n");
 }
 function _smtProcessSummary(output) {
   const text = String(output || "").trim();
-  if (!text) return "<no output>";
+  if (!text) {
+    return "<no output>";
+  }
   const firstLine = text.split(/\r?\n/)[0];
   return firstLine.length > 200 ? `${firstLine.slice(0, 200)}...` : firstLine;
 }
@@ -6515,7 +6237,9 @@ function _parseSmtCheckSat(stdout, stderr) {
 ${stderr || ""}`;
   for (const line of combined.split(/\r?\n/)) {
     const trimmed = line.trim();
-    if (trimmed === "unsat" || trimmed === "sat" || trimmed === "unknown") return trimmed;
+    if (trimmed === "unsat" || trimmed === "sat" || trimmed === "unknown") {
+      return trimmed;
+    }
   }
   return null;
 }
@@ -6524,95 +6248,98 @@ function _runSmtSolver(smtLib, smtOptions) {
     return { status: "error", reason: "SMT solver path is not configured" };
   }
   const solverName = _smtSolverProofName(smtOptions);
-  const child = spawnSync(smtOptions.solver, smtOptions.args, {
-    input: smtLib,
-    encoding: "utf8",
-    timeout: smtOptions.timeoutMs,
-    maxBuffer: 1024 * 1024
-  });
+  const child = spawnSync(smtOptions.solver, smtOptions.args, { input: smtLib, encoding: "utf8", timeout: smtOptions.timeoutMs, maxBuffer: 1024 * 1024 });
   if (child.error) {
     if (child.error.code === "ETIMEDOUT") {
-      return {
-        status: "timeout",
-        reason: `SMT solver ${solverName} timed out after ${smtOptions.timeoutMs} ms`
-      };
+      return { status: "timeout", reason: `SMT solver ${solverName} timed out after ${smtOptions.timeoutMs} ms` };
     }
-    return {
-      status: "error",
-      reason: `SMT solver ${solverName} failed to start: ${child.error.message}`
-    };
+    return { status: "error", reason: `SMT solver ${solverName} failed to start: ${child.error.message}` };
   }
   if (child.status !== 0) {
-    return {
-      status: "error",
-      reason: `SMT solver ${solverName} exited with status ${child.status}: ${_smtProcessSummary(child.stderr || child.stdout)}`
-    };
+    return { status: "error", reason: `SMT solver ${solverName} exited with status ${child.status}: ${_smtProcessSummary(child.stderr || child.stdout)}` };
   }
   const result = _parseSmtCheckSat(child.stdout, child.stderr);
   if (!result) {
-    return {
-      status: "error",
-      reason: `SMT solver ${solverName} did not return sat, unsat, or unknown`
-    };
+    return { status: "error", reason: `SMT solver ${solverName} did not return sat, unsat, or unknown` };
   }
   return { status: result, reason: `SMT solver ${solverName} returned ${result}` };
 }
 function _tptpIdentifier(raw, role) {
   let cleaned = String(raw).replace(/[^A-Za-z0-9_]/g, "_");
-  if (!cleaned) cleaned = role === "var" ? "X" : "rml_symbol";
+  if (!cleaned) {
+    cleaned = role === "var" ? "X" : "rml_symbol";
+  }
   if (role === "var") {
     cleaned = cleaned[0].toUpperCase() + cleaned.slice(1);
-    if (!/^[A-Z]/.test(cleaned)) cleaned = `V_${cleaned}`;
+    if (!/^[A-Z]/.test(cleaned)) {
+      cleaned = `V_${cleaned}`;
+    }
     return cleaned;
   }
   cleaned = cleaned.toLowerCase();
-  if (!/^[a-z]/.test(cleaned)) cleaned = `rml_${cleaned}`;
+  if (!/^[a-z]/.test(cleaned)) {
+    cleaned = `rml_${cleaned}`;
+  }
   return cleaned;
 }
 function _tptpTerm(node, boundVars) {
   if (typeof node === "string") {
-    if (boundVars.has(node)) return _tptpIdentifier(node, "var");
-    if (isNum(node)) return _tptpIdentifier(`num_${node}`, "term");
+    if (boundVars.has(node)) {
+      return _tptpIdentifier(node, "var");
+    }
+    if (isNum(node)) {
+      return _tptpIdentifier(`num_${node}`, "term");
+    }
     return _tptpIdentifier(node, "term");
   }
   if (!Array.isArray(node) || node.length === 0 || typeof node[0] !== "string") {
     throw _rewriteError(`TPTP export supports first-order terms only (got ${keyOf(node)})`);
   }
   const head = _tptpIdentifier(node[0], "term");
-  const args = node.slice(1).map((arg) => _tptpTerm(arg, boundVars)).join(", ");
+  const args = node.slice(1).map(((arg) => _tptpTerm(arg, boundVars))).join(", ");
   return `${head}(${args})`;
 }
 function _infixOperands(node, op) {
-  if (!Array.isArray(node) || node.length < 3 || node.length % 2 === 0) return null;
+  if (!Array.isArray(node) || node.length < 3 || node.length % 2 === 0) {
+    return null;
+  }
   const operands = [];
   for (let i = 0; i < node.length; i += 2) {
-    if (i > 0 && node[i - 1] !== op) return null;
+    if (i > 0 && node[i - 1] !== op) {
+      return null;
+    }
     operands.push(node[i]);
   }
   return operands;
 }
 function _tptpJoinFormula(op, operands, boundVars) {
-  return operands.map((part) => `(${_tptpFormula(part, boundVars)})`).join(` ${op} `);
+  return operands.map(((part) => `(${_tptpFormula(part, boundVars)})`)).join(` ${op} `);
 }
 function _quantifierParts(node) {
-  if (!Array.isArray(node) || node.length !== 3) return null;
+  if (!Array.isArray(node) || node.length !== 3) {
+    return null;
+  }
   const [head, binder, body] = node;
-  if (head !== "forall" && head !== "exists" && head !== "Pi") return null;
+  if (head !== "forall" && head !== "exists" && head !== "Pi") {
+    return null;
+  }
   const parsed = parseBinding(binder);
   if (!parsed) {
     throw _rewriteError(`TPTP export could not parse quantifier binder ${keyOf(binder)}`);
   }
-  return {
-    quantifier: head === "exists" ? "?" : "!",
-    variable: parsed.paramName,
-    body
-  };
+  return { quantifier: head === "exists" ? "?" : "!", variable: parsed.paramName, body };
 }
 function _tptpFormula(node, boundVars = /* @__PURE__ */ new Set()) {
   if (typeof node === "string") {
-    if (node === "true") return "$true";
-    if (node === "false") return "$false";
-    if (boundVars.has(node)) return _tptpIdentifier(node, "var");
+    if (node === "true") {
+      return "$true";
+    }
+    if (node === "false") {
+      return "$false";
+    }
+    if (boundVars.has(node)) {
+      return _tptpIdentifier(node, "var");
+    }
     return _tptpIdentifier(node, "pred");
   }
   if (!Array.isArray(node) || node.length === 0) {
@@ -6637,18 +6364,32 @@ function _tptpFormula(node, boundVars = /* @__PURE__ */ new Set()) {
     return `${_tptpTerm(node[0], boundVars)} != ${_tptpTerm(node[2], boundVars)}`;
   }
   const conjunction = _infixOperands(node, "and");
-  if (conjunction) return _tptpJoinFormula("&", conjunction, boundVars);
+  if (conjunction) {
+    return _tptpJoinFormula("&", conjunction, boundVars);
+  }
   const disjunction = _infixOperands(node, "or");
-  if (disjunction) return _tptpJoinFormula("|", disjunction, boundVars);
+  if (disjunction) {
+    return _tptpJoinFormula("|", disjunction, boundVars);
+  }
   const implication = _infixOperands(node, "=>") ?? _infixOperands(node, "implies");
-  if (implication && implication.length === 2) return _tptpJoinFormula("=>", implication, boundVars);
+  if (implication && implication.length === 2) {
+    return _tptpJoinFormula("=>", implication, boundVars);
+  }
   const equivalence = _infixOperands(node, "<=>") ?? _infixOperands(node, "iff");
-  if (equivalence && equivalence.length === 2) return _tptpJoinFormula("<=>", equivalence, boundVars);
+  if (equivalence && equivalence.length === 2) {
+    return _tptpJoinFormula("<=>", equivalence, boundVars);
+  }
   if (typeof node[0] === "string") {
     const head = node[0];
-    if (head === "not" && node.length === 2) return `~(${_tptpFormula(node[1], boundVars)})`;
-    if (head === "and" && node.length >= 2) return _tptpJoinFormula("&", node.slice(1), boundVars);
-    if (head === "or" && node.length >= 2) return _tptpJoinFormula("|", node.slice(1), boundVars);
+    if (head === "not" && node.length === 2) {
+      return `~(${_tptpFormula(node[1], boundVars)})`;
+    }
+    if (head === "and" && node.length >= 2) {
+      return _tptpJoinFormula("&", node.slice(1), boundVars);
+    }
+    if (head === "or" && node.length >= 2) {
+      return _tptpJoinFormula("|", node.slice(1), boundVars);
+    }
     if ((head === "=>" || head === "implies") && node.length === 3) {
       return _tptpJoinFormula("=>", node.slice(1), boundVars);
     }
@@ -6656,27 +6397,39 @@ function _tptpFormula(node, boundVars = /* @__PURE__ */ new Set()) {
       return _tptpJoinFormula("<=>", node.slice(1), boundVars);
     }
     const predicate = _tptpIdentifier(head, "pred");
-    if (node.length === 1) return predicate;
-    const args = node.slice(1).map((arg) => _tptpTerm(arg, boundVars)).join(", ");
+    if (node.length === 1) {
+      return predicate;
+    }
+    const args = node.slice(1).map(((arg) => _tptpTerm(arg, boundVars))).join(", ");
     return `${predicate}(${args})`;
   }
   throw _rewriteError(`TPTP export supports first-order formulas only (got ${keyOf(node)})`);
 }
 function goalToTptp(goal, context = []) {
   const proofGoal = goal && typeof goal === "object" && !Array.isArray(goal) && Object.prototype.hasOwnProperty.call(goal, "goal") ? _normaliseProofGoal(goal) : _normaliseProofGoal({ goal, context });
-  const lines = proofGoal.context.map((ctx, index) => `fof(rml_context_${index + 1}, axiom, (${_tptpFormula(ctx)})).`);
+  const lines = proofGoal.context.map(((ctx, index) => `fof(rml_context_${index + 1}, axiom, (${_tptpFormula(ctx)})).`));
   lines.push(`fof(rml_goal, conjecture, (${_tptpFormula(proofGoal.goal)})).`);
   return `${lines.join("\n")}
 `;
 }
 function parseAtpStatus(output) {
   const match = String(output || "").match(/\bSZS\s+status\s+([A-Za-z][A-Za-z0-9_]*)\b/);
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
   const status = match[1];
   let kind = "failure";
-  if (ATP_PROVED_STATUSES.has(status)) kind = "proved";
-  else if (ATP_UNKNOWN_STATUSES.has(status)) kind = "unknown";
-  else if (ATP_TIMEOUT_STATUSES.has(status)) kind = "timeout";
+  if (ATP_PROVED_STATUSES.has(status)) {
+    kind = "proved";
+  } else {
+    if (ATP_UNKNOWN_STATUSES.has(status)) {
+      kind = "unknown";
+    } else {
+      if (ATP_TIMEOUT_STATUSES.has(status)) {
+        kind = "timeout";
+      }
+    }
+  }
   return { status, kind };
 }
 function _normaliseAtpOptions(options = {}) {
@@ -6695,24 +6448,13 @@ function _normaliseAtpOptions(options = {}) {
   }
   const atpPath = atp.path ?? options.atpPath ?? null;
   const name = atp.name ?? options.atpName ?? (atpPath ? path.basename(String(atpPath)) : "atp");
-  return {
-    path: atpPath === null || atpPath === void 0 || String(atpPath).length === 0 ? null : String(atpPath),
-    args,
-    name: String(name || "atp").replace(/[()\s]+/g, "_"),
-    timeoutMs,
-    maxBuffer: atp.maxBuffer ?? options.atpMaxBuffer ?? 1024 * 1024
-  };
+  return { path: atpPath === null || atpPath === void 0 || String(atpPath).length === 0 ? null : String(atpPath), args, name: String(name || "atp").replace(/[()\s]+/g, "_"), timeoutMs, maxBuffer: atp.maxBuffer ?? options.atpMaxBuffer ?? 1024 * 1024 };
 }
 function _runAtpProcess(tptp, atpOptions) {
   if (!atpOptions.path) {
     return { ok: false, reason: "ATP path is not configured" };
   }
-  const child = spawnSync(atpOptions.path, atpOptions.args, {
-    input: tptp,
-    encoding: "utf8",
-    timeout: atpOptions.timeoutMs,
-    maxBuffer: atpOptions.maxBuffer
-  });
+  const child = spawnSync(atpOptions.path, atpOptions.args, { input: tptp, encoding: "utf8", timeout: atpOptions.timeoutMs, maxBuffer: atpOptions.maxBuffer });
   const stdout = child.stdout || "";
   const stderr = child.stderr || "";
   const combined = `${stdout}
@@ -6743,9 +6485,13 @@ ${stderr}`;
   return { ok: false, reason: `ATP returned non-proving status ${parsed.status}` };
 }
 function _normaliseRewriteDirection(direction = "forward") {
-  if (direction === void 0 || direction === null) return "forward";
+  if (direction === void 0 || direction === null) {
+    return "forward";
+  }
   const raw = String(direction);
-  if (raw === "forward" || raw === "left-to-right" || raw === "->") return "forward";
+  if (raw === "forward" || raw === "left-to-right" || raw === "->") {
+    return "forward";
+  }
   if (raw === "backward" || raw === "right-to-left" || raw === "<-" || raw === "reverse") {
     return "backward";
   }
@@ -6755,14 +6501,20 @@ function _normaliseRewriteOccurrence(occurrence = "all") {
   if (occurrence === void 0 || occurrence === null || occurrence === "all") {
     return { kind: "all" };
   }
-  if (occurrence === "first") return { kind: "index", index: 1 };
+  if (occurrence === "first") {
+    return { kind: "index", index: 1 };
+  }
   const index = typeof occurrence === "number" ? occurrence : Number(String(occurrence));
-  if (Number.isSafeInteger(index) && index >= 1) return { kind: "index", index };
+  if (Number.isSafeInteger(index) && index >= 1) {
+    return { kind: "index", index };
+  }
   throw _rewriteError(`rewrite occurrence must be "all", "first", or a positive integer (got ${keyOf(occurrence)})`);
 }
 function _rewriteSides(eqNode, direction) {
   const eq = _asEquality(eqNode);
-  if (!eq) throw _rewriteError("rewrite expects an equality link");
+  if (!eq) {
+    throw _rewriteError("rewrite expects an equality link");
+  }
   if (_normaliseRewriteDirection(direction) === "backward") {
     return { from: eq.right, to: eq.left };
   }
@@ -6780,7 +6532,9 @@ function _rewriteNode(node, from, to, occurrence) {
         return cloneTerm(to);
       }
     }
-    if (!Array.isArray(current)) return cloneTerm(current);
+    if (!Array.isArray(current)) {
+      return cloneTerm(current);
+    }
     return current.map(walk);
   }
   const rewritten = walk(node);
@@ -6796,18 +6550,26 @@ function rewrite(goal, eq, options = {}) {
   return _rewriteDetailed(goal, eq, options).node;
 }
 function _normaliseRewriteRules(rules) {
-  if (rules === void 0 || rules === null) return [];
-  if (typeof rules === "string") return parseLinoForms(rules);
+  if (rules === void 0 || rules === null) {
+    return [];
+  }
+  if (typeof rules === "string") {
+    return parseLinoForms(rules);
+  }
   const parsed = parseTermInput(rules);
-  if (_asEquality(parsed)) return [parsed];
-  if (!Array.isArray(rules)) return [parsed];
-  return rules.map((rule) => {
+  if (_asEquality(parsed)) {
+    return [parsed];
+  }
+  if (!Array.isArray(rules)) {
+    return [parsed];
+  }
+  return rules.map(((rule) => {
     const node = parseTermInput(rule);
     if (!_asEquality(node)) {
       throw _rewriteError(`simplify expects equality rewrite rules (got ${keyOf(node)})`);
     }
     return node;
-  });
+  }));
 }
 function _normaliseSimplifyMaxSteps(options = {}) {
   const raw = options.maxSteps ?? options.simplifyMaxSteps ?? DEFAULT_SIMPLIFY_MAX_STEPS;
@@ -6827,7 +6589,9 @@ function _simplifyDetailed(goal, rules, options = {}) {
     let applied = false;
     for (const rule of ruleNodes) {
       const rewritten = _rewriteDetailed(node, rule, { direction: options.direction });
-      if (!rewritten.changed) continue;
+      if (!rewritten.changed) {
+        continue;
+      }
       if (steps >= maxSteps) {
         throw _rewriteError(`simplify termination guard reached after ${maxSteps} rewrite steps`);
       }
@@ -6837,19 +6601,16 @@ function _simplifyDetailed(goal, rules, options = {}) {
       applied = true;
       break;
     }
-    if (!applied) return { node, changed, steps };
+    if (!applied) {
+      return { node, changed, steps };
+    }
   }
 }
 function simplify(goal, rules, options = {}) {
   return _simplifyDetailed(goal, rules, options).node;
 }
 function _normaliseTacticOptions(options = {}) {
-  return {
-    rewriteRules: _normaliseRewriteRules(options.rewriteRules ?? options.rules ?? []),
-    simplifyMaxSteps: _normaliseSimplifyMaxSteps(options),
-    atp: _normaliseAtpOptions(options),
-    smt: _normaliseSmtOptions(options)
-  };
+  return { rewriteRules: _normaliseRewriteRules(options.rewriteRules ?? options.rules ?? []), simplifyMaxSteps: _normaliseSimplifyMaxSteps(options), atp: _normaliseAtpOptions(options), smt: _normaliseSmtOptions(options) };
 }
 function _parseRewriteTactic(args) {
   let index = 0;
@@ -6901,101 +6662,68 @@ function _typeAscription(node) {
   return null;
 }
 function _exactClosesGoal(arg, goal) {
-  if (isStructurallySame(arg, goal.goal)) return true;
+  if (isStructurallySame(arg, goal.goal)) {
+    return true;
+  }
   const ascription = _typeAscription(arg);
-  if (ascription && isStructurallySame(ascription.type, goal.goal)) return true;
-  return goal.context.some((ctx) => {
-    if (isStructurallySame(ctx, arg) && isStructurallySame(arg, goal.goal)) return true;
-    if (isStructurallySame(ctx, goal.goal) && isStructurallySame(arg, goal.goal)) return true;
+  if (ascription && isStructurallySame(ascription.type, goal.goal)) {
+    return true;
+  }
+  return goal.context.some(((ctx) => {
+    if (isStructurallySame(ctx, arg) && isStructurallySame(arg, goal.goal)) {
+      return true;
+    }
+    if (isStructurallySame(ctx, goal.goal) && isStructurallySame(arg, goal.goal)) {
+      return true;
+    }
     const ctxAscription = _typeAscription(ctx);
     return !!ctxAscription && isStructurallySame(ctxAscription.term, arg) && isStructurallySame(ctxAscription.type, goal.goal);
-  });
+  }));
 }
 function _applyTactic(state, tactic, recordTactic = tactic, tacticOptions = _normaliseTacticOptions()) {
   const name = _tacticName(tactic);
   const args = _tacticArgs(tactic);
   if (name === "by") {
-    if (args.length === 1) return _applyTactic(state, args[0], recordTactic, tacticOptions);
-    if (args.length > 1) return _applyTactic(state, args, recordTactic, tacticOptions);
-    return {
-      ok: false,
-      state,
-      diagnostic: _tacticDiagnostic(recordTactic, state.goals[0] || null, "`by` requires an inner tactic")
-    };
+    if (args.length === 1) {
+      return _applyTactic(state, args[0], recordTactic, tacticOptions);
+    }
+    if (args.length > 1) {
+      return _applyTactic(state, args, recordTactic, tacticOptions);
+    }
+    return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, state.goals[0] || null, "`by` requires an inner tactic") };
   }
   const current = state.goals[0] || null;
   if (!current) {
-    return {
-      ok: false,
-      state,
-      diagnostic: _tacticDiagnostic(recordTactic, null, "no open goals")
-    };
+    return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, null, "no open goals") };
   }
   if (name === "reflexivity") {
     const eq = _asEquality(current.goal);
     if (!eq) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "reflexivity expects an equality goal")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "reflexivity expects an equality goal") };
     }
     if (!isStructurallySame(eq.left, eq.right)) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "both sides are not structurally equal")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "both sides are not structurally equal") };
     }
     return { ok: true, state: _replaceCurrentGoal(state, [], recordTactic) };
   }
   if (name === "symmetry") {
     const eq = _asEquality(current.goal);
     if (!eq) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "symmetry expects an equality goal")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "symmetry expects an equality goal") };
     }
-    return {
-      ok: true,
-      state: _replaceCurrentGoal(
-        state,
-        [_goalWithContext(current, [eq.right, "=", eq.left])],
-        recordTactic
-      )
-    };
+    return { ok: true, state: _replaceCurrentGoal(state, [_goalWithContext(current, [eq.right, "=", eq.left])], recordTactic) };
   }
   if (name === "transitivity") {
     const eq = _asEquality(current.goal);
     if (!eq || args.length !== 1) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "transitivity expects an equality goal and one intermediate term")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "transitivity expects an equality goal and one intermediate term") };
     }
     const mid = args[0];
-    return {
-      ok: true,
-      state: _replaceCurrentGoal(
-        state,
-        [
-          _goalWithContext(current, [eq.left, "=", mid]),
-          _goalWithContext(current, [mid, "=", eq.right])
-        ],
-        recordTactic
-      )
-    };
+    return { ok: true, state: _replaceCurrentGoal(state, [_goalWithContext(current, [eq.left, "=", mid]), _goalWithContext(current, [mid, "=", eq.right])], recordTactic) };
   }
   if (name === "suppose") {
     if (args.length !== 1) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "suppose expects one hypothesis link")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "suppose expects one hypothesis link") };
     }
     const next = _cloneProofState(state);
     next.goals[0].context.push(cloneTerm(args[0]));
@@ -7004,195 +6732,103 @@ function _applyTactic(state, tactic, recordTactic = tactic, tacticOptions = _nor
   }
   if (name === "introduce") {
     if (args.length !== 1 || typeof args[0] !== "string") {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "introduce expects one variable name")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "introduce expects one variable name") };
     }
     if (!Array.isArray(current.goal) || current.goal.length !== 3 || current.goal[0] !== "Pi") {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "introduce expects a Pi goal")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "introduce expects a Pi goal") };
     }
     const binding = parseBinding(current.goal[1]);
     if (!binding) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "introduce could not parse the Pi binder")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "introduce could not parse the Pi binder") };
     }
     const variable = args[0];
     const body = subst(current.goal[2], binding.paramName, variable);
     const introduced = _goalWithContext(current, body);
     introduced.context.push([variable, "of", cloneTerm(binding.paramType)]);
-    return {
-      ok: true,
-      state: _replaceCurrentGoal(state, [introduced], recordTactic)
-    };
+    return { ok: true, state: _replaceCurrentGoal(state, [introduced], recordTactic) };
   }
   if (name === "rewrite") {
     let parsed;
     try {
       parsed = _parseRewriteTactic(args);
     } catch (err) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, err.message)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, err.message) };
     }
     let rewritten;
     try {
-      rewritten = _rewriteDetailed(current.goal, parsed.eq, {
-        direction: parsed.direction,
-        occurrence: parsed.occurrence
-      });
+      rewritten = _rewriteDetailed(current.goal, parsed.eq, { direction: parsed.direction, occurrence: parsed.occurrence });
     } catch (err) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, err.message)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, err.message) };
     }
     if (!rewritten.changed) {
       const { from } = _rewriteSides(parsed.eq, parsed.direction);
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, `rewrite did not find ${keyOf(from)} in the current goal`)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, `rewrite did not find ${keyOf(from)} in the current goal`) };
     }
-    return {
-      ok: true,
-      state: _replaceCurrentGoal(state, [_goalWithContext(current, rewritten.node)], recordTactic)
-    };
+    return { ok: true, state: _replaceCurrentGoal(state, [_goalWithContext(current, rewritten.node)], recordTactic) };
   }
   if (name === "simplify") {
     let parsed;
     try {
       parsed = _parseSimplifyTactic(args);
     } catch (err) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, err.message)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, err.message) };
     }
     const rules = parsed.rules ?? tacticOptions.rewriteRules;
     if (rules.length === 0) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "simplify expects at least one configured rewrite rule")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "simplify expects at least one configured rewrite rule") };
     }
     let simplified;
     try {
-      simplified = _simplifyDetailed(current.goal, rules, {
-        maxSteps: parsed.maxSteps ?? tacticOptions.simplifyMaxSteps
-      });
+      simplified = _simplifyDetailed(current.goal, rules, { maxSteps: parsed.maxSteps ?? tacticOptions.simplifyMaxSteps });
     } catch (err) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, err.message)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, err.message) };
     }
-    return {
-      ok: true,
-      state: _replaceCurrentGoal(state, [_goalWithContext(current, simplified.node)], recordTactic)
-    };
+    return { ok: true, state: _replaceCurrentGoal(state, [_goalWithContext(current, simplified.node)], recordTactic) };
   }
   if (name === "smt") {
     if (args.length !== 0) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "smt expects no arguments; configure the solver through tactic options")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "smt expects no arguments; configure the solver through tactic options") };
     }
     let smtLib;
     try {
       smtLib = smtLibForGoal(current.goal);
     } catch (err) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, err.message)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, err.message) };
     }
     const checked = _runSmtSolver(smtLib, tacticOptions.smt);
     if (checked.status !== "unsat") {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, checked.reason)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, checked.reason) };
     }
-    return {
-      ok: true,
-      state: _replaceCurrentGoal(state, [], _smtTrustedNode(tacticOptions.smt))
-    };
+    return { ok: true, state: _replaceCurrentGoal(state, [], _smtTrustedNode(tacticOptions.smt)) };
   }
   if (name === "atp") {
     if (args.length !== 0) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "atp expects no tactic arguments")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "atp expects no tactic arguments") };
     }
     let tptp;
     try {
       tptp = goalToTptp(current);
     } catch (err) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, err.message)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, err.message) };
     }
     const atp = _runAtpProcess(tptp, tacticOptions.atp);
     if (!atp.ok) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, atp.reason)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, atp.reason) };
     }
-    return {
-      ok: true,
-      state: _replaceCurrentGoal(state, [], ["by", "atp-trusted", atp.solver])
-    };
+    return { ok: true, state: _replaceCurrentGoal(state, [], ["by", "atp-trusted", atp.solver]) };
   }
   if (name === "exact") {
     if (args.length !== 1) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "exact expects one term or hypothesis")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "exact expects one term or hypothesis") };
     }
     if (!_exactClosesGoal(args[0], current)) {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, `${keyOf(args[0])} does not prove the current goal`)
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, `${keyOf(args[0])} does not prove the current goal`) };
     }
     return { ok: true, state: _replaceCurrentGoal(state, [], recordTactic) };
   }
   if (name === "induction") {
     if (args.length < 2 || typeof args[0] !== "string") {
-      return {
-        ok: false,
-        state,
-        diagnostic: _tacticDiagnostic(recordTactic, current, "induction expects a variable and at least one case")
-      };
+      return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "induction expects a variable and at least one case") };
     }
     const variable = args[0];
     const cases = args.slice(1);
@@ -7200,11 +6836,7 @@ function _applyTactic(state, tactic, recordTactic = tactic, tacticOptions = _nor
     const nestedProofs = [];
     for (const caseNode of cases) {
       if (!Array.isArray(caseNode) || caseNode.length < 2 || caseNode[0] !== "case") {
-        return {
-          ok: false,
-          state,
-          diagnostic: _tacticDiagnostic(recordTactic, current, "induction cases must be `(case <pattern> <tactic>...)` links")
-        };
+        return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, "induction cases must be `(case <pattern> <tactic>...)` links") };
       }
       const pattern = caseNode[1];
       const caseGoal = _goalWithContext(current, subst(current.goal, variable, pattern));
@@ -7220,19 +6852,9 @@ function _applyTactic(state, tactic, recordTactic = tactic, tacticOptions = _nor
       openGoals.push(...nested.state.goals);
       nestedProofs.push(...nested.state.proof);
     }
-    return {
-      ok: true,
-      state: {
-        goals: [...openGoals, ...state.goals.slice(1)],
-        proof: [...state.proof, cloneTerm(recordTactic), ...nestedProofs.map(cloneTerm)]
-      }
-    };
+    return { ok: true, state: { goals: [...openGoals, ...state.goals.slice(1)], proof: [...state.proof, cloneTerm(recordTactic), ...nestedProofs.map(cloneTerm)] } };
   }
-  return {
-    ok: false,
-    state,
-    diagnostic: _tacticDiagnostic(recordTactic, current, `unknown tactic "${String(name || keyOf(tactic))}"`)
-  };
+  return { ok: false, state, diagnostic: _tacticDiagnostic(recordTactic, current, `unknown tactic "${String(name || keyOf(tactic))}"`) };
 }
 function _runTacticsInternal(state, tactics, tacticOptions = _normaliseTacticOptions()) {
   let next = _cloneProofState(state);
@@ -7251,16 +6873,22 @@ function runTactics(state, tactics, options = {}) {
   return _runTacticsInternal(_normaliseProofState(state), tactics, _normaliseTacticOptions(options));
 }
 function evalArith(node, env) {
-  if (typeof node === "string" && isNum(node)) return parseFloat(node);
+  if (typeof node === "string" && isNum(node)) {
+    return parseFloat(node);
+  }
   const evaluated = evalNode(node, env);
-  if (isTermResult(evaluated)) return evalArith(evaluated.term, env);
+  if (isTermResult(evaluated)) {
+    return evalArith(evaluated.term, env);
+  }
   return evaluated;
 }
 function isTermResult(value) {
   return value && typeof value === "object" && Object.prototype.hasOwnProperty.call(value, "term");
 }
 function evalTermNode(node, env) {
-  if (!Array.isArray(node)) return node;
+  if (!Array.isArray(node)) {
+    return node;
+  }
   if (node.length === 4 && node[0] === "subst" && typeof node[2] === "string") {
     return evalTermNode(subst(evalTermNode(node[1], env), node[2], evalTermNode(node[3], env)), env);
   }
@@ -7269,11 +6897,15 @@ function evalTermNode(node, env) {
     const arg = evalTermNode(node[2], env);
     if (Array.isArray(fn) && fn.length === 3 && fn[0] === "lambda") {
       const parsed = parseBinding(fn[1]);
-      if (parsed) return evalTermNode(subst(fn[2], parsed.paramName, arg), env);
+      if (parsed) {
+        return evalTermNode(subst(fn[2], parsed.paramName, arg), env);
+      }
     }
     if (typeof fn === "string") {
       const lambda = env.getLambda(fn);
-      if (lambda) return evalTermNode(subst(lambda.body, lambda.param, arg), env);
+      if (lambda) {
+        return evalTermNode(subst(lambda.body, lambda.param, arg), env);
+      }
     }
   }
   if (Array.isArray(node[0]) && node[0].length === 3 && node[0][0] === "lambda" && node.length >= 2) {
@@ -7288,13 +6920,15 @@ function evalTermNode(node, env) {
 function conversionOptionsFrom(ctx, options) {
   const opts = options || {};
   const ctxOpts = ctx && !(ctx instanceof Env) ? ctx : {};
-  return {
-    eta: Boolean(opts.eta || opts.etaConversion || ctxOpts.eta || ctxOpts.etaConversion)
-  };
+  return { eta: Boolean(opts.eta || opts.etaConversion || ctxOpts.eta || ctxOpts.etaConversion) };
 }
 function parseTermInput(term) {
-  if (Array.isArray(term)) return desugarHoas(term);
-  if (typeof term !== "string") return String(term);
+  if (Array.isArray(term)) {
+    return desugarHoas(term);
+  }
+  if (typeof term !== "string") {
+    return String(term);
+  }
   const trimmed = term.trim();
   if (trimmed.startsWith("(")) {
     try {
@@ -7306,8 +6940,12 @@ function parseTermInput(term) {
   return term;
 }
 function whnfTerm(node, env, options = {}) {
-  if (!Array.isArray(node)) return node;
-  if (node.length === 0) return [];
+  if (!Array.isArray(node)) {
+    return node;
+  }
+  if (node.length === 0) {
+    return [];
+  }
   if (node.length === 4 && node[0] === "subst" && typeof node[2] === "string") {
     const term = whnfTerm(node[1], env, options);
     const replacement = node[3];
@@ -7331,33 +6969,51 @@ function whnfTerm(node, env, options = {}) {
   while (spineArgs.length > 0) {
     if (Array.isArray(head) && head.length === 3 && head[0] === "lambda") {
       const parsed = parseBinding(head[1]);
-      if (!parsed) break;
+      if (!parsed) {
+        break;
+      }
       head = subst(head[2], parsed.paramName, spineArgs.shift());
       continue;
     }
     if (typeof head === "string") {
       const lambda = env.getLambda(head) || env.getLambda(env._resolveQualified(head));
-      if (!lambda) break;
+      if (!lambda) {
+        break;
+      }
       head = subst(lambda.body, lambda.param, spineArgs.shift());
       continue;
     }
     break;
   }
-  if (spineArgs.length === 0) return head;
+  if (spineArgs.length === 0) {
+    return head;
+  }
   let stuck = head;
-  for (const arg of spineArgs) stuck = ["apply", stuck, arg];
+  for (const arg of spineArgs) {
+    stuck = ["apply", stuck, arg];
+  }
   return stuck;
 }
 function isNeutralApply(node, env) {
-  if (!Array.isArray(node) || node.length !== 3 || node[0] !== "apply") return false;
+  if (!Array.isArray(node) || node.length !== 3 || node[0] !== "apply") {
+    return false;
+  }
   const fn = node[1];
-  if (typeof fn !== "string") return false;
-  if (env.getLambda(fn) || env.getLambda(env._resolveQualified(fn))) return false;
+  if (typeof fn !== "string") {
+    return false;
+  }
+  if (env.getLambda(fn) || env.getLambda(env._resolveQualified(fn))) {
+    return false;
+  }
   return isVariableToken(fn);
 }
 function normalizeTerm(node, env, options = {}) {
-  if (!Array.isArray(node)) return node;
-  if (node.length === 0) return [];
+  if (!Array.isArray(node)) {
+    return node;
+  }
+  if (node.length === 0) {
+    return [];
+  }
   if (node.length === 4 && node[0] === "subst" && typeof node[2] === "string") {
     const term = normalizeTerm(node[1], env, options);
     const replacement = normalizeTerm(node[3], env, options);
@@ -7368,11 +7024,15 @@ function normalizeTerm(node, env, options = {}) {
     const arg = normalizeTerm(node[2], env, options);
     if (Array.isArray(fn) && fn.length === 3 && fn[0] === "lambda") {
       const parsed = parseBinding(fn[1]);
-      if (parsed) return normalizeTerm(subst(fn[2], parsed.paramName, arg), env, options);
+      if (parsed) {
+        return normalizeTerm(subst(fn[2], parsed.paramName, arg), env, options);
+      }
     }
     if (typeof fn === "string") {
       const lambda = env.getLambda(fn) || env.getLambda(env._resolveQualified(fn));
-      if (lambda) return normalizeTerm(subst(lambda.body, lambda.param, arg), env, options);
+      if (lambda) {
+        return normalizeTerm(subst(lambda.body, lambda.param, arg), env, options);
+      }
     }
     return ["apply", fn, arg];
   }
@@ -7386,7 +7046,9 @@ function normalizeTerm(node, env, options = {}) {
     if (parsed) {
       const first = normalizeTerm(args[0], env, options);
       const reduced = subst(head[2], parsed.paramName, first);
-      if (args.length === 1) return normalizeTerm(reduced, env, options);
+      if (args.length === 1) {
+        return normalizeTerm(reduced, env, options);
+      }
       return normalizeTerm([reduced, ...args.slice(1)], env, options);
     }
   }
@@ -7395,25 +7057,31 @@ function normalizeTerm(node, env, options = {}) {
     if (lambda) {
       const first = normalizeTerm(args[0], env, options);
       const reduced = subst(lambda.body, lambda.param, first);
-      if (args.length === 1) return normalizeTerm(reduced, env, options);
+      if (args.length === 1) {
+        return normalizeTerm(reduced, env, options);
+      }
       return normalizeTerm([reduced, ...args.slice(1)], env, options);
     }
   }
-  return node.map((child) => normalizeTerm(child, env, options));
+  return node.map(((child) => normalizeTerm(child, env, options)));
 }
 function etaContract(term, env, options) {
   if (!options.eta || !Array.isArray(term) || term.length !== 3 || term[0] !== "lambda") {
     return term;
   }
   const bindings = parseBindings(term[1]);
-  if (!bindings || bindings.length !== 1) return term;
+  if (!bindings || bindings.length !== 1) {
+    return term;
+  }
   const param = bindings[0].paramName;
   const body = term[2];
   let fn = null;
   if (Array.isArray(body) && body.length === 3 && body[0] === "apply" && isStructurallySame(body[2], param)) {
     fn = body[1];
-  } else if (Array.isArray(body) && body.length === 2 && isStructurallySame(body[1], param)) {
-    fn = body[0];
+  } else {
+    if (Array.isArray(body) && body.length === 2 && isStructurallySame(body[1], param)) {
+      fn = body[0];
+    }
   }
   if (fn !== null && !freeVariables(fn).has(param)) {
     return normalizeTerm(fn, env, options);
@@ -7435,29 +7103,43 @@ function sameNormalizedInput(left, right, leftTerm, rightTerm) {
   return isStructurallySame(left, leftTerm) && isStructurallySame(right, rightTerm);
 }
 function explicitSymbolNumber(node, env) {
-  if (typeof node !== "string") return null;
-  if (env.symbolProb.has(node)) return env.symbolProb.get(node);
+  if (typeof node !== "string") {
+    return null;
+  }
+  if (env.symbolProb.has(node)) {
+    return env.symbolProb.get(node);
+  }
   const resolved = env._resolveQualified(node);
-  if (resolved !== node && env.symbolProb.has(resolved)) return env.symbolProb.get(resolved);
+  if (resolved !== node && env.symbolProb.has(resolved)) {
+    return env.symbolProb.get(resolved);
+  }
   return null;
 }
 function tryEvalNumeric(node, env, options = {}) {
   const term = normalizeTerm(node, env, options);
   if (typeof term === "string") {
-    if (isNum(term)) return parseFloat(term);
+    if (isNum(term)) {
+      return parseFloat(term);
+    }
     return explicitSymbolNumber(term, env);
   }
-  if (!Array.isArray(term) || term.length === 0) return null;
+  if (!Array.isArray(term) || term.length === 0) {
+    return null;
+  }
   if (term.length === 3 && typeof term[1] === "string" && ["+", "-", "*", "/"].includes(term[1])) {
     const left = tryEvalNumeric(term[0], env, options);
     const right = tryEvalNumeric(term[2], env, options);
-    if (left === null || right === null) return null;
+    if (left === null || right === null) {
+      return null;
+    }
     return env.getOp(term[1])(left, right);
   }
   if (term.length === 3 && typeof term[1] === "string" && ["and", "or", "both", "neither"].includes(term[1])) {
     const left = tryEvalNumeric(term[0], env, options);
     const right = tryEvalNumeric(term[2], env, options);
-    if (left === null || right === null) return null;
+    if (left === null || right === null) {
+      return null;
+    }
     return env.clamp(env.getOp(term[1])(left, right));
   }
   const [head, ...args] = term;
@@ -7465,7 +7147,9 @@ function tryEvalNumeric(node, env, options = {}) {
     const vals = [];
     for (const arg of args) {
       const value = tryEvalNumeric(arg, env, options);
-      if (value === null) return null;
+      if (value === null) {
+        return null;
+      }
       vals.push(value);
     }
     return env.clamp(env.getOp(head)(...vals));
@@ -7474,12 +7158,18 @@ function tryEvalNumeric(node, env, options = {}) {
 }
 function equalityTruthValue(left, right, leftTerm, rightTerm, env, options = {}) {
   const assigned = lookupAssignedInfix(env, "=", left, right);
-  if (assigned !== null) return env.clamp(assigned);
+  if (assigned !== null) {
+    return env.clamp(assigned);
+  }
   if (!sameNormalizedInput(left, right, leftTerm, rightTerm)) {
     const normalizedAssigned = lookupAssignedInfix(env, "=", leftTerm, rightTerm);
-    if (normalizedAssigned !== null) return env.clamp(normalizedAssigned);
+    if (normalizedAssigned !== null) {
+      return env.clamp(normalizedAssigned);
+    }
   }
-  if (isStructurallySame(leftTerm, rightTerm)) return env.hi;
+  if (isStructurallySame(leftTerm, rightTerm)) {
+    return env.hi;
+  }
   const leftNum = tryEvalNumeric(leftTerm, env, options);
   const rightNum = tryEvalNumeric(rightTerm, env, options);
   if (leftNum !== null && rightNum !== null) {
@@ -7489,12 +7179,16 @@ function equalityTruthValue(left, right, leftTerm, rightTerm, env, options = {})
 }
 function evalEqualityNode(left, op, right, env, options = {}) {
   const direct = lookupAssignedInfix(env, op, left, right);
-  if (direct !== null) return env.clamp(direct);
+  if (direct !== null) {
+    return env.clamp(direct);
+  }
   const leftTerm = normalizeTerm(left, env, options);
   const rightTerm = normalizeTerm(right, env, options);
   if (!sameNormalizedInput(left, right, leftTerm, rightTerm)) {
     const normalizedDirect = lookupAssignedInfix(env, op, leftTerm, rightTerm);
-    if (normalizedDirect !== null) return env.clamp(normalizedDirect);
+    if (normalizedDirect !== null) {
+      return env.clamp(normalizedDirect);
+    }
   }
   if (op === "=") {
     return env.clamp(equalityTruthValue(left, right, leftTerm, rightTerm, env, options));
@@ -7508,25 +7202,33 @@ function isConvertible(left, right, ctx, options) {
   const leftNode = parseTermInput(left);
   const rightNode = parseTermInput(right);
   const assigned = lookupAssignedInfix(env, "=", leftNode, rightNode);
-  if (assigned !== null) return env.clamp(assigned) === env.hi;
+  if (assigned !== null) {
+    return env.clamp(assigned) === env.hi;
+  }
   const leftTerm = normalizeTerm(leftNode, env, opts);
   const rightTerm = normalizeTerm(rightNode, env, opts);
   if (!sameNormalizedInput(leftNode, rightNode, leftTerm, rightTerm)) {
     const normalizedAssigned = lookupAssignedInfix(env, "=", leftTerm, rightTerm);
-    if (normalizedAssigned !== null) return env.clamp(normalizedAssigned) === env.hi;
+    if (normalizedAssigned !== null) {
+      return env.clamp(normalizedAssigned) === env.hi;
+    }
   }
   return isStructurallySame(leftTerm, rightTerm);
 }
 function flattenNeutralApplies(node, env) {
-  if (!Array.isArray(node)) return node;
-  if (node.length === 0) return node;
+  if (!Array.isArray(node)) {
+    return node;
+  }
+  if (node.length === 0) {
+    return node;
+  }
   const binder = binderInfo(node);
   if (binder) {
     const out = node.slice();
     out[binder.bodyIndex] = flattenNeutralApplies(node[binder.bodyIndex], env);
     return out;
   }
-  const flattened = node.map((child) => flattenNeutralApplies(child, env));
+  const flattened = node.map(((child) => flattenNeutralApplies(child, env)));
   if (isNeutralApply(flattened, env)) {
     return [flattened[1], flattened[2]];
   }
@@ -7544,21 +7246,25 @@ function nf(term, ctx, options) {
 }
 function evalReducedTerm(reduced, env) {
   const term = normalizeTerm(reduced, env);
-  if (hasUnresolvedFreeVariables(term, env)) return { term };
+  if (hasUnresolvedFreeVariables(term, env)) {
+    return { term };
+  }
   return evalNode(term, env);
 }
-var MODE_FLAG_TOKENS = {
-  "+input": "in",
-  "-output": "out",
-  "*either": "either"
-};
+var MODE_FLAG_TOKENS = { "+input": "in", "-output": "out", "*either": "either" };
 function parseModeFlag(token) {
-  if (typeof token !== "string") return null;
+  if (typeof token !== "string") {
+    return null;
+  }
   return Object.prototype.hasOwnProperty.call(MODE_FLAG_TOKENS, token) ? MODE_FLAG_TOKENS[token] : null;
 }
 function parseModeForm(node) {
-  if (!Array.isArray(node) || node.length < 2) return null;
-  if (node[0] !== "mode") return null;
+  if (!Array.isArray(node) || node.length < 2) {
+    return null;
+  }
+  if (node[0] !== "mode") {
+    return null;
+  }
   if (typeof node[1] !== "string") {
     throw new RmlError("E030", "Mode declaration: relation name must be a bare symbol");
   }
@@ -7578,14 +7284,20 @@ function parseModeForm(node) {
 }
 function isGroundForMode(arg, env) {
   if (typeof arg === "string") {
-    if (isNum(arg)) return true;
+    if (isNum(arg)) {
+      return true;
+    }
     return contextHasName(env, arg);
   }
-  if (!Array.isArray(arg)) return true;
+  if (!Array.isArray(arg)) {
+    return true;
+  }
   return !hasUnresolvedFreeVariables(arg, env);
 }
 function parseRelationForm(node) {
-  if (!Array.isArray(node) || node[0] !== "relation") return null;
+  if (!Array.isArray(node) || node[0] !== "relation") {
+    return null;
+  }
   if (node.length < 2 || typeof node[1] !== "string") {
     throw new RmlError("E032", "Relation declaration: relation name must be a bare symbol");
   }
@@ -7606,29 +7318,38 @@ function parseRelationForm(node) {
   for (let i = 2; i < node.length; i++) {
     const clause = node[i];
     if (!Array.isArray(clause) || clause.length < 2 || clause[0] !== name) {
-      throw new RmlError(
-        "E032",
-        `Relation declaration for "${name}": clause ${i - 1} must be a list whose head is "${name}"`
-      );
+      throw new RmlError("E032", `Relation declaration for "${name}": clause ${i - 1} must be a list whose head is "${name}"`);
     }
     clauses.push(clause);
   }
   return { name, clauses };
 }
 function isStrictSubterm(inner, outer) {
-  if (!Array.isArray(outer)) return false;
+  if (!Array.isArray(outer)) {
+    return false;
+  }
   for (const child of outer) {
-    if (isStructurallySame(inner, child)) return true;
-    if (isStrictSubterm(inner, child)) return true;
+    if (isStructurallySame(inner, child)) {
+      return true;
+    }
+    if (isStrictSubterm(inner, child)) {
+      return true;
+    }
   }
   return false;
 }
 function collectRecursiveCalls(node, relName, isHead) {
   const out = [];
-  if (!Array.isArray(node)) return out;
-  if (!isHead && node[0] === relName) out.push(node);
+  if (!Array.isArray(node)) {
+    return out;
+  }
+  if (!isHead && node[0] === relName) {
+    out.push(node);
+  }
   for (let i = 0; i < node.length; i++) {
-    if (i === 0 && typeof node[i] === "string") continue;
+    if (i === 0 && typeof node[i] === "string") {
+      continue;
+    }
     out.push(...collectRecursiveCalls(node[i], relName, false));
   }
   return out;
@@ -7636,86 +7357,70 @@ function collectRecursiveCalls(node, relName, isHead) {
 function checkRecursiveDecrease(call, headArgs, flags, relName) {
   const callArgs = call.slice(1);
   const inputIndices = [];
-  for (let i = 0; i < flags.length; i++) if (flags[i] === "in") inputIndices.push(i);
+  for (let i = 0; i < flags.length; i++) {
+    if (flags[i] === "in") {
+      inputIndices.push(i);
+    }
+  }
   let inputPairs = null;
   if (callArgs.length === flags.length) {
-    inputPairs = inputIndices.map((i) => [callArgs[i], headArgs[i]]);
-  } else if (callArgs.length === inputIndices.length) {
-    inputPairs = inputIndices.map((i, j) => [callArgs[j], headArgs[i]]);
+    inputPairs = inputIndices.map(((i) => [callArgs[i], headArgs[i]]));
   } else {
-    return {
-      reason: `recursive call \`${keyOf(call)}\` has ${callArgs.length} argument${callArgs.length === 1 ? "" : "s"}, expected ${flags.length} (or ${inputIndices.length} input${inputIndices.length === 1 ? "" : "s"})`,
-      call
-    };
+    if (callArgs.length === inputIndices.length) {
+      inputPairs = inputIndices.map(((i, j) => [callArgs[j], headArgs[i]]));
+    } else {
+      return { reason: `recursive call \`${keyOf(call)}\` has ${callArgs.length} argument${callArgs.length === 1 ? "" : "s"}, expected ${flags.length} (or ${inputIndices.length} input${inputIndices.length === 1 ? "" : "s"})`, call };
+    }
   }
   if (inputIndices.length === 0) {
-    return {
-      reason: `relation "${relName}" has no \`+input\` slot, so structural decrease is unverifiable`,
-      call
-    };
+    return { reason: `relation "${relName}" has no \`+input\` slot, so structural decrease is unverifiable`, call };
   }
   for (const [callArg, headArg] of inputPairs) {
     if (isStrictSubterm(callArg, headArg)) {
       return null;
     }
   }
-  return {
-    reason: `recursive call \`${keyOf(call)}\` does not structurally decrease any \`+input\` slot of \`${keyOf([relName, ...headArgs])}\``,
-    call
-  };
+  return { reason: `recursive call \`${keyOf(call)}\` does not structurally decrease any \`+input\` slot of \`${keyOf([relName, ...headArgs])}\``, call };
 }
 function isTotal(env, relName) {
   const diagnostics = [];
   const clauses = env.relations.get(relName);
   const flags = env.modes.get(relName);
   if (!flags) {
-    diagnostics.push({
-      code: "E032",
-      message: `Totality check for "${relName}": no \`(mode ${relName} ...)\` declaration found`
-    });
+    diagnostics.push({ code: "E032", message: `Totality check for "${relName}": no \`(mode ${relName} ...)\` declaration found` });
     return { ok: false, diagnostics };
   }
   if (!clauses || clauses.length === 0) {
-    diagnostics.push({
-      code: "E032",
-      message: `Totality check for "${relName}": no \`(relation ${relName} ...)\` clauses found`
-    });
+    diagnostics.push({ code: "E032", message: `Totality check for "${relName}": no \`(relation ${relName} ...)\` clauses found` });
     return { ok: false, diagnostics };
   }
   for (let ci = 0; ci < clauses.length; ci++) {
     const clause = clauses[ci];
     const headArgs = clause.slice(1);
     if (headArgs.length !== flags.length) {
-      diagnostics.push({
-        code: "E032",
-        message: `Totality check for "${relName}": clause ${ci + 1} \`${keyOf(clause)}\` has ${headArgs.length} argument${headArgs.length === 1 ? "" : "s"}, mode declares ${flags.length}`
-      });
+      diagnostics.push({ code: "E032", message: `Totality check for "${relName}": clause ${ci + 1} \`${keyOf(clause)}\` has ${headArgs.length} argument${headArgs.length === 1 ? "" : "s"}, mode declares ${flags.length}` });
       continue;
     }
     const calls = collectRecursiveCalls(clause, relName, true);
     for (const call of calls) {
       const witness = checkRecursiveDecrease(call, headArgs, flags, relName);
       if (witness) {
-        diagnostics.push({
-          code: "E032",
-          message: `Totality check for "${relName}": clause ${ci + 1} \`${keyOf(clause)}\` \u2014 ${witness.reason}`
-        });
+        diagnostics.push({ code: "E032", message: `Totality check for "${relName}": clause ${ci + 1} \`${keyOf(clause)}\` \u2014 ${witness.reason}` });
       }
     }
   }
   return { ok: diagnostics.length === 0, diagnostics };
 }
 function parseDefineForm(node) {
-  if (!Array.isArray(node) || node[0] !== "define") return null;
+  if (!Array.isArray(node) || node[0] !== "define") {
+    return null;
+  }
   if (node.length < 2 || typeof node[1] !== "string") {
     throw new RmlError("E035", "Define declaration: name must be a bare symbol");
   }
   const name = node[1];
   if (node.length < 3) {
-    throw new RmlError(
-      "E035",
-      `Define declaration for "${name}" must list at least one \`(case ...)\` clause`
-    );
+    throw new RmlError("E035", `Define declaration for "${name}" must list at least one \`(case ...)\` clause`);
   }
   let measure = null;
   const clauses = [];
@@ -7723,32 +7428,20 @@ function parseDefineForm(node) {
     const child = node[i];
     if (Array.isArray(child) && child[0] === "measure") {
       if (measure !== null) {
-        throw new RmlError(
-          "E035",
-          `Define declaration for "${name}": only one \`(measure ...)\` clause is allowed`
-        );
+        throw new RmlError("E035", `Define declaration for "${name}": only one \`(measure ...)\` clause is allowed`);
       }
       if (child.length !== 2 || !Array.isArray(child[1]) || child[1][0] !== "lex" || child[1].length < 2) {
-        throw new RmlError(
-          "E035",
-          `Define declaration for "${name}": \`(measure ...)\` body must be \`(lex <slot>...)\``
-        );
+        throw new RmlError("E035", `Define declaration for "${name}": \`(measure ...)\` body must be \`(lex <slot>...)\``);
       }
       const slots = [];
       for (let j = 1; j < child[1].length; j++) {
         const tok = child[1][j];
         if (typeof tok !== "string" || !/^[0-9]+$/.test(tok)) {
-          throw new RmlError(
-            "E035",
-            `Define declaration for "${name}": measure slot must be a positive integer`
-          );
+          throw new RmlError("E035", `Define declaration for "${name}": measure slot must be a positive integer`);
         }
         const slot = parseInt(tok, 10);
         if (slot < 1) {
-          throw new RmlError(
-            "E035",
-            `Define declaration for "${name}": measure slot must be a positive integer (got ${slot})`
-          );
+          throw new RmlError("E035", `Define declaration for "${name}": measure slot must be a positive integer (got ${slot})`);
         }
         slots.push(slot - 1);
       }
@@ -7757,47 +7450,31 @@ function parseDefineForm(node) {
     }
     if (Array.isArray(child) && child[0] === "case") {
       if (child.length !== 3) {
-        throw new RmlError(
-          "E035",
-          `Define declaration for "${name}": \`(case <pattern-args> <body>)\` clause must have exactly two children`
-        );
+        throw new RmlError("E035", `Define declaration for "${name}": \`(case <pattern-args> <body>)\` clause must have exactly two children`);
       }
       const patternArgs = child[1];
       if (!Array.isArray(patternArgs)) {
-        throw new RmlError(
-          "E035",
-          `Define declaration for "${name}": \`(case ...)\` pattern must be a parenthesised argument list`
-        );
+        throw new RmlError("E035", `Define declaration for "${name}": \`(case ...)\` pattern must be a parenthesised argument list`);
       }
       clauses.push({ pattern: patternArgs, body: child[2] });
       continue;
     }
-    throw new RmlError(
-      "E035",
-      `Define declaration for "${name}": unexpected clause \`${keyOf(child)}\` (expected \`(measure ...)\` or \`(case ...)\`)`
-    );
+    throw new RmlError("E035", `Define declaration for "${name}": unexpected clause \`${keyOf(child)}\` (expected \`(measure ...)\` or \`(case ...)\`)`);
   }
   if (clauses.length === 0) {
-    throw new RmlError(
-      "E035",
-      `Define declaration for "${name}" must list at least one \`(case ...)\` clause`
-    );
+    throw new RmlError("E035", `Define declaration for "${name}" must list at least one \`(case ...)\` clause`);
   }
   return { name, measure, clauses };
 }
 function checkDefineDecrease(call, patternArgs, measure, defName) {
   const callArgs = call.slice(1);
   if (callArgs.length !== patternArgs.length) {
-    return {
-      reason: `recursive call \`${keyOf(call)}\` has ${callArgs.length} argument${callArgs.length === 1 ? "" : "s"}, clause pattern declares ${patternArgs.length}`
-    };
+    return { reason: `recursive call \`${keyOf(call)}\` has ${callArgs.length} argument${callArgs.length === 1 ? "" : "s"}, clause pattern declares ${patternArgs.length}` };
   }
   if (measure && measure.kind === "lex") {
     for (const slot of measure.slots) {
       if (slot >= patternArgs.length) {
-        return {
-          reason: `measure slot ${slot + 1} is out of range for ${patternArgs.length}-argument clause`
-        };
+        return { reason: `measure slot ${slot + 1} is out of range for ${patternArgs.length}-argument clause` };
       }
     }
     for (const slot of measure.slots) {
@@ -7807,35 +7484,24 @@ function checkDefineDecrease(call, patternArgs, measure, defName) {
         return null;
       }
       if (!isStructurallySame(callArg, patArg)) {
-        return {
-          reason: `recursive call \`${keyOf(call)}\` does not lexicographically decrease the declared measure`
-        };
+        return { reason: `recursive call \`${keyOf(call)}\` does not lexicographically decrease the declared measure` };
       }
     }
-    return {
-      reason: `recursive call \`${keyOf(call)}\` does not lexicographically decrease the declared measure`
-    };
+    return { reason: `recursive call \`${keyOf(call)}\` does not lexicographically decrease the declared measure` };
   }
   if (patternArgs.length === 0) {
-    return {
-      reason: `definition "${defName}" has no arguments, so structural decrease is unverifiable`
-    };
+    return { reason: `definition "${defName}" has no arguments, so structural decrease is unverifiable` };
   }
   if (isStrictSubterm(callArgs[0], patternArgs[0])) {
     return null;
   }
-  return {
-    reason: `recursive call \`${keyOf(call)}\` does not structurally decrease the first argument of \`${keyOf([defName, ...patternArgs])}\``
-  };
+  return { reason: `recursive call \`${keyOf(call)}\` does not structurally decrease the first argument of \`${keyOf([defName, ...patternArgs])}\`` };
 }
 function isTerminating(env, defName) {
   const diagnostics = [];
   const decl = env.definitions.get(defName);
   if (!decl) {
-    diagnostics.push({
-      code: "E035",
-      message: `Termination check for "${defName}": no \`(define ${defName} ...)\` declaration found`
-    });
+    diagnostics.push({ code: "E035", message: `Termination check for "${defName}": no \`(define ${defName} ...)\` declaration found` });
     return { ok: false, diagnostics };
   }
   for (let ci = 0; ci < decl.clauses.length; ci++) {
@@ -7844,10 +7510,7 @@ function isTerminating(env, defName) {
     for (const call of calls) {
       const witness = checkDefineDecrease(call, clause.pattern, decl.measure, defName);
       if (witness) {
-        diagnostics.push({
-          code: "E035",
-          message: `Termination check for "${defName}": clause ${ci + 1} \`${keyOf(["case", clause.pattern, clause.body])}\` \u2014 ${witness.reason}`
-        });
+        diagnostics.push({ code: "E035", message: `Termination check for "${defName}": clause ${ci + 1} \`${keyOf(["case", clause.pattern, clause.body])}\` \u2014 ${witness.reason}` });
       }
     }
   }
@@ -7856,25 +7519,39 @@ function isTerminating(env, defName) {
 function inductiveTypeOfConstructor(env, ctorName) {
   for (const [typeName, decl] of env.inductives) {
     for (const ctor of decl.constructors) {
-      if (ctor.name === ctorName) return typeName;
+      if (ctor.name === ctorName) {
+        return typeName;
+      }
     }
   }
   return null;
 }
 function isWildcardPattern(pat, env) {
-  if (typeof pat !== "string") return false;
-  if (isNum(pat)) return false;
-  if (NON_VARIABLE_TOKENS.has(pat)) return false;
-  if (inductiveTypeOfConstructor(env, pat) !== null) return false;
+  if (typeof pat !== "string") {
+    return false;
+  }
+  if (isNum(pat)) {
+    return false;
+  }
+  if (NON_VARIABLE_TOKENS.has(pat)) {
+    return false;
+  }
+  if (inductiveTypeOfConstructor(env, pat) !== null) {
+    return false;
+  }
   return true;
 }
 function patternConstructorHead(pat, env) {
   if (typeof pat === "string") {
-    if (inductiveTypeOfConstructor(env, pat) !== null) return pat;
+    if (inductiveTypeOfConstructor(env, pat) !== null) {
+      return pat;
+    }
     return null;
   }
   if (Array.isArray(pat) && pat.length >= 1 && typeof pat[0] === "string") {
-    if (inductiveTypeOfConstructor(env, pat[0]) !== null) return pat[0];
+    if (inductiveTypeOfConstructor(env, pat[0]) !== null) {
+      return pat[0];
+    }
   }
   return null;
 }
@@ -7882,12 +7559,16 @@ function inferSlotType(env, clauses, slotIndex) {
   for (const clause of clauses) {
     const pat = clause[slotIndex + 1];
     const head = patternConstructorHead(pat, env);
-    if (head !== null) return inductiveTypeOfConstructor(env, head);
+    if (head !== null) {
+      return inductiveTypeOfConstructor(env, head);
+    }
   }
   return null;
 }
 function exampleConstructorPattern(ctor) {
-  if (ctor.params.length === 0) return ctor.name;
+  if (ctor.params.length === 0) {
+    return ctor.name;
+  }
   return `(${ctor.name}${" _".repeat(ctor.params.length)})`;
 }
 function isCovered(env, relName) {
@@ -7895,61 +7576,60 @@ function isCovered(env, relName) {
   const clauses = env.relations.get(relName);
   const flags = env.modes.get(relName);
   if (!flags) {
-    diagnostics.push({
-      code: "E037",
-      message: `Coverage check for "${relName}": no \`(mode ${relName} ...)\` declaration found`
-    });
+    diagnostics.push({ code: "E037", message: `Coverage check for "${relName}": no \`(mode ${relName} ...)\` declaration found` });
     return { ok: false, diagnostics };
   }
   if (!clauses || clauses.length === 0) {
-    diagnostics.push({
-      code: "E037",
-      message: `Coverage check for "${relName}": no \`(relation ${relName} ...)\` clauses found`
-    });
+    diagnostics.push({ code: "E037", message: `Coverage check for "${relName}": no \`(relation ${relName} ...)\` clauses found` });
     return { ok: false, diagnostics };
   }
   for (let i = 0; i < flags.length; i++) {
-    if (flags[i] !== "in") continue;
-    const slotPatterns = clauses.map((c) => c[i + 1]);
-    if (slotPatterns.some((pat) => isWildcardPattern(pat, env))) continue;
+    if (flags[i] !== "in") {
+      continue;
+    }
+    const slotPatterns = clauses.map(((c) => c[i + 1]));
+    if (slotPatterns.some(((pat) => isWildcardPattern(pat, env)))) {
+      continue;
+    }
     const typeName = inferSlotType(env, clauses, i);
-    if (typeName === null) continue;
+    if (typeName === null) {
+      continue;
+    }
     const decl = env.inductives.get(typeName);
-    if (!decl) continue;
+    if (!decl) {
+      continue;
+    }
     const covered = /* @__PURE__ */ new Set();
     for (const pat of slotPatterns) {
       const head = patternConstructorHead(pat, env);
-      if (head !== null) covered.add(head);
+      if (head !== null) {
+        covered.add(head);
+      }
     }
-    const missing = decl.constructors.filter((c) => !covered.has(c.name));
-    if (missing.length === 0) continue;
+    const missing = decl.constructors.filter(((c) => !covered.has(c.name)));
+    if (missing.length === 0) {
+      continue;
+    }
     const examples = missing.map(exampleConstructorPattern).join(", ");
-    diagnostics.push({
-      code: "E037",
-      message: `Coverage check for "${relName}": +input slot ${i + 1} (type "${typeName}") missing case${missing.length === 1 ? "" : "s"} for constructor${missing.length === 1 ? "" : "s"} ${examples}`
-    });
+    diagnostics.push({ code: "E037", message: `Coverage check for "${relName}": +input slot ${i + 1} (type "${typeName}") missing case${missing.length === 1 ? "" : "s"} for constructor${missing.length === 1 ? "" : "s"} ${examples}` });
   }
   return { ok: diagnostics.length === 0, diagnostics };
 }
 function parseWorldForm(node) {
-  if (!Array.isArray(node) || node[0] !== "world") return null;
+  if (!Array.isArray(node) || node[0] !== "world") {
+    return null;
+  }
   if (node.length < 2 || typeof node[1] !== "string") {
     throw new RmlError("E034", "World declaration: relation name must be a bare symbol");
   }
   const name = node[1];
   if (node.length !== 3 || !Array.isArray(node[2])) {
-    throw new RmlError(
-      "E034",
-      `World declaration for "${name}" must have shape \`(world ${name} (<const>...))\``
-    );
+    throw new RmlError("E034", `World declaration for "${name}" must have shape \`(world ${name} (<const>...))\``);
   }
   const allowed = [];
   for (const item of node[2]) {
     if (typeof item !== "string") {
-      throw new RmlError(
-        "E034",
-        `World declaration for "${name}": each allowed constant must be a bare symbol`
-      );
+      throw new RmlError("E034", `World declaration for "${name}": each allowed constant must be a bare symbol`);
     }
     allowed.push(item);
   }
@@ -7957,13 +7637,23 @@ function parseWorldForm(node) {
 }
 function collectFreeConstants(node, bound, out) {
   if (typeof node === "string") {
-    if (isNum(node)) return;
-    if (NON_VARIABLE_TOKENS.has(node)) return;
-    if (bound.has(node)) return;
-    if (!out.includes(node)) out.push(node);
+    if (isNum(node)) {
+      return;
+    }
+    if (NON_VARIABLE_TOKENS.has(node)) {
+      return;
+    }
+    if (bound.has(node)) {
+      return;
+    }
+    if (!out.includes(node)) {
+      out.push(node);
+    }
     return;
   }
-  if (!Array.isArray(node)) return;
+  if (!Array.isArray(node)) {
+    return;
+  }
   if (node.length >= 3 && (node[0] === "lambda" || node[0] === "Pi") && Array.isArray(node[1]) && node[1].length === 2 && typeof node[1][1] === "string") {
     const ty = node[1][0];
     if (typeof ty === "string") {
@@ -7979,7 +7669,9 @@ function collectFreeConstants(node, bound, out) {
     for (let i = 2; i < node.length; i++) {
       collectFreeConstants(node[i], bound, out);
     }
-    if (!wasBound) bound.delete(variable);
+    if (!wasBound) {
+      bound.delete(variable);
+    }
     return;
   }
   if (node.length === 4 && node[0] === "fresh" && node[2] === "in" && typeof node[1] === "string") {
@@ -7987,7 +7679,9 @@ function collectFreeConstants(node, bound, out) {
     const wasBound = bound.has(variable);
     bound.add(variable);
     collectFreeConstants(node[3], bound, out);
-    if (!wasBound) bound.delete(variable);
+    if (!wasBound) {
+      bound.delete(variable);
+    }
     return;
   }
   for (const child of node) {
@@ -7996,24 +7690,31 @@ function collectFreeConstants(node, bound, out) {
 }
 function checkWorldAtCall(name, args, env) {
   const allowed = env.worlds.get(name);
-  if (!allowed) return null;
+  if (!allowed) {
+    return null;
+  }
   const violations = [];
   for (const arg of args) {
     const bound = /* @__PURE__ */ new Set();
     const found = [];
     collectFreeConstants(arg, bound, found);
     for (const sym of found) {
-      if (sym === name) continue;
-      if (allowed.includes(sym)) continue;
-      if (!violations.includes(sym)) violations.push(sym);
+      if (sym === name) {
+        continue;
+      }
+      if (allowed.includes(sym)) {
+        continue;
+      }
+      if (!violations.includes(sym)) {
+        violations.push(sym);
+      }
     }
   }
-  if (violations.length === 0) return null;
-  const listed = violations.map((s) => `"${s}"`).join(", ");
-  return new RmlError(
-    "E034",
-    `World violation: "${name}" argument contains free constant${violations.length === 1 ? "" : "s"} ${listed} not in declared world`
-  );
+  if (violations.length === 0) {
+    return null;
+  }
+  const listed = violations.map(((s) => `"${s}"`)).join(", ");
+  return new RmlError("E034", `World violation: "${name}" argument contains free constant${violations.length === 1 ? "" : "s"} ${listed} not in declared world`);
 }
 function _isPiSig(node) {
   return Array.isArray(node) && node.length === 3 && node[0] === "Pi";
@@ -8023,7 +7724,9 @@ function _flattenPi(typeNode) {
   let current = typeNode;
   while (_isPiSig(current)) {
     const binding = parseBinding(current[1]);
-    if (!binding) return null;
+    if (!binding) {
+      return null;
+    }
     params.push({ name: binding.paramName, type: binding.paramType });
     current = current[2];
   }
@@ -8039,10 +7742,7 @@ function _buildPi(params, result) {
 }
 function parseConstructorClause(clause, typeName) {
   if (!Array.isArray(clause) || clause[0] !== "constructor" || clause.length !== 2) {
-    throw new RmlError(
-      "E033",
-      `Inductive declaration for "${typeName}": each clause must be \`(constructor <name>)\` or \`(constructor (<name> <pi-type>))\``
-    );
+    throw new RmlError("E033", `Inductive declaration for "${typeName}": each clause must be \`(constructor <name>)\` or \`(constructor (<name> <pi-type>))\``);
   }
   const body = clause[1];
   if (typeof body === "string") {
@@ -8051,51 +7751,35 @@ function parseConstructorClause(clause, typeName) {
   if (Array.isArray(body) && body.length === 2 && typeof body[0] === "string" && _isPiSig(body[1])) {
     const flat = _flattenPi(body[1]);
     if (!flat) {
-      throw new RmlError(
-        "E033",
-        `Inductive declaration for "${typeName}": constructor "${body[0]}" has malformed Pi-type \`${keyOf(body[1])}\``
-      );
+      throw new RmlError("E033", `Inductive declaration for "${typeName}": constructor "${body[0]}" has malformed Pi-type \`${keyOf(body[1])}\``);
     }
     if (typeof flat.result !== "string" || flat.result !== typeName) {
-      throw new RmlError(
-        "E033",
-        `Inductive declaration for "${typeName}": constructor "${body[0]}" must return "${typeName}" (got "${typeof flat.result === "string" ? flat.result : keyOf(flat.result)}")`
-      );
+      throw new RmlError("E033", `Inductive declaration for "${typeName}": constructor "${body[0]}" must return "${typeName}" (got "${typeof flat.result === "string" ? flat.result : keyOf(flat.result)}")`);
     }
     return { name: body[0], params: flat.params, type: body[1] };
   }
-  throw new RmlError(
-    "E033",
-    `Inductive declaration for "${typeName}": malformed constructor clause \`${keyOf(clause)}\``
-  );
+  throw new RmlError("E033", `Inductive declaration for "${typeName}": malformed constructor clause \`${keyOf(clause)}\``);
 }
 function parseInductiveForm(node) {
-  if (!Array.isArray(node) || node[0] !== "inductive") return null;
+  if (!Array.isArray(node) || node[0] !== "inductive") {
+    return null;
+  }
   if (node.length < 2 || typeof node[1] !== "string") {
     throw new RmlError("E033", "Inductive declaration: type name must be a bare symbol");
   }
   const name = node[1];
   if (!/^[A-Z]/.test(name)) {
-    throw new RmlError(
-      "E033",
-      `Inductive declaration for "${name}": type name must start with an uppercase letter`
-    );
+    throw new RmlError("E033", `Inductive declaration for "${name}": type name must start with an uppercase letter`);
   }
   if (node.length < 3) {
-    throw new RmlError(
-      "E033",
-      `Inductive declaration for "${name}" must list at least one constructor`
-    );
+    throw new RmlError("E033", `Inductive declaration for "${name}" must list at least one constructor`);
   }
   const constructors = [];
   const seen = /* @__PURE__ */ new Set();
   for (let i = 2; i < node.length; i++) {
     const ctor = parseConstructorClause(node[i], name);
     if (seen.has(ctor.name)) {
-      throw new RmlError(
-        "E033",
-        `Inductive declaration for "${name}": constructor "${ctor.name}" is declared more than once`
-      );
+      throw new RmlError("E033", `Inductive declaration for "${name}": constructor "${ctor.name}" is declared more than once`);
     }
     seen.add(ctor.name);
     constructors.push(ctor);
@@ -8107,17 +7791,14 @@ function _buildCaseType(ctor, typeName, motiveVar) {
   for (let i = 0; i < ctor.params.length; i++) {
     const p = ctor.params[i];
     if (typeof p.type === "string" && p.type === typeName) {
-      recBinders.push({
-        name: `ih_${p.name}`,
-        type: ["apply", motiveVar, p.name]
-      });
+      recBinders.push({ name: `ih_${p.name}`, type: ["apply", motiveVar, p.name] });
     }
   }
   let ctorApplied;
   if (ctor.params.length === 0) {
     ctorApplied = ctor.name;
   } else {
-    ctorApplied = [ctor.name, ...ctor.params.map((p) => p.name)];
+    ctorApplied = [ctor.name, ...ctor.params.map(((p) => p.name))];
   }
   const motiveOnTarget = ["apply", motiveVar, ctorApplied];
   const inner = _buildPi(recBinders, motiveOnTarget);
@@ -8126,10 +7807,7 @@ function _buildCaseType(ctor, typeName, motiveVar) {
 function buildEliminatorType(decl) {
   const motiveVar = "_motive";
   const motiveType = ["Pi", [decl.name, "_"], ["Type", "0"]];
-  const caseParams = decl.constructors.map((c) => ({
-    name: `case_${c.name}`,
-    type: _buildCaseType(c, decl.name, motiveVar)
-  }));
+  const caseParams = decl.constructors.map(((c) => ({ name: `case_${c.name}`, type: _buildCaseType(c, decl.name, motiveVar) })));
   const targetVar = "_target";
   const final = ["apply", motiveVar, targetVar];
   const inner = _buildPi([{ name: targetVar, type: decl.name }], final);
@@ -8145,7 +7823,9 @@ function registerInductive(env, decl) {
     const storeName = env.qualifyName(ctor.name);
     env.terms.add(storeName);
     env.setType(storeName, ctor.type);
-    if (Array.isArray(ctor.type)) evalNode(ctor.type, env);
+    if (Array.isArray(ctor.type)) {
+      evalNode(ctor.type, env);
+    }
   }
   const elimName = `${decl.name}-rec`;
   const elimType = buildEliminatorType(decl);
@@ -8153,37 +7833,28 @@ function registerInductive(env, decl) {
   env.terms.add(storeElim);
   env.setType(storeElim, elimType);
   evalNode(elimType, env);
-  env.inductives.set(decl.name, {
-    name: decl.name,
-    constructors: decl.constructors,
-    elimName,
-    elimType
-  });
+  env.inductives.set(decl.name, { name: decl.name, constructors: decl.constructors, elimName, elimType });
   return 1;
 }
 function _recursiveParamIndices(ctor, typeName) {
   const indices = [];
   for (let i = 0; i < ctor.params.length; i++) {
     const p = ctor.params[i];
-    if (typeof p.type === "string" && p.type === typeName) indices.push(i);
+    if (typeof p.type === "string" && p.type === typeName) {
+      indices.push(i);
+    }
   }
   return indices;
 }
 function _buildCorecCaseType(ctor, typeName, stateVar) {
-  const dualParams = ctor.params.map((p) => ({
-    name: p.name,
-    type: typeof p.type === "string" && p.type === typeName ? stateVar : p.type
-  }));
+  const dualParams = ctor.params.map(((p) => ({ name: p.name, type: typeof p.type === "string" && p.type === typeName ? stateVar : p.type })));
   const inner = _buildPi(dualParams, typeName);
   return _buildPi([{ name: "_state", type: stateVar }], inner);
 }
 function buildCorecursorType(decl) {
   const stateVar = "_state_type";
   const stateType = ["Type", "0"];
-  const caseParams = decl.constructors.map((c) => ({
-    name: `case_${c.name}`,
-    type: _buildCorecCaseType(c, decl.name, stateVar)
-  }));
+  const caseParams = decl.constructors.map(((c) => ({ name: `case_${c.name}`, type: _buildCorecCaseType(c, decl.name, stateVar) })));
   const seedVar = "_seed";
   const final = decl.name;
   const inner = _buildPi([{ name: seedVar, type: stateVar }], final);
@@ -8191,51 +7862,38 @@ function buildCorecursorType(decl) {
   return _buildPi([{ name: stateVar, type: stateType }], withCases);
 }
 function parseCoinductiveForm(node) {
-  if (!Array.isArray(node) || node[0] !== "coinductive") return null;
+  if (!Array.isArray(node) || node[0] !== "coinductive") {
+    return null;
+  }
   if (node.length < 2 || typeof node[1] !== "string") {
     throw new RmlError("E036", "Coinductive declaration: type name must be a bare symbol");
   }
   const name = node[1];
   if (!/^[A-Z]/.test(name)) {
-    throw new RmlError(
-      "E036",
-      `Coinductive declaration for "${name}": type name must start with an uppercase letter`
-    );
+    throw new RmlError("E036", `Coinductive declaration for "${name}": type name must start with an uppercase letter`);
   }
   if (node.length < 3) {
-    throw new RmlError(
-      "E036",
-      `Coinductive declaration for "${name}" must list at least one constructor`
-    );
+    throw new RmlError("E036", `Coinductive declaration for "${name}" must list at least one constructor`);
   }
   const constructors = [];
   const seen = /* @__PURE__ */ new Set();
   for (let i = 2; i < node.length; i++) {
     const ctor = parseConstructorClauseCo(node[i], name);
     if (seen.has(ctor.name)) {
-      throw new RmlError(
-        "E036",
-        `Coinductive declaration for "${name}": constructor "${ctor.name}" is declared more than once`
-      );
+      throw new RmlError("E036", `Coinductive declaration for "${name}": constructor "${ctor.name}" is declared more than once`);
     }
     seen.add(ctor.name);
     constructors.push(ctor);
   }
-  const anyRecursive = constructors.some((c) => _recursiveParamIndices(c, name).length > 0);
+  const anyRecursive = constructors.some(((c) => _recursiveParamIndices(c, name).length > 0));
   if (!anyRecursive) {
-    throw new RmlError(
-      "E036",
-      `Coinductive declaration for "${name}" is non-productive: at least one constructor must take a recursive "${name}" argument`
-    );
+    throw new RmlError("E036", `Coinductive declaration for "${name}" is non-productive: at least one constructor must take a recursive "${name}" argument`);
   }
   return { name, constructors };
 }
 function parseConstructorClauseCo(clause, typeName) {
   if (!Array.isArray(clause) || clause[0] !== "constructor" || clause.length !== 2) {
-    throw new RmlError(
-      "E036",
-      `Coinductive declaration for "${typeName}": each clause must be \`(constructor <name>)\` or \`(constructor (<name> <pi-type>))\``
-    );
+    throw new RmlError("E036", `Coinductive declaration for "${typeName}": each clause must be \`(constructor <name>)\` or \`(constructor (<name> <pi-type>))\``);
   }
   const body = clause[1];
   if (typeof body === "string") {
@@ -8244,23 +7902,14 @@ function parseConstructorClauseCo(clause, typeName) {
   if (Array.isArray(body) && body.length === 2 && typeof body[0] === "string" && _isPiSig(body[1])) {
     const flat = _flattenPi(body[1]);
     if (!flat) {
-      throw new RmlError(
-        "E036",
-        `Coinductive declaration for "${typeName}": constructor "${body[0]}" has malformed Pi-type \`${keyOf(body[1])}\``
-      );
+      throw new RmlError("E036", `Coinductive declaration for "${typeName}": constructor "${body[0]}" has malformed Pi-type \`${keyOf(body[1])}\``);
     }
     if (typeof flat.result !== "string" || flat.result !== typeName) {
-      throw new RmlError(
-        "E036",
-        `Coinductive declaration for "${typeName}": constructor "${body[0]}" must return "${typeName}" (got "${typeof flat.result === "string" ? flat.result : keyOf(flat.result)}")`
-      );
+      throw new RmlError("E036", `Coinductive declaration for "${typeName}": constructor "${body[0]}" must return "${typeName}" (got "${typeof flat.result === "string" ? flat.result : keyOf(flat.result)}")`);
     }
     return { name: body[0], params: flat.params, type: body[1] };
   }
-  throw new RmlError(
-    "E036",
-    `Coinductive declaration for "${typeName}": malformed constructor clause \`${keyOf(clause)}\``
-  );
+  throw new RmlError("E036", `Coinductive declaration for "${typeName}": malformed constructor clause \`${keyOf(clause)}\``);
 }
 function registerCoinductive(env, decl) {
   const storeType = env.qualifyName(decl.name);
@@ -8271,7 +7920,9 @@ function registerCoinductive(env, decl) {
     const storeName = env.qualifyName(ctor.name);
     env.terms.add(storeName);
     env.setType(storeName, ctor.type);
-    if (Array.isArray(ctor.type)) evalNode(ctor.type, env);
+    if (Array.isArray(ctor.type)) {
+      evalNode(ctor.type, env);
+    }
   }
   const corecName = `${decl.name}-corec`;
   const corecType = buildCorecursorType(decl);
@@ -8279,29 +7930,20 @@ function registerCoinductive(env, decl) {
   env.terms.add(storeCorec);
   env.setType(storeCorec, corecType);
   evalNode(corecType, env);
-  env.coinductives.set(decl.name, {
-    name: decl.name,
-    constructors: decl.constructors,
-    corecName,
-    corecType
-  });
+  env.coinductives.set(decl.name, { name: decl.name, constructors: decl.constructors, corecName, corecType });
   return 1;
 }
 function checkModeAtCall(name, args, env) {
   const flags = env.modes.get(name);
-  if (!flags) return null;
+  if (!flags) {
+    return null;
+  }
   if (args.length !== flags.length) {
-    return new RmlError(
-      "E031",
-      `Mode mismatch for "${name}": expected ${flags.length} argument${flags.length === 1 ? "" : "s"}, got ${args.length}`
-    );
+    return new RmlError("E031", `Mode mismatch for "${name}": expected ${flags.length} argument${flags.length === 1 ? "" : "s"}, got ${args.length}`);
   }
   for (let i = 0; i < flags.length; i++) {
     if (flags[i] === "in" && !isGroundForMode(args[i], env)) {
-      return new RmlError(
-        "E031",
-        `Mode mismatch for "${name}": argument ${i + 1} (+input) is not ground`
-      );
+      return new RmlError("E031", `Mode mismatch for "${name}": argument ${i + 1} (+input) is not ground`);
     }
   }
   return null;
@@ -8328,23 +7970,29 @@ function evalFresh(varName, body, env) {
   try {
     return evalNode(body, env);
   } finally {
-    if (!hadTerm) env.terms.delete(varName);
-    if (hadType) env.types.set(varName, previousType);
-    else env.types.delete(varName);
-    if (hadLambda) env.lambdas.set(varName, previousLambda);
-    else env.lambdas.delete(varName);
-    if (hadSymbol) env.symbolProb.set(varName, previousSymbol);
-    else env.symbolProb.delete(varName);
+    if (!hadTerm) {
+      env.terms.delete(varName);
+    }
+    if (hadType) {
+      env.types.set(varName, previousType);
+    } else {
+      env.types.delete(varName);
+    }
+    if (hadLambda) {
+      env.lambdas.set(varName, previousLambda);
+    } else {
+      env.lambdas.delete(varName);
+    }
+    if (hadSymbol) {
+      env.symbolProb.set(varName, previousSymbol);
+    } else {
+      env.symbolProb.delete(varName);
+    }
   }
 }
 function decideAutomaticSequenceTheorem(name) {
   if (name === "thue-morse-cube-free") {
-    return {
-      theorem: name,
-      value: true,
-      method: "built-in Buchi emptiness certificate",
-      certificate: ["buchi-emptiness", "thue-morse", "cube-free"]
-    };
+    return { theorem: name, value: true, method: "built-in Buchi emptiness certificate", certificate: ["buchi-emptiness", "thue-morse", "cube-free"] };
   }
   return null;
 }
@@ -8365,11 +8013,7 @@ function automaticSequencesDomainPlugin(forms, env) {
     env.terms.add(storeName);
     env.setType(storeName, "Theorem");
     env.setSymbolProb(storeName, truthValue);
-    env.automaticSequenceDecisions.set(storeName, {
-      ...decision,
-      theorem: storeName,
-      truthValue
-    });
+    env.automaticSequenceDecisions.set(storeName, { ...decision, theorem: storeName, truthValue });
     env.trace("domain", `${storeName} decided by automatic-sequences`);
   }
   return 1;
@@ -8387,7 +8031,9 @@ function evalDomainForm(node, env) {
 }
 function evalNode(node, env) {
   if (typeof node === "string") {
-    if (isNum(node)) return env.toNum(node);
+    if (isNum(node)) {
+      return env.toNum(node);
+    }
     return env.getSymbolProb(node);
   }
   if (Array.isArray(node)) {
@@ -8468,11 +8114,7 @@ function evalNode(node, env) {
       const [first, ...rest] = result.diagnostics;
       if (rest.length > 0 && Array.isArray(env._shadowDiagnostics)) {
         for (const d of rest) {
-          env._shadowDiagnostics.push(new Diagnostic({
-            code: d.code || "E037",
-            message: d.message,
-            span: env._currentSpan || null
-          }));
+          env._shadowDiagnostics.push(new Diagnostic({ code: d.code || "E037", message: d.message, span: env._currentSpan || null }));
         }
       }
       throw new RmlError(first.code || "E037", first.message);
@@ -8484,20 +8126,21 @@ function evalNode(node, env) {
   }
   if (typeof node[0] === "string" && env.modes.has(node[0])) {
     const err = checkModeAtCall(node[0], node.slice(1), env);
-    if (err) throw err;
+    if (err) {
+      throw err;
+    }
   }
   if (typeof node[0] === "string" && env.worlds.has(node[0])) {
     const err = checkWorldAtCall(node[0], node.slice(1), env);
-    if (err) throw err;
+    if (err) {
+      throw err;
+    }
   }
   if (node.length === 4 && node[1] === "has" && node[2] === "probability" && isNum(node[3])) {
     const p = parseFloat(node[3]);
     const carrierErr = env.checkCarrierValue(env.clamp(p));
     if (carrierErr) {
-      throw new RmlError(
-        "E063",
-        `Probability assignment ${keyOf(node[0])} = ${formatTraceValue(env.clamp(p))} violates active foundation carrier: ${carrierErr}`
-      );
+      throw new RmlError("E063", `Probability assignment ${keyOf(node[0])} = ${formatTraceValue(env.clamp(p))} violates active foundation carrier: ${carrierErr}`);
     }
     env.setExprProb(node[0], p);
     env.trace("assign", `${keyOf(node[0])} \u2190 ${formatTraceValue(env.clamp(p))}`);
@@ -8517,8 +8160,12 @@ function evalNode(node, env) {
     const parts = _stripWithProof(node.slice(1));
     const target = parts.length === 1 ? parts[0] : parts;
     const v = evalNode(target, env);
-    if (v && typeof v === "object" && v.query) return v;
-    if (isTermResult(v)) return { query: true, value: keyOf(v.term), typeQuery: true };
+    if (v && typeof v === "object" && v.query) {
+      return v;
+    }
+    if (isTermResult(v)) {
+      return { query: true, value: keyOf(v.term), typeQuery: true };
+    }
     return { query: true, value: env.clamp(v) };
   }
   if (node.length === 4 && node[0] === "subst" && typeof node[2] === "string") {
@@ -8588,7 +8235,9 @@ function evalNode(node, env) {
   }
   if (node.length === 2 && node[0] === "Type") {
     const level = parseUniverseLevelToken(node[1]);
-    if (level === null) return 0;
+    if (level === null) {
+      return 0;
+    }
     env.setType(node, ["Type", String(level + 1)]);
     return 1;
   }
@@ -8672,7 +8321,7 @@ function evalNode(node, env) {
   }
   if (typeof head === "string" && env.hasOp(head)) {
     const op = env.getOp(head);
-    const vals = args.map((a) => evalNode(a, env));
+    const vals = args.map(((a) => evalNode(a, env)));
     return env.clamp(op(...vals));
   }
   if (typeof head === "string" && args.length >= 1) {
@@ -8689,19 +8338,21 @@ function evalNode(node, env) {
     const parsed = parseBinding(head[1]);
     if (parsed) {
       const result = subst(head[2], parsed.paramName, args[0]);
-      if (args.length === 1) return evalReducedTerm(result, env);
+      if (args.length === 1) {
+        return evalReducedTerm(result, env);
+      }
       return evalReducedTerm([result, ...args.slice(1)], env);
     }
   }
   return 0;
 }
 function _reinitOps(env) {
-  env.ops.set("not", (x) => env.hi - (x - env.lo));
-  env.ops.set("and", (...xs) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : env.lo);
-  env.ops.set("or", (...xs) => xs.length ? Math.max(...xs) : env.lo);
-  env.ops.set("both", (...xs) => xs.length ? decRound(xs.reduce((a, b) => a + b, 0) / xs.length) : env.lo);
-  env.ops.set("neither", (...xs) => xs.length ? decRound(xs.reduce((a, b) => a * b, 1)) : env.lo);
-  env.ops.set("=", (L, R, ctx) => {
+  env.ops.set("not", ((x) => env.hi - (x - env.lo)));
+  env.ops.set("and", ((...xs) => xs.length ? xs.reduce(((a, b) => a + b), 0) / xs.length : env.lo));
+  env.ops.set("or", ((...xs) => xs.length ? Math.max(...xs) : env.lo));
+  env.ops.set("both", ((...xs) => xs.length ? decRound(xs.reduce(((a, b) => a + b), 0) / xs.length) : env.lo));
+  env.ops.set("neither", ((...xs) => xs.length ? decRound(xs.reduce(((a, b) => a * b), 1)) : env.lo));
+  env.ops.set("=", ((L, R, ctx) => {
     const kPrefix = keyOf(["=", L, R]);
     if (env.assign.has(kPrefix)) {
       const v = env.assign.get(kPrefix);
@@ -8715,14 +8366,14 @@ function _reinitOps(env) {
       return v;
     }
     return isStructurallySame(L, R) ? env.hi : env.lo;
-  });
-  env.ops.set("!=", (...args) => env.getOp("not")(env.getOp("=")(...args)));
-  env.ops.set("+", (a, b) => decRound(a + b));
-  env.ops.set("-", (a, b) => decRound(a - b));
-  env.ops.set("*", (a, b) => decRound(a * b));
-  env.ops.set("/", (a, b) => b === 0 ? 0 : decRound(a / b));
-  env.ops.set("<", (a, b) => a < b ? env.hi : env.lo);
-  env.ops.set("<=", (a, b) => a <= b ? env.hi : env.lo);
+  }));
+  env.ops.set("!=", ((...args) => env.getOp("not")(env.getOp("=")(...args))));
+  env.ops.set("+", ((a, b) => decRound(a + b)));
+  env.ops.set("-", ((a, b) => decRound(a - b)));
+  env.ops.set("*", ((a, b) => decRound(a * b)));
+  env.ops.set("/", ((a, b) => b === 0 ? 0 : decRound(a / b)));
+  env.ops.set("<", ((a, b) => a < b ? env.hi : env.lo));
+  env.ops.set("<=", ((a, b) => a <= b ? env.hi : env.lo));
   env._initTruthConstants();
 }
 function defineForm(head, rhs, env) {
@@ -8779,23 +8430,25 @@ function defineForm(head, rhs, env) {
     if (rhs.length === 1 && typeof rhs[0] === "string" && env.hasOp(rhs[0])) {
       const target = rhs[0];
       const op = env.getOp(target);
-      env.defineOp(storeName, (...xs) => op(...xs));
+      env.defineOp(storeName, ((...xs) => op(...xs)));
       env.trace("resolve", `(${storeName}: ${target})`);
       return 1;
     }
     if (rhs.length === 2 && typeof rhs[0] === "string" && typeof rhs[1] === "string") {
       const outer = env.getOp(rhs[0]);
       const inner = env.getOp(rhs[1]);
-      env.defineOp(storeName, (...xs) => env.clamp(outer(inner(...xs))));
+      env.defineOp(storeName, ((...xs) => env.clamp(outer(inner(...xs)))));
       env.trace("resolve", `(${storeName}: ${rhs[0]} ${rhs[1]})`);
       return 1;
     }
     if ((head === "and" || head === "or" || head === "both" || head === "neither") && rhs.length === 1 && typeof rhs[0] === "string") {
       const sel = rhs[0];
       const lo = env.lo;
-      const agg = sel === "avg" ? (xs) => xs.reduce((a, b) => a + b, 0) / xs.length : sel === "min" ? (xs) => xs.length ? Math.min(...xs) : lo : sel === "max" ? (xs) => xs.length ? Math.max(...xs) : lo : sel === "product" || sel === "prod" ? (xs) => xs.reduce((a, b) => a * b, 1) : sel === "probabilistic_sum" || sel === "ps" ? (xs) => 1 - xs.reduce((a, b) => a * (1 - b), 1) : null;
-      if (!agg) throw new RmlError("E004", `Unknown aggregator "${sel}"`);
-      env.defineOp(storeName, (...xs) => xs.length ? agg(xs) : lo);
+      const agg = sel === "avg" ? ((xs) => xs.reduce(((a, b) => a + b), 0) / xs.length) : sel === "min" ? ((xs) => xs.length ? Math.min(...xs) : lo) : sel === "max" ? ((xs) => xs.length ? Math.max(...xs) : lo) : sel === "product" || sel === "prod" ? ((xs) => xs.reduce(((a, b) => a * b), 1)) : sel === "probabilistic_sum" || sel === "ps" ? ((xs) => 1 - xs.reduce(((a, b) => a * (1 - b)), 1)) : null;
+      if (!agg) {
+        throw new RmlError("E004", `Unknown aggregator "${sel}"`);
+      }
+      env.defineOp(storeName, ((...xs) => xs.length ? agg(xs) : lo));
       env.trace("resolve", `(${storeName}: ${sel})`);
       return 1;
     }
@@ -8815,9 +8468,14 @@ function defineForm(head, rhs, env) {
         env.setType(paramName, paramType);
         const paramTypeKey = typeof paramType === "string" ? paramType : keyOf(paramType);
         const bodyTypeKey = env.getType(body) || (typeof body === "string" ? body : keyOf(body));
-        if (!hadParamTerm) env.terms.delete(paramName);
-        if (previousParamType === null) env.types.delete(paramName);
-        else env.setType(paramName, previousParamType);
+        if (!hadParamTerm) {
+          env.terms.delete(paramName);
+        }
+        if (previousParamType === null) {
+          env.types.delete(paramName);
+        } else {
+          env.setType(paramName, previousParamType);
+        }
         env.setType(storeName, "(Pi (" + paramTypeKey + " " + paramName + ") " + bodyTypeKey + ")");
         return 1;
       }
@@ -8830,7 +8488,9 @@ function defineForm(head, rhs, env) {
   return 0;
 }
 function _maybeWarnShadow(env, name) {
-  if (!env.imported) return;
+  if (!env.imported) {
+    return;
+  }
   let key = name;
   if (!env.imported.has(key)) {
     const resolved = env._resolveQualified(name);
@@ -8842,21 +8502,21 @@ function _maybeWarnShadow(env, name) {
   }
   env.imported.delete(key);
   const span = env._currentSpan || { file: null, line: 1, col: 1, length: 0 };
-  const diag = new Diagnostic({
-    code: "E008",
-    message: `Definition of "${name}" shadows an imported binding`,
-    span
-  });
+  const diag = new Diagnostic({ code: "E008", message: `Definition of "${name}" shadows an imported binding`, span });
   if (Array.isArray(env._shadowDiagnostics)) {
     env._shadowDiagnostics.push(diag);
   }
 }
 function _typeKeyOf(typeNode) {
-  if (typeNode === null || typeNode === void 0) return null;
+  if (typeNode === null || typeNode === void 0) {
+    return null;
+  }
   return typeof typeNode === "string" ? typeNode : keyOf(typeNode);
 }
 function _parseTypeKeyToNode(typeKey) {
-  if (typeof typeKey !== "string") return typeKey;
+  if (typeof typeKey !== "string") {
+    return typeKey;
+  }
   const trimmed = typeKey.trim();
   if (trimmed.startsWith("(")) {
     try {
@@ -8868,44 +8528,50 @@ function _parseTypeKeyToNode(typeKey) {
   return typeKey;
 }
 function _diag(code, message, span) {
-  return new Diagnostic({
-    code,
-    message,
-    span: span || { file: null, line: 1, col: 1, length: 0 }
-  });
+  return new Diagnostic({ code, message, span: span || { file: null, line: 1, col: 1, length: 0 } });
 }
 function _envFromCtx(ctx) {
   return ctx instanceof Env ? ctx : new Env(ctx && ctx.env ? ctx.env : ctx);
 }
 function _spanFromCtx(ctx, options) {
   const opts = options || {};
-  if (opts.span) return opts.span;
-  if (ctx instanceof Env && ctx._currentSpan) return ctx._currentSpan;
-  if (ctx && ctx.span) return ctx.span;
+  if (opts.span) {
+    return opts.span;
+  }
+  if (ctx instanceof Env && ctx._currentSpan) {
+    return ctx._currentSpan;
+  }
+  if (ctx && ctx.span) {
+    return ctx.span;
+  }
   return null;
 }
 function _snapshotTypeBinding(env, name) {
-  return {
-    name,
-    hadTerm: env.terms.has(name),
-    hadType: env.types.has(name),
-    previousType: env.types.get(name)
-  };
+  return { name, hadTerm: env.terms.has(name), hadType: env.types.has(name), previousType: env.types.get(name) };
 }
 function _extendTypeBinding(env, name, typeKey) {
   env.terms.add(name);
   env.types.set(name, typeKey);
 }
 function _restoreTypeBinding(env, snap) {
-  if (!snap.hadTerm) env.terms.delete(snap.name);
-  if (snap.hadType) env.types.set(snap.name, snap.previousType);
-  else env.types.delete(snap.name);
+  if (!snap.hadTerm) {
+    env.terms.delete(snap.name);
+  }
+  if (snap.hadType) {
+    env.types.set(snap.name, snap.previousType);
+  } else {
+    env.types.delete(snap.name);
+  }
 }
 function _typesAgree(a, b, env) {
-  if (a === null || b === null) return false;
+  if (a === null || b === null) {
+    return false;
+  }
   const aN = _expandForall(a);
   const bN = _expandForall(b);
-  if (isStructurallySame(aN, bN)) return true;
+  if (isStructurallySame(aN, bN)) {
+    return true;
+  }
   try {
     return isConvertible(aN, bN, env);
   } catch (_) {
@@ -8916,7 +8582,9 @@ function _isForallNode(node) {
   return Array.isArray(node) && node.length === 3 && node[0] === "forall" && typeof node[1] === "string";
 }
 function _expandForall(node) {
-  if (!_isForallNode(node)) return node;
+  if (!_isForallNode(node)) {
+    return node;
+  }
   return ["Pi", ["Type", node[1]], node[2]];
 }
 function _synthLeaf(term, env) {
@@ -8924,57 +8592,51 @@ function _synthLeaf(term, env) {
     return null;
   }
   const recorded = inferTypeKey(term, env);
-  if (recorded) return _parseTypeKeyToNode(recorded);
+  if (recorded) {
+    return _parseTypeKeyToNode(recorded);
+  }
   const resolved = env._resolveQualified(term);
   if (resolved !== term) {
     const fromAlias = env.types.get(resolved);
-    if (fromAlias) return _parseTypeKeyToNode(fromAlias);
+    if (fromAlias) {
+      return _parseTypeKeyToNode(fromAlias);
+    }
   }
   return null;
 }
 function _synthApply(node, env, span, diagnostics) {
   const fnSynth = synth(node[1], env, { span, parentDiagnostics: diagnostics });
-  for (const d of fnSynth.diagnostics) diagnostics.push(d);
+  for (const d of fnSynth.diagnostics) {
+    diagnostics.push(d);
+  }
   if (!fnSynth.type) {
-    diagnostics.push(_diag(
-      "E020",
-      `Cannot synthesize type of \`${keyOf(node[1])}\` in \`${keyOf(node)}\``,
-      span
-    ));
+    diagnostics.push(_diag("E020", `Cannot synthesize type of \`${keyOf(node[1])}\` in \`${keyOf(node)}\``, span));
     return null;
   }
   const fnType = _expandForall(fnSynth.type);
   if (!Array.isArray(fnType) || fnType.length !== 3 || fnType[0] !== "Pi") {
-    diagnostics.push(_diag(
-      "E022",
-      `Application head \`${keyOf(node[1])}\` has type \`${keyOf(fnType)}\`, expected a Pi-type`,
-      span
-    ));
+    diagnostics.push(_diag("E022", `Application head \`${keyOf(node[1])}\` has type \`${keyOf(fnType)}\`, expected a Pi-type`, span));
     return null;
   }
   const parsed = parseBinding(fnType[1]);
   if (!parsed) {
-    diagnostics.push(_diag(
-      "E022",
-      `Application head has malformed Pi binder \`${keyOf(fnType[1])}\``,
-      span
-    ));
+    diagnostics.push(_diag("E022", `Application head has malformed Pi binder \`${keyOf(fnType[1])}\``, span));
     return null;
   }
   const domainNode = typeof parsed.paramType === "string" ? parsed.paramType : parsed.paramType;
   const argCheck = check(node[2], domainNode, env, { span, parentDiagnostics: diagnostics });
-  for (const d of argCheck.diagnostics) diagnostics.push(d);
-  if (!argCheck.ok) return null;
+  for (const d of argCheck.diagnostics) {
+    diagnostics.push(d);
+  }
+  if (!argCheck.ok) {
+    return null;
+  }
   return subst(fnType[2], parsed.paramName, node[2]);
 }
 function _synthLambda(node, env, span, diagnostics) {
   const parsed = parseBinding(node[1]);
   if (!parsed) {
-    diagnostics.push(_diag(
-      "E024",
-      `Lambda has malformed binder \`${keyOf(node[1])}\``,
-      span
-    ));
+    diagnostics.push(_diag("E024", `Lambda has malformed binder \`${keyOf(node[1])}\``, span));
     return null;
   }
   const paramTypeKey = _typeKeyOf(parsed.paramType);
@@ -8983,19 +8645,27 @@ function _synthLambda(node, env, span, diagnostics) {
   let bodyType = null;
   try {
     const bodySynth = synth(node[2], env, { span, parentDiagnostics: diagnostics });
-    for (const d of bodySynth.diagnostics) diagnostics.push(d);
+    for (const d of bodySynth.diagnostics) {
+      diagnostics.push(d);
+    }
     bodyType = bodySynth.type;
   } finally {
     _restoreTypeBinding(env, snap);
   }
-  if (!bodyType) return null;
+  if (!bodyType) {
+    return null;
+  }
   return ["Pi", [parsed.paramType, parsed.paramName], bodyType];
 }
 function _synthOfMembership(node, env, span, diagnostics) {
   const expected = node[2];
   const result = check(node[0], expected, env, { span, parentDiagnostics: diagnostics });
-  for (const d of result.diagnostics) diagnostics.push(d);
-  if (!result.ok) return null;
+  for (const d of result.diagnostics) {
+    diagnostics.push(d);
+  }
+  if (!result.ok) {
+    return null;
+  }
   return ["Type", "0"];
 }
 function synth(term, ctx, options) {
@@ -9006,30 +8676,20 @@ function synth(term, ctx, options) {
   if (typeof node === "string") {
     const t = _synthLeaf(node, env);
     if (!t && !isNum(node)) {
-      diagnostics.push(_diag(
-        "E020",
-        `Cannot synthesize type of symbol \`${node}\``,
-        span
-      ));
+      diagnostics.push(_diag("E020", `Cannot synthesize type of symbol \`${node}\``, span));
     }
     return { type: t, diagnostics };
   }
   if (!Array.isArray(node)) {
-    diagnostics.push(_diag(
-      "E020",
-      `Cannot synthesize type of \`${keyOf(node)}\``,
-      span
-    ));
+    diagnostics.push(_diag("E020", `Cannot synthesize type of \`${keyOf(node)}\``, span));
     return { type: null, diagnostics };
   }
   if (node.length === 2 && node[0] === "Type") {
     const universeType = universeTypeKey(node);
-    if (universeType) return { type: _parseTypeKeyToNode(universeType), diagnostics };
-    diagnostics.push(_diag(
-      "E020",
-      `Universe \`${keyOf(node)}\` has invalid level token \`${keyOf(node[1])}\``,
-      span
-    ));
+    if (universeType) {
+      return { type: _parseTypeKeyToNode(universeType), diagnostics };
+    }
+    diagnostics.push(_diag("E020", `Universe \`${keyOf(node)}\` has invalid level token \`${keyOf(node[1])}\``, span));
     return { type: null, diagnostics };
   }
   if (node.length === 1 && node[0] === "Prop") {
@@ -9038,11 +8698,7 @@ function synth(term, ctx, options) {
   if (node.length === 3 && node[0] === "Pi") {
     const parsed = parseBinding(node[1]);
     if (!parsed) {
-      diagnostics.push(_diag(
-        "E024",
-        `Pi has malformed binder \`${keyOf(node[1])}\``,
-        span
-      ));
+      diagnostics.push(_diag("E024", `Pi has malformed binder \`${keyOf(node[1])}\``, span));
       return { type: null, diagnostics };
     }
     return { type: ["Type", "0"], diagnostics };
@@ -9064,15 +8720,13 @@ function synth(term, ctx, options) {
   }
   if (node.length === 3 && node[0] === "type" && node[1] === "of") {
     const innerSynth = synth(node[2], env, { span });
-    for (const d of innerSynth.diagnostics) diagnostics.push(d);
+    for (const d of innerSynth.diagnostics) {
+      diagnostics.push(d);
+    }
     if (innerSynth.type) {
       return { type: ["Type", "0"], diagnostics };
     }
-    diagnostics.push(_diag(
-      "E020",
-      `Cannot synthesize type referenced by \`${keyOf(node)}\``,
-      span
-    ));
+    diagnostics.push(_diag("E020", `Cannot synthesize type referenced by \`${keyOf(node)}\``, span));
     return { type: null, diagnostics };
   }
   if (node.length === 3 && node[1] === "of") {
@@ -9080,12 +8734,10 @@ function synth(term, ctx, options) {
     return { type: t, diagnostics };
   }
   const recorded = inferTypeKey(node, env);
-  if (recorded) return { type: _parseTypeKeyToNode(recorded), diagnostics };
-  diagnostics.push(_diag(
-    "E020",
-    `Cannot synthesize type of \`${keyOf(node)}\``,
-    span
-  ));
+  if (recorded) {
+    return { type: _parseTypeKeyToNode(recorded), diagnostics };
+  }
+  diagnostics.push(_diag("E020", `Cannot synthesize type of \`${keyOf(node)}\``, span));
   return { type: null, diagnostics };
 }
 function check(term, expectedType, ctx, options) {
@@ -9101,17 +8753,9 @@ function check(term, expectedType, ctx, options) {
     const lambdaParsed = parseBinding(node[1]);
     const piParsed = parseBinding(expectedNode[1]);
     if (lambdaParsed && piParsed) {
-      const domainOk = _typesAgree(
-        parseTermInput(lambdaParsed.paramType),
-        parseTermInput(piParsed.paramType),
-        env
-      );
+      const domainOk = _typesAgree(parseTermInput(lambdaParsed.paramType), parseTermInput(piParsed.paramType), env);
       if (!domainOk) {
-        diagnostics.push(_diag(
-          "E021",
-          `Lambda parameter type \`${keyOf(lambdaParsed.paramType)}\` does not match Pi domain \`${keyOf(piParsed.paramType)}\``,
-          span
-        ));
+        diagnostics.push(_diag("E021", `Lambda parameter type \`${keyOf(lambdaParsed.paramType)}\` does not match Pi domain \`${keyOf(piParsed.paramType)}\``, span));
         return { ok: false, diagnostics };
       }
       const codomain = subst(expectedNode[2], piParsed.paramName, lambdaParsed.paramName);
@@ -9120,7 +8764,9 @@ function check(term, expectedType, ctx, options) {
       _extendTypeBinding(env, lambdaParsed.paramName, paramTypeKey);
       try {
         const bodyResult = check(node[2], codomain, env, { span, parentDiagnostics: diagnostics });
-        for (const d of bodyResult.diagnostics) diagnostics.push(d);
+        for (const d of bodyResult.diagnostics) {
+          diagnostics.push(d);
+        }
         return { ok: bodyResult.ok, diagnostics };
       } finally {
         _restoreTypeBinding(env, snap);
@@ -9128,28 +8774,22 @@ function check(term, expectedType, ctx, options) {
     }
   }
   if (Array.isArray(node) && node.length === 3 && node[0] === "lambda" && !(Array.isArray(expectedNode) && expectedNode[0] === "Pi")) {
-    diagnostics.push(_diag(
-      "E023",
-      `Lambda \`${keyOf(node)}\` cannot check against non-Pi type \`${keyOf(expectedNode)}\``,
-      span
-    ));
+    diagnostics.push(_diag("E023", `Lambda \`${keyOf(node)}\` cannot check against non-Pi type \`${keyOf(expectedNode)}\``, span));
     return { ok: false, diagnostics };
   }
   if (typeof node === "string" && isNum(node)) {
     return { ok: true, diagnostics };
   }
   const synthResult = synth(node, env, { span });
-  for (const d of synthResult.diagnostics) diagnostics.push(d);
+  for (const d of synthResult.diagnostics) {
+    diagnostics.push(d);
+  }
   if (!synthResult.type) {
     return { ok: false, diagnostics };
   }
   const ok = _typesAgree(synthResult.type, expectedNode, env);
   if (!ok) {
-    diagnostics.push(_diag(
-      "E021",
-      `Type mismatch: \`${keyOf(node)}\` has type \`${keyOf(synthResult.type)}\`, expected \`${keyOf(expectedNode)}\``,
-      span
-    ));
+    diagnostics.push(_diag("E021", `Type mismatch: \`${keyOf(node)}\` has type \`${keyOf(synthResult.type)}\`, expected \`${keyOf(expectedNode)}\``, span));
   }
   return { ok, diagnostics };
 }
@@ -9159,12 +8799,10 @@ function isLiterateLinoPath(file) {
 function parseMarkdownFence(line) {
   const trimmed = String(line).replace(/^[ \t]*/, "");
   const match = trimmed.match(/^(`{3,}|~{3,})(.*)$/);
-  if (!match) return null;
-  return {
-    marker: match[1][0],
-    length: match[1].length,
-    info: match[2] || ""
-  };
+  if (!match) {
+    return null;
+  }
+  return { marker: match[1][0], length: match[1].length, info: match[2] || "" };
 }
 function isClosingMarkdownFence(line, fence) {
   const parsed = parseMarkdownFence(line);
@@ -9202,26 +8840,23 @@ function sourceForEvaluation(code, file) {
   return isLiterateLinoPath(file) ? extractLiterateLino(normalizeLinoSource(code)) : String(code);
 }
 function parseLino(text) {
-  return parseLinoDocument(text).map((form) => form.text);
+  return parseLinoDocument(text).map(((form) => form.text));
 }
 function readLinoForm(text) {
   return desugarHoas(parseOne(tokenizeOne(text)));
 }
 function parseLinoForms(text) {
-  return parseLinoDocument(text).map((form) => readLinoForm(form.text));
+  return parseLinoDocument(text).map(((form) => readLinoForm(form.text)));
 }
 function readLinoForms(text, file) {
-  const at = (position) => ({
-    file: file || null,
-    line: position.line,
-    col: position.col,
-    length: position.length
-  });
+  const at = ((position) => ({ file: file || null, line: position.line, col: position.col, length: position.length }));
   let parsed;
   try {
     parsed = parseLinoDocument(text);
   } catch (err) {
-    if (err instanceof LinoParseError) throw new RmlError(err.code, err.message, at(err));
+    if (err instanceof LinoParseError) {
+      throw new RmlError(err.code, err.message, at(err));
+    }
     throw err;
   }
   const forms = [];
@@ -9231,7 +8866,9 @@ function readLinoForms(text, file) {
     try {
       forms.push(readLinoForm(form.text));
     } catch (err) {
-      if (err instanceof RmlError) throw new RmlError(err.code, err.message, span);
+      if (err instanceof RmlError) {
+        throw new RmlError(err.code, err.message, span);
+      }
       throw err;
     }
     spans.push(span);
@@ -9240,14 +8877,11 @@ function readLinoForms(text, file) {
 }
 function computeFormSpans(text, file) {
   try {
-    return parseLinoDocument(text).map((form) => ({
-      file: file || null,
-      line: form.line,
-      col: form.col,
-      length: form.length
-    }));
+    return parseLinoDocument(text).map(((form) => ({ file: file || null, line: form.line, col: form.col, length: form.length })));
   } catch (err) {
-    if (err instanceof LinoParseError) return [];
+    if (err instanceof LinoParseError) {
+      return [];
+    }
     throw err;
   }
 }
@@ -9261,53 +8895,55 @@ function evaluate(code, options) {
   const traceEnabled = !!opts.trace;
   const trace = traceEnabled ? [] : null;
   if (traceEnabled) {
-    env._tracer = (kind, detail, span) => {
+    env._tracer = ((kind, detail, span) => {
       trace.push(new TraceEvent({ kind, detail, span: span || { file, line: 1, col: 1, length: 0 } }));
-    };
+    });
   }
   const proofsEnabled = !!opts.withProofs;
   let proofs = proofsEnabled ? [] : null;
   let provenance = null;
-  const recordProvenance = (expandedForm, expandedSpan) => {
+  const recordProvenance = ((expandedForm, expandedSpan) => {
     const rule = equalityProvenanceForQuery(expandedForm, env);
     if (rule === null) {
-      if (provenance !== null) provenance.push(null);
+      if (provenance !== null) {
+        provenance.push(null);
+      }
       return;
     }
     if (provenance === null) {
-      provenance = results.slice(0, -1).map(() => null);
+      provenance = results.slice(0, -1).map((() => null));
     }
     provenance.push(rule);
     if (traceEnabled && trace) {
       trace.push(new TraceEvent({ kind: "equality-layer", detail: rule, span: expandedSpan }));
     }
-  };
+  });
   const importStack = opts._importStack || [];
   const importedFiles = opts._importedFiles || /* @__PURE__ */ new Set();
-  if (!Array.isArray(env._shadowDiagnostics)) env._shadowDiagnostics = [];
+  if (!Array.isArray(env._shadowDiagnostics)) {
+    env._shadowDiagnostics = [];
+  }
   let forms;
   let formSpans;
   try {
     ({ forms, spans: formSpans } = readLinoForms(sourceText, file));
   } catch (err) {
-    diagnostics.push(new Diagnostic({
-      code: err && err.code || "E000",
-      message: err && err.message ? err.message : String(err),
-      span: err && err.span || { file, line: 1, col: 1, length: 0 }
-    }));
+    diagnostics.push(new Diagnostic({ code: err && err.code || "E000", message: err && err.message ? err.message : String(err), span: err && err.span || { file, line: 1, col: 1, length: 0 } }));
     const out2 = { results, diagnostics };
-    if (traceEnabled) out2.trace = trace;
-    if (proofs !== null) out2.proofs = proofs;
-    if (provenance !== null) out2.provenance = provenance;
+    if (traceEnabled) {
+      out2.trace = trace;
+    }
+    if (proofs !== null) {
+      out2.proofs = proofs;
+    }
+    if (provenance !== null) {
+      out2.provenance = provenance;
+    }
     return out2;
   }
-  const runWithFoundation = (form, span) => {
+  const runWithFoundation = ((form, span) => {
     if (form.length < 2 || typeof form[1] !== "string") {
-      diagnostics.push(new Diagnostic({
-        code: "E062",
-        message: "with-foundation form must be `(with-foundation <name> <body>...)`",
-        span
-      }));
+      diagnostics.push(new Diagnostic({ code: "E062", message: "with-foundation form must be `(with-foundation <name> <body>...)`", span }));
       return;
     }
     const fname = form[1];
@@ -9326,123 +8962,151 @@ function evaluate(code, options) {
         try {
           if (Array.isArray(body) && body[0] === "with-foundation") {
             runWithFoundation(body, span);
-          } else if (Array.isArray(body) && (body[0] === "foundation-report" || body[0] === "foundation-report?")) {
-            const report = env.foundationReport();
-            results.push(report);
-            if (proofs !== null) proofs.push(null);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "foundation-report", detail: report.activeFoundation, span }));
-            }
-          } else if (Array.isArray(body) && body[0] === "foundation") {
-            const foundation = parseFoundationForm(body);
-            env.registerFoundation(foundation);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "foundation", detail: foundation.name, span }));
-            }
-          } else if (Array.isArray(body) && body[0] === "root-construct") {
-            const descriptor = parseRootConstructForm(body);
-            env.registerRootConstruct(descriptor);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "root-construct", detail: descriptor.name, span }));
-            }
-          } else if (Array.isArray(body) && body[0] === "rule" && isProofRuleShape(body)) {
-            const rule = parseRuleForm(body);
-            env.registerProofRule(rule);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "rule", detail: rule.name, span }));
-            }
-          } else if (Array.isArray(body) && (body[0] === "assumption" || body[0] === "axiom")) {
-            const assumption = parseProofAssumptionForm(body);
-            env.registerProofAssumption(assumption);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: assumption.kind, detail: assumption.name, span }));
-            }
-          } else if (Array.isArray(body) && body[0] === "proof-object") {
-            const po = parseProofObjectForm(body);
-            env.registerProofObject(po);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "proof-object", detail: po.name, span }));
-            }
-          } else if (Array.isArray(body) && body[0] === "check-proof") {
-            if (body.length !== 2 || typeof body[1] !== "string" || !body[1]) {
-              throw new RmlError("E064", "(check-proof <name>) requires a proof-object name");
-            }
-            const target = body[1];
-            const verdict = checkProofObject(env, target);
-            const value = verdict.ok ? 1 : 0;
-            results.push(value);
-            if (proofs !== null) proofs.push(null);
-            if (provenance !== null) provenance.push(null);
-            if (!verdict.ok) {
-              diagnostics.push(new Diagnostic({ code: "E064", message: verdict.error, span }));
-            }
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "check-proof", detail: `${target} -> ${verdict.ok ? "ok" : "fail"}`, span }));
-            }
-          } else if (Array.isArray(body) && body[0] === "proof-report") {
-            if (body.length !== 2 || typeof body[1] !== "string" || !body[1]) {
-              throw new RmlError("E064", "(proof-report <name>) requires a proof-object name");
-            }
-            const target = body[1];
-            const report = env.proofReport(target);
-            results.push(report);
-            if (proofs !== null) proofs.push(null);
-            if (provenance !== null) provenance.push(null);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "proof-report", detail: target, span }));
-            }
-          } else if (Array.isArray(body) && body[0] === "eval-nat") {
-            if (body.length !== 2) {
-              throw new RmlError("E067", "(eval-nat <term>) requires exactly one term argument");
-            }
-            const { value, normalForm, steps } = evalNatTerm(env, body[1]);
-            results.push(value);
-            if (proofs !== null) proofs.push(null);
-            if (provenance !== null) provenance.push(null);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({
-                kind: "eval-nat",
-                detail: `${formatTraceValue(body[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(", ") || "<none>"}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`,
-                span
-              }));
-            }
-          } else if (Array.isArray(body) && body[0] === "strict-foundation") {
-            const decl = parseStrictFoundationForm(body);
-            env.strictPureLinks = true;
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "strict-foundation", detail: decl.profile, span }));
-            }
-          } else if (Array.isArray(body) && body[0] === "allow-host-primitive") {
-            const decl = parseAllowHostPrimitiveForm(body);
-            for (const name of decl.names) env.allowedHostPrimitives.add(name);
-            if (traceEnabled && trace) {
-              trace.push(new TraceEvent({ kind: "allow-host-primitive", detail: decl.names.join(" "), span }));
-            }
           } else {
-            const expanded = expandTemplates(body, env);
-            const res = evalNode(expanded, env);
-            if (res && res.query) {
-              results.push(res.value);
-              if (proofs !== null) proofs.push(null);
-              recordProvenance(expanded, span);
-              const carrierErr = env.checkCarrierValue(res.value);
-              if (carrierErr) {
-                diagnostics.push(new Diagnostic({
-                  code: "E063",
-                  message: `Query result ${formatTraceValue(res.value)} violates active foundation carrier: ${carrierErr}`,
-                  span
-                }));
+            if (Array.isArray(body) && (body[0] === "foundation-report" || body[0] === "foundation-report?")) {
+              const report = env.foundationReport();
+              results.push(report);
+              if (proofs !== null) {
+                proofs.push(null);
               }
-              if (env.strictPureLinks === true) {
-                const innerExp = _stripWithProof(expanded.slice(1));
-                const targetExp = innerExp.length === 1 ? innerExp[0] : innerExp;
-                const offenders = scanPureLinksOffenders(targetExp, env);
-                if (offenders.length > 0) {
-                  diagnostics.push(new Diagnostic({
-                    code: "E065",
-                    message: `Query depends on host-primitive construct(s) under pure-links strict mode: ${offenders.join(", ")}`,
-                    span
-                  }));
+              if (traceEnabled && trace) {
+                trace.push(new TraceEvent({ kind: "foundation-report", detail: report.activeFoundation, span }));
+              }
+            } else {
+              if (Array.isArray(body) && body[0] === "foundation") {
+                const foundation = parseFoundationForm(body);
+                env.registerFoundation(foundation);
+                if (traceEnabled && trace) {
+                  trace.push(new TraceEvent({ kind: "foundation", detail: foundation.name, span }));
+                }
+              } else {
+                if (Array.isArray(body) && body[0] === "root-construct") {
+                  const descriptor = parseRootConstructForm(body);
+                  env.registerRootConstruct(descriptor);
+                  if (traceEnabled && trace) {
+                    trace.push(new TraceEvent({ kind: "root-construct", detail: descriptor.name, span }));
+                  }
+                } else {
+                  if (Array.isArray(body) && body[0] === "rule" && isProofRuleShape(body)) {
+                    const rule = parseRuleForm(body);
+                    env.registerProofRule(rule);
+                    if (traceEnabled && trace) {
+                      trace.push(new TraceEvent({ kind: "rule", detail: rule.name, span }));
+                    }
+                  } else {
+                    if (Array.isArray(body) && (body[0] === "assumption" || body[0] === "axiom")) {
+                      const assumption = parseProofAssumptionForm(body);
+                      env.registerProofAssumption(assumption);
+                      if (traceEnabled && trace) {
+                        trace.push(new TraceEvent({ kind: assumption.kind, detail: assumption.name, span }));
+                      }
+                    } else {
+                      if (Array.isArray(body) && body[0] === "proof-object") {
+                        const po = parseProofObjectForm(body);
+                        env.registerProofObject(po);
+                        if (traceEnabled && trace) {
+                          trace.push(new TraceEvent({ kind: "proof-object", detail: po.name, span }));
+                        }
+                      } else {
+                        if (Array.isArray(body) && body[0] === "check-proof") {
+                          if (body.length !== 2 || typeof body[1] !== "string" || !body[1]) {
+                            throw new RmlError("E064", "(check-proof <name>) requires a proof-object name");
+                          }
+                          const target = body[1];
+                          const verdict = checkProofObject(env, target);
+                          const value = verdict.ok ? 1 : 0;
+                          results.push(value);
+                          if (proofs !== null) {
+                            proofs.push(null);
+                          }
+                          if (provenance !== null) {
+                            provenance.push(null);
+                          }
+                          if (!verdict.ok) {
+                            diagnostics.push(new Diagnostic({ code: "E064", message: verdict.error, span }));
+                          }
+                          if (traceEnabled && trace) {
+                            trace.push(new TraceEvent({ kind: "check-proof", detail: `${target} -> ${verdict.ok ? "ok" : "fail"}`, span }));
+                          }
+                        } else {
+                          if (Array.isArray(body) && body[0] === "proof-report") {
+                            if (body.length !== 2 || typeof body[1] !== "string" || !body[1]) {
+                              throw new RmlError("E064", "(proof-report <name>) requires a proof-object name");
+                            }
+                            const target = body[1];
+                            const report = env.proofReport(target);
+                            results.push(report);
+                            if (proofs !== null) {
+                              proofs.push(null);
+                            }
+                            if (provenance !== null) {
+                              provenance.push(null);
+                            }
+                            if (traceEnabled && trace) {
+                              trace.push(new TraceEvent({ kind: "proof-report", detail: target, span }));
+                            }
+                          } else {
+                            if (Array.isArray(body) && body[0] === "eval-nat") {
+                              if (body.length !== 2) {
+                                throw new RmlError("E067", "(eval-nat <term>) requires exactly one term argument");
+                              }
+                              const { value, normalForm, steps } = evalNatTerm(env, body[1]);
+                              results.push(value);
+                              if (proofs !== null) {
+                                proofs.push(null);
+                              }
+                              if (provenance !== null) {
+                                provenance.push(null);
+                              }
+                              if (traceEnabled && trace) {
+                                trace.push(new TraceEvent({ kind: "eval-nat", detail: `${formatTraceValue(body[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(", ") || "<none>"}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`, span }));
+                              }
+                            } else {
+                              if (Array.isArray(body) && body[0] === "strict-foundation") {
+                                const decl = parseStrictFoundationForm(body);
+                                env.strictPureLinks = true;
+                                if (traceEnabled && trace) {
+                                  trace.push(new TraceEvent({ kind: "strict-foundation", detail: decl.profile, span }));
+                                }
+                              } else {
+                                if (Array.isArray(body) && body[0] === "allow-host-primitive") {
+                                  const decl = parseAllowHostPrimitiveForm(body);
+                                  for (const name of decl.names) {
+                                    env.allowedHostPrimitives.add(name);
+                                  }
+                                  if (traceEnabled && trace) {
+                                    trace.push(new TraceEvent({ kind: "allow-host-primitive", detail: decl.names.join(" "), span }));
+                                  }
+                                } else {
+                                  const expanded = expandTemplates(body, env);
+                                  const res = evalNode(expanded, env);
+                                  if (res && res.query) {
+                                    results.push(res.value);
+                                    if (proofs !== null) {
+                                      proofs.push(null);
+                                    }
+                                    recordProvenance(expanded, span);
+                                    const carrierErr = env.checkCarrierValue(res.value);
+                                    if (carrierErr) {
+                                      diagnostics.push(new Diagnostic({ code: "E063", message: `Query result ${formatTraceValue(res.value)} violates active foundation carrier: ${carrierErr}`, span }));
+                                    }
+                                    if (env.strictPureLinks === true) {
+                                      const innerExp = _stripWithProof(expanded.slice(1));
+                                      const targetExp = innerExp.length === 1 ? innerExp[0] : innerExp;
+                                      const offenders = scanPureLinksOffenders(targetExp, env);
+                                      if (offenders.length > 0) {
+                                        diagnostics.push(new Diagnostic({ code: "E065", message: `Query depends on host-primitive construct(s) under pure-links strict mode: ${offenders.join(", ")}`, span }));
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -9455,11 +9119,7 @@ function evaluate(code, options) {
         }
       }
     } catch (err) {
-      diagnostics.push(new Diagnostic({
-        code: err && err.code || "E062",
-        message: err && err.message ? err.message : String(err),
-        span: err && err.span || span
-      }));
+      diagnostics.push(new Diagnostic({ code: err && err.code || "E062", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
     } finally {
       if (entered) {
         env.exitFoundation();
@@ -9468,7 +9128,7 @@ function evaluate(code, options) {
         }
       }
     }
-  };
+  });
   for (let idx = 0; idx < forms.length; idx++) {
     let form = forms[idx];
     while (Array.isArray(form) && form.length === 1 && Array.isArray(form[0])) {
@@ -9479,11 +9139,7 @@ function evaluate(code, options) {
     if (Array.isArray(form) && form.length === 2 && form[0] === "namespace" && typeof form[1] === "string") {
       const ns = form[1];
       if (ns.includes(".")) {
-        diagnostics.push(new Diagnostic({
-          code: "E009",
-          message: `Namespace name must not contain '.': "${ns}"`,
-          span
-        }));
+        diagnostics.push(new Diagnostic({ code: "E009", message: `Namespace name must not contain '.': "${ns}"`, span }));
       } else {
         env.namespace = ns;
         if (traceEnabled && trace) {
@@ -9496,16 +9152,18 @@ function evaluate(code, options) {
       let importDiag = null;
       if (form.length === 2) {
         importDiag = handleImport(form[1], null, span, file, env, importStack, importedFiles, diagnostics, traceEnabled, trace);
-      } else if (form.length === 4 && form[2] === "as" && typeof form[3] === "string") {
-        importDiag = handleImport(form[1], form[3], span, file, env, importStack, importedFiles, diagnostics, traceEnabled, trace);
-      } else if (form.length === 2 || form.length >= 3) {
-        importDiag = new Diagnostic({
-          code: "E007",
-          message: 'Import directive must be (import "<path>") or (import "<path>" as <alias>)',
-          span
-        });
+      } else {
+        if (form.length === 4 && form[2] === "as" && typeof form[3] === "string") {
+          importDiag = handleImport(form[1], form[3], span, file, env, importStack, importedFiles, diagnostics, traceEnabled, trace);
+        } else {
+          if (form.length === 2 || form.length >= 3) {
+            importDiag = new Diagnostic({ code: "E007", message: 'Import directive must be (import "<path>") or (import "<path>" as <alias>)', span });
+          }
+        }
       }
-      if (importDiag) diagnostics.push(importDiag);
+      if (importDiag) {
+        diagnostics.push(importDiag);
+      }
       continue;
     }
     if (Array.isArray(form) && form[0] === "template") {
@@ -9515,11 +9173,7 @@ function evaluate(code, options) {
           trace.push(new TraceEvent({ kind: "template", detail: registered, span }));
         }
       } catch (err) {
-        diagnostics.push(new Diagnostic({
-          code: err && err.code || "E040",
-          message: err && err.message ? err.message : String(err),
-          span: err && err.span || span
-        }));
+        diagnostics.push(new Diagnostic({ code: err && err.code || "E040", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
       }
       continue;
     }
@@ -9531,11 +9185,7 @@ function evaluate(code, options) {
           trace.push(new TraceEvent({ kind: "root-construct", detail: descriptor.name, span }));
         }
       } catch (err) {
-        diagnostics.push(new Diagnostic({
-          code: err && err.code || "E060",
-          message: err && err.message ? err.message : String(err),
-          span: err && err.span || span
-        }));
+        diagnostics.push(new Diagnostic({ code: err && err.code || "E060", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
       }
       continue;
     }
@@ -9547,11 +9197,7 @@ function evaluate(code, options) {
           trace.push(new TraceEvent({ kind: "foundation", detail: foundation.name, span }));
         }
       } catch (err) {
-        diagnostics.push(new Diagnostic({
-          code: err && err.code || "E061",
-          message: err && err.message ? err.message : String(err),
-          span: err && err.span || span
-        }));
+        diagnostics.push(new Diagnostic({ code: err && err.code || "E061", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
       }
       continue;
     }
@@ -9562,7 +9208,9 @@ function evaluate(code, options) {
     if (Array.isArray(form) && (form[0] === "foundation-report" || form[0] === "foundation-report?")) {
       const report = env.foundationReport();
       results.push(report);
-      if (proofs !== null) proofs.push(null);
+      if (proofs !== null) {
+        proofs.push(null);
+      }
       if (traceEnabled && trace) {
         trace.push(new TraceEvent({ kind: "foundation-report", detail: report.activeFoundation, span }));
       }
@@ -9576,11 +9224,7 @@ function evaluate(code, options) {
           trace.push(new TraceEvent({ kind: "rule", detail: rule.name, span }));
         }
       } catch (err) {
-        diagnostics.push(new Diagnostic({
-          code: err && err.code || "E064",
-          message: err && err.message ? err.message : String(err),
-          span: err && err.span || span
-        }));
+        diagnostics.push(new Diagnostic({ code: err && err.code || "E064", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
       }
       continue;
     }
@@ -9592,11 +9236,7 @@ function evaluate(code, options) {
           trace.push(new TraceEvent({ kind: assumption.kind, detail: assumption.name, span }));
         }
       } catch (err) {
-        diagnostics.push(new Diagnostic({
-          code: err && err.code || "E064",
-          message: err && err.message ? err.message : String(err),
-          span: err && err.span || span
-        }));
+        diagnostics.push(new Diagnostic({ code: err && err.code || "E064", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
       }
       continue;
     }
@@ -9608,11 +9248,7 @@ function evaluate(code, options) {
           trace.push(new TraceEvent({ kind: "proof-object", detail: po.name, span }));
         }
       } catch (err) {
-        diagnostics.push(new Diagnostic({
-          code: err && err.code || "E064",
-          message: err && err.message ? err.message : String(err),
-          span: err && err.span || span
-        }));
+        diagnostics.push(new Diagnostic({ code: err && err.code || "E064", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
       }
       continue;
     }
@@ -9624,99 +9260,73 @@ function evaluate(code, options) {
           trace.push(new TraceEvent({ kind: "strict-foundation", detail: decl.profile, span }));
         }
       } catch (err) {
-        diagnostics.push(new Diagnostic({
-          code: err && err.code || "E065",
-          message: err && err.message ? err.message : String(err),
-          span: err && err.span || span
-        }));
+        diagnostics.push(new Diagnostic({ code: err && err.code || "E065", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
       }
       continue;
     }
     if (Array.isArray(form) && form[0] === "allow-host-primitive") {
       try {
         const decl = parseAllowHostPrimitiveForm(form);
-        for (const n of decl.names) env.allowedHostPrimitives.add(n);
+        for (const n of decl.names) {
+          env.allowedHostPrimitives.add(n);
+        }
         if (traceEnabled && trace) {
           trace.push(new TraceEvent({ kind: "allow-host-primitive", detail: decl.names.join(","), span }));
         }
       } catch (err) {
-        diagnostics.push(new Diagnostic({
-          code: err && err.code || "E065",
-          message: err && err.message ? err.message : String(err),
-          span: err && err.span || span
-        }));
+        diagnostics.push(new Diagnostic({ code: err && err.code || "E065", message: err && err.message ? err.message : String(err), span: err && err.span || span }));
       }
       continue;
     }
     if (Array.isArray(form) && form[0] === "check-proof") {
       if (form.length !== 2 || typeof form[1] !== "string") {
-        diagnostics.push(new Diagnostic({
-          code: "E064",
-          message: "(check-proof <name>) requires a proof-object name",
-          span
-        }));
+        diagnostics.push(new Diagnostic({ code: "E064", message: "(check-proof <name>) requires a proof-object name", span }));
         continue;
       }
       const verdict = checkProofObject(env, form[1]);
       results.push(verdict.ok ? 1 : 0);
-      if (proofs !== null) proofs.push(null);
+      if (proofs !== null) {
+        proofs.push(null);
+      }
       if (!verdict.ok) {
-        diagnostics.push(new Diagnostic({
-          code: "E064",
-          message: verdict.error,
-          span
-        }));
+        diagnostics.push(new Diagnostic({ code: "E064", message: verdict.error, span }));
       }
       if (traceEnabled && trace) {
-        trace.push(new TraceEvent({
-          kind: "check-proof",
-          detail: `${form[1]} \u2192 ${verdict.ok ? "ok" : "fail"}`,
-          span
-        }));
+        trace.push(new TraceEvent({ kind: "check-proof", detail: `${form[1]} \u2192 ${verdict.ok ? "ok" : "fail"}`, span }));
       }
       continue;
     }
     if (Array.isArray(form) && form[0] === "proof-report") {
       if (form.length !== 2 || typeof form[1] !== "string" || !form[1]) {
-        diagnostics.push(new Diagnostic({
-          code: "E064",
-          message: "(proof-report <name>) requires a proof-object name",
-          span
-        }));
+        diagnostics.push(new Diagnostic({ code: "E064", message: "(proof-report <name>) requires a proof-object name", span }));
         continue;
       }
       const report = env.proofReport(form[1]);
       results.push(report);
-      if (proofs !== null) proofs.push(null);
+      if (proofs !== null) {
+        proofs.push(null);
+      }
       if (traceEnabled && trace) {
-        trace.push(new TraceEvent({
-          kind: "proof-report",
-          detail: form[1],
-          span
-        }));
+        trace.push(new TraceEvent({ kind: "proof-report", detail: form[1], span }));
       }
       continue;
     }
     if (Array.isArray(form) && form[0] === "eval-nat") {
       if (form.length !== 2) {
-        diagnostics.push(new Diagnostic({
-          code: "E067",
-          message: "(eval-nat <term>) requires exactly one term argument",
-          span
-        }));
+        diagnostics.push(new Diagnostic({ code: "E067", message: "(eval-nat <term>) requires exactly one term argument", span }));
         continue;
       }
       try {
         const { value, normalForm, steps } = evalNatTerm(env, form[1]);
         results.push(value);
-        if (proofs !== null) proofs.push(null);
-        if (provenance !== null) provenance.push(null);
+        if (proofs !== null) {
+          proofs.push(null);
+        }
+        if (provenance !== null) {
+          provenance.push(null);
+        }
         if (traceEnabled && trace) {
-          trace.push(new TraceEvent({
-            kind: "eval-nat",
-            detail: `${formatTraceValue(form[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(", ") || "<none>"}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`,
-            span
-          }));
+          trace.push(new TraceEvent({ kind: "eval-nat", detail: `${formatTraceValue(form[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(", ") || "<none>"}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`, span }));
         }
       } catch (err) {
         const diagSpan = err && err.span || span;
@@ -9735,10 +9345,12 @@ function evaluate(code, options) {
         if (res && res.query) {
           const tag = res.typeQuery ? "type" : "query";
           summary = `${formKey} \u2192 ${tag} ${formatTraceValue(res.value)}`;
-        } else if (isTermResult(res)) {
-          summary = `${formKey} \u2192 term ${keyOf(res.term)}`;
         } else {
-          summary = `${formKey} \u2192 ${formatTraceValue(res)}`;
+          if (isTermResult(res)) {
+            summary = `${formKey} \u2192 term ${keyOf(res.term)}`;
+          } else {
+            summary = `${formKey} \u2192 ${formatTraceValue(res)}`;
+          }
         }
         trace.push(new TraceEvent({ kind: "eval", detail: summary, span }));
       }
@@ -9747,33 +9359,27 @@ function evaluate(code, options) {
         const wantsProof = proofsEnabled || _queryRequestsProof(expandedForm);
         if (wantsProof) {
           if (proofs === null) {
-            proofs = results.slice(0, -1).map(() => null);
+            proofs = results.slice(0, -1).map((() => null));
           }
           const inner = _stripWithProof(expandedForm.slice(1));
           const target = inner.length === 1 ? inner[0] : inner;
           proofs.push(buildProof(target, env));
-        } else if (proofs !== null) {
-          proofs.push(null);
+        } else {
+          if (proofs !== null) {
+            proofs.push(null);
+          }
         }
         recordProvenance(expandedForm, span);
         const carrierErr = env.checkCarrierValue(res.value);
         if (carrierErr) {
-          diagnostics.push(new Diagnostic({
-            code: "E063",
-            message: `Query result ${formatTraceValue(res.value)} violates active foundation carrier: ${carrierErr}`,
-            span
-          }));
+          diagnostics.push(new Diagnostic({ code: "E063", message: `Query result ${formatTraceValue(res.value)} violates active foundation carrier: ${carrierErr}`, span }));
         }
         if (env.strictPureLinks === true) {
           const inner = _stripWithProof(expandedForm.slice(1));
           const target = inner.length === 1 ? inner[0] : inner;
           const offenders = scanPureLinksOffenders(target, env);
           if (offenders.length > 0) {
-            diagnostics.push(new Diagnostic({
-              code: "E065",
-              message: `Query depends on host-primitive construct(s) under pure-links strict mode: ${offenders.join(", ")}`,
-              span
-            }));
+            diagnostics.push(new Diagnostic({ code: "E065", message: `Query depends on host-primitive construct(s) under pure-links strict mode: ${offenders.join(", ")}`, span }));
           }
         }
       }
@@ -9787,20 +9393,30 @@ function evaluate(code, options) {
   env._currentSpan = null;
   env._tracer = null;
   if (Array.isArray(env._shadowDiagnostics) && env._shadowDiagnostics.length > 0) {
-    for (const d of env._shadowDiagnostics) diagnostics.push(d);
+    for (const d of env._shadowDiagnostics) {
+      diagnostics.push(d);
+    }
     env._shadowDiagnostics.length = 0;
   }
   const out = { results, diagnostics };
-  if (traceEnabled) out.trace = trace;
-  if (proofs !== null) out.proofs = proofs;
+  if (traceEnabled) {
+    out.trace = trace;
+  }
+  if (proofs !== null) {
+    out.proofs = proofs;
+  }
   if (provenance !== null) {
-    while (provenance.length < results.length) provenance.push(null);
+    while (provenance.length < results.length) {
+      provenance.push(null);
+    }
     out.provenance = provenance;
   }
   return out;
 }
 function _unquotePath(s) {
-  if (typeof s !== "string") return s;
+  if (typeof s !== "string") {
+    return s;
+  }
   if (s.length >= 2 && (s[0] === '"' || s[0] === "'") && s[s.length - 1] === s[0]) {
     return s.slice(1, -1);
   }
@@ -9808,43 +9424,29 @@ function _unquotePath(s) {
 }
 function _resolveImportPath(target, importingFile) {
   const cleaned = _unquotePath(target);
-  if (path.isAbsolute(cleaned)) return path.resolve(cleaned);
+  if (path.isAbsolute(cleaned)) {
+    return path.resolve(cleaned);
+  }
   const baseDir = importingFile ? path.dirname(path.resolve(importingFile)) : process.cwd();
   return path.resolve(baseDir, cleaned);
 }
 function handleImport(rawTarget, alias, span, importingFile, env, importStack, importedFiles, diagnostics, traceEnabled, trace) {
   const target = _unquotePath(rawTarget);
   if (typeof target !== "string" || !target) {
-    return new Diagnostic({
-      code: "E007",
-      message: "Import target must be a string path",
-      span
-    });
+    return new Diagnostic({ code: "E007", message: "Import target must be a string path", span });
   }
   if (alias !== null && alias !== void 0) {
     if (typeof alias !== "string" || !alias || alias.includes(".")) {
-      return new Diagnostic({
-        code: "E009",
-        message: `Import alias must be a non-empty bare identifier (got "${alias}")`,
-        span
-      });
+      return new Diagnostic({ code: "E009", message: `Import alias must be a non-empty bare identifier (got "${alias}")`, span });
     }
     if (env.aliases.has(alias) || env.namespace === alias) {
-      return new Diagnostic({
-        code: "E009",
-        message: `Import alias "${alias}" collides with an existing namespace or alias`,
-        span
-      });
+      return new Diagnostic({ code: "E009", message: `Import alias "${alias}" collides with an existing namespace or alias`, span });
     }
   }
   const resolved = _resolveImportPath(target, importingFile);
   if (importStack.includes(resolved)) {
     const cycle = [...importStack, resolved].join(" -> ");
-    return new Diagnostic({
-      code: "E007",
-      message: `Import cycle detected: ${cycle}`,
-      span
-    });
+    return new Diagnostic({ code: "E007", message: `Import cycle detected: ${cycle}`, span });
   }
   if (importedFiles.has(resolved)) {
     if (alias) {
@@ -9853,8 +9455,10 @@ function handleImport(rawTarget, alias, span, importingFile, env, importStack, i
       if (traceEnabled && trace) {
         trace.push(new TraceEvent({ kind: "import", detail: `${resolved} as ${alias} (cached)`, span }));
       }
-    } else if (traceEnabled && trace) {
-      trace.push(new TraceEvent({ kind: "import", detail: `${resolved} (cached)`, span }));
+    } else {
+      if (traceEnabled && trace) {
+        trace.push(new TraceEvent({ kind: "import", detail: `${resolved} (cached)`, span }));
+      }
     }
     return null;
   }
@@ -9862,11 +9466,7 @@ function handleImport(rawTarget, alias, span, importingFile, env, importStack, i
   try {
     text = fs.readFileSync(resolved, "utf8");
   } catch (err) {
-    return new Diagnostic({
-      code: "E007",
-      message: `Failed to read import "${target}": ${err.message}`,
-      span
-    });
+    return new Diagnostic({ code: "E007", message: `Failed to read import "${target}": ${err.message}`, span });
   }
   importedFiles.add(resolved);
   importStack.push(resolved);
@@ -9879,33 +9479,53 @@ function handleImport(rawTarget, alias, span, importingFile, env, importStack, i
   const beforeLambdas = new Set(env.lambdas.keys());
   const beforeTemplates = new Set(env.templates.keys());
   const beforeNamespace = env.namespace;
-  const inner = evaluate(text, {
-    env,
-    file: resolved,
-    trace: traceEnabled,
-    _importStack: importStack,
-    _importedFiles: importedFiles
-  });
+  const inner = evaluate(text, { env, file: resolved, trace: traceEnabled, _importStack: importStack, _importedFiles: importedFiles });
   const importedNamespace = env.namespace;
   env.namespace = beforeNamespace;
   if (importedNamespace) {
-    if (!env._fileNamespaces) env._fileNamespaces = /* @__PURE__ */ new Map();
+    if (!env._fileNamespaces) {
+      env._fileNamespaces = /* @__PURE__ */ new Map();
+    }
     env._fileNamespaces.set(resolved, importedNamespace);
   }
   importStack.pop();
   if (importStack.length === 0 || importingFile && importStack[importStack.length - 1] === importingFile) {
-    for (const k of env.ops.keys()) if (!beforeOps.has(k)) env.imported.add(k);
-    for (const k of env.symbolProb.keys()) if (!beforeSyms.has(k)) env.imported.add(k);
-    for (const k of env.terms) if (!beforeTerms.has(k)) env.imported.add(k);
-    for (const k of env.lambdas.keys()) if (!beforeLambdas.has(k)) env.imported.add(k);
-    for (const k of env.templates.keys()) if (!beforeTemplates.has(k)) env.imported.add(k);
+    for (const k of env.ops.keys()) {
+      if (!beforeOps.has(k)) {
+        env.imported.add(k);
+      }
+    }
+    for (const k of env.symbolProb.keys()) {
+      if (!beforeSyms.has(k)) {
+        env.imported.add(k);
+      }
+    }
+    for (const k of env.terms) {
+      if (!beforeTerms.has(k)) {
+        env.imported.add(k);
+      }
+    }
+    for (const k of env.lambdas.keys()) {
+      if (!beforeLambdas.has(k)) {
+        env.imported.add(k);
+      }
+    }
+    for (const k of env.templates.keys()) {
+      if (!beforeTemplates.has(k)) {
+        env.imported.add(k);
+      }
+    }
   }
   if (alias) {
     env.aliases.set(alias, importedNamespace || alias);
   }
-  for (const diag of inner.diagnostics) diagnostics.push(diag);
+  for (const diag of inner.diagnostics) {
+    diagnostics.push(diag);
+  }
   if (traceEnabled && trace && Array.isArray(inner.trace)) {
-    for (const ev of inner.trace) trace.push(ev);
+    for (const ev of inner.trace) {
+      trace.push(ev);
+    }
   }
   return null;
 }
@@ -9916,23 +9536,18 @@ function evaluateFile(filePath, options) {
   try {
     text = fs.readFileSync(resolved, "utf8");
   } catch (err) {
-    const diag = new Diagnostic({
-      code: "E007",
-      message: `Failed to read "${filePath}": ${err.message}`,
-      span: { file: filePath, line: 1, col: 1, length: 0 }
-    });
+    const diag = new Diagnostic({ code: "E007", message: `Failed to read "${filePath}": ${err.message}`, span: { file: filePath, line: 1, col: 1, length: 0 } });
     return { results: [], diagnostics: [diag] };
   }
-  return evaluate(text, {
-    ...opts,
-    file: resolved,
-    _importStack: opts._importStack || [resolved],
-    _importedFiles: opts._importedFiles || /* @__PURE__ */ new Set([resolved])
-  });
+  return evaluate(text, { ...opts, file: resolved, _importStack: opts._importStack || [resolved], _importedFiles: opts._importedFiles || /* @__PURE__ */ new Set([resolved]) });
 }
 function normalizeInterpretation(interpretation) {
-  if (!interpretation) return {};
-  if (typeof interpretation === "string") return { kind: interpretation, summary: interpretation };
+  if (!interpretation) {
+    return {};
+  }
+  if (typeof interpretation === "string") {
+    return { kind: interpretation, summary: interpretation };
+  }
   return interpretation;
 }
 function normalizeQuestionExpression(text) {
@@ -9943,18 +9558,28 @@ function splitTopLevelEquals(expression) {
   const s = String(expression);
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
-    if (c === "(") depth++;
-    else if (c === ")") depth--;
-    else if (c === "=" && depth === 0) {
-      if (s[i - 1] === "!" || s[i + 1] === "=") continue;
-      return [s.slice(0, i).trim(), s.slice(i + 1).trim()];
+    if (c === "(") {
+      depth++;
+    } else {
+      if (c === ")") {
+        depth--;
+      } else {
+        if (c === "=" && depth === 0) {
+          if (s[i - 1] === "!" || s[i + 1] === "=") {
+            continue;
+          }
+          return [s.slice(0, i).trim(), s.slice(i + 1).trim()];
+        }
+      }
     }
   }
   return null;
 }
 function parseExpressionShape(expression, options = {}) {
   const trimmed = String(expression || "").trim();
-  if (!trimmed) throw new RmlError("E005", "empty expression");
+  if (!trimmed) {
+    throw new RmlError("E005", "empty expression");
+  }
   const source = trimmed.startsWith("(") && trimmed.endsWith(")") ? trimmed : `(${trimmed})`;
   let ast = parseOne(tokenizeOne(source));
   while (Array.isArray(ast) && ast.length === 1 && (options.unwrapSingle || Array.isArray(ast[0]))) {
@@ -9965,27 +9590,11 @@ function parseExpressionShape(expression, options = {}) {
 function buildArithmeticFormalization(expression, valueKind) {
   const eq = valueKind === "truth-value" ? splitTopLevelEquals(expression) : null;
   const ast = eq ? [parseExpressionShape(eq[0], { unwrapSingle: true }), "=", parseExpressionShape(eq[1], { unwrapSingle: true })] : parseExpressionShape(expression, { unwrapSingle: true });
-  return {
-    ast,
-    lino: keyOf(ast),
-    valueKind
-  };
+  return { ast, lino: keyOf(ast), valueKind };
 }
 function partialFormalization(request, interpretation, unknowns, level = 2) {
   const uniqueUnknowns = [...new Set(unknowns)];
-  return {
-    type: "rml-formalization",
-    sourceText: request?.text || "",
-    interpretation,
-    formalSystem: request?.formalSystem || request?.formal_system || "rml",
-    dependencies: request?.dependencies || [],
-    computable: false,
-    formalizationLevel: level,
-    unknowns: uniqueUnknowns,
-    valueKind: "partial",
-    ast: null,
-    lino: null
-  };
+  return { type: "rml-formalization", sourceText: request?.text || "", interpretation, formalSystem: request?.formalSystem || request?.formal_system || "rml", dependencies: request?.dependencies || [], computable: false, formalizationLevel: level, unknowns: uniqueUnknowns, valueKind: "partial", ast: null, lino: null };
 }
 function formalizeSelectedInterpretation(request = {}) {
   const interpretation = normalizeInterpretation(request.interpretation);
@@ -9998,19 +9607,7 @@ function formalizeSelectedInterpretation(request = {}) {
     const valueKind = kind.includes("equal") || splitTopLevelEquals(rawExpression) ? "truth-value" : "number";
     try {
       const formal = buildArithmeticFormalization(rawExpression, valueKind);
-      return {
-        type: "rml-formalization",
-        sourceText: request.text || "",
-        interpretation,
-        formalSystem,
-        dependencies,
-        computable: true,
-        formalizationLevel: 3,
-        unknowns: [],
-        valueKind: formal.valueKind,
-        ast: formal.ast,
-        lino: formal.lino
-      };
+      return { type: "rml-formalization", sourceText: request.text || "", interpretation, formalSystem, dependencies, computable: true, formalizationLevel: 3, unknowns: [], valueKind: formal.valueKind, ast: formal.ast, lino: formal.lino };
     } catch (error) {
       return partialFormalization(request, interpretation, ["unsupported-arithmetic-shape", error.message], 1);
     }
@@ -10018,154 +9615,46 @@ function formalizeSelectedInterpretation(request = {}) {
   if ((interpretation.lino || interpretation.formalExpression || interpretation.formal_expression) && rawExpression) {
     try {
       const ast = parseExpressionShape(rawExpression);
-      return {
-        type: "rml-formalization",
-        sourceText: request.text || "",
-        interpretation,
-        formalSystem,
-        dependencies,
-        computable: true,
-        formalizationLevel: 3,
-        unknowns: [],
-        valueKind: Array.isArray(ast) && ast[0] === "?" ? "query" : "truth-value",
-        ast,
-        lino: keyOf(ast)
-      };
+      return { type: "rml-formalization", sourceText: request.text || "", interpretation, formalSystem, dependencies, computable: true, formalizationLevel: 3, unknowns: [], valueKind: Array.isArray(ast) && ast[0] === "?" ? "query" : "truth-value", ast, lino: keyOf(ast) };
     } catch (error) {
       return partialFormalization(request, interpretation, ["unsupported-lino-shape", error.message], 1);
     }
   }
-  const dependencyUnknowns = dependencies.filter((dep) => dep && ["missing", "unknown", "partial"].includes(dep.status)).map((dep) => `dependency:${dep.id || "unknown"}`);
-  return partialFormalization(request, interpretation, [
-    "selected-subject",
-    "selected-relation",
-    "evidence-source",
-    "formal-shape",
-    ...dependencyUnknowns
-  ]);
+  const dependencyUnknowns = dependencies.filter(((dep) => dep && ["missing", "unknown", "partial"].includes(dep.status))).map(((dep) => `dependency:${dep.id || "unknown"}`));
+  return partialFormalization(request, interpretation, ["selected-subject", "selected-relation", "evidence-source", "formal-shape", ...dependencyUnknowns]);
 }
 function evaluateFormalization(formalization, options = {}) {
   if (!formalization || !formalization.computable || !formalization.ast) {
-    return {
-      computable: false,
-      formalizationLevel: formalization?.formalizationLevel || 0,
-      unknowns: formalization?.unknowns || ["formalization"],
-      result: { kind: "partial", value: "unknown", deterministic: false }
-    };
+    return { computable: false, formalizationLevel: formalization?.formalizationLevel || 0, unknowns: formalization?.unknowns || ["formalization"], result: { kind: "partial", value: "unknown", deterministic: false } };
   }
   const env = new Env(options.env || options);
   const evaluated = evalNode(formalization.ast, env);
   const value = evaluated && evaluated.query ? evaluated.value : evaluated;
   const kind = formalization.valueKind === "truth-value" ? "truth-value" : formalization.valueKind === "query" && typeof value === "string" ? "type" : "number";
-  return {
-    computable: true,
-    formalizationLevel: formalization.formalizationLevel,
-    unknowns: [],
-    result: { kind, value, deterministic: true }
-  };
+  return { computable: true, formalizationLevel: formalization.formalizationLevel, unknowns: [], result: { kind, value, deterministic: true } };
 }
-var EXTRACT_JS_RESERVED = /* @__PURE__ */ new Set([
-  "await",
-  "break",
-  "case",
-  "catch",
-  "class",
-  "const",
-  "continue",
-  "debugger",
-  "default",
-  "delete",
-  "do",
-  "else",
-  "export",
-  "extends",
-  "finally",
-  "for",
-  "function",
-  "if",
-  "import",
-  "in",
-  "instanceof",
-  "let",
-  "new",
-  "return",
-  "super",
-  "switch",
-  "this",
-  "throw",
-  "try",
-  "typeof",
-  "var",
-  "void",
-  "while",
-  "with",
-  "yield"
-]);
-var EXTRACT_RUST_RESERVED = /* @__PURE__ */ new Set([
-  "as",
-  "break",
-  "const",
-  "continue",
-  "crate",
-  "else",
-  "enum",
-  "extern",
-  "false",
-  "fn",
-  "for",
-  "if",
-  "impl",
-  "in",
-  "let",
-  "loop",
-  "match",
-  "mod",
-  "move",
-  "mut",
-  "pub",
-  "ref",
-  "return",
-  "self",
-  "Self",
-  "static",
-  "struct",
-  "super",
-  "trait",
-  "true",
-  "type",
-  "unsafe",
-  "use",
-  "where",
-  "while",
-  "async",
-  "await",
-  "dyn"
-]);
+var EXTRACT_JS_RESERVED = /* @__PURE__ */ new Set(["await", "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else", "export", "extends", "finally", "for", "function", "if", "import", "in", "instanceof", "let", "new", "return", "super", "switch", "this", "throw", "try", "typeof", "var", "void", "while", "with", "yield"]);
+var EXTRACT_RUST_RESERVED = /* @__PURE__ */ new Set(["as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for", "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return", "self", "Self", "static", "struct", "super", "trait", "true", "type", "unsafe", "use", "where", "while", "async", "await", "dyn"]);
 var EXTRACT_LOGIC_TOKENS = /* @__PURE__ */ new Set(["and", "or", "not", "both", "neither", "has", "probability"]);
-var EXTRACT_SPECIAL_FORMS = /* @__PURE__ */ new Set([
-  "range",
-  "valence",
-  "mode",
-  "relation",
-  "world",
-  "total",
-  "coverage",
-  "terminating",
-  "coinductive",
-  "template",
-  "import",
-  "namespace"
-]);
+var EXTRACT_SPECIAL_FORMS = /* @__PURE__ */ new Set(["range", "valence", "mode", "relation", "world", "total", "coverage", "terminating", "coinductive", "template", "import", "namespace"]);
 function normalizeExtractTarget(target) {
-  if (target === "js" || target === "javascript") return "js";
-  if (target === "rust" || target === "rs") return "rust";
+  if (target === "js" || target === "javascript") {
+    return "js";
+  }
+  if (target === "rust" || target === "rs") {
+    return "rust";
+  }
   throw new RmlError("E041", `Unknown extraction target "${target}"`);
 }
 function extractIdentifier(name, target, used) {
   const reserved = target === "rust" ? EXTRACT_RUST_RESERVED : EXTRACT_JS_RESERVED;
   let out = String(name).replace(/[^A-Za-z0-9_]/g, "_");
-  if (!out || /^[0-9]/.test(out)) out = "_" + out;
-  if (reserved.has(out)) out = out + "_";
+  if (!out || /^[0-9]/.test(out)) {
+    out = "_" + out;
+  }
+  if (reserved.has(out)) {
+    out = out + "_";
+  }
   const base = out;
   let i = 2;
   while (used.has(out)) {
@@ -10177,7 +9666,9 @@ function extractIdentifier(name, target, used) {
 }
 function extractNumberLiteral(token, target) {
   const raw = String(token);
-  if (target === "rust" && /^-?\d+$/.test(raw)) return `${raw}.0`;
+  if (target === "rust" && /^-?\d+$/.test(raw)) {
+    return `${raw}.0`;
+  }
   return raw;
 }
 function extractCompileError(message) {
@@ -10193,20 +9684,38 @@ function isLambdaDefinition(node) {
   return Array.isArray(node) && node.length >= 3 && typeof node[0] === "string" && node[0].endsWith(":") && node[1] === "lambda" && Array.isArray(node[2]);
 }
 function isTypeOnlyForm(node) {
-  if (!Array.isArray(node) || node.length === 0) return true;
-  if (node[0] === "Type" || node[0] === "Prop" || node[0] === "Pi") return true;
-  if (typeof node[0] !== "string" || !node[0].endsWith(":")) return false;
+  if (!Array.isArray(node) || node.length === 0) {
+    return true;
+  }
+  if (node[0] === "Type" || node[0] === "Prop" || node[0] === "Pi") {
+    return true;
+  }
+  if (typeof node[0] !== "string" || !node[0].endsWith(":")) {
+    return false;
+  }
   const head = node[0].slice(0, -1);
   const rhs = node.slice(1);
-  if (rhs.length === 2 && rhs[1] === head) return true;
-  if (rhs.length === 3 && rhs[0] === head && rhs[1] === "is" && rhs[2] === head) return true;
-  if (rhs.length === 1 && Array.isArray(rhs[0])) return true;
+  if (rhs.length === 2 && rhs[1] === head) {
+    return true;
+  }
+  if (rhs.length === 3 && rhs[0] === head && rhs[1] === "is" && rhs[2] === head) {
+    return true;
+  }
+  if (rhs.length === 1 && Array.isArray(rhs[0])) {
+    return true;
+  }
   return false;
 }
 function containsExtractLogic(node) {
-  if (typeof node === "string") return EXTRACT_LOGIC_TOKENS.has(node);
-  if (!Array.isArray(node)) return false;
-  if (isProbabilityAssignment(node)) return true;
+  if (typeof node === "string") {
+    return EXTRACT_LOGIC_TOKENS.has(node);
+  }
+  if (!Array.isArray(node)) {
+    return false;
+  }
+  if (isProbabilityAssignment(node)) {
+    return true;
+  }
   return node.some(containsExtractLogic);
 }
 function extractLambdaDeclaration(form) {
@@ -10218,11 +9727,7 @@ function extractLambdaDeclaration(form) {
   if (form.length !== 4) {
     throw extractCompileError(`Cannot extract "${name}": lambda definitions must have one body`);
   }
-  return {
-    name,
-    params: bindings.map((b) => b.paramName),
-    body: form[3]
-  };
+  return { name, params: bindings.map(((b) => b.paramName)), body: form[3] };
 }
 function collectApplySpine(node) {
   const args = [];
@@ -10243,9 +9748,15 @@ function makeExtractNameMap(names, target) {
 }
 function compileExtractExpr(node, ctx) {
   if (typeof node === "string") {
-    if (isNum(node)) return extractNumberLiteral(node, ctx.target);
-    if (ctx.locals.has(node)) return ctx.locals.get(node);
-    if (ctx.nameMap.has(node)) return ctx.nameMap.get(node);
+    if (isNum(node)) {
+      return extractNumberLiteral(node, ctx.target);
+    }
+    if (ctx.locals.has(node)) {
+      return ctx.locals.get(node);
+    }
+    if (ctx.nameMap.has(node)) {
+      return ctx.nameMap.get(node);
+    }
     throw extractCompileError(`Cannot extract unresolved symbol "${node}"`);
   }
   if (!Array.isArray(node) || node.length === 0) {
@@ -10263,11 +9774,11 @@ function compileExtractExpr(node, ctx) {
       throw extractCompileError(`Cannot extract higher-order application "${keyOf(node)}"`);
     }
     const fn = compileExtractExpr(head, ctx);
-    return `${fn}(${args.map((arg) => compileExtractExpr(arg, ctx)).join(", ")})`;
+    return `${fn}(${args.map(((arg) => compileExtractExpr(arg, ctx))).join(", ")})`;
   }
   if (typeof node[0] === "string" && ctx.nameMap.has(node[0])) {
     const fn = ctx.nameMap.get(node[0]);
-    return `${fn}(${node.slice(1).map((arg) => compileExtractExpr(arg, ctx)).join(", ")})`;
+    return `${fn}(${node.slice(1).map(((arg) => compileExtractExpr(arg, ctx))).join(", ")})`;
   }
   throw extractCompileError(`Cannot extract expression "${keyOf(node)}"`);
 }
@@ -10314,12 +9825,8 @@ function parseExtractProgram(code) {
   return { lambdas, tests };
 }
 function compileJavaScriptProgram(parsed) {
-  const nameMap = makeExtractNameMap(parsed.lambdas.map((l) => l.name), "js");
-  const lines = [
-    "// Generated by rml extract js. Do not edit by hand.",
-    "import { pathToFileURL } from 'node:url';",
-    ""
-  ];
+  const nameMap = makeExtractNameMap(parsed.lambdas.map(((l) => l.name)), "js");
+  const lines = ["// Generated by rml extract js. Do not edit by hand.", "import { pathToFileURL } from 'node:url';", ""];
   for (const lambda of parsed.lambdas) {
     const used = new Set(nameMap.values());
     const locals = /* @__PURE__ */ new Map();
@@ -10327,7 +9834,7 @@ function compileJavaScriptProgram(parsed) {
       locals.set(param, extractIdentifier(param, "js", used));
     }
     const ctx = { target: "js", nameMap, locals };
-    const params = lambda.params.map((param) => locals.get(param)).join(", ");
+    const params = lambda.params.map(((param) => locals.get(param))).join(", ");
     lines.push(`export function ${nameMap.get(lambda.name)}(${params}) {`);
     lines.push(`  return ${compileExtractExpr(lambda.body, ctx)};`);
     lines.push("}");
@@ -10341,26 +9848,26 @@ function compileJavaScriptProgram(parsed) {
   if (parsed.tests.length === 0) {
     lines.push("  return true;");
   } else {
-    parsed.tests.forEach((test, idx) => {
+    parsed.tests.forEach(((test, idx) => {
       const ctx = { target: "js", nameMap, locals: /* @__PURE__ */ new Map() };
       const left = compileExtractExpr(test.left, ctx);
       const right = compileExtractExpr(test.right, ctx);
       lines.push(`  if (!__rmlApproxEq(${left}, ${right})) {`);
       lines.push(`    throw new Error('RML extracted test ${idx + 1} failed');`);
       lines.push("  }");
-    });
+    }));
     lines.push("  return true;");
   }
   lines.push("}");
   lines.push("");
-  lines.push("if (false) {");
+  lines.push("if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {");
   lines.push("  __runRmlExtractedTests();");
   lines.push("}");
   lines.push("");
   return lines.join("\n");
 }
 function compileRustProgram(parsed) {
-  const nameMap = makeExtractNameMap(parsed.lambdas.map((l) => l.name), "rust");
+  const nameMap = makeExtractNameMap(parsed.lambdas.map(((l) => l.name)), "rust");
   const lines = ["// Generated by rml extract rust. Do not edit by hand.", ""];
   for (const lambda of parsed.lambdas) {
     const used = new Set(nameMap.values());
@@ -10369,7 +9876,7 @@ function compileRustProgram(parsed) {
       locals.set(param, extractIdentifier(param, "rust", used));
     }
     const ctx = { target: "rust", nameMap, locals };
-    const params = lambda.params.map((param) => `${locals.get(param)}: f64`).join(", ");
+    const params = lambda.params.map(((param) => `${locals.get(param)}: f64`)).join(", ");
     lines.push(`pub fn ${nameMap.get(lambda.name)}(${params}) -> f64 {`);
     lines.push(`    ${compileExtractExpr(lambda.body, ctx)}`);
     lines.push("}");
@@ -10384,7 +9891,7 @@ function compileRustProgram(parsed) {
     lines.push("        (left - right).abs() <= 1e-9");
     lines.push("    }");
     lines.push("");
-    parsed.tests.forEach((test, idx) => {
+    parsed.tests.forEach(((test, idx) => {
       const ctx = { target: "rust", nameMap, locals: /* @__PURE__ */ new Map() };
       const left = compileExtractExpr(test.left, ctx);
       const right = compileExtractExpr(test.right, ctx);
@@ -10393,7 +9900,7 @@ function compileRustProgram(parsed) {
       lines.push(`        assert!(rml_approx_eq(${left}, ${right}), "RML query ${idx + 1} failed");`);
       lines.push("    }");
       lines.push("");
-    });
+    }));
     lines.push("}");
     lines.push("");
   }
@@ -10412,45 +9919,11 @@ var IsabelleExportError = class extends Error {
     this.node = node;
   }
 };
-var ISABELLE_RESERVED = /* @__PURE__ */ new Set([
-  "and",
-  "assumes",
-  "begin",
-  "binder",
-  "case",
-  "class",
-  "consts",
-  "datatype",
-  "definition",
-  "else",
-  "end",
-  "fixes",
-  "for",
-  "fun",
-  "if",
-  "imports",
-  "in",
-  "infix",
-  "infixl",
-  "infixr",
-  "let",
-  "locale",
-  "module",
-  "notation",
-  "of",
-  "open",
-  "or",
-  "shows",
-  "structure",
-  "syntax",
-  "then",
-  "theory",
-  "type",
-  "typedecl",
-  "where"
-]);
+var ISABELLE_RESERVED = /* @__PURE__ */ new Set(["and", "assumes", "begin", "binder", "case", "class", "consts", "datatype", "definition", "else", "end", "fixes", "for", "fun", "if", "imports", "in", "infix", "infixl", "infixr", "let", "locale", "module", "notation", "of", "open", "or", "shows", "structure", "syntax", "then", "theory", "type", "typedecl", "where"]);
 function _isUniverseAnnotation(node) {
-  if (node === "Type") return true;
+  if (node === "Type") {
+    return true;
+  }
   return Array.isArray(node) && node.length === 2 && node[0] === "Type" && parseUniverseLevelToken(node[1]) !== null;
 }
 function _isTypeSelfDeclaration(name, rhs) {
@@ -10466,24 +9939,32 @@ function _isOperatorHead(head) {
   return ["=", "!=", "and", "or", "not", "is", "?:", "both", "neither"].includes(head) || /[=!]/.test(head);
 }
 function _nodeContainsSymbol(node, symbol) {
-  if (typeof node === "string") return node === symbol;
-  return Array.isArray(node) && node.some((child) => _nodeContainsSymbol(child, symbol));
+  if (typeof node === "string") {
+    return node === symbol;
+  }
+  return Array.isArray(node) && node.some(((child) => _nodeContainsSymbol(child, symbol)));
 }
 function _escapeIsabelleString(s) {
   return String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 function _isabelleBaseName(raw, fallback = "x") {
   let base = String(raw || "").replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "").toLowerCase();
-  if (!base) base = fallback;
-  if (/^[0-9]/.test(base)) base = `${fallback}_${base}`;
+  if (!base) {
+    base = fallback;
+  }
+  if (/^[0-9]/.test(base)) {
+    base = `${fallback}_${base}`;
+  }
   return base;
 }
 function _isabelleTheoryName(raw) {
   const stem = path.basename(String(raw || "RML_Export")).replace(/\.[^.]*$/, "");
-  const parts = stem.split(/[^A-Za-z0-9]+/).filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1).replace(/([a-z0-9])([A-Z])/g, "$1_$2"));
+  const parts = stem.split(/[^A-Za-z0-9]+/).filter(Boolean).map(((part) => part.charAt(0).toUpperCase() + part.slice(1).replace(/([a-z0-9])([A-Z])/g, "$1_$2")));
   let name = parts.length ? parts.join("_") : "RML_Export";
   name = name.replace(/[^A-Za-z0-9_]/g, "_");
-  if (!/^[A-Z]/.test(name)) name = `RML_${name}`;
+  if (!/^[A-Z]/.test(name)) {
+    name = `RML_${name}`;
+  }
   return name;
 }
 var IsabelleExportContext = class {
@@ -10506,7 +9987,9 @@ var IsabelleExportContext = class {
     this.termTypes = /* @__PURE__ */ new Map();
   }
   makeUnique(original, base, used) {
-    if (used.has(base) && used.get(base) === original) return base;
+    if (used.has(base) && used.get(base) === original) {
+      return base;
+    }
     let candidate = base;
     let index = 2;
     while (used.has(candidate) && used.get(candidate) !== original) {
@@ -10517,15 +10000,21 @@ var IsabelleExportContext = class {
     return candidate;
   }
   typeName(name) {
-    if (name === "Prop") return "bool";
-    if (this.typeNames.has(name)) return this.typeNames.get(name);
+    if (name === "Prop") {
+      return "bool";
+    }
+    if (this.typeNames.has(name)) {
+      return this.typeNames.get(name);
+    }
     const base = `rml_${_isabelleBaseName(name, "type")}`;
     const unique = this.makeUnique(name, base, this.usedTypeNames);
     this.typeNames.set(name, unique);
     return unique;
   }
   termName(name) {
-    if (this.termNames.has(name)) return this.termNames.get(name);
+    if (this.termNames.has(name)) {
+      return this.termNames.get(name);
+    }
     const base = `rml_${_isabelleBaseName(name, "term")}`;
     const unique = this.makeUnique(name, base, this.usedTermNames);
     this.termNames.set(name, unique);
@@ -10533,18 +10022,24 @@ var IsabelleExportContext = class {
   }
   localName(name) {
     let base = _isabelleBaseName(name, "x");
-    if (ISABELLE_RESERVED.has(base)) base = `x_${base}`;
+    if (ISABELLE_RESERVED.has(base)) {
+      base = `x_${base}`;
+    }
     return base;
   }
   ensureTypedecl(name) {
-    if (name === "Type" || name === "Prop") return;
+    if (name === "Type" || name === "Prop") {
+      return;
+    }
     if (!this.typeDeclSet.has(name)) {
       this.typeDeclSet.add(name);
       this.typeDecls.push(name);
     }
   }
   addConst(name, typeNode) {
-    if (this.datatypeConstructors.has(name) || this.definitionNames.has(name)) return;
+    if (this.datatypeConstructors.has(name) || this.definitionNames.has(name)) {
+      return;
+    }
     if (!this.constNames.has(name)) {
       this.constNames.add(name);
       this.consts.push({ name, typeNode });
@@ -10584,17 +10079,16 @@ var IsabelleExportContext = class {
     if (_isUniverseAnnotation(node)) {
       throw new IsabelleExportError("universe levels cannot be exported as HOL value types", node);
     }
-    if (node.length === 1 && node[0] === "Prop") return "bool";
+    if (node.length === 1 && node[0] === "Prop") {
+      return "bool";
+    }
     if (node.length === 3 && node[0] === "Pi") {
       const binding = parseBinding(node[1]);
       if (!binding) {
         throw new IsabelleExportError("malformed Pi binder", node);
       }
       if (_nodeContainsSymbol(node[2], binding.paramName)) {
-        throw new IsabelleExportError(
-          `dependent Pi codomain mentions "${binding.paramName}", which is outside the Isabelle/HOL exporter subset`,
-          node
-        );
+        throw new IsabelleExportError(`dependent Pi codomain mentions "${binding.paramName}", which is outside the Isabelle/HOL exporter subset`, node);
       }
       const domain = this.typeExpr(binding.paramType);
       const codomain = this.typeExpr(node[2]);
@@ -10605,8 +10099,12 @@ var IsabelleExportContext = class {
   }
   inferTermType(node, locals = /* @__PURE__ */ new Map()) {
     if (typeof node === "string") {
-      if (locals.has(node)) return locals.get(node).typeNode;
-      if (this.termTypes.has(node)) return this.termTypes.get(node);
+      if (locals.has(node)) {
+        return locals.get(node).typeNode;
+      }
+      if (this.termTypes.has(node)) {
+        return this.termTypes.get(node);
+      }
       throw new IsabelleExportError(`cannot infer type of "${node}"`, node);
     }
     if (!Array.isArray(node)) {
@@ -10614,12 +10112,11 @@ var IsabelleExportContext = class {
     }
     if (node.length === 3 && node[0] === "lambda") {
       const binding = parseBinding(node[1]);
-      if (!binding) throw new IsabelleExportError("malformed lambda binder", node);
+      if (!binding) {
+        throw new IsabelleExportError("malformed lambda binder", node);
+      }
       const nextLocals = new Map(locals);
-      nextLocals.set(binding.paramName, {
-        typeNode: binding.paramType,
-        localName: this.localName(binding.paramName)
-      });
+      nextLocals.set(binding.paramName, { typeNode: binding.paramType, localName: this.localName(binding.paramName) });
       return ["Pi", [binding.paramType, binding.paramName], this.inferTermType(node[2], nextLocals)];
     }
     if (node.length === 3 && node[0] === "apply") {
@@ -10641,8 +10138,12 @@ var IsabelleExportContext = class {
   }
   termExpr(node, locals = /* @__PURE__ */ new Map()) {
     if (typeof node === "string") {
-      if (isNum(node)) return node;
-      if (locals.has(node)) return locals.get(node).localName;
+      if (isNum(node)) {
+        return node;
+      }
+      if (locals.has(node)) {
+        return locals.get(node).localName;
+      }
       return this.termName(node);
     }
     if (!Array.isArray(node)) {
@@ -10650,7 +10151,9 @@ var IsabelleExportContext = class {
     }
     if (node.length === 3 && node[0] === "lambda") {
       const binding = parseBinding(node[1]);
-      if (!binding) throw new IsabelleExportError("malformed lambda binder", node);
+      if (!binding) {
+        throw new IsabelleExportError("malformed lambda binder", node);
+      }
       const localName = this.localName(binding.paramName);
       const nextLocals = new Map(locals);
       nextLocals.set(binding.paramName, { typeNode: binding.paramType, localName });
@@ -10663,7 +10166,7 @@ var IsabelleExportContext = class {
       return `(${this.termExpr(node[0], locals)} = ${this.termExpr(node[2], locals)})`;
     }
     if (node.length > 0) {
-      const parts = node.map((part) => this.termExpr(part, locals));
+      const parts = node.map(((part) => this.termExpr(part, locals)));
       return `(${parts.join(" ")})`;
     }
     throw new IsabelleExportError("empty term expression", node);
@@ -10676,7 +10179,9 @@ var IsabelleExportContext = class {
       throw new IsabelleExportError("symbol probability priors are outside the Isabelle exporter subset", node);
     }
     if (_isTypeSelfDeclaration(head, rhs)) {
-      if (head !== "Type") this.ensureTypedecl(head);
+      if (head !== "Type") {
+        this.ensureTypedecl(head);
+      }
       return;
     }
     if (_isTypedSelfDeclaration(head, rhs)) {
@@ -10699,11 +10204,15 @@ var IsabelleExportContext = class {
     while (Array.isArray(node) && node.length === 1 && Array.isArray(node[0])) {
       node = node[0];
     }
-    if (!Array.isArray(node) || node.length === 0) return;
+    if (!Array.isArray(node) || node.length === 0) {
+      return;
+    }
     if (_isProbabilisticAssignment(node)) {
       throw new IsabelleExportError("probability assignments are outside the Isabelle exporter subset", node);
     }
-    if (node[0] === "?" || _isUniverseAnnotation(node)) return;
+    if (node[0] === "?" || _isUniverseAnnotation(node)) {
+      return;
+    }
     if (node[0] === "inductive") {
       this.addDatatype(parseInductiveForm(node));
       return;
@@ -10717,7 +10226,9 @@ var IsabelleExportContext = class {
   renderTypedecls() {
     const lines = [];
     for (const name of this.typeDecls) {
-      if (this.datatypeNames.has(name)) continue;
+      if (this.datatypeNames.has(name)) {
+        continue;
+      }
       lines.push(`typedecl ${this.typeName(name)}`);
     }
     return lines;
@@ -10726,11 +10237,11 @@ var IsabelleExportContext = class {
     const sections = [];
     for (const decl of this.datatypes) {
       const lines = [`datatype ${this.typeName(decl.name)} =`];
-      decl.constructors.forEach((ctor, index) => {
-        const args = ctor.params.map((param) => this.typeExpr(param.type));
+      decl.constructors.forEach(((ctor, index) => {
+        const args = ctor.params.map(((param) => this.typeExpr(param.type)));
         const rhs = [this.termName(ctor.name), ...args].join(" ");
         lines.push(`  ${index === 0 ? "" : "| "}${rhs}`);
-      });
+      }));
       sections.push(lines.join("\n"));
     }
     return sections;
@@ -10738,7 +10249,9 @@ var IsabelleExportContext = class {
   renderConsts() {
     const lines = [];
     for (const decl of this.consts) {
-      if (this.datatypeConstructors.has(decl.name) || this.definitionNames.has(decl.name)) continue;
+      if (this.datatypeConstructors.has(decl.name) || this.definitionNames.has(decl.name)) {
+        continue;
+      }
       lines.push(`  ${this.termName(decl.name)} :: "${_escapeIsabelleString(this.typeExpr(decl.typeNode))}"`);
     }
     return lines.length ? ["consts", ...lines] : [];
@@ -10757,19 +10270,17 @@ var IsabelleExportContext = class {
   render() {
     const bodySections = [];
     const typedecls = this.renderTypedecls();
-    if (typedecls.length) bodySections.push(typedecls.join("\n"));
+    if (typedecls.length) {
+      bodySections.push(typedecls.join("\n"));
+    }
     const datatypes = this.renderDatatypes();
     bodySections.push(...datatypes);
     const consts = this.renderConsts();
-    if (consts.length) bodySections.push(consts.join("\n"));
+    if (consts.length) {
+      bodySections.push(consts.join("\n"));
+    }
     bodySections.push(...this.renderDefinitions());
-    const lines = [
-      `theory ${this.theoryName}`,
-      "  imports Main",
-      "begin",
-      "",
-      "(* Generated by RML Isabelle exporter. *)"
-    ];
+    const lines = [`theory ${this.theoryName}`, "  imports Main", "begin", "", "(* Generated by RML Isabelle exporter. *)"];
     if (this.sourceFile) {
       lines.push(`(* Source: ${_escapeIsabelleString(this.sourceFile)} *)`);
     }
@@ -10789,143 +10300,19 @@ function exportIsabelle(sourceText, options = {}) {
     const message = err instanceof LinoParseError ? err.message : `LiNo parse failure: ${err && err.message ? err.message : String(err)}`;
     throw new IsabelleExportError(message);
   }
-  for (const form of forms) ctx.processForm(form);
+  for (const form of forms) {
+    ctx.processForm(form);
+  }
   return ctx.render();
 }
 function run(text, options) {
   return evaluate(text, options).results;
 }
-function _printMainUsage() {
-  console.error("Usage: rml [--trace] <kb.lino>   |   rml repl   |   rml extract <js|rust> <kb.lino>   |   rml export <lean|rocq|isabelle> <file.lino> [-o <file>] [--theory <Name>]");
-}
-async function runCli() {
-  const argv = process.argv.slice(2);
-  let trace = false;
-  const positionals = [];
-  for (const arg2 of argv) {
-    if (arg2 === "--trace") trace = true;
-    else positionals.push(arg2);
-  }
-  const arg = positionals[0];
-  if (!arg) {
-    _printMainUsage();
-    process.exit(1);
-  }
-  if (arg === "extract") {
-    const target = positionals[1];
-    const file = positionals[2];
-    if (!target || !file) {
-      console.error("Usage: rml extract <js|rust> <kb.lino>");
-      process.exit(1);
-    }
-    const text2 = fs.readFileSync(file, "utf8");
-    try {
-      process.stdout.write(extractProgram(text2, target));
-      process.stdout.write("\n");
-    } catch (err) {
-      console.error(err && err.message ? err.message : String(err));
-      process.exit(1);
-    }
-    return;
-  }
-  if (arg === "export") {
-    const status = await runExportCli(positionals.slice(1));
-    process.exit(status);
-  }
-  if (arg === "repl") {
-    const replUrl = new URL("./rml-repl.mjs", import.meta.url).href;
-    const { runRepl } = await import(replUrl);
-    await runRepl();
-    return;
-  }
-  const text = fs.readFileSync(arg, "utf8");
-  const out = evaluate(text, { file: arg, trace });
-  if (trace && out.trace) {
-    for (const event of out.trace) {
-      console.error(formatTraceEvent(event));
-    }
-  }
-  for (const v of out.results) {
-    if (typeof v === "string") {
-      console.log(v);
-    } else {
-      console.log(String(+v.toFixed(6)).replace(/\.0+$/, ""));
-    }
-  }
-  for (const diag of out.diagnostics) {
-    console.error(formatDiagnostic(diag, text));
-  }
-  if (out.diagnostics.length > 0) process.exit(1);
-}
-async function runExportCli(args) {
-  const [target, input] = args;
-  if (args.length < 2 || target !== "lean" && target !== "rocq" && target !== "isabelle") {
-    console.error("Usage: rml export <lean|rocq|isabelle> <file.lino> [-o <file>] [--theory <Name>]");
-    return 2;
-  }
-  let output = null;
-  let theoryName = null;
-  for (let i = 2; i < args.length; i++) {
-    if ((args[i] === "-o" || args[i] === "--output") && i + 1 < args.length) {
-      output = args[i + 1];
-      i++;
-      continue;
-    }
-    if (target === "isabelle" && args[i] === "--theory" && i + 1 < args.length) {
-      theoryName = args[i + 1];
-      i++;
-      continue;
-    }
-    console.error(`Unknown export option: ${args[i]}`);
-    console.error(`Usage: rml export ${target} <file.lino> [-o <file>]${target === "isabelle" ? " [--theory <Name>]" : ""}`);
-    return 2;
-  }
-  if (target === "lean" && !output) {
-    console.error("Usage: rml export lean <file.lino> -o <file.lean>");
-    return 2;
-  }
-  let text;
-  try {
-    text = fs.readFileSync(input, "utf8");
-  } catch (err) {
-    console.error(`Error reading ${input}: ${err.message}`);
-    return 1;
-  }
-  let rendered;
-  if (target === "lean") {
-    const { exportLean } = await import(new URL("./lean-export.mjs", import.meta.url).href);
-    const out = exportLean(text, { file: input });
-    if (out.diagnostics.length > 0) {
-      for (const diag of out.diagnostics) {
-        console.error(formatDiagnostic(diag, text));
-      }
-      return 1;
-    }
-    rendered = out.source;
-  } else if (target === "rocq") {
-    const { exportRocq } = await import(new URL("./rml-rocq.mjs", import.meta.url).href);
-    rendered = exportRocq(text, { sourcePath: input });
-  } else {
-    rendered = exportIsabelle(text, {
-      file: input,
-      outputFile: output,
-      theoryName: theoryName || _isabelleTheoryName(output || input)
-    });
-  }
-  try {
-    if (output) fs.writeFileSync(output, rendered, "utf8");
-    else process.stdout.write(rendered);
-  } catch (err) {
-    console.error(`Error writing ${output}: ${err.message}`);
-    return 1;
-  }
-  return 0;
-}
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  runCli().catch((err) => {
+if (false) {
+  runCli().catch(((err) => {
     console.error(err && err.stack ? err.stack : err);
     process.exit(1);
-  });
+  }));
 }
 export {
   Diagnostic,

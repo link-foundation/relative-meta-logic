@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { parseJavaScriptAst } from './generate-linked-runtime.mjs';
+import { generateJavaScript } from './linked-runtime-codegen.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,22 +75,23 @@ function spawnSync() {
 `;
 
 function browserEntrySource() {
-  let source = fs.readFileSync(sourceFile, 'utf8');
-  source = source.replace(/^#!.*\n/, '');
-  source = source.replace(
-    [
-      "import fs from 'node:fs';",
-      "import { pathToFileURL } from 'node:url';",
-      "import path from 'node:path';",
-      "import { spawnSync } from 'node:child_process';",
-    ].join('\n'),
-    browserShims,
-  );
-  source = source.replace(
-    "if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {",
-    'if (false) {',
-  );
-  return source;
+  const syntax = parseJavaScriptAst(fs.readFileSync(sourceFile, 'utf8'), repoRoot);
+  const shims = parseJavaScriptAst(browserShims, repoRoot);
+  const nodeImports = new Set(['node:fs', 'node:url', 'node:path', 'node:child_process']);
+  let removed = 0;
+  syntax.program.body = syntax.program.body.filter(statement => {
+    if (statement.type === 'ImportDeclaration' && nodeImports.has(statement.source.value)) { removed += 1; return false; }
+    return true;
+  });
+  if (removed !== nodeImports.size) throw new Error('Browser adapter expected the four explicit Node capability imports');
+  const containsPathToFileURL = value => value && typeof value === 'object' &&
+    ((value.type === 'Identifier' && value.name === 'pathToFileURL') || Object.values(value).some(containsPathToFileURL));
+  const guards = syntax.program.body.filter(statement => statement.type === 'IfStatement' && containsPathToFileURL(statement.test));
+  if (guards.length !== 1) throw new Error('Browser adapter expected one explicit Node CLI entry guard');
+  guards[0].test = { type: 'BooleanLiteral', value: false };
+  delete syntax.program.interpreter;
+  syntax.program.body.unshift(...shims.program.body);
+  return generateJavaScript(syntax);
 }
 
 fs.mkdirSync(path.dirname(outputFile), { recursive: true });
@@ -105,6 +108,9 @@ await esbuild.build({
   bundle: true,
   format: 'esm',
   platform: 'browser',
+  // Keep dependency module identifiers relative to this logical checkout rather
+  // than leaking the physical location of an installed-provider symlink.
+  preserveSymlinks: true,
   target: 'es2020',
   treeShaking: true,
   legalComments: 'inline',

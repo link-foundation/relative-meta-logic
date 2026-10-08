@@ -54,7 +54,7 @@ jobs:
           node --test scripts/orientation-independence.test.mjs scripts/proof-toolchain-contract.test.mjs
       - name: Upload proof and cache diagnostics before teardown
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: orientation-lean-${{ github.run_attempt }}
           path: |
@@ -97,7 +97,7 @@ jobs:
           '
       - name: Upload proof and cache diagnostics before teardown
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: orientation-rocq-${{ github.run_attempt }}
           path: |

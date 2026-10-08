@@ -1,0 +1,724 @@
+{
+  "schema": "rml-linked-configuration-manifest/v1",
+  "archiveSha256": "7962b6f064e155b2961a9e1a0ccbc3e97a804ea7ea4db3ec2da09b331786ab23",
+  "archiveBytes": 712156,
+  "linkCount": 14484,
+  "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
+  "externalExecutionBoundary": [
+    "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
+    "operating-system services and physical hardware",
+    "explicit user-selected input programs and external tools"
+  ],
+  "files": [
+    {
+      "path": ".github/candidates/cache-portability/manifest.json",
+      "sourceSha256": "5fb216ec1e6a7ac64e25d355369c99fbbcb77ca1af0af328fa1f293a61c95565",
+      "generatedSha256": "a697fe831ba5e66479a2c603b83323b9ee5c7ea2e3111b118310a6bd8a380bc5"
+    },
+    {
+      "path": ".github/candidates/cache-portability/repair.patch",
+      "sourceSha256": "de1dcec0cbe96b46e6e75e033c645d62131cd0ba78aba5cfd32a9f3686017e5e",
+      "generatedSha256": "de1dcec0cbe96b46e6e75e033c645d62131cd0ba78aba5cfd32a9f3686017e5e"
+    },
+    {
+      "path": ".github/candidates/cache-portability/validate.test.mjs",
+      "sourceSha256": "028af1746345a747ad87a9840845175d436d43b5cb24774e8c88ca9b182c1a3b",
+      "generatedSha256": "028af1746345a747ad87a9840845175d436d43b5cb24774e8c88ca9b182c1a3b"
+    },
+    {
+      "path": ".github/workflows/api-docs.yml",
+      "sourceSha256": "1d62645be42ab4476bae694b4abfb25452eb17fb50d5b110713a40c1f6391e0a",
+      "generatedSha256": "1d62645be42ab4476bae694b4abfb25452eb17fb50d5b110713a40c1f6391e0a"
+    },
+    {
+      "path": ".github/workflows/bootstrap.yml",
+      "sourceSha256": "9de32dfdba6ceb3073fb1f066b5625f1e1e861a345b04c3d6889566fc8549e65",
+      "generatedSha256": "9de32dfdba6ceb3073fb1f066b5625f1e1e861a345b04c3d6889566fc8549e65"
+    },
+    {
+      "path": ".github/workflows/cache-candidate-validation.yml",
+      "sourceSha256": "d7cc5430b0ee5075dfcf3cab17eda2207b47a6e56695e0d5640af32ec6add3af",
+      "generatedSha256": "d7cc5430b0ee5075dfcf3cab17eda2207b47a6e56695e0d5640af32ec6add3af"
+    },
+    {
+      "path": ".github/workflows/cache-portability.yml",
+      "sourceSha256": "5187fe36120b640fa949e4ab7efab131b03c04ddff1128431b0027f70be490d1",
+      "generatedSha256": "5187fe36120b640fa949e4ab7efab131b03c04ddff1128431b0027f70be490d1"
+    },
+    {
+      "path": ".github/workflows/docker.yml",
+      "sourceSha256": "bbf1a2422773e1307be2e0737645fd2eff45c3d45909419dd1609ed8be4e4ee3",
+      "generatedSha256": "bbf1a2422773e1307be2e0737645fd2eff45c3d45909419dd1609ed8be4e4ee3"
+    },
+    {
+      "path": ".github/workflows/formal-corpus.yml",
+      "sourceSha256": "9684962c4f2fd20e7f82df1f3db2ddcbed0d74d0d910e2d636e83b2d0555c79a",
+      "generatedSha256": "9684962c4f2fd20e7f82df1f3db2ddcbed0d74d0d910e2d636e83b2d0555c79a"
+    },
+    {
+      "path": ".github/workflows/issue-183-acceptance.yml",
+      "sourceSha256": "bf00a8fa2630c0b23f150fc8d6a94bfbc009808bafa75f954dc60ff23eb1f1a8",
+      "generatedSha256": "bf00a8fa2630c0b23f150fc8d6a94bfbc009808bafa75f954dc60ff23eb1f1a8"
+    },
+    {
+      "path": ".github/workflows/linked-implementation.yml",
+      "sourceSha256": "ebfb197b5c2bb9efcc37bbdc19975e99e5adefd56ba6870d6dc88ab3cd023245",
+      "generatedSha256": "ebfb197b5c2bb9efcc37bbdc19975e99e5adefd56ba6870d6dc88ab3cd023245"
+    },
+    {
+      "path": ".github/workflows/linked-target.yml",
+      "sourceSha256": "8539ace7fa5a6eb1e9927f524b07aad62e6673c3a86003a6707c1e1ed3f17f97",
+      "generatedSha256": "8539ace7fa5a6eb1e9927f524b07aad62e6673c3a86003a6707c1e1ed3f17f97"
+    },
+    {
+      "path": ".github/workflows/lint-english.yml",
+      "sourceSha256": "3f01962c465b5457014a32c3bba88d287b468f1ff0bddaf2d8e7ceab57f2ff48",
+      "generatedSha256": "3f01962c465b5457014a32c3bba88d287b468f1ff0bddaf2d8e7ceab57f2ff48"
+    },
+    {
+      "path": ".github/workflows/orientation-proofs.yml",
+      "sourceSha256": "37117188effcc335db7d819130b74972c979b920e75a73b98eed0d99293c5e8b",
+      "generatedSha256": "37117188effcc335db7d819130b74972c979b920e75a73b98eed0d99293c5e8b"
+    },
+    {
+      "path": ".github/workflows/parity.yml",
+      "sourceSha256": "68adc9ae5abf5de6058a2c5ba789cf1edc79fd2c68898d9d904b597eb493fc85",
+      "generatedSha256": "68adc9ae5abf5de6058a2c5ba789cf1edc79fd2c68898d9d904b597eb493fc85"
+    },
+    {
+      "path": ".github/workflows/relational-kernel.yml",
+      "sourceSha256": "46a77a55850995f5943993e26862064b9d4e218604ee8581d69eacae2636cc3e",
+      "generatedSha256": "46a77a55850995f5943993e26862064b9d4e218604ee8581d69eacae2636cc3e"
+    },
+    {
+      "path": ".github/workflows/tests.yml",
+      "sourceSha256": "7d207f922559afc1357dd3406ede882c685825287344096b108fe46bbf930073",
+      "generatedSha256": "7d207f922559afc1357dd3406ede882c685825287344096b108fe46bbf930073"
+    },
+    {
+      "path": ".gitmodules",
+      "sourceSha256": "1ed8192aff6490dd14474ed908f62916c6543a9d98e766d64a308f3d0cfc68cc",
+      "generatedSha256": "1ed8192aff6490dd14474ed908f62916c6543a9d98e766d64a308f3d0cfc68cc"
+    },
+    {
+      "path": "docker/Dockerfile.js",
+      "sourceSha256": "c350cfcda2964ca11b7c021b65a87fcc71bd539efe4db3a03206543785f7f02e",
+      "generatedSha256": "c350cfcda2964ca11b7c021b65a87fcc71bd539efe4db3a03206543785f7f02e"
+    },
+    {
+      "path": "docker/Dockerfile.rust",
+      "sourceSha256": "893f2981b76bb4320af8d0dccb197c3e0d4be68d902852ee82da6dc5f322d908",
+      "generatedSha256": "893f2981b76bb4320af8d0dccb197c3e0d4be68d902852ee82da6dc5f322d908"
+    },
+    {
+      "path": "docker/buildkitd.toml",
+      "sourceSha256": "24cdfa17523711a20a1ca684d7726f0ff237e80e3a3932bd0457c15a9ca36e14",
+      "generatedSha256": "24cdfa17523711a20a1ca684d7726f0ff237e80e3a3932bd0457c15a9ca36e14"
+    },
+    {
+      "path": "docker/ci-build.sh",
+      "sourceSha256": "a952bcd8fd2bedaa064e04078bb49eee4ed69f555fb288bdd52893da42bd36c6",
+      "generatedSha256": "a952bcd8fd2bedaa064e04078bb49eee4ed69f555fb288bdd52893da42bd36c6"
+    },
+    {
+      "path": "docker/docker-compose.yml",
+      "sourceSha256": "2f886c1c5488f02746ebf78a0f34f83f4bf61659ba4bcde8aa5634ab2b66720b",
+      "generatedSha256": "2f886c1c5488f02746ebf78a0f34f83f4bf61659ba4bcde8aa5634ab2b66720b"
+    },
+    {
+      "path": "docker/run-owned.sh",
+      "sourceSha256": "8d5711e64487f527f8dbefb9a2c08ea6265e142cb2949ae001fc642dee4e27a0",
+      "generatedSha256": "8d5711e64487f527f8dbefb9a2c08ea6265e142cb2949ae001fc642dee4e27a0"
+    },
+    {
+      "path": "docs/api/jsdoc.json",
+      "sourceSha256": "55e1c508f02d4f869a27add04c9922e7c56c6ede5e070d781517bab3391dfa3f",
+      "generatedSha256": "b7568b1a2b24596db1b0d0195b05eeb207d12f3578b324dc896b8e32c8f54a34"
+    },
+    {
+      "path": "docs/playground/index.html",
+      "sourceSha256": "4fd9c3161b98c3c712237e4a66de2f7cd8ff2cf74e68d680e3c03388f9806aa9",
+      "generatedSha256": "4fd9c3161b98c3c712237e4a66de2f7cd8ff2cf74e68d680e3c03388f9806aa9"
+    },
+    {
+      "path": "docs/playground/styles.css",
+      "sourceSha256": "a70db06f2670123e517561f051832da02bf1d2c8385885cbb69f7a5186cd6651",
+      "generatedSha256": "a70db06f2670123e517561f051832da02bf1d2c8385885cbb69f7a5186cd6651"
+    },
+    {
+      "path": "js/package-lock.json",
+      "sourceSha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b",
+      "generatedSha256": "de6d72e294b093fd2bff4863a0cc8e3f2e6a5f026f489858621d79e184704764"
+    },
+    {
+      "path": "js/package.json",
+      "sourceSha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e",
+      "generatedSha256": "6b197cd8b328dc93afb9f0ed2e5afc8faa63261d2c5225a8ddf4d5726b4342fb"
+    },
+    {
+      "path": "js/vendor/meta-language-provenance.json",
+      "sourceSha256": "9e6c0e3a6602881102b3c608fa8a26e87aafdb505c3007c4dbf24f1c939c9caa",
+      "generatedSha256": "7424561da44f2ed00c1f9d6249f63a30c89eae14b53e85f5af7a59a7533b7d89"
+    },
+    {
+      "path": "lib/algebra/core.lino",
+      "sourceSha256": "fc9c6b375e58f87107fcb118e29bf64bb60b2d98d9ad5c9a10e8361a870c3bdc",
+      "generatedSha256": "fc9c6b375e58f87107fcb118e29bf64bb60b2d98d9ad5c9a10e8361a870c3bdc"
+    },
+    {
+      "path": "lib/arithmetic/core.lino",
+      "sourceSha256": "91c1cd585b71039fee1c5c5376ea07d363cc611bca43bd6ee3bc42857867c16f",
+      "generatedSha256": "91c1cd585b71039fee1c5c5376ea07d363cc611bca43bd6ee3bc42857867c16f"
+    },
+    {
+      "path": "lib/classical/core.lino",
+      "sourceSha256": "20423fb7d67e22835639fdf4f2ccfef116d0e61becd4dfdb6453c1c648396c89",
+      "generatedSha256": "20423fb7d67e22835639fdf4f2ccfef116d0e61becd4dfdb6453c1c648396c89"
+    },
+    {
+      "path": "lib/first-order/core.lino",
+      "sourceSha256": "36d27978d40cf526782221fb5b774f2f8d4e3f8148de4889e7452af62231d0ba",
+      "generatedSha256": "36d27978d40cf526782221fb5b774f2f8d4e3f8148de4889e7452af62231d0ba"
+    },
+    {
+      "path": "lib/foundations/confidence.lino",
+      "sourceSha256": "50b9164492a912f05094f36b2dfe2341a54b91c6f9216be72d5519b5e3610ba6",
+      "generatedSha256": "50b9164492a912f05094f36b2dfe2341a54b91c6f9216be72d5519b5e3610ba6"
+    },
+    {
+      "path": "lib/foundations/packages.lino",
+      "sourceSha256": "fad011541c4765919fa6946c5a6dd2ad0c0492aa795758ef2977ac63aa8e6ee0",
+      "generatedSha256": "fad011541c4765919fa6946c5a6dd2ad0c0492aa795758ef2977ac63aa8e6ee0"
+    },
+    {
+      "path": "lib/higher-order/core.lino",
+      "sourceSha256": "42675fa0160a1f5f046d1a7d10ebf6697e0929da3f1997c4a56a3443c769f05f",
+      "generatedSha256": "42675fa0160a1f5f046d1a7d10ebf6697e0929da3f1997c4a56a3443c769f05f"
+    },
+    {
+      "path": "lib/meta-theory/alternative-foundations.lino",
+      "sourceSha256": "f410416d305de80d0dac91462def2c5d69d290437a9e92f04b27533beac8260e",
+      "generatedSha256": "f410416d305de80d0dac91462def2c5d69d290437a9e92f04b27533beac8260e"
+    },
+    {
+      "path": "lib/meta-theory/core.lino",
+      "sourceSha256": "b9548802214d905678b63c8fcc064f5f57a31ff86b0337adeeab2c9a3391de89",
+      "generatedSha256": "b9548802214d905678b63c8fcc064f5f57a31ff86b0337adeeab2c9a3391de89"
+    },
+    {
+      "path": "lib/meta-theory/fixed-point-source.lino",
+      "sourceSha256": "5428d711d66b409fc9f0257675d280c75d6718f522a59eadafbcc8398ba44bbe",
+      "generatedSha256": "5428d711d66b409fc9f0257675d280c75d6718f522a59eadafbcc8398ba44bbe"
+    },
+    {
+      "path": "lib/meta-theory/fixed-point.ski",
+      "sourceSha256": "9052c5c30dc32ff741f73eb1b3e06d89cece51875fe4d59d55b4d496d41f6252",
+      "generatedSha256": "9052c5c30dc32ff741f73eb1b3e06d89cece51875fe4d59d55b4d496d41f6252"
+    },
+    {
+      "path": "lib/meta-theory/formal-collections.lino",
+      "sourceSha256": "792b7b61c6a41af515ef3c1e132cca9f5d1ef6c96750455a01e41b8d19f79b8d",
+      "generatedSha256": "792b7b61c6a41af515ef3c1e132cca9f5d1ef6c96750455a01e41b8d19f79b8d"
+    },
+    {
+      "path": "lib/meta-theory/formal-definition-context.lino",
+      "sourceSha256": "065cca645bfb92da9183639437bd8cc54988a90d81db586343bba0562a194d4c",
+      "generatedSha256": "065cca645bfb92da9183639437bd8cc54988a90d81db586343bba0562a194d4c"
+    },
+    {
+      "path": "lib/meta-theory/formal-indexed.lino",
+      "sourceSha256": "919a552c3aca9a5a110a3c2df90c95c6635fe981ad8cf1f4c0e6fad8ec6caab6",
+      "generatedSha256": "919a552c3aca9a5a110a3c2df90c95c6635fe981ad8cf1f4c0e6fad8ec6caab6"
+    },
+    {
+      "path": "lib/meta-theory/formal-propositions.lino",
+      "sourceSha256": "afadcb802357fed83e2a06e0e3165032ac93d7fd14b6f81e8662122b0515fb00",
+      "generatedSha256": "afadcb802357fed83e2a06e0e3165032ac93d7fd14b6f81e8662122b0515fb00"
+    },
+    {
+      "path": "lib/meta-theory/formal-records.lino",
+      "sourceSha256": "0f7890a9d8b4c78aaf52c5dc9f2ce5c40e5e66a28c64ccd096e1b8790c873115",
+      "generatedSha256": "0f7890a9d8b4c78aaf52c5dc9f2ce5c40e5e66a28c64ccd096e1b8790c873115"
+    },
+    {
+      "path": "lib/meta-theory/formal-recursion.lino",
+      "sourceSha256": "60bdd1ca8e9e654d985618402643ea7918817623ed375b39394060115a45a1c6",
+      "generatedSha256": "60bdd1ca8e9e654d985618402643ea7918817623ed375b39394060115a45a1c6"
+    },
+    {
+      "path": "lib/meta-theory/formal-semantics.lino",
+      "sourceSha256": "86d1204af0c03a2f8f211468e782fe0a09680db3b574f99fb719bd956ca6d678",
+      "generatedSha256": "86d1204af0c03a2f8f211468e782fe0a09680db3b574f99fb719bd956ca6d678"
+    },
+    {
+      "path": "lib/meta-theory/foundation-candidates.json",
+      "sourceSha256": "bc1184356bc5605a5ced286b7ed124b6e2660ccb35aa1b595c2223a15ca691cb",
+      "generatedSha256": "9bbbe9e156ca2a708d32336a33b8466c91a6f2ac2253bfc66ddbe92a75c485b7"
+    },
+    {
+      "path": "lib/meta-theory/foundation.lino",
+      "sourceSha256": "5a013dfee749a5d826e008cce778dd4e9274b26462202af9d480ca7b07db61ae",
+      "generatedSha256": "5a013dfee749a5d826e008cce778dd4e9274b26462202af9d480ca7b07db61ae"
+    },
+    {
+      "path": "lib/meta-theory/proof-verifier.lino",
+      "sourceSha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f",
+      "generatedSha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+    },
+    {
+      "path": "lib/meta-theory/relational-kernel.lino",
+      "sourceSha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1",
+      "generatedSha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1"
+    },
+    {
+      "path": "lib/meta-theory/universal.lino",
+      "sourceSha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d",
+      "generatedSha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-foundation.lino",
+      "sourceSha256": "93430a406b9b7cf536b8e07eea3ff5a03f7ddbc6bd9a287ae19f3006505a2963",
+      "generatedSha256": "93430a406b9b7cf536b8e07eea3ff5a03f7ddbc6bd9a287ae19f3006505a2963"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/LICENSE",
+      "sourceSha256": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e",
+      "generatedSha256": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/MetaDefinitions.lean",
+      "sourceSha256": "f5e3bb6487508501cc33ab9897aaf9b59a3e7e4d915efb6f0c16cfff58f725d7",
+      "generatedSha256": "f5e3bb6487508501cc33ab9897aaf9b59a3e7e4d915efb6f0c16cfff58f725d7"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkConversions.lean",
+      "sourceSha256": "0d759f372c8458f8bfe45a98ed9bdf99fc5329cfd9d4785e30ede7904c202f86",
+      "generatedSha256": "0d759f372c8458f8bfe45a98ed9bdf99fc5329cfd9d4785e30ede7904c202f86"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkDefinitions.lean",
+      "sourceSha256": "a95ba9c1e09b0e36bb4f01f0daa1ea8e1db8872133e74939b9d2d51541de0037",
+      "generatedSha256": "a95ba9c1e09b0e36bb4f01f0daa1ea8e1db8872133e74939b9d2d51541de0037"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkEquivalence.lean",
+      "sourceSha256": "1666f2ba6e217fea3fb72db88410aad15acf853681344f02162de0d4cf348ae8",
+      "generatedSha256": "1666f2ba6e217fea3fb72db88410aad15acf853681344f02162de0d4cf348ae8"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkExamples.lean",
+      "sourceSha256": "1ad764d600484cd2de63dc7471990629ed6e27386cb74328cd9d589824b83fbb",
+      "generatedSha256": "1ad764d600484cd2de63dc7471990629ed6e27386cb74328cd9d589824b83fbb"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkLemmas.lean",
+      "sourceSha256": "8eddf04cc37236776a3dbe88897b0bc10e0f43d5ac0abd0d36900bee72de5133",
+      "generatedSha256": "8eddf04cc37236776a3dbe88897b0bc10e0f43d5ac0abd0d36900bee72de5133"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/SequenceDefinitions.lean",
+      "sourceSha256": "957d04f74f8a88f1817ba338c600f87bdb8668104474e262bec9214d9744c483",
+      "generatedSha256": "957d04f74f8a88f1817ba338c600f87bdb8668104474e262bec9214d9744c483"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/SetDefinitions.lean",
+      "sourceSha256": "f778edd8bbc396522b089defeb7aa3556285157edf97dd8eb2a3448c38123b4c",
+      "generatedSha256": "f778edd8bbc396522b089defeb7aa3556285157edf97dd8eb2a3448c38123b4c"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/SetSequenceEquivalence.lean",
+      "sourceSha256": "0a32ecc5cbd9002e4482e824d4ce453d324209d4c825b110bf50fb0f562a4fda",
+      "generatedSha256": "0a32ecc5cbd9002e4482e824d4ce453d324209d4c825b110bf50fb0f562a4fda"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/lakefile.lean",
+      "sourceSha256": "03889bdff5070b7b2a20c0ecdc7c8962f704ba246bed70f33b45b550ccf2ed09",
+      "generatedSha256": "03889bdff5070b7b2a20c0ecdc7c8962f704ba246bed70f33b45b550ccf2ed09"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/lean-toolchain",
+      "sourceSha256": "db7bb24b756d745bbde83fe92718b51bd3625dae3701ba0f598d0eedcd3f3028",
+      "generatedSha256": "db7bb24b756d745bbde83fe92718b51bd3625dae3701ba0f598d0eedcd3f3028"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/MetaDefinitions.v",
+      "sourceSha256": "58eff4bde25acb5c49d10ce1e33b4a2279a8f204b28619261d22e480d9c8b93a",
+      "generatedSha256": "58eff4bde25acb5c49d10ce1e33b4a2279a8f204b28619261d22e480d9c8b93a"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkConversions.v",
+      "sourceSha256": "7fd8da910e85125e5a533ad18570ca309bf99b6fc7170ff3442e935d3aeb9b0a",
+      "generatedSha256": "7fd8da910e85125e5a533ad18570ca309bf99b6fc7170ff3442e935d3aeb9b0a"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkDefinitions.v",
+      "sourceSha256": "d03a173ffeed6734bc64deca73ff1b036d3fe2df5b3519c4c53a747080bb6ccd",
+      "generatedSha256": "d03a173ffeed6734bc64deca73ff1b036d3fe2df5b3519c4c53a747080bb6ccd"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkEquivalence.v",
+      "sourceSha256": "fbc715e07d5506a5e453e027295a4071fa608b3706139354351951a894747424",
+      "generatedSha256": "fbc715e07d5506a5e453e027295a4071fa608b3706139354351951a894747424"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkExamples.v",
+      "sourceSha256": "b87ad9f6ebec28ee98edf1a81e7b8feb358bfa2c3df0dab009715f382f940726",
+      "generatedSha256": "b87ad9f6ebec28ee98edf1a81e7b8feb358bfa2c3df0dab009715f382f940726"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkLemmas.v",
+      "sourceSha256": "2507e90a95fb8c057f087f0682c461a493d439572ddadb1616ff000c65cf29e7",
+      "generatedSha256": "2507e90a95fb8c057f087f0682c461a493d439572ddadb1616ff000c65cf29e7"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/SequenceDefinitions.v",
+      "sourceSha256": "87fe0efe8568c1a04a6bd1b3266b9dce2a863d42d7b074f264ac8f5b6227c43c",
+      "generatedSha256": "87fe0efe8568c1a04a6bd1b3266b9dce2a863d42d7b074f264ac8f5b6227c43c"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/SetDefinitions.v",
+      "sourceSha256": "323c08f53f1bbfc536813d5a2fe3158e3a9f6c751ad8201716b35ea64958b23d",
+      "generatedSha256": "323c08f53f1bbfc536813d5a2fe3158e3a9f6c751ad8201716b35ea64958b23d"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/SetSequenceEquivalence.v",
+      "sourceSha256": "55a973838df073c2a38170dd812f5314f06aea71ca64ce49b3bbd094cc67f9c8",
+      "generatedSha256": "55a973838df073c2a38170dd812f5314f06aea71ca64ce49b3bbd094cc67f9c8"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/_CoqProject",
+      "sourceSha256": "5a22e1221c1ff1dc050f67baf7ac3db8e4c7eb220ca0573f1262263dae12bb02",
+      "generatedSha256": "5a22e1221c1ff1dc050f67baf7ac3db8e4c7eb220ca0573f1262263dae12bb02"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/manifest.json",
+      "sourceSha256": "e66bc3995f4f995fabd98eea01d36607a0f3e92e365ee5b89bfc1c0be7485e03",
+      "generatedSha256": "11ef2252faefda05def2fb4135fb9f0c906e792e3b51121f52e1eec3bf705fe3"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3.lino",
+      "sourceSha256": "328c1a790d8636da57b0d765d1d4c9639e613898fcd982ad1465f136ad00091b",
+      "generatedSha256": "328c1a790d8636da57b0d765d1d4c9639e613898fcd982ad1465f136ad00091b"
+    },
+    {
+      "path": "lib/modal/core.lino",
+      "sourceSha256": "9030dc1521d0cfc334615cd7d4e03d37f997147985c0790625d051bb16e704f0",
+      "generatedSha256": "9030dc1521d0cfc334615cd7d4e03d37f997147985c0790625d051bb16e704f0"
+    },
+    {
+      "path": "lib/probabilistic/bayesian.lino",
+      "sourceSha256": "9bb84e99adbba31e33045c6d63a40339b9a4fc626b060e18be886eaff885936f",
+      "generatedSha256": "9bb84e99adbba31e33045c6d63a40339b9a4fc626b060e18be886eaff885936f"
+    },
+    {
+      "path": "lib/probabilistic/belnap.lino",
+      "sourceSha256": "182d579837c76032a74dd9575b6a645944292b97b9b1af64eb4b886304cff421",
+      "generatedSha256": "182d579837c76032a74dd9575b6a645944292b97b9b1af64eb4b886304cff421"
+    },
+    {
+      "path": "lib/probabilistic/fuzzy.lino",
+      "sourceSha256": "e397c5c5649d03e6fe1a140f129741ac4760af566c93487451852670a8fff6e7",
+      "generatedSha256": "e397c5c5649d03e6fe1a140f129741ac4760af566c93487451852670a8fff6e7"
+    },
+    {
+      "path": "lib/probabilistic/paradoxes.lino",
+      "sourceSha256": "86610d0a0a4664453f3fef097fa7a4894f106732ce109eeac316093c6fcc234e",
+      "generatedSha256": "86610d0a0a4664453f3fef097fa7a4894f106732ce109eeac316093c6fcc234e"
+    },
+    {
+      "path": "lib/programming-language/core.lino",
+      "sourceSha256": "cd8bf941af49e8e54e7a12f93ab9b85d4786e3154af8e578a973f679849ef0bc",
+      "generatedSha256": "cd8bf941af49e8e54e7a12f93ab9b85d4786e3154af8e578a973f679849ef0bc"
+    },
+    {
+      "path": "lib/provability/core.lino",
+      "sourceSha256": "57c7d2d5cb414f804defcf2c46c62e1842d363558091fcad7ec165954cea1570",
+      "generatedSha256": "57c7d2d5cb414f804defcf2c46c62e1842d363558091fcad7ec165954cea1570"
+    },
+    {
+      "path": "lib/self/evaluator.lino",
+      "sourceSha256": "178d63fa04e983fd7dcaf8f90f1bf8f57c5fd88593e1daf0d8e65cf4ea669a5d",
+      "generatedSha256": "178d63fa04e983fd7dcaf8f90f1bf8f57c5fd88593e1daf0d8e65cf4ea669a5d"
+    },
+    {
+      "path": "lib/self/foundations.lino",
+      "sourceSha256": "8292adc547c7380c02d0eda84ebbe8fdad6338a3c197f8573909502980c98293",
+      "generatedSha256": "8292adc547c7380c02d0eda84ebbe8fdad6338a3c197f8573909502980c98293"
+    },
+    {
+      "path": "lib/self/grammar.lino",
+      "sourceSha256": "cad202911a3227736a1b075de195defa0c44d0981446dce600762dae37536515",
+      "generatedSha256": "cad202911a3227736a1b075de195defa0c44d0981446dce600762dae37536515"
+    },
+    {
+      "path": "lib/self/metatheorem.lino",
+      "sourceSha256": "eb34eac6cd1ee4a616051a8fcb58d33a5a3e33225c8894c7d73b89fe5de9cd6f",
+      "generatedSha256": "eb34eac6cd1ee4a616051a8fcb58d33a5a3e33225c8894c7d73b89fe5de9cd6f"
+    },
+    {
+      "path": "lib/self/operators.lino",
+      "sourceSha256": "3914a6e2db18512fef9bd8b2637450d36f41c6a714c00adc40ac9f3897aec3ce",
+      "generatedSha256": "3914a6e2db18512fef9bd8b2637450d36f41c6a714c00adc40ac9f3897aec3ce"
+    },
+    {
+      "path": "lib/self/types.lino",
+      "sourceSha256": "be433a26a882433b07e843d49498dbce967566931a77f797f17e8d1cab603458",
+      "generatedSha256": "be433a26a882433b07e843d49498dbce967566931a77f797f17e8d1cab603458"
+    },
+    {
+      "path": "lib/set-theory/core.lino",
+      "sourceSha256": "651f16f0467e01b1b51c3690355d514ca9a176194de765a781ea479493817a63",
+      "generatedSha256": "651f16f0467e01b1b51c3690355d514ca9a176194de765a781ea479493817a63"
+    },
+    {
+      "path": "lib/target-abi/model.links.json",
+      "sourceSha256": "43657dd2533c9d091334a954a92b83b46a04e5c82ba181d4632bd3595ca27381",
+      "generatedSha256": "bbdcc4324dc38bb1c845b130f849b4066a8f5dd462279c7fb74c384a7ffafde7"
+    },
+    {
+      "path": "rust/Cargo.lock",
+      "sourceSha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf",
+      "generatedSha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
+    },
+    {
+      "path": "rust/Cargo.toml",
+      "sourceSha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40",
+      "generatedSha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
+    },
+    {
+      "path": "rust/control-flow/Cargo.lock",
+      "sourceSha256": "0618908485bc4c79c581e1a65efb47ddb621a76be77261cffe8251a57a0516ae",
+      "generatedSha256": "0618908485bc4c79c581e1a65efb47ddb621a76be77261cffe8251a57a0516ae"
+    },
+    {
+      "path": "rust/control-flow/Cargo.toml",
+      "sourceSha256": "4cf4359a965f55f46d97cb84e7eb0e976676c7611cdcd2f3ffdf86b84318fd73",
+      "generatedSha256": "4cf4359a965f55f46d97cb84e7eb0e976676c7611cdcd2f3ffdf86b84318fd73"
+    },
+    {
+      "path": "rust/linked-target/Cargo.lock",
+      "sourceSha256": "5eb32262b8a42a26708da46afa1113658a7d00a010da0255cefab83a36981cec",
+      "generatedSha256": "5eb32262b8a42a26708da46afa1113658a7d00a010da0255cefab83a36981cec"
+    },
+    {
+      "path": "rust/linked-target/Cargo.toml",
+      "sourceSha256": "a5398908d27f6329d1dc8ac23316299dae898e7ed3ec644d4e9015750662ea7b",
+      "generatedSha256": "a5398908d27f6329d1dc8ac23316299dae898e7ed3ec644d4e9015750662ea7b"
+    },
+    {
+      "path": "rust/relational-kernel/Cargo.lock",
+      "sourceSha256": "8434871cf476e412a9148ccc1e23b2de47519265b6b69cb8f91eed82a98d29c9",
+      "generatedSha256": "8434871cf476e412a9148ccc1e23b2de47519265b6b69cb8f91eed82a98d29c9"
+    },
+    {
+      "path": "rust/relational-kernel/Cargo.toml",
+      "sourceSha256": "8cc3c88a8fbd3e834dc1e070c00cd17304cacc8d73b966a0f11479052e924564",
+      "generatedSha256": "8cc3c88a8fbd3e834dc1e070c00cd17304cacc8d73b966a0f11479052e924564"
+    },
+    {
+      "path": "scripts/build-cache-windows.ps1",
+      "sourceSha256": "b2c328b3a6b70315b13af564d4be6e731e51a2704090fab2ca1993f898576ec2",
+      "generatedSha256": "b2c328b3a6b70315b13af564d4be6e731e51a2704090fab2ca1993f898576ec2"
+    },
+    {
+      "path": "scripts/cache-policy.json",
+      "sourceSha256": "963ffdc0eac46b141a17a92cac09b6e75b4716d7e1bfa9039944b850a511958a",
+      "generatedSha256": "36088a2d830404d62849081346b601277312852b093d5585361e96ab3828ce29"
+    },
+    {
+      "path": "scripts/install-rocq-kernel.sh",
+      "sourceSha256": "13c6b414dc744074855a463de1a4b9d872e348c3726a4d50f9c76ec35ab701b6",
+      "generatedSha256": "13c6b414dc744074855a463de1a4b9d872e348c3726a4d50f9c76ec35ab701b6"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/Cargo.lock",
+      "sourceSha256": "acfd9616c8b3e7740701bd61a4981f4029cfbedfdacb884af7900526182df829",
+      "generatedSha256": "acfd9616c8b3e7740701bd61a4981f4029cfbedfdacb884af7900526182df829"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/Cargo.toml",
+      "sourceSha256": "804ec0047484b9477de7c536116e9b3a48a171bc08fcda68b36e76ada9e1b426",
+      "generatedSha256": "804ec0047484b9477de7c536116e9b3a48a171bc08fcda68b36e76ada9e1b426"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/Cargo.toml",
+      "sourceSha256": "680e40d666a5e9855c9ddea218a39bbac51704555362f5629f7b98655609382d",
+      "generatedSha256": "680e40d666a5e9855c9ddea218a39bbac51704555362f5629f7b98655609382d"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/LICENSE-APACHE",
+      "sourceSha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "generatedSha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/LICENSE-MIT",
+      "sourceSha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "generatedSha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/README.md",
+      "sourceSha256": "a12283e1b39b7b04a9978e0c7e5f6800b245b297aa039d38697caee968652fa9",
+      "generatedSha256": "a12283e1b39b7b04a9978e0c7e5f6800b245b297aa039d38697caee968652fa9"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/data.rs",
+      "sourceSha256": "b9f3f196a7d7b013ab23719b8f058244817c938a0ddab8b569ae70653f533f11",
+      "generatedSha256": "b9f3f196a7d7b013ab23719b8f058244817c938a0ddab8b569ae70653f533f11"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/gen/ast_enum.rs",
+      "sourceSha256": "fba25f27257bd9940c02399ff819db797696d8d8fc0569ff729584010c48f013",
+      "generatedSha256": "fba25f27257bd9940c02399ff819db797696d8d8fc0569ff729584010c48f013"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/gen/ast_struct.rs",
+      "sourceSha256": "c5b8c8789fa5b5cab442063948773deeb17c0fb394ada8e0b55353709eca239d",
+      "generatedSha256": "c5b8c8789fa5b5cab442063948773deeb17c0fb394ada8e0b55353709eca239d"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/gen/convert.rs",
+      "sourceSha256": "b28bba9df16a9f8e841717eced57971ed8f0358341524d4b649967a69ce4985e",
+      "generatedSha256": "b28bba9df16a9f8e841717eced57971ed8f0358341524d4b649967a69ce4985e"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/generics.rs",
+      "sourceSha256": "e2818c7976ffd4c7814d10f46c4ca663d72163faea61e3daa1d80fde581a2082",
+      "generatedSha256": "e2818c7976ffd4c7814d10f46c4ca663d72163faea61e3daa1d80fde581a2082"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/item.rs",
+      "sourceSha256": "20950cd3ee81b9d09e1c22e6fa86ea426dd8ff18bd95f61b2efcb6712670a6cd",
+      "generatedSha256": "20950cd3ee81b9d09e1c22e6fa86ea426dd8ff18bd95f61b2efcb6712670a6cd"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/json.rs",
+      "sourceSha256": "cdc16294e625658195963211a92a9e404c23ca7b26c55e6c334e46b6e9715543",
+      "generatedSha256": "cdc16294e625658195963211a92a9e404c23ca7b26c55e6c334e46b6e9715543"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/lib.rs",
+      "sourceSha256": "fdee86948783c98d371a30ff872166ed3c686d309ec55c7cf276c3ddceb1cd6f",
+      "generatedSha256": "fdee86948783c98d371a30ff872166ed3c686d309ec55c7cf276c3ddceb1cd6f"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/lit.rs",
+      "sourceSha256": "0a95d19763d4d5ffad6222205879199fd643bf7fd1047e0d59b21d5583f4e08e",
+      "generatedSha256": "0a95d19763d4d5ffad6222205879199fd643bf7fd1047e0d59b21d5583f4e08e"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/macros.rs",
+      "sourceSha256": "5aa7215400533894ee3771f54f25bc5de4506f227c0021782125ba6c27ba610d",
+      "generatedSha256": "5aa7215400533894ee3771f54f25bc5de4506f227c0021782125ba6c27ba610d"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/pat.rs",
+      "sourceSha256": "609e8a049ee0e10652eb86bf989f90c32170f881742925c870209dc95f844b1e",
+      "generatedSha256": "609e8a049ee0e10652eb86bf989f90c32170f881742925c870209dc95f844b1e"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/path.rs",
+      "sourceSha256": "3bf2007c5612538d9426cc1bbed402d15845b18a20433f081e3b2bad30c1b889",
+      "generatedSha256": "3bf2007c5612538d9426cc1bbed402d15845b18a20433f081e3b2bad30c1b889"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/restriction.rs",
+      "sourceSha256": "3c8e4db619a9d29981e855047ceb412d237af6c227fbc2e2933d46420cf87350",
+      "generatedSha256": "3c8e4db619a9d29981e855047ceb412d237af6c227fbc2e2933d46420cf87350"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/stmt.rs",
+      "sourceSha256": "c53b2aab346ff81f0ce239d0864e037aba8c6394a0da0eb2811fda1e18954542",
+      "generatedSha256": "c53b2aab346ff81f0ce239d0864e037aba8c6394a0da0eb2811fda1e18954542"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/syn3.rs",
+      "sourceSha256": "b885db690c826e3b62819837d413a7818a5ef4fba3ebdd6ce5f4394acc2da07e",
+      "generatedSha256": "b885db690c826e3b62819837d413a7818a5ef4fba3ebdd6ce5f4394acc2da07e"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/token_stream.rs",
+      "sourceSha256": "1bfdde18756da6cc14edc0134da965c8384fb6842616f923e41c4f2a96e2fda2",
+      "generatedSha256": "1bfdde18756da6cc14edc0134da965c8384fb6842616f923e41c4f2a96e2fda2"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/ty.rs",
+      "sourceSha256": "88bb8702e54ca2683c4b027c20663831973ff3f05a22fd462ab58b9ede91a634",
+      "generatedSha256": "88bb8702e54ca2683c4b027c20663831973ff3f05a22fd462ab58b9ede91a634"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/Cargo.lock",
+      "sourceSha256": "e5b52e7e1aab05b447c29bdcb024f8a83a39805849d28b62d8fe86afa1c7fb70",
+      "generatedSha256": "e5b52e7e1aab05b447c29bdcb024f8a83a39805849d28b62d8fe86afa1c7fb70"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/Cargo.toml",
+      "sourceSha256": "4918d934e34a705901f4bf35f9e3672d880ec6adb774c5b93ac6334d1c406696",
+      "generatedSha256": "4918d934e34a705901f4bf35f9e3672d880ec6adb774c5b93ac6334d1c406696"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/provenance.json",
+      "sourceSha256": "c4a7e9c5688d41219bbd1095b50790771a44b8885e6ae6f2d280cc60401ce202",
+      "generatedSha256": "c4a7e9c5688d41219bbd1095b50790771a44b8885e6ae6f2d280cc60401ce202"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/src/ast_enum.rs",
+      "sourceSha256": "ea1172e348d859236a5ec711db6a41a1437239dcca764ecf1452062b2d9caa03",
+      "generatedSha256": "ea1172e348d859236a5ec711db6a41a1437239dcca764ecf1452062b2d9caa03"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/src/ast_struct.rs",
+      "sourceSha256": "3215669fd74d9140663bb3179f3d7cecf102bb18cbfcd4a862a5fc59b549eb2b",
+      "generatedSha256": "3215669fd74d9140663bb3179f3d7cecf102bb18cbfcd4a862a5fc59b549eb2b"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/src/convert.rs",
+      "sourceSha256": "334985d44aa6c116b2b743230eea46860304a390fd13c664df7949b8f507d21a",
+      "generatedSha256": "334985d44aa6c116b2b743230eea46860304a390fd13c664df7949b8f507d21a"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/src/main.rs",
+      "sourceSha256": "88dcb52949a255de79cef01bb8e0172299077a4bc7adc5941d22c6c2bae34921",
+      "generatedSha256": "88dcb52949a255de79cef01bb8e0172299077a4bc7adc5941d22c6c2bae34921"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/src/traverse.rs",
+      "sourceSha256": "26c213c1424dc5ee654a4d9c2a927dacbe6fddf7a106912cd93fd0708c7deb83",
+      "generatedSha256": "26c213c1424dc5ee654a4d9c2a927dacbe6fddf7a106912cd93fd0708c7deb83"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/tools/codegen/syn.json",
+      "sourceSha256": "ec2d3a95cd0577e22282d2ab2a7d5c235d2473bce074a8a00f34e3eebbb22e09",
+      "generatedSha256": "ec2d3a95cd0577e22282d2ab2a7d5c235d2473bce074a8a00f34e3eebbb22e09"
+    },
+    {
+      "path": "scripts/lint-english.allowlist.json",
+      "sourceSha256": "7d04f1d5971db43643d96f158f77f40b89ea610efde9cb52c676dabbf59a4f1f",
+      "generatedSha256": "91f7f2b9fa08623b221d194f483469a95c01d11c8e811241e2561f05f5bf44b1"
+    },
+    {
+      "path": "vscode/.vscodeignore",
+      "sourceSha256": "819c38a26335096a4fb7a0366991f3d66c50c70fb8cdf13d2c255aca5713355f",
+      "generatedSha256": "819c38a26335096a4fb7a0366991f3d66c50c70fb8cdf13d2c255aca5713355f"
+    },
+    {
+      "path": "vscode/language-configuration.json",
+      "sourceSha256": "3eb7c30f29bcc0a8ed302133d500b14c3adece22014c31319b1ff4e86d8b9c08",
+      "generatedSha256": "4e280f37aae93db4460a104c4b491243f5147a083315be72c129fc68f05e7eb8"
+    },
+    {
+      "path": "vscode/package-lock.json",
+      "sourceSha256": "fd6f07d2ea702f82f8f5f20beca0d2f5a0933974ee29d43b7a7af9b66f3d7a75",
+      "generatedSha256": "ecb0301782a012de1c5d64fe7a8dfd5a6a509feccf0832e928cb212d8ef8e5a1"
+    },
+    {
+      "path": "vscode/package.json",
+      "sourceSha256": "68a7de8f5debfcc232411b932bb8f2a060d3141a897aa0b615672acdeea1a190",
+      "generatedSha256": "cf260e50a0a4b35655405981c466362fe1939f6fc2a503a775eb7bfb4106d07e"
+    },
+    {
+      "path": "vscode/syntaxes/lino.tmLanguage.json",
+      "sourceSha256": "9b28f054678ffe2e01cf11ecd355605a4df2f133abad3f977bbcfa2b4ee0c6d1",
+      "generatedSha256": "095b4767415df6db1a50946b59ec656c088c0464ed7ad6bb3f5ce9eb8f33b6ad"
+    }
+  ]
+}

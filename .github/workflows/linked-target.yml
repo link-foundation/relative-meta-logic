@@ -1,0 +1,49 @@
+name: linked-target
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Link model to native RML observations
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Bootstrap repository cache policy
+        run: node scripts/bootstrap.mjs
+      - name: Install generic JavaScript providers
+        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
+      - name: Check executable model and current source inventory
+        run: |
+          node scripts/check-linked-implementation.mjs
+          node scripts/run-with-cache.mjs -- node --test scripts/linked-target-abi.test.mjs
+      - name: Build generic pinned Rust syntax provider
+        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-helper --retain .rml-cache/linked-runtime-helper -- cargo build --locked --manifest-path scripts/linked-runtime-rust/Cargo.toml --target-dir .rml-cache/linked-runtime-helper
+      - name: Reject stale generated target adapters
+        run: node scripts/generate-linked-target.mjs --check .rml-cache/linked-runtime-helper/debug/rml-linked-rust-ast
+      - name: Compare real generated and native RML execution
+        run: node scripts/run-with-cache.mjs --cache .rml-cache/target-abi -- node scripts/verify-linked-target.mjs .rml-cache/linked-runtime-helper/debug/rml-linked-rust-ast .rml-cache/target-abi
+      - name: Preserve observations and lifecycle evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: linked-target-evidence
+          path: .rml-cache/evidence/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Clean owned build outputs
+        if: always()
+        run: node scripts/build-cache.mjs --full

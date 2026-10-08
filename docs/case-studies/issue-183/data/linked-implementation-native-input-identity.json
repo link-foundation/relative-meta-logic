@@ -1,0 +1,355 @@
+{
+  "schema": "rml-native-input-identity/v1",
+  "comparedWith": "90fc2853 additive native witness",
+  "rustArchiveUnchanged": true,
+  "nativeVerifierUnchanged": true,
+  "allNativeConfigurationLibraryAndGenericSyntaxSourcesIdentical": true,
+  "files": [
+    {
+      "path": "lib/algebra/core.lino",
+      "sha256": "fc9c6b375e58f87107fcb118e29bf64bb60b2d98d9ad5c9a10e8361a870c3bdc"
+    },
+    {
+      "path": "lib/arithmetic/core.lino",
+      "sha256": "91c1cd585b71039fee1c5c5376ea07d363cc611bca43bd6ee3bc42857867c16f"
+    },
+    {
+      "path": "lib/classical/core.lino",
+      "sha256": "20423fb7d67e22835639fdf4f2ccfef116d0e61becd4dfdb6453c1c648396c89"
+    },
+    {
+      "path": "lib/first-order/core.lino",
+      "sha256": "36d27978d40cf526782221fb5b774f2f8d4e3f8148de4889e7452af62231d0ba"
+    },
+    {
+      "path": "lib/foundations/confidence.lino",
+      "sha256": "50b9164492a912f05094f36b2dfe2341a54b91c6f9216be72d5519b5e3610ba6"
+    },
+    {
+      "path": "lib/foundations/packages.lino",
+      "sha256": "fad011541c4765919fa6946c5a6dd2ad0c0492aa795758ef2977ac63aa8e6ee0"
+    },
+    {
+      "path": "lib/higher-order/core.lino",
+      "sha256": "42675fa0160a1f5f046d1a7d10ebf6697e0929da3f1997c4a56a3443c769f05f"
+    },
+    {
+      "path": "lib/meta-theory/alternative-foundations.lino",
+      "sha256": "f410416d305de80d0dac91462def2c5d69d290437a9e92f04b27533beac8260e"
+    },
+    {
+      "path": "lib/meta-theory/core.lino",
+      "sha256": "b9548802214d905678b63c8fcc064f5f57a31ff86b0337adeeab2c9a3391de89"
+    },
+    {
+      "path": "lib/meta-theory/fixed-point-source.lino",
+      "sha256": "5428d711d66b409fc9f0257675d280c75d6718f522a59eadafbcc8398ba44bbe"
+    },
+    {
+      "path": "lib/meta-theory/fixed-point.ski",
+      "sha256": "9052c5c30dc32ff741f73eb1b3e06d89cece51875fe4d59d55b4d496d41f6252"
+    },
+    {
+      "path": "lib/meta-theory/formal-indexed.lino",
+      "sha256": "919a552c3aca9a5a110a3c2df90c95c6635fe981ad8cf1f4c0e6fad8ec6caab6"
+    },
+    {
+      "path": "lib/meta-theory/formal-propositions.lino",
+      "sha256": "afadcb802357fed83e2a06e0e3165032ac93d7fd14b6f81e8662122b0515fb00"
+    },
+    {
+      "path": "lib/meta-theory/formal-records.lino",
+      "sha256": "0f7890a9d8b4c78aaf52c5dc9f2ce5c40e5e66a28c64ccd096e1b8790c873115"
+    },
+    {
+      "path": "lib/meta-theory/formal-semantics.lino",
+      "sha256": "86d1204af0c03a2f8f211468e782fe0a09680db3b574f99fb719bd956ca6d678"
+    },
+    {
+      "path": "lib/meta-theory/foundation-candidates.json",
+      "sha256": "9bbbe9e156ca2a708d32336a33b8466c91a6f2ac2253bfc66ddbe92a75c485b7"
+    },
+    {
+      "path": "lib/meta-theory/foundation.lino",
+      "sha256": "5a013dfee749a5d826e008cce778dd4e9274b26462202af9d480ca7b07db61ae"
+    },
+    {
+      "path": "lib/meta-theory/proof-verifier.lino",
+      "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+    },
+    {
+      "path": "lib/meta-theory/relational-kernel.lino",
+      "sha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1"
+    },
+    {
+      "path": "lib/meta-theory/universal.lino",
+      "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-foundation.lino",
+      "sha256": "93430a406b9b7cf536b8e07eea3ff5a03f7ddbc6bd9a287ae19f3006505a2963"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/LICENSE",
+      "sha256": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/MetaDefinitions.lean",
+      "sha256": "f5e3bb6487508501cc33ab9897aaf9b59a3e7e4d915efb6f0c16cfff58f725d7"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkConversions.lean",
+      "sha256": "0d759f372c8458f8bfe45a98ed9bdf99fc5329cfd9d4785e30ede7904c202f86"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkDefinitions.lean",
+      "sha256": "a95ba9c1e09b0e36bb4f01f0daa1ea8e1db8872133e74939b9d2d51541de0037"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkEquivalence.lean",
+      "sha256": "1666f2ba6e217fea3fb72db88410aad15acf853681344f02162de0d4cf348ae8"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkExamples.lean",
+      "sha256": "1ad764d600484cd2de63dc7471990629ed6e27386cb74328cd9d589824b83fbb"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/NetworkLemmas.lean",
+      "sha256": "8eddf04cc37236776a3dbe88897b0bc10e0f43d5ac0abd0d36900bee72de5133"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/SequenceDefinitions.lean",
+      "sha256": "957d04f74f8a88f1817ba338c600f87bdb8668104474e262bec9214d9744c483"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/SetDefinitions.lean",
+      "sha256": "f778edd8bbc396522b089defeb7aa3556285157edf97dd8eb2a3448c38123b4c"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/SetSequenceEquivalence.lean",
+      "sha256": "0a32ecc5cbd9002e4482e824d4ce453d324209d4c825b110bf50fb0f562a4fda"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/lakefile.lean",
+      "sha256": "03889bdff5070b7b2a20c0ecdc7c8962f704ba246bed70f33b45b550ccf2ed09"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/lean-toolchain",
+      "sha256": "db7bb24b756d745bbde83fe92718b51bd3625dae3701ba0f598d0eedcd3f3028"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/MetaDefinitions.v",
+      "sha256": "58eff4bde25acb5c49d10ce1e33b4a2279a8f204b28619261d22e480d9c8b93a"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkConversions.v",
+      "sha256": "7fd8da910e85125e5a533ad18570ca309bf99b6fc7170ff3442e935d3aeb9b0a"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkDefinitions.v",
+      "sha256": "d03a173ffeed6734bc64deca73ff1b036d3fe2df5b3519c4c53a747080bb6ccd"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkEquivalence.v",
+      "sha256": "fbc715e07d5506a5e453e027295a4071fa608b3706139354351951a894747424"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkExamples.v",
+      "sha256": "b87ad9f6ebec28ee98edf1a81e7b8feb358bfa2c3df0dab009715f382f940726"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/NetworkLemmas.v",
+      "sha256": "2507e90a95fb8c057f087f0682c461a493d439572ddadb1616ff000c65cf29e7"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/SequenceDefinitions.v",
+      "sha256": "87fe0efe8568c1a04a6bd1b3266b9dce2a863d42d7b074f264ac8f5b6227c43c"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/SetDefinitions.v",
+      "sha256": "323c08f53f1bbfc536813d5a2fe3158e3a9f6c751ad8201716b35ea64958b23d"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/SetSequenceEquivalence.v",
+      "sha256": "55a973838df073c2a38170dd812f5314f06aea71ca64ce49b3bbd094cc67f9c8"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/rocq/_CoqProject",
+      "sha256": "5a22e1221c1ff1dc050f67baf7ac3db8e4c7eb220ca0573f1262263dae12bb02"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-source/manifest.json",
+      "sha256": "11ef2252faefda05def2fb4135fb9f0c906e792e3b51121f52e1eec3bf705fe3"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3.lino",
+      "sha256": "328c1a790d8636da57b0d765d1d4c9639e613898fcd982ad1465f136ad00091b"
+    },
+    {
+      "path": "lib/modal/core.lino",
+      "sha256": "9030dc1521d0cfc334615cd7d4e03d37f997147985c0790625d051bb16e704f0"
+    },
+    {
+      "path": "lib/probabilistic/bayesian.lino",
+      "sha256": "9bb84e99adbba31e33045c6d63a40339b9a4fc626b060e18be886eaff885936f"
+    },
+    {
+      "path": "lib/probabilistic/belnap.lino",
+      "sha256": "182d579837c76032a74dd9575b6a645944292b97b9b1af64eb4b886304cff421"
+    },
+    {
+      "path": "lib/probabilistic/fuzzy.lino",
+      "sha256": "e397c5c5649d03e6fe1a140f129741ac4760af566c93487451852670a8fff6e7"
+    },
+    {
+      "path": "lib/probabilistic/paradoxes.lino",
+      "sha256": "86610d0a0a4664453f3fef097fa7a4894f106732ce109eeac316093c6fcc234e"
+    },
+    {
+      "path": "lib/programming-language/core.lino",
+      "sha256": "cd8bf941af49e8e54e7a12f93ab9b85d4786e3154af8e578a973f679849ef0bc"
+    },
+    {
+      "path": "lib/provability/core.lino",
+      "sha256": "57c7d2d5cb414f804defcf2c46c62e1842d363558091fcad7ec165954cea1570"
+    },
+    {
+      "path": "lib/self/evaluator.lino",
+      "sha256": "178d63fa04e983fd7dcaf8f90f1bf8f57c5fd88593e1daf0d8e65cf4ea669a5d"
+    },
+    {
+      "path": "lib/self/foundations.lino",
+      "sha256": "8292adc547c7380c02d0eda84ebbe8fdad6338a3c197f8573909502980c98293"
+    },
+    {
+      "path": "lib/self/grammar.lino",
+      "sha256": "cad202911a3227736a1b075de195defa0c44d0981446dce600762dae37536515"
+    },
+    {
+      "path": "lib/self/metatheorem.lino",
+      "sha256": "eb34eac6cd1ee4a616051a8fcb58d33a5a3e33225c8894c7d73b89fe5de9cd6f"
+    },
+    {
+      "path": "lib/self/operators.lino",
+      "sha256": "3914a6e2db18512fef9bd8b2637450d36f41c6a714c00adc40ac9f3897aec3ce"
+    },
+    {
+      "path": "lib/self/types.lino",
+      "sha256": "be433a26a882433b07e843d49498dbce967566931a77f797f17e8d1cab603458"
+    },
+    {
+      "path": "lib/set-theory/core.lino",
+      "sha256": "651f16f0467e01b1b51c3690355d514ca9a176194de765a781ea479493817a63"
+    },
+    {
+      "path": "rust/Cargo.lock",
+      "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+    },
+    {
+      "path": "rust/Cargo.toml",
+      "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+    },
+    {
+      "path": "rust/relational-kernel/Cargo.lock",
+      "sha256": "aea537684f16cab6597663fd96c7fac99ae99b228380abcac38e4cee12d2db4a"
+    },
+    {
+      "path": "rust/relational-kernel/Cargo.toml",
+      "sha256": "8cc3c88a8fbd3e834dc1e070c00cd17304cacc8d73b966a0f11479052e924564"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/Cargo.lock",
+      "sha256": "d54ab59b12bdcaf7f17f2069b822482c299e516f59126a1c055d4ad69f12d5fd"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/Cargo.toml",
+      "sha256": "d593706269e6d7f6d2d4121668ab7a9f9350e9e1a5e5970c2cc9cd4cb7dec991"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/Cargo.toml",
+      "sha256": "1e826c56fe67c11911d49ecd8e201d53dc213f589593e69fa08c361e5e4544bf"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/LICENSE-APACHE",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/LICENSE-MIT",
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/README.md",
+      "sha256": "eb01b62bdd75f6bae521c2810a9b101cf4a7251eb913c797f4c718cbcd83a544"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/data.rs",
+      "sha256": "25c81826aaaeb36048c0594cffbeb07a143951c66c35f7f237c2743ed87a9e22"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/expr.rs",
+      "sha256": "1421ef112d7f4e3b6a507c2929fe0fd4c43a01093f548e9d683173d06a07149a"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/gen/ast_enum.rs",
+      "sha256": "1fde5bc409cd04d2b4503e578a0245468e0347f5798bb9bb2db063861e99b08c"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/gen/ast_struct.rs",
+      "sha256": "f88a279c31821e7584cbc7354cce06a4b09620aace7fa6a7dc7be4d659785e48"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/gen/convert.rs",
+      "sha256": "82df570d1a9ea0ec17a8238513a1a7bc44f822194abb5da9c97fea3863c9b246"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/generics.rs",
+      "sha256": "b16d2f20e84152dd31ea81f02a54dd67eaa1d802e408e09a707bb3fd1bc19fff"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/item.rs",
+      "sha256": "48ff7893f0e794014c7f969524dad7da3e90f5bbabf2a3759c8dd60af5219252"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/json.rs",
+      "sha256": "cdc16294e625658195963211a92a9e404c23ca7b26c55e6c334e46b6e9715543"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/lib.rs",
+      "sha256": "c74ed753245be457cf47a414ea11047631e59a3082d188f736726475c1da4234"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/lit.rs",
+      "sha256": "a0a3266e1336bf2702841127bccd9bc345ae16802b090dc6b56d1cb582b5c35e"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/macros.rs",
+      "sha256": "5aa7215400533894ee3771f54f25bc5de4506f227c0021782125ba6c27ba610d"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/pat.rs",
+      "sha256": "2db2c1ff072d6417300fd87ede09ae13a279455f8141a47e45504b35482365e7"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/path.rs",
+      "sha256": "6becaebe9c31b0783ccdfa32541067fe6e067b49315279f23390d0242c9a5651"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/restriction.rs",
+      "sha256": "68da826731584c5e7dc850ab044a6a350c098c0f499443fb3c5ca2b07015a0cd"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/stmt.rs",
+      "sha256": "3e0543fdb4bce64a0d894cd8ddf8c13080a9993990464ecc18f4cc383026eed2"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/token_stream.rs",
+      "sha256": "1bfdde18756da6cc14edc0134da965c8384fb6842616f923e41c4f2a96e2fda2"
+    },
+    {
+      "path": "scripts/linked-runtime-rust/vendor/syn-serde/src/ty.rs",
+      "sha256": "7373d677b7440a7355c37af5bd8c6410f15eea1120a19830cb6770e31497097d"
+    }
+  ],
+  "currentRevision": "24ad4965efea139846cc9b01d8d8f57b55faf27f plus additive authority checkpoint",
+  "workflowOnlyRecapture": true
+}

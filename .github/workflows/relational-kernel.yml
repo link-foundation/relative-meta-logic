@@ -33,7 +33,7 @@ jobs:
         run: node scripts/run-with-cache.mjs --cache rust/relational-kernel/target --class rust -- cargo test --manifest-path rust/relational-kernel/Cargo.toml --all-targets --locked -j 2 -- --test-threads=1
       - name: Upload cache diagnostics before teardown
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cache-diagnostics-relational-kernel-${{ github.run_attempt }}
           path: |

@@ -1,0 +1,51 @@
+name: linked-implementation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authority:
+    name: Source-free linked implementation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Bootstrap repository cache policy
+        run: node scripts/bootstrap.mjs
+      - name: Install dependencies under the cache lifecycle
+        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
+      - name: Reject host-only implementation or configuration drift
+        run: node scripts/check-linked-implementation.mjs
+      - name: Check source-free JavaScript execution and archives
+        run: node scripts/run-with-cache.mjs -- node --test scripts/linked-runtime.test.mjs scripts/linked-rust-runtime.test.mjs scripts/linked-implementation-configuration.test.mjs
+      - name: Build the pinned generic Rust syntax adapter
+        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-helper --retain .rml-cache/linked-runtime-helper -- cargo build --locked --manifest-path scripts/linked-runtime-rust/Cargo.toml --target-dir .rml-cache/linked-runtime-helper
+      - name: Check exact syntax consistency in both languages
+        run: |
+          node scripts/generate-linked-runtime.mjs --check
+          node scripts/generate-linked-rust-runtime.mjs --check .rml-cache/linked-runtime-helper/debug/rml-linked-rust-ast
+      - name: Execute generated native artifacts and definition replacements
+        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-native -- node scripts/verify-linked-rust-runtime.mjs .rml-cache/linked-runtime-helper/debug/rml-linked-rust-ast .rml-cache/linked-runtime-native
+      - name: Preserve execution and cleanup evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: linked-implementation-evidence
+          path: .rml-cache/evidence/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+      - name: Clean owned build outputs
+        if: always()
+        run: node scripts/build-cache.mjs --full

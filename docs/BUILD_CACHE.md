@@ -7,7 +7,7 @@ another project, a home-directory package cache, or the machine's Docker daemon.
 
 ## Start here
 
-Node.js 22 or later, Git, and process inspection (`ps` on Unix, also `lsof` on macOS; PowerShell on
+Node.js 22.18+ or 24.11+ (Babel 8 capture support), Git, and process inspection (`ps` on Unix, also `lsof` on macOS; PowerShell on
 Windows) are required. CI uses Node.js 22.
 
 ```sh
@@ -281,3 +281,13 @@ in the task environment; its binary was also smaller (4,920,408 versus
 5,591,608 bytes). The final run included all ten tests, including the new
 bounded-input regressions. These are measured observations, not a portable
 performance guarantee. See `case-studies/issue-183/data/native-proof-profile.json`.
+
+## Disk reserve during an active build
+
+The command wrapper checks the configured free-space reserve once per second while its owned child is running, as well as before starting it. If the reserve is exhausted, the wrapper stops that child process group, records a nonzero result and the `resourceLimit` reason, then captures and cleans only its own generated outputs through the normal lease lifecycle. A child that handles the stop signal by exiting zero still counts as interrupted.
+
+`RML_CACHE_RESOURCE_INTERVAL_MS` selects the polling interval in whole milliseconds, from `1` to `2147483647` (default `1000`); `RML_CACHE_SIGNAL_GRACE_MS` retains the existing grace period before forceful termination and permits `0` through `2147483647`. Both settings are validated before any child starts, including rejection of values Node would silently clamp to one millisecond. The reserve is an early-stop check, not a filesystem quota: another writer or a burst of output can consume space between polls. Unknown leases and pre-existing files remain protected.
+
+The cross-platform cache job executes the actual wrapper with a simulated change in filesystem availability, checks its failure receipt and lease release, and verifies that full cleanup removes the generated file while preserving pre-existing source.
+
+Failures while recording child ownership, reporting a resource limit, or writing command output also stop and drain the owned child before releasing the lease. Evidence failures retain captured outputs instead of deleting them without a complete archive. Monitoring ends when the child exits; on POSIX systems, any remaining descendants in its owned process group are stopped before the output pipes are drained.

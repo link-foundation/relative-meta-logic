@@ -1,0 +1,13 @@
+[package]
+name = "rml-syn-serde-codegen"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+serde_json = "1"
+syn-codegen = "=0.4.2"
+
+[profile.dev]
+debug = 0
+incremental = false

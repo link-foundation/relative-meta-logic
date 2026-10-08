@@ -67,7 +67,7 @@ jobs:
         run: node .github/candidates/cache-portability/validate.mjs verify
       - name: Archive candidate patch, source identities and platform evidence before teardown
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: proposed-cache-repair-only-${{ matrix.os }}-${{ github.run_attempt }}
           path: |

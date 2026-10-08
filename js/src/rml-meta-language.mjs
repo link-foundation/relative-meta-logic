@@ -1,12 +1,15 @@
 import {
+  ByteRange,
   LinkMetadata,
   LinkNetwork,
   LinkQuery,
   LinkType,
   ParseConfiguration,
+  Point,
   Probability,
   ProbabilisticTruthValue,
   ReplacementRule,
+  SourceSpan,
   SubstitutionRule,
   TranslationRule,
   TranslationRuleSet,
@@ -143,13 +146,17 @@ function metaLanguageFeatureReport(source = '(namespace self)\n(? (a = a))\n') {
 }
 
 export {
+  ByteRange,
+  LinkMetadata,
   LinkNetwork,
   LinkQuery,
   LinkType,
   ParseConfiguration,
+  Point,
   Probability,
   ProbabilisticTruthValue,
   ReplacementRule,
+  SourceSpan,
   SubstitutionRule,
   TranslationRule,
   TranslationRuleSet,

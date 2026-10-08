@@ -5,6 +5,8 @@ This extension adds editor support for Relative Meta Logic `.lino` files:
 - Syntax highlighting and language configuration for LiNo source files
 - Diagnostics, hover, go-to-definition, and completion through `rml-lsp`
 
+Requires VS Code 1.91 or later and Node.js 22 or later.
+
 ## Install From VSIX
 
 ```sh

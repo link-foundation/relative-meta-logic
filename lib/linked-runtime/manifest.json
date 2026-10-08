@@ -1,0 +1,1086 @@
+{
+  "schema": "rml-linked-implementation-manifest/v1",
+  "moduleCount": 158,
+  "linkCount": 261007,
+  "sourceArtifactConsistency": true,
+  "compiledFromStructuredLinks": true,
+  "fullImplementationClosure": false,
+  "executableInventory": {
+    "discovery": "repository-wide executable and public-entrypoint scan",
+    "entrypoints": [
+      {
+        "from": "docs/playground/index.html",
+        "role": "browser-script",
+        "target": "docs/playground/app.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-bin",
+        "target": "js/src/rml-check.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-bin",
+        "target": "js/src/rml-links.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-bin",
+        "target": "js/src/rml-lsp.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-bin",
+        "target": "js/src/rml-meta.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-main",
+        "target": "js/src/rml-links.mjs"
+      },
+      {
+        "from": "vscode/package.json",
+        "role": "npm-main",
+        "target": "vscode/src/extension.js"
+      }
+    ],
+    "staticImportEdges": 489,
+    "dynamicImportSites": [
+      {
+        "from": "experiments/issue-181-meta-language-js-smoke.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/issue-181-meta-language-js-smoke.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/lino-frontend/deep-documents.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/lino-frontend/depth-cost.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/lino-frontend/quote-reading.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/lino-frontend/upstream.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "js/src/rml-links.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "js/src/rml-links.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "js/src/rml-links.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/control-flow/verify-native.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/run-with-cache.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      }
+    ]
+  },
+  "residualTrust": [
+    "ordered addressed-Link codec and archive validation",
+    "generic ECMAScript AST generator and source loader",
+    "Babel parser for migration and consistency checks only",
+    "ECMAScript and Node runtime semantics, standard library and external dependencies",
+    "V8 compiler, target-machine lowering, operating system and physical processor"
+  ],
+  "remainingScope": [
+    "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
+    "minimal bootstrap and independently comparable foundations"
+  ],
+  "archiveSha256": "0173a5cb5215760693ce9cb4265e64ab4f0d2c90e4efb47280d8c8f56a132881",
+  "archiveBytes": 1603217,
+  "modules": [
+    {
+      "path": ".github/candidates/cache-portability/validate.mjs",
+      "sourceSha256": "e60dae20b5f4969be058c98f0a5c8907cc33b3f60c61a92d87e2c5bdbaf3aadd",
+      "astSha256": "a155cde6d3bfa6db21174f08f9bacddf762140cac4e512e52b6eae3b02d9da31",
+      "generatedSha256": "8aaca897841f2278bb912fc853a461ea3eeba478939f4cfb7e42f10401959c3e"
+    },
+    {
+      "path": "docs/playground/app.mjs",
+      "sourceSha256": "3c407e37b8884217482151a1089708acda2ec31aba5c97652681baf05706d27b",
+      "astSha256": "a254ed0ea223e53a5b35c3cccbf6340b647c6391664b0f74b76ab0e43c929fc9",
+      "generatedSha256": "1279cc5cfa14c1760fb024d91ffcf7016b3f463def40c52116522b89397e2af9"
+    },
+    {
+      "path": "docs/playground/examples.mjs",
+      "sourceSha256": "7e179fae2e1e6bd6c961b25a7612d8c63dfefe6d5269a1d1dfa4d35fe38cf65d",
+      "astSha256": "9c23ea17fa0859dce708c8f12ad06fb00f48d203b67cf946324d4dfaa6e229b1",
+      "generatedSha256": "c97c6a3f65d574d5f4c2b8f7aabe626cbbce868aea34340c4f9165bbf9bb7907"
+    },
+    {
+      "path": "docs/playground/rml-playground-runtime.mjs",
+      "sourceSha256": "2f5a40dfab8f022969e3e9160d4ca78c45e01b4a19140572b7cb095da083f3fa",
+      "astSha256": "075326c27eb25e8a418e92ce15abf227ef19e603136a5214536e5f16df738487",
+      "generatedSha256": "dde8ae95f4643e3ca5d04f4d8de9c2c941bf2c4dc1a3c584871d5ae412eee097"
+    },
+    {
+      "path": "docs/playground/url-state.mjs",
+      "sourceSha256": "950a373bf1377e83ea1f21b66b584afe9e8942a4bc64412663627e266bb4ebb9",
+      "astSha256": "f527345389274a2b9a543ee7fedba338f00f0688c985d055ffa0f29d9a9e9cd9",
+      "generatedSha256": "f7201cffc064e426bea1bb6c98df4c676b4faf821833093044acc0bdf11e2bca"
+    },
+    {
+      "path": "examples/cst-roundtrip-demo.mjs",
+      "sourceSha256": "290c16fe11fce8f8de71662bbbd4036aab28f09983350c325022eddf6550c489",
+      "astSha256": "4bf5d023cb5177d2e37cbf14ab5f4e007953c116944edc0d5b92c1be1e9cb88c",
+      "generatedSha256": "89ebb711dada8c9ea5da000c73292b9fc66b514fad092d9938d8138ecea9b34e"
+    },
+    {
+      "path": "examples/generate-expected.mjs",
+      "sourceSha256": "99d49369ebbcff5cbadec26b12bc9a60b45cd06319bdfc118dcc68979cdea09b",
+      "astSha256": "25fa2af03a336a709fbc662f1da3140ecef0529c3783cfad4db4582135aee5b0",
+      "generatedSha256": "3738aa27fd8f47343a373b826bede03f7d6afa612cabd308f365bcd529b1831e"
+    },
+    {
+      "path": "examples/meta-theory-network.mjs",
+      "sourceSha256": "0ff0e89ecd251a4c54a7da57d4005ef721740eac623db1c1a7eafe7baa35edf4",
+      "astSha256": "cb60e0bd0aec4fc9bfaaa6f70764a0454682d02cfc6879de2ba2537b9f19c25b",
+      "generatedSha256": "a331922244307ef04f883c0ccd6bf3b2081e9d5aa5fa0a1ae5fe0e2c7abcf386"
+    },
+    {
+      "path": "examples/researcher-workflow.mjs",
+      "sourceSha256": "9b4188891273e2adaa1b856badf7c2cfad068766e9b4452b32233d9c1c3b607d",
+      "astSha256": "4faaf052e99d015a8ffd7d20be6c3041b8b4bae6956ca81a9f43a43308ea1db9",
+      "generatedSha256": "e582b89ebea205e5890e3849a18c83087702b5551baba359b2c6b1de7787ecf5"
+    },
+    {
+      "path": "experiments/combinator-bootstrap.mjs",
+      "sourceSha256": "e95cb72968161e9128e82e353bd7bbd4ec80b9260f0a1505eea6236cced3acc9",
+      "astSha256": "a5086316a6679270d5de363c776d09f249d9c8c574a77827f3519d0345768a76",
+      "generatedSha256": "8c6198ae2f9ea06ea973cfe1ec318c66bd983c266f448401492e2ea05df8a63e"
+    },
+    {
+      "path": "experiments/contraction-budget-per-call.mjs",
+      "sourceSha256": "4790fe0ceb6fbdd3cab39740320a129bf4325af2b05cacc9482db6dc3df9614b",
+      "astSha256": "015ce0013b73bcdfa5e6f79b8f5128ee310778467c176fbb8778238f97ecffa0",
+      "generatedSha256": "78447c322288522a1aa53ff108f1714d9aad913a2d6aef0349b40b84ffb8c0ed"
+    },
+    {
+      "path": "experiments/definition-replacement/k0-replacement.mjs",
+      "sourceSha256": "e7911ad661e2b71404a7ad440440018aa72483545670bc3cd2ed95d2f74883a9",
+      "astSha256": "0209b4a999db82b06605c77b68f97b2eba42eca53eb0211de6bd05f4bf7fa96e",
+      "generatedSha256": "3cf73b457e2a9ff1f962ef465f97f303954fc62f4469ca863c0bea3db70a49a0"
+    },
+    {
+      "path": "experiments/definition-replacement/k1-replacement.mjs",
+      "sourceSha256": "536dbac263a5bf3b24e4d4c3ea5ac5a1a1f8814f6fad73408834f22e699cad05",
+      "astSha256": "ef5a1760325defed3fb8011fb50b7cb039ef4860f63c96772865f9764f7469b9",
+      "generatedSha256": "077ec8a3523b7321e8448f5660de890fdf2b72cd0aae4764c2f18cd8a9dad255"
+    },
+    {
+      "path": "experiments/derived-fact-failure.mjs",
+      "sourceSha256": "d34946a40e893e2bc9b4ecea3d507f30f6f30733f7f129ca1119bfd6478a7226",
+      "astSha256": "6065d4be90b453539f9f24a1af85bb93ec61873c42fdaee5627623c63e3c00c3",
+      "generatedSha256": "eee11f03f4e74b6fecd55fe81e7d0306bed4f654d78153d222099dcd1ba2c1f7"
+    },
+    {
+      "path": "experiments/foundation-contraction-limit.mjs",
+      "sourceSha256": "8aff33b635828e1a0ded8775cd1e43b34a671457e0b4267179b88c0fe667e6a1",
+      "astSha256": "1bdac7d418b91f0460819f905a48cf2fe47585fbc992327d54cc4a874dfe7f1f",
+      "generatedSha256": "8eed7e3251a78a04c56f7b10683a7b5079f73d378e2987fe303bc45a7273ab4b"
+    },
+    {
+      "path": "experiments/foundation-contraction-stages.mjs",
+      "sourceSha256": "d2267ce5320e41fd27011b17fd7d0e46e4fc8bddc74b6e24ff863a2fad601f48",
+      "astSha256": "b07d7de1d810c34b063d3f2cb7c3aaf248b62a5faa2d6e0d47bbe48c793795ee",
+      "generatedSha256": "88908604105eeca93ffa70d6db7991d863463b8337be035a5f852542ecdcbfb1"
+    },
+    {
+      "path": "experiments/foundation-package-timing.mjs",
+      "sourceSha256": "be19da368945f48e1be36ac9cf3f1a0daf6dc85b6eb371afaa0ba872ae871c6d",
+      "astSha256": "5a985e4e766dae0bfc59b65b21ca9a6fcffe83164a1d8ca65bbb3551ce6a5b64",
+      "generatedSha256": "5df2dd5362020e39eb66d82fe78846ee67fb9728ef92d1d9cc5cd5f44ca2c1a7"
+    },
+    {
+      "path": "experiments/foundation-truth-timing.mjs",
+      "sourceSha256": "6656bbe8353373f83514a231b61d454811cc2d4eacebf53e7e5ea70469165ede",
+      "astSha256": "35f511c6baa19041609035137d15f4ece184369ce40445b37c8bc0cb7889c15a",
+      "generatedSha256": "8ccfd969327d35427950bb39be342fad39ed96fab5d88e235593bb36d5ab56b2"
+    },
+    {
+      "path": "experiments/inspect-combinator-source.mjs",
+      "sourceSha256": "90e4b47d17a8694c7bf5f4dc5d3318d667269d7b7fe4e2c1dfac56b2000b4187",
+      "astSha256": "e840ff8b3253d96b35fb10b40d396a5396374d86aa00ba8e9496333b8c313f5b",
+      "generatedSha256": "53a85df7bf1c3726eebbd909e0ed3d576197bdb3dbf8a0f45e68767ac30fcc5f"
+    },
+    {
+      "path": "experiments/iota-bootstrap.mjs",
+      "sourceSha256": "7f236a9fdfa26481a60b385c1382989859b43fac2601b218db1a9fb926bd06c7",
+      "astSha256": "eb52da07e80d427627c07235303a140fb833b6744abf4418b9af560e5f8bcf34",
+      "generatedSha256": "5ab3161b5205e36f85f1347db133e33b728a9f353497f498fc1e1fbbdbf9bddd"
+    },
+    {
+      "path": "experiments/issue-181-meta-language-js-smoke.mjs",
+      "sourceSha256": "c315f80dd1a02aca450ff000408225d42e4192ff740335350c5f48b29f1219db",
+      "astSha256": "6bac0634e58a95291803a4a697f9b22d9d0cb1eec7764d41e7548cf066e0a7e1",
+      "generatedSha256": "302ba35001f12b23ecb7c36e953a64a44018f1a3973c220b8db91076c604dff5"
+    },
+    {
+      "path": "experiments/issue-183-pr-body-live-repair.mjs",
+      "sourceSha256": "a34e746e640bc507887134d1c4b6cf153fbdf2f0541b62f17c72f02ed224e112",
+      "astSha256": "40c31a47d84258bcab66da968b19599b254c500994a213fe9d02f99c0655058f",
+      "generatedSha256": "8ed5b0d7d77c61a7fef08d96cd1168007f1c849f3c853fe35c789458efca82c9"
+    },
+    {
+      "path": "experiments/issue-26-filing/file-issues.mjs",
+      "sourceSha256": "8d96fe2ab0e5c10cb5d03f3e17996f445d04446e5ff4895c7b427711b774f709",
+      "astSha256": "7ec2a102dd1e5c7534ae3b23e25d46bdd0972d5b3826f362b27603153a346d7f",
+      "generatedSha256": "678054cb8a15259fbb618d37b424168eccdca81c9d948ad525df72c8588520c5"
+    },
+    {
+      "path": "experiments/issue-26-filing/validate.mjs",
+      "sourceSha256": "a0bae2a58a93ada4a187b4b3ecd960292c7398327ef3b80fc8e299a421356a85",
+      "astSha256": "dfdd3ba774cf65f680f2c1c6aa5cd4972af4689ca906e96647f59b173c78fed0",
+      "generatedSha256": "dbb6307d616e8023850ba70f0d03485e3dce32db90409f38914f0f3afb808f53"
+    },
+    {
+      "path": "experiments/lambda-kernel/compare.mjs",
+      "sourceSha256": "0b895af92864b038529401de484a066cd1879aab9840d3052642dbed4452401e",
+      "astSha256": "8232702c21f374cad1d046043cc4a2a29e3ceea4be984c8409c7c75a99d9175c",
+      "generatedSha256": "b61ff1da6f639c4287113887a486e83fc052c1cabcc2a61967e7bb9d2eb0ceab"
+    },
+    {
+      "path": "experiments/link-ontology-symmetry.mjs",
+      "sourceSha256": "e5b845f53d35c961e709609ff2ca90ab09a0f2d768319fa7d274f5a2b52085fa",
+      "astSha256": "e33badb3a3d3fea23af0adf0c1ebd551d753a507b830a7a10e5a25c589031352",
+      "generatedSha256": "7e25c3402484ea3b2fce9a35c88741b7635e9d62bbeec240abfb5661d81af589"
+    },
+    {
+      "path": "experiments/linked-search-outcomes.mjs",
+      "sourceSha256": "2492114d784491299f186d678dba2526a1c1a0c10bad85add47bf87285ace03b",
+      "astSha256": "5311f768a23480fc16f48eed3168066a7b2909c0a928c8368ca8fee94cfd8f0f",
+      "generatedSha256": "670f38976f3c837d05162e83572b5882cec5d26311d82ebb67c2f6cc4da9d722"
+    },
+    {
+      "path": "experiments/lino-frontend/case-entry.mjs",
+      "sourceSha256": "0587d5c7cff5dee6cb83805ce9c9796effb450261f98e233afa5877be298c5de",
+      "astSha256": "99e44150c3d6f24c748a25640d5c55a77e8b2fa2651660b81af0b917f6c67e14",
+      "generatedSha256": "f6ec886710dcbd567e468e5c520ff9eb0e66f9940362a6a435796f0121668f19"
+    },
+    {
+      "path": "experiments/lino-frontend/deep-documents.mjs",
+      "sourceSha256": "9b449aed5042e18d8ad83614a8f658c71253fe4da2cd4634b49e691cd9c91f1b",
+      "astSha256": "982121b299cc9c27b539c51ffb9a1a7f2e415f42003f7088481f69c5b8af11ee",
+      "generatedSha256": "88ee484ab1943bbfaf2a3203d4a7e3efcb7a3a7573576f5be68a22c9a4c16b5c"
+    },
+    {
+      "path": "experiments/lino-frontend/depth-cost.mjs",
+      "sourceSha256": "2de9abcf406fa65dbcd49048387fea1e1e96b138260959bc45c6c47d61201b46",
+      "astSha256": "e2ee9d13ea69cf495e8619a179be68f9eb63787e8f72be488df2e99692e6d3a6",
+      "generatedSha256": "45e9cf6e514766952c170c6ad63cf797e7bc0e014dc37007d7ae3fd9d785d29d"
+    },
+    {
+      "path": "experiments/lino-frontend/differential.mjs",
+      "sourceSha256": "5ff0c79f6b96119077748bcb258746a7d45a1db82685822feb875f2f0567b5c0",
+      "astSha256": "ee427730604b5c68cda8bee2d553e0dda972451a7e020fc3d5ef307354df9458",
+      "generatedSha256": "c28a781752048b9768f10b77e32235233b3d41a37f7497dbe1477e876ebb8515"
+    },
+    {
+      "path": "experiments/lino-frontend/nested-ids-at-limit.mjs",
+      "sourceSha256": "b2051c87a6a1d701c1667ed0733d1c837e1f85a647dd72ed1f77f77e1e0f7404",
+      "astSha256": "4edf4e196b79289ae19f98b9e69c75ec7c1585fdec86e23747e86543d15c7b1a",
+      "generatedSha256": "67737edff06b0bdbbeaaa1a4b34fe74d55ee7f2fd8f9c9c9079cdbec3cb4be14"
+    },
+    {
+      "path": "experiments/lino-frontend/nested-indented-ids.mjs",
+      "sourceSha256": "24a52f34ab67baf6b42d32e0aa504a233f47b5bdc0e242ae20c7ca1cb7dc3fff",
+      "astSha256": "64cb44abfb2921ad715460275a11d7a50f3dc6c2eb229eec9918244c027f2d4f",
+      "generatedSha256": "bbb2a19458a0e26003e813c0336bc2e2587461459ff34f56c5493ba3d5923ef6"
+    },
+    {
+      "path": "experiments/lino-frontend/probe-js.mjs",
+      "sourceSha256": "70edf700e6b90cffe67da0b6c70d62ef98f8918710f4e218a9e10f424a757056",
+      "astSha256": "d08704c424ea8dcd5da0fa9017f4f2cec98357777a0bd3143c46d4b90ae7e6de",
+      "generatedSha256": "84eb01707835931c6335bc82fc927b66e65a008bf60d58f93712fc35a01f9155"
+    },
+    {
+      "path": "experiments/lino-frontend/quote-reading.mjs",
+      "sourceSha256": "6e9bfaf3b0488abe63fa16cd18a002d52e2420555908c3d234206071989cbd53",
+      "astSha256": "43d21d257ead3d7f80ba5dc2e1a317bb398f56c69127196f37c7a080bd0fb631",
+      "generatedSha256": "68ebf5ef1dc43648196235de8bf50392e4b77f0fc9b19d6a2ffd7b409a5c9dc6"
+    },
+    {
+      "path": "experiments/lino-frontend/upstream.mjs",
+      "sourceSha256": "59490d6e2cd0dcefbbbe543cd6767bce62af5c72f80fa56cbf65f4379ebda315",
+      "astSha256": "f00ffeb334cc72cdbdee27739626c22926c1c89c9844a9b127aed792a087d2fb",
+      "generatedSha256": "fcf20aaa65ad0d820d63672137c52eae20fc139d519cd886fc4199aec9b42e0c"
+    },
+    {
+      "path": "experiments/observation-refinement-probe.mjs",
+      "sourceSha256": "c2f32e1fa926bb0fd8b271253a0fc59bc9b8b819361d266e09580693fed39080",
+      "astSha256": "5c02c1482a17f538e8da098239f906dbbd6836f56c95bf55b3f71216fe452155",
+      "generatedSha256": "e4c8acab24fc9ffef544879c92fb2312801bb3fbc6b914a08a977c03e0ebdc42"
+    },
+    {
+      "path": "experiments/poly-apply.mjs",
+      "sourceSha256": "ee1cae1dc572431fca73c938c1b69a554a79c6258b9ff95b39396255dbed128b",
+      "astSha256": "edaf1278b5e9945cf022eca2df5a5f4a5eeb1cd37ef5be156ead5621821efdac",
+      "generatedSha256": "a9d5c538a6d039b3bb1799f1eb7c60d06266e68750f359aefaee0d60d743b7c3"
+    },
+    {
+      "path": "experiments/poly-instantiation.mjs",
+      "sourceSha256": "c254f379773506c0757d3ff21c97a5cf70e21eda851cef2eeadba27c9e907e72",
+      "astSha256": "d42b2b8dabbb2c6d856ea9e58f0abb05ce26d95d30b3bad9741f8bbc8cf5914c",
+      "generatedSha256": "b139ca73bd29c8e371eafce0b3f1dda49e68e85d213e7178bbb117beafd5c00a"
+    },
+    {
+      "path": "experiments/proof-kernel-benchmark.mjs",
+      "sourceSha256": "e0879bcc769eea57d7434a567b4bbc476adebc35909749ecf2dcc32c6276f1d0",
+      "astSha256": "ea8156be78191155a12cf2343688610eaaf1d95b932f9d8f73bc5d582faf443f",
+      "generatedSha256": "e29df8d6f984880020139ad9a934b83040bce54595b82e78ede56e37a5b8c1fe"
+    },
+    {
+      "path": "experiments/r147-consequence-audit.mjs",
+      "sourceSha256": "205789f72b81cb588c3c9feebf1cb02e904d704c77f35b2836cb6b3268a59843",
+      "astSha256": "25216e8b346b66df68798bd179987b836d9c86460596a994021ba16fbbde944d",
+      "generatedSha256": "07725d158e8e46414b04a5618df89e60fe27540a6e3ed52d718b35cc6a330ae8"
+    },
+    {
+      "path": "experiments/r148-orientation-provenance.mjs",
+      "sourceSha256": "633b7ad7f7183e86f5eb4db67e740b7aa856add85b1602238ebf9a8a224d65ee",
+      "astSha256": "e3244bf5256266338b16915c331d31506c4f28773a8740b55c0c693cd1650ff2",
+      "generatedSha256": "8d1b968975c6e847a68103217d7b489b4c1bac13554968c13377c134f0b9139d"
+    },
+    {
+      "path": "experiments/relational-kernel/compare.mjs",
+      "sourceSha256": "384c94ba064b7b20ba35e1ec1ed20610c828f8628b5eb62a19c09115dc70d242",
+      "astSha256": "aa1637bc75d39123f911c87d289f73a0a364a9cae9b188871ef46c167502ed2a",
+      "generatedSha256": "608bb0552a8a87dcf9517edd400d49ae00e5f641116a6fe715a50f4567d4c17d"
+    },
+    {
+      "path": "experiments/relational-kernel/emit-receipt.mjs",
+      "sourceSha256": "f862e072db479f23ea788ee72276dd10495a2f74721a812fa30d6621183f2e51",
+      "astSha256": "b54668615a0193e29712f8bc9db5e6140270692a8a9feae8762a75323eb3f991",
+      "generatedSha256": "60b8560db58fe5fc55e100ca6a946c280e9494b7b645328d009edbe794985b74"
+    },
+    {
+      "path": "experiments/relational-kernel/self-cohort.mjs",
+      "sourceSha256": "0b82e9cbe7a063bc50f55b9561f0cfb4bc75191c43f9eba6f0eea68241da4ea7",
+      "astSha256": "0ecd13b364244cf0581950fbddee78528ff2e5416e638b1cf28637ff973822bf",
+      "generatedSha256": "94552040b4e40b74f3dce514ff3475b1fec4dbc5f6fe79aaf4fded06d834c1c8"
+    },
+    {
+      "path": "experiments/search-judgement-shape.mjs",
+      "sourceSha256": "e0b4f75ee4bc771b022685c60671d57bd2d2e4199caad51eb1da48d5de76d0ef",
+      "astSha256": "0ba6b8d9f02dc09b0b7873ce76401594092b8229810f038664bb75b3a18fd772",
+      "generatedSha256": "f3bb95872b7ec82fcf7ecf25b2ba38b5105969419338516492821c5504280d6a"
+    },
+    {
+      "path": "experiments/sk-resolver-names.mjs",
+      "sourceSha256": "9af9e8fd18f1f698bdbb4b0ec4551ca6a0c7b6772a9abc3126c5dabdd03d09a3",
+      "astSha256": "22546ddc764b5f4eb25d9b0b274fad590e978d66e75e01fe1854192cf0939e59",
+      "generatedSha256": "f29fcd8d4ff30cb2294d3ea239b594a317a8fc95b7776490dae8939c52ccc2d3"
+    },
+    {
+      "path": "experiments/strict-nat.mjs",
+      "sourceSha256": "0f2a60bdb8b5f1ba63955d32c0c9b05b4d5f0332edb149e65feb839cd5150190",
+      "astSha256": "9f4ecf571d106275b71f5aa408295b4e65074a432284698d8e7f6565ba23382a",
+      "generatedSha256": "56242eba78d5b6a9cc0644a1276efa46c14932cab08bf25cd11acf152a0fa312"
+    },
+    {
+      "path": "experiments/test-composite-operators.mjs",
+      "sourceSha256": "796110b0a2d5e39f5eca67dc78e87ae8f10f3b454f89dccba790cc8d72b6c8b8",
+      "astSha256": "fbe1fdfdb32e40b097062068946490742f3455de35692e812a95aedddcc27793",
+      "generatedSha256": "290c47162867f43203d9fee83716a0d9ca733ae4d889156bb5de469a4164e379"
+    },
+    {
+      "path": "experiments/test-multi.mjs",
+      "sourceSha256": "7461bc0bdfa22e0aa0bb75a6c097e345f4e9350173127fdd5d47d5652ece2034",
+      "astSha256": "ef293ba46a92340c9d1388af12a97408a875e5c5a690db98a9b68dc20e8c07b9",
+      "generatedSha256": "44c99faa740de458bcf1e3e0bd944293d7be15f702a9f6a437c648668decead7"
+    },
+    {
+      "path": "experiments/test-namespace.mjs",
+      "sourceSha256": "809472d86f5ec74361d95078e17d4f35008a9f240b1a7934223da81b8535e0f0",
+      "astSha256": "b7c18931f9ee93eef5a35a23262f2c6ff033be9e06d9f484cfbd355f4d89b7a3",
+      "generatedSha256": "5df5453afc08c6e8480caab895405b779985811bd362da6c29aea3c7aac41583"
+    },
+    {
+      "path": "experiments/test-proofs.mjs",
+      "sourceSha256": "7be5ee84b7b6887e86fbf242d11e6b460ab5dc4bb9b190bd2d934784fbc8b968",
+      "astSha256": "56481af80ca13a4e6ae083f7239afe5782e5885c2c09918d39cbfbe0ec42714b",
+      "generatedSha256": "e4cb4ca86db55b932a5b936b2bc46fd00c959bd0f788a64f7387d0ce783b8c80"
+    },
+    {
+      "path": "experiments/test-shadow.mjs",
+      "sourceSha256": "d610969471d9b33d8bdbdd67fa95f815ee913194719a5ea7bcf0b0815f9accb8",
+      "astSha256": "593c24a46a9a4e1e03c37287c217efb5bca47cb66e34fd5fe471bc0966966cb0",
+      "generatedSha256": "5030cb4985c361fe70866db156d165bfde04d3ecc64a4bc080e3dc1e04b4eda3"
+    },
+    {
+      "path": "js/experiments/synth-smoke.mjs",
+      "sourceSha256": "9a1f7f97ad9d00fb858a61b9466f1c4dcd6aacbb26132ad24cc79b3986cd9122",
+      "astSha256": "d53a5dd74aceb55c18100993aee272acfe7317868047055c44292bc4d6c18235",
+      "generatedSha256": "c0a41eff4b19b0ab1dd5085040dfe119d4844d33874c81b9417f47f821bf11c0"
+    },
+    {
+      "path": "js/experiments/test-forall.mjs",
+      "sourceSha256": "9537aa2f662fc87afe6490aa00b4a157314d0e188d5161fc845b0d04dab4398e",
+      "astSha256": "a4a07a1f7ab585523cc75025bb80392c73d848ee07602a20762437f3d9585d11",
+      "generatedSha256": "81004f81caf6b6744bcc6c4815aac7d6d195f83c2075d734a6f1b254560367f8"
+    },
+    {
+      "path": "js/experiments/test-hoas.mjs",
+      "sourceSha256": "aae12112e9ed7587c0fcf184496df4e5bb5d6aec1f8da471767ad0f211d20d52",
+      "astSha256": "d7a80f9501e0f8472923ca2006619174032519835940a1e3311efe23a4cf6d9a",
+      "generatedSha256": "8d247da53e9de481db70249975e2168829e6261c5995a295e4ddcb31ed2274ec"
+    },
+    {
+      "path": "js/src/check.mjs",
+      "sourceSha256": "1173cfe4578048118b61381dde19fd74e24d15882a0424b5c5572928674e9e45",
+      "astSha256": "e8ff66267f42ae830f42a7850c5e7f3beb530725bd6a7dde2bb2f8471d33608d",
+      "generatedSha256": "175eaa0ec732e6c4c83c6cb4b9c7bdfcdcb365151743594d0f81e4a7bd2c1ee2"
+    },
+    {
+      "path": "js/src/cst-convert.mjs",
+      "sourceSha256": "a37a846b2b85c698632f3c10513963ba27ab49f92753f55cb650468a3b4a0d30",
+      "astSha256": "efa8ed365b12fb3e5fe88e17b41af8bf1e200c8ba9ad0a0bc1c9c1b7a84e1ec5",
+      "generatedSha256": "8239a7d7c53a7c9f2def1017b1248fb05d0e690ce757cab4ee83dec4ebb20dbb"
+    },
+    {
+      "path": "js/src/cst-js.mjs",
+      "sourceSha256": "4a2be4101ea126e8765bc5444ce70ac7901872e21ccee85414996c9f1619aece",
+      "astSha256": "a7e44e1974a021e92727e75f6b1012e4acfbb8de8688982389174585f649d5fd",
+      "generatedSha256": "c13f2eda8c0295fdebfff15b1d3511b33cae5454273a80632747afccfad9b853"
+    },
+    {
+      "path": "js/src/cst-lean.mjs",
+      "sourceSha256": "e854e29a257b558f678b49d245a3bd7afe71a0f93693c9b6dc0b5d6a20d21e39",
+      "astSha256": "7a8775b807b058edd4d6b30b45d9ffaa66884effd212bd633a434aec2581bc80",
+      "generatedSha256": "fb02d5943b3e0b60c69faf2810d81fc3f29c4d9a629b274a355087459940f5ce"
+    },
+    {
+      "path": "js/src/cst-rocq.mjs",
+      "sourceSha256": "270a8212d13f33ac550f7c088e24c7f6b1eb5af25778410a6c874c909568bbf0",
+      "astSha256": "68ff8856911053386b1bf561299b2b58a27655085739beb9c31c47c7668e60d1",
+      "generatedSha256": "0ec16a4c5093499b8e3f5eb37bd14f2f424fd5671da09c1b48113bbc09dc5cb9"
+    },
+    {
+      "path": "js/src/cst-rust.mjs",
+      "sourceSha256": "0e9df892856a6aa139d07e60fa9a1e38b47bb39ce3b80021bdda6a42166402ca",
+      "astSha256": "d93bd8fa52493073a65355e337ae8dae183f57dea6cbbc6d982882bcc98c6544",
+      "generatedSha256": "eb58a378d3eb23d18de024f04e24bda3cb44a67ad40fda48e1d69a88646c0d3d"
+    },
+    {
+      "path": "js/src/cst.mjs",
+      "sourceSha256": "d97a94dd3585502a9335d31abad28416d6aa3c3ae4e043b0e732ab8378ea800b",
+      "astSha256": "56e37d229bc4ca71a6b1434b88293c70d0a5f4c15e916c79db714eb75c992187",
+      "generatedSha256": "4a3ec32857520b89ebda3e8d9b501e1eb3a8145b589a0b6560805dae301c3c8f"
+    },
+    {
+      "path": "js/src/lean-export.mjs",
+      "sourceSha256": "f8e991e80c29ea8001e728ef0ed19fef0647a58937c5af4da11d227ed33a3e31",
+      "astSha256": "8deccd83de73015f56db24a178f539823152dddc09089f0741dea0cc79698ee9",
+      "generatedSha256": "15f705b7ad6703a81698c28f4f8306c7f04c8ec1be2374bdb110300c54fa93c9"
+    },
+    {
+      "path": "js/src/rml-address-sequence.mjs",
+      "sourceSha256": "ea674b7c5d9344e560587cc699e5804b4a6dd6674e261344c65f1aa56bb68c02",
+      "astSha256": "53155a225740dbbf7f9ca5ea28cc1800fcba958677bd17b8bfea1a2229d4f9eb",
+      "generatedSha256": "b97bd866a01f82cd14e38f3f5768284c0388cd47181e2e5ce05ae761fdf7c1e7"
+    },
+    {
+      "path": "js/src/rml-check.mjs",
+      "sourceSha256": "2fc403783aafb06b2b910062fe0721840e079c9672df68a92e5f6847e5564733",
+      "astSha256": "4e73639b7e697187a365d4408ec9acf1c4380428d809e65d75a371e446ef0124",
+      "generatedSha256": "00b88f88e511228c4efc00542ed5647461e1392ef072ce6333f3a3015f0291f3"
+    },
+    {
+      "path": "js/src/rml-combinator-kernel-data.mjs",
+      "sourceSha256": "b43e70d5da0796f98c2741e48a99b5de2d6be700cf471777004c1071d9fa1df6",
+      "astSha256": "9c5a8f54fcb4532bf3f040b2c9c1c928f4a083b4f21c7d31ad36656f5d35b82e",
+      "generatedSha256": "5412b75e47e2a8b8e224b3ef82ad1136b71387d64ae87557fe6ddea07c1c7613"
+    },
+    {
+      "path": "js/src/rml-combinator-kernel.mjs",
+      "sourceSha256": "fc2021953741507187f10d21eefb43922feade6a57af79e004cbc19edb739ca2",
+      "astSha256": "148d988e1599f838bfddb21e94710de41988c1af4022fb05fca9e4807dda4b5a",
+      "generatedSha256": "8d7362e581d6875174e489a6aa39911e84267769aea4cb742f15e50327c26ec7"
+    },
+    {
+      "path": "js/src/rml-control-flow-ast.mjs",
+      "sourceSha256": "cb993d1b31d38006dc23f235f558ccb196e57f3fabdd282e00d05fb68cdea7d9",
+      "astSha256": "35184f1dbd41e81278f2a002e312bd6ee10d330333221c41aa103892d90b57f5",
+      "generatedSha256": "db958dc46a9c9794df5fb3f945199e9b8b08cdd515d7de388887e4a66344d5cf"
+    },
+    {
+      "path": "js/src/rml-control-flow-codegen.mjs",
+      "sourceSha256": "03694b8aaccf9956070819c080abcf0602d9f520a16d653711d912d85ef6dd79",
+      "astSha256": "5de0f2de726de30fe60e14782c8b077ce1dca31b0c1353cffd20fd33e51c8f6a",
+      "generatedSha256": "b246bde9a4ca5007323ffcd66e71134f77b383a5c919bd2169389e7d6c70fd6d"
+    },
+    {
+      "path": "js/src/rml-control-flow-javascript.mjs",
+      "sourceSha256": "c70de7220c4e6b0703ba8c479777b16fe3661d847c064be74c33efd56d601929",
+      "astSha256": "99f300e396b76f07bd5315e4bdae2738a74bce66534caafdc54cb9af5e509763",
+      "generatedSha256": "bf09f63e0b9a89bd51d2b6c8ce4e551bbacda825c38e00a1c8eb27e9186109f9"
+    },
+    {
+      "path": "js/src/rml-control-flow-proof-codegen.mjs",
+      "sourceSha256": "3bca74ade8bbbf5394c8bda73afd5b089c68446f70cf302d79278d238cda942f",
+      "astSha256": "904f0efec3d1f9ca13b18d7e9ef8d0aa9629a531f61a559e8456392e538865f7",
+      "generatedSha256": "0a5a428134ccd41b4f6de8fe68a8d1a6c0474bffd702424966441bafebc4ca1c"
+    },
+    {
+      "path": "js/src/rml-control-flow-rust.mjs",
+      "sourceSha256": "42fb48e4ea08a9f60273a855ef23fec908dc20945cd314de7fbc526c0ce5cc8a",
+      "astSha256": "749fd3c9ba5048f6788eadb6aba08ff385f88a5ee421f4568f5ac8fc382e449e",
+      "generatedSha256": "8cb357013335ef94e6d7bea75e83816a045823495e872386183d575f09a54444"
+    },
+    {
+      "path": "js/src/rml-control-flow.mjs",
+      "sourceSha256": "6a27488723131bbf59d88393f51af8243cca88966812e7193b1a021cbcd89592",
+      "astSha256": "320f72c59b1e5eafbc7f6b13f57d44f36cfd2711a3d2cb3da4b3719390ac7ad5",
+      "generatedSha256": "d1013425c520b6bd9181d833611ae29a0691dbfa274a15f2a964033a4405c088"
+    },
+    {
+      "path": "js/src/rml-formal-corpus.mjs",
+      "sourceSha256": "8e7fa1bd5ecf612c951d43f3e21ad6fa01bc078ff78ab962180f20f14b689c92",
+      "astSha256": "a4c9f67aa6aae10d74554c8b072c567c33537e0dc19757f05286163c9d69668e",
+      "generatedSha256": "a74c2a3d0b35bfb03e55c5a1037a208bd53e0cf8d002527ec86ba17a27a19784"
+    },
+    {
+      "path": "js/src/rml-formal-foundation-parser.mjs",
+      "sourceSha256": "2f2b15cd6c171b10e1d6626b30a482b803bf20ebf69258a873d590068791267d",
+      "astSha256": "6de0ea227d735f1e884333e2bbdbcca8a013d98ba3f37e534a52d1e171312252",
+      "generatedSha256": "ef25a88aa146f8d3e951e966645e10f94461da26ef7ab89d6dfa5b38c714748a"
+    },
+    {
+      "path": "js/src/rml-formal-foundation.mjs",
+      "sourceSha256": "e1a4d9fa42baeee73cd85ff1b1eb8e379848e8127ede337f9944595b82c272ed",
+      "astSha256": "6c3bfdc23298715a456f1c3cb8e681e7011708578119bd08d16bbc606713aa2f",
+      "generatedSha256": "4a3bcf3b050bb7255d7c8912df5a550e23db6a9b027f7868be34184af9edbe45"
+    },
+    {
+      "path": "js/src/rml-formal-propositions-parser.mjs",
+      "sourceSha256": "d4d2d2613a927bf8099ee6d79251d47f6ef3750b2e815e74f9f98ccde298db29",
+      "astSha256": "a6d46f66b1313c00754ec122a294d75937560353167728c6cb6044a205bb1ab2",
+      "generatedSha256": "f198f04bfb741c5018c63b3e713466ddd65c5afe7e3b2c33e74d1c01f3efb7b1"
+    },
+    {
+      "path": "js/src/rml-formal-propositions.mjs",
+      "sourceSha256": "af7b59920c4e16f78df10f2c29f7f531e21bf4510f8482bca87358941e1095b4",
+      "astSha256": "f5b381fff1d68ae2d810aef8868c43fc132a5cc6a0fa4aeff439414d3603f3d5",
+      "generatedSha256": "750634f94e5c43df4d73e73eab2bf3cf4740c2394828c3903038489b3ee3a46a"
+    },
+    {
+      "path": "js/src/rml-formal-semantics.mjs",
+      "sourceSha256": "0a1490cc20fbe65b6976e12b09c8b08c3864b052107c133112b5eb2d342ff616",
+      "astSha256": "1c6f276091c4208f8ae3aea7821b80cdea10286c87fbc894203b1c5baee220a9",
+      "generatedSha256": "7b153b3875b88aca25aac18a5c6ffc0645a36e5b045f6665946fa10fa9263be8"
+    },
+    {
+      "path": "js/src/rml-foundation-packages.mjs",
+      "sourceSha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4",
+      "astSha256": "99b16a7a1857d1bf46168bc0bf8a76dd31dacff5f400bbe29ed43203279de8ca",
+      "generatedSha256": "23a257506cbbad8e668681402135b0bb711615c8c4678d5a59956be968346f10"
+    },
+    {
+      "path": "js/src/rml-foundation-search.mjs",
+      "sourceSha256": "ad1e825bfb6bd6b9db33174c538d662f42ca8e1f816e2e866e933975afbb045a",
+      "astSha256": "3a8fc8c7325db9a44635aeccd59339fa35aec46ede7f3faa1b533115025bbd0e",
+      "generatedSha256": "a58aff3db449b401a7c49df3331b37f030a6be1fb46b4747d6eb819ec23a3cd5"
+    },
+    {
+      "path": "js/src/rml-foundation-workspace.mjs",
+      "sourceSha256": "d57572e5e488805c4b1100755c992c2e395e4102b23f689459ecde216fab467a",
+      "astSha256": "7c5814421f4983fc49a20b0d5249f78a1a11d2e2f5d62e9c601020d774cb39c2",
+      "generatedSha256": "5897dfa7b50786b65c9b3bf19b716b8bae4de5927420e7950a571e9f9ba217c3"
+    },
+    {
+      "path": "js/src/rml-horn-resolution.mjs",
+      "sourceSha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345",
+      "astSha256": "0f6c86618e775ee290b3a62d7f9b049b97741454310ee8d7dc0b6475f93505ce",
+      "generatedSha256": "8ecc5301ed7b4eb036cfb3da3a758fd0155921e96882aa9be61e695e0de4d258"
+    },
+    {
+      "path": "js/src/rml-js-rename.mjs",
+      "sourceSha256": "b527434cd8e91ae3b4410252bdaf8037d4cbc51b4d6c859cf0e7c426b0590d7b",
+      "astSha256": "3f441437f9b1b6a4c14ae3c7ffd2e924a108ad2ec396ac5f68f6437bdadaa142",
+      "generatedSha256": "c4514d42e3c2a97071084931f58bf5817d64dcbd13db1957ee27c23208438213"
+    },
+    {
+      "path": "js/src/rml-lambda-kernel.mjs",
+      "sourceSha256": "1ac98238347307194e7b4c5d011b813ea6bbda8d363ee570db29e5b14207f894",
+      "astSha256": "44e8d9eaa694133b33211f8aea29e33965aa46f166f1d9889946cd13f73d41b9",
+      "generatedSha256": "1b27985f2dbbbda6d28b5aaaa06b7468137eeeac2b7d0a6203f04c34943228e7"
+    },
+    {
+      "path": "js/src/rml-linked-program.mjs",
+      "sourceSha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd",
+      "astSha256": "215b0029031a03194b80a9d23c74904876d07ba2acf55be2ee36488aa2434fb5",
+      "generatedSha256": "e410c98d2e4a7df8fe6b2e9d540c1c39c70f743de43e720a12b5c0895b57dfa2"
+    },
+    {
+      "path": "js/src/rml-linked-proof.mjs",
+      "sourceSha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592",
+      "astSha256": "47fede48efd6dc6bf168df738724569299c9fa0312ff6b56fe9cd4e99bffec5d",
+      "generatedSha256": "edfd22b3ed32c2ef4513d8161028576edaf4cd7b0b3ab2362f9d98ec5e7b1ea0"
+    },
+    {
+      "path": "js/src/rml-linked-target-abi.mjs",
+      "sourceSha256": "50e36354eebf4ca89e84e51abc9c18475907cdd5fd85635b700b384cbd976a8d",
+      "astSha256": "48307375668b15d8c8cf14c509569be08d98f4f8d09762e3cd8aea870abe3e55",
+      "generatedSha256": "3803dcf29db7cb3b3898179d7378658c71d33848ecf86cf1b4852ea53bded97c"
+    },
+    {
+      "path": "js/src/rml-linked-target.mjs",
+      "sourceSha256": "14ebdbd2823626ae266deb77a2e561d27f3a48ace8f098b24fb79d0b21f0ea16",
+      "astSha256": "1a97335b86dc6d2387ed412a77370f985145b57f46766901f8fe146e5ee7d6b6",
+      "generatedSha256": "1dbe22bf1158391ae8388b9750e586cc2d991f3b438ba2bbba2c502e446f2e1c"
+    },
+    {
+      "path": "js/src/rml-links.mjs",
+      "sourceSha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e",
+      "astSha256": "d29bed45728ac9311a85d1d5d55924f335696cd8dc2e1254f019ff567c8e361d",
+      "generatedSha256": "2b6250bd9100d1d51a1431882e7a4f345422fc7908c04b61ebeb27bfe3eea7bc"
+    },
+    {
+      "path": "js/src/rml-lino-frontend.mjs",
+      "sourceSha256": "d571747f7892813ce247189518d863745d508058f72956f0ae54341ac63000ee",
+      "astSha256": "71e2a6e88f020800ea1ef0c1de76027d770ad66dcccd22d6c710b90c130acc14",
+      "generatedSha256": "c007940bda351c29fe7275a09d11116f8abf77f1cf14436b8aa6e89a7f1b0270"
+    },
+    {
+      "path": "js/src/rml-lsp.mjs",
+      "sourceSha256": "d2859dcfd0cabbff08301afe7a6eba01b5971ba0bf84d759441b115346fd1e3d",
+      "astSha256": "a4ebef6160fbb94aee509ef6872eb6c4eafe0e0ad15d62fdc607873ce8a73feb",
+      "generatedSha256": "2e54f461afee11efa220601b79d59e6a603bbeef21146120ee434676872c677b"
+    },
+    {
+      "path": "js/src/rml-meta-language.mjs",
+      "sourceSha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af",
+      "astSha256": "2359af772343ca213ffb1cad4da64c814df0700f4c3e942eb5f6be30462908d5",
+      "generatedSha256": "db4742e7c5260410e5fdb0d26e8b39f7c4a7a466b77e8681b4100bf0bb181476"
+    },
+    {
+      "path": "js/src/rml-meta-structure.mjs",
+      "sourceSha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924",
+      "astSha256": "619b6a84523bb24bf8f78b2140e6f2cf2114d46c56e07773ddf476c2349ff6ad",
+      "generatedSha256": "205398f3be9aa1fecdc2bb0d5a4a7df50ea7306fab2b40b88f8783b78293b38d"
+    },
+    {
+      "path": "js/src/rml-meta.mjs",
+      "sourceSha256": "2253468cbfbc2f09243b5c91c96fb49188e7cdf53caf02c8433db68e3f7d8001",
+      "astSha256": "e9bcf781d1eee6a5d982b95e4f57f1baf018519a19eb3518e1af003646f83f8a",
+      "generatedSha256": "d7dfb22582fd7dea5e8f1e9634ab67e2a7bbaf689559d7764d85df408aaeb88a"
+    },
+    {
+      "path": "js/src/rml-portable-natural.mjs",
+      "sourceSha256": "6f19cc70fbfdd3ed614ba43b91a7828469457ddc2625c9e0a1d42c326a6556d0",
+      "astSha256": "a98121000f5217075e1490f3bfb2789e90f4dd8ca647df1119c06f2bd79ea2e4",
+      "generatedSha256": "63031357a0ef2742bba7943c73aca6406438abbd2354c7a4a109a0ca272e10e9"
+    },
+    {
+      "path": "js/src/rml-relational-kernel.mjs",
+      "sourceSha256": "492fac07f3442935430cf8d4952e6f576901f8cda346f003f7e7e5823380c9fc",
+      "astSha256": "2a3ce2da4583bc94c685b129ad85e9160eb2074580c9f38bae3301f29993b84a",
+      "generatedSha256": "4eff7774d36e588e62d6192c001cdf1128d7cabc734a7dec70680832a17da7e0"
+    },
+    {
+      "path": "js/src/rml-repl.mjs",
+      "sourceSha256": "f6b9270e0262172ebbe4b4827b4f45669540b434f6670876ec608f7b0d20050f",
+      "astSha256": "b249d934024171ea0bd316d37be952144e8b2c64fa80fb0e6b7f79258849ce86",
+      "generatedSha256": "f8355a7c2245fb10911611c472746160b13b77fb2f0a256fdec02eae55d0792a"
+    },
+    {
+      "path": "js/src/rml-rocq.mjs",
+      "sourceSha256": "c62af5f8b08e9bbf1bc556d74eb08803a85b85d2b009398c74c8225d8a7bbc85",
+      "astSha256": "1adb7914e0e29a340d4e83549f79598cde1344f91ff2e573285cfcde69d8b0d5",
+      "generatedSha256": "07e10e69498a85e5a009dbea4bf884abd08b9362204e77c27c2ede1c43b6b6cd"
+    },
+    {
+      "path": "js/src/rml-semantic-archive.mjs",
+      "sourceSha256": "5ec449498b90e56f4e2a62a5cfe79ac1e27b5c399b31d26fef6ccc535392644f",
+      "astSha256": "7375eff7a9047cb9b7e35b8185abc67e908668c66febaba9036a441e25749dc4",
+      "generatedSha256": "14e1eb9380587bd4d067f70560b1e0806ffe14a5b68d88adc57c8e683b66cf35"
+    },
+    {
+      "path": "js/src/rml-theory-network.mjs",
+      "sourceSha256": "5f0814067ac4ded48230578e5616b69700c0363919fec35c987dfa190258149f",
+      "astSha256": "30e0fc9388d61463e5bbe5a1fd05b0491b3d626397950bf13417f2c82e32a9b3",
+      "generatedSha256": "043e5695760d570f91a0270169ffb8d0db3c202d48ffc0e70f7f6e65e7bcdfd6"
+    },
+    {
+      "path": "js/src/rml-upstream-language.mjs",
+      "sourceSha256": "7447ee36e9b0d1e616262a7da029f722446cae9ecce9808886b5825bacdd1655",
+      "astSha256": "686037b4d62e271925eb3149dc6a2f0760fd287b43a03a8c08383032b973a277",
+      "generatedSha256": "0fdd3c3d25e35e3fd81d7b8cfc0ca17ae0e339c6273a9ed11f984b606b338c59"
+    },
+    {
+      "path": "scripts/bootstrap.mjs",
+      "sourceSha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2",
+      "astSha256": "aeadab9c44debc8a9e3d148b9e5f11a9e7bc862389fc870aa62e5e067f7ff224",
+      "generatedSha256": "af0da95b94f214ede029e0bf0bb3059a62e43ca9a88e2bb2a4dcba3f0f87abc3"
+    },
+    {
+      "path": "scripts/build-cache.mjs",
+      "sourceSha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26",
+      "astSha256": "1bd516b70042a0acfbb4780bac996542929fdc084bb297e4d643e643f5a7fc6d",
+      "generatedSha256": "6ecfe61aa1bc5a94afbf5def7abdf3c4b24c8c18fdfec5b006d2b3176c724c2c"
+    },
+    {
+      "path": "scripts/build-playground.mjs",
+      "sourceSha256": "ae9167326ced823b5c0afcb11fce6ba747a75726b2abb8f2c2bae76114b7330f",
+      "astSha256": "13aa3229fea207129501836bf0ef33664685579a39917a5984a126632f1c19da",
+      "generatedSha256": "04a5fe48fae1e9e18cfe14415bcfd74f4de19f1d7a6655498246da3772edb4a7"
+    },
+    {
+      "path": "scripts/cargo.mjs",
+      "sourceSha256": "bf19212dda6e1b37496093e7602d8a6a5e83f710f80db26add888c3d601f2d72",
+      "astSha256": "3f198e8166a3767bfe4b820611e5944c69a32c6a6e476ae50720ea135817a3e6",
+      "generatedSha256": "9a420608d8efd552461376c4e86688a1c0b141deb15049d3a935735a0ab50073"
+    },
+    {
+      "path": "scripts/check-corpus-parity.mjs",
+      "sourceSha256": "d4fa829ce04c07ac6fa264d2bb937c4041eeb48feb9146ea94df3b2254aaf52f",
+      "astSha256": "de03cb7321fc6454695516e1d570e4062462e77f263d96fdb879cbb357ef151b",
+      "generatedSha256": "19fb6d2f4fae0c9872a6654798aa66afcdd568a052a24ce65c8efd3693cc66eb"
+    },
+    {
+      "path": "scripts/check-issue-183-completion.mjs",
+      "sourceSha256": "aee8e32c91f8b3d05570c49ddf8202e513615fbff03ddfb52425ebb8f09751c2",
+      "astSha256": "9720fd80210e2ca79263432f40d972d9773315a6c3ac8e04074adfacaf6dcef8",
+      "generatedSha256": "fed92c132e930d56931aeab1bde220d898ccd9b173333cd18b80583b17fd97de"
+    },
+    {
+      "path": "scripts/check-linked-implementation.mjs",
+      "sourceSha256": "9b975b8c0103096921d5f89665f611f737dce1f58927786969628dd4874fb276",
+      "astSha256": "3a48376a13dcb75a94f5a85d631d62b0de33c533f36766f2e7cd9f648d5fc224",
+      "generatedSha256": "52fef285d337446ee7a0b1384d82b74decaca0f5b6ff928e2c7271eba49ecec2"
+    },
+    {
+      "path": "scripts/check-meta-theory-corpus.mjs",
+      "sourceSha256": "caefd5218a43d2479063f43d0ebef2ef36cf24a54986528ec4cc64b470dca1e2",
+      "astSha256": "f72bf6b07e3c7fe41257bffe3a17f59f9144e598796811eb6ddc152ae9872cbe",
+      "generatedSha256": "a3f57efdde400acb8798afb1e75ee472d1274fde51187d00a44d5e9b779b9653"
+    },
+    {
+      "path": "scripts/check-orientation-independence.mjs",
+      "sourceSha256": "9d52cd5c3a98d317ad0e632efe319b3b624bd84fd7e21c4398d566ae47a20e02",
+      "astSha256": "ed873a48387cb9b5f9ce9f9687c64b726ce50d1932c7daea73fd3f8f65618505",
+      "generatedSha256": "4cf3957b67aca66677b1f711dd6bcc9b47be66a7e910913eb7a05956e471995b"
+    },
+    {
+      "path": "scripts/check-portable-native.mjs",
+      "sourceSha256": "da970cf516d05ac376694099144cc7ee6e51e8fe8fb96102aa50c164523fa302",
+      "astSha256": "ddd36e426dfc998059d4f353d2a6fdca43a3107e4baec500aa062b0041b12f67",
+      "generatedSha256": "e85af85e54dd4b8641d7433bca849cb32363df8c375a804a2fc0f8cb31833e12"
+    },
+    {
+      "path": "scripts/combinator-source.mjs",
+      "sourceSha256": "2e53ee03b77624fc9312117ebb4c7939c57e7b3e80107cefd62a655557aa9095",
+      "astSha256": "c6cded3d6b722ee44c03533d9eeaf4a616761391461ea7a7c57814d52935fcf0",
+      "generatedSha256": "8d12d37669052174a3a50e3d4fcc6576113df17f37e0399fc8d2389d5aa09189"
+    },
+    {
+      "path": "scripts/control-flow/build-fixtures.mjs",
+      "sourceSha256": "a240039636e99a00c4c5e8c21da3a7f0ff77faec729881717eee200c37ea018a",
+      "astSha256": "dc3ac82beeee5d9c8bc7f79ac81832070a929483bf1854bcf285da86516d6b3d",
+      "generatedSha256": "bd28ae2179dd6dad3ecd6b30142e160e3ce4d3b2ef68dbfa7c10e0c5eb32c3b5"
+    },
+    {
+      "path": "scripts/control-flow/build-rust-fixtures.mjs",
+      "sourceSha256": "b08e8ee3827abe2bfe943e3b6ea37506f4d8811d32297981874c6407dfa6a2d0",
+      "astSha256": "8d295d289c92c6ca8a620c101f8abfe179ea30bd7b3000c50d48f435b69d794e",
+      "generatedSha256": "5ffea82e72cd6cfbcff23b34d16264b25ba676864697b85d20c067178c4cae3d"
+    },
+    {
+      "path": "scripts/control-flow/elaborate-source.mjs",
+      "sourceSha256": "03444ecbdd52897838994a35759d3bed31734870d6828e9713754bf9cd4faa96",
+      "astSha256": "480390fb1f312f00ef6344711e017c2860f87aafe2dac6190ac7e66590d8bee4",
+      "generatedSha256": "af6f024cb990d13967f9bca4537fe3b2fdbc32747dbc1ad49dd894829cf9da77"
+    },
+    {
+      "path": "scripts/control-flow/verify-native.mjs",
+      "sourceSha256": "fe7b54f186c49374d9543a6000b3f74e98483415dd51c27c28a5377e3a1e7817",
+      "astSha256": "60d76b15b987f9e9e19093bf1f5d5469acd7aa0a130eb27862c5fd7cecd60bbd",
+      "generatedSha256": "f0531b0f29bb613debef6ebbad73a5fce4734a905b581a4d0c873b3bb6536782"
+    },
+    {
+      "path": "scripts/formal-collections-cases.mjs",
+      "sourceSha256": "0b31eb2a43ef8630c8f0d77870608ecc1a0bd69d82350dbce2651452edbf5874",
+      "astSha256": "34abaeab52ea7bf7c4aa6ce21f13315750ccf0f643dad59beea80900b31219f6",
+      "generatedSha256": "aa4e0bab2b2adcc308b5dce73cad7fdb90710b6bb79d3227046cc4764c0e4b78"
+    },
+    {
+      "path": "scripts/formal-propositions-cases.mjs",
+      "sourceSha256": "5a8cb25d2b10ace613d48e33f246ac62a36c762540d06435619f5cb6396f5f08",
+      "astSha256": "9011a260dc3be452413b36e2c6c67bc504bd136351339eea2e3ba4ed3e996c74",
+      "generatedSha256": "8dd8fc197259db5e437a43d4d4ac87647b8dc359e7cbce432d672f3fad0f6802"
+    },
+    {
+      "path": "scripts/formal-recursion-cases.mjs",
+      "sourceSha256": "9c839d6a38deff219471f54181dd1bd58589e3b1ee024d5cf710fdb72d937fda",
+      "astSha256": "bb890982798130d3a37288b06464b148fbbe03023f210df6f2070261fb226e83",
+      "generatedSha256": "c100ffe4f762c27179dd2d3e0932ae4f52038b5db8e0d863fe688ff07eef36d3"
+    },
+    {
+      "path": "scripts/generate-combinator-kernel.mjs",
+      "sourceSha256": "28551a25c4f6c91bb43143c63e2872a511ce724137230f685c2453598555112a",
+      "astSha256": "0b9f9ddb34c79201c8b53880232f59fda492b0bf74888dc3dcf6771da9a7a59d",
+      "generatedSha256": "f7d90feb455dae424668156e06fc2b5bb09f16ab57acc545ea3316062febf3fc"
+    },
+    {
+      "path": "scripts/generate-formal-foundation.mjs",
+      "sourceSha256": "aaf3e52ff020fe2f5c4743c42b33cea25a012da83e3b44fcf7e30127bbde8c5a",
+      "astSha256": "92a1bb9a6a812a85b943d031522ebabce6741dcd9c18608e65b5a8aa62ebcf91",
+      "generatedSha256": "213c477eb98e7a99fce17ac68b4bad6ea3beca537103ade4311898e2d99878bf"
+    },
+    {
+      "path": "scripts/generate-formal-propositions.mjs",
+      "sourceSha256": "29822f548415f7e3749d3b0da7eba329383daf8254961c715c04f02162a34d1b",
+      "astSha256": "a6637f51c0e4bd41525ab68a5b704fe2a1d955015d8a42cd974252c1e76088e6",
+      "generatedSha256": "2a4febe3401b3dcfe8220aa7a88436c94ee72a3a271087e795e4c63c02a407af"
+    },
+    {
+      "path": "scripts/generate-formal-recursion.mjs",
+      "sourceSha256": "42f1f25e04e099e3b18605c5f00990ef15108e218d487f288d55c43d98ddc2d0",
+      "astSha256": "f4e9a1f0b0fffbb293cef74bb6323afb52a41272a7c42869f0203af86771756b",
+      "generatedSha256": "354070ba00a5736a98feb5ac02e140adf8604e2c0f7e070ac43877db3c6b680c"
+    },
+    {
+      "path": "scripts/generate-formal-semantics.mjs",
+      "sourceSha256": "e530dbbe8a769ff23dcc39454b475ee69d681cfa6fef19891def5e2818e11e54",
+      "astSha256": "9f3bb6bc920d1a28e32cfee571401b4bb0ca79c621d9900143052f35f5fedf19",
+      "generatedSha256": "1390fb35f1683545fd285e412504d7c39bf6cb615a267b64a19a2c590b9734d3"
+    },
+    {
+      "path": "scripts/generate-linked-runtime.mjs",
+      "sourceSha256": "596de53876737f4bd45719cb554865cc00c185e2efb400283a0688d8fa37dba5",
+      "astSha256": "37da40d17bf86f96409731806a4990ee95718f04b711726fdc937c5a17452b61",
+      "generatedSha256": "0f521a32450c64b44b021ee064f7f64eaf9998990d4b0f097f8c4e07c9d5eb29"
+    },
+    {
+      "path": "scripts/generate-linked-rust-runtime.mjs",
+      "sourceSha256": "628725958fb4fd4fc5262646fdcfc4a224d4fb549893a9d00e091b1a55787343",
+      "astSha256": "d706c829d57d688ab5384fbed5fb45e15bcbc3609b95a53e949dd191b85daeee",
+      "generatedSha256": "d4c62a814dd9990416dd4fcc4a9a4a5fa537a5289c34ba8ccd616c93c6dfdd01"
+    },
+    {
+      "path": "scripts/generate-linked-target.mjs",
+      "sourceSha256": "047357ff855e2696e529005a52171d1d6e67ff68eceb113ba65824d09e111048",
+      "astSha256": "21fd68f52e9c9367e7da39b98bc1eba7ccc607f8133bbd29c273d33c751d47ec",
+      "generatedSha256": "35c297ebe15e8680f73be755a7a7b12dcc7348df6da6182cab59a5208c82b627"
+    },
+    {
+      "path": "scripts/generate-meta-theory-corpus.mjs",
+      "sourceSha256": "098d8a82ce18ab16a9cf654b91a8b11069a67b07ac213b26884673ff4fb4aed5",
+      "astSha256": "a62e86504fc0a0ebb5a609682305aa856e1ae256318f155a0adf55e01a5db699",
+      "generatedSha256": "a086afabed46affe48c91b3e396a56a80f1f1319578f5d31457754c491a7b50f"
+    },
+    {
+      "path": "scripts/initialize-meta-language.mjs",
+      "sourceSha256": "fe50c34e699656125996e411857309b0bf990299711eec8dfe21b4c62ecfdc2e",
+      "astSha256": "a710e658c90f9dab42f92c712d02306f6a1fd16ec70d6df74b32461955811b0c",
+      "generatedSha256": "a4bb975fd887566597c765110c80fac6b130d8462f19385db2ab08fcc91297f6"
+    },
+    {
+      "path": "scripts/issue-183-pr-body.mjs",
+      "sourceSha256": "039bd54adf5b2106491671490e78beb2684e880c2af523e3c90ab7cc7a36e03e",
+      "astSha256": "fb83886058b7efa2a2e58f76870cc53edf5fe5ee55eff7489981f5005d0882d7",
+      "generatedSha256": "2cc7f27f759c79b24640c3634052f721496e214b354224ff46ce653071686213"
+    },
+    {
+      "path": "scripts/issue-183-requirements-live-sources.mjs",
+      "sourceSha256": "f37c6530c2957404b65ba54f72516eda5cd7e1d1d89ca399a34953fa2ff9a143",
+      "astSha256": "884b0f914a249288458805f4cc0b6bfc6db9bc56cca8305473aed9ff5550c03b",
+      "generatedSha256": "dd69429abfab9d01164f73894f69ac957d3889d2019f4fd71f19e7d4286560e2"
+    },
+    {
+      "path": "scripts/issue-183-requirements-reporter.mjs",
+      "sourceSha256": "ede1835560d2adf89480d0a289b3e574fa0b78f59cf9be6c7562f9e0368b0c93",
+      "astSha256": "ccd39dbd3f9e7bf58c316658f4e1d091f6905c1739bfe0cdee693836454d5610",
+      "generatedSha256": "64fcb27bae430b2783405268edbdb21c27b606aa33661ee0ec7567954f448c1b"
+    },
+    {
+      "path": "scripts/issue-183-requirements.mjs",
+      "sourceSha256": "54712d85347da3d6698ebb854e841dde6119b0c2e7addfefbdbbb3467b5e383c",
+      "astSha256": "4b2837a6686322291f26011e4a9a27609232e9cd4379902a5b5f385ab454ddb8",
+      "generatedSha256": "a159afca63b31c57340ab302b341e6dce1ed26a118bc1e9935ef20f2742b51b5"
+    },
+    {
+      "path": "scripts/linked-executable-inventory.mjs",
+      "sourceSha256": "063e1cd9ab4770512ef74534e63ce6eed61422414238d2275b07a2e21dc18ce8",
+      "astSha256": "349f07f826c65718c85c6ace4703a13a62d3eeb83dc30ac09e99b745c7208df6",
+      "generatedSha256": "a28ea899ee2d1dcf3b44bd0293fc0b13396265a3ced798759952a319726edb59"
+    },
+    {
+      "path": "scripts/linked-implementation-configuration.mjs",
+      "sourceSha256": "adbf777f025c78a530424c62ac7ce2f80c2f92e349dede9a81f462c48b02c7d4",
+      "astSha256": "9ac47f038418dc1f3bc592ca06b6dd8cc2f63add20bfa68f1d3568afacba0755",
+      "generatedSha256": "7be1896a702bc69d7465778fe1da7c5cea8c5951bd1528cf7dac81f449bc794d"
+    },
+    {
+      "path": "scripts/linked-runtime-codegen.mjs",
+      "sourceSha256": "e58520c2a17e31cdc3af822bfa51e989b1e1ea6b981b4366dc228382d7c6c9c7",
+      "astSha256": "56cb14c0b596c2b14d57898b3550549d6cec8eef0219637c70e1d00f96ca25a9",
+      "generatedSha256": "d540c4d88fe72b0bfd5f26dac90c09f2082e830e749d3961badbe02f469dcb74"
+    },
+    {
+      "path": "scripts/linked-runtime-graph.mjs",
+      "sourceSha256": "5cb7e04cf6955871b299db30ac4f4f98b8fbfdb848b29be148234296da7cfa24",
+      "astSha256": "1c6e6472818680b780d4223a11c09d0e2b4ade957ca9dcaf148e6517e8f1c157",
+      "generatedSha256": "f6d4fcc737f8a77684f2b32f966163414057e5e305e29855fc3ae98e90ef4feb"
+    },
+    {
+      "path": "scripts/linked-target-abi.mjs",
+      "sourceSha256": "cdfc5b52894140aabc143c30124915ab8bac5c19c59fff3bd8d5a524d4a419ac",
+      "astSha256": "35a572a80551de36cca6eaf280f17cc538ced1c0e8f7df47c505916a115407c0",
+      "generatedSha256": "5be0bafbd13bf003e4c042b1f4aa0358fd3bb98811ce675978d1435467c3fc74"
+    },
+    {
+      "path": "scripts/linked-target-rust-codegen.mjs",
+      "sourceSha256": "f12ec61cdee49ad21d0ebd12fded4e288c0dd9b0671a568be9a2d32c7b1073aa",
+      "astSha256": "4fa207df678fb4088902719b6e16ffd96cabae7909392816f7585bbecd5bc6cf",
+      "generatedSha256": "05fc6a8496f41cbceaf06fd0ec77084c86427df33f996aca8bf1cbbffd0c7469"
+    },
+    {
+      "path": "scripts/lint-english.mjs",
+      "sourceSha256": "83c5c9052e971be46592a7e4121fda3ebf1f65f21fb42d663743d6e4297e6b38",
+      "astSha256": "924ae415a87351352ec09853845a022044cf312fce17dc2117fa95f0dc63b87c",
+      "generatedSha256": "48090516a2606c3dff350448f4266ec5139714545b8d7aedd0fe4799af1e23a8"
+    },
+    {
+      "path": "scripts/measure-build-cache.mjs",
+      "sourceSha256": "753c8fa629da1ca0e631981cb7f713cc1fabaa565be37cfc060f7034140cfac0",
+      "astSha256": "b9b6709ae8e25d9f1fffba0f1a62cde58a407c9282a8b394f37e55fc316b4747",
+      "generatedSha256": "2624c05889485f101fc45d8293a67ae4b3bd8caacd4838c46c687b63a9790043"
+    },
+    {
+      "path": "scripts/measurement-source.mjs",
+      "sourceSha256": "9a64f035271d7434d603a44806a761002d4ba2a4b03a6ada28fdd9180ff1046d",
+      "astSha256": "41f15d781f0ec9f68f161100a9cdfe123eff5332897dd0b59665698f0b5535a5",
+      "generatedSha256": "9c520aea89dcca43c3af9e1963e3962b43ed6d696ccb75310f874282971d0ac0"
+    },
+    {
+      "path": "scripts/report-bootstrap-metrics.mjs",
+      "sourceSha256": "2a60da6e033d23c39ca348bb3394d80cb25ff29ecd0d8bea2078ffaa49d5e69c",
+      "astSha256": "53939c49d33100e83d9afa35c0d57456b4fe56be4df2c693b0cd7dd9546f2b07",
+      "generatedSha256": "2927586f01e969a0acab611035906737e562bcc5abfccbbdcda884ee3a3c7e18"
+    },
+    {
+      "path": "scripts/report-foundation-search.mjs",
+      "sourceSha256": "112e029a372a3741a9d333a1e79fe74b73f9c79f96a68b5ee45ce6191195bd82",
+      "astSha256": "319fc2642e5f3d4e88be9535f7f87236c67a5ae74176017a710b68cf1bb68c2e",
+      "generatedSha256": "4594227680c103e264a80d6852f3e2c63102531709e304e3e95739302678960a"
+    },
+    {
+      "path": "scripts/researcher-source-projection.mjs",
+      "sourceSha256": "d39c10794ac4716ec0747d0330cc035ebce9f3df6461e3eb29f2730683c64315",
+      "astSha256": "9db69ea6c2f8b713db99d9794b3c641405e9b63e892ce52a06ab389327378b80",
+      "generatedSha256": "b513088743c234d42169c410ca229060aaf44fed05789d15f46a6e9921f6d933"
+    },
+    {
+      "path": "scripts/run-with-cache.mjs",
+      "sourceSha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b",
+      "astSha256": "59871b7bb6de0d5b484f26afe8ac8a8c99275b0958ba2ca06d828710febad2e2",
+      "generatedSha256": "e255de0302bc994c2174b3a361e9ad8ba2d031b650b9a8a7c9d820c67c4b5389"
+    },
+    {
+      "path": "scripts/update-foundation-candidates.mjs",
+      "sourceSha256": "78ddee40e67ab3ada17d18414f4f9477994c3810291bfeade7a459a8def01f56",
+      "astSha256": "910e8692c40c0b5b092c3815686bb224af69ff40c9e38b08ced893bf6b6ba93b",
+      "generatedSha256": "8026d9ef0d49ecba6fd6dd9b2589776010d32da54c8db210692b2d7a64e79f3e"
+    },
+    {
+      "path": "scripts/update-linked-implementation.mjs",
+      "sourceSha256": "6c8590e6bf758c9dcb8f9adb9d6ea673226279b2013a56ebb61829bb8782cb4a",
+      "astSha256": "c318019817a85829382fde8cff0295cc6daac08709099dd14bbd64697ecc349b",
+      "generatedSha256": "256ad0f3090d9a0e2ea623288832ea41a6aa2653196a0140ba17f6aff7f66ad1"
+    },
+    {
+      "path": "scripts/upstream-source-archive.mjs",
+      "sourceSha256": "b74947f7456fe02d59fb33d2dfb45c5e6d4aed4851c5f2197a9c91f0ea01f0fe",
+      "astSha256": "4c0d149fe50a080b803cc06863e4c4a85c711ee440be4324caa794ffc7c5183a",
+      "generatedSha256": "0cbb6ab85fb1262d503ad353e8e409e10843d7c2f6c5d2ee857302b178f22544"
+    },
+    {
+      "path": "scripts/verify-linked-rust-runtime.mjs",
+      "sourceSha256": "40fc57780889d85bc3252e82d0980558e88742b7dbc2d84e96c5098fd4a5282a",
+      "astSha256": "6615087ba3c4c1db298fe384154b42b02936526708e55bc19f85281ba2a7f72a",
+      "generatedSha256": "c266968019a1c379c05fee6e5bf5ca1122fffd98d274fc3534f83c1c4b7ba4b8"
+    },
+    {
+      "path": "scripts/verify-linked-target.mjs",
+      "sourceSha256": "c0360f3597490e0b26d0a5d1e2e28fa94787077f7c7fefe14167b029e386e2ba",
+      "astSha256": "0c7e9f65ace62c0009e805be9b0c4a663992b017899f1ff778e1cf370432b366",
+      "generatedSha256": "058b3ac72528ad2957759a50a8e3d3a14fbf8c3c528e6a51f7f897c6160503a7"
+    },
+    {
+      "path": "scripts/verify-meta-language-source.mjs",
+      "sourceSha256": "76707743e1ad82356e4a46fe4ee232e79acb32d03f9c3f25e161f4f10ab22393",
+      "astSha256": "87051e14f11c4c0fb30a29f56a40b60b318c2361b472ed52b73ac729602a29c0",
+      "generatedSha256": "7b3101f14cd570558ee01a7a2368e135bcdce0d6fcbd31511bb8a4e3e6b01685"
+    },
+    {
+      "path": "scripts/write-docs-index.mjs",
+      "sourceSha256": "46163c5105ed41a4a1fd6b47240b198f408deeaa2e33cf4245a0c0ed16dbdfcc",
+      "astSha256": "46c580e26b2059b58f399f164c64ab7ac9dc01dc6becd463d4cfb2c0b2f35a73",
+      "generatedSha256": "b8ea3d3f01c7d1fc51e49caefe00872e257387b5687cfec9a757b781f284831b"
+    },
+    {
+      "path": "vscode/scripts/copy-server.mjs",
+      "sourceSha256": "07277b58281681203ff374c9f3f9560b143b925b26997619db5e5106c2f6c6c1",
+      "astSha256": "d29998e516a1aac476cc87e5c7afd991b0fbe2a976d3ffe3e1f0fe15c3ea794b",
+      "generatedSha256": "e800bc750a19c36aa20d30b64c15bea60bacf0968741dfeeebd8f1a723553055"
+    },
+    {
+      "path": "vscode/src/extension.js",
+      "sourceSha256": "dd8c7ccd0c821999a3c3dba436c4941dc1f8329df32bf3074bf313a9def6a3fd",
+      "astSha256": "2b0c7cc97c2b7869a72ddb330de9eb393a120c7392e80a8a6ed32e067dc0835f",
+      "generatedSha256": "42914684c73104695c17fbdc4351da5cfb9138d1a4d54e84b03886d8f4e2f35c"
+    },
+    {
+      "path": "vscode/src/server.js",
+      "sourceSha256": "83c48a7768e82413375c0d4852f6cc58af12c89a782d14a7b192a73f7fa12f90",
+      "astSha256": "b4b8962d9559b760174306387fc9a37a1c188a68cef38b2f1b223e818d55e0bf",
+      "generatedSha256": "e04494e2b3134cef7d67634bb9807ef45a3ca4380171a1d64ab9068b6b6087cd"
+    }
+  ]
+}

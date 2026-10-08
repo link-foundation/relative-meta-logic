@@ -5,14 +5,14 @@ RML consumes the official implementation merged for
 at commit
 [`679a3b3c3c56177b8df1ad82672690c6e9889aeb`](https://github.com/link-foundation/meta-language/commit/679a3b3c3c56177b8df1ad82672690c6e9889aeb).
 This is an immutable source dependency, not a claim that the implementation has
-been published to npm or crates.io. As checked on 2026-10-07, npm's latest
+been published to npm or crates.io. As checked on 2026-10-08, npm's latest
 meta-language release remains 0.46.0 and crates.io's remains 0.58.2. The source
 also labels itself 0.58.2, but contains newer code; its commit identifies the
 implementation unambiguously.
 
 ## Installation and provenance
 
-Use Node.js 22 or later, Rust 1.90 or later, Git and a C compiler.
+Use Node.js 22.18+ or 24.11+ (Babel 8 capture support), Rust 1.90 or later, Git and a C compiler.
 
 ```sh
 git clone --recurse-submodules https://github.com/link-foundation/relative-meta-logic.git

@@ -28,7 +28,8 @@
     "prepare": "node -e \"const p='../scripts/bootstrap.mjs'; if(require('node:fs').existsSync('../.git') && require('node:fs').existsSync(p)) import(p).then(m=>m.bootstrap())\"",
     "cache:clean": "node ../scripts/build-cache.mjs",
     "cache:full": "node ../scripts/build-cache.mjs --full",
-    "test:cache": "node --test --test-concurrency=2 ../scripts/build-cache*.test.mjs"
+    "test:cache": "node --test --test-concurrency=2 ../scripts/build-cache*.test.mjs",
+    "prepack": "node ../scripts/check-linked-implementation.mjs"
   },
   "keywords": [
     "logic",
@@ -47,10 +48,11 @@
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
-    "jsdoc": "^4.0.5"
+    "jsdoc": "^4.0.5",
+    "@babel/parser": "8.0.7"
   },
   "engines": {
-    "node": ">=22"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "imports": {
     "#meta-language": "./vendor/meta-language/js/src/index.js"
