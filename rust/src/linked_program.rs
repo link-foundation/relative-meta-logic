@@ -109,6 +109,13 @@ pub struct ReductionResult {
     pub trace: Vec<RewriteTraceStep>,
 }
 
+/// A normal form and its exact ordered rewrite count, without retained steps.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ReductionSummary {
+    pub term: Node,
+    pub steps: usize,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct LinkedProof {
     pub judgement: Node,
@@ -6319,6 +6326,149 @@ where
     }
 }
 
+// Private substitutions borrow the unchanged candidate only until replacement
+// instantiation. The original owned matcher is retained for every other caller.
+fn direct_match_borrowed<'a, F>(
+    pattern: &'a Node,
+    candidate: &'a Node,
+    substitution: &mut BTreeMap<&'a str, &'a Node>,
+    observe: &mut F,
+) -> Result<bool, String>
+where
+    F: FnMut(&'static str) -> Result<(), String>,
+{
+    if let Some(variable) = variable_name(pattern) {
+        observe("bind-pattern-variables")?;
+        if let Some(previous) = substitution.get(variable) {
+            observe("compare-link-structure")?;
+            return Ok(*previous == candidate);
+        }
+        substitution.insert(variable, candidate);
+        return Ok(true);
+    }
+    observe("compare-link-structure")?;
+    match (pattern, candidate) {
+        (Node::Leaf(left), Node::Leaf(right)) => Ok(left == right),
+        (Node::List(left), Node::List(right)) if left.len() == right.len() => {
+            for (pattern, candidate) in left.iter().zip(right) {
+                if !direct_match_borrowed(pattern, candidate, substitution, observe)? {
+                    return Ok(false);
+                }
+            }
+            Ok(true)
+        }
+        _ => Ok(false),
+    }
+}
+
+fn direct_instantiate_borrowed<F>(
+    node: &Node,
+    substitution: &BTreeMap<&str, &Node>,
+    observe: &mut F,
+) -> Result<Node, String>
+where
+    F: FnMut(&'static str) -> Result<(), String>,
+{
+    if let Some(variable) = variable_name(node) {
+        observe("substitute-bound-structures")?;
+        return substitution
+            .get(variable)
+            .map(|value| (**value).clone())
+            .ok_or_else(|| format!("unbound variable {variable}"));
+    }
+    match node {
+        Node::Leaf(value) => Ok(Node::Leaf(value.clone())),
+        Node::List(children) => children
+            .iter()
+            .map(|child| direct_instantiate_borrowed(child, substitution, observe))
+            .collect::<Result<Vec<_>, _>>()
+            .map(Node::List),
+    }
+}
+
+// Built from freshly resolved rules for one reduction, never from mutable
+// registry state. Each rule index is stored once; fallback merges are lazy.
+struct DirectRuleDispatch {
+    fixed: BTreeMap<String, Vec<usize>>,
+    fallback: Vec<usize>,
+}
+
+struct DirectRuleCandidates<'a> {
+    matches: &'a [usize],
+    fallback: &'a [usize],
+    left: usize,
+    right: usize,
+    all: Option<std::ops::Range<usize>>,
+}
+
+impl Iterator for DirectRuleCandidates<'_> {
+    type Item = usize;
+    fn next(&mut self) -> Option<usize> {
+        if let Some(all) = &mut self.all {
+            return all.next();
+        }
+        match (self.matches.get(self.left), self.fallback.get(self.right)) {
+            (Some(left), Some(right)) if left < right => {
+                self.left += 1;
+                Some(*left)
+            }
+            (_, Some(right)) => {
+                self.right += 1;
+                Some(*right)
+            }
+            (Some(left), None) => {
+                self.left += 1;
+                Some(*left)
+            }
+            (None, None) => None,
+        }
+    }
+}
+
+impl DirectRuleDispatch {
+    fn new(rules: &[RewriteRule]) -> Self {
+        let mut fixed = BTreeMap::<String, Vec<usize>>::new();
+        let mut fallback = Vec::new();
+        for (index, rule) in rules.iter().enumerate() {
+            if let Node::List(children) = &rule.pattern {
+                if let Some(Node::Leaf(head)) = children.first() {
+                    if variable_name(&children[0]).is_none() {
+                        fixed.entry(head.clone()).or_default().push(index);
+                        continue;
+                    }
+                }
+            }
+            fallback.push(index);
+        }
+        Self { fixed, fallback }
+    }
+
+    fn candidates<'a>(&'a self, term: &Node, count: usize) -> DirectRuleCandidates<'a> {
+        if let Node::List(children) = term {
+            if let Some(Node::Leaf(head)) = children.first() {
+                return DirectRuleCandidates {
+                    matches: self.fixed.get(head).map(Vec::as_slice).unwrap_or(&[]),
+                    fallback: &self.fallback,
+                    left: 0,
+                    right: 0,
+                    all: None,
+                };
+            }
+        }
+        DirectRuleCandidates {
+            matches: &[],
+            fallback: &[],
+            left: 0,
+            right: 0,
+            all: Some(0..count),
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "linked_program/dispatch_tests.rs"]
+mod dispatch_contract_tests;
+
 fn rebind_node(node: &Node, rebindings: &BTreeMap<String, String>) -> Node {
     match node {
         Node::Leaf(value) => Node::Leaf(
@@ -7812,20 +7962,30 @@ impl LinkedProgramRegistry {
         term: &Node,
         rules: &[RewriteRule],
         paths: &[&str],
+        dispatch: &DirectRuleDispatch,
     ) -> Result<Option<(Node, usize)>, String> {
         self.observe(paths, "select-and-traverse-rewrite-rules")?;
-        for (index, rule) in rules.iter().enumerate() {
+        let mut next_index = 0;
+        for index in dispatch.candidates(term, rules.len()) {
+            if index > next_index {
+                self.observe(paths, "compare-link-structure")?;
+            }
+            next_index = index + 1;
+            let rule = &rules[index];
             let mut substitution = BTreeMap::new();
             let mut observe = |operation| self.observe(paths, operation);
-            if direct_match_term(&rule.pattern, term, &mut substitution, &mut observe)? {
-                return direct_instantiate(&rule.replacement, &substitution, &mut observe)
+            if direct_match_borrowed(&rule.pattern, term, &mut substitution, &mut observe)? {
+                return direct_instantiate_borrowed(&rule.replacement, &substitution, &mut observe)
                     .map(|next| Some((next, index)));
             }
+        }
+        if next_index < rules.len() {
+            self.observe(paths, "compare-link-structure")?;
         }
         if let Node::List(children) = term {
             for (child_index, child) in children.iter().enumerate() {
                 if let Some((rewritten, rule_index)) =
-                    self.direct_rewrite_once(child, rules, paths)?
+                    self.direct_rewrite_once(child, rules, paths, dispatch)?
                 {
                     let mut next = children.clone();
                     next[child_index] = rewritten;
@@ -7834,6 +7994,88 @@ impl LinkedProgramRegistry {
             }
         }
         Ok(None)
+    }
+
+    /// Execute every ordered rewrite, retaining only the final term and count.
+    /// `max_steps` must be positive. As with [`reduce`](Self::reduce), a normal
+    /// form must be observed before the step limit is reached. Stalled rewrites
+    /// still fail immediately; other cycles spend the fuel bound instead of
+    /// retaining visited-term keys. Cycle detection timing therefore differs,
+    /// while rule selection and normal forms use the same private mechanism.
+    /// `Node` restricts input to finite trees of strings and lists.
+    pub fn reduce_result(
+        &self,
+        name: &str,
+        input: &Node,
+        max_steps: usize,
+    ) -> Result<ReductionSummary, String> {
+        let mut semantic_paths = vec!["reduce-linked-program"];
+        if name == "links-meta-foundation" {
+            semantic_paths.push("execute-links-meta-foundation");
+        }
+        self.observe(&semantic_paths, "enforce-cycle-and-resource-bounds")?;
+        if max_steps == 0 {
+            return Err("max_steps must be positive".to_string());
+        }
+        if !self.programs.contains_key(name) {
+            return Err(format!(
+                "result-only reduction references unknown linked-program {name}"
+            ));
+        }
+        let mut term = input.clone();
+        if self.execution_basis == ExecutionBasis::HornRelational {
+            return Ok(ReductionSummary { term, steps: 0 });
+        }
+        if self.execution_basis == ExecutionBasis::DirectStructural {
+            let rules =
+                self.effective_rewrites(name, &semantic_paths, &mut BTreeSet::new(), &[])?;
+            let dispatch = DirectRuleDispatch::new(&rules);
+            for steps in 0..max_steps {
+                let Some((next, rule_index)) =
+                    self.direct_rewrite_once(&term, &rules, &semantic_paths, &dispatch)?
+                else {
+                    return Ok(ReductionSummary { term, steps });
+                };
+                if next == term {
+                    let rule = &rules[rule_index];
+                    return Err(format!(
+                        "linked rewrite {}.{} made no progress",
+                        rule.program, rule.name
+                    ));
+                }
+                term = next;
+            }
+        } else {
+            let rules =
+                combinator_kernel::resolve_rewrites(&self.programs, name, self.kernel_options())?;
+            self.observe_combinator(&semantic_paths, &rules.observed, &["import-and-rebinding"])?;
+            for steps in 0..max_steps {
+                let execution = combinator_kernel::rewrite_once(&term, &rules, self.kernel_options())?;
+                self.observe_combinator(
+                    &semantic_paths,
+                    &execution.observed,
+                    &["matching", "substitution", "rule-selection-and-traversal"],
+                )?;
+                let Some((next, program_name, rule_name)) = execution.step else {
+                    return Ok(ReductionSummary { term, steps });
+                };
+                let rule = self
+                    .programs
+                    .get(&program_name)
+                    .and_then(|program| program.rewrites.iter().find(|rule| rule.name == rule_name))
+                    .ok_or_else(|| {
+                        format!("combinator kernel selected unknown rule {program_name}.{rule_name}")
+                    })?;
+                if next == term {
+                    return Err(format!(
+                        "linked rewrite {}.{} made no progress",
+                        rule.program, rule.name
+                    ));
+                }
+                term = next;
+            }
+        }
+        Err(format!("rewrite step limit {max_steps} exceeded"))
     }
 
     pub fn reduce(
@@ -7888,12 +8130,13 @@ impl LinkedProgramRegistry {
         if self.execution_basis == ExecutionBasis::DirectStructural {
             let rules =
                 self.effective_rewrites(name, &semantic_paths, &mut BTreeSet::new(), &[])?;
+            let dispatch = DirectRuleDispatch::new(&rules);
             let mut term = input.clone();
             let mut trace = Vec::new();
             let mut seen = BTreeSet::from([key_of(&term)]);
             while trace.len() < max_steps {
                 let Some((next, rule_index)) =
-                    self.direct_rewrite_once(&term, &rules, &semantic_paths)?
+                    self.direct_rewrite_once(&term, &rules, &semantic_paths, &dispatch)?
                 else {
                     return Ok(ReductionResult { term, trace });
                 };

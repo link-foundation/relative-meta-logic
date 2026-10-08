@@ -31,6 +31,46 @@ function ok(result) { assert.equal(result.status, 0, `${result.stdout}\n${result
 const exists = (f, p) => fs.existsSync(path.join(f.root, p));
 const read = (f, p) => fs.readFileSync(path.join(f.root, p), 'utf8');
 
+test('a queued lease reloads preceding ownership and preserves preexisting zero-byte files', async t => {
+  const f = fixture(t);
+  const { context, lock, inventory, capture, cleanup } = await import('./build-cache.mjs');
+  fs.mkdirSync(path.join(f.root, 'target'));
+  fs.writeFileSync(path.join(f.root, 'target/preexisting-empty'), '');
+  const firstContext = context(f.root);
+  const queuedContext = context(f.root);
+  const firstLease = await lock(firstContext);
+  const baseline = inventory(firstContext);
+  const queuedLease = lock(queuedContext);
+  fs.writeFileSync(path.join(f.root, 'target/generated'), 'compiler output');
+  fs.writeFileSync(path.join(f.root, 'target/generated-empty'), '');
+  capture(firstContext, baseline);
+  firstLease.release();
+  const lease = await queuedLease;
+  try {
+    assert.ok(queuedContext.registry.files['target/generated']);
+    assert.ok(queuedContext.registry.files['target/generated-empty']);
+    assert.equal(queuedContext.registry.files['target/preexisting-empty'], undefined);
+    const result = cleanup(queuedContext, { full: true });
+    assert.equal(result.reclaimedBytes, Buffer.byteLength('compiler output'));
+    assert.equal(exists(f, 'target/generated'), false);
+    assert.equal(exists(f, 'target/generated-empty'), false);
+    assert.equal(exists(f, 'target/preexisting-empty'), true);
+  } finally { lease.release(); }
+});
+
+test('a queued lease rejects a changed invalid registry and releases its newly acquired lock', async t => {
+  const f = fixture(t);
+  const { context, lock } = await import('./build-cache.mjs');
+  const firstContext = context(f.root);
+  const queuedContext = context(f.root);
+  const firstLease = await lock(firstContext);
+  const queuedLease = lock(queuedContext);
+  fs.writeFileSync(firstContext.registryFile, JSON.stringify({ version: 1, root: '/another-worktree', files: {}, roots: [] }));
+  firstLease.release();
+  await assert.rejects(queuedLease, /different worktree or version/);
+  assert.equal(fs.existsSync(path.join(firstContext.state, 'lock')), false);
+});
+
 test('cleanup report hard links never overwrite another file', t => {
   const f = fixture(t);
   ok(f.clean('--full'));

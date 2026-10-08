@@ -1,34 +1,23 @@
+// Test-only frozen runtime before ordered dispatch and borrowed substitutions.
+// Source: PR #184 head 53242b60d0ebddf653255ad99787fe586aa1a018.
+// Original SHA-256: 211987cbdaf4ee710af390a80eeecdebb081911df9b7335c77d4ee20afb85c44.
+// Only relative dependency imports differ; this fixture is excluded from the npm package.
 import {
   isStructurallySame,
   keyOf,
   parseLino,
   parseOne,
   tokenizeOne,
-} from './rml-links.mjs';
+} from '../../src/rml-links.mjs';
 import {
   DEFAULT_MAX_CONTRACTIONS,
   createCombinatorKernel,
   combinatorIotaEquivalenceReport,
   combinatorKernelSourceReport,
-} from './rml-combinator-kernel.mjs';
+} from '../../src/rml-combinator-kernel.mjs';
 
 function cloneTerm(term) {
   return Array.isArray(term) ? term.map(cloneTerm) : term;
-}
-
-function cloneReductionInput(term, ancestors = new Set()) {
-  if (typeof term === 'string') return term;
-  if (!Array.isArray(term)) {
-    throw new TypeError('reduction input must contain only strings and arrays');
-  }
-  if (ancestors.has(term)) {
-    throw new TypeError('reduction input must be a finite, acyclic term');
-  }
-  ancestors.add(term);
-  const result = [];
-  for (const child of term) result.push(cloneReductionInput(child, ancestors));
-  ancestors.delete(term);
-  return result;
 }
 
 // Tag the three ways an ordered reduction can fail to reach a normal form so
@@ -98,33 +87,6 @@ function directMatchTerm(pattern, candidate, substitution = new Map(), observe =
   return substitution;
 }
 
-// Private synchronous matching may borrow candidate subtrees: neither the
-// matcher nor its observer mutates them, and directInstantiate clones every
-// successful replacement before this map can leave the current rewrite step.
-// The exported directMatchTerm continues to return detached owned bindings.
-function directMatchBorrowed(pattern, candidate, substitution = new Map(), observe = () => {}) {
-  const variable = variableName(pattern);
-  if (variable !== null) {
-    observe('bind-pattern-variables');
-    const previous = substitution.get(variable);
-    if (previous !== undefined) {
-      observe('compare-link-structure');
-      return isStructurallySame(previous, candidate) ? substitution : null;
-    }
-    substitution.set(variable, candidate);
-    return substitution;
-  }
-  observe('compare-link-structure');
-  if (!Array.isArray(pattern) || !Array.isArray(candidate)) {
-    return isStructurallySame(pattern, candidate) ? substitution : null;
-  }
-  if (pattern.length !== candidate.length) return null;
-  for (let index = 0; index < pattern.length; index += 1) {
-    if (directMatchBorrowed(pattern[index], candidate[index], substitution, observe) === null) return null;
-  }
-  return substitution;
-}
-
 function directInstantiate(term, substitution, observe = () => {}) {
   const variable = variableName(term);
   if (variable !== null) {
@@ -135,41 +97,6 @@ function directInstantiate(term, substitution, observe = () => {}) {
   return Array.isArray(term)
     ? term.map(child => directInstantiate(child, substitution, observe))
     : term;
-}
-
-// A private per-reduction index of definitely incompatible fixed leading
-// symbols. All wildcard, empty, leaf and nested-head patterns stay in fallback.
-// In particular, JS's existing leaf/array stringification equality means that
-// leaf candidates and candidates with nested heads must use the full matcher.
-function* mergeDirectRuleIndices(matches, fallback) {
-  let left = 0;
-  let right = 0;
-  while (left < matches.length || right < fallback.length) {
-    if (right === fallback.length ||
-        (left < matches.length && matches[left] < fallback[right])) {
-      yield matches[left++];
-    } else yield fallback[right++];
-  }
-}
-
-function directRuleDispatch(rules) {
-  const fixed = new Map();
-  const fallback = [];
-  for (let index = 0; index < rules.length; index += 1) {
-    const pattern = rules[index].pattern;
-    if (Array.isArray(pattern) && typeof pattern[0] === 'string' &&
-        variableName(pattern[0]) === null) {
-      const bucket = fixed.get(pattern[0]) ?? [];
-      bucket.push(index);
-      fixed.set(pattern[0], bucket);
-    } else fallback.push(index);
-  }
-  return term => {
-    if (!Array.isArray(term) || typeof term[0] !== 'string') return null;
-    const matches = fixed.get(term[0]);
-    if (matches === undefined) return fallback;
-    return fallback.length === 0 ? matches : mergeDirectRuleIndices(matches, fallback);
-  };
 }
 
 function rebindTerm(term, rebindings) {
@@ -1208,18 +1135,10 @@ class LinkedProgramRegistry {
     return result;
   }
 
-  #directRewriteOnce(term, rules, semanticPaths, dispatch) {
+  #directRewriteOnce(term, rules, semanticPaths) {
     this.#observe(semanticPaths, 'select-and-traverse-rewrite-rules');
-    const candidates = dispatch(term);
-    let nextIndex = 0;
-    for (const index of candidates ?? rules.keys()) {
-      // Every omitted rule would fail using only compare-link-structure.
-      // Observe each omitted contiguous run at its original priority position:
-      // this preserves the set-valued public observer and first disabled error.
-      if (index > nextIndex) this.#observe(semanticPaths, 'compare-link-structure');
-      nextIndex = index + 1;
-      const rule = rules[index];
-      const substitution = directMatchBorrowed(
+    for (const rule of rules) {
+      const substitution = directMatchTerm(
         rule.pattern,
         term,
         new Map(),
@@ -1236,10 +1155,9 @@ class LinkedProgramRegistry {
         };
       }
     }
-    if (nextIndex < rules.length) this.#observe(semanticPaths, 'compare-link-structure');
     if (!Array.isArray(term)) return null;
     for (let index = 0; index < term.length; index += 1) {
-      const rewritten = this.#directRewriteOnce(term[index], rules, semanticPaths, dispatch);
+      const rewritten = this.#directRewriteOnce(term[index], rules, semanticPaths);
       if (rewritten !== null) {
         const result = term.map(cloneTerm);
         result[index] = rewritten.term;
@@ -1261,9 +1179,9 @@ class LinkedProgramRegistry {
     };
   }
 
-  #rewriteOnce(term, rules, semanticPaths, dispatch) {
+  #rewriteOnce(term, rules, semanticPaths) {
     if (this.executionBasis === 'direct-structural') {
-      return this.#directRewriteOnce(term, rules, semanticPaths, dispatch);
+      return this.#directRewriteOnce(term, rules, semanticPaths);
     }
     const execution = this.#kernel.combinatorRewriteOnce(term, rules, this.#kernelOptions());
     this.#observeExecution(semanticPaths, execution);
@@ -1278,46 +1196,6 @@ class LinkedProgramRegistry {
       );
     }
     return { term: execution.step.term, rule };
-  }
-
-  /**
-   * Execute every ordered rewrite, retaining only the final term and step count.
-   * `maxSteps` is required. As with `reduce`, a normal form must be observed
-   * before the step limit is reached. Stalled rewrites still fail immediately;
-   * other cycles spend the fuel bound instead of retaining visited-term keys.
-   * This changes cycle detection timing, not rule selection or normal forms.
-   */
-  reduceResult(name, input, { maxSteps } = {}) {
-    const semanticPaths = ['reduce-linked-program'];
-    if (name === 'links-meta-foundation') {
-      semanticPaths.push('execute-links-meta-foundation');
-    }
-    this.#observe(semanticPaths, 'enforce-cycle-and-resource-bounds');
-    if (!Number.isSafeInteger(maxSteps) || maxSteps <= 0) {
-      throw new Error('maxSteps must be a positive safe integer');
-    }
-    this.#program(name, 'result-only reduction');
-    let term = cloneReductionInput(input);
-    if (this.executionBasis === 'horn-relational') return { term, steps: 0 };
-    const rules = this.executionBasis === 'direct-structural'
-      ? this.#directEffective(name, 'rewrites', semanticPaths)
-      : this.#kernel.combinatorResolveRewrites(this.programs, name, this.#kernelOptions());
-    if (this.executionBasis !== 'direct-structural') {
-      this.#observeExecution(semanticPaths, rules);
-    }
-    const dispatch = this.executionBasis === 'direct-structural' ? directRuleDispatch(rules) : null;
-    for (let steps = 0; steps < maxSteps; steps += 1) {
-      const step = this.#rewriteOnce(term, rules, semanticPaths, dispatch);
-      if (step === null) return { term, steps };
-      if (isStructurallySame(term, step.term)) {
-        throw reductionFailure(
-          'rewrite-stalled',
-          `linked rewrite ${step.rule.program}.${step.rule.name} made no progress`,
-        );
-      }
-      term = step.term;
-    }
-    throw reductionFailure('rewrite-limit', `rewrite step limit ${maxSteps} exceeded`);
   }
 
   reduce(name, input, { maxSteps = 10_000 } = {}) {
@@ -1339,12 +1217,11 @@ class LinkedProgramRegistry {
       this.#observeExecution(semanticPaths, resolved);
     }
     const rules = resolved;
-    const dispatch = this.executionBasis === 'direct-structural' ? directRuleDispatch(rules) : null;
     let term = cloneTerm(input);
     const trace = [];
     const seen = new Set([keyOf(term)]);
     while (trace.length < maxSteps) {
-      const step = this.#rewriteOnce(term, rules, semanticPaths, dispatch);
+      const step = this.#rewriteOnce(term, rules, semanticPaths);
       if (step === null) return { term, trace, steps: trace.length };
       if (isStructurallySame(term, step.term)) {
         throw reductionFailure(

@@ -110,6 +110,20 @@ export async function lock(c, { timeout = Number(process.env.RML_CACHE_LOCK_TIME
       fs.mkdirSync(dir);
       const owner = { pid: process.pid, host: os.hostname(), processIdentity: identity, token, started: Date.now() };
       fs.writeFileSync(path.join(dir, 'owner.json'), JSON.stringify(owner), { flag: 'wx' });
+      // context() can precede a long wait for another build. Read the registry
+      // again only after acquiring the lease, or this owner could overwrite
+      // artifacts recorded by the preceding owner with its stale snapshot.
+      try {
+        const current = context(c.root);
+        if (current.state !== c.state) throw new Error('Cache state changed while waiting for its lease');
+        c.registry = current.registry;
+        c.tracked = current.tracked;
+        c.worktrees = current.worktrees;
+      } catch (error) {
+        fs.unlinkSync(path.join(dir, 'owner.json'));
+        fs.rmdirSync(dir);
+        throw error;
+      }
       return {
         token,
         child(pid) { owner.child = pid; fs.writeFileSync(path.join(dir, 'owner.json'), JSON.stringify(owner)); },
