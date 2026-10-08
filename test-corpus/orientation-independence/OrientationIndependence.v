@@ -234,6 +234,115 @@ Proof.
   - intros g x. simpl. rewrite ih, hs. reflexivity.
 Qed.
 
+(* Free semantic expansions of the full reduct. No premise identifies this
+   investigative contract with every intrinsic property of Links. *)
+Record Expansion (X A : Type) : Type := {
+  reduct : X;
+  holds : A -> Prop
+}.
+Definition ExpansionAdmitted {X A : Type}
+    (theory : X -> Prop) (recorded : X -> A -> Prop) (e : Expansion X A) : Prop :=
+  theory (reduct e) /\ Extends (recorded (reduct e)) (holds e).
+Definition augment {A : Type} (positive : A -> Prop) (chosen : A) : A -> Prop :=
+  fun a => positive a \/ a = chosen.
+
+Theorem same_reduct_all_observations {X A O : Type}
+    (left right : Expansion X A) :
+    reduct left = reduct right -> forall observe : X -> O,
+    observe (reduct left) = observe (reduct right).
+Proof. intros h observe. exact (f_equal observe h). Qed.
+
+Theorem augmented_expansion_admissible {X A : Type}
+    (theory : X -> Prop) (recorded : X -> A -> Prop) (x : X) :
+    theory x -> forall chosen : A,
+    ExpansionAdmitted theory recorded
+      {| reduct := x; holds := augment (recorded x) chosen |}.
+Proof. intros hx chosen. split; [exact hx | intros z hz; left; exact hz]. Qed.
+
+Theorem augmented_expansion_omits_other {A : Type}
+    (positive : A -> Prop) (chosen other : A) :
+    ~ positive other -> other <> chosen -> ~ augment positive chosen other.
+Proof. intros hn hd [h | h]; [apply hn | apply hd]; exact h. Qed.
+
+Theorem reduct_expansions_orientation_independent {X A : Type}
+    (theory : X -> Prop) (recorded : X -> A -> Prop) (x : X) :
+    theory x -> forall a b : A,
+    ~ recorded x a -> ~ recorded x b -> a <> b ->
+    exists left right : Expansion X A,
+      reduct left = x /\ reduct right = x /\
+      ExpansionAdmitted theory recorded left /\ ExpansionAdmitted theory recorded right /\
+      holds left a /\ ~ holds left b /\ ~ holds right a /\ holds right b.
+Proof.
+  intros hx a b ha hb hab.
+  exists {| reduct := x; holds := augment (recorded x) a |},
+    {| reduct := x; holds := augment (recorded x) b |}.
+  split; [reflexivity |]. split; [reflexivity |].
+  split; [apply augmented_expansion_admissible; exact hx |].
+  split; [apply augmented_expansion_admissible; exact hx |].
+  split; [right; reflexivity |].
+  split.
+  - apply augmented_expansion_omits_other; [exact hb | intro h; apply hab; symmetry; exact h].
+  - split.
+    + apply augmented_expansion_omits_other; assumption.
+    + right; reflexivity.
+Qed.
+
+Theorem no_reduct_readout_of_all_expansions {X A : Type}
+    (theory : X -> Prop) (recorded : X -> A -> Prop) (x : X) :
+    theory x -> forall a, ~ recorded x a ->
+    ~ exists readout : X -> A -> Prop, forall e : Expansion X A,
+      ExpansionAdmitted theory recorded e -> forall b,
+      readout (reduct e) b <-> holds e b.
+Proof.
+  intros hx a ha [readout h].
+  assert (hb : ExpansionAdmitted theory recorded {| reduct := x; holds := recorded x |}).
+  { split; [exact hx | intros z hz; exact hz]. }
+  pose proof (h {| reduct := x; holds := recorded x |} hb a) as hbase.
+  pose proof (h {| reduct := x; holds := augment (recorded x) a |}
+    (@augmented_expansion_admissible X A theory recorded x hx a) a) as hmore.
+  apply ha. apply (proj1 hbase). apply (proj2 hmore). right; reflexivity.
+Qed.
+
+Theorem conservative_definition_expands_every_reduct {X A : Type}
+    (theory : X -> Prop) (recorded definition : X -> A -> Prop) :
+    (forall x, theory x -> Extends (recorded x) (definition x)) ->
+    forall x, theory x -> exists e : Expansion X A,
+      reduct e = x /\ ExpansionAdmitted theory recorded e /\
+      forall a, holds e a <-> definition x a.
+Proof.
+  intros hd x hx. exists {| reduct := x; holds := definition x |}.
+  split; [reflexivity |]. split.
+  - split; [exact hx | exact (hd x hx)].
+  - intros a. split; intro h; exact h.
+Qed.
+
+Definition RecordedPair {A : Type} (links : A -> A -> A -> Prop) (pair : A * A) : Prop :=
+  exists address, links address (fst pair) (snd pair).
+Definition orderedChain (address first second : nat) : Prop :=
+  (address = 3 /\ first = 0 /\ second = 1) \/
+  (address = 4 /\ first = 1 /\ second = 2).
+
+Theorem ordered_chain_forward_unrecorded : ~ RecordedPair orderedChain (0, 2).
+Proof. intros [address [[_ [_ h]] | [_ [h _]]]]; discriminate h. Qed.
+Theorem ordered_chain_reverse_unrecorded : ~ RecordedPair orderedChain (2, 0).
+Proof. intros [address [[_ [h _]] | [_ [h _]]]]; discriminate h. Qed.
+
+Theorem ordered_chain_expansions_independent
+    (theory : (nat -> nat -> nat -> Prop) -> Prop) :
+    theory orderedChain ->
+    exists left right : Expansion (nat -> nat -> nat -> Prop) (nat * nat),
+      reduct left = orderedChain /\ reduct right = orderedChain /\
+      ExpansionAdmitted theory RecordedPair left /\ ExpansionAdmitted theory RecordedPair right /\
+      holds left (0, 2) /\ ~ holds left (2, 0) /\
+      ~ holds right (0, 2) /\ holds right (2, 0).
+Proof.
+  intro ht. apply reduct_expansions_orientation_independent.
+  - exact ht.
+  - exact ordered_chain_forward_unrecorded.
+  - exact ordered_chain_reverse_unrecorded.
+  - intro h. discriminate h.
+Qed.
+
 Print Assumptions reverse_equivariant.
 Print Assumptions reverse_selector_distinct.
 Print Assumptions equal_stabilizers.
@@ -267,3 +376,12 @@ Print Assumptions faithful_transport_preserves_alternatives.
 Print Assumptions derived_carrier_preserves_stabilizer.
 Print Assumptions equivariant_composition.
 Print Assumptions recursive_carrier_equivariant.
+Print Assumptions same_reduct_all_observations.
+Print Assumptions augmented_expansion_admissible.
+Print Assumptions augmented_expansion_omits_other.
+Print Assumptions reduct_expansions_orientation_independent.
+Print Assumptions no_reduct_readout_of_all_expansions.
+Print Assumptions conservative_definition_expands_every_reduct.
+Print Assumptions ordered_chain_forward_unrecorded.
+Print Assumptions ordered_chain_reverse_unrecorded.
+Print Assumptions ordered_chain_expansions_independent.

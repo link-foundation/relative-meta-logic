@@ -9,13 +9,16 @@ const root = new URL('../', import.meta.url);
 
 test('the two native proof sources retain the same audited theorem obligations', () => {
   const { theoremNames } = inspectProofSources();
-  assert.equal(theoremNames.length, 33);
+  assert.equal(theoremNames.length, 42);
   for (const name of [
     'reversal_closed_criterion_has_alternative', 'exchanged_pair_obstruction',
     'rigid_candidate_distinction_is_invariant', 'same_observation_nondefinability',
     'positive_facts_only', 'faithful_transport_preserves_alternatives',
     'derived_carrier_preserves_stabilizer', 'recursive_carrier_equivariant',
     'noncommuting_reversal_breaks_equivariance',
+    'same_reduct_all_observations', 'reduct_expansions_orientation_independent',
+    'no_reduct_readout_of_all_expansions', 'conservative_definition_expands_every_reduct',
+    'ordered_chain_expansions_independent',
   ]) assert.ok(theoremNames.includes(name));
 });
 
@@ -38,9 +41,9 @@ test('recorded native result matches these sources and includes both kernels and
   assert.deepEqual(record.kernels.map(kernel => kernel.language), ['Lean', 'Rocq']);
   assert.deepEqual(record.theoremNames, inspectProofSources().theoremNames);
   for (const kernel of record.kernels) {
-    assert.equal(kernel.checkedTheorems, 33);
+    assert.equal(kernel.checkedTheorems, 42);
     assert.deepEqual(kernel.axioms, []);
-    assert.equal(kernel.negatives.length, 4);
+    assert.equal(kernel.negatives.length, 5);
     assert.ok(kernel.negatives.every(item => item.exitCode > 0 && item.status === 'rejected-false-claim'));
   }
   assert.equal(record.requirementStatus.R147, 'PARTIAL_ENDOGENOUS_CONSEQUENCE_OPEN');

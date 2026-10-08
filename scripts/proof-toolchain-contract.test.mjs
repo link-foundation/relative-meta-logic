@@ -29,7 +29,7 @@ test('both maintained proof workflows install exact Lean and digest-pinned Rocq'
 });
 test('the archived upstream toolchain and all general proof obligations are preserved', () => {
   assert.equal(read('lib/meta-theory/upstream-0.0.3-source/drafts/0.0.3/src/lean/lean-toolchain').trim(), 'leanprover/lean4:v4.28.0');
-  assert.equal(inspectProofSources().theoremNames.length, 33);
+  assert.equal(inspectProofSources().theoremNames.length, 42);
   const workflow = read('.github/workflows/formal-corpus.yml');
   assert.ok(workflow.includes('087f4515d0652925eecc54bcade724445c3978f1'));
   assert.ok(workflow.includes('bash /rml/scripts/install-rocq-kernel.sh; rocq makefile'));

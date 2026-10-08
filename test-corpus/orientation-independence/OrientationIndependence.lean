@@ -293,6 +293,108 @@ theorem recursive_carrier_equivariant {G : Type u} {X : Type v}
   | succ n ih =>
     exact equivariant_composition (iterate step n) step ih hs
 
+-- Free semantic expansions of a full structural reduct.  This is an explicit
+-- investigative contract, not an assertion that Links have no intrinsic law.
+structure Expansion (X : Type u) (A : Type v) where
+  reduct : X
+  holds : A → Prop
+
+def ExpansionAdmitted {X : Type u} {A : Type v}
+    (theory : X → Prop) (recorded : X → A → Prop) (e : Expansion X A) : Prop :=
+  theory e.reduct ∧ Extends (recorded e.reduct) e.holds
+
+def augment {A : Type u} (positive : A → Prop) (chosen : A) : A → Prop :=
+  fun a => positive a ∨ a = chosen
+
+theorem same_reduct_all_observations {X : Type u} {A : Type v} {O : Type w}
+    (left right : Expansion X A) (h : left.reduct = right.reduct)
+    (observe : X → O) : observe left.reduct = observe right.reduct :=
+  congrArg observe h
+
+theorem augmented_expansion_admissible {X : Type u} {A : Type v}
+    (theory : X → Prop) (recorded : X → A → Prop) (x : X)
+    (hx : theory x) (chosen : A) :
+    ExpansionAdmitted theory recorded ⟨x, augment (recorded x) chosen⟩ := by
+  exact ⟨hx, fun _ h => Or.inl h⟩
+
+theorem augmented_expansion_omits_other {A : Type u}
+    (positive : A → Prop) (chosen other : A)
+    (hn : ¬ positive other) (hd : other ≠ chosen) :
+    ¬ augment positive chosen other := by
+  rintro (h | h)
+  · exact hn h
+  · exact hd h
+
+theorem reduct_expansions_orientation_independent {X : Type u} {A : Type v}
+    (theory : X → Prop) (recorded : X → A → Prop) (x : X) (hx : theory x)
+    (a b : A) (ha : ¬ recorded x a) (hb : ¬ recorded x b) (hab : a ≠ b) :
+    ∃ left right : Expansion X A,
+      left.reduct = x ∧ right.reduct = x ∧
+      ExpansionAdmitted theory recorded left ∧ ExpansionAdmitted theory recorded right ∧
+      left.holds a ∧ ¬ left.holds b ∧ ¬ right.holds a ∧ right.holds b := by
+  refine ⟨⟨x, augment (recorded x) a⟩, ⟨x, augment (recorded x) b⟩,
+    rfl, rfl, augmented_expansion_admissible theory recorded x hx a,
+    augmented_expansion_admissible theory recorded x hx b,
+    Or.inr rfl, ?_, ?_, Or.inr rfl⟩
+  · exact augmented_expansion_omits_other (recorded x) a b hb (Ne.symm hab)
+  · exact augmented_expansion_omits_other (recorded x) b a ha hab
+
+theorem no_reduct_readout_of_all_expansions {X : Type u} {A : Type v}
+    (theory : X → Prop) (recorded : X → A → Prop) (x : X) (hx : theory x)
+    (a : A) (ha : ¬ recorded x a) :
+    ¬ ∃ readout : X → A → Prop, ∀ e : Expansion X A,
+      ExpansionAdmitted theory recorded e → ∀ b, readout e.reduct b ↔ e.holds b := by
+  rintro ⟨readout, h⟩
+  have hbase := h ⟨x, recorded x⟩ ⟨hx, fun _ hp => hp⟩ a
+  have hmore := h ⟨x, augment (recorded x) a⟩
+    (augmented_expansion_admissible theory recorded x hx a) a
+  exact ha (hbase.mp (hmore.mpr (Or.inr rfl)))
+
+-- A conservative definition may choose a readout. The defining bridge remains
+-- additional information even though it excludes no structural reduct.
+theorem conservative_definition_expands_every_reduct {X : Type u} {A : Type v}
+    (theory : X → Prop) (recorded definition : X → A → Prop)
+    (hd : ∀ x, theory x → Extends (recorded x) (definition x)) :
+    ∀ x, theory x → ∃ e : Expansion X A,
+      e.reduct = x ∧ ExpansionAdmitted theory recorded e ∧
+      ∀ a, e.holds a ↔ definition x a := by
+  intro x hx
+  exact ⟨⟨x, definition x⟩, rfl, ⟨hx, hd x hx⟩, fun _ => Iff.rfl⟩
+
+-- The reduct can contain every addressed record and any self-references.
+def RecordedPair {A : Type u} (links : A → A → A → Prop) (pair : A × A) : Prop :=
+  ∃ address, links address pair.1 pair.2
+
+def orderedChain (address first second : Nat) : Prop :=
+  (address = 3 ∧ first = 0 ∧ second = 1) ∨
+  (address = 4 ∧ first = 1 ∧ second = 2)
+
+theorem ordered_chain_forward_unrecorded : ¬ RecordedPair orderedChain (0, 2) := by
+  intro h
+  rcases h with ⟨address, h⟩
+  rcases h with h | h
+  · exact Nat.noConfusion (Nat.succ.inj h.2.2)
+  · exact Nat.noConfusion h.2.1
+
+theorem ordered_chain_reverse_unrecorded : ¬ RecordedPair orderedChain (2, 0) := by
+  intro h
+  rcases h with ⟨address, h⟩
+  rcases h with h | h
+  · exact Nat.noConfusion h.2.1
+  · exact Nat.noConfusion (Nat.succ.inj h.2.1)
+
+theorem ordered_chain_expansions_independent
+    (theory : (Nat → Nat → Nat → Prop) → Prop) (ht : theory orderedChain) :
+    ∃ left right : Expansion (Nat → Nat → Nat → Prop) (Nat × Nat),
+      left.reduct = orderedChain ∧ right.reduct = orderedChain ∧
+      ExpansionAdmitted theory RecordedPair left ∧ ExpansionAdmitted theory RecordedPair right ∧
+      left.holds (0, 2) ∧ ¬ left.holds (2, 0) ∧
+      ¬ right.holds (0, 2) ∧ right.holds (2, 0) := by
+  apply reduct_expansions_orientation_independent theory RecordedPair orderedChain ht
+    (0, 2) (2, 0) ordered_chain_forward_unrecorded ordered_chain_reverse_unrecorded
+  intro h
+  exact Nat.noConfusion (congrArg Prod.fst h)
+
 end OrientationIndependence
 
 #print axioms OrientationIndependence.reverse_equivariant
@@ -328,3 +430,12 @@ end OrientationIndependence
 #print axioms OrientationIndependence.derived_carrier_preserves_stabilizer
 #print axioms OrientationIndependence.equivariant_composition
 #print axioms OrientationIndependence.recursive_carrier_equivariant
+#print axioms OrientationIndependence.same_reduct_all_observations
+#print axioms OrientationIndependence.augmented_expansion_admissible
+#print axioms OrientationIndependence.augmented_expansion_omits_other
+#print axioms OrientationIndependence.reduct_expansions_orientation_independent
+#print axioms OrientationIndependence.no_reduct_readout_of_all_expansions
+#print axioms OrientationIndependence.conservative_definition_expands_every_reduct
+#print axioms OrientationIndependence.ordered_chain_forward_unrecorded
+#print axioms OrientationIndependence.ordered_chain_reverse_unrecorded
+#print axioms OrientationIndependence.ordered_chain_expansions_independent

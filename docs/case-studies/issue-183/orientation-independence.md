@@ -1,7 +1,7 @@
 # General orientation and consequence independence results
 
 **Status: R147 and R148 remain partial.** The finite foundation-search experiments
-now have 33 corresponding or supporting theorems checked independently in Lean
+now have 42 corresponding or supporting theorems checked independently in Lean
 4.28.0 and Rocq 9.1.1. The proofs quantify over arbitrary carriers and
 transformation families; none is an inference from the size of an enumeration.
 Every theorem is closed under its kernel's global context, with no additional
@@ -113,6 +113,65 @@ its structural identification, admission to a chosen model class, truth in all
 such models, and physical or runtime production remain separate. No theorem
 constructs, executes, or authorizes a Link-level modus ponens.
 
+## Full-reduct expansion independence
+
+The additional expansion argument removes a limitation of the symmetry argument:
+it does not assume equivariance, an output-reversing automorphism, or reversal
+closure of every structural selection criterion. Its contract is explicit.
+
+An `Expansion X A` contains the complete structural reduct `x : X` and a
+separately interpreted predicate `holds : A → Prop`. For a structural theory
+`T : X → Prop` and recorded facts `P : X → A → Prop`, `ExpansionAdmitted T P`
+requires exactly `T(x)` and preservation of the recorded positive facts. It
+contains **no bridge law identifying `holds` with a particular readout of `x`**.
+The semantic predicate is an investigative interpretation, not another proposed
+primitive Link entity.
+
+For any such `T`, any `x` satisfying it, and distinct unrecorded facts `a,b`,
+`reduct_expansions_orientation_independent` constructs both
+
+```
+(x, P(x) ∪ {a})       and       (x, P(x) ∪ {b}).
+```
+
+Both expansions satisfy the entire structural theory and preserve every
+recorded fact. The first asserts `a` and omits `b`; the second asserts `b` and
+omits `a`. Their structural reduct is literally identical.
+`same_reduct_all_observations` therefore preserves **every function of that
+full reduct**, including candidate-sensitive tests with fixed candidate
+parameters, faithful encodings, and recursively or self-referentially carried
+record observations. It does not assert that the two candidates themselves
+have the same properties. An observation that reads the newly interpreted
+`holds` relation is not an observation of the reduct alone.
+
+`no_reduct_readout_of_all_expansions` proves that no single reduct-only readout
+can agree with that predicate across all these admitted expansions if even one
+fact is unrecorded. This quantifies over every readout, rather than a finite
+language of projections. The theorem does **not** say that no invariant or
+structurally definable selector exists. Indeed,
+`conservative_definition_expands_every_reduct` proves that any chosen definition
+that preserves recorded facts can be added without excluding a structural
+reduct. Its defining equation can nevertheless exclude other semantic
+interpretations: choosing the bridge equation adds information even when the
+definition is conservative over Link-only statements.
+
+`RecordedPair` instantiates the facts with ordered endpoint pairs of the full
+ternary addressed-record relation. It imposes no size bound and admits arbitrary
+extra records, aliases, or self-reference. The concrete
+`ordered_chain_expansions_independent` theorem applies it to records
+`(3,0,1)` and `(4,1,2)`, with `a=(0,2)` and `b=(2,0)`. The two omission
+hypotheses are independently proved. Extra records are covered by the general
+theorem whenever both candidates remain unrecorded; if an extra record already
+asserts a candidate, that omission premise correctly fails.
+
+This is a complete non-entailment result for the **full-reduct, positive-fact,
+no-bridge expansion contract**. It identifies the missing information in that
+contract without inferring its absence from output reversal. It is not a proof
+that this contract exhausts intrinsic Links semantics. The original reviews
+explicitly leave that identification unresolved and prohibit treating the
+chosen completion semantics as the foundation. See the
+[source-by-source requirement audit](orientation-requirement-audit.md).
+
 ## Same observations, faithful encodings, and recursive carriers
 
 `same_observation_nondefinability` states: if two systems have equal values under
@@ -158,7 +217,7 @@ Besides the general theorems, both source files prove small counterexamples:
 | Positive facts force an unrecorded fact under all completions | The recorded predicate itself is an admissible countermodel |
 | An empty model class establishes substantive consequence | Universal consequence is vacuous for that class |
 
-The native runner also asks each kernel to prove four intentionally false
+The native runner also asks each kernel to prove five intentionally false
 claims about those examples. It requires a real type/unification rejection;
 missing compilers, signals, timeouts, and unrelated failures are not successful
 negative checks. This guards against replacing kernel checking with source-text
@@ -182,8 +241,8 @@ node --test scripts/orientation-independence.test.mjs
 `LEAN` and `ROCQ` can name compiler executables. An explicit
 `--languages=Lean` or `--languages=Rocq` runs one kernel; the default requires
 both and never silently skips an absent one. The recorded run used Lean 4.28.0
-and Rocq 9.1.1, checked all 33 theorems without axioms in each, and rejected all
-four false claims in each. The snapshot binds proof-source hashes; the normal
+and Rocq 9.1.1, checked all 42 theorems without axioms in each, and rejected all
+five false claims in each. The snapshot binds proof-source hashes; the normal
 Node tests check its freshness but do not replace native re-execution.
 
 The additive [orientation-proofs workflow](../../../.github/workflows/orientation-proofs.yml)
@@ -191,10 +250,11 @@ executes both kernels on relevant pull requests and main-branch updates. It uses
 the official Lean 4.34.1/Elan source and an owned Rocq container lifecycle, uploads proof
 and cache evidence, and always invokes repository cache teardown. The runner
 uses fresh temporary directories and removes compiler outputs even after
-failure. No compiled proof artifacts belong in the source tree. The historical local record above remains unchanged. The updated toolchain
-configuration requires a fresh hosted run checking all 33 theorem obligations
-and all four false claims in each kernel; configuration tests alone do not
-certify compatibility with the newer compilers.
+failure. No compiled proof artifacts belong in the source tree. The expanded
+local record above checks the new proof revision with the installed historical
+kernels. This revision requires a fresh hosted run checking all 42 theorem
+obligations and all five false claims in each maintained kernel; configuration
+tests or the earlier 33-theorem CI result do not certify the additions.
 
 The digest-pinned Docker image supplies the OCaml build environment, not the
 accepted proof oracle: on 2026-10-08 its `9.3` and `9.3-rc1` tags had the same
@@ -206,13 +266,25 @@ container, so the compiler timeout excludes image download and installation.
 
 ## Remaining requirement scope
 
-R147 still requires an independently justified structural fact that makes a
-continuation follow, with its applicability and authority accounted for.
-R148 still requires either an intrinsic, independently justified source of
-orientation or a stronger impossibility theorem for an independently justified
-complete observation contract. The present results generalize the tested
-negative boundaries but cannot establish that the adopted observation contract
-is complete, that all legitimate criteria are reversal-closed, or that all
-possible link ontologies lack an intrinsic distinction. Full semantic closure,
-multiple minimal meta-foundations, and implementation self-hosting are separate
-open acceptance gates.
+The original R147/R148 requests permit a strong negative result for the
+investigated ontology. They do not require proving impossibility for every
+future Links ontology, and completing a precisely scoped negative result does
+not require fabricating a positive modus ponens.
+
+The positive-completion, reversal-closed-criterion, input-symmetry, and full-
+reduct expansion contracts now have general, independently checked negative
+results. The expansion argument in particular proves exact non-entailment even
+with every structural observation available. Its remaining premise is not a
+finite bound: it is that the admitted semantic interpretations have only the
+specified recorded-fact constraint and no additional bridge law.
+
+For the full original requirements, a material application gap remains. Either
+justify that this is the complete relevant contract for the investigated Links,
+or derive the proposed additional bridge/principle from independently justified
+Link structure and show why it is authoritative. Merely interpreting the fresh
+predicate freely, or choosing a conservative definition of it, cannot settle
+that question. The same-reduct pair exhibits different admitted interpretations;
+it does not manufacture two independently required consequences. R147 and R148
+therefore remain partial, with general negative evidence rather than only finite
+audits. Full semantic closure, multiple minimal meta-foundations, and
+implementation self-hosting remain separate acceptance gates.

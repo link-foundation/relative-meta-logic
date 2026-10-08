@@ -7,8 +7,8 @@
     "R148": "PARTIAL_INTRINSIC_ORIENTATION_OPEN"
   },
   "sourceHashes": {
-    "test-corpus/orientation-independence/OrientationIndependence.lean": "19bb48646cff735dfbf629ae5afec30e292e88655fbf0e78e50fcb75844cce6d",
-    "test-corpus/orientation-independence/OrientationIndependence.v": "75a1e362db2e48296d5e53f3414e24d481d49d6517ab1307dca876ba9f6b7e15"
+    "test-corpus/orientation-independence/OrientationIndependence.lean": "2728113d0332f4a7eb5ccc35d043044f0a5f8b940846be6d094d5145bc32126d",
+    "test-corpus/orientation-independence/OrientationIndependence.v": "9e4e5ddc7af370c35e729e52eff72a4440b4c6af76e4b8c1622810faf2fc80b8"
   },
   "theoremNames": [
     "reverse_equivariant",
@@ -43,15 +43,29 @@
     "faithful_transport_preserves_alternatives",
     "derived_carrier_preserves_stabilizer",
     "equivariant_composition",
-    "recursive_carrier_equivariant"
+    "recursive_carrier_equivariant",
+    "same_reduct_all_observations",
+    "augmented_expansion_admissible",
+    "augmented_expansion_omits_other",
+    "reduct_expansions_orientation_independent",
+    "no_reduct_readout_of_all_expansions",
+    "conservative_definition_expands_every_reduct",
+    "ordered_chain_forward_unrecorded",
+    "ordered_chain_reverse_unrecorded",
+    "ordered_chain_expansions_independent"
   ],
   "kernels": [
     {
       "language": "Lean",
       "version": "Lean (version 4.28.0, x86_64-unknown-linux-gnu, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b, Release)",
-      "checkedTheorems": 33,
+      "checkedTheorems": 42,
       "axioms": [],
       "negatives": [
+        {
+          "id": "same-full-reduct-does-not-force-forward-consequence",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
         {
           "id": "equal-stabilizers-do-not-imply-same-orbit",
           "status": "rejected-false-claim",
@@ -77,9 +91,14 @@
     {
       "language": "Rocq",
       "version": "The Rocq Prover, version 9.1.1",
-      "checkedTheorems": 33,
+      "checkedTheorems": 42,
       "axioms": [],
       "negatives": [
+        {
+          "id": "same-full-reduct-does-not-force-forward-consequence",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
         {
           "id": "equal-stabilizers-do-not-imply-same-orbit",
           "status": "rejected-false-claim",

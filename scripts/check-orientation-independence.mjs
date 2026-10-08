@@ -18,8 +18,8 @@ export function inspectProofSources(sources = Object.fromEntries(
 )) {
   const lean = [...sources.Lean.matchAll(/^theorem (\w+)/gm)].map(match => match[1]);
   const rocq = [...sources.Rocq.matchAll(/^Theorem (\w+)/gm)].map(match => match[1]);
-  if (lean.length < 33 || JSON.stringify(lean) !== JSON.stringify(rocq)) {
-    throw new Error('Lean/Rocq named theorem inventories must agree and retain all 33 obligations');
+  if (lean.length < 42 || JSON.stringify(lean) !== JSON.stringify(rocq)) {
+    throw new Error('Lean/Rocq named theorem inventories must agree and retain all 42 obligations');
   }
   if (/\b(sorry|admit|unsafe|implemented_by|native_decide)\b|^\s*(axiom|constant|opaque|import)\b/m.test(sources.Lean) ||
       /\b(Admitted|Admit|admit|Abort|Axiom|Axioms|Parameter|Parameters|Require|Load)\b/.test(sources.Rocq)) {
@@ -46,6 +46,11 @@ export function assertNativeKernelVersion(language, version) {
 }
 
 const negativeCases = [
+  {
+    id: 'same-full-reduct-does-not-force-forward-consequence',
+    Lean: 'example : augment (RecordedPair orderedChain) (2, 0) (0, 2) := by\n  exact Or.inr rfl\n',
+    Rocq: 'Example rejected_claim : augment (RecordedPair orderedChain) (2, 0) (0, 2).\nProof. right. reflexivity. Qed.\n',
+  },
   {
     id: 'equal-stabilizers-do-not-imply-same-orbit',
     Lean: 'example : OrbitRelated rigidAction false true := by\n  exact ⟨(), rfl⟩\n',
