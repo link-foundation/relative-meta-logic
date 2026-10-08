@@ -42,11 +42,14 @@ test('the Rust container preserves the shared source paths at compile time', () 
     'utf8',
   );
 
-  assert.match(dockerfile, /^WORKDIR \/build\/rust$/m);
-  assert.match(
-    dockerfile,
-    /^COPY lib\/meta-theory \/build\/lib\/meta-theory$/m,
-  );
+  const sourceRoot = dockerfile.indexOf('\nWORKDIR /build\n');
+  const sourceCopy = dockerfile.indexOf('\nCOPY . .\n', sourceRoot);
+  const crateRoot = dockerfile.indexOf('\nWORKDIR /build/rust\n', sourceCopy);
+  const build = dockerfile.indexOf('cargo build --release', crateRoot);
+  assert.ok(sourceRoot >= 0, 'the complete context has a repository root');
+  assert.ok(sourceCopy > sourceRoot, 'copy the complete context into /build');
+  assert.ok(crateRoot > sourceCopy, 'enter the Rust crate after copying shared sources');
+  assert.ok(build > crateRoot, 'compile with ../lib/meta-theory available');
 });
 
 test('the one-name iota basis exposes the same two residual contractions', () => {
