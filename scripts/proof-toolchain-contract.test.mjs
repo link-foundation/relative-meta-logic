@@ -22,6 +22,7 @@ test('both maintained proof workflows install exact Lean and digest-pinned Rocq'
     assert.ok(source.includes('--default-toolchain leanprover/lean4:v4.34.1'), file);
     assert.ok(source.includes('ELAN_TOOLCHAIN: leanprover/lean4:v4.34.1'), file);
     assert.ok(source.includes(image), file);
+    assert.ok(source.includes('bash /rml/scripts/install-rocq-kernel.sh'), file);
     assert.doesNotMatch(source, /leanprover\/lean4:v4\.28\.0|rocq\/rocq-prover:9\.1\b|rocq\/rocq-prover:9\.3\.0\b/);
     assert.doesNotMatch(source, /continue-on-error|\|\| true/);
   }
@@ -31,7 +32,7 @@ test('the archived upstream toolchain and all general proof obligations are pres
   assert.equal(inspectProofSources().theoremNames.length, 33);
   const workflow = read('.github/workflows/formal-corpus.yml');
   assert.ok(workflow.includes('087f4515d0652925eecc54bcade724445c3978f1'));
-  assert.ok(workflow.includes('rocq --version | grep -E \\"version 9[.]3[.]0([[:space:]]|$)\\"'));
+  assert.ok(workflow.includes('bash /rml/scripts/install-rocq-kernel.sh; rocq makefile'));
   assert.ok(workflow.includes('lake build'));
   assert.ok(workflow.includes('make -f Makefile.coq'));
 });

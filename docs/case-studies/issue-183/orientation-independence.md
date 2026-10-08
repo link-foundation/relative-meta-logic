@@ -188,13 +188,21 @@ Node tests check its freshness but do not replace native re-execution.
 
 The additive [orientation-proofs workflow](../../../.github/workflows/orientation-proofs.yml)
 executes both kernels on relevant pull requests and main-branch updates. It uses
-the official Lean 4.34.1/Elan source and owned Rocq 9.3 Docker lifecycle (pinned image digest, with an exact 9.3.0 compiler-version check), uploads proof
+the official Lean 4.34.1/Elan source and an owned Rocq container lifecycle, uploads proof
 and cache evidence, and always invokes repository cache teardown. The runner
 uses fresh temporary directories and removes compiler outputs even after
 failure. No compiled proof artifacts belong in the source tree. The historical local record above remains unchanged. The updated toolchain
 configuration requires a fresh hosted run checking all 33 theorem obligations
 and all four false claims in each kernel; configuration tests alone do not
 certify compatibility with the newer compilers.
+
+The digest-pinned Docker image supplies the OCaml build environment, not the
+accepted proof oracle: on 2026-10-08 its `9.3` and `9.3-rc1` tags had the same
+digest. The [installer](../../../scripts/install-rocq-kernel.sh) therefore
+installs exact stable `rocq-runtime`, `rocq-core`, and compatibility binaries at
+9.3.0, with `rocq-stdlib` 9.2.0, from the official OPAM repository. It rejects a
+stale or prerelease compiler. Installation and all Rocq checks run in one owned
+container, so the compiler timeout excludes image download and installation.
 
 ## Remaining requirement scope
 

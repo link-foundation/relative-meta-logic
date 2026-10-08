@@ -816,8 +816,8 @@ class LinkedProgramRegistry {
   }
 
   /**
-   * Report the complete theory-independent host boundary used to bootstrap
-   * links-defined meta-semantics.
+   * Report the current S/K boundary used to bootstrap links-defined semantics.
+   * Alternative execution bases have separately measured host operations.
    */
   static bootstrapKernelReport() {
     return cloneReportValue({
@@ -844,19 +844,74 @@ class LinkedProgramRegistry {
   }
 
   /**
-   * Fail closed when the executable host-operation manifest and the published
-   * trust graph differ, or when a semantic path does not reach K0.
+   * Audit the current S/K report against its independent operation manifest.
    */
   static auditBootstrapKernel(
     implementedOperations = IMPLEMENTED_BOUNDARY_OPERATIONS,
   ) {
-    const report = LinkedProgramRegistry.bootstrapKernelReport();
+    return LinkedProgramRegistry.auditBootstrapReport(
+      LinkedProgramRegistry.bootstrapKernelReport(),
+      implementedOperations,
+    );
+  }
+
+  /**
+   * Validate a supplied current-K0 report against an independent operation list.
+   * This checks the declared scope; it does not discover host implementations
+   * or certify that the current boundary is irreducible.
+   */
+  static auditBootstrapReport(report, implementedOperations) {
+    if (report.name !== 'K0' || report.status !== 'current-bootstrap-boundary' ||
+        report.trustGraph.schema !== 'rml-bootstrap-trust-graph/v1') {
+      throw new Error('unsupported bootstrap report scope');
+    }
+    if (report.claimsIrreducible !== false) {
+      throw new Error('current bootstrap report does not establish irreducibility');
+    }
+    if (typeof report.fixedPointCriterion !== 'string' ||
+        report.fixedPointCriterion.trim().length === 0) {
+      throw new Error('bootstrap report is missing its fixed-point criterion');
+    }
+    const boundary = new Set(report.operations);
+    const allReported = [...report.operations, ...report.derivedHostServices];
+    const reported = new Set(allReported);
+    const implemented = new Set(implementedOperations);
+    if (reported.size !== allReported.length || implemented.size !== implementedOperations.length) {
+      throw new Error('duplicate host semantic operation');
+    }
+    for (const operation of implemented) {
+      if (!reported.has(operation)) {
+        throw new Error(`unreported host semantic operation ${operation}`);
+      }
+    }
+    for (const operation of reported) {
+      if (!implemented.has(operation)) {
+        throw new Error(`reported host semantic operation ${operation} is not implemented`);
+      }
+    }
     const nodes = new Map();
     for (const node of report.trustGraph.nodes) {
       if (nodes.has(node.id)) throw new Error(`duplicate trust graph node ${node.id}`);
       nodes.set(node.id, node);
     }
+    for (const operation of reported) {
+      if (!nodes.has(operation)) {
+        throw new Error(`host semantic operation ${operation} has no trust graph node`);
+      }
+    }
+    for (const operation of boundary) {
+      const reason = nodes.get(operation).primitiveReason;
+      if (typeof reason !== 'string' || reason.trim().length === 0) {
+        throw new Error(`bootstrap operation ${operation} has no primitive reason`);
+      }
+    }
+    for (const path of SEMANTIC_PATHS) {
+      if (!nodes.has(path.id)) throw new Error(`missing public bootstrap path ${path.id}`);
+    }
     for (const node of nodes.values()) {
+      if (node.layer === 'bootstrap' && !boundary.has(node.id)) {
+        throw new Error(`unreported bootstrap operation ${node.id}`);
+      }
       for (const dependency of node.dependsOn) {
         if (!nodes.has(dependency)) {
           throw new Error(`trust graph node ${node.id} has unknown dependency ${dependency}`);
@@ -867,7 +922,7 @@ class LinkedProgramRegistry {
     const reachesBootstrap = (id, visiting = new Set()) => {
       const node = nodes.get(id);
       if (node.dependsOn.length === 0) {
-        return BOOTSTRAP_OPERATIONS.some(operation => operation.id === id);
+        return boundary.has(id);
       }
       if (visiting.has(id)) throw new Error(`trust graph dependency cycle at ${id}`);
       const nested = new Set(visiting);
@@ -875,24 +930,8 @@ class LinkedProgramRegistry {
       return node.dependsOn.every(dependency => reachesBootstrap(dependency, nested));
     };
     for (const node of nodes.values()) {
-      if (node.layer !== 'bootstrap' && !reachesBootstrap(node.id)) {
+      if (!reachesBootstrap(node.id)) {
         throw new Error(`trust graph path ${node.id} does not terminate in K0`);
-      }
-    }
-
-    const reported = new Set([
-      ...report.operations,
-      ...report.derivedHostServices,
-    ]);
-    const implemented = new Set(implementedOperations);
-    for (const operation of implemented) {
-      if (!reported.has(operation)) {
-        throw new Error(`unreported host semantic operation ${operation}`);
-      }
-    }
-    for (const operation of reported) {
-      if (!implemented.has(operation)) {
-        throw new Error(`reported host semantic operation ${operation} is not implemented`);
       }
     }
     const experimented = new Set(

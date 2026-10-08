@@ -1,0 +1,193 @@
+{
+  "schema": "rml-researcher-workflow/v1",
+  "executionBasis": "direct-structural",
+  "foundations": [
+    {
+      "name": "review-policy",
+      "version": "1"
+    },
+    {
+      "name": "review-policy",
+      "version": "2"
+    }
+  ],
+  "theory": "submissions",
+  "comparison": [
+    {
+      "version": "1",
+      "status": "proved"
+    },
+    {
+      "version": "2",
+      "status": "refuted"
+    }
+  ],
+  "proof": {
+    "accepted": true,
+    "replayMatches": true,
+    "dependencies": [
+      "rules.publication",
+      "rules.admission",
+      "submissions.submitted"
+    ],
+    "nodes": 3
+  },
+  "execution": {
+    "status": "normal",
+    "output": "(s (s z))"
+  },
+  "invalidation": [
+    {
+      "action": "rechecked",
+      "changed": true,
+      "status": "unknown"
+    },
+    {
+      "action": "kept",
+      "changed": false,
+      "status": "refuted"
+    }
+  ],
+  "originalStatus": "proved",
+  "languages": [
+    {
+      "language": "JavaScript",
+      "sourcePreserved": true,
+      "syntaxClean": true,
+      "typeElaboration": "unavailable"
+    },
+    {
+      "language": "Rust",
+      "sourcePreserved": true,
+      "syntaxClean": true,
+      "typeElaboration": "unavailable"
+    },
+    {
+      "language": "Lean",
+      "sourcePreserved": true,
+      "syntaxClean": true,
+      "typeElaboration": "unavailable"
+    },
+    {
+      "language": "Rocq",
+      "sourcePreserved": true,
+      "syntaxClean": true,
+      "typeElaboration": "unavailable"
+    }
+  ],
+  "translations": [
+    {
+      "from": "JavaScript",
+      "to": "Rust",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "JavaScript",
+      "to": "Lean",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "JavaScript",
+      "to": "Rocq",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Rust",
+      "to": "JavaScript",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Rust",
+      "to": "Lean",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Rust",
+      "to": "Rocq",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Lean",
+      "to": "JavaScript",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Lean",
+      "to": "Rust",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Lean",
+      "to": "Rocq",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Rocq",
+      "to": "JavaScript",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Rocq",
+      "to": "Rust",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    },
+    {
+      "from": "Rocq",
+      "to": "Lean",
+      "status": "translated-fragment",
+      "observation": "8",
+      "verification": "not-proved"
+    }
+  ],
+  "assumptions": [],
+  "objects": {
+    "setRoot": "accepted-objects.branch.0",
+    "nestedRoot": "collection-of-collections.element.0",
+    "orderedRoot": "review-order.branch.0",
+    "setMembers": [
+      "specimen",
+      "submitted-edge"
+    ],
+    "nestedMembers": [
+      "accepted-objects.branch.0"
+    ],
+    "orderedMembers": [
+      "submitted-edge",
+      "specimen"
+    ],
+    "nestedDistinct": true,
+    "closed": true,
+    "edge": {
+      "source": "specimen",
+      "target": "archive"
+    },
+    "edgeTypes": [
+      "SubmissionPair"
+    ],
+    "setTypes": [
+      "Set"
+    ]
+  }
+}

@@ -74,7 +74,7 @@ function run(command, args, directory) {
   });
   const diagnostic = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.trim();
   if (result.error || result.signal || result.status === null) {
-    throw new Error(`${basename(command)} did not complete: ${result.error?.message ?? result.signal}`);
+    throw new Error(`${basename(command)} did not complete: ${result.error?.message ?? result.signal}\n${diagnostic.slice(-8192)}`);
   }
   return { ...result, diagnostic };
 }

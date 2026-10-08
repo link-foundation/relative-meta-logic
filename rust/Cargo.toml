@@ -42,4 +42,4 @@ incremental = false
 # The linked proof kernel is CPU-bound. Optimize this package only; keep
 # dependency compilation bounded and retain the complete verification workload.
 [profile.test.package.relative-meta-logic]
-opt-level = 1
+opt-level = 2

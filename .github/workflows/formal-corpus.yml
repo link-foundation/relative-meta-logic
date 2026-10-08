@@ -130,7 +130,7 @@ jobs:
   rocq:
     name: Rocq build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
         with:
@@ -155,9 +155,10 @@ jobs:
             trap "sudo chown -R $runner_owner .rml-cache/rocq" EXIT
             sudo chown -R 1000:1000 .rml-cache/rocq
             bash docker/run-owned.sh --init \
+              --volume "$PWD/scripts:/rml/scripts:ro" \
               --volume "$PWD/.rml-cache/rocq/pinned:/work" --workdir /work \
               rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782 /bin/bash --login -ec \
-              "set -o pipefail; rocq --version | grep -E \"version 9[.]3[.]0([[:space:]]|$)\"; rocq makefile -f _CoqProject -o Makefile.coq; make -f Makefile.coq"
+              "bash /rml/scripts/install-rocq-kernel.sh; rocq makefile -f _CoqProject -o Makefile.coq; make -f Makefile.coq"
           '
       - name: Upload cache diagnostics before teardown
         if: always()

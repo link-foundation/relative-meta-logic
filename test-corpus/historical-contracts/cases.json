@@ -1,0 +1,32 @@
+{
+  "schema":"rml-historical-contracts/v1",
+  "sets":[
+    {"name":"membership","input":"(member a (cons a (empty)))","expected":"true","remove":"member-head"},
+    {"name":"absent membership","input":"(member c (cons a (cons b (empty))))","expected":"false","remove":"member-empty"},
+    {"name":"new insertion","input":"(insert a (cons b (empty)))","expected":"(cons a (cons b (empty)))","remove":"insert"},
+    {"name":"duplicate insertion","input":"(insert a (cons a (empty)))","expected":"(cons a (empty))","remove":"insert-existing"},
+    {"name":"subset","input":"(subset (cons a (empty)) (cons b (cons a (empty))))","expected":"true","remove":"subset-cons"},
+    {"name":"non subset","input":"(subset (cons c (empty)) (cons b (cons a (empty))))","expected":"false","remove":"boolean-and-false"},
+    {"name":"extensional equality","input":"(set-equal (cons a (cons b (empty))) (cons b (cons a (empty))))","expected":"true","remove":"extensional-set-equality"},
+    {"name":"unequal sets","input":"(set-equal (cons a (empty)) (cons b (empty)))","expected":"false","remove":"extensional-set-equality"},
+    {"name":"union","input":"(set-union (cons a (empty)) (cons b (empty)))","expected":"(cons a (cons b (empty)))","remove":"union-cons"},
+    {"name":"pairing","input":"(set-pair a b)","expected":"(cons a (cons b (empty)))","remove":"pairing"},
+    {"name":"intersection","input":"(set-intersection (cons a (cons b (empty))) (cons b (empty)))","expected":"(cons b (empty))","remove":"intersection-cons"},
+    {"name":"replacement","input":"(set-image box (cons a (cons b (empty))))","expected":"(cons (image box a) (cons (image box b) (empty)))","remove":"replacement-cons"},
+    {"name":"canonicalization","input":"(canonical-set (cons a (cons a (cons b (empty)))))","expected":"(cons b (cons a (empty)))","remove":"canonicalize-set"}
+  ],
+  "graph":[
+    {"name":"endpoint closure","facts":["(vertex g a)","(vertex g b)"],"goal":"(valid-edge g a b)","remove":"endpoint-closure"},
+    {"name":"typed endpoints","facts":["(vertex g a)","(vertex g b)"],"goal":"(has-edge-type g a b (Pair (Vertex g) (Vertex g)))","remove":"edge-typing"},
+    {"name":"transitive reachability","facts":["(edge a b)","(edge b c)"],"goal":"(reachable a c)","remove":"transitive-reachability"}
+  ],
+  "relations":[
+    {"name":"domain closure","facts":["(member-of a (domain r))","(member-of b (codomain r))"],"goal":"(valid-pair r a b)","remove":"domain-codomain-closure"},
+    {"name":"pair typing","facts":["(member-of a (domain r))","(member-of b (codomain r))"],"goal":"(has-pair-type r a b (Pair (Domain r) (Codomain r)))","remove":"pair-typing"},
+    {"name":"converse","facts":["(relates r a b)"],"goal":"(relates (converse r) b a)","remove":"converse"},
+    {"name":"composition","facts":["(relates left a b)","(relates right b c)"],"goal":"(relates (compose left right) a c)","remove":"composition"},
+    {"name":"union left","facts":["(relates left a b)","(relation right)"],"goal":"(relates (relation-union left right) a b)","remove":"union-left"},
+    {"name":"union right","facts":["(relation left)","(relates right a b)"],"goal":"(relates (relation-union left right) a b)","remove":"union-right"},
+    {"name":"intersection","facts":["(relates left a b)","(relates right a b)"],"goal":"(relates (relation-intersection left right) a b)","remove":"intersection"}
+  ]
+}

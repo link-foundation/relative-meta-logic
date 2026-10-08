@@ -9,6 +9,22 @@ calling a host callback is not an implementation of linked semantics.
 The complete issue/comment checklist and evidence links live in
 [`requirements.md`](./requirements.md).
 
+## Reproducible researcher lifecycle
+
+The [researcher workflow](researcher-workflow.md) runs versioned foundations,
+link-valued sets, theorem and proof inspection, source-dependent invalidation,
+algorithm changes, foundation comparisons, and all twelve directed translations
+of the bounded natural fragment in JavaScript and Rust. The
+[address-sequence API](../../ADDRESS_SEQUENCES.md) preserves arbitrary nested
+and cyclic link addresses as elements. The supplied bootstrap-report audit
+checks the selected K0 boundary against an independent operation inventory.
+
+The [formal-ai adoption register](formal-ai-adoption.json) records the four
+source-backed design decisions and their executable evidence. These are bounded
+runtime capabilities; they do not establish whole-language semantic closure,
+bootstrap irreducibility, or complete issue acceptance. The existing acceptance
+gate remains responsible for detecting outdated evidence and source pins.
+
 ## Research baseline
 
 The upstream baseline was re-audited on 2026-09-20. The current reviewed

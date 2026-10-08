@@ -255,7 +255,7 @@ enum AddedFact {
     OverLimit,
 }
 
-/// Complete theory-independent host boundary for linked-program execution.
+/// Current S/K bootstrap boundary; other execution bases are measured separately.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BootstrapKernelReport {
     pub name: &'static str,
@@ -6514,7 +6514,7 @@ impl LinkedProgramRegistry {
         }
     }
 
-    /// Reports the residual combinator boundary and its complete trust graph.
+    /// Reports the current S/K boundary and its declared dependency graph.
     pub fn bootstrap_kernel_report() -> BootstrapKernelReport {
         let source = combinator_kernel::source_summary()
             .expect("checked-in fixed-point source and runtime graph must be valid");
@@ -6690,19 +6690,91 @@ impl LinkedProgramRegistry {
         }
     }
 
-    /// Fails closed when executable host semantics and the trust graph differ.
+    /// Audits the current selected K0 report against its independent operation list.
     pub fn audit_bootstrap_kernel(implemented_operations: Option<&[&str]>) -> Result<(), String> {
-        let report = Self::bootstrap_kernel_report();
-        let nodes: BTreeMap<&str, &BootstrapTrustNode> = report
-            .trust_graph
-            .nodes
-            .iter()
-            .map(|node| (node.id, node))
-            .collect();
-        if nodes.len() != report.trust_graph.nodes.len() {
-            return Err("duplicate trust graph node".to_string());
+        Self::audit_bootstrap_report(
+            &Self::bootstrap_kernel_report(),
+            implemented_operations.unwrap_or(IMPLEMENTED_HOST_SEMANTIC_OPERATIONS),
+        )
+    }
+
+    /// Checks a supplied current-K0 report, not discovery of host implementations
+    /// or a proof that the current bootstrap boundary is irreducible.
+    pub fn audit_bootstrap_report(
+        report: &BootstrapKernelReport,
+        implemented_operations: &[&str],
+    ) -> Result<(), String> {
+        if report.name != "K0"
+            || report.status != "current-bootstrap-boundary"
+            || report.trust_graph.schema != "rml-bootstrap-trust-graph/v1"
+        {
+            return Err("unsupported bootstrap report scope".to_string());
         }
-        for node in nodes.values() {
+        if report.claims_irreducible {
+            return Err("current bootstrap report does not establish irreducibility".to_string());
+        }
+        if report.fixed_point_criterion.trim().is_empty() {
+            return Err("bootstrap report is missing its fixed-point criterion".to_string());
+        }
+        let boundary: BTreeSet<&str> = report.operations.iter().copied().collect();
+        let reported: BTreeSet<&str> = report
+            .operations
+            .iter()
+            .chain(&report.derived_host_services)
+            .copied()
+            .collect();
+        let implemented: BTreeSet<&str> = implemented_operations.iter().copied().collect();
+        if reported.len() != report.operations.len() + report.derived_host_services.len()
+            || implemented.len() != implemented_operations.len()
+        {
+            return Err("duplicate host semantic operation".to_string());
+        }
+        for operation in &implemented {
+            if !reported.contains(operation) {
+                return Err(format!("unreported host semantic operation {operation}"));
+            }
+        }
+        for operation in &reported {
+            if !implemented.contains(operation) {
+                return Err(format!(
+                    "reported host semantic operation {operation} is not implemented"
+                ));
+            }
+        }
+        let mut nodes: BTreeMap<&str, &BootstrapTrustNode> = BTreeMap::new();
+        for node in &report.trust_graph.nodes {
+            if nodes.insert(node.id, node).is_some() {
+                return Err(format!("duplicate trust graph node {}", node.id));
+            }
+        }
+        for operation in &reported {
+            if !nodes.contains_key(operation) {
+                return Err(format!(
+                    "host semantic operation {operation} has no trust graph node"
+                ));
+            }
+        }
+        for operation in &boundary {
+            if nodes[operation].primitive_reason.trim().is_empty() {
+                return Err(format!(
+                    "bootstrap operation {operation} has no primitive reason"
+                ));
+            }
+        }
+        for path in [
+            "load-linked-program",
+            "reduce-linked-program",
+            "prove-linked-judgement",
+            "execute-links-meta-foundation",
+        ] {
+            if !nodes.contains_key(path) {
+                return Err(format!("missing public bootstrap path {path}"));
+            }
+        }
+        for node in &report.trust_graph.nodes {
+            if node.layer == "bootstrap" && !boundary.contains(node.id) {
+                return Err(format!("unreported bootstrap operation {}", node.id));
+            }
             for dependency in &node.depends_on {
                 if !nodes.contains_key(dependency) {
                     return Err(format!(
@@ -6716,6 +6788,7 @@ impl LinkedProgramRegistry {
         fn reaches_bootstrap(
             id: &str,
             nodes: &BTreeMap<&str, &BootstrapTrustNode>,
+            boundary: &BTreeSet<&str>,
             visiting: &mut BTreeSet<String>,
         ) -> Result<bool, String> {
             let node = nodes[id];
@@ -6724,10 +6797,10 @@ impl LinkedProgramRegistry {
             }
             if node.depends_on.is_empty() {
                 visiting.remove(id);
-                return Ok(!node.primitive_reason.is_empty());
+                return Ok(boundary.contains(id));
             }
             for dependency in &node.depends_on {
-                if !reaches_bootstrap(dependency, nodes, visiting)? {
+                if !reaches_bootstrap(dependency, nodes, boundary, visiting)? {
                     visiting.remove(id);
                     return Ok(false);
                 }
@@ -6736,37 +6809,11 @@ impl LinkedProgramRegistry {
             Ok(true)
         }
 
-        for node in nodes.values() {
-            if node.layer != "bootstrap"
-                && !reaches_bootstrap(node.id, &nodes, &mut BTreeSet::new())?
-            {
+        for node in &report.trust_graph.nodes {
+            if !reaches_bootstrap(node.id, &nodes, &boundary, &mut BTreeSet::new())? {
                 return Err(format!(
                     "trust graph path {} does not terminate in K0",
                     node.id
-                ));
-            }
-        }
-
-        let reported: BTreeSet<&str> = report
-            .operations
-            .iter()
-            .chain(&report.derived_host_services)
-            .copied()
-            .collect();
-        let implemented: BTreeSet<&str> = implemented_operations
-            .unwrap_or(IMPLEMENTED_HOST_SEMANTIC_OPERATIONS)
-            .iter()
-            .copied()
-            .collect();
-        for operation in &implemented {
-            if !reported.contains(operation) {
-                return Err(format!("unreported host semantic operation {operation}"));
-            }
-        }
-        for operation in &reported {
-            if !implemented.contains(operation) {
-                return Err(format!(
-                    "reported host semantic operation {operation} is not implemented"
                 ));
             }
         }

@@ -14089,6 +14089,7 @@ pub mod portable_natural;
 pub mod js_rename;
 pub mod formal_corpus;
 pub mod theory_network;
+pub mod address_sequence;
 pub mod linked_program;
 pub mod lambda_kernel;
 pub mod linked_proof;

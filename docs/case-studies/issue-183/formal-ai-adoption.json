@@ -1,0 +1,51 @@
+{
+  "schema": "rml-formal-ai-experience/v1",
+  "upstream": {
+    "repository": "https://github.com/link-assistant/formal-ai",
+    "revision": "efb6ddb603e870253d7cb36b4ce31b292b215255",
+    "reviewed": "2026-10-07",
+    "method": "Read the three pinned official source files through the GitHub API; decisions concern these implementations, not a README analogy."
+  },
+  "decisions": [
+    {
+      "topic": "whole-source-projection",
+      "sources": ["https://github.com/link-assistant/formal-ai/blob/efb6ddb603e870253d7cb36b4ce31b292b215255/src/self_source_links.rs"],
+      "upstreamBehavior": "owned_manifest enumerates embedded Rust source and content IDs. SourceLinks::compile projects each module through meta-language, while SourceLinks::owned memoizes the whole embedded inventory. faithful_count is a byte-for-byte reconstruction result, not a semantic execution result.",
+      "adopted": "Exhaustively enumerate owned runtime JavaScript, Rust and linked library source; independently round-trip public meta-language graph data through the documented bounded JSON snapshot and compare reconstructed bytes and SHA-256. Report per-file syntax cleanliness and separate unrun elaboration, execution and verification. Reject empty inventories, duplicate paths and symlink substitutions.",
+      "rejected": "Do not call a file digest an executed program, promote a source round trip into self-hosting, silently omit malformed modules, or treat an old memoized inventory as evidence about edited files. Do not embed a copy of all RML host source into every runtime package.",
+      "rationale": "The reproducible read-only recipe reads the current checkout and reports syntax diagnostics without discarding source. Runtime packaging and product-wide semantic closure remain different obligations.",
+      "implementation": ["scripts/researcher-source-projection.mjs", "js/src/rml-upstream-language.mjs", "rust/src/upstream_language.rs"],
+      "tests": [{"path":"scripts/formal-ai-adoption.test.mjs","name":"whole-source projection preserves every explicit module independently of syntax validity"}, {"path":"scripts/formal-ai-adoption.test.mjs","name":"owned source inventory includes nested modules and refuses symbolic-link substitution"}]
+    },
+    {
+      "topic": "typed-events",
+      "sources": ["https://github.com/link-assistant/formal-ai/blob/efb6ddb603e870253d7cb36b4ce31b292b215255/src/link_store.rs#L178"],
+      "upstreamBehavior": "memory_event_to_link_record derives an ID from sequence, source ID and canonical event content, selects a subtype using kind then role then intent, and projects schema and optional fields through explicit doublets. MemoryStore validates supported notation before importing records.",
+      "adopted": "Require explicit schema and represented roles in transport; preserve addressed identity and cycles. Proof execution receipts carry an explicit schema, program, request, result and typed linked trace; replay checks them independently. The strict typed archive rejects unknown metadata rather than silently dropping it.",
+      "rejected": "The application-specific MemoryEvent taxonomy, kind/role/intent fallback, source-tier priors and sequence-based event identity are not installed as universal RML ontology or proof authority. A Type/SubType/Value graph is selected explicitly, not inferred from a serialized event label. RML does not claim to implement formal-ai's memory-event application.",
+      "rationale": "A reusable research kernel must allow user-defined event ontologies. Schema discipline and inspectable records transfer; application-specific defaults do not establish logical typing, trust or admission.",
+      "implementation": ["js/src/rml-semantic-archive.mjs", "rust/src/semantic_archive.rs", "js/src/rml-linked-proof.mjs", "rust/src/linked_proof.rs"],
+      "tests": [{"path":"scripts/formal-ai-adoption.test.mjs","name":"typed record transport rejects hidden event metadata and does not impose an ontology"}, {"path":"js/tests/researcher-workflow.test.mjs","name":"replay rejects changed context, missing premise, forged conclusion, dependencies and trace"}, {"path":"rust/tests/researcher_workflow_tests.rs","name":"researcher_rejects_forged_proof_context_trace_and_dependencies"}]
+    },
+    {
+      "topic": "context-separation",
+      "sources": ["https://github.com/link-assistant/formal-ai/blob/efb6ddb603e870253d7cb36b4ce31b292b215255/src/world_model.rs"],
+      "upstreamBehavior": "Context owns an ID, FormalSystem, substitution graph and statement map; WorldModel separates current, target and general contexts. predict applies actions to a clone before calculating a difference.",
+      "adopted": "FoundationPackages scopes local program names by package and version, makes imports explicit, and retains a distinct context on every result. revise constructs a new workspace and leaves the original intact; independent proof replay requires the caller's context.",
+      "rejected": "Do not give the kernel an implicit current, target or general world, silently merge assumptions across versions, or infer proof authority from context co-location. STRIPS action semantics are not a universal law of links.",
+      "rationale": "Named versioned foundations supply the research equivalent of explicit contexts. The common unchanged theory must be comparable under different declared laws without either silently inheriting the other's facts.",
+      "implementation": ["js/src/rml-foundation-packages.mjs", "rust/src/foundation_packages.rs", "examples/researcher-workflow.mjs", "rust/examples/researcher_workflow.rs"],
+      "tests": [{"path":"scripts/formal-ai-adoption.test.mjs","name":"context-local recalculation leaves another version and the original workspace intact"}, {"path":"js/tests/researcher-workflow.test.mjs","name":"changing a user source changes conclusions; source validation and version ownership cannot be bypassed"}, {"path":"rust/tests/researcher_workflow_tests.rs","name":"researcher_source_changes_and_workspace_ownership_are_enforced"}]
+    },
+    {
+      "topic": "dependency-recalculation",
+      "sources": ["https://github.com/link-assistant/formal-ai/blob/efb6ddb603e870253d7cb36b4ce31b292b215255/src/world_model.rs"],
+      "upstreamBehavior": "Context::recalculate repeatedly assesses all statements against a snapshot of dependency values, records checked edges, and reports changes and convergence. Batch extension recalculates once; repeated probability states can be collapsed to their mean and rechecked.",
+      "adopted": "Record concrete proof dependencies and conservative closure dependencies for incomplete searches. A selected source-rule change determines affected answers, rechecks them against the revised workspace, and reports action, changed status and the new answer. The lifecycle uses a two-step inference chain so a changed seed invalidates a transitive consequence.",
+      "rejected": "Do not install formal-ai's assumed-true prior, source evidence policy, decimal probability grid, oscillation mean, or fixed pass multiplier as universal truth or proof semantics. Do not turn saturation failure or a resource bound into falsity.",
+      "rationale": "Dependency maintenance is reusable; truth combination and cycle policy belong to the selected foundation. Rechecking an affected proof is stronger than merely changing a displayed probability or a cached status.",
+      "implementation": ["js/src/rml-foundation-workspace.mjs", "rust/src/foundation_workspace.rs", "examples/researcher-workflow.mjs", "rust/examples/researcher_workflow.rs"],
+      "tests": [{"path":"js/tests/researcher-workflow.test.mjs","name":"researcher lifecycle uses public APIs on"}, {"path":"rust/tests/researcher_workflow_tests.rs","name":"researcher_lifecycle_uses_public_closed_sk_apis"}, {"path":"scripts/formal-ai-adoption.test.mjs","name":"context-local recalculation leaves another version and the original workspace intact"}]
+    }
+  ]
+}
