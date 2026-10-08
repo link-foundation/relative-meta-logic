@@ -21,29 +21,12 @@ RUN apk add --no-cache procps
 ENV RML_CACHE_SOURCE_ARCHIVE=1
 
 WORKDIR /repo
-COPY scripts ./scripts
+# The ordinary lifecycle verifies all owned sources, providers and configuration.
+# Supply the complete declared inventory before npm invokes that guard.
+COPY . .
 WORKDIR /repo/js
-
-# Install JS dependencies first so they are cached across source changes.
-COPY js/package.json js/package-lock.json ./
 RUN node ../scripts/run-with-cache.mjs -- npm ci --omit=dev \
     && node ../scripts/build-cache.mjs --full
-
-# Copy the JS sources alongside the cached node_modules.
-COPY js/src ./src
-COPY js/vendor/meta-language/js/src ./vendor/meta-language/js/src
-COPY js/vendor/meta-language/js/package.json ./vendor/meta-language/js/
-COPY js/vendor/meta-language/LICENSE ./vendor/meta-language/
-COPY js/vendor/LICENSE.meta-language js/vendor/meta-language-provenance.json ./vendor/
-COPY js/tests ./tests
-
-# Copy the language-agnostic resources the entry points read at runtime.
-WORKDIR /repo
-COPY examples ./examples
-COPY lib ./lib
-COPY test-corpus ./test-corpus
-
-WORKDIR /repo/js
 
 ENTRYPOINT ["node", "src/rml-links.mjs"]
 CMD ["../examples/demo.lino"]

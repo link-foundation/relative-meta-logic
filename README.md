@@ -1136,15 +1136,22 @@ See `examples/self-reasoning.lino`:
 Both implementations have matching tests:
 
 ```bash
-# JavaScript
-cd js && npm test
+# From the repository root: install both runtime dependency closures, then test.
+node scripts/bootstrap.mjs
+node scripts/run-with-cache.mjs -- npm --prefix js ci
+node scripts/run-with-cache.mjs -- npm --prefix vscode ci --omit=dev
+npm --prefix js test
 
 # Rust
-cd rust && cargo test
+node scripts/run-with-cache.mjs -- cargo test --all-targets --manifest-path rust/Cargo.toml
 
 # Machine-readable bootstrap boundary and previous/current delta
-cd ../js && npm run report:bootstrap-metrics
+npm --prefix js run report:bootstrap-metrics
 ```
+
+The full JavaScript suite also executes the reconstructed editor server. Its
+`links-notation` provider comes from the editor's own locked production
+dependencies; the test does not assume an existing local editor installation.
 
 The test suites cover:
 - Tokenization, parsing, and quantization

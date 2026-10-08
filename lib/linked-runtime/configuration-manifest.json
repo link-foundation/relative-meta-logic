@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "7962b6f064e155b2961a9e1a0ccbc3e97a804ea7ea4db3ec2da09b331786ab23",
-  "archiveBytes": 712156,
-  "linkCount": 14484,
+  "archiveSha256": "8fbe26ed62bfa66442b437570bf5bac236b9451ba674566b44ea314c79856ac4",
+  "archiveBytes": 713102,
+  "linkCount": 14509,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -10,6 +10,16 @@
     "explicit user-selected input programs and external tools"
   ],
   "files": [
+    {
+      "path": ".dockerignore",
+      "sourceSha256": "e3b217dc87e1c8b5da1e91b3e75a335b0e05d0987fb6de3c0f918239a31ce455",
+      "generatedSha256": "e3b217dc87e1c8b5da1e91b3e75a335b0e05d0987fb6de3c0f918239a31ce455"
+    },
+    {
+      "path": ".gitattributes",
+      "sourceSha256": "73c431627497d03494158075cc9467fd2ec1b06d8ed79f5dc654d0c6e8f14998",
+      "generatedSha256": "73c431627497d03494158075cc9467fd2ec1b06d8ed79f5dc654d0c6e8f14998"
+    },
     {
       "path": ".github/candidates/cache-portability/manifest.json",
       "sourceSha256": "5fb216ec1e6a7ac64e25d355369c99fbbcb77ca1af0af328fa1f293a61c95565",
@@ -42,8 +52,8 @@
     },
     {
       "path": ".github/workflows/cache-portability.yml",
-      "sourceSha256": "5187fe36120b640fa949e4ab7efab131b03c04ddff1128431b0027f70be490d1",
-      "generatedSha256": "5187fe36120b640fa949e4ab7efab131b03c04ddff1128431b0027f70be490d1"
+      "sourceSha256": "25bc7e03302af296c2810f6a4a780cd1d966cf42a69bf9f80e94fdc53cafa855",
+      "generatedSha256": "25bc7e03302af296c2810f6a4a780cd1d966cf42a69bf9f80e94fdc53cafa855"
     },
     {
       "path": ".github/workflows/docker.yml",
@@ -52,8 +62,8 @@
     },
     {
       "path": ".github/workflows/formal-corpus.yml",
-      "sourceSha256": "9684962c4f2fd20e7f82df1f3db2ddcbed0d74d0d910e2d636e83b2d0555c79a",
-      "generatedSha256": "9684962c4f2fd20e7f82df1f3db2ddcbed0d74d0d910e2d636e83b2d0555c79a"
+      "sourceSha256": "0f36bcf7ba340dbc24da911da6bb3295a309196dc0e58de03adb193209ad0fd7",
+      "generatedSha256": "0f36bcf7ba340dbc24da911da6bb3295a309196dc0e58de03adb193209ad0fd7"
     },
     {
       "path": ".github/workflows/issue-183-acceptance.yml",
@@ -67,8 +77,8 @@
     },
     {
       "path": ".github/workflows/linked-target.yml",
-      "sourceSha256": "8539ace7fa5a6eb1e9927f524b07aad62e6673c3a86003a6707c1e1ed3f17f97",
-      "generatedSha256": "8539ace7fa5a6eb1e9927f524b07aad62e6673c3a86003a6707c1e1ed3f17f97"
+      "sourceSha256": "cfe377d3871b148467aaaaae7c3379cfc3f4bc72b0108be5daaa06526d828813",
+      "generatedSha256": "cfe377d3871b148467aaaaae7c3379cfc3f4bc72b0108be5daaa06526d828813"
     },
     {
       "path": ".github/workflows/lint-english.yml",
@@ -92,8 +102,8 @@
     },
     {
       "path": ".github/workflows/tests.yml",
-      "sourceSha256": "7d207f922559afc1357dd3406ede882c685825287344096b108fe46bbf930073",
-      "generatedSha256": "7d207f922559afc1357dd3406ede882c685825287344096b108fe46bbf930073"
+      "sourceSha256": "c27084e593caf253c35e15a5af3672f3f96224e010cc06c65a30ca918597bcbf",
+      "generatedSha256": "c27084e593caf253c35e15a5af3672f3f96224e010cc06c65a30ca918597bcbf"
     },
     {
       "path": ".gitmodules",
@@ -102,13 +112,13 @@
     },
     {
       "path": "docker/Dockerfile.js",
-      "sourceSha256": "c350cfcda2964ca11b7c021b65a87fcc71bd539efe4db3a03206543785f7f02e",
-      "generatedSha256": "c350cfcda2964ca11b7c021b65a87fcc71bd539efe4db3a03206543785f7f02e"
+      "sourceSha256": "4751c674756b6a637db29a6ab75602bcd66e71ed5eec91b3113e2a4a54f649a2",
+      "generatedSha256": "4751c674756b6a637db29a6ab75602bcd66e71ed5eec91b3113e2a4a54f649a2"
     },
     {
       "path": "docker/Dockerfile.rust",
-      "sourceSha256": "893f2981b76bb4320af8d0dccb197c3e0d4be68d902852ee82da6dc5f322d908",
-      "generatedSha256": "893f2981b76bb4320af8d0dccb197c3e0d4be68d902852ee82da6dc5f322d908"
+      "sourceSha256": "31029fdac62ee33c82f887965d46569a720ef0e8f6e74a8ddabf83ae2da65828",
+      "generatedSha256": "31029fdac62ee33c82f887965d46569a720ef0e8f6e74a8ddabf83ae2da65828"
     },
     {
       "path": "docker/buildkitd.toml",
@@ -524,6 +534,11 @@
       "path": "scripts/cache-policy.json",
       "sourceSha256": "963ffdc0eac46b141a17a92cac09b6e75b4716d7e1bfa9039944b850a511958a",
       "generatedSha256": "36088a2d830404d62849081346b601277312852b093d5585361e96ab3828ce29"
+    },
+    {
+      "path": "scripts/external-checkouts.json",
+      "sourceSha256": "23e3c0fd213681b706acf633d8be6b944de8cac049fb6279a6c5248d53543adf",
+      "generatedSha256": "1f025918dda229a00c214d01821e56381ea7fb0e37d94c267cde14fa2e3b942d"
     },
     {
       "path": "scripts/install-rocq-kernel.sh",

@@ -1,1 +1,3 @@
-lib/meta-theory/upstream-0.0.3-source/** -text
+# Source and configuration manifests pin repository blob bytes on every platform.
+# Do not let core.autocrlf rewrite those bytes during checkout or staging.
+* -text

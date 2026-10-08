@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
   "moduleCount": 158,
-  "linkCount": 261007,
+  "linkCount": 261209,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "0173a5cb5215760693ce9cb4265e64ab4f0d2c90e4efb47280d8c8f56a132881",
-  "archiveBytes": 1603217,
+  "archiveSha256": "9d91225122d103266fa3f32925acee2707342adc4fffc1ebab9bd545bc529411",
+  "archiveBytes": 1604113,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -946,15 +946,15 @@
     },
     {
       "path": "scripts/linked-executable-inventory.mjs",
-      "sourceSha256": "063e1cd9ab4770512ef74534e63ce6eed61422414238d2275b07a2e21dc18ce8",
-      "astSha256": "349f07f826c65718c85c6ace4703a13a62d3eeb83dc30ac09e99b745c7208df6",
-      "generatedSha256": "a28ea899ee2d1dcf3b44bd0293fc0b13396265a3ced798759952a319726edb59"
+      "sourceSha256": "0379850d03e48c439d49115d019e95dc8a4f378d3b75b38324399abe82e2b1f0",
+      "astSha256": "80c4e896891b66ab931c8b8bdf845d91b461291aa4b3963968790969153a41ab",
+      "generatedSha256": "0ca87656595d5fe5fd12573943fa213fb26fa059c14067876398b7c2bc5dc8ed"
     },
     {
       "path": "scripts/linked-implementation-configuration.mjs",
-      "sourceSha256": "adbf777f025c78a530424c62ac7ce2f80c2f92e349dede9a81f462c48b02c7d4",
-      "astSha256": "9ac47f038418dc1f3bc592ca06b6dd8cc2f63add20bfa68f1d3568afacba0755",
-      "generatedSha256": "7be1896a702bc69d7465778fe1da7c5cea8c5951bd1528cf7dac81f449bc794d"
+      "sourceSha256": "ff3b26e09eefd74440d3559c770065679d7b85514a4a1ba214c571030083b908",
+      "astSha256": "e46ceb5ce3d4fbac5209dd8e984e68f05d5933140831ae1bdeb90c4282445174",
+      "generatedSha256": "a0f23caa9bc8aec78c7f93853113103596c374b1ba8bb22f4d8c94ba85e55330"
     },
     {
       "path": "scripts/linked-runtime-codegen.mjs",

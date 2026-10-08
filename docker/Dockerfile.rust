@@ -25,10 +25,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-COPY scripts ./scripts
-COPY rust/Cargo.toml rust/Cargo.lock ./rust/
-COPY rust/src ./rust/src
-COPY lib/meta-theory /build/lib/meta-theory
+# The ordinary lifecycle verifies the complete source/configuration inventory.
+COPY . .
 WORKDIR /build/rust
 
 # Consume final binaries before cleanup, in the same layer as compilation.

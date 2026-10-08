@@ -1,13 +1,8 @@
 .git
-.github
 node_modules
 **/node_modules
 target
 **/target
-docs
-vscode
-experiments
-**/experiments
 *.log
 .env
 .env.*

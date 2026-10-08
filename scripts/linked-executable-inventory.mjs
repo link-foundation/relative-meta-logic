@@ -75,7 +75,18 @@ function boundaries(root) {
   if (existsSync(submodules)) for (const match of readFileSync(submodules, 'utf8').matchAll(/^\s*path\s*=\s*(.+?)\s*$/gm)) {
     if (!safeImplementationPath(match[1])) throw new TypeError('unsafe external submodule boundary'); external.push(match[1]);
   }
-  return { generated, external };
+  const checkouts = [];
+  const checkoutPolicy = resolve(root, 'scripts/external-checkouts.json');
+  if (existsSync(checkoutPolicy)) {
+    const policy = JSON.parse(readFileSync(checkoutPolicy, 'utf8'));
+    if (policy.schema !== 'rml-external-checkouts/v1' || !Array.isArray(policy.checkouts)) throw new TypeError('invalid external checkout policy');
+    for (const item of policy.checkouts) {
+      if (!safeImplementationPath(item.path) || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(item.repository ?? '') || !/^[0-9a-f]{40}$/.test(item.revision ?? '')) throw new TypeError('unsafe or unpinned external checkout boundary');
+      if ([...external, ...checkouts].some(path => under(item.path, path) || under(path, item.path))) throw new TypeError('overlapping external checkout boundary');
+      checkouts.push(item.path);
+    }
+  }
+  return { generated, external, checkouts };
 }
 
 export function discoverExecutableInventory(root, { entrypointLanguages = ['javascript', 'rust'] } = {}) {
@@ -87,6 +98,7 @@ export function discoverExecutableInventory(root, { entrypointLanguages = ['java
       if (entry.name === '.git') { excluded.push({ path, role: 'git-metadata' }); continue; }
       if (entry.name === 'node_modules') { excluded.push({ path, role: 'external-installed-packages' }); continue; }
       if (boundary.external.some(p => under(path, p))) { excluded.push({ path, role: 'declared-external-submodule' }); continue; }
+      if (boundary.checkouts.some(p => under(path, p))) { excluded.push({ path, role: 'declared-external-checkout' }); continue; }
       if (boundary.generated.some(p => under(path, p)) || (entry.name === 'target' && existsSync(resolve(root, directory, 'Cargo.toml')))) { excluded.push({ path, role: 'registered-generated-output' }); continue; }
       if (entry.isSymbolicLink() && evidence(path)) { excluded.push({ path, role: 'external-evidence-input' }); continue; }
       if (entry.isSymbolicLink()) throw new TypeError(`owned executable discovery refuses symlink: ${path}`);

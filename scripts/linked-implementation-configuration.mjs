@@ -32,7 +32,7 @@ export function implementationConfigurationInventory(root = repositoryRoot) {
       else if (entry.isFile() && accept(path)) paths.add(path);
     }
   }
-  for (const path of ['js/package.json', 'js/package-lock.json', 'js/vendor/meta-language-provenance.json', '.gitmodules', 'rust-toolchain', 'rust-toolchain.toml', 'scripts/cache-policy.json', 'scripts/linked-runtime-rust/Cargo.toml', 'scripts/linked-runtime-rust/Cargo.lock']) if (existsSync(resolve(root, path))) paths.add(path);
+  for (const path of ['js/package.json', 'js/package-lock.json', 'js/vendor/meta-language-provenance.json', '.gitmodules', 'rust-toolchain', 'rust-toolchain.toml', 'scripts/cache-policy.json', 'scripts/external-checkouts.json', '.gitattributes', '.dockerignore', 'scripts/linked-runtime-rust/Cargo.toml', 'scripts/linked-runtime-rust/Cargo.lock']) if (existsSync(resolve(root, path))) paths.add(path);
   visit('rust', configurationFile);
   visit('lib', libraryFile);
   visit('scripts', providerFile);

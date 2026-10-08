@@ -23,7 +23,11 @@ let serial = 0;
 function write(root, path, text) { const file = join(root, path); mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, text); }
 function prepare(source = archive) {
   const root = join(scratch, `runtime-${serial++}`); emitLinkedImplementation(source, root); emitImplementationConfiguration(configuration, root);
-  for (const pkg of ['js', 'vscode']) symlinkSync(join(repositoryRoot, pkg, 'node_modules'), join(root, pkg, 'node_modules'), 'dir');
+  for (const pkg of ['js', 'vscode']) {
+    const providers = join(repositoryRoot, pkg, 'node_modules');
+    assert.ok(existsSync(providers), `Missing ${pkg} runtime providers; run npm --prefix ${pkg} ci${pkg === 'vscode' ? ' --omit=dev' : ''} before the full integration suite`);
+    symlinkSync(providers, join(root, pkg, 'node_modules'), 'dir');
+  }
   mkdirSync(join(root, 'js/vendor'), { recursive: true }); symlinkSync(join(repositoryRoot, 'js/vendor/meta-language'), join(root, 'js/vendor/meta-language'), 'dir');
   return root;
 }

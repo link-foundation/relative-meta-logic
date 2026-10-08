@@ -32,7 +32,7 @@ jobs:
       - name: Install repository build lifecycle
         run: node scripts/bootstrap.mjs
       - name: Execute installed hooks and real platform lifecycle
-        run: node scripts/run-with-cache.mjs -- node --test --test-concurrency=2 scripts/build-cache.test.mjs scripts/build-cache-policy.test.mjs scripts/build-resource-monitor.test.mjs
+        run: node scripts/run-with-cache.mjs -- node --test --test-concurrency=2 scripts/build-cache.test.mjs scripts/build-cache-policy.test.mjs scripts/build-resource-monitor.test.mjs scripts/ci-source-context.test.mjs
       - name: Archive platform evidence before teardown
         if: always()
         uses: actions/upload-artifact@v7

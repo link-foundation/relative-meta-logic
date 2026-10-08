@@ -51,6 +51,8 @@ jobs:
       - name: Install JavaScript dependencies
         working-directory: js
         run: node ../scripts/run-with-cache.mjs -- npm ci
+      - name: Install editor runtime providers for source-free integration tests
+        run: node scripts/run-with-cache.mjs -- npm --prefix vscode ci --omit=dev
       - name: Run full JS test suite
         working-directory: js
         run: npm test
