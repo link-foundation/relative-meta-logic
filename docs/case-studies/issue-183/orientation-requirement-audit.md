@@ -113,7 +113,19 @@ temporary copy of the runner with those historical version pins; the maintained
 runner still strictly requires Lean 4.34.1 and stable Rocq 9.3.0. The temporary
 copy was removed after verification. Eight Node contract tests also passed.
 
-The new 42-theorem revision requires fresh hosted verification under those
-maintained versions. The earlier successful checks on the 33-theorem head do
-not certify the additions. This patch changes no runtime, source snapshot,
-requirement status, PR metadata, or external repository state.
+Hosted verification now passes at commit
+`8cf2af665adaa94b8f25f5ca33b81cbe22f0a75b` under the maintained versions:
+[Lean 4.34.1](https://github.com/link-foundation/relative-meta-logic/actions/runs/37831346895/job/113497183331)
+and [Rocq 9.3.0 with stdlib 9.2.0](https://github.com/link-foundation/relative-meta-logic/actions/runs/37831346895/job/113497182980).
+The PR head and CI merge revision contain identical proof source bytes. Their
+SHA-256 values are `2728113d0332f4a7eb5ccc35d043044f0a5f8b940846be6d094d5145bc32126d`
+for Lean and `9e4e5ddc7af370c35e729e52eff72a4440b4c6af76e4b8c1622810faf2fc80b8`
+for Rocq.
+
+Each successful checker invocation requires all 42 named theorems to compile
+without added axioms and all five false claims to fail with the expected proof
+diagnostics. This establishes the maintained-toolchain check of 84 theorem
+instances and 10 negative controls. Those counts follow the exact source
+inventory and successful checker contract; the archived JSON artifacts were
+not separately inspected. The proof scope and unresolved applicability
+contract above are unchanged, so R147 and R148 remain partial.

@@ -29,7 +29,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -39,7 +39,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -49,7 +49,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -64,7 +64,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -195,7 +195,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -205,7 +205,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -215,7 +215,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -230,7 +230,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -361,7 +361,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -371,7 +371,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -381,7 +381,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -396,7 +396,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -539,7 +539,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -549,7 +549,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -559,7 +559,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -574,7 +574,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -699,7 +699,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -709,7 +709,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -719,7 +719,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -734,7 +734,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -837,7 +837,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -847,7 +847,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -857,7 +857,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -872,7 +872,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -1018,7 +1018,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -1261,7 +1261,7 @@
         },
         {
           "path": ".github/workflows/formal-corpus.yml",
-          "sha256": "56b00eb5da19fdb885c0a9f411cb07c614bdb75364ac4db400abb5387a781f79",
+          "sha256": "0f36bcf7ba340dbc24da911da6bb3295a309196dc0e58de03adb193209ad0fd7",
           "role": "historical-claim"
         }
       ],
@@ -1571,12 +1571,12 @@
       "implementationClaims": [
         {
           "path": "js/package.json",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50",
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e",
           "role": "historical-claim"
         },
         {
           "path": "rust/Cargo.toml",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259",
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40",
           "role": "historical-claim"
         }
       ],
@@ -2297,7 +2297,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -2307,7 +2307,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -2317,7 +2317,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -2332,7 +2332,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -2705,7 +2705,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -2715,7 +2715,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -2725,7 +2725,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -2740,7 +2740,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -2962,7 +2962,7 @@
       "implementationClaims": [
         {
           "path": "README.md",
-          "sha256": "4dc0d5be7140d4e023771171a2473dca43a730239889b2474f712599da7b5ad6",
+          "sha256": "4f2de62835c96bf23fbb9c15075ed897a3a2eeff0edf8ab76e831bfe46db48d5",
           "role": "historical-claim"
         },
         {
@@ -3050,7 +3050,7 @@
       "implementationClaims": [
         {
           "path": "README.md",
-          "sha256": "4dc0d5be7140d4e023771171a2473dca43a730239889b2474f712599da7b5ad6",
+          "sha256": "4f2de62835c96bf23fbb9c15075ed897a3a2eeff0edf8ab76e831bfe46db48d5",
           "role": "historical-claim"
         },
         {
@@ -3093,12 +3093,12 @@
       "implementationClaims": [
         {
           "path": "js/src/rml-linked-program.mjs",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b",
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd",
           "role": "historical-claim"
         },
         {
           "path": "rust/src/linked_program.rs",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f",
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8",
           "role": "historical-claim"
         }
       ],
@@ -3291,7 +3291,7 @@
       "implementationClaims": [
         {
           "path": "js/src/rml-foundation-search.mjs",
-          "sha256": "819c758b84c525fcef81f5975ab9fee25ccbfa235cce2ecaa2b26984adf8fa43",
+          "sha256": "ad1e825bfb6bd6b9db33174c538d662f42ca8e1f816e2e866e933975afbb045a",
           "role": "historical-claim"
         }
       ],
@@ -4888,7 +4888,7 @@
         },
         {
           "path": ".github/workflows/tests.yml",
-          "sha256": "99c09e0d5cfbcc2aa4614e2371c0acf96808aef0d9a5cd730f2a68708ede20b5",
+          "sha256": "c27084e593caf253c35e15a5af3672f3f96224e010cc06c65a30ca918597bcbf",
           "role": "historical-claim"
         }
       ],
@@ -5221,7 +5221,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -6545,7 +6545,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -7745,7 +7745,7 @@
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         }
       ],
       "claimedEvidence": "`docs/UPSTREAM_LANGUAGE_SOURCE.md`, the registered `js/vendor/meta-language` gitlink, `js/vendor/meta-language-provenance.json`, both dependency locks and the public `rml-upstream-language`/`upstream_language` adapters consume the same unmodified official commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb` resolving upstream issue 195. Shared downstream tests execute real four-language grammars, bindings, structured edits, multi-file resolution, snapshots and twelve translator contracts; malformed/capture/missing-context/unsupported cases are checked. Provenance verifies 235 runtime files and bootstrap rejects wrong or dirty source. `Registry publication is separately incomplete in R133; full-language semantic acceptance remains open in R101 and R104–R109`.",
@@ -8197,7 +8197,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -8367,7 +8367,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -9806,7 +9806,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "rust/src/js_rename.rs",
@@ -11281,7 +11281,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -12771,7 +12771,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -14251,7 +14251,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -16469,7 +16469,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -16489,7 +16489,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -16934,7 +16934,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -16954,7 +16954,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -17102,7 +17102,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "lib/foundations/packages.lino",
@@ -17122,7 +17122,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         }
       ],
       "claimedEvidence": "`lib/foundations/confidence.lino` represents separately validated probability, confidence, source dependencies, event-independence and confidence-independence assumptions as links. Selected versioned foundations choose minimum or product confidence without host policy callbacks. Mirrored `confidence-context` tests use shared expected values and demonstrate evidence/assumption/dependency/policy mutation with rechecking and cross-version isolation; negative tests reject invalid rationals, missing independence and inference from probability one to object-level truth. The full joint example runs on the public direct-structural basis; selected operations and source proofs run on closed S/K, whose full joint computation explicitly reports its 100-million-contraction limit. `Whole-product self-hosting is not claimed` (R64/R149).",
@@ -17333,7 +17333,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -17353,7 +17353,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -17853,7 +17853,7 @@
       "implementationClaims": [
         {
           "path": "js/package.json",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50",
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e",
           "role": "historical-claim"
         },
         {
@@ -17864,7 +17864,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -19064,7 +19064,7 @@
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         }
       ],
       "claimedEvidence": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release.",
@@ -19368,7 +19368,7 @@
         },
         {
           "path": ".github/workflows/tests.yml",
-          "sha256": "99c09e0d5cfbcc2aa4614e2371c0acf96808aef0d9a5cd730f2a68708ede20b5",
+          "sha256": "c27084e593caf253c35e15a5af3672f3f96224e010cc06c65a30ca918597bcbf",
           "role": "historical-claim"
         },
         {
@@ -20084,7 +20084,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "scripts/combinator-source.mjs",
@@ -20104,7 +20104,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -20331,17 +20331,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -20630,17 +20630,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -20802,17 +20802,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -21101,17 +21101,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -21273,17 +21273,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -21445,17 +21445,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -21617,17 +21617,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -21789,17 +21789,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -21961,17 +21961,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -22142,7 +22142,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -22162,12 +22162,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -22243,7 +22243,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -22263,12 +22263,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -22336,7 +22336,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "scripts/combinator-source.mjs",
@@ -22366,12 +22366,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -22422,7 +22422,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -22442,12 +22442,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -22500,7 +22500,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -22510,7 +22510,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -22520,7 +22520,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "lib/meta-theory/core.lino",
@@ -22550,12 +22550,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -22676,7 +22676,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -22721,12 +22721,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -22880,17 +22880,17 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "15d4ca580e7e039f0dc0376129d93c3122512168ec646b05d9939b9356282f64"
+          "sha256": "a9992ea02498fd4d7bf0242e982839517a0b0c8896e2b1186faa94d2f513094e"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -22966,17 +22966,17 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "6645d2c18b842bf17f9c8512e0b32f1db4bb6f60fa53054640c096216460bbef"
+          "sha256": "bd9eb0a72aae33f67cbb9129ba8a5c6890ac5817adff030cabaa4df922a595a0"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -23049,7 +23049,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -23079,12 +23079,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -23200,12 +23200,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         },
         {
           "path": "test-corpus/meta-language/expansion-cases.json",
@@ -23273,7 +23273,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "test-corpus/meta-language/identifier-rewrites.json",
@@ -23283,12 +23283,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -23444,12 +23444,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -23487,7 +23487,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "85fa3e0a6ff2382fffc4dc85c9150dde456ceee9f0a271b85b0921f0a87db07b"
+          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
         },
         {
           "path": "lib/foundations/packages.lino",
@@ -23512,12 +23512,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -23588,7 +23588,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "4eea757b422061ec0e9b10d5e7158fb7232c29bc1df4876f88e769eaec23c44f"
+          "sha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8"
         },
         {
           "path": "lib/foundations/packages.lino",
@@ -23613,12 +23613,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -23691,12 +23691,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -23772,12 +23772,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -23825,22 +23825,22 @@
         {
           "path": "scripts/build-cache.test.mjs",
           "role": "test",
-          "sha256": "c49a7f342c4d8f64834664914b37fb096496e00812fbfed75e3a89e7771a28d0"
+          "sha256": "34fdfd2eb9462708b8757bdde2489f2a46c80f3e96fc19b7b1343efe17e4eed2"
         },
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130"
+          "sha256": "9591459a44853a6a6c8d16c68512e5282c41f868b6266c993581e5adc0922d26"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74"
+          "sha256": "d29f3f251de1b8bd36a6ba05e84993536ffdee3034d7fffe7daa6237d428c92b"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -23987,12 +23987,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -24198,12 +24198,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -24271,12 +24271,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -24363,12 +24363,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -24451,12 +24451,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -24738,12 +24738,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -24821,7 +24821,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "b59d93e020a242e077c3f8fd966fe245623f0e53ffbe60027ea0a97e964a0757"
+          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -26021,12 +26021,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "12c8212a95bc859d3003809365481d9714562c44ab097ea5c76dbec1f8a52a50"
+          "sha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "b6a35972d244adb3204503644336cfe8e434d10ac47edf21d72c3c2b86b56f4e"
+          "sha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b"
         },
         {
           "path": ".gitmodules",
@@ -26172,12 +26172,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "b8777b3fa8a9bbf076cc2d241f4edefeaefa06ccbd18695f38d91f1fc178a259"
+          "sha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "e92f8243ec20caf89c22c1417f2ae946b3db0fafc05cbb0637a3ad586e9ec99e"
+          "sha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
         }
       ],
       "assertions": [
@@ -26250,7 +26250,7 @@
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "7c05e655b0d207a8c0ca5e29cf4a0f1a7f3b34b6334365d57bd2fb6d6f01224c"
+          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
         },
         {
           "path": ".gitmodules",
