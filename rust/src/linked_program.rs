@@ -6490,6 +6490,15 @@ impl DirectRuleDispatch {
     }
 }
 
+// Run-local normality metadata follows the owned result tree. A replaced
+// subtree loses its metadata; untouched siblings retain it. No raw addresses
+// or historical terms are retained, so allocation reuse cannot imply equality.
+enum DirectResultNormality {
+    Unknown,
+    Children(Vec<DirectResultNormality>),
+    Normal,
+}
+
 #[cfg(test)]
 #[path = "linked_program/dispatch_tests.rs"]
 mod dispatch_contract_tests;
@@ -8021,6 +8030,98 @@ impl LinkedProgramRegistry {
         Ok(None)
     }
 
+    // Result-only reduction owns a detached input and retains no history. A
+    // rewrite may therefore replace just its selected subtree in place. The
+    // matcher and instantiator still run unchanged, and replacements remain
+    // owned. Structural equality is a congruence: the whole root would be
+    // unchanged exactly when this selected subtree is unchanged.
+    fn direct_rewrite_result_in_place(
+        &self,
+        term: &mut Node,
+        normality: &mut DirectResultNormality,
+        normal_atoms: &mut BTreeSet<String>,
+        rules: &[RewriteRule],
+        paths: &[&str],
+        dispatch: &DirectRuleDispatch,
+    ) -> Result<bool, String> {
+        if matches!(normality, DirectResultNormality::Normal) {
+            return Ok(false);
+        }
+        if let Node::Leaf(value) = term {
+            if normal_atoms.contains(value) {
+                *normality = DirectResultNormality::Normal;
+                return Ok(false);
+            }
+        }
+        self.observe(paths, "select-and-traverse-rewrite-rules")?;
+        let mut next_index = 0;
+        for index in dispatch.candidates(term, rules.len()) {
+            if index > next_index {
+                self.observe(paths, "compare-link-structure")?;
+            }
+            next_index = index + 1;
+            let rule = &rules[index];
+            let mut substitution = BTreeMap::new();
+            let mut observe = |operation| self.observe(paths, operation);
+            if direct_match_borrowed(&rule.pattern, term, &mut substitution, &mut observe)? {
+                let next =
+                    direct_instantiate_borrowed(&rule.replacement, &substitution, &mut observe)?;
+                if next == *term {
+                    return Err(format!(
+                        "linked rewrite {}.{} made no progress",
+                        rule.program, rule.name
+                    ));
+                }
+                *term = next;
+                *normality = DirectResultNormality::Unknown;
+                return Ok(true);
+            }
+        }
+        if next_index < rules.len() {
+            self.observe(paths, "compare-link-structure")?;
+        }
+        match term {
+            Node::List(children) => {
+                if matches!(normality, DirectResultNormality::Unknown) {
+                    *normality = DirectResultNormality::Children(
+                        children
+                            .iter()
+                            .map(|_| DirectResultNormality::Unknown)
+                            .collect(),
+                    );
+                }
+                let DirectResultNormality::Children(child_states) = normality else {
+                    unreachable!("a known normal subtree returned before traversal")
+                };
+                assert_eq!(
+                    children.len(),
+                    child_states.len(),
+                    "normality metadata must follow the owned tree"
+                );
+                for (child, child_state) in children.iter_mut().zip(child_states.iter_mut()) {
+                    if self.direct_rewrite_result_in_place(
+                        child,
+                        child_state,
+                        normal_atoms,
+                        rules,
+                        paths,
+                        dispatch,
+                    )? {
+                        return Ok(true);
+                    }
+                }
+            }
+            Node::Leaf(value) => {
+                normal_atoms.insert(value.clone());
+            }
+        }
+        // Rules and disabled-operation guards are fixed for this reduction.
+        // Earlier complete visits already contributed the same set-valued
+        // observations; a normal subtree has no actual rewrite to skip.
+        *normality = DirectResultNormality::Normal;
+        Ok(false)
+    }
+
     /// Execute every ordered rewrite, retaining only the final term and count.
     /// `max_steps` must be positive. As with [`reduce`](Self::reduce), a normal
     /// form must be observed before the step limit is reached. Stalled rewrites
@@ -8055,20 +8156,19 @@ impl LinkedProgramRegistry {
             let rules =
                 self.effective_rewrites(name, &semantic_paths, &mut BTreeSet::new(), &[])?;
             let dispatch = DirectRuleDispatch::new(&rules);
+            let mut normality = DirectResultNormality::Unknown;
+            let mut normal_atoms = BTreeSet::new();
             for steps in 0..max_steps {
-                let Some((next, rule_index)) =
-                    self.direct_rewrite_once(&term, &rules, &semantic_paths, &dispatch)?
-                else {
+                if !self.direct_rewrite_result_in_place(
+                    &mut term,
+                    &mut normality,
+                    &mut normal_atoms,
+                    &rules,
+                    &semantic_paths,
+                    &dispatch,
+                )? {
                     return Ok(ReductionSummary { term, steps });
-                };
-                if next == term {
-                    let rule = &rules[rule_index];
-                    return Err(format!(
-                        "linked rewrite {}.{} made no progress",
-                        rule.program, rule.name
-                    ));
                 }
-                term = next;
             }
         } else {
             let rules =
