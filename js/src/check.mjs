@@ -16,6 +16,8 @@ import {
   parseOne,
   tokenizeOne,
   keyOf,
+  emitLinoTerm,
+  isDefinitionForm,
   isStructurallySame,
 } from './rml-links.mjs';
 
@@ -49,9 +51,9 @@ function collectAssignments(forms) {
       isNum(f[3])
     ) {
       const inner = f[0];
-      out.add(keyOf(inner));
+      out.add(emitLinoTerm(inner));
       if (Array.isArray(inner) && inner.length === 3 && inner[1] === '=') {
-        out.add(keyOf(['=', inner[0], inner[2]]));
+        out.add(emitLinoTerm(['=', inner[0], inner[2]]));
       }
     }
   }
@@ -121,7 +123,7 @@ function expectedRule(expr, ops, assigned) {
   if (!Array.isArray(expr)) return 'reduce';
 
   const head = expr[0];
-  if (typeof head === 'string' && head.endsWith(':')) return 'definition';
+  if (isDefinitionForm(expr, ops)) return 'definition';
   if (head === 'Type' && expr.length === 2) return 'type-universe';
   if (head === 'Prop' && expr.length === 1) return 'prop';
   if (head === 'Pi' && expr.length === 3) return 'pi-formation';
@@ -166,8 +168,8 @@ function expectedRule(expr, ops, assigned) {
     if (op === '=' || op === '!=') {
       const L = expr[0];
       const R = expr[2];
-      const kP = keyOf(['=', L, R]);
-      const kI = keyOf([L, '=', R]);
+      const kP = emitLinoTerm(['=', L, R]);
+      const kI = emitLinoTerm([L, '=', R]);
       const isAssigned = assigned.has(kP) || assigned.has(kI);
       if (op === '!=') {
         if (isAssigned) return 'assigned-inequality';

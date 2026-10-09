@@ -31,13 +31,13 @@ jobs:
           node scripts/check-linked-implementation.mjs
           node scripts/run-with-cache.mjs -- node --test scripts/linked-target-abi.test.mjs
       - name: Build generic pinned Rust syntax provider
-        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-helper --retain .rml-cache/linked-runtime-helper -- cargo build --locked --manifest-path scripts/linked-runtime-rust/Cargo.toml --target-dir .rml-cache/linked-runtime-helper
+        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-helper --retain .rml-cache/linked-runtime-helper --isolate-output .rml-cache/linked-runtime-helper -- cargo build --locked --manifest-path scripts/linked-runtime-rust/Cargo.toml --target-dir .rml-cache/linked-runtime-helper
       - name: Reject stale generated target adapters
-        run: node scripts/generate-linked-target.mjs --check .rml-cache/linked-runtime-helper/debug/rml-linked-rust-ast
+        run: node scripts/generate-linked-target.mjs --check "$(node scripts/build-cache.mjs --output-path .rml-cache/linked-runtime-helper)/debug/rml-linked-rust-ast"
       - name: Fetch the locked native target dependency closure
         run: node scripts/run-with-cache.mjs -- cargo fetch --locked --manifest-path rust/linked-target/Cargo.toml
       - name: Compare real generated and native RML execution
-        run: node scripts/run-with-cache.mjs --cache .rml-cache/target-abi -- node scripts/verify-linked-target.mjs .rml-cache/linked-runtime-helper/debug/rml-linked-rust-ast .rml-cache/target-abi
+        run: node scripts/run-with-cache.mjs --cache .rml-cache/target-abi --isolate-output .rml-cache/target-abi -- node scripts/verify-linked-target.mjs "$(node scripts/build-cache.mjs --output-path .rml-cache/linked-runtime-helper)/debug/rml-linked-rust-ast" "{output}"
       - name: Preserve observations and lifecycle evidence
         if: always()
         uses: actions/upload-artifact@v7

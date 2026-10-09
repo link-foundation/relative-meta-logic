@@ -370,48 +370,7 @@ impl fmt::Display for Node {
 
 /// Tokenize a single link string into tokens (parens and words).
 pub fn tokenize_one(s: &str) -> Vec<String> {
-    let mut s = s.to_string();
-
-    // Strip inline comments (everything after #) but balance parens
-    if let Some(comment_idx) = s.find('#') {
-        s = s[..comment_idx].to_string();
-        // Count unmatched opening parens and add closing parens to balance
-        let mut depth: i32 = 0;
-        for c in s.chars() {
-            if c == '(' {
-                depth += 1;
-            } else if c == ')' {
-                depth -= 1;
-            }
-        }
-        while depth > 0 {
-            s.push(')');
-            depth -= 1;
-        }
-    }
-
-    let mut out = Vec::new();
-    let chars: Vec<char> = s.chars().collect();
-    let mut i = 0;
-
-    while i < chars.len() {
-        let c = chars[i];
-        if c.is_whitespace() {
-            i += 1;
-            continue;
-        }
-        if c == '(' || c == ')' {
-            out.push(c.to_string());
-            i += 1;
-            continue;
-        }
-        let j_start = i;
-        while i < chars.len() && !chars[i].is_whitespace() && chars[i] != '(' && chars[i] != ')' {
-            i += 1;
-        }
-        out.push(chars[j_start..i].iter().collect());
-    }
-    out
+    lino_frontend::tokenize_lino_form(s).unwrap_or_default()
 }
 
 /// Parse tokens into an AST node.
@@ -428,7 +387,7 @@ pub fn parse_one(tokens: &[String]) -> Result<Node, String> {
             if tokens[*i] == "(" {
                 arr.push(read(tokens, i)?);
             } else {
-                arr.push(Node::Leaf(tokens[*i].clone()));
+                arr.push(Node::Leaf(lino_frontend::decode_lino_token(&tokens[*i]).map_err(|e| e.to_string())?));
                 *i += 1;
             }
         }
@@ -523,6 +482,55 @@ pub fn key_of(node: &Node) -> String {
     }
 }
 
+/// Lossless LiNo transport and semantic identity. Display remains human-readable.
+///
+/// # Panics
+/// Panics explicitly when a caller-supplied tree exceeds the existing LiNo
+/// source/nesting limits. Use [`try_emit_lino_term`] for a fallible boundary.
+pub fn emit_lino_term(node: &Node) -> String {
+    try_emit_lino_term(node).expect("LiNo term is outside the supported source limits")
+}
+
+/// Emit a caller-supplied tree within the same limits as document ingress.
+/// Rust's owned Node tree cannot contain reference cycles or shared children.
+pub fn try_emit_lino_term(node: &Node) -> Result<String, String> {
+    fn append(out: &mut String, units: &mut usize, text: &str) -> Result<(), String> {
+        *units += text.encode_utf16().count();
+        if *units > MAX_LINO_SOURCE_UNITS { return Err("LiNo term exceeds the source length limit".to_string()); }
+        out.push_str(text);
+        Ok(())
+    }
+    fn visit(node: &Node, depth: usize, out: &mut String, units: &mut usize) -> Result<(), String> {
+        match node {
+            Node::Leaf(value) => {
+                if value.len() > MAX_LINO_SOURCE_UNITS && value.encode_utf16().count() > MAX_LINO_SOURCE_UNITS {
+                    return Err("LiNo term exceeds the source length limit".to_string());
+                }
+                append(out, units, &links_notation::LiNo::Ref(value.clone()).to_string())
+            },
+            Node::List(children) => {
+                if depth >= MAX_LINO_NESTING_DEPTH { return Err("LiNo term exceeds the nesting limit".to_string()); }
+                append(out, units, "(")?;
+                for (index, child) in children.iter().enumerate() {
+                    if index > 0 { append(out, units, " ")?; }
+                    visit(child, depth + 1, out, units)?;
+                }
+                append(out, units, ")")
+            }
+        }
+    }
+    let mut out = String::new();
+    let mut units = 0;
+    visit(node, 0, &mut out, &mut units)?;
+    Ok(out)
+}
+
+pub(crate) fn is_definition_form(node: &Node, is_operator: impl Fn(&str) -> bool) -> bool {
+    let Node::List(children) = node else { return false; };
+    matches!(children.first(), Some(Node::Leaf(head)) if head.ends_with(':')) &&
+        !(children.len() == 3 && matches!(&children[1], Node::Leaf(op) if op == "of" || is_operator(op)))
+}
+
 fn parse_universe_level_token(token: &str) -> Option<u64> {
     if token.is_empty() || !token.chars().all(|c| c.is_ascii_digit()) {
         return None;
@@ -551,15 +559,11 @@ fn universe_type_key(node: &Node) -> Option<String> {
 }
 
 fn infer_type_key(node: &Node, env: &mut Env) -> Option<String> {
-    let key = match node {
-        Node::Leaf(s) => s.clone(),
-        other => key_of(other),
-    };
-    if let Some(recorded) = env.get_type(&key) {
+    if let Some(recorded) = env.get_type_node(node) {
         return Some(recorded.clone());
     }
     if let Some(type_key) = universe_type_key(node) {
-        env.set_type(&key, &type_key);
+        env.set_type_node(node, &type_key_to_node(&type_key));
         return Some(type_key);
     }
     None
@@ -1954,8 +1958,8 @@ impl Env {
             .values()
             .map(|r| ProofRuleSnapshot {
                 name: r.name.clone(),
-                premises: r.premises.iter().map(key_of).collect(),
-                conclusion: key_of(&r.conclusion),
+                premises: r.premises.iter().map(emit_lino_term).collect(),
+                conclusion: emit_lino_term(&r.conclusion),
             })
             .collect();
         proof_rules.sort_by(|a, b| a.name.cmp(&b.name));
@@ -1965,7 +1969,7 @@ impl Env {
             .map(|a| ProofAssumptionSnapshot {
                 name: a.name.clone(),
                 kind: a.kind.clone(),
-                judgement: key_of(&a.judgement),
+                judgement: emit_lino_term(&a.judgement),
             })
             .collect();
         proof_assumptions.sort_by(|a, b| a.name.cmp(&b.name));
@@ -1975,9 +1979,9 @@ impl Env {
             .map(|po| ProofObjectSnapshot {
                 name: po.name.clone(),
                 rule: po.rule.clone(),
-                premises: po.premises.iter().map(key_of).collect(),
+                premises: po.premises.iter().map(emit_lino_term).collect(),
                 premise_refs: po.premise_refs.clone(),
-                conclusion: key_of(&po.conclusion),
+                conclusion: emit_lino_term(&po.conclusion),
             })
             .collect();
         proof_objects.sort_by(|a, b| a.name.cmp(&b.name));
@@ -2084,7 +2088,7 @@ impl Env {
                     name: ax.name.clone(),
                     kind: ax.kind.clone(),
                     rule: None,
-                    judgement: Some(key_of(&ax.judgement)),
+                    judgement: Some(emit_lino_term(&ax.judgement)),
                 });
                 continue;
             }
@@ -2099,7 +2103,7 @@ impl Env {
                     name: dep.name.clone(),
                     kind: "proof-object".to_string(),
                     rule: Some(dep.rule.clone()),
-                    judgement: Some(key_of(&dep.conclusion)),
+                    judgement: Some(emit_lino_term(&dep.conclusion)),
                 });
                 continue;
             }
@@ -2181,8 +2185,8 @@ impl Env {
         ProofReport {
             name: name.to_string(),
             rule: Some(po.rule.clone()),
-            conclusion: Some(key_of(&po.conclusion)),
-            premises: po.premises.iter().map(key_of).collect(),
+            conclusion: Some(emit_lino_term(&po.conclusion)),
+            premises: po.premises.iter().map(emit_lino_term).collect(),
             premise_refs: po.premise_refs.clone(),
             verdict,
             dependencies,
@@ -2297,7 +2301,7 @@ impl Env {
             if self.ops.contains_key(&qualified)
                 || self.symbol_prob.contains_key(&qualified)
                 || self.terms.contains(&qualified)
-                || self.types.contains_key(&qualified)
+                || self.types.contains_key(&emit_lino_term(&leaf(&qualified)))
                 || self.lambdas.contains_key(&qualified)
                 || self.templates.contains_key(&qualified)
             {
@@ -2308,7 +2312,7 @@ impl Env {
     }
 
     pub fn set_expr_prob(&mut self, expr_node: &Node, p: f64) {
-        self.assign.insert(key_of(expr_node), self.clamp(p));
+        self.assign.insert(emit_lino_term(expr_node), self.clamp(p));
     }
 
     pub fn set_symbol_prob(&mut self, sym: &str, p: f64) {
@@ -2342,19 +2346,37 @@ impl Env {
         self.trace_events.push(TraceEvent::new(kind, detail, span));
     }
 
-    pub fn set_type(&mut self, expr: &str, type_expr: &str) {
-        self.types.insert(expr.to_string(), type_expr.to_string());
+    /// Exact AST API. Keys and values use lossless canonical LiNo, never Display.
+    pub fn set_type_node(&mut self, expr: &Node, type_expr: &Node) {
+        let key = emit_lino_term(expr);
+        let typ = emit_lino_term(type_expr);
+        self.types.insert(key, typ);
     }
 
-    pub fn get_type(&self, expr: &str) -> Option<&String> {
-        if let Some(recorded) = self.types.get(expr) {
+    /// Look up an exact term; namespace and alias resolution applies only to atoms.
+    pub fn get_type_node(&self, expr: &Node) -> Option<&String> {
+        if let Some(recorded) = self.types.get(&emit_lino_term(expr)) {
             return Some(recorded);
         }
-        let resolved = self.resolve_qualified(expr);
-        if resolved != expr {
-            return self.types.get(&resolved);
+        if let Node::Leaf(name) = expr {
+            let resolved = self.resolve_qualified(name);
+            if resolved != *name {
+                return self.types.get(&emit_lino_term(&leaf(&resolved)));
+            }
         }
         None
+    }
+
+    /// Compatibility API for serialized LiNo. `(a b)` means a list; use
+    /// `set_type_node` for an atom with that text. Inputs which are not one
+    /// complete serialized term retain the legacy raw-atom interpretation.
+    pub fn set_type(&mut self, expr: &str, type_expr: &str) {
+        self.set_type_node(&type_key_to_node(expr), &type_key_to_node(type_expr));
+    }
+
+    /// Serialized-input counterpart of `get_type_node`; see `set_type`.
+    pub fn get_type(&self, expr: &str) -> Option<&String> {
+        self.get_type_node(&type_key_to_node(expr))
     }
 
     pub fn set_lambda(&mut self, name: &str, lambda: Lambda) {
@@ -2644,10 +2666,7 @@ pub fn parse_binding(binding: &Node) -> Option<(String, String)> {
             if let Node::Leaf(ref s) = children[0] {
                 if s.ends_with(':') {
                     let param_name = s[..s.len() - 1].to_string();
-                    let param_type = match &children[1] {
-                        Node::Leaf(s) => s.clone(),
-                        other => key_of(other),
-                    };
+                    let param_type = emit_lino_term(&children[1]);
                     return Some((param_name, param_type));
                 }
             }
@@ -2655,21 +2674,29 @@ pub fn parse_binding(binding: &Node) -> Option<(String, String)> {
             if let (Node::Leaf(ref type_name), Node::Leaf(ref var_name)) =
                 (&children[0], &children[1])
             {
-                if type_name.starts_with(|c: char| c.is_uppercase()) && !var_name.ends_with(':') {
-                    return Some((var_name.clone(), type_name.clone()));
+                if type_name.starts_with(|c: char| c.is_uppercase()) {
+                    return Some((var_name.clone(), emit_lino_term(&leaf(type_name))));
                 }
             }
             // Prefix complex-type form: [<list-type>, "x"] — type is a list expression
             // such as (Pi (A x) B) or (Type 0). Needed for higher-order parameters
             // (e.g. polymorphic apply / compose) where a parameter is itself function-typed.
             if let (Node::List(_), Node::Leaf(ref var_name)) = (&children[0], &children[1]) {
-                if !var_name.ends_with(':') {
-                    return Some((var_name.clone(), key_of(&children[0])));
-                }
+                return Some((var_name.clone(), emit_lino_term(&children[0])));
             }
         }
     }
     None
+}
+
+// Preserve prefix syntax when it represents the exact binding; arbitrary type
+// atoms can require colon syntax to avoid being mistaken for a variable marker.
+fn make_type_binding(param_name: &str, param_type: Node) -> Node {
+    let prefix = Node::List(vec![param_type.clone(), leaf(param_name)]);
+    if let Some((name, type_key)) = parse_binding(&prefix) {
+        if name == param_name && type_key == emit_lino_term(&param_type) { return prefix; }
+    }
+    Node::List(vec![leaf(&format!("{param_name}:")), param_type])
 }
 
 /// Parse comma-separated bindings: (Natural x, Natural y) → vec of (name, type) pairs.
@@ -2705,7 +2732,7 @@ pub fn parse_bindings(binding: &Node) -> Option<Vec<(String, String)>> {
                 let type_name = &tokens[i];
                 let var_name = &tokens[i + 1];
                 if type_name.starts_with(|c: char| c.is_uppercase()) {
-                    bindings.push((var_name.clone(), type_name.clone()));
+                    bindings.push((var_name.clone(), emit_lino_term(&leaf(type_name))));
                     i += 2;
                     continue;
                 }
@@ -2795,12 +2822,12 @@ fn non_variable_token(s: &str) -> bool {
 }
 
 fn token_base_name(token: &str) -> String {
-    token.trim_end_matches(|c| c == ':' || c == ',').to_string()
+    token.to_string()
 }
 
 fn is_variable_token(token: &str) -> bool {
     let base = token_base_name(token);
-    !base.is_empty() && base == token && !is_num(&base) && !non_variable_token(&base)
+    base == token && !is_num(&base) && !non_variable_token(&base)
 }
 
 fn binding_param_names(binding: &Node) -> Vec<String> {
@@ -2859,16 +2886,8 @@ fn free_variables(expr: &Node) -> HashSet<String> {
             Node::List(children) => {
                 if let Some(binder) = binder_info(expr) {
                     if binder.kind != BinderKind::Fresh {
-                        let params: HashSet<String> = binder.params.iter().cloned().collect();
-                        if let Node::List(binding_children) = &children[binder.binding_index] {
-                            for child in binding_children {
-                                if let Node::Leaf(s) = child {
-                                    if params.contains(&token_base_name(s)) {
-                                        continue;
-                                    }
-                                }
-                                walk(child, bound, out);
-                            }
+                        for (_, type_key) in parse_bindings(&children[binder.binding_index]).unwrap_or_default() {
+                            walk(&type_key_to_node(&type_key), bound, out);
                         }
                     }
                     let mut nested = bound.clone();
@@ -2897,7 +2916,7 @@ fn contains_free(expr: &Node, name: &str) -> bool {
 fn env_can_evaluate_name(env: &Env, name: &str) -> bool {
     if env.symbol_prob.contains_key(name)
         || env.terms.contains(name)
-        || env.types.contains_key(name)
+        || env.types.contains_key(&emit_lino_term(&leaf(name)))
         || env.lambdas.contains_key(name)
         || env.ops.contains_key(name)
         || env.templates.contains_key(name)
@@ -2908,7 +2927,7 @@ fn env_can_evaluate_name(env: &Env, name: &str) -> bool {
     resolved != name
         && (env.symbol_prob.contains_key(&resolved)
             || env.terms.contains(&resolved)
-            || env.types.contains_key(&resolved)
+            || env.types.contains_key(&emit_lino_term(&leaf(&resolved)))
             || env.lambdas.contains_key(&resolved)
             || env.ops.contains_key(&resolved)
             || env.templates.contains_key(&resolved))
@@ -2924,11 +2943,12 @@ fn collect_names(expr: &Node, out: &mut HashSet<String>) {
     match expr {
         Node::Leaf(s) => {
             let base = token_base_name(s);
-            if !base.is_empty() && !is_num(&base) && !non_variable_token(&base) {
+            if !is_num(&base) && !non_variable_token(&base) {
                 out.insert(base);
             }
         }
         Node::List(children) => {
+            if let Some(binder) = binder_info(expr) { out.extend(binder.params); }
             for child in children {
                 collect_names(child, out);
             }
@@ -2949,6 +2969,14 @@ fn fresh_name(base: &str, avoid: &HashSet<String>) -> String {
 
 fn rename_binding_param(binding: &Node, old_name: &str, new_name: &str) -> Node {
     if let Node::List(children) = binding {
+        if let Some((param, _)) = parse_binding(binding) {
+            if param != old_name { return binding.clone(); }
+            return if matches!(&children[0], Node::Leaf(name) if name.ends_with(':')) {
+                Node::List(vec![leaf(&format!("{new_name}:")), children[1].clone()])
+            } else {
+                Node::List(vec![children[0].clone(), leaf(new_name)])
+            };
+        }
         return Node::List(
             children
                 .iter()
@@ -4351,7 +4379,7 @@ pub fn match_proof_pattern(
     match pattern {
         Node::Leaf(token) if token.starts_with('?') => {
             if let Some(prev) = subs.get(token) {
-                key_of(prev) == key_of(candidate)
+                is_structurally_same(prev, candidate)
             } else {
                 subs.insert(token.clone(), candidate.clone());
                 true
@@ -4433,7 +4461,7 @@ fn check_proof_object_inner(
         for (idx, dep) in po.premise_refs.iter().enumerate() {
             let judgement = resolve_proof_dependency(env, dep, &dependency_stack)?;
             if let Some(explicit) = po.premises.get(idx) {
-                if key_of(explicit) != key_of(&judgement) {
+                if !is_structurally_same(explicit, &judgement) {
                     return Err(format!(
                         "proof-object {}: premise {} does not match referenced judgement {}",
                         name,
@@ -5941,7 +5969,7 @@ fn lookup_assigned_infix(env: &mut Env, op: &str, left: &Node, right: &Node) -> 
         ]),
     ];
     for candidate in candidates {
-        let key = key_of(&candidate);
+        let key = emit_lino_term(&candidate);
         if let Some(&value) = env.assign.get(&key) {
             env.trace("lookup", format!("{} → {}", key, format_trace_value(value)));
             return Some(value);
@@ -6095,7 +6123,7 @@ fn eval_reduced_term(reduced: &Node, env: &mut Env) -> EvalResult {
 
 fn context_has_name(env: &Env, name: &str) -> bool {
     if env.terms.contains(name)
-        || env.types.contains_key(name)
+        || env.types.contains_key(&emit_lino_term(&leaf(name)))
         || env.lambdas.contains_key(name)
         || env.symbol_prob.contains_key(name)
         || env.ops.contains_key(name)
@@ -6106,7 +6134,7 @@ fn context_has_name(env: &Env, name: &str) -> bool {
     let resolved = env.resolve_qualified(name);
     resolved != name
         && (env.terms.contains(&resolved)
-            || env.types.contains_key(&resolved)
+            || env.types.contains_key(&emit_lino_term(&leaf(&resolved)))
             || env.lambdas.contains_key(&resolved)
             || env.symbol_prob.contains_key(&resolved)
             || env.ops.contains_key(&resolved)
@@ -6121,7 +6149,7 @@ fn eval_fresh(var_name: &str, body: &Node, env: &mut Env) -> EvalResult {
         );
     }
     let had_term = env.terms.contains(var_name);
-    let previous_type = env.types.get(var_name).cloned();
+    let previous_type = env.types.get(&emit_lino_term(&leaf(var_name))).cloned();
     let previous_lambda = env.lambdas.get(var_name).cloned();
     let previous_symbol = env.symbol_prob.get(var_name).copied();
     env.terms.insert(var_name.to_string());
@@ -6130,9 +6158,9 @@ fn eval_fresh(var_name: &str, body: &Node, env: &mut Env) -> EvalResult {
         env.terms.remove(var_name);
     }
     if let Some(value) = previous_type {
-        env.types.insert(var_name.to_string(), value);
+        env.types.insert(emit_lino_term(&leaf(var_name)), value);
     } else {
-        env.types.remove(var_name);
+        env.types.remove(&emit_lino_term(&leaf(var_name)));
     }
     if let Some(value) = previous_lambda {
         env.lambdas.insert(var_name.to_string(), value);
@@ -6192,25 +6220,14 @@ fn synth_span(env: &Env) -> Span {
 }
 
 fn type_key_to_node(type_key: &str) -> Node {
-    let trimmed = type_key.trim();
-    if trimmed.starts_with('(') {
-        let toks = tokenize_one(trimmed);
-        if let Ok(parsed) = parse_one(&toks) {
-            return parsed;
-        }
+    // The synthetic wrapper must not consume source/depth budget.
+    let mut tokens = tokenize_one(type_key);
+    tokens.insert(0, "(".to_string());
+    tokens.push(")".to_string());
+    if let Ok(Node::List(mut nodes)) = parse_one(&tokens) {
+        if nodes.len() == 1 { return nodes.remove(0); }
     }
-    Node::Leaf(type_key.to_string())
-}
-
-fn parse_term_input_str(s: &str) -> Node {
-    let trimmed = s.trim();
-    if trimmed.starts_with('(') {
-        let toks = tokenize_one(trimmed);
-        if let Ok(parsed) = parse_one(&toks) {
-            return desugar_hoas(parsed);
-        }
-    }
-    Node::Leaf(s.to_string())
+    leaf(type_key)
 }
 
 struct TypeBindingSnapshot {
@@ -6223,13 +6240,13 @@ fn snapshot_type_binding(env: &Env, name: &str) -> TypeBindingSnapshot {
     TypeBindingSnapshot {
         name: name.to_string(),
         had_term: env.terms.contains(name),
-        previous_type: env.types.get(name).cloned(),
+        previous_type: env.types.get(&emit_lino_term(&leaf(name))).cloned(),
     }
 }
 
 fn extend_type_binding(env: &mut Env, name: &str, type_key: &str) {
     env.terms.insert(name.to_string());
-    env.types.insert(name.to_string(), type_key.to_string());
+    env.types.insert(emit_lino_term(&leaf(name)), type_key.to_string());
 }
 
 fn restore_type_binding(env: &mut Env, snap: TypeBindingSnapshot) {
@@ -6237,9 +6254,9 @@ fn restore_type_binding(env: &mut Env, snap: TypeBindingSnapshot) {
         env.terms.remove(&snap.name);
     }
     if let Some(value) = snap.previous_type {
-        env.types.insert(snap.name, value);
+        env.types.insert(emit_lino_term(&leaf(&snap.name)), value);
     } else {
-        env.types.remove(&snap.name);
+        env.types.remove(&emit_lino_term(&leaf(&snap.name)));
     }
 }
 
@@ -6299,7 +6316,7 @@ fn synth_leaf(name: &str, env: &mut Env) -> Option<Node> {
     }
     let resolved = env.resolve_qualified(name);
     if resolved != name {
-        if let Some(recorded) = env.types.get(&resolved).cloned() {
+        if let Some(recorded) = env.types.get(&emit_lino_term(&Node::Leaf(resolved.clone()))).cloned() {
             return Some(type_key_to_node(&recorded));
         }
     }
@@ -6388,10 +6405,7 @@ fn synth_lambda(children: &[Node], env: &mut Env, span: &Span, diagnostics: &mut
     let body_type = body_synth.typ?;
     Some(Node::List(vec![
         Node::Leaf("Pi".to_string()),
-        Node::List(vec![
-            Node::Leaf(param_type_key),
-            Node::Leaf(param_name),
-        ]),
+        make_type_binding(&param_name, type_key_to_node(&param_type_key)),
         body_type,
     ]))
 }
@@ -6415,6 +6429,9 @@ fn synth_of_membership(children: &[Node], env: &mut Env, _span: &Span, diagnosti
 /// `E020..E024` diagnostics describing the obstruction.
 pub fn synth(term: &Node, env: &mut Env) -> SynthResult {
     let span = synth_span(env);
+    if let Err(message) = try_emit_lino_term(term) {
+        return SynthResult { typ: None, diagnostics: vec![Diagnostic::new("E020", message, span)] };
+    }
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
 
     match term {
@@ -6583,6 +6600,9 @@ pub fn synth(term: &Node, env: &mut Env) -> SynthResult {
 /// `E020..E024` diagnostics describing the obstruction.
 pub fn check(term: &Node, expected_type: &Node, env: &mut Env) -> CheckResult {
     let span = synth_span(env);
+    if let Err(message) = try_emit_lino_term(term).and_then(|_| try_emit_lino_term(expected_type)) {
+        return CheckResult { ok: false, diagnostics: vec![Diagnostic::new("E020", message, span)] };
+    }
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
 
     // Prenex polymorphism (D9): `(forall A T)` is sugar for `(Pi (Type A) T)`.
@@ -6604,8 +6624,8 @@ pub fn check(term: &Node, expected_type: &Node, env: &mut Env) -> CheckResult {
                 let lambda_binding = parse_binding(&lc[1]);
                 let pi_binding = parse_binding(&ec[1]);
                 if let (Some((lname, ltype)), Some((pname, ptype))) = (lambda_binding, pi_binding) {
-                    let lparam_node = parse_term_input_str(&ltype);
-                    let pparam_node = parse_term_input_str(&ptype);
+                    let lparam_node = type_key_to_node(&ltype);
+                    let pparam_node = type_key_to_node(&ptype);
                     if !types_agree(&lparam_node, &pparam_node, env) {
                         diagnostics.push(Diagnostic::new(
                             "E021",
@@ -6802,8 +6822,8 @@ fn contains_lambda_or_apply(node: &Node) -> bool {
 /// so JS and Rust emit identical labels.
 pub fn classify_equality_rule(l: &Node, r: &Node, op: &str, env: &Env) -> &'static str {
     let is_inequality = op == "!=";
-    let k_prefix = key_of(&Node::List(vec![leaf("="), l.clone(), r.clone()]));
-    let k_infix = key_of(&Node::List(vec![l.clone(), leaf("="), r.clone()]));
+    let k_prefix = emit_lino_term(&Node::List(vec![leaf("="), l.clone(), r.clone()]));
+    let k_infix = emit_lino_term(&Node::List(vec![l.clone(), leaf("="), r.clone()]));
     if env.assign.contains_key(&k_prefix) || env.assign.contains_key(&k_infix) {
         return if is_inequality {
             "assigned-inequality"
@@ -6914,11 +6934,9 @@ pub fn build_proof(node: &Node, env: &Env) -> Node {
             }
         }
         Node::List(children) => {
-            // Definitions and operator redefs: (head: ...)
-            if let Some(Node::Leaf(s)) = children.first() {
-                if s.ends_with(':') {
-                    return wrap_proof("definition", vec![node.clone()]);
-                }
+            // Recognized infix forms take precedence over a colon-ending leaf.
+            if is_definition_form(node, |op| env.has_op(op)) {
+                return wrap_proof("definition", vec![node.clone()]);
             }
 
             // Assignment: ((expr) has probability p)
@@ -7449,7 +7467,9 @@ struct SmtRunResult {
 }
 
 fn smt_escape_symbol(raw: &str) -> String {
-    format!("|{}|", raw.replace('\\', "\\\\").replace('|', "\\|"))
+    let safe = !raw.starts_with("rml_hex_") && raw.bytes().next().is_some_and(|b| b.is_ascii_alphabetic() || b == b'_') && raw.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_');
+    let name = if safe { raw.to_string() } else { format!("rml_hex_{}", raw.bytes().map(|byte| format!("{byte:02x}")).collect::<String>()) };
+    format!("|{name}|")
 }
 
 fn smt_declare(ctx: &mut SmtContext, raw: String, sort: SmtSort) -> Result<String, String> {
@@ -7523,7 +7543,7 @@ fn smt_term(node: &Node, ctx: &mut SmtContext) -> Result<String, String> {
                     s
                 ));
             }
-            smt_declare(ctx, s.clone(), SmtSort::Real)
+            smt_declare(ctx, emit_lino_term(node), SmtSort::Real)
         }
         Node::List(children) => {
             if children.is_empty() {
@@ -7546,7 +7566,7 @@ fn smt_term(node: &Node, ctx: &mut SmtContext) -> Result<String, String> {
                     return Ok(format!("({} {})", head, args.join(" ")));
                 }
             }
-            smt_declare(ctx, key_of(node), SmtSort::Real)
+            smt_declare(ctx, emit_lino_term(node), SmtSort::Real)
         }
     }
 }
@@ -7581,7 +7601,7 @@ fn smt_formula(node: &Node, ctx: &mut SmtContext) -> Result<String, String> {
                     s
                 ));
             }
-            smt_declare(ctx, s.clone(), SmtSort::Bool)
+            smt_declare(ctx, emit_lino_term(node), SmtSort::Bool)
         }
         Node::List(children) => {
             if children.is_empty() {
@@ -7644,7 +7664,7 @@ fn smt_formula(node: &Node, ctx: &mut SmtContext) -> Result<String, String> {
                 }
             }
 
-            smt_declare(ctx, key_of(node), SmtSort::Bool)
+            smt_declare(ctx, emit_lino_term(node), SmtSort::Bool)
         }
     }
 }
@@ -7848,48 +7868,18 @@ fn run_smt_solver(smt_lib: &str, options: &TacticOptions) -> SmtRunResult {
 }
 
 fn tptp_identifier(raw: &str, role: &str) -> String {
-    let mut cleaned: String = raw
-        .chars()
-        .map(|c| {
-            if c.is_ascii_alphanumeric() || c == '_' {
-                c
-            } else {
-                '_'
-            }
-        })
-        .collect();
-    if cleaned.is_empty() {
-        cleaned = if role == "var" {
-            "X".to_string()
-        } else {
-            "rml_symbol".to_string()
-        };
+    let prefix = if role == "var" { "V_rml_hex_" } else { "rml_hex_" };
+    let safe_first = raw.bytes().next().map(|b| if role == "var" {
+        b.is_ascii_uppercase()
+    } else {
+        b.is_ascii_lowercase()
+    }).unwrap_or(false);
+    if safe_first && raw.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
+        && !raw.starts_with(prefix) {
+        return raw.to_string();
     }
-    if role == "var" {
-        let mut chars = cleaned.chars();
-        if let Some(first) = chars.next() {
-            cleaned = first.to_ascii_uppercase().to_string() + chars.as_str();
-        }
-        if !cleaned
-            .chars()
-            .next()
-            .map(|c| c.is_ascii_uppercase())
-            .unwrap_or(false)
-        {
-            cleaned = format!("V_{}", cleaned);
-        }
-        return cleaned;
-    }
-    cleaned = cleaned.to_ascii_lowercase();
-    if !cleaned
-        .chars()
-        .next()
-        .map(|c| c.is_ascii_lowercase())
-        .unwrap_or(false)
-    {
-        cleaned = format!("rml_{}", cleaned);
-    }
-    cleaned
+    let hex = raw.as_bytes().iter().map(|byte| format!("{byte:02x}")).collect::<String>();
+    format!("{prefix}{hex}")
 }
 
 fn tptp_term(node: &Node, bound_vars: &HashSet<String>) -> Result<String, Diagnostic> {
@@ -7897,10 +7887,9 @@ fn tptp_term(node: &Node, bound_vars: &HashSet<String>) -> Result<String, Diagno
         Node::Leaf(raw) => {
             if bound_vars.contains(raw) {
                 Ok(tptp_identifier(raw, "var"))
-            } else if is_num(raw) {
-                Ok(tptp_identifier(&format!("num_{}", raw), "term"))
+
             } else {
-                Ok(tptp_identifier(raw, "term"))
+                Ok(tptp_identifier(&emit_lino_term(node), "term"))
             }
         }
         Node::List(children) if !children.is_empty() => {
@@ -7910,12 +7899,15 @@ fn tptp_term(node: &Node, bound_vars: &HashSet<String>) -> Result<String, Diagno
                     key_of(node)
                 )));
             };
+            if children.len() == 1 {
+                return Ok(tptp_identifier(&emit_lino_term(node), "term"));
+            }
             let args = children[1..]
                 .iter()
                 .map(|arg| tptp_term(arg, bound_vars))
                 .collect::<Result<Vec<_>, _>>()?
                 .join(", ");
-            Ok(format!("{}({})", tptp_identifier(head, "term"), args))
+            Ok(format!("{}({})", tptp_identifier(&emit_lino_term(&leaf(head)), "term"), args))
         }
         _ => Err(rewrite_diagnostic(format!(
             "TPTP export supports first-order terms only (got {})",
@@ -7990,7 +7982,7 @@ fn tptp_formula(node: &Node, bound_vars: &HashSet<String>) -> Result<String, Dia
             if bound_vars.contains(raw) {
                 return Ok(tptp_identifier(raw, "var"));
             }
-            return Ok(tptp_identifier(raw, "pred"));
+            return Ok(tptp_identifier(&emit_lino_term(node), "pred"));
         }
         Node::List(children) if children.is_empty() => {
             return Err(rewrite_diagnostic(format!(
@@ -8015,7 +8007,7 @@ fn tptp_formula(node: &Node, bound_vars: &HashSet<String>) -> Result<String, Dia
     if let Some((term, typ)) = type_ascription(node) {
         return Ok(format!(
             "{}({})",
-            tptp_identifier(&key_of(typ), "pred"),
+            tptp_identifier(&emit_lino_term(typ), "pred"),
             tptp_term(term, bound_vars)?
         ));
     }
@@ -8084,9 +8076,12 @@ fn tptp_formula(node: &Node, bound_vars: &HashSet<String>) -> Result<String, Dia
             tptp_join_formula("<=>", &operands, bound_vars)
         }
         _ => {
-            let predicate = tptp_identifier(head, "pred");
+            let predicate = tptp_identifier(&emit_lino_term(if children.len() == 1 { node } else { &children[0] }), "pred");
             if children.len() == 1 {
                 return Ok(predicate);
+            }
+            if children.len() == 1 {
+                return Ok(tptp_identifier(&emit_lino_term(node), "term"));
             }
             let args = children[1..]
                 .iter()
@@ -9933,7 +9928,7 @@ fn flatten_pi(type_node: &Node) -> Option<(Vec<(String, Node)>, Node)> {
             // original type node from the binding form so a bare leaf stays
             // a leaf and a complex Pi-type round-trips structurally.
             let binding_node = &items[1];
-            let type_node = recover_binding_type(binding_node, &name).unwrap_or(Node::Leaf(type_str));
+            let type_node = recover_binding_type(binding_node, &name).unwrap_or_else(|| type_key_to_node(&type_str));
             params.push((name, type_node));
         }
         current = items[2].clone();
@@ -9969,7 +9964,7 @@ fn build_pi(params: &[(String, Node)], result: Node) -> Node {
     for (name, ty) in params.iter().rev() {
         out = Node::List(vec![
             Node::Leaf("Pi".to_string()),
-            Node::List(vec![ty.clone(), Node::Leaf(name.clone())]),
+            make_type_binding(name, ty.clone()),
             out,
         ]);
     }
@@ -10135,10 +10130,7 @@ pub fn build_eliminator_type(type_name: &str, constructors: &[ConstructorDecl]) 
     let motive_var = "_motive";
     let motive_type = Node::List(vec![
         Node::Leaf("Pi".to_string()),
-        Node::List(vec![
-            Node::Leaf(type_name.to_string()),
-            Node::Leaf("_".to_string()),
-        ]),
+        make_type_binding("_", leaf(type_name)),
         Node::List(vec![
             Node::Leaf("Type".to_string()),
             Node::Leaf("0".to_string()),
@@ -10175,13 +10167,13 @@ pub fn register_inductive(env: &mut Env, decl: InductiveDecl) {
         Node::Leaf("Type".to_string()),
         Node::Leaf("0".to_string()),
     ]);
-    env.set_type(&store_type, &key_of(&type0));
+    env.set_type_node(&leaf(&store_type), &type0);
     eval_node(&type0, env);
 
     for ctor in &decl.constructors {
         let store_name = env.qualify_name(&ctor.name);
         env.terms.insert(store_name.clone());
-        env.set_type(&store_name, &key_of(&ctor.typ));
+        env.set_type_node(&leaf(&store_name), &ctor.typ);
         if matches!(ctor.typ, Node::List(_)) {
             eval_node(&ctor.typ, env);
         }
@@ -10189,7 +10181,7 @@ pub fn register_inductive(env: &mut Env, decl: InductiveDecl) {
 
     let store_elim = env.qualify_name(&decl.elim_name);
     env.terms.insert(store_elim.clone());
-    env.set_type(&store_elim, &key_of(&decl.elim_type));
+    env.set_type_node(&leaf(&store_elim), &decl.elim_type);
     eval_node(&decl.elim_type, env);
 
     env.inductives.insert(decl.name.clone(), decl);
@@ -10406,13 +10398,13 @@ pub fn register_coinductive(env: &mut Env, decl: CoinductiveDecl) {
         Node::Leaf("Type".to_string()),
         Node::Leaf("0".to_string()),
     ]);
-    env.set_type(&store_type, &key_of(&type0));
+    env.set_type_node(&leaf(&store_type), &type0);
     eval_node(&type0, env);
 
     for ctor in &decl.constructors {
         let store_name = env.qualify_name(&ctor.name);
         env.terms.insert(store_name.clone());
-        env.set_type(&store_name, &key_of(&ctor.typ));
+        env.set_type_node(&leaf(&store_name), &ctor.typ);
         if matches!(ctor.typ, Node::List(_)) {
             eval_node(&ctor.typ, env);
         }
@@ -10420,7 +10412,7 @@ pub fn register_coinductive(env: &mut Env, decl: CoinductiveDecl) {
 
     let store_corec = env.qualify_name(&decl.corec_name);
     env.terms.insert(store_corec.clone());
-    env.set_type(&store_corec, &key_of(&decl.corec_type));
+    env.set_type_node(&leaf(&store_corec), &decl.corec_type);
     eval_node(&decl.corec_type, env);
 
     env.coinductives.insert(decl.name.clone(), decl);
@@ -10469,7 +10461,7 @@ pub fn automatic_sequences_domain_plugin(forms: &[Node], env: &mut Env) -> Resul
         let store_name = env.qualify_name(&decision.theorem);
         let truth_value = if decision.value { env.hi } else { env.lo };
         env.terms.insert(store_name.clone());
-        env.set_type(&store_name, "Theorem");
+        env.set_type_node(&leaf(&store_name), &leaf("Theorem"));
         env.set_symbol_prob(&store_name, truth_value);
         decision.theorem = store_name.clone();
         env.automatic_sequence_decisions
@@ -10508,7 +10500,7 @@ fn eval_domain_form(children: &[Node], env: &mut Env) -> EvalResult {
 pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
     // HOAS desugaring (issue #51, D7): rewrite `(forall (A x) body)` to
     // `(Pi (A x) body)` so callers passing AST nodes directly to `eval_node`
-    // benefit from the same surface as `evaluate()` / `parse_term_input_str`.
+    // benefit from the same surface as `evaluate()` / `read_lino_form`.
     // The recursive walk also handles `forall` nested inside definition RHSs
     // such as `(succ: (forall (Natural n) Natural))`.
     let desugared;
@@ -10533,7 +10525,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
 
             // Definitions & operator redefs: (head: ...) form
             if let Node::Leaf(ref s) = children[0] {
-                if s.ends_with(':') {
+                if is_definition_form(node, |op| env.has_op(op)) {
                     let head = &s[..s.len() - 1];
                     return define_form(head, &children[1..], env);
                 }
@@ -10833,7 +10825,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                         return result;
                     }
                     if let EvalResult::Term(term) = result {
-                        return EvalResult::TypeQuery(key_of(&term));
+                        return EvalResult::TypeQuery(emit_lino_term(&term));
                     }
                     let v = result.as_f64();
                     return EvalResult::Query(env.clamp(v));
@@ -10952,8 +10944,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                         if let Node::Leaf(ref level_s) = children[1] {
                             if let Some(level) = parse_universe_level_token(level_s) {
                                 if let Some(next_level) = level.checked_add(1) {
-                                    let key = key_of(&Node::List(children.clone()));
-                                    env.set_type(&key, &format!("(Type {})", next_level));
+                                    env.set_type_node(node, &Node::List(vec![leaf("Type"), leaf(&next_level.to_string())]));
                                     return EvalResult::Value(1.0);
                                 }
                             }
@@ -10966,7 +10957,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
             if children.len() == 1 {
                 if let Node::Leaf(ref first) = children[0] {
                     if first == "Prop" {
-                        env.set_type("(Prop)", "(Type 1)");
+                        env.set_type_node(node, &Node::List(vec![leaf("Type"), leaf("1")]));
                         return EvalResult::Value(1.0);
                     }
                 }
@@ -10978,9 +10969,8 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                     if first == "Pi" {
                         if let Some((param_name, param_type)) = parse_binding(&children[1]) {
                             env.terms.insert(param_name.clone());
-                            env.set_type(&param_name, &param_type);
-                            let key = key_of(&Node::List(children.clone()));
-                            env.set_type(&key, "(Type 0)");
+                            env.set_type_node(&leaf(&param_name), &type_key_to_node(&param_type));
+                            env.set_type_node(node, &Node::List(vec![leaf("Type"), leaf("0")]));
                         }
                         return EvalResult::Value(1.0);
                     }
@@ -10996,22 +10986,21 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
                             if !bindings.is_empty() {
                                 let (ref param_name, ref param_type) = bindings[0];
                                 env.terms.insert(param_name.clone());
-                                env.set_type(param_name, param_type);
+                                env.set_type_node(&leaf(param_name), &type_key_to_node(param_type));
                                 // Register additional bindings
                                 for binding in &bindings[1..] {
                                     env.terms.insert(binding.0.clone());
-                                    env.set_type(&binding.0, &binding.1);
+                                    env.set_type_node(&leaf(&binding.0), &type_key_to_node(&binding.1));
                                 }
-                                let body_key = key_of(&children[2]);
                                 let body_type = env
-                                    .get_type(&body_key)
+                                    .get_type_node(&children[2])
                                     .cloned()
                                     .unwrap_or_else(|| "unknown".to_string());
-                                let key = key_of(&Node::List(children.clone()));
-                                env.set_type(
-                                    &key,
-                                    &format!("(Pi ({} {}) {})", param_type, param_name, body_type),
-                                );
+                                env.set_type_node(node, &Node::List(vec![
+                                    leaf("Pi"),
+                                    make_type_binding(param_name, type_key_to_node(param_type)),
+                                    type_key_to_node(&body_type),
+                                ]));
                             }
                         }
                         return EvalResult::Value(1.0);
@@ -11112,10 +11101,7 @@ pub fn eval_node(node: &Node, env: &mut Env) -> EvalResult {
             if children.len() == 3 {
                 if let Node::Leaf(ref mid) = children[1] {
                     if mid == "of" {
-                        let expected_key = match &children[2] {
-                            Node::Leaf(s) => s.clone(),
-                            other => key_of(other),
-                        };
+                        let expected_key = emit_lino_term(&children[2]);
                         if let Some(actual) = infer_type_key(&children[0], env) {
                             return EvalResult::Value(if actual == expected_key {
                                 env.hi
@@ -11241,13 +11227,12 @@ fn define_form(head: &str, rhs: &[Node], env: &mut Env) -> EvalResult {
                         if type_name.starts_with(|c: char| c.is_uppercase()) =>
                     {
                         env.terms.insert(store_name.clone());
-                        env.types.insert(store_name.clone(), type_name.clone());
+                        env.set_type_node(&leaf(&store_name), &leaf(type_name));
                         return EvalResult::Value(1.0);
                     }
                     Node::List(_) => {
                         env.terms.insert(store_name.clone());
-                        let type_key = key_of(&rhs[0]);
-                        env.types.insert(store_name.clone(), type_key);
+                        env.set_type_node(&leaf(&store_name), &rhs[0]);
                         eval_node(&rhs[0], env);
                         return EvalResult::Value(1.0);
                     }
@@ -11341,29 +11326,24 @@ fn define_form(head: &str, rhs: &[Node], env: &mut Env) -> EvalResult {
                     let body = rhs[2].clone();
                     env.terms.insert(store_name.clone());
                     let had_param_term = env.terms.contains(&param_name);
-                    let previous_param_type = env.get_type(&param_name).cloned();
+                    let previous_param_type = env.types.get(&emit_lino_term(&leaf(&param_name))).cloned();
                     env.terms.insert(param_name.clone());
-                    env.set_type(&param_name, &param_type);
-                    let body_key = key_of(&body);
-                    let body_type =
-                        env.get_type(&body_key)
-                            .cloned()
-                            .unwrap_or_else(|| match &body {
-                                Node::Leaf(s) => s.clone(),
-                                other => key_of(other),
-                            });
+                    env.set_type_node(&leaf(&param_name), &type_key_to_node(&param_type));
+                    let body_type = env.get_type_node(&body)
+                        .cloned().unwrap_or_else(|| emit_lino_term(&body));
                     if !had_param_term {
                         env.terms.remove(&param_name);
                     }
                     if let Some(previous) = previous_param_type {
-                        env.set_type(&param_name, &previous);
+                        env.types.insert(emit_lino_term(&leaf(&param_name)), previous);
                     } else {
-                        env.types.remove(&param_name);
+                        env.types.remove(&emit_lino_term(&leaf(&param_name)));
                     }
-                    env.set_type(
-                        &store_name,
-                        &format!("(Pi ({} {}) {})", param_type, param_name, body_type),
-                    );
+                    env.set_type_node(&leaf(&store_name), &Node::List(vec![
+                        leaf("Pi"),
+                        make_type_binding(&param_name, type_key_to_node(&param_type)),
+                        type_key_to_node(&body_type),
+                    ]));
                     env.set_lambda(
                         &store_name,
                         Lambda {
@@ -11397,8 +11377,7 @@ fn define_form(head: &str, rhs: &[Node], env: &mut Env) -> EvalResult {
         if !is_op {
             if let Node::List(_) = &rhs[0] {
                 env.terms.insert(store_name.clone());
-                let type_key = key_of(&rhs[0]);
-                env.set_type(&store_name, &type_key);
+                env.set_type_node(&leaf(&store_name), &rhs[0]);
                 eval_node(&rhs[0], env);
                 return EvalResult::Value(1.0);
             }
@@ -11665,7 +11644,7 @@ fn build_arithmetic_formalization(
     } else {
         parse_expression_shape(expression, true)?
     };
-    let lino = key_of(&ast);
+    let lino = emit_lino_term(&ast);
     Ok((ast, lino))
 }
 
@@ -11711,7 +11690,7 @@ pub fn formalize_selected_interpretation(request: FormalizationRequest) -> Forma
     } else if request.interpretation.lino.is_some() && !raw_expression.is_empty() {
         match parse_expression_shape(&raw_expression, false) {
             Ok(ast) => {
-                let lino = key_of(&ast);
+                let lino = emit_lino_term(&ast);
                 Formalization {
                     source_text: request.text,
                     interpretation: request.interpretation,

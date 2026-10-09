@@ -17,9 +17,10 @@ function run(command, argv) {
 }
 
 if (!inheritedLease(context(root))) {
-  run(process.execPath, ['scripts/run-with-cache.mjs', '--source-migration', '--cache', '.rml-cache/linked-runtime-helper', '--retain', '.rml-cache/linked-runtime-helper', '--', process.execPath, 'scripts/update-linked-implementation.mjs', ...args]);
+  run(process.execPath, ['scripts/run-with-cache.mjs', '--source-migration', '--isolate-output', '.rml-cache/linked-runtime-helper', '--cache', '.rml-cache/linked-runtime-helper', '--retain', '.rml-cache/linked-runtime-helper', '--', process.execPath, 'scripts/update-linked-implementation.mjs', ...args]);
 } else {
-  const target = '.rml-cache/linked-runtime-helper';
+  const target = process.env.RML_CACHE_OUTPUT_DIR;
+  if (!target) throw new Error('Source migration requires private producer output');
   if (!selectedHelper) run(process.env.CARGO ?? 'cargo', ['build', '--locked', '--manifest-path', 'scripts/linked-runtime-rust/Cargo.toml', '--target-dir', target]);
   const helper = selectedHelper ? resolve(root, selectedHelper) : resolve(root, target, 'debug', `rml-linked-rust-ast${process.platform === 'win32' ? '.exe' : ''}`);
   run(process.execPath, ['scripts/generate-linked-target.mjs', '--generate']);

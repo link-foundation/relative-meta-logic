@@ -1,14 +1,16 @@
 # Pinned upstream language implementation
 
-RML consumes the official implementation merged for
-[meta-language issue 195](https://github.com/link-foundation/meta-language/issues/195)
-at commit
-[`679a3b3c3c56177b8df1ad82672690c6e9889aeb`](https://github.com/link-foundation/meta-language/commit/679a3b3c3c56177b8df1ad82672690c6e9889aeb).
-This is an immutable source dependency, not a claim that the implementation has
-been published to npm or crates.io. As checked on 2026-10-08, npm's latest
-meta-language release remains 0.46.0 and crates.io's remains 0.58.2. The source
-also labels itself 0.58.2, but contains newer code; its commit identifies the
-implementation unambiguously.
+RML consumes the official [meta-language v1.0.0 release](https://github.com/link-foundation/meta-language/releases/tag/v1.0.0),
+including the implementation merged for [issue 195](https://github.com/link-foundation/meta-language/issues/195).
+JavaScript uses the immutable release source at
+[`a79782093cae3b33606483ac9f3e1d05faf36de0`](https://github.com/link-foundation/meta-language/commit/a79782093cae3b33606483ac9f3e1d05faf36de0);
+Rust consumes the exact published crate `=1.0.0`, whose package VCS metadata
+identifies that same commit. This replaces the earlier `679a3b3` source pin.
+As checked on 2026-10-08 at 20:16 UTC, npm's latest meta-language package remains
+0.46.0; matching npm publication is still incomplete. The
+[release audit](case-studies/issue-183/data/meta-language-release-audit-2026-10-08.json)
+records the official registry responses, release tag, crate checksum and
+byte-for-byte comparison of 343 published files with the release source.
 
 ## Installation and provenance
 
@@ -32,22 +34,23 @@ archives must include the materialized runtime files before installation.
 The JavaScript `#meta-language` package import resolves directly to the
 unmodified upstream runtime in the submodule. Its public functions are exposed
 by `js/src/rml-upstream-language.mjs` and re-exported by `rml-meta-language.mjs`.
-The Rust dependency pins the same Git revision, and `rml::upstream_language`
+The Rust dependency pins the matching registry release, and `rml::upstream_language`
 exposes the corresponding upstream APIs. Optional upstream dictionary support
 is disabled; no parser, grammar or four-language representation is removed.
 
-`js/vendor/meta-language-provenance.json` records the revision, 235 runtime-file
+`js/vendor/meta-language-provenance.json` records the revision, 236 runtime-file
 SHA-256 hashes, license and shared-corpus hashes, and effective JavaScript
-dependency versions. The upstream Unlicense and all vendored grammar notices
+dependency versions, plus the release tag and Rust archive checksum.
+The upstream Unlicense and all vendored grammar notices
 and licenses are preserved. The verifier checks every shipped runtime file,
-RML's manifests and locks; `--source /path/to/official/checkout` additionally
+RML's manifests and all four Rust consumer locks; `--source /path/to/official/checkout` additionally
 checks an independently materialized checkout at the exact commit.
 
-RML uses links-notation 0.23.0 in JavaScript and Rust. The vendored JavaScript
+RML uses links-notation 0.25.1 in JavaScript and Rust. The vendored JavaScript
 runtime resolves RML's 0.23.0 as well; its unmodified upstream package metadata
 names 0.22.0, so this is an explicitly tested dependency upgrade. The Rust
 upstream crate retains its own 0.22.0 dependency. Both JavaScript dependencies
-and the Rust Git dependency are locked. Generated upstream parser binaries and
+and the Rust registry dependency are locked. Generated upstream parser binaries and
 compressed C parsers are already in the pinned source. Rust's official
 `build.rs` expands and compiles the latter in Cargo's build-output directory;
 installation does not regenerate grammars, invoke Docker, or alter global tools.
@@ -56,11 +59,11 @@ The npm package allowlist includes the upstream runtime, data and licenses,
 without the upstream repository's development corpora or Git metadata. A packed
 RML package is self-contained and requires no Git operation or upstream source
 checkout in the consumer. Normal registry dependencies are installed by npm.
-Source installation and packaged consumption are verified separately; this is
-not evidence of a new upstream registry release. Rust registry publication must
-wait for an upstream release containing the source-pinned implementation or a
-separately reviewed publication strategy; publishing against the old 0.58.2
-registry contents would silently regress capabilities.
+Source installation and packaged consumption are verified separately. The
+official Rust publication gap is resolved by 1.0.0; the npm gap is handled by
+shipping the matching unmodified source and its licenses in RML's package.
+RML has not published a substitute upstream npm package. This integration does
+not itself publish RML or establish its other release acceptance requirements.
 
 ## Real upstream structure and edits
 
@@ -88,6 +91,13 @@ input; lexical shadowing, Unicode, templates, literals and property identity;
 capture refusal; structured edits; and multi-file modules, manifest resolution,
 project symbol identities and missing-context diagnostics. They also keep
 source-level type facts and unavailable elaboration distinct.
+
+The shared `release-regressions.json` fixture also checks the 1.0.0 translation
+fixes in both runtimes: omitted arguments use parameter defaults, names in
+defaults retain declaration scope, and Unicode escapes decode to scalar values.
+Lone surrogates, unsupported parameter defaults and constant reassignment remain
+explicit source-preserving refusals. These focused cases are not a full-language
+conformance claim.
 
 ## Translation boundary
 

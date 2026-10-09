@@ -281,6 +281,51 @@ function version(command, args, root) {
   return result.status === 0 ? result.stdout.trim() : null;
 }
 
+// Publish each checkpoint with a rename: termination while writing the next one
+// leaves the previous, complete JSON readable. These files are outputs only;
+// neither the acceptance runner nor this writer imports saved evidence.
+function writeAcceptanceJson(filename, value) {
+  const text = `${JSON.stringify(value, null, 2)}\n`;
+  fs.mkdirSync(path.dirname(filename), { recursive: true });
+  const temporary = `${filename}.${crypto.randomUUID()}.tmp`;
+  try {
+    fs.writeFileSync(temporary, text, { flag: 'wx' });
+    fs.renameSync(temporary, filename);
+  } finally {
+    fs.rmSync(temporary, { force: true });
+  }
+  return sha256(text);
+}
+
+export function createIssue183ProgressJournal(output) {
+  const runId = crypto.randomUUID();
+  const journalPath = `${output}.progress.json`;
+  const startedAt = new Date().toISOString();
+  const record = (report, finalReport) => writeAcceptanceJson(journalPath, {
+    ...report,
+    schema: 'rml-issue-183-acceptance-progress/v1',
+    runId,
+    startedAt: report.startedAt ?? startedAt,
+    updatedAt: new Date().toISOString(),
+    provisional: true,
+    passed: false,
+    phase: finalReport ? 'finalized' : 'running',
+    notice: 'Provisional producer evidence only. Completion requires the separate final report for this run, including all source and freshness checks.',
+    finalReport,
+  });
+  record({ errors: [], requirements: [], checks: [] });
+  return {
+    record,
+    finalize(report) {
+      // The caller must finish the unchanged gate and live-source checks first.
+      // A matching run ID and hash distinguish this final report from an old run.
+      report.runId = runId;
+      const hash = writeAcceptanceJson(output, report);
+      record(report, { path: output, sha256: hash });
+    },
+  };
+}
+
 export function runIssue183Acceptance({ root = ROOT, ledger, manifest, sources, enforceBaseline = true, onCheck = () => {} } = {}) {
   const report = { schema: 'rml-issue-183-acceptance/v1', startedAt: new Date().toISOString(), passed: false, commit: version('git', ['rev-parse', 'HEAD'], root), versions: { node: process.version, platform: process.platform, architecture: process.arch }, errors: [], requirements: [], checks: [] };
   try {
@@ -303,7 +348,7 @@ export function runIssue183Acceptance({ root = ROOT, ledger, manifest, sources, 
       catch (error) { result = { id: check.id, passed: false, error: error.message }; }
       checkResults.set(check.id, result);
       report.checks.push(result);
-      onCheck(result);
+      onCheck(result, report);
     }
     for (const [index, row] of rows.entries()) {
       const record = manifest.requirements[index];

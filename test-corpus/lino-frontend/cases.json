@@ -106,7 +106,7 @@
       "name": "a quoted reference over several lines",
       "source": "(note \"first\n# kept\nlast\")\n(b)",
       "forms": [
-        {"text":"(note 'first\n# kept\nlast')","line":1,"col":1,"length":1},
+        {"text":"(note ~1{66697273740a23206b6570740a6c617374})","line":1,"col":1,"length":1},
         {"text":"(b)","line":4,"col":1,"length":1}
       ],
       "prepared": "(note \"first\n# kept\nlast\")\n(b)",
@@ -187,7 +187,7 @@
       "name": "an even quote around spaces",
       "source": "(a ''  '' b)",
       "forms": [
-        {"text":"(a \"\" \"\" b)","line":1,"col":1,"length":1}
+        {"text":"(a ~1{} ~1{} b)","line":1,"col":1,"length":1}
       ],
       "prepared": "(a ''  '' b)",
       "lines": [[1,1]],
@@ -197,7 +197,7 @@
       "name": "an even quote around unbalanced parentheses",
       "source": "(a ''(b'' c))",
       "forms": [
-        {"text":"(a \"\" (\"b''\" c))","line":1,"col":1,"length":1}
+        {"text":"(a ~1{} (\"b''\" c))","line":1,"col":1,"length":1}
       ],
       "prepared": "(a ''(b'' c))",
       "lines": [[1,1]],
@@ -207,7 +207,7 @@
       "name": "an even quote around a next line character",
       "source": "(a ''\u0085'' b)",
       "forms": [
-        {"text":"(a \u0085 b)","line":1,"col":1,"length":1}
+        {"text":"(a '' b)","line":1,"col":1,"length":1}
       ],
       "prepared": "(a ''\u0085'' b)",
       "lines": [[1,1]],
@@ -217,7 +217,7 @@
       "name": "an even quote around a byte order mark",
       "source": "(a ''\ufeff'' b)",
       "forms": [
-        {"text":"(a \"\" \"\ufeff''\" b)","line":1,"col":1,"length":1}
+        {"text":"(a ~1{} \"﻿''\" b)","line":1,"col":1,"length":1}
       ],
       "prepared": "(a ''\ufeff'' b)",
       "lines": [[1,1]],
@@ -227,7 +227,7 @@
       "name": "an unclosed even quote",
       "source": "(a ''b c)",
       "forms": [
-        {"text":"(a \"\" b c)","line":1,"col":1,"length":1}
+        {"text":"(a ~1{} b c)","line":1,"col":1,"length":1}
       ],
       "prepared": "(a ''b c)",
       "lines": [[1,1]],
@@ -247,7 +247,7 @@
       "name": "an even quote before a comment line with parentheses",
       "source": "(a ''\n# ((\nb'' c)",
       "forms": [
-        {"text":"(a \"\" \"b''\" c)","line":1,"col":1,"length":1}
+        {"text":"(a ~1{} \"b''\" c)","line":1,"col":1,"length":1}
       ],
       "prepared": "(a ''      b'' c)",
       "lines": [[1,1]],
@@ -413,7 +413,7 @@
       "name": "a next line character inside a reference",
       "source": "(a\u0085b)",
       "forms": [
-        {"text":"(a\u0085b)","line":1,"col":1,"length":1}
+        {"text":"('ab')","line":1,"col":1,"length":1}
       ],
       "prepared": "(a\u0085b)",
       "lines": [[1,1]],
@@ -423,7 +423,7 @@
       "name": "a no-break space inside a reference",
       "source": "(a\u00a0b)",
       "forms": [
-        {"text":"(a\u00a0b)","line":1,"col":1,"length":1}
+        {"text":"('a b')","line":1,"col":1,"length":1}
       ],
       "prepared": "(a\u00a0b)",
       "lines": [[1,1]],
@@ -433,7 +433,7 @@
       "name": "a line separator inside a reference",
       "source": "(a\u2028b)",
       "forms": [
-        {"text":"(a\u2028b)","line":1,"col":1,"length":1}
+        {"text":"('a b')","line":1,"col":1,"length":1}
       ],
       "prepared": "(a\u2028b)",
       "lines": [[1,1]],

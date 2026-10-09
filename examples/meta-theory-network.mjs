@@ -47,6 +47,10 @@ const setRoot = links.encodeSet(
 );
 links.define('alternating.a', 'concept.alpha', 'alternating.b');
 links.define('alternating.b', 'concept.beta', 'alternating.a');
+const nestedSetRoot = links.encodeReferenceSet([setRoot], 'example.nested-set');
+const opaqueSequenceRoot = links.encodeReferenceSequence(
+  [setRoot, 'alternating.a', setRoot], 'example.opaque-sequence', 'balanced',
+);
 const membershipSets = new MembershipSetStore();
 membershipSets.define('membership.alpha', 'concept.alpha', 'example.members');
 membershipSets.define('membership.beta', 'concept.beta', 'example.members');
@@ -159,5 +163,7 @@ console.log(JSON.stringify({
   relationPairType: relation.pairType('example.pair'),
   finiteSequence: links.decodeSequence(finiteRoot),
   canonicalSet: links.decodeSet(setRoot),
+  nestedSetMembers: links.decodeReferenceSet(nestedSetRoot),
+  opaqueSequence: links.decodeReferenceSequence(opaqueSequenceRoot),
   cyclicObservation: links.walk('alternating.a', 5),
 }, null, 2));

@@ -6,6 +6,7 @@ import os from 'node:os';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { measureDockerCaches } from './docker-cache-budget.mjs';
 
 export const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const policy = JSON.parse(fs.readFileSync(new URL('./cache-policy.json', import.meta.url), 'utf8'));
@@ -190,9 +191,9 @@ export function roots(c) {
 function stamp(full) {
   const s = fs.lstatSync(full);
   if (!s.isFile()) return null;
-  return { bytes: s.size, hash: digest(fs.readFileSync(full)), modified: s.mtimeMs, mode: s.mode };
+  return { bytes: s.size, hash: digest(fs.readFileSync(full)), modified: s.mtimeMs, mode: s.mode, device: s.dev, inode: s.ino };
 }
-export function inventory(c) {
+export function inventory(c, { hashes = true } = {}) {
   const files = {};
   const protectedPaths = [];
   function walk(relative, category, disposable) {
@@ -215,49 +216,373 @@ export function inventory(c) {
         for (const nested of c.registry.roots.filter(r => r.path.startsWith(`${relative}/`))) walk(nested.path, nested.class, nested.disposable);
         return;
       }
-      for (const name of fs.readdirSync(full)) {
-        walk(`${relative}/${name}`, category, disposable);
-      }
-    } else if (s.isFile()) files[relative] = { ...stamp(full), class: category, disposable: !!disposable };
+      let names;
+      try { names = fs.readdirSync(full); } catch (error) { if (error.code === 'ENOENT') return; throw error; }
+      for (const name of names) walk(`${relative}/${name}`, category, disposable);
+    } else if (s.isFile()) files[relative] = { ...(hashes ? stamp(full) : { bytes: s.size, modified: s.mtimeMs, mode: s.mode, device: s.dev, inode: s.ino }), class: category, disposable: !!disposable, recovery: relative.split('/').some(part => part.startsWith('.rml-delete-')) };
     else protectedPaths.push({ path: relative, reason: 'not a regular file' });
   }
   for (const r of roots(c)) walk(r.path, r.class, r.disposable);
   return { files, protectedPaths };
 }
+/** Exact content AND filesystem identity; timestamps alone never prove authorship. */
+function matches(left, right) {
+  return !!left && !!right && ['bytes', 'hash', 'modified', 'mode', 'device', 'inode'].every(key => left[key] === right[key]);
+}
+// v1 allowed reused-directory temporal adoption; never trust those old entries.
+const productionProof = 'producer-v2';
+
+/** Allocate a private receipt channel before the owned producer is started. */
+export function beginProduction(c, lease) {
+  const token = lease.token;
+  if (!/^[a-f0-9-]{36}$/.test(token)) throw new Error('Invalid producer lease token');
+  const directory = path.join(c.state, `production-${token}`);
+  fs.mkdirSync(directory, { mode: 0o700 });
+  c.production = { token, directory, roots: [] };
+  return { RML_CACHE_PRODUCTION: token, RML_CACHE_ROOT: c.root };
+}
+
+
+
+function publishProducerRecord(c, name, record) {
+  const temporary = path.join(c.production.directory, `${crypto.randomUUID()}.tmp`);
+  fs.writeFileSync(temporary, JSON.stringify(record), { flag: 'wx', mode: 0o600 });
+  fs.renameSync(temporary, path.join(c.production.directory, name));
+}
+
+function mergeProductionRecords(c) {
+  const records = fs.readdirSync(c.production.directory).filter(name => /^(?:options-[a-f0-9-]{36}|root-[a-f0-9]{64})\.json$/.test(name)).map(name => {
+    const file = path.join(c.production.directory, name);
+    if (!fs.lstatSync(file).isFile()) throw new Error('Producer metadata may not be a link');
+    const record = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (record.token !== c.production.token) throw new Error('Producer metadata belongs to a different lease');
+    return record;
+  });
+  for (const record of records.filter(item => item.kind === 'options')) {
+    for (const cache of record.caches) register(c, cache.path, cache.class);
+  }
+  for (const record of records) {
+    if (record.kind === 'options') {
+      for (const keep of record.retain) {
+        validatePath(c, keep);
+        if (!roots(c).some(root => root.path === keep)) throw new Error(`Only registered roots may be retained: ${keep}`);
+      }
+      c.registry.retained = [...new Set([...(c.registry.retained ?? []), ...record.retain])];
+    } else if (record.kind === 'root') {
+      const root = record.output;
+      validatePath(c, root.path);
+      if (path.posix.dirname(root.path) !== root.parent || !path.posix.basename(root.path).startsWith('.rml-producer-')) throw new Error('Invalid private producer directory record');
+      if (!c.production.roots.some(item => item.path === root.path)) c.production.roots.push(root);
+      c.registry.producers ??= [];
+      if (!c.registry.producers.some(item => item.path === root.path)) c.registry.producers.push(root);
+    } else throw new Error('Unknown producer metadata record');
+  }
+}
+export function resumeProduction(c) {
+  const token = process.env.RML_CACHE_PRODUCTION;
+  if (!inheritedLease(c) || !token || token !== process.env.RML_CACHE_LEASE || !/^[a-f0-9-]{36}$/.test(token)) throw new Error('Producer output requires the verified active worktree lease');
+  const directory = path.join(c.state, `production-${token}`);
+  const stat = fs.lstatSync(directory, { throwIfNoEntry: false });
+  if (!stat?.isDirectory() || stat.isSymbolicLink()) throw new Error('Producer receipt channel is unsafe');
+  c.production = { token, directory, roots: [] };
+  mergeProductionRecords(c);
+  return c.production;
+}
+export function recordProductionOptions(c, { caches = [], retain = [] } = {}) {
+  if (!c.production) throw new Error('Producer option registration requires a live producer');
+  for (const item of caches) register(c, item.path, item.class);
+  for (const keep of retain) {
+    validatePath(c, keep);
+    if (!roots(c).some(root => root.path === keep)) throw new Error(`Only registered roots may be retained: ${keep}`);
+  }
+  c.registry.retained = [...new Set([...(c.registry.retained ?? []), ...retain])];
+  const record = { kind: 'options', token: c.production.token, caches, retain };
+  publishProducerRecord(c, `options-${crypto.randomUUID()}.json`, record);
+}
+
+
+export function reportProductionFailure(c, reason) {
+  if (!c.production) throw new Error('Producer failure reporting requires an active receipt channel');
+  publishProducerRecord(c, `failure-${crypto.randomUUID()}.json`, { token: c.production.token, reason: String(reason) });
+}
+export function productionFailure(c) {
+  if (!c.production) return null;
+  for (const name of fs.readdirSync(c.production.directory).filter(name => /^failure-[a-f0-9-]{36}\.json$/.test(name))) {
+    const file = path.join(c.production.directory, name);
+    if (!fs.lstatSync(file).isFile()) throw new Error('Producer failure record may not be a link');
+    const record = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (record.token !== c.production.token) throw new Error('Producer failure belongs to a different lease');
+    return String(record.reason);
+  }
+  return null;
+}
+
+/** Native tools receive this fresh directory explicitly; shared roots stay unowned. */
+export function ownedOutputPath(c, relative, { forSeed = false } = {}) {
+  validatePath(c, relative, { registration: true });
+  const current = inventory(c);
+  for (const candidate of [...(c.registry.producers ?? [])].reverse()) {
+    if (candidate.parent !== relative || c.production?.roots.some(item => item.path === candidate.path)) continue;
+    let directory;
+    try { directory = validatePath(c, candidate.path); } catch { if (!forSeed) return null; continue; }
+    const stat = fs.lstatSync(directory, { throwIfNoEntry: false });
+    if (!stat) continue;
+    if (!stat.isDirectory() || stat.dev !== candidate.device || stat.ino !== candidate.inode || stat.birthtimeMs !== candidate.created || stat.mode !== candidate.mode) { if (!forSeed) return null; continue; }
+    const inside = name => name === candidate.path || name.startsWith(`${candidate.path}/`);
+    if (current.protectedPaths.some(item => inside(item.path))) { if (!forSeed) return null; continue; }
+    const files = Object.entries(current.files).filter(([name]) => inside(name));
+    if (!files.every(([name, record]) => c.registry.files[name]?.proof === productionProof && matches(c.registry.files[name], record))) { if (!forSeed) return null; continue; }
+    return { directory, producer: candidate, files };
+  }
+  return null;
+}
+export function isolatedOutput(c, relative, category = 'acceptance') {
+  if (!c.production) throw new Error('Output isolation requires an active producer');
+  register(c, relative, category);
+  const parent = validatePath(c, relative);
+  fs.mkdirSync(parent, { recursive: true });
+  c.registry.producers ??= [];
+  // Never run a producer in an exposed prior target. Seed a new generation
+  // with verified bytes instead; concurrent edits keep their original path.
+  const reusable = ownedOutputPath(c, relative, { forSeed: true });
+  const directory = fs.mkdtempSync(path.join(parent, '.rml-producer-'));
+  fs.chmodSync(directory, 0o700);
+  const stat = fs.lstatSync(directory);
+  const output = { parent: relative, path: slash(path.relative(c.root, directory)), device: stat.dev, inode: stat.ino, created: stat.birthtimeMs, mode: stat.mode };
+  c.production.roots.push(output);
+  if (reusable) {
+    for (const [name, expected] of reusable.files) {
+      const source = validatePath(c, name);
+      const descriptor = fs.openSync(source, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW ?? 0));
+      let bytes, before, after;
+      try {
+        before = fs.fstatSync(descriptor);
+        bytes = fs.readFileSync(descriptor);
+        after = fs.fstatSync(descriptor);
+      } finally { fs.closeSync(descriptor); }
+      const snapshot = stat => ({ bytes: stat.size, hash: digest(bytes), modified: stat.mtimeMs, mode: stat.mode, device: stat.dev, inode: stat.ino });
+      if (!before.isFile() || !matches(expected, snapshot(before)) || !matches(expected, snapshot(after))) throw new Error(`Warm output changed while copying; producer deferred: ${name}`);
+      const destination = path.join(directory, path.relative(reusable.directory, source));
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      lowDisk(c);
+      // Never hard-link generations: the next compiler must not mutate the
+      // prior target's inode, which the user may still be inspecting/editing.
+      fs.writeFileSync(destination, bytes, { flag: 'wx', mode: before.mode & 0o777 });
+      fs.utimesSync(destination, before.atimeMs / 1000, before.mtimeMs / 1000);
+    }
+    output.seededFrom = reusable.producer.path;
+  }
+  c.registry.producers.push(output);
+  publishProducerRecord(c, `root-${digest(output.path)}.json`, { kind: 'root', token: c.production.token, output });
+  return directory;
+}
+
+/**
+ * A cooperating producer supplies the bytes it creates, not a directory scan.
+ * Exclusive creation cannot overwrite concurrent user data. Existing identical
+ * registered output can be reused; replacing other output needs safe cleanup.
+ */
+export function writeProducedFile(relative, data, { root = process.env.RML_CACHE_ROOT ?? repository, mode = 0o666 } = {}) {
+  const c = context(root);
+  const { directory } = resumeProduction(c);
+  const full = validatePath(c, relative);
+  if (relative.split('/').some(part => part.startsWith('.rml-delete-'))) throw new Error('Recovery paths cannot receive producer ownership');
+  if (!roots(c).some(item => relative === item.path || relative.startsWith(`${item.path}/`)) || c.tracked.has(relative)) throw new Error(`Not a generated output path: ${relative}`);
+  const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data);
+  const expected = digest(bytes);
+  fs.mkdirSync(path.dirname(full), { recursive: true });
+  const receiptFile = path.join(directory, `${digest(relative)}.json`);
+  let descriptor;
+  try { descriptor = fs.openSync(full, 'wx', mode); }
+  catch (error) {
+    if (error.code !== 'EEXIST') throw error;
+    const existing = stamp(full);
+    let owned = c.registry.files[relative];
+    if (fs.existsSync(receiptFile)) owned = JSON.parse(fs.readFileSync(receiptFile, 'utf8')).record;
+    if (owned?.proof === productionProof && matches(owned, existing) && existing.hash === expected) return;
+    throw new Error(`Refusing to replace existing or concurrently created output: ${relative}`);
+  }
+  let produced;
+  try {
+    fs.writeFileSync(descriptor, bytes);
+    const written = fs.fstatSync(descriptor);
+    produced = { bytes: bytes.length, hash: expected, modified: written.mtimeMs, mode: written.mode, device: written.dev, inode: written.ino, proof: productionProof };
+  } finally { fs.closeSync(descriptor); }
+  if (!matches(produced, stamp(full))) throw new Error(`Output changed before its producer receipt: ${relative}`);
+  // Atomic receipt replacement does not follow a user-supplied link.
+  const temp = path.join(directory, `${crypto.randomUUID()}.tmp`);
+  fs.writeFileSync(temp, JSON.stringify({ path: relative, record: produced }), { flag: 'wx', mode: 0o600 });
+  fs.renameSync(temp, receiptFile);
+}
+
 export function capture(c, baseline) {
   if (!c.gitless) c.tracked = new Set(git(c.root, ['ls-files', '-z']).split('\0').filter(Boolean));
+  if (c.production) mergeProductionRecords(c);
   const after = inventory(c);
+  const receipts = {};
+  const privateRoots = [];
+  if (c.production) {
+    for (const name of fs.readdirSync(c.production.directory)) {
+      if (!/^[a-f0-9]{64}\.json$/.test(name)) continue;
+      const receiptPath = path.join(c.production.directory, name);
+      if (!fs.lstatSync(receiptPath).isFile()) continue;
+      const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+      if (name === `${digest(receipt.path)}.json`) receipts[receipt.path] = receipt.record;
+    }
+    for (const root of c.production.roots) {
+      const current = fs.lstatSync(validatePath(c, root.path), { throwIfNoEntry: false });
+      if (current?.isDirectory() && current.dev === root.device && current.ino === root.inode && current.birthtimeMs === root.created && current.mode === root.mode) privateRoots.push(root.path);
+    }
+  }
   for (const [relative, record] of Object.entries(after.files)) {
+    if (record.recovery) { delete c.registry.files[relative]; continue; }
     const before = baseline.files[relative];
     const owned = c.registry.files[relative];
-    // Existing unowned files are never adopted, even if a command overwrote them.
-    // Existing owned files changed by the user before this command lose ownership.
-    if (!before || (owned && owned.hash === before.hash && owned.bytes === before.bytes && owned.modified === before.modified && owned.mode === before.mode)) c.registry.files[relative] = { ...record, seen: owned && before && before.hash === record.hash && before.modified === record.modified ? owned.seen : Date.now() };
+    const unchangedOwned = owned?.proof === productionProof && matches(owned, before) && matches(before, record);
+    const receipted = receipts[relative]?.proof === productionProof && matches(receipts[relative], record) && (!before || (owned?.proof === productionProof && matches(owned, before)));
+    const isolated = !before && privateRoots.some(root => relative.startsWith(`${root}/`));
+    if (unchangedOwned || receipted || isolated) c.registry.files[relative] = { ...record, proof: productionProof, seen: unchangedOwned ? owned.seen : Date.now() };
     else delete c.registry.files[relative];
   }
   for (const relative of Object.keys(c.registry.files)) if (!after.files[relative]) delete c.registry.files[relative];
   writeState(c);
 }
+export function finishProduction(c) {
+  if (!c.production) return;
+  // Delete only regular receipt files created for this exact lease, never a tree.
+  for (const name of fs.readdirSync(c.production.directory)) {
+    if (!/^(?:[a-f0-9]{64}\.json|[a-f0-9-]{36}\.tmp|(?:options|failure)-[a-f0-9-]{36}\.json|root-[a-f0-9]{64}\.json)$/.test(name)) continue;
+    const file = path.join(c.production.directory, name);
+    if (fs.lstatSync(file).isFile()) fs.unlinkSync(file);
+  }
+  try { fs.rmdirSync(c.production.directory); } catch { /* Unknown data stays protected. */ }
+
+}
+
+export function localCacheBytes(c) {
+  if (c.production) mergeProductionRecords(c);
+  else if (process.env.RML_CACHE_PRODUCTION && inheritedLease(c)) resumeProduction(c);
+  return Object.values(inventory(c, { hashes: false }).files).reduce((sum, file) => sum + file.bytes, 0);
+}
+export function aggregateCacheBytes(c) {
+  const localBytes = localCacheBytes(c);
+  const external = measureDockerCaches(c.root);
+  return { localBytes, externalBytes: external.bytes, totalBytes: localBytes + external.bytes, resources: external.resources };
+}
+export function checkAggregateBudget(c) {
+  const measured = aggregateCacheBytes(c);
+  const budget = numberSetting(process.env.RML_CACHE_BUDGET_BYTES, policy.budgetBytes, 'RML_CACHE_BUDGET_BYTES');
+  if (measured.totalBytes > budget) throw new Error(`Aggregate cache budget exceeded: ${measured.totalBytes} bytes (${measured.localBytes} local + ${measured.externalBytes} owned Docker); ${budget} allowed`);
+  return measured;
+}
+
 function numberSetting(value, fallback, name) {
   const number = value === undefined ? fallback : Number(value);
   if (!Number.isFinite(number) || number < 0) throw new Error(`${name} must be a non-negative number`);
   return number;
 }
-export function cleanup(c, { full = false, reportOnly = false } = {}) {
+
+/**
+ * Atomically detach the public name before inspecting/deleting its inode. An
+ * editor replacement is restored exclusively, or retained with recovery data.
+ * The private quarantine is in the same parent, so a substituted ancestor does
+ * not provide the uniquely allocated destination. Linux additionally anchors
+ * both names to an open parent descriptor, avoiding later ancestor traversal.
+ */
+function removeOwnedFile(c, relative, expected) {
+  const original = validatePath(c, relative);
+  const parent = path.dirname(original);
+  const ancestry = [];
+  let cursor = c.root;
+  ancestry.push([cursor, fs.lstatSync(cursor)]);
+  for (const bit of path.relative(c.root, parent).split(path.sep).filter(Boolean)) {
+    cursor = path.join(cursor, bit);
+    ancestry.push([cursor, fs.lstatSync(cursor)]);
+  }
+  const sameAncestry = () => ancestry.every(([directory, before]) => {
+    const now = fs.lstatSync(directory, { throwIfNoEntry: false });
+    return now?.isDirectory() && !now.isSymbolicLink() && now.dev === before.dev && now.ino === before.ino;
+  });
+  let descriptor;
+  let stableParent = parent;
+  try {
+    try {
+      descriptor = fs.openSync(parent, fs.constants.O_RDONLY | (fs.constants.O_DIRECTORY ?? 0) | (fs.constants.O_NOFOLLOW ?? 0));
+      const opened = fs.fstatSync(descriptor);
+      const expectedParent = ancestry.at(-1)[1];
+      if (!opened.isDirectory() || opened.dev !== expectedParent.dev || opened.ino !== expectedParent.ino) throw new Error('Cache parent changed before deletion');
+      for (const provider of ['/proc/self/fd', '/dev/fd']) {
+        const alias = `${provider}/${descriptor}`;
+        try {
+          const anchored = fs.statSync(`${alias}/.`);
+          if (anchored.isDirectory() && anchored.dev === opened.dev && anchored.ino === opened.ino) { stableParent = alias; break; }
+        } catch { /* Portable fallback uses the same-parent rename transaction. */ }
+      }
+    } catch (error) {
+      if (descriptor !== undefined) { fs.closeSync(descriptor); descriptor = undefined; }
+      if (process.platform !== 'win32' || !['EISDIR', 'EINVAL', 'EPERM', 'EACCES', 'ENOTSUP'].includes(error.code)) throw error;
+      // Windows may not expose directory descriptors through Node. No public
+      // pathname is ever unlinked; rename still quarantines before verification.
+    }
+    if (!sameAncestry()) throw new Error('Cache ancestry changed before deletion');
+    const source = path.join(stableParent, path.basename(original));
+    const quarantine = fs.mkdtempSync(path.join(stableParent, '.rml-delete-'));
+    const visibleQuarantine = path.join(parent, path.basename(quarantine));
+    const moved = path.join(quarantine, 'artifact');
+    const intent = path.join(quarantine, 'recovery.json');
+    fs.writeFileSync(intent, JSON.stringify({ original: relative, recovery: path.join(visibleQuarantine, 'artifact'), expected }), { flag: 'wx', mode: 0o600 });
+    let detached = false;
+    let completed = false;
+    try {
+      fs.renameSync(source, moved);
+      detached = true;
+      const current = stamp(moved);
+      if (!matches(current, expected) || !sameAncestry()) {
+        // link is exclusive: never overwrite a second editor replacement that
+        // appeared after detachment. A failed restore leaves recoverable bytes.
+        try {
+          fs.linkSync(moved, source);
+          fs.unlinkSync(moved);
+          detached = false;
+          completed = true;
+          return false;
+        } catch (error) {
+          throw new Error(`Cleanup deferred: changed data preserved at ${path.join(visibleQuarantine, 'artifact')}; original ${relative} could not be restored exclusively: ${error.message}`);
+        }
+      }
+      fs.unlinkSync(moved);
+      detached = false;
+      completed = true;
+      return true;
+    } finally {
+      if (!detached) {
+        // Only our fresh metadata/private directory is removed; no recursive
+        // walk or removal of public ancestor directories is attempted.
+        try { fs.unlinkSync(intent); } catch (error) { if (completed) throw error; }
+        try { fs.rmdirSync(quarantine); } catch (error) { if (completed) throw error; }
+      }
+    }
+  } finally { if (descriptor !== undefined) fs.closeSync(descriptor); }
+}
+
+export function cleanup(c, { full = false, reportOnly = false, onlyRoots } = {}) {
+  for (const relative of onlyRoots ?? []) validatePath(c, relative);
   if (!c.gitless) c.tracked = new Set(git(c.root, ['ls-files', '-z']).split('\0').filter(Boolean));
   const budget = numberSetting(process.env.RML_CACHE_BUDGET_BYTES, policy.budgetBytes, 'RML_CACHE_BUDGET_BYTES');
   const staleMs = numberSetting(process.env.RML_CACHE_STALE_HOURS, policy.staleHours, 'RML_CACHE_STALE_HOURS') * 3600000;
   const current = inventory(c);
   const entries = Object.entries(current.files);
-  const before = entries.reduce((sum, [, f]) => sum + f.bytes, 0);
+  const localBefore = entries.reduce((sum, [, f]) => sum + f.bytes, 0);
+  const external = measureDockerCaches(c.root);
+  const before = localBefore + external.bytes;
   let after = before;
   const protectedPaths = [...current.protectedPaths];
   const removed = [];
   const candidates = [];
   for (const [relative, record] of entries) {
     const owned = c.registry.files[relative];
-    if (!owned || owned.hash !== record.hash || owned.bytes !== record.bytes || owned.modified !== record.modified || owned.mode !== record.mode) {
-      protectedPaths.push({ path: relative, reason: owned ? 'modified since build (uncommitted work)' : 'predates ownership registration' });
+    if (record.recovery || owned?.proof !== productionProof || !matches(owned, record)) {
+      protectedPaths.push({ path: relative, reason: record.recovery ? 'recoverable concurrent edit; resolve manually' : owned?.proof === productionProof ? 'modified since build (uncommitted work)' : 'no producer ownership receipt' });
       delete c.registry.files[relative];
       continue;
     }
@@ -265,6 +590,7 @@ export function cleanup(c, { full = false, reportOnly = false } = {}) {
   }
   candidates.sort((a, b) => a[2].seen - b[2].seen || a[0].localeCompare(b[0]));
   for (const [relative, record, owned] of candidates) {
+    if (onlyRoots && !onlyRoots.some(root => relative === root || relative.startsWith(`${root}/`))) continue;
     // Incremental sessions and linked examples are disposable after the owned
     // process exits. Warm dependencies are retained within the budget; missing
     // files after eviction are rebuilt by Cargo's fingerprints. We do not run
@@ -274,21 +600,26 @@ export function cleanup(c, { full = false, reportOnly = false } = {}) {
     if (retained && !full) { protectedPaths.push({ path: relative, reason: 'retained until artifact handoff/full cleanup' }); continue; }
     if (!(full || disposable || Date.now() - owned.seen >= staleMs || after > budget)) continue;
     if (reportOnly) continue;
-    const target = validatePath(c, relative);
-    const fresh = stamp(target);
-    if (!fresh || fresh.hash !== owned.hash || fresh.modified !== owned.modified || fresh.mode !== owned.mode || c.tracked.has(relative)) { protectedPaths.push({ path: relative, reason: 'changed during cleanup' }); continue; }
-    fs.unlinkSync(target);
+    if (c.tracked.has(relative)) { protectedPaths.push({ path: relative, reason: 'tracked during cleanup' }); continue; }
+    let deleted;
+    try { deleted = removeOwnedFile(c, relative, owned); }
+    catch (error) {
+      delete c.registry.files[relative];
+      writeState(c);
+      throw error;
+    }
     delete c.registry.files[relative];
+    if (!deleted) { protectedPaths.push({ path: relative, reason: 'changed during deletion; user data restored' }); continue; }
     removed.push(relative);
     after -= record.bytes;
-    // rmdir only removes empty directories, never follows a symlink, and stops
-    // before the worktree or a directory containing protected files.
-    let dir = path.dirname(target);
-    while (dir !== c.root) { try { fs.rmdirSync(dir); } catch { break; } dir = path.dirname(dir); }
+
   }
-  const result = { version: 1, root: c.root, mode: full ? 'full' : 'bounded', beforeBytes: before, afterBytes: after, reclaimedBytes: before - after, budgetBytes: budget, budgetSatisfied: after <= budget, removed, protected: protectedPaths, classes: policy.classes, timestamp: new Date().toISOString() };
+  const remaining = inventory(c, { hashes: false });
+  after = Object.values(remaining.files).reduce((sum, file) => sum + file.bytes, 0) + external.bytes;
+  const result = { version: 1, root: c.root, mode: full ? 'full' : 'bounded', beforeBytes: before, afterBytes: after, reclaimedBytes: before - after, budgetBytes: budget, budgetSatisfied: after <= budget, localBeforeBytes: localBefore, localAfterBytes: after - external.bytes, externalBytes: external.bytes, externalResources: external.resources, removed, protected: protectedPaths, classes: policy.classes, timestamp: new Date().toISOString() };
   if (!reportOnly) {
-    if (full) c.registry.retained = [];
+    c.registry.producers = (c.registry.producers ?? []).filter(producer => Object.keys(remaining.files).some(relative => relative.startsWith(`${producer.path}/`)));
+    if (full) c.registry.retained = onlyRoots ? (c.registry.retained ?? []).filter(retained => !onlyRoots.some(root => retained === root || retained.startsWith(`${root}/`))) : [];
     writeState(c);
     const reports = path.join(c.root, '.rml-cache', 'reports');
     fs.mkdirSync(reports, { recursive: true });
@@ -311,6 +642,17 @@ export function lowDisk(c) {
 }
 async function main() {
   const args = process.argv.slice(2);
+  if (args[0] === '--output-path') {
+    if (args.length !== 2) throw new Error('Usage: build-cache.mjs --output-path <registered-root>');
+    const c = context();
+    const lease = inheritedLease(c) ? null : await lock(c);
+    try {
+      const output = ownedOutputPath(c, args[1]);
+      if (!output) throw new Error(`No proven private output for ${args[1]}`);
+      console.log(output.directory);
+    } finally { lease?.release(); }
+    return;
+  }
   if (args.some(a => !['--full', '--report', '--json'].includes(a))) throw new Error('Usage: node scripts/build-cache.mjs [--full] [--report] [--json]');
   const c = context();
   const lease = await lock(c);

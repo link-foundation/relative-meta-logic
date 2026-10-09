@@ -17066,5 +17066,102 @@
     "log": "docs/case-studies/issue-183/data/abi-dependency-online-update.log",
     "method": "Cargo compatible update against current official registries; all ABI registry package identities already covered by this audit",
     "versionUpdates": 9
+  },
+  "currentDirectDependencyAudit": {
+    "observedAt": "2026-10-08T21:10:31.269102+00:00",
+    "results": [
+      {
+        "registry": "npm",
+        "name": "links-notation",
+        "latest": "0.23.0",
+        "url": "https://registry.npmjs.org/links-notation/latest"
+      },
+      {
+        "registry": "npm",
+        "name": "vscode-languageclient",
+        "latest": "10.1.2",
+        "url": "https://registry.npmjs.org/vscode-languageclient/latest"
+      },
+      {
+        "registry": "npm",
+        "name": "@vscode/vsce",
+        "latest": "4.0.0",
+        "url": "https://registry.npmjs.org/%40vscode%2Fvsce/latest"
+      },
+      {
+        "registry": "npm",
+        "name": "events",
+        "latest": "3.3.0",
+        "url": "https://registry.npmjs.org/events/latest"
+      },
+      {
+        "registry": "npm",
+        "name": "web-tree-sitter",
+        "latest": "0.27.1",
+        "url": "https://registry.npmjs.org/web-tree-sitter/latest"
+      },
+      {
+        "registry": "npm",
+        "name": "esbuild",
+        "latest": "0.28.2",
+        "url": "https://registry.npmjs.org/esbuild/latest"
+      },
+      {
+        "registry": "npm",
+        "name": "jsdoc",
+        "latest": "4.0.5",
+        "url": "https://registry.npmjs.org/jsdoc/latest"
+      },
+      {
+        "registry": "npm",
+        "name": "@babel/parser",
+        "latest": "8.0.7",
+        "url": "https://registry.npmjs.org/%40babel%2Fparser/latest"
+      },
+      {
+        "registry": "crates",
+        "name": "links-notation",
+        "latest": "0.23.0",
+        "url": "https://crates.io/api/v1/crates/links-notation"
+      },
+      {
+        "registry": "crates",
+        "name": "meta-language",
+        "latest": "1.0.0",
+        "url": "https://crates.io/api/v1/crates/meta-language"
+      },
+      {
+        "registry": "crates",
+        "name": "sha2",
+        "latest": "0.11.0",
+        "url": "https://crates.io/api/v1/crates/sha2"
+      },
+      {
+        "registry": "crates",
+        "name": "serde_json",
+        "latest": "1.0.151",
+        "url": "https://crates.io/api/v1/crates/serde_json"
+      },
+      {
+        "registry": "crates",
+        "name": "regex",
+        "latest": "1.13.1",
+        "url": "https://crates.io/api/v1/crates/regex"
+      },
+      {
+        "registry": "crates",
+        "name": "syn",
+        "latest": "3.0.6",
+        "url": "https://crates.io/api/v1/crates/syn"
+      },
+      {
+        "registry": "crates",
+        "name": "quote",
+        "latest": "1.0.47",
+        "url": "https://crates.io/api/v1/crates/quote"
+      }
+    ],
+    "scope": "Current direct npm and registry Rust dependencies across maintained manifests; the earlier transitive audit above remains dated separately.",
+    "consumerUpdate": "web-tree-sitter 0.27.0 -> 0.27.1; exact pinned upstream package declarations remain preserved in provenance."
   }
 }

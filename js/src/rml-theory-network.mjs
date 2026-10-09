@@ -21,6 +21,7 @@ function requireLeaf(value, context) {
   if (typeof value !== 'string' || value.length === 0) {
     throw new Error(`${context} must be a non-empty reference`);
   }
+  if (!value.isWellFormed()) throw new Error(`${context} must be well-formed Unicode text`);
   return value;
 }
 
@@ -1003,6 +1004,118 @@ class DoubletSequenceStore extends LinkNetwork {
       active.delete(reference);
     };
     visit(head);
+    return values;
+  }
+
+  /**
+   * Encode rml.reference-sequence/v1: tagged doublets distinguish structural
+   * branches from opaque element references, including references to links.
+   * The original raw-tree format remains available through encodeSequence.
+   */
+  encodeReferenceSequence(values, address = 'rml.reference-sequence', layout = 'balanced') {
+    requireLeaf(address, 'reference sequence address');
+    const references = Array.from(values, value => requireLeaf(value, 'reference sequence value'));
+    if (!['balanced', 'left', 'right'].includes(layout)) {
+      throw new Error('sequence layout must be balanced, left, or right');
+    }
+    if (references.length === 0) return EMPTY_SEQUENCE;
+    const entries = [];
+    const pending = [[0, references.length, 0]];
+    while (pending.length > 0) {
+      const [start, end, index] = pending.pop();
+      const node = `${address}.cell.${index}`;
+      if (end - start === 1) {
+        entries.push([node, 'rml.reference-sequence.v1.element', references[start]]);
+      } else {
+        const middle = layout === 'left' ? end - 1 : layout === 'right' ? start + 1 : start + Math.floor((end - start) / 2);
+        const children = `${address}.children.${index}`;
+        // A full binary subtree of L leaves has 2L - 1 nodes. This keeps the
+        // original preorder identities without recursively building a tree.
+        const leftIndex = index + 1;
+        const rightIndex = index + 2 * (middle - start);
+        entries.push([children, `${address}.cell.${leftIndex}`, `${address}.cell.${rightIndex}`]);
+        entries.push([node, 'rml.reference-sequence.v1.branch', children]);
+        pending.push([middle, end, rightIndex], [start, middle, leftIndex]);
+      }
+    }
+    const elementReferences = new Set(references);
+    for (const [node] of entries) {
+      if (this.nodes.has(node)) throw new Error(`sequence address ${node} is already defined`);
+      if (elementReferences.has(node)) throw new Error(`sequence value ${node} collides with an internal link`);
+    }
+    for (const entry of entries) this.define(...entry);
+    return `${address}.cell.0`;
+  }
+
+  /** Read only v1 structure; an element's target is never recursively opened. */
+  decodeReferenceSequence(head, { maxVisits = 1_000_000, maxValues = 1_000_000 } = {}) {
+    requireLeaf(head, 'reference sequence head');
+    if (![maxVisits, maxValues].every(limit => Number.isSafeInteger(limit) && limit >= 0)) {
+      throw new Error('reference sequence limits must be non-negative safe integers');
+    }
+    const values = [];
+    const active = new Set();
+    const pending = [[head, false]];
+    let visits = 0;
+    while (pending.length > 0) {
+      const [reference, exit] = pending.pop();
+      if (exit) {
+        active.delete(reference);
+        continue;
+      }
+      if (visits >= maxVisits) throw new Error('reference sequence visit limit exceeded');
+      visits++;
+      if (reference === EMPTY_SEQUENCE) continue;
+      if (active.has(reference)) throw new Error(`reference sequence ${head} is cyclic`);
+      const node = this.nodes.get(reference);
+      if (!node) throw new Error(`unknown reference sequence address ${reference}`);
+      if (node.source === 'rml.reference-sequence.v1.element') {
+        if (values.length >= maxValues) throw new Error('reference sequence value limit exceeded');
+        values.push(node.target);
+      } else if (node.source === 'rml.reference-sequence.v1.branch') {
+        const children = this.nodes.get(node.target);
+        if (!children) throw new Error(`unknown reference sequence children ${node.target}`);
+        active.add(reference);
+        pending.push([reference, true], [children.target, false], [children.source, false]);
+      } else {
+        throw new Error(`invalid reference sequence constructor at ${reference}`);
+      }
+    }
+    return values;
+  }
+
+  /** Duplicate-free insertion order over opaque references, in the v1 format. */
+  encodeReferenceOrderedSet(values, address = 'rml.reference-set') {
+    const references = Array.from(values, value => requireLeaf(value, 'ordered set value'));
+    const seen = new Set();
+    for (const value of references) {
+      if (seen.has(value)) throw new Error(`ordered set contains duplicate ${value}`);
+      seen.add(value);
+    }
+    return this.encodeReferenceSequence(references, address);
+  }
+
+  decodeReferenceOrderedSet(head, limits) {
+    const values = this.decodeReferenceSequence(head, limits);
+    const seen = new Set();
+    for (const value of values) {
+      if (seen.has(value)) throw new Error(`ordered set contains duplicate ${value}`);
+      seen.add(value);
+    }
+    return values;
+  }
+
+  /** Extensional finite sets use sorted, unique opaque reference leaves. */
+  encodeReferenceSet(values, address = 'rml.reference-set') {
+    const references = Array.from(values, value => requireLeaf(value, 'set value'));
+    return this.encodeReferenceSequence([...new Set(references)].sort(compareReferences), address);
+  }
+
+  decodeReferenceSet(head, limits) {
+    const values = this.decodeReferenceSequence(head, limits);
+    if (values.some((value, index) => index > 0 && compareReferences(values[index - 1], value) >= 0)) {
+      throw new Error(`set ${head} is not in strict canonical order`);
+    }
     return values;
   }
 

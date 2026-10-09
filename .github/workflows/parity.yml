@@ -55,9 +55,9 @@ jobs:
         run: node scripts/run-with-cache.mjs -- node --test scripts/check-corpus-parity.test.mjs
       - name: Build and consume Rust CLI for corpus parity
         run: |
-          node scripts/run-with-cache.mjs -- bash -euo pipefail -c '
+          node scripts/run-with-cache.mjs --isolate-output rust/target -- bash -euo pipefail -c '
             cargo build --manifest-path rust/Cargo.toml --bin rml
-            node scripts/check-corpus-parity.mjs
+            node scripts/check-corpus-parity.mjs --rust-bin "$RML_CACHE_OUTPUT_DIR/debug/rml"
           '
       - name: Upload cache diagnostics before teardown
         if: always()

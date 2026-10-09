@@ -11,11 +11,32 @@ import { verifyMetaLanguageSource } from '../../scripts/verify-meta-language-sou
 
 const corpus = JSON.parse(readFileSync(new URL('../../test-corpus/upstream-meta-language/four-language-conformance.json', import.meta.url)));
 const translations = JSON.parse(readFileSync(new URL('../../test-corpus/upstream-meta-language/translation-programs.json', import.meta.url)));
+const release = JSON.parse(readFileSync(new URL('../../test-corpus/upstream-meta-language/release-regressions.json', import.meta.url)));
 
-test('installed upstream files and both dependency locks match the official source pin', () => {
+for (const fixture of release.supported) test(`upstream release translation regression: ${fixture.name}`, () => {
+  for (const target of fixture.targets) {
+    const result = translateProgram(fixture.source, 'JavaScript', target);
+    assert.equal(result.contract.support, TranslationSupport.SemanticTranslation, target);
+    assert.equal(result.diagnostic, null, target);
+    assert.ok(result.semantics, target);
+    if (target === 'Rust') for (const expected of fixture.rustIncludes) assert.ok(result.code.includes(expected), expected);
+  }
+});
+
+for (const fixture of release.refused) test(`upstream release refuses unsafe translation: ${fixture.name}`, () => {
+  const result = translateProgram(fixture.source, 'JavaScript', 'Rust');
+  assert.equal(result.contract.support, TranslationSupport.PortableEncoding);
+  assert.equal(result.semantics, null);
+  assert.ok(result.diagnostic?.message.includes(fixture.reason), result.diagnostic?.message);
+  assert.equal(decodeProgramTranslation(result.code, 'Rust').source, fixture.source);
+});
+
+test('installed upstream files and dependency locks match the official release', () => {
   const result = verifyMetaLanguageSource();
   assert.equal(result.revision, META_LANGUAGE_SOURCE_REVISION);
-  assert.equal(result.verifiedFiles, 235);
+  assert.equal(result.releaseVersion, '1.0.0');
+  assert.equal(result.rustSource, 'registry+https://github.com/rust-lang/crates.io-index');
+  assert.equal(result.verifiedFiles, 236);
 });
 
 for (const fixture of corpus.languages) test(`upstream grammar, aliases, bindings and snapshots: ${fixture.name}`, () => {

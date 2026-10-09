@@ -6,7 +6,7 @@
 // shape for its expression: rule name, arity, and that sub-derivations
 // recurse onto matching sub-expressions. Mutating any of those rejects.
 
-use crate::{is_num, is_structurally_same, key_of, parse_lino, parse_one, tokenize_one, Node};
+use crate::{emit_lino_term, is_definition_form, is_num, is_structurally_same, key_of, parse_lino, parse_one, tokenize_one, Node};
 use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -66,11 +66,11 @@ fn collect_assignments(forms: &[Node]) -> HashSet<String> {
                 if let (Node::Leaf(w1), Node::Leaf(w2), Node::Leaf(w3)) = (&c[1], &c[2], &c[3]) {
                     if w1 == "has" && w2 == "probability" && is_num(w3) {
                         if let Node::List(inner) = &c[0] {
-                            out.insert(key_of(&c[0]));
+                            out.insert(emit_lino_term(&c[0]));
                             if inner.len() == 3 {
                                 if let Node::Leaf(op) = &inner[1] {
                                     if op == "=" {
-                                        out.insert(key_of(&Node::List(vec![
+                                        out.insert(emit_lino_term(&Node::List(vec![
                                             Node::Leaf("=".into()),
                                             inner[0].clone(),
                                             inner[2].clone(),
@@ -171,7 +171,7 @@ fn expected_rule(expr: &Node, ops: &HashSet<String>, assigned: &HashSet<String>)
         }
         Node::List(c) => {
             if let Some(Node::Leaf(h)) = c.first() {
-                if h.ends_with(':') {
+                if is_definition_form(expr, |op| ops.contains(op)) {
                     return "definition";
                 }
                 match h.as_str() {
@@ -237,12 +237,12 @@ fn expected_rule(expr: &Node, ops: &HashSet<String>, assigned: &HashSet<String>)
                         "=" | "!=" => {
                             let l = &c[0];
                             let r = &c[2];
-                            let kp = key_of(&Node::List(vec![
+                            let kp = emit_lino_term(&Node::List(vec![
                                 Node::Leaf("=".into()),
                                 l.clone(),
                                 r.clone(),
                             ]));
-                            let ki = key_of(&Node::List(vec![
+                            let ki = emit_lino_term(&Node::List(vec![
                                 l.clone(),
                                 Node::Leaf("=".into()),
                                 r.clone(),

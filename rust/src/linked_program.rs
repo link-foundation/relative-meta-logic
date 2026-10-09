@@ -2121,10 +2121,17 @@ fn addressable_link_descriptor(address_pattern: &[usize]) -> (Vec<usize>, usize)
     )
 }
 
-fn self_incidence_by_reference_slot(address_pattern: &[usize]) -> Vec<bool> {
-    address_pattern[1..]
+/// Classify equality with the link address without assigning roles to slots.
+///
+/// # Panics
+/// Panics when the input omits the link address.
+pub fn self_incidence_by_reference_slot<T: PartialEq>(address_pattern: &[T]) -> Vec<bool> {
+    let (address, references) = address_pattern
+        .split_first()
+        .expect("self-incidence requires a link address");
+    references
         .iter()
-        .map(|reference_address| *reference_address == address_pattern[0])
+        .map(|reference_address| reference_address == address)
         .collect()
 }
 

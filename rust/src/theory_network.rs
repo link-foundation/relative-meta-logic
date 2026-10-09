@@ -12,7 +12,7 @@ use crate::{
     check_proof_object, parse_lino, parse_one, parse_proof_assumption_form,
     parse_proof_object_form, parse_rule_form, tokenize_one, CheckProofVerdict, Env, Node,
 };
-use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 pub const EMPTY_SEQUENCE: &str = "rml.sequence.empty";
 
@@ -1376,6 +1376,11 @@ impl DoubletSequenceStore {
             .map(|node| (node.source.as_str(), node.target.as_str()))
     }
 
+    /// Lossless addressed triples, including all v1 constructor information.
+    pub fn entries(&self) -> Vec<(String, String, String)> {
+        self.network.snapshot()
+    }
+
     pub fn walk(&self, head: &str, limit: usize) -> Result<SequenceWalk, String> {
         require_reference(head, "sequence head")?;
         let mut values = Vec::new();
@@ -1455,6 +1460,211 @@ impl DoubletSequenceStore {
         let mut values = Vec::new();
         let mut active = BTreeSet::new();
         self.decode_sequence_reference(head, head, &mut active, &mut values)?;
+        Ok(values)
+    }
+
+    /// Encode rml.reference-sequence/v1 using tagged addressed doublets.
+    /// Element references remain opaque even when they name existing links.
+    pub fn encode_reference_sequence(
+        &mut self,
+        values: &[&str],
+        address: &str,
+        layout: SequenceLayout,
+    ) -> Result<String, String> {
+        require_reference(address, "reference sequence address")?;
+        for value in values {
+            require_reference(value, "reference sequence value")?;
+        }
+        if values.is_empty() {
+            return Ok(EMPTY_SEQUENCE.to_string());
+        }
+        let mut entries = Vec::new();
+        let mut pending = vec![(0, values.len(), 0)];
+        while let Some((start, end, index)) = pending.pop() {
+            let node = format!("{address}.cell.{index}");
+            if end - start == 1 {
+                entries.push((
+                    node,
+                    "rml.reference-sequence.v1.element".to_string(),
+                    values[start].to_string(),
+                ));
+            } else {
+                let middle = match layout {
+                    SequenceLayout::Left => end - 1,
+                    SequenceLayout::Right => start + 1,
+                    SequenceLayout::Balanced => start + (end - start) / 2,
+                };
+                // A full binary subtree of L leaves has 2L - 1 nodes.
+                // Preserve preorder identities without building recursive Boxes.
+                let left_index = index + 1;
+                let right_index = index + 2 * (middle - start);
+                let children = format!("{address}.children.{index}");
+                entries.push((
+                    children.clone(),
+                    format!("{address}.cell.{left_index}"),
+                    format!("{address}.cell.{right_index}"),
+                ));
+                entries.push((
+                    node,
+                    "rml.reference-sequence.v1.branch".to_string(),
+                    children,
+                ));
+                pending.push((middle, end, right_index));
+                pending.push((start, middle, left_index));
+            }
+        }
+        let element_references: HashSet<&str> = values.iter().copied().collect();
+        for (node_address, _, _) in &entries {
+            if self.network.links.contains_key(node_address) {
+                return Err(format!(
+                    "sequence address {node_address} is already defined"
+                ));
+            }
+            if element_references.contains(node_address.as_str()) {
+                return Err(format!(
+                    "sequence value {node_address} collides with an internal link"
+                ));
+            }
+        }
+        for (node_address, source, target) in entries {
+            self.define(&node_address, &source, &target)?;
+        }
+        Ok(format!("{address}.cell.0"))
+    }
+
+    /// Decode v1 structure without recursively opening element targets.
+    /// Defaults to at most one million expanded visits and emitted values.
+    pub fn decode_reference_sequence(&self, head: &str) -> Result<Vec<String>, String> {
+        self.decode_reference_sequence_with_limits(head, 1_000_000, 1_000_000)
+    }
+
+    /// Shared subtrees are charged on every visit, so a small DAG cannot cause
+    /// unbounded expansion. Resource exhaustion is distinct from a cycle error.
+    pub fn decode_reference_sequence_with_limits(
+        &self,
+        head: &str,
+        max_visits: usize,
+        max_values: usize,
+    ) -> Result<Vec<String>, String> {
+        require_reference(head, "reference sequence head")?;
+        let mut values = Vec::new();
+        let mut active = HashSet::new();
+        let mut pending = vec![(head, false)];
+        let mut visits = 0;
+        while let Some((reference, exit)) = pending.pop() {
+            if exit {
+                active.remove(reference);
+                continue;
+            }
+            if visits >= max_visits {
+                return Err("reference sequence visit limit exceeded".to_string());
+            }
+            visits += 1;
+            if reference == EMPTY_SEQUENCE {
+                continue;
+            }
+            if active.contains(reference) {
+                return Err(format!("reference sequence {head} is cyclic"));
+            }
+            let node = self
+                .network
+                .links
+                .get(reference)
+                .ok_or_else(|| format!("unknown reference sequence address {reference}"))?;
+            match node.source.as_str() {
+                "rml.reference-sequence.v1.element" => {
+                    if values.len() >= max_values {
+                        return Err("reference sequence value limit exceeded".to_string());
+                    }
+                    values.push(node.target.clone());
+                }
+                "rml.reference-sequence.v1.branch" => {
+                    let children = self.network.links.get(&node.target).ok_or_else(|| {
+                        format!("unknown reference sequence children {}", node.target)
+                    })?;
+                    active.insert(reference);
+                    pending.push((reference, true));
+                    pending.push((children.target.as_str(), false));
+                    pending.push((children.source.as_str(), false));
+                }
+                _ => {
+                    return Err(format!(
+                        "invalid reference sequence constructor at {reference}"
+                    ))
+                }
+            }
+        }
+        Ok(values)
+    }
+
+    /// Duplicate-free insertion order over opaque references, in the v1 format.
+    pub fn encode_reference_ordered_set(
+        &mut self,
+        values: &[&str],
+        address: &str,
+    ) -> Result<String, String> {
+        let mut seen = BTreeSet::new();
+        for value in values {
+            require_reference(value, "ordered set value")?;
+            if !seen.insert(*value) {
+                return Err(format!("ordered set contains duplicate {value}"));
+            }
+        }
+        self.encode_reference_sequence(values, address, SequenceLayout::Balanced)
+    }
+
+    pub fn decode_reference_ordered_set(&self, head: &str) -> Result<Vec<String>, String> {
+        self.decode_reference_ordered_set_with_limits(head, 1_000_000, 1_000_000)
+    }
+
+    pub fn decode_reference_ordered_set_with_limits(
+        &self,
+        head: &str,
+        max_visits: usize,
+        max_values: usize,
+    ) -> Result<Vec<String>, String> {
+        let values = self.decode_reference_sequence_with_limits(head, max_visits, max_values)?;
+        let mut seen = BTreeSet::new();
+        for value in &values {
+            if !seen.insert(value) {
+                return Err(format!("ordered set contains duplicate {value}"));
+            }
+        }
+        Ok(values)
+    }
+
+    /// Sorted, unique opaque reference leaves represent an extensional set.
+    pub fn encode_reference_set(
+        &mut self,
+        values: &[&str],
+        address: &str,
+    ) -> Result<String, String> {
+        let mut canonical = BTreeSet::new();
+        for value in values {
+            require_reference(value, "set value")?;
+            canonical.insert(*value);
+        }
+        self.encode_reference_sequence(
+            &canonical.into_iter().collect::<Vec<_>>(),
+            address,
+            SequenceLayout::Balanced,
+        )
+    }
+
+    pub fn decode_reference_set(&self, head: &str) -> Result<Vec<String>, String> {
+        self.decode_reference_set_with_limits(head, 1_000_000, 1_000_000)
+    }
+
+    pub fn decode_reference_set_with_limits(
+        &self,
+        head: &str,
+        max_visits: usize,
+        max_values: usize,
+    ) -> Result<Vec<String>, String> {
+        let values = self.decode_reference_sequence_with_limits(head, max_visits, max_values)?;
+        if values.windows(2).any(|window| window[0] >= window[1]) {
+            return Err(format!("set {head} is not in strict canonical order"));
+        }
         Ok(values)
     }
 

@@ -28,9 +28,9 @@ try {
   for (const args of [['init', '-q'], ['config', 'user.name', 'Cache measurement'], ['config', 'user.email', 'cache@example.invalid'], ['add', '.'], ['-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'measurement inputs']]) execFileSync('git', ['-C', fixture, ...args], { stdio: 'pipe' });
   run('bootstrap fresh fixture', [process.execPath, 'scripts/bootstrap.mjs']);
   const wrapper = path.join(fixture, 'scripts/run-with-cache.mjs');
-  const docCommand = [process.execPath, wrapper, '--', process.execPath, path.join(fixture, 'js/node_modules/jsdoc/jsdoc.js'), '-c', '../docs/api/jsdoc.json', '--destination', '../_site/api/js'];
+  const docCommand = [process.execPath, wrapper, '--', process.execPath, path.join(fixture, 'scripts/build-docs.mjs'), '--destination', '../_site/api/js'];
   run('first actual JSDoc build', docCommand, path.join(fixture, 'js'));
-  if (native) run('first complete Rust test-target compilation', [process.execPath, wrapper, '--', 'cargo', 'test', '--locked', '--manifest-path', 'rust/Cargo.toml', '--all-targets', '--no-run']);
+  if (native) run('first complete Rust test-target compilation', [process.execPath, wrapper, '--isolate-output', 'rust/target', '--', 'cargo', 'test', '--locked', '--manifest-path', 'rust/Cargo.toml', '--all-targets', '--no-run']);
   const first = JSON.parse(run('before full cleanup', [process.execPath, 'scripts/build-cache.mjs', '--report', '--json']).stdout);
   run('first full cleanup', [process.execPath, 'scripts/build-cache.mjs', '--full']);
   const cleaned = JSON.parse(fs.readFileSync(path.join(fixture, '.rml-cache/reports/last-cleanup.json')));
@@ -39,7 +39,7 @@ try {
   const rebuilt = JSON.parse(run('after clean rebuild', [process.execPath, 'scripts/build-cache.mjs', '--report', '--json']).stdout);
   run('post-rebuild full JavaScript verification', [process.execPath, wrapper, '--', 'npm', '--prefix', 'js', 'test']);
   if (native) {
-    run('post-clean full Rust rebuild and verification', [process.execPath, wrapper, '--', 'cargo', 'test', '--locked', '--manifest-path', 'rust/Cargo.toml', '--all-targets']);
+    run('post-clean full Rust rebuild and verification', [process.execPath, wrapper, '--isolate-output', 'rust/target', '--', 'cargo', 'test', '--locked', '--manifest-path', 'rust/Cargo.toml', '--all-targets']);
     run('post-clean required Rust Lean Rocq translation oracles', [process.execPath, wrapper, '--', process.execPath, 'scripts/check-portable-native.mjs', '--require=Rust,Lean,Rocq']);
   }
   run('final full cleanup', [process.execPath, 'scripts/build-cache.mjs', '--full']);

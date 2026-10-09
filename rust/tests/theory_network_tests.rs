@@ -1221,3 +1221,562 @@ fn unfolds_indirect_self_reference_and_reports_its_cycle() {
         Err("ordered set must be finite; alternating.a is cyclic".to_string())
     );
 }
+
+#[test]
+fn keeps_nested_membership_set_addresses_distinct_and_rejects_extensional_non_members() {
+    let mut sets = MembershipSetStore::new();
+    sets.define("inner.a", "a", "inner").unwrap();
+    sets.define("inner.b", "b", "inner").unwrap();
+    sets.define("outer.inner", "inner", "outer").unwrap();
+    assert_eq!(sets.members("outer"), vec!["inner"]);
+    assert_eq!(sets.members("inner"), vec!["a", "b"]);
+    assert!(!sets.has("outer", "a"));
+    assert!(!sets.equals("inner", "outer"));
+    assert!(!sets.is_subset_of("inner", "outer"));
+    assert_eq!(sets.union("outer"), vec!["a", "b"]);
+    assert!(sets.members("missing").is_empty());
+    assert!(sets
+        .define("inner.a", "other", "inner")
+        .unwrap_err()
+        .contains("already defined"));
+    assert_eq!(sets.members("inner"), vec!["a", "b"]);
+}
+
+#[test]
+fn round_trips_empty_singleton_and_repeated_finite_leaves_in_every_sequence_layout() {
+    for layout in [
+        SequenceLayout::Balanced,
+        SequenceLayout::Left,
+        SequenceLayout::Right,
+    ] {
+        for values in [vec![], vec!["only"], vec!["a", "a", "b", "a", "c"]] {
+            let mut store = DoubletSequenceStore::new();
+            let head = store.encode_sequence(&values, "sequence", layout).unwrap();
+            assert_eq!(store.decode_sequence(&head).unwrap(), values);
+        }
+    }
+}
+
+#[test]
+fn rejects_cyclic_finite_decoding_and_colliding_sequence_addresses_without_partial_writes() {
+    for layout in [
+        SequenceLayout::Balanced,
+        SequenceLayout::Left,
+        SequenceLayout::Right,
+    ] {
+        let mut store = DoubletSequenceStore::new();
+        assert!(store
+            .encode_sequence(&["sequence.cell.0", "a"], "sequence", layout)
+            .unwrap_err()
+            .contains("collides with an internal link"));
+        assert_eq!(store.doublet("sequence.cell.0"), None);
+        store.define("sequence.cell.0", "existing", "leaf").unwrap();
+        let before = store.clone();
+        assert!(store
+            .encode_sequence(&["a", "b", "c"], "sequence", layout)
+            .unwrap_err()
+            .contains("already defined"));
+        assert_eq!(store, before);
+    }
+    let mut cyclic = DoubletSequenceStore::new();
+    cyclic.define("self", "a", "self").unwrap();
+    cyclic.define("first", "b", "second").unwrap();
+    cyclic.define("second", "c", "first").unwrap();
+    assert_eq!(
+        cyclic.decode_sequence("self"),
+        Err("sequence self is cyclic".to_string())
+    );
+    assert_eq!(
+        cyclic.decode_sequence("first"),
+        Err("sequence first is cyclic".to_string())
+    );
+}
+
+#[test]
+fn rejects_non_vertex_graph_endpoints_without_creating_edges_or_reachability() {
+    let mut graph = LinkGraph::new("graph").unwrap();
+    graph.add_vertex("a").unwrap();
+    graph.add_vertex("b").unwrap();
+    assert!(graph
+        .define_edge("bad.source", "missing", "b")
+        .unwrap_err()
+        .contains("edge source missing is not a vertex"));
+    assert!(graph
+        .define_edge("bad.target", "a", "missing")
+        .unwrap_err()
+        .contains("edge target missing is not a vertex"));
+    assert_eq!(graph.edge("bad.source"), None);
+    assert_eq!(graph.edge("bad.target"), None);
+    assert_eq!(graph.edge_type("bad.target"), None);
+    assert!(!graph.reachable("a", "b"));
+    assert!(!graph.reachable("missing", "missing"));
+    assert!(graph.successors("a").is_empty());
+    graph.define_edge("valid", "a", "b").unwrap();
+    assert!(graph.reachable("a", "b"));
+}
+
+#[test]
+fn rejects_relational_signature_mismatches_and_out_of_carrier_pairs_without_mutation() {
+    let mut relation = FiniteRelation::new("r", &["a"], &["b"]).unwrap();
+    relation.define("ab", "a", "b").unwrap();
+    assert!(relation
+        .define("bad.left", "missing", "b")
+        .unwrap_err()
+        .contains("outside the declared domain"));
+    assert!(relation
+        .define("bad.right", "a", "missing")
+        .unwrap_err()
+        .contains("outside the declared codomain"));
+    assert!(relation
+        .define("duplicate", "a", "b")
+        .unwrap_err()
+        .contains("already contains"));
+    assert!(relation
+        .union(
+            &FiniteRelation::new("other", &["a"], &["c"]).unwrap(),
+            "union"
+        )
+        .unwrap_err()
+        .contains("equal domains and codomains"));
+    assert!(relation
+        .intersection(
+            &FiniteRelation::new("other", &["c"], &["b"]).unwrap(),
+            "intersection"
+        )
+        .unwrap_err()
+        .contains("equal domains and codomains"));
+    assert!(relation
+        .compose(
+            &FiniteRelation::new("other", &["c"], &["d"]).unwrap(),
+            "composition"
+        )
+        .unwrap_err()
+        .contains("first codomain to equal the next domain"));
+    assert_eq!(relation.pairs(), vec![("a", "b")]);
+    for address in ["bad.left", "bad.right", "duplicate"] {
+        assert_eq!(relation.pair_type(address), None);
+    }
+}
+
+#[test]
+fn keeps_typing_and_validation_invariant_when_the_derived_index_is_deleted_and_rebuilt() {
+    let mut outcomes = Vec::new();
+    for mode in ["present", "deleted", "rebuilt"] {
+        let mut links = TypedLinkNetwork::with_default_ontology();
+        let before = links.snapshot();
+        if mode != "present" {
+            links.clear_type_index();
+        }
+        if mode == "rebuilt" {
+            links.rebuild_type_index();
+        }
+        assert_eq!(links.snapshot(), before);
+        assert_eq!(links.types_of("Value"), vec!["SubType"]);
+        assert!(links.validate_closure().closed);
+        assert!(links
+            .define("invalid", "Value", "Type", "Type", "Type")
+            .unwrap_err()
+            .contains("expected Type"));
+        assert_eq!(links.doublet("invalid"), None);
+        links
+            .define("valid", "Value", "Type", "SubType", "Type")
+            .unwrap();
+        assert_eq!(links.type_of("valid"), Some("(Pair SubType Type)"));
+        links.declare("Value", "Type").unwrap();
+        assert_eq!(links.types_of("Value"), vec!["SubType", "Type"]);
+        outcomes.push(links.snapshot());
+    }
+    assert_eq!(outcomes[1], outcomes[0]);
+    assert_eq!(outcomes[2], outcomes[0]);
+}
+
+#[test]
+fn does_not_authorize_a_typed_link_after_its_authoritative_type_fact_is_removed() {
+    let mut snapshot = TypedLinkNetwork::with_default_ontology().snapshot();
+    snapshot
+        .type_facts
+        .retain(|(_, subject, _)| subject != "Value");
+    let mut links = TypedLinkNetwork::from_snapshot(&snapshot, true).unwrap();
+    for mode in ["present", "deleted", "rebuilt"] {
+        if mode == "deleted" {
+            links.clear_type_index();
+        }
+        if mode == "rebuilt" {
+            links.rebuild_type_index();
+        }
+        assert!(links.types_of("Value").is_empty());
+        assert!(links
+            .define("forged", "Value", "Type", "SubType", "Type")
+            .unwrap_err()
+            .contains("has no declared type"));
+        assert_eq!(links.doublet("forged"), None);
+        assert_eq!(links.snapshot(), snapshot);
+    }
+}
+
+#[test]
+fn rejects_default_ontology_closure_when_a_canonical_classifier_link_is_missing() {
+    for address in ["Type", "SubType", "Value"] {
+        let mut snapshot = TypedLinkNetwork::with_default_ontology().snapshot();
+        snapshot.links.retain(|(name, _, _)| name != address);
+        let open = TypedLinkNetwork::from_snapshot(&snapshot, false).unwrap();
+        assert!(!open.validate_closure().closed);
+        assert_eq!(
+            open.validate_closure().missing_references,
+            vec![address.to_string()]
+        );
+        assert!(TypedLinkNetwork::from_snapshot(&snapshot, true)
+            .unwrap_err()
+            .contains("dangling references"));
+    }
+}
+
+#[test]
+fn does_not_report_missing_or_reversed_ontology_links_as_exact_link_cli_pinned_types() {
+    let absent = TypedLinkNetwork::new().link_cli_interop_profile();
+    assert!(absent
+        .pinned_types
+        .iter()
+        .all(|mapping| mapping.mapped_rml_shape.is_none() && !mapping.exact_shape));
+    let mut snapshot = TypedLinkNetwork::with_default_ontology().snapshot();
+    let subtype = snapshot
+        .links
+        .iter_mut()
+        .find(|(address, _, _)| address == "SubType")
+        .unwrap();
+    std::mem::swap(&mut subtype.1, &mut subtype.2);
+    let profile = TypedLinkNetwork::from_snapshot(&snapshot, true)
+        .unwrap()
+        .link_cli_interop_profile();
+    assert_eq!(profile.pinned_types[1].mapped_rml_shape, Some((2, 2, 1)));
+    assert!(!profile.pinned_types[1].exact_shape);
+    assert!(profile.pinned_types[0].exact_shape);
+    assert!(!profile.pinned_types[2].exact_shape);
+}
+
+fn reference_sequence_fixture() -> serde_json::Value {
+    serde_json::from_str(include_str!(
+        "../../test-corpus/reference-sequences/v1.json"
+    ))
+    .unwrap()
+}
+
+fn reference_sequence_triples(value: &serde_json::Value) -> Vec<(String, String, String)> {
+    value
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|row| {
+            (
+                row[0].as_str().unwrap().to_string(),
+                row[1].as_str().unwrap().to_string(),
+                row[2].as_str().unwrap().to_string(),
+            )
+        })
+        .collect()
+}
+
+fn restore_reference_sequence(triples: &[(String, String, String)]) -> DoubletSequenceStore {
+    let mut store = DoubletSequenceStore::new();
+    for (address, source, target) in triples {
+        store.define(address, source, target).unwrap();
+    }
+    store
+}
+
+#[test]
+fn preserves_nested_shared_and_cyclic_element_identities_in_every_versioned_layout_after_linked_transport(
+) {
+    let fixture = reference_sequence_fixture();
+    let links = reference_sequence_triples(&fixture["links"]);
+    let values: Vec<&str> = fixture["values"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|value| value.as_str().unwrap())
+        .collect();
+    for layout in [
+        SequenceLayout::Balanced,
+        SequenceLayout::Left,
+        SequenceLayout::Right,
+    ] {
+        let mut store = restore_reference_sequence(&links);
+        for (name, values) in [
+            ("empty", vec![]),
+            ("singleton", vec!["inner"]),
+            ("sequence", values.clone()),
+        ] {
+            let head = store
+                .encode_reference_sequence(&values, name, layout)
+                .unwrap();
+            assert_eq!(store.decode_reference_sequence(&head).unwrap(), values);
+            assert_eq!(
+                restore_reference_sequence(&store.entries())
+                    .decode_reference_sequence(&head)
+                    .unwrap(),
+                values
+            );
+        }
+        let pair = store
+            .encode_reference_sequence(&["inner", "direct-cycle"], "example", layout)
+            .unwrap();
+        assert_eq!(pair, "example.cell.0");
+        let encoded: Vec<_> = store
+            .entries()
+            .into_iter()
+            .filter(|(address, _, _)| address.starts_with("example."))
+            .collect();
+        assert_eq!(
+            encoded,
+            reference_sequence_triples(&fixture["twoElementEncoding"])
+        );
+        for (address, source, target) in &links {
+            assert_eq!(
+                store.doublet(address),
+                Some((source.as_str(), target.as_str()))
+            );
+        }
+    }
+    let mut supplied_links = links;
+    supplied_links.extend(reference_sequence_triples(
+        &fixture["nonGeneratedStructure"],
+    ));
+    let supplied = restore_reference_sequence(&supplied_links);
+    assert_eq!(
+        supplied.decode_reference_sequence("root").unwrap(),
+        vec!["direct-cycle", "direct-cycle"]
+    );
+    assert_eq!(supplied.decode_sequence("inner").unwrap(), vec!["a", "b"]);
+}
+
+#[test]
+fn rejects_malformed_or_cyclic_versioned_structure_and_generated_address_collisions_atomically() {
+    let links = reference_sequence_triples(&reference_sequence_fixture()["links"]);
+    for layout in [
+        SequenceLayout::Balanced,
+        SequenceLayout::Left,
+        SequenceLayout::Right,
+    ] {
+        for collision in ["reserved.cell.0", "reserved.children.0"] {
+            let mut store = restore_reference_sequence(&links);
+            let before = store.entries();
+            assert!(store
+                .encode_reference_sequence(&[collision, "inner"], "reserved", layout)
+                .unwrap_err()
+                .contains("collides with an internal link"));
+            assert_eq!(store.entries(), before);
+            store.define(collision, "original", "value").unwrap();
+            let occupied = store.entries();
+            assert!(store
+                .encode_reference_sequence(&["inner", "direct-cycle"], "reserved", layout)
+                .unwrap_err()
+                .contains("already defined"));
+            assert_eq!(store.entries(), occupied);
+        }
+    }
+    let mut store = restore_reference_sequence(&links);
+    assert!(store
+        .decode_reference_sequence("missing")
+        .unwrap_err()
+        .contains("unknown reference sequence address"));
+    assert!(store
+        .decode_reference_sequence("inner")
+        .unwrap_err()
+        .contains("invalid reference sequence constructor"));
+    store
+        .define(
+            "broken",
+            "rml.reference-sequence.v1.branch",
+            "absent-children",
+        )
+        .unwrap();
+    assert!(store
+        .decode_reference_sequence("broken")
+        .unwrap_err()
+        .contains("unknown reference sequence children"));
+    store
+        .define(
+            "cycle",
+            "rml.reference-sequence.v1.branch",
+            "cycle-children",
+        )
+        .unwrap();
+    store.define("cycle-children", "cycle", "cycle").unwrap();
+    assert_eq!(
+        store.decode_reference_sequence("cycle"),
+        Err("reference sequence cycle is cyclic".to_string())
+    );
+    assert!(store
+        .encode_reference_sequence(&[""], "invalid", SequenceLayout::Balanced)
+        .unwrap_err()
+        .contains("non-empty reference"));
+}
+
+#[test]
+fn represents_nested_ordered_and_extensional_sets_without_flattening_their_member_links() {
+    let mut store = restore_reference_sequence(&reference_sequence_triples(
+        &reference_sequence_fixture()["links"],
+    ));
+    let inner = store
+        .encode_reference_set(&["b", "a", "b"], "set.inner")
+        .unwrap();
+    let outer = store.encode_reference_set(&[&inner], "set.outer").unwrap();
+    assert_ne!(outer, inner);
+    assert_eq!(store.decode_reference_set(&inner).unwrap(), vec!["a", "b"]);
+    assert_eq!(
+        store.decode_reference_set(&outer).unwrap(),
+        vec![inner.clone()]
+    );
+    let ordered = store
+        .encode_reference_ordered_set(&["indirect-a", &inner, "direct-cycle"], "ordered")
+        .unwrap();
+    assert_eq!(
+        store.decode_reference_ordered_set(&ordered).unwrap(),
+        vec!["indirect-a", &inner, "direct-cycle"]
+    );
+    let canonical = store
+        .encode_reference_set(&["indirect-a", &inner, "direct-cycle", &inner], "canonical")
+        .unwrap();
+    assert_eq!(
+        store.decode_reference_set(&canonical).unwrap(),
+        vec!["direct-cycle", "indirect-a", &inner]
+    );
+    let restored = restore_reference_sequence(&store.entries());
+    assert_eq!(
+        restored.decode_reference_set(&outer).unwrap(),
+        vec![inner.clone()]
+    );
+    assert_eq!(
+        restored.decode_reference_ordered_set(&ordered).unwrap(),
+        vec!["indirect-a", &inner, "direct-cycle"]
+    );
+}
+
+#[test]
+fn rejects_duplicate_reference_set_members_and_noncanonical_linked_order() {
+    let mut store = restore_reference_sequence(&reference_sequence_triples(
+        &reference_sequence_fixture()["links"],
+    ));
+    let before = store.entries();
+    assert_eq!(
+        store.encode_reference_ordered_set(&["inner", "inner"], "duplicate"),
+        Err("ordered set contains duplicate inner".to_string())
+    );
+    assert_eq!(store.entries(), before);
+    let duplicate = store
+        .encode_reference_sequence(&["inner", "inner"], "duplicate", SequenceLayout::Balanced)
+        .unwrap();
+    assert_eq!(
+        store.decode_reference_ordered_set(&duplicate),
+        Err("ordered set contains duplicate inner".to_string())
+    );
+    assert!(store
+        .decode_reference_set(&duplicate)
+        .unwrap_err()
+        .contains("strict canonical order"));
+    let unordered = store
+        .encode_reference_ordered_set(&["inner", "direct-cycle"], "unordered")
+        .unwrap();
+    assert!(store
+        .decode_reference_set(&unordered)
+        .unwrap_err()
+        .contains("strict canonical order"));
+}
+
+#[test]
+fn handles_large_versioned_left_and_right_sequences_without_host_recursion() {
+    let values: Vec<String> = (0..20_000).map(|index| format!("item.{index}")).collect();
+    let references: Vec<&str> = values.iter().map(String::as_str).collect();
+    for layout in [
+        SequenceLayout::Balanced,
+        SequenceLayout::Left,
+        SequenceLayout::Right,
+    ] {
+        let mut store = DoubletSequenceStore::new();
+        let head = store
+            .encode_reference_sequence(&references, "large", layout)
+            .unwrap();
+        assert_eq!(head, "large.cell.0");
+        assert_eq!(store.decode_reference_sequence(&head).unwrap(), values);
+        assert_eq!(store.entries().len(), 3 * values.len() - 2);
+    }
+}
+
+#[test]
+fn bounds_deep_and_shared_versioned_structure_by_expanded_visits_and_output_count() {
+    let mut store = DoubletSequenceStore::new();
+    let element = "rml.reference-sequence.v1.element";
+    let branch = "rml.reference-sequence.v1.branch";
+    let empty = "rml.sequence.empty";
+    store.define("opaque", "opaque", "opaque").unwrap();
+    store.define("leaf", element, "opaque").unwrap();
+    let mut root = "leaf".to_string();
+    for index in 0..20_000 {
+        let address = format!("deep.{index}");
+        let children = format!("deep.children.{index}");
+        store.define(&address, branch, &children).unwrap();
+        store.define(&children, &root, empty).unwrap();
+        root = address;
+    }
+    assert_eq!(
+        store.decode_reference_sequence(&root).unwrap(),
+        vec!["opaque"]
+    );
+    assert!(store
+        .decode_reference_sequence_with_limits(&root, 100, 1_000_000)
+        .unwrap_err()
+        .contains("visit limit exceeded"));
+    assert!(store
+        .decode_reference_sequence_with_limits(&root, 1_000_000, 0)
+        .unwrap_err()
+        .contains("value limit exceeded"));
+    store.define("shared", branch, "shared.children").unwrap();
+    store.define("shared.children", "leaf", "leaf").unwrap();
+    assert_eq!(
+        store
+            .decode_reference_sequence_with_limits("shared", 3, 2)
+            .unwrap(),
+        vec!["opaque", "opaque"]
+    );
+    assert!(store
+        .decode_reference_sequence_with_limits("shared", 2, 1_000_000)
+        .unwrap_err()
+        .contains("visit limit exceeded"));
+    assert!(store
+        .decode_reference_sequence_with_limits("shared", 1_000_000, 1)
+        .unwrap_err()
+        .contains("value limit exceeded"));
+    assert!(store
+        .decode_reference_ordered_set_with_limits("shared", 2, 1_000_000)
+        .unwrap_err()
+        .contains("visit limit exceeded"));
+    assert!(store
+        .decode_reference_set_with_limits("shared", 1_000_000, 1)
+        .unwrap_err()
+        .contains("value limit exceeded"));
+    let mut shared_root = "leaf".to_string();
+    for index in 0..40 {
+        let address = format!("dag.{index}");
+        let children = format!("dag.children.{index}");
+        store.define(&address, branch, &children).unwrap();
+        store.define(&children, &shared_root, &shared_root).unwrap();
+        shared_root = address;
+    }
+    // Revisited shared nodes spend budget: 81 structural links describe 2^40 values.
+    assert!(store
+        .decode_reference_sequence_with_limits(&shared_root, 1000, 1000)
+        .unwrap_err()
+        .contains("visit limit exceeded"));
+    assert!(store
+        .decode_reference_sequence_with_limits(&shared_root, 1000, 3)
+        .unwrap_err()
+        .contains("value limit exceeded"));
+    assert!(store
+        .decode_reference_sequence_with_limits(empty, 1, 0)
+        .unwrap()
+        .is_empty());
+    assert!(store
+        .decode_reference_sequence_with_limits(empty, 0, 1_000_000)
+        .unwrap_err()
+        .contains("visit limit exceeded"));
+}

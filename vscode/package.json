@@ -79,11 +79,11 @@
     "pretest": "npm run copy-server",
     "test": "node ../scripts/run-with-cache.mjs -- node --test --test-concurrency=2 test/*.test.mjs",
     "vscode:prepublish": "npm run copy-server",
-    "package": "node ../scripts/run-with-cache.mjs -- npm run package:raw",
-    "package:raw": "npm run copy-server && vsce package --out relative-meta-logic.vsix"
+    "package": "node ../scripts/run-with-cache.mjs --retain vscode/relative-meta-logic.vsix -- npm run package:raw",
+    "package:raw": "npm run copy-server && node scripts/package-vsix.mjs"
   },
   "dependencies": {
-    "links-notation": "0.23.0",
+    "links-notation": "0.25.1",
     "vscode-languageclient": "^10.1.2"
   },
   "devDependencies": {

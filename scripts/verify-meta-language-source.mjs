@@ -26,9 +26,31 @@ export function verifyMetaLanguageSource({ source } = {}) {
     assert.ok(lock.packages[`node_modules/${name}`].integrity?.startsWith('sha512-'));
   }
   const cargo = fs.readFileSync(path.join(root, 'rust/Cargo.toml'), 'utf8');
-  assert.ok(cargo.includes(`rev = "${provenance.revision}"`));
-  assert.ok(fs.readFileSync(path.join(root, 'rust/Cargo.lock'), 'utf8').includes(`#${provenance.revision}`));
+  assert.equal(provenance.rust.revision, provenance.revision);
+  assert.equal(provenance.submodule.revision, provenance.revision);
+  assert.equal(provenance.rust.defaultFeatures, false);
+  assert.equal(provenance.rust.version, provenance.sourceVersion);
+  assert.equal(provenance.release.tag, `v${provenance.sourceVersion}`);
+  assert.equal(provenance.rust.source, 'registry+https://github.com/rust-lang/crates.io-index');
+  assert.match(provenance.rust.checksum, /^[a-f0-9]{64}$/);
+  for (const directory of ['rust', 'rust/control-flow', 'rust/relational-kernel', 'rust/linked-target']) {
+    const locked = fs.readFileSync(path.join(root, directory, 'Cargo.lock'), 'utf8')
+      .split('[[package]]').filter(item => /^\s*name = "meta-language"\n/u.test(item));
+    assert.equal(locked.length, 1, `${directory}: one meta-language package`);
+    for (const [name, value] of Object.entries({ version: provenance.rust.version, source: provenance.rust.source, checksum: provenance.rust.checksum })) {
+      assert.ok(locked[0].includes(`${name} = "${value}"`), `${directory}: meta-language ${name}`);
+    }
+  }
+  assert.ok(cargo.includes(`meta-language = { version = "=${provenance.rust.version}", default-features = false }`));
+  assert.ok(fs.readFileSync(path.join(root, 'rust/control-flow/Cargo.toml'), 'utf8')
+    .includes(`meta-language = { version = "=${provenance.rust.version}", default-features = false }`));
   const packageRoot = path.join(root, provenance.javascript.directory);
+  const upstreamManifest = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json')));
+  assert.equal(upstreamManifest.version, provenance.sourceVersion);
+  assert.deepEqual(upstreamManifest.dependencies, provenance.javascript.upstreamDependencyVersions);
+  const runtimeFiles = fs.readdirSync(path.join(packageRoot, 'src'), { recursive: true })
+    .map(file => `src/${file.split(path.sep).join('/')}`).filter(file => fs.statSync(path.join(packageRoot, file)).isFile());
+  assert.deepEqual([...runtimeFiles, 'README.md', 'package.json'].sort(), provenance.javascript.files.map(file => file.path).sort());
   let sourceRoot;
   if (source) {
     sourceRoot = path.resolve(source);
@@ -41,7 +63,7 @@ export function verifyMetaLanguageSource({ source } = {}) {
     assert.equal(hash(fs.readFileSync(path.join(packageRoot, file.path))), file.sha256, `installed ${file.path}`);
     if (sourceRoot) assert.equal(hash(fs.readFileSync(path.join(sourceRoot, 'js', file.path))), file.sha256, `upstream ${file.path}`);
   }
-  return { revision: provenance.revision, verifiedFiles: provenance.javascript.files.length, sourceFiles: provenance.javascript.directory };
+  return { revision: provenance.revision, releaseVersion: provenance.sourceVersion, rustSource: provenance.rust.source, verifiedFiles: provenance.javascript.files.length, sourceFiles: provenance.javascript.directory };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

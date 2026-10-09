@@ -579,9 +579,9 @@ dependencies = [
 
 [[package]]
 name = "links-notation"
-version = "0.23.0"
+version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3f67fe67f0d77d6fceab5fdc7d69c3b976ae61eb28f6f1d67b22df2aac60347"
+checksum = "e9f8ae3a1596073a2a25a3fa014b42a11c2cbda6eccd0654418244215653c073"
 dependencies = [
  "links-notation-macro",
  "nom",
@@ -589,9 +589,9 @@ dependencies = [
 
 [[package]]
 name = "links-notation-macro"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f30ea96250240a92d69d45579dbd199a713e7a79acfa53033d24628dad23cff5"
+checksum = "7e6c51b5ac9d9caf4632994a26ad2ce98cf251531637209c546cae8340dbfedd"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -621,8 +621,9 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "meta-language"
-version = "0.58.2"
-source = "git+https://github.com/link-foundation/meta-language.git?rev=679a3b3c3c56177b8df1ad82672690c6e9889aeb#679a3b3c3c56177b8df1ad82672690c6e9889aeb"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1efbbc346bbcbc4aff425ce14eb6ed7c6808f756f841503f0f9961f0a54fb57d"
 dependencies = [
  "cc",
  "clap",
@@ -821,7 +822,7 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 name = "relative-meta-logic"
 version = "0.39.0"
 dependencies = [
- "links-notation 0.23.0",
+ "links-notation 0.25.1",
  "meta-language",
  "regex",
  "serde_json",

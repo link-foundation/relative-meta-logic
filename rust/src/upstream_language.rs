@@ -1,4 +1,4 @@
-//! Official source-pinned four-language grammar, project and editing APIs.
+//! Official released four-language grammar, project and editing APIs.
 //!
 //! These are upstream implementations. A translation is semantic only when its
 //! `semantics()` is present; retain all upstream assumptions, obligations and
@@ -13,4 +13,4 @@ pub use meta_language::{
     TranslationSupport, FOUR_LANGUAGE_SUPPORT,
 };
 
-pub const META_LANGUAGE_SOURCE_REVISION: &str = "679a3b3c3c56177b8df1ad82672690c6e9889aeb";
+pub const META_LANGUAGE_SOURCE_REVISION: &str = "a79782093cae3b33606483ac9f3e1d05faf36de0";

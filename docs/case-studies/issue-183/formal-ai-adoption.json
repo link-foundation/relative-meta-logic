@@ -45,7 +45,7 @@
       "rejected": "Do not install formal-ai's assumed-true prior, source evidence policy, decimal probability grid, oscillation mean, or fixed pass multiplier as universal truth or proof semantics. Do not turn saturation failure or a resource bound into falsity.",
       "rationale": "Dependency maintenance is reusable; truth combination and cycle policy belong to the selected foundation. Rechecking an affected proof is stronger than merely changing a displayed probability or a cached status.",
       "implementation": ["js/src/rml-foundation-workspace.mjs", "rust/src/foundation_workspace.rs", "examples/researcher-workflow.mjs", "rust/examples/researcher_workflow.rs"],
-      "tests": [{"path":"js/tests/researcher-workflow.test.mjs","name":"researcher lifecycle uses public APIs on"}, {"path":"rust/tests/researcher_workflow_tests.rs","name":"researcher_lifecycle_uses_public_closed_sk_apis"}, {"path":"scripts/formal-ai-adoption.test.mjs","name":"context-local recalculation leaves another version and the original workspace intact"}]
+      "tests": [{"path":"js/tests/researcher-workflow.test.mjs","name":"researcher lifecycle uses public APIs on direct-structural"}, {"path":"js/tests/researcher-workflow.test.mjs","name":"researcher lifecycle uses public APIs on s-k"}, {"path":"rust/tests/researcher_workflow_tests.rs","name":"researcher_lifecycle_uses_public_closed_sk_apis"}, {"path":"scripts/formal-ai-adoption.test.mjs","name":"context-local recalculation leaves another version and the original workspace intact"}]
     }
   ]
 }

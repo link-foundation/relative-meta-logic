@@ -1,11 +1,11 @@
 {
   "schema": "rml-upstream-meta-language/v1",
   "repository": "https://github.com/link-foundation/meta-language",
-  "revision": "679a3b3c3c56177b8df1ad82672690c6e9889aeb",
+  "revision": "a79782093cae3b33606483ac9f3e1d05faf36de0",
   "issue": "https://github.com/link-foundation/meta-language/issues/195",
   "pullRequest": "https://github.com/link-foundation/meta-language/pull/196",
-  "sourceVersion": "0.58.2",
-  "distribution": "official-source-snapshot-not-published-npm-release",
+  "sourceVersion": "1.0.0",
+  "distribution": "official-release-source-and-published-rust-crate",
   "javascript": {
     "sourceDirectory": "js",
     "files": [
@@ -15,7 +15,7 @@
       },
       {
         "path": "package.json",
-        "sha256": "e19d9ee6baf7469605c03a7785a5b8e70bacb2e8edd122c8e84e0fe753af2577"
+        "sha256": "162ad406bfdf073e64e600e95f04fad8839617597b52a1f89da1ec754b792704"
       },
       {
         "path": "src/access.js",
@@ -47,7 +47,7 @@
       },
       {
         "path": "src/data/concept-records.json",
-        "sha256": "72e625bd526073e852acb50ee6e05cc6da356e342ea41fa2f22c6fc8538389a8"
+        "sha256": "d67b888c74c67a2b53b89f1e8e1aa1eec28f628a8d512284d1c36dd22b10b89b"
       },
       {
         "path": "src/data/foundation-models.json",
@@ -251,7 +251,7 @@
       },
       {
         "path": "src/grammar-importers/tree-sitter-native.js",
-        "sha256": "08fa6a6394edd8a351a4e5970259c6226d84f6d92ae2ae409d46214e61920ace"
+        "sha256": "26f0d3d0849d7fd39a17ab1f96d237398f21724fee2914a67d9a73032fd17f8c"
       },
       {
         "path": "src/grammar-importers/tree-sitter-token-conflicts.js",
@@ -515,7 +515,7 @@
       },
       {
         "path": "src/translation/check.js",
-        "sha256": "42c6b964fedccac1fb552d310684c9101fff715b468943dcb6781b3b247340f3"
+        "sha256": "ac80ea7a958dab27f966f82666ab52f3e3c263d50627c44e05de00cad3ebe841"
       },
       {
         "path": "src/translation/diagnostics.js",
@@ -542,12 +542,16 @@
         "sha256": "ab5105621a976b88e8154c7c0d79725cccf1f0407f7916b7fff4f04060ec6081"
       },
       {
+        "path": "src/translation/frontend-rules.js",
+        "sha256": "d318a452d0de2580441887cd08188bd77135e81a762e95e3c3b412dc200f5fa1"
+      },
+      {
         "path": "src/translation/ir.js",
         "sha256": "a54f47fc4056bbff205051c366fe0a7b406f14c23d62164aa6fda3d1677ea77e"
       },
       {
         "path": "src/translation/javascript-infer.js",
-        "sha256": "fc29184f47527a2d909ae73197ec7aa3283cc42b61b6210c6b5349063505bb01"
+        "sha256": "739c7a8a1b3e803e0278a5b8e1eb8167f32656a99af21dad27dcc55740a590df"
       },
       {
         "path": "src/translation/javascript-lower.js",
@@ -555,7 +559,7 @@
       },
       {
         "path": "src/translation/javascript.js",
-        "sha256": "6a2ea5efd7350c97b69170bfff87a702923bc36442b45726c37edd8db0b31a3d"
+        "sha256": "c5019c932273d537f72a212163bbb12b3fede51997781bc04dbf83b10bbdfba7"
       },
       {
         "path": "src/translation/lean-root-names.js",
@@ -567,7 +571,7 @@
       },
       {
         "path": "src/translation/lexer.js",
-        "sha256": "752b27c3b1434905a233a6f0ca8d1b0196824ce83f41ce79caa8f1b96d3ee71a"
+        "sha256": "c923f0f2251bfc7b9948a102531137a3961b6a5522ea03099a5399ed9912848d"
       },
       {
         "path": "src/translation/output.js",
@@ -951,21 +955,24 @@
       }
     ],
     "directory": "js/vendor/meta-language/js",
-    "archiveSha256": "ea582c3306366d40fbe8e8d03f78a6b4ff75fde365ca23950b289dc31baf5a45",
     "upstreamDependencyVersions": {
       "links-notation": "0.22.0",
       "web-tree-sitter": "0.27.0"
     },
     "consumerDependencyVersions": {
-      "links-notation": "0.23.0",
-      "web-tree-sitter": "0.27.0"
+      "links-notation": "0.25.1",
+      "web-tree-sitter": "0.27.1"
     },
     "distribution": "git-submodule-snapshot"
   },
   "rust": {
-    "source": "git+https://github.com/link-foundation/meta-language.git",
-    "revision": "679a3b3c3c56177b8df1ad82672690c6e9889aeb",
-    "defaultFeatures": false
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "version": "1.0.0",
+    "revision": "a79782093cae3b33606483ac9f3e1d05faf36de0",
+    "checksum": "1efbbc346bbcbc4aff425ce14eb6ed7c6808f756f841503f0f9961f0a54fb57d",
+    "defaultFeatures": false,
+    "vcsPath": "rust",
+    "publishedSourceFilesVerified": 343
   },
   "license": {
     "path": "js/vendor/LICENSE.meta-language",
@@ -980,6 +987,12 @@
     "name": "meta-language",
     "path": "js/vendor/meta-language",
     "url": "https://github.com/link-foundation/meta-language.git",
-    "revision": "679a3b3c3c56177b8df1ad82672690c6e9889aeb"
+    "revision": "a79782093cae3b33606483ac9f3e1d05faf36de0"
+  },
+  "release": {
+    "tag": "v1.0.0",
+    "tagObject": "a831045fa62503b32dca035b396278772b2d9cab",
+    "url": "https://github.com/link-foundation/meta-language/releases/tag/v1.0.0",
+    "publishedAt": "2026-10-08T12:27:43Z"
   }
 }

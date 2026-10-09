@@ -508,6 +508,71 @@ These convenience APIs are tested in both languages. Their corresponding
 mathematical obligations are also represented in `universal.lino` and checked
 through linked conformance cases.
 
+The upstream raw-tree methods deliberately unfold every addressed branch they
+encounter. They are suitable when the elements are leaf references. An existing
+link used as an element would be expanded by `decodeSequence`, and a singleton
+raw tree has the same root as its element. Use the explicit
+`rml.reference-sequence/v1` format when elements can themselves be links:
+
+| JavaScript | Rust | Meaning |
+| --- | --- | --- |
+| `encodeReferenceSequence` / `decodeReferenceSequence` | `encode_reference_sequence` / `decode_reference_sequence` | Ordered references, including repeats; balanced, left, or right layout |
+| `encodeReferenceOrderedSet` / `decodeReferenceOrderedSet` | `encode_reference_ordered_set` / `decode_reference_ordered_set` | Unique references in caller order; reject duplicates |
+| `encodeReferenceSet` / `decodeReferenceSet` | `encode_reference_set` / `decode_reference_set` | Sorted unique references; reject noncanonical decoded order |
+
+In v1, an element is an addressed doublet
+`leaf: (rml.reference-sequence.v1.element, reference)`. Its target is always
+opaque to sequence traversal, even when it names an entire set, a shared link,
+a direct or indirect cycle, or a constructor tag. A branch is
+`node: (rml.reference-sequence.v1.branch, children)` with
+`children: (left-node, right-node)`. The empty root is `rml.sequence.empty`.
+Every nonempty sequence, including a singleton, therefore has its own wrapper
+root. These tags specify the selected representation; they make no claim about
+intrinsic link categories.
+
+All structural roles survive export as ordinary addressed triples. Both stores
+expose `entries()`, and reconstructing them with `define` preserves decoding
+without a hidden index, generated-name convention, or object identity. The
+decoder accepts manually named structure, rejects unknown constructors, missing
+structural links, and structural cycles, and never opens an element target.
+The encoder checks every generated address against existing links and input
+elements before writing any node. A collision rejects the operation atomically.
+The old APIs retain their explicit upstream interpretation; the new decoder
+does not automatically guess or reinterpret the old format.
+
+The v1 encoder uses an explicit range stack, preserves preorder node identities,
+and checks element collisions through a set. It does not recursively construct
+left/right staircases, copy progressively shorter slices, or scan all elements
+once per generated address. The decoder likewise uses an explicit stack and an
+active-path set: shared structural nodes may be visited again after leaving
+their first path, while an actual structural cycle is rejected.
+
+Decoding defaults to at most 1,000,000 expanded visits and 1,000,000 emitted
+values. Every visit, including an empty terminal or a repeated shared subtree,
+spends the visit budget. This bounds expansion even when a small acyclic network
+describes exponentially many occurrences. Limit exhaustion returns an explicit
+error rather than a partial sequence or a cycle judgement. In JavaScript,
+the three v1 decoders accept `{ maxVisits, maxValues }` as their second argument;
+limits must be non-negative safe integers. Rust exposes corresponding
+`decode_reference_sequence_with_limits`,
+`decode_reference_ordered_set_with_limits`, and
+`decode_reference_set_with_limits` methods taking `(head, max_visits, max_values)`.
+Callers can explicitly raise the limits for a larger intended finite expansion.
+These limits and iterative implementations do not alter the legacy raw-tree APIs.
+
+```js
+const inner = store.encodeReferenceSet(['b', 'a', 'b'], 'inner');
+const outer = store.encodeReferenceSet([inner], 'outer');
+store.decodeReferenceSet(outer); // [inner], not ['a', 'b']
+```
+
+The shared fixture `test-corpus/reference-sequences/v1.json` pins the linked
+format across JavaScript and Rust. Tests cover empty/singleton/repeated values,
+nested sets, shared and cyclic elements, reconstruction from triples, and
+rejected collisions and malformed structure. These tests establish executable
+representation behavior; they do not prove broader set-theoretic axioms or
+every theorem of graph theory or relational algebra.
+
 `alternative-foundations.lino` adds a guarded referential witness: a link
 whose source and continuation repeat the same address yields one finite
 observation and an opaque resume address. Unequal endpoints fail the guard.
@@ -541,6 +606,13 @@ queryable record of the upstream Lean and Rocq sources: 18 modules, 229
 declarations, 8,815 typed tokens, and 510 dependency links. Its independent
 fingerprint contract and CI extraction catch source drift. Four Lean
 declarations containing `sorry` remain explicitly marked admitted.
+
+The raw source archive also reconstructs the upstream Lean and Rocq Git tree
+objects and checks their independently pinned identities at revision
+`087f4515d0652925eecc54bcade724445c3978f1`, including the project configuration
+files and the original license blob. Editing source bytes and recomputing every
+hash in the transport manifest cannot authenticate a replacement corpus.
+These byte-integrity checks do not establish elaboration or proof validity.
 
 That corpus is comparison and provenance evidence only. RML does not delegate
 its linked-program reduction, inference, contract conformance, or witness

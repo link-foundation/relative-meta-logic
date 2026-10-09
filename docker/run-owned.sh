@@ -3,6 +3,10 @@
 # exact labelled container has stopped, been waited for, and been removed.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+if [[ -z ${RML_CACHE_OUTPUT_DIR:-} ]]; then
+  echo 'Docker cache lifecycle requires private output; run through scripts/run-with-cache.mjs' >&2
+  exit 1
+fi
 owner=${RML_DOCKER_OWNER:-relative-meta-logic-local}
 run=${GITHUB_RUN_ID:-local}-$(date +%s)-$$
 name="rml-owned-$run"
@@ -10,13 +14,17 @@ owner_label=org.link-foundation.rml.owner
 run_label=org.link-foundation.rml.run
 mkdir -p .rml-cache/evidence .rml-cache/containers
 lease=".rml-cache/evidence/external-lease-$name.json"
-cidfile=".rml-cache/containers/$name.cid"
-printf '{"kind":"docker-container","name":"%s"}\n' "$name" > "$lease"
+scratch_root=$(node -e 'const path = require("node:path"); const relative = path.relative(process.cwd(), process.env.RML_CACHE_OUTPUT_DIR); if (!relative || relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative)) throw new Error("Docker output must be inside this worktree"); console.log(relative.split(path.sep).join("/"));')
+scratch=$(mktemp -d "$scratch_root/docker-$name-XXXXXX")
+cidfile="$scratch/container.cid"
+budget() { node scripts/docker-cache-budget.mjs "$1" "$lease" "${@:2}"; }
+budget container-init "$owner" "$run" "$name" "$cidfile"
 cleanup() {
   status=$?
   trap - EXIT INT TERM HUP
   set +e
   cleanup_status=0
+  budget begin-cleanup || cleanup_status=1
   if [[ -s $cidfile ]]; then
     cid=$(cat "$cidfile")
     if [[ $cid =~ ^[0-9a-f]{64}$ ]] &&
@@ -36,6 +44,7 @@ cleanup() {
     echo "Ambiguous container creation: $name; external lease preserved" >&2
     cleanup_status=1
   fi
+  budget finish "$cleanup_status" || cleanup_status=1
   if [[ $cleanup_status == 0 ]]; then rm -f "$lease" "$cidfile"; fi
   if [[ $status == 0 ]]; then status=$cleanup_status; fi
   exit "$status"
@@ -48,3 +57,4 @@ trap 'exit 129' HUP
 # label inspection before deletion, including when a client is interrupted.
 docker run --name "$name" --cidfile "$cidfile" \
   --label "$owner_label=$owner" --label "$run_label=$run" "$@"
+budget observe

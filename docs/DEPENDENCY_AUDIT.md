@@ -94,3 +94,13 @@ ABI modules, 107 scalar source/control-flow JavaScript tests, eight native Rust
 control-flow tests, editor LSP smoke tests, JSDoc and VSIX packaging. The validation
 receipt records final source-free and aggregate-suite results separately, along
 with any interrupted attempt; partial runs are not reported as complete passes.
+
+## Registry release follow-up, 2026-10-09
+
+Official npm and crates registry reads still identify links-notation 0.25.1 as the current stable release. Both direct dependencies and their consumer locks now select 0.25.1; the upstream meta-language 1.0.0 Rust dependency remains 0.22.0, and its immutable JavaScript declaration remains 0.22.0 while the consumer resolves 0.25.1. The historical audit above is retained as a dated record.
+
+The 0.25.1 crate declares Rust 1.87, below RML's declared 1.90 minimum. Its source revision is `9e476ce86bb26b690974607eccfaabb77f649ac1`; its registry checksum is `e9f8ae3a1596073a2a25a3fa014b42a11c2cbda6eccd0654418244215653c073`. The companion macro resolves to 0.1.1.
+
+The frontend delegates exact UTF-8 literal decoding and canonical spelling to the released provider. Decoded labels are included when excluding private-use placeholders. Versioned literals, empty/control references, Unicode, quoted labels and malformed bytes have shared JavaScript/Rust fixture coverage. Public display rendering remains a separate API from semantic identity and lossless transport.
+
+This change was rebuilt after the executor filesystem was replaced. Earlier unpushed patch bytes and their test logs were lost; only fresh checks of the rebuilt source certify this revision. Native proof-assistant validity requires the corresponding compiler checks.

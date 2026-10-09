@@ -80,20 +80,20 @@ jobs:
         run: node scripts/bootstrap.mjs
       - name: Install stable Rocq and check all proof obligations in one owned container
         run: |
-          node scripts/run-with-cache.mjs --cache .rml-cache/rocq --class rocq -- bash -euo pipefail -c '
-            mkdir -p .rml-cache/rocq/orientation-native .rml-cache/evidence
+          node scripts/run-with-cache.mjs --cache .rml-cache/rocq --class rocq --isolate-output .rml-cache/rocq -- bash -euo pipefail -c '
+            mkdir -p "$RML_CACHE_OUTPUT_DIR/orientation-native" .rml-cache/evidence
             runner_owner="$(id -u):$(id -g)"
-            trap "sudo chown -R $runner_owner .rml-cache/rocq" EXIT
-            sudo chown -R 1000:1000 .rml-cache/rocq
+            trap "sudo chown -R $runner_owner \"$RML_CACHE_OUTPUT_DIR\"" EXIT
+            sudo chown -R 1000:1000 "$RML_CACHE_OUTPUT_DIR"
             bash docker/run-owned.sh --init \
               --volume "$PWD/scripts:/rml/scripts:ro" \
               --volume "$PWD/test-corpus/orientation-independence:/rml/test-corpus/orientation-independence:ro" \
-              --volume "$PWD/.rml-cache/rocq/orientation-native:/rml-native" \
+              --volume "$RML_CACHE_OUTPUT_DIR/orientation-native:/rml-native" \
               --volume "$(command -v node):/rml-node:ro" --workdir /rml \
               rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782 \
               /bin/bash --login -ec \
               "/rml-node --version; bash /rml/scripts/install-rocq-kernel.sh; TMPDIR=/rml-native /rml-node /rml/scripts/check-orientation-independence.mjs --languages=Rocq > /rml-native/orientation-rocq.json"
-            cp .rml-cache/rocq/orientation-native/orientation-rocq.json .rml-cache/evidence/orientation-rocq.json
+            cp "$RML_CACHE_OUTPUT_DIR/orientation-native/orientation-rocq.json" .rml-cache/evidence/orientation-rocq.json
           '
       - name: Upload proof and cache diagnostics before teardown
         if: always()

@@ -58,7 +58,7 @@ jobs:
         run: node scripts/bootstrap.mjs
       - name: Execute the complete candidate cache lifecycle and policy suite
         id: lifecycle
-        run: node scripts/run-with-cache.mjs -- node --test --test-concurrency=2 scripts/build-cache.test.mjs scripts/build-cache-policy.test.mjs
+        run: node scripts/run-with-cache.mjs -- node --test --test-concurrency=2 scripts/build-cache.test.mjs scripts/build-cache-policy.test.mjs scripts/build-cache-nested.test.mjs scripts/build-vsix-output.test.mjs
       - name: Verify the candidate source tree and record the real test outcome
         if: always() && steps.patch.outcome == 'success'
         working-directory: .

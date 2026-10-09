@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-rust-implementation-manifest/v1",
   "moduleCount": 47,
-  "linkCount": 292292,
+  "linkCount": 294640,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -144,9 +144,9 @@
     },
     {
       "path": "rust/src/check.rs",
-      "sourceSha256": "0eec1cde76fbb51e31cca06392d5729ec37fe7a9c62d1846488c3b05cdc7d2a4",
-      "astSha256": "38dcbf658b0f587171665af193a8f777e7f42677ade37bbb99e9a54c9eb85594",
-      "generatedSha256": "b62997123f87fb040c3b6fd94da38d3064766defa9433d2aaddc1d7f5d45c245",
+      "sourceSha256": "e471121e9bb64238c5699264a87e16857a0ade7fc1cdf5f60ff57132d31851c1",
+      "astSha256": "a6860eec60c8f6d6fc752b3ab3843640c6777494443a455ab7c4aa85b3109224",
+      "generatedSha256": "c7fb44a1fee9bae94c6c87529233fd22613e81efd50e19040e16289564116744",
       "macroInvocations": 36,
       "verbatimNodes": 0
     },
@@ -216,9 +216,9 @@
     },
     {
       "path": "rust/src/foundation_workspace.rs",
-      "sourceSha256": "9e3ad49b16bf22988e4cb4c9a402861f584fd9030fe81664f50864bd7d8e213d",
-      "astSha256": "5ddd34a419c3717e6aa556eb8f46b08ce9708c8a22121a23a90f468fa70be654",
-      "generatedSha256": "0aa6dee985ac296c2f425dd6a93ebb9143f85a0c7a1904db8703eced9642ac91",
+      "sourceSha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd",
+      "astSha256": "caf917e732ba7126f531f27018f7adc9e022763ea48200f0cd592490d9af1a1a",
+      "generatedSha256": "cc64505543f1bfefabdd797ec08c993c2444cc8ad23d3a0676170b666a3ddec8",
       "macroInvocations": 120,
       "verbatimNodes": 0
     },
@@ -240,25 +240,25 @@
     },
     {
       "path": "rust/src/lean_export.rs",
-      "sourceSha256": "e53bd6ad0a9b72ef9c56b4824f46afafa41fbe7549433f2818a02017a26a350f",
-      "astSha256": "d9ee8ffd5ef8b7cf4ce69f625dcf32679bfc37f2f9c14f24fa00c878b7ce8550",
-      "generatedSha256": "517a0ccb7227abbb70e75c96e25fc6d8ea3e70616cf8a98095b22ed3ff8e87e2",
-      "macroInvocations": 46,
+      "sourceSha256": "c723e6fa81dc485a117e4b8a16da7ad03b906ae47782ca6a4721891ed6f22a16",
+      "astSha256": "141862e4952b9ce5ffeb99622f7359e8dc3dd1d036c8ce4badf7eb9f4648c721",
+      "generatedSha256": "37e9fc37d290c6dcd8f1c385370576b0f06c2cfed14d87b9757aea128dd0b23b",
+      "macroInvocations": 47,
       "verbatimNodes": 0
     },
     {
       "path": "rust/src/lib.rs",
-      "sourceSha256": "bd9eb0a72aae33f67cbb9129ba8a5c6890ac5817adff030cabaa4df922a595a0",
-      "astSha256": "52b6029be3254706c4bb2e22ee71fcefae5ffec9cca157f936cfb685d66c77f4",
-      "generatedSha256": "51324fd66e710f7a4fe6a8927e8f2dc62a6201e231b445b1cc83d99c45149541",
-      "macroInvocations": 550,
+      "sourceSha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e",
+      "astSha256": "3d528b9ea91b2f9dcc9de51c74e9eedee4c7b4c15def088510efcee84b3b2b56",
+      "generatedSha256": "a6042a50031bc8c0e7d013105699d283b03cf16cb0ae039652a94f368a566c3d",
+      "macroInvocations": 561,
       "verbatimNodes": 0
     },
     {
       "path": "rust/src/linked_program.rs",
-      "sourceSha256": "588249e4e8d7debf81a858f11b9344bdd56f9c9d1e7cc2357fff4004bcd555b8",
-      "astSha256": "f700278218e80bca40123259a0c6424425228c0e69b0f236e96172ed9d52f24a",
-      "generatedSha256": "9fbf7ed1118beafd61f3101cbdca379cf7b1493e5c02204f7ec8cee8635a78ca",
+      "sourceSha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476",
+      "astSha256": "dd39b6747014e8dcdf4e572676898041313e5d30623b83ee4bf0759eb5a50919",
+      "generatedSha256": "652aab6e59df81471c8d1534901f511faf9a6eccd4b1792075e81100a8d36db1",
       "macroInvocations": 277,
       "verbatimNodes": 0
     },
@@ -288,10 +288,10 @@
     },
     {
       "path": "rust/src/lino_frontend.rs",
-      "sourceSha256": "53bd5811c2a5852f772d5bd80e78ab1e56a65a233625a8d1f96e6552b2ccc5be",
-      "astSha256": "c026fb02907587e0404b4200c0419f874426a004bbde1ac35c0a4f34c11c3c4d",
-      "generatedSha256": "eec1ad75294e47874b0368630221c3c9498f701f063663699f50c32916943197",
-      "macroInvocations": 35,
+      "sourceSha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d",
+      "astSha256": "047088ec3f49ee61b9be1a26a033e7a19d90322fb82b9285f780b52c24c651e2",
+      "generatedSha256": "ebd6f090ffaa3d99b221869d5accd0bbfe9f7491fc7372d28054b0c9f5e380b8",
+      "macroInvocations": 33,
       "verbatimNodes": 0
     },
     {
@@ -344,9 +344,9 @@
     },
     {
       "path": "rust/src/rocq.rs",
-      "sourceSha256": "3c7702442c579ea2c1e1253fb3c00821b7ad6a4dc8427dafde478a3dd6262386",
-      "astSha256": "4c7c2fe3f3dda9e67bdbbd42a4bfd10177490098572dbe355c47f2bdceacd81e",
-      "generatedSha256": "284d9d71e23f14869cc4dfbb77b41d08b9dff63513aa266e4af732a14325e72a",
+      "sourceSha256": "7b8cb8f6b235d3b22f6b59ef2ff30b521a17435e2a95451c0b6081f1762c2902",
+      "astSha256": "83cf062e567e58156aa96c046222e37387bbe1ffc295ba8a9846d4cb502b8bfe",
+      "generatedSha256": "b723afe2d688807b34870a2cd05fc6855e8cb8b26b26e9714c4de3c19d958c7c",
       "macroInvocations": 56,
       "verbatimNodes": 0
     },
@@ -360,17 +360,17 @@
     },
     {
       "path": "rust/src/theory_network.rs",
-      "sourceSha256": "05d017b378f69234f3e2a40cf33c96dc888694e79bdc2cce281922a8ecec6235",
-      "astSha256": "61d21d481c534e32b42bde1dbf4e1229ae4454b1e366a08c39aaabfd920ca9ab",
-      "generatedSha256": "f8ee3cc615de6780ae76e2aeaba33ea5e9daaed28e5b8d1ba916f75202fca9bb",
-      "macroInvocations": 135,
+      "sourceSha256": "79b76cb66b2e8fb0167d125ff902ede4ad847e35f9a2ac7b8e149509509baa0c",
+      "astSha256": "290ba3d8455be632fdf77055b5a9174cd10b63976679bce201cfa0b041f46484",
+      "generatedSha256": "5f4d07f7cef312601426b1d7350bd7227642d0247493c10e733d9a9d36d6e1ef",
+      "macroInvocations": 151,
       "verbatimNodes": 0
     },
     {
       "path": "rust/src/upstream_language.rs",
-      "sourceSha256": "f10e87c7f64dcd5f132f1aaa0fe07acf1093c62a9213c5dd926c374a9e09e241",
-      "astSha256": "d0b34ce90f31aeec2a4ed88b3a07c941580c55450a6a8875db301bcd82f0a5d4",
-      "generatedSha256": "23ce47130c1403065b44ea6aec84abf3662a1f64ed006ce032d68669ac12f9a3",
+      "sourceSha256": "225f0171974241fc507826bd284ac295fc734a55797904246feb0ba7be251149",
+      "astSha256": "ac60fac3f045b5f8fa64cdccf5da884dd800172d5b13828472369d9736d24aa8",
+      "generatedSha256": "4c897a05fa5e3f77a6af9c45c48df6630faae9ea48e183e3acb4cf194037716d",
       "macroInvocations": 0,
       "verbatimNodes": 0
     },
@@ -394,8 +394,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveBytes": 1330196,
-  "archiveSha256": "d0a0c3189d032b12d6e194f468925dc086ea2b064d961e9efd901e8504574d8e",
+  "archiveBytes": 1342545,
+  "archiveSha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4",
   "toolLockSha256": "acfd9616c8b3e7740701bd61a4981f4029cfbedfdacb884af7900526182df829",
   "toolSources": [
     {

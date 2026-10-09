@@ -963,3 +963,272 @@ describe('doublet sequence representation', () => {
     );
   });
 });
+
+describe('requirement-specific representation boundaries', () => {
+  it('keeps nested membership-set addresses distinct and rejects extensional non-members', () => {
+    const sets = new MembershipSetStore();
+    sets.define('inner.a', 'a', 'inner');
+    sets.define('inner.b', 'b', 'inner');
+    sets.define('outer.inner', 'inner', 'outer');
+    assert.deepStrictEqual(sets.members('outer'), ['inner']);
+    assert.deepStrictEqual(sets.members('inner'), ['a', 'b']);
+    assert.strictEqual(sets.has('outer', 'a'), false);
+    assert.strictEqual(sets.equals('inner', 'outer'), false);
+    assert.strictEqual(sets.isSubsetOf('inner', 'outer'), false);
+    assert.deepStrictEqual(sets.union('outer'), ['a', 'b']);
+    assert.deepStrictEqual(sets.members('missing'), []);
+    assert.throws(() => sets.define('inner.a', 'other', 'inner'), /already defined/);
+    assert.deepStrictEqual(sets.members('inner'), ['a', 'b']);
+  });
+
+  it('round-trips empty singleton and repeated finite leaves in every sequence layout', () => {
+    for (const layout of ['balanced', 'left', 'right']) {
+      for (const values of [[], ['only'], ['a', 'a', 'b', 'a', 'c']]) {
+        const store = new DoubletSequenceStore();
+        const head = store.encodeSequence(values, 'sequence', layout);
+        assert.deepStrictEqual(store.decodeSequence(head), values);
+      }
+    }
+  });
+
+  it('rejects cyclic finite decoding and colliding sequence addresses without partial writes', () => {
+    for (const layout of ['balanced', 'left', 'right']) {
+      const store = new DoubletSequenceStore();
+      assert.throws(() => store.encodeSequence(['sequence.cell.0', 'a'], 'sequence', layout), /collides with an internal link/);
+      assert.strictEqual(store.doublet('sequence.cell.0'), null);
+      store.define('sequence.cell.0', 'existing', 'leaf');
+      const before = store.entries();
+      assert.throws(() => store.encodeSequence(['a', 'b', 'c'], 'sequence', layout), /already defined/);
+      assert.deepStrictEqual(store.entries(), before);
+    }
+    const cyclic = new DoubletSequenceStore();
+    cyclic.define('self', 'a', 'self');
+    cyclic.define('first', 'b', 'second');
+    cyclic.define('second', 'c', 'first');
+    assert.throws(() => cyclic.decodeSequence('self'), /sequence self is cyclic/);
+    assert.throws(() => cyclic.decodeSequence('first'), /sequence first is cyclic/);
+  });
+
+  it('rejects non-vertex graph endpoints without creating edges or reachability', () => {
+    const graph = new LinkGraph('graph');
+    graph.addVertex('a'); graph.addVertex('b');
+    assert.throws(() => graph.defineEdge('bad.source', 'missing', 'b'), /edge source missing is not a vertex/);
+    assert.throws(() => graph.defineEdge('bad.target', 'a', 'missing'), /edge target missing is not a vertex/);
+    assert.strictEqual(graph.edge('bad.source'), null);
+    assert.strictEqual(graph.edge('bad.target'), null);
+    assert.strictEqual(graph.edgeType('bad.target'), null);
+    assert.strictEqual(graph.reachable('a', 'b'), false);
+    assert.strictEqual(graph.reachable('missing', 'missing'), false);
+    assert.deepStrictEqual(graph.successors('a'), []);
+    graph.defineEdge('valid', 'a', 'b');
+    assert.strictEqual(graph.reachable('a', 'b'), true);
+  });
+
+  it('rejects relational signature mismatches and out-of-carrier pairs without mutation', () => {
+    const relation = new FiniteRelation('r', ['a'], ['b']);
+    relation.define('ab', 'a', 'b');
+    assert.throws(() => relation.define('bad.left', 'missing', 'b'), /outside the declared domain/);
+    assert.throws(() => relation.define('bad.right', 'a', 'missing'), /outside the declared codomain/);
+    assert.throws(() => relation.define('duplicate', 'a', 'b'), /already contains/);
+    assert.throws(() => relation.union(new FiniteRelation('other', ['a'], ['c']), 'union'), /equal domains and codomains/);
+    assert.throws(() => relation.intersection(new FiniteRelation('other', ['c'], ['b']), 'intersection'), /equal domains and codomains/);
+    assert.throws(() => relation.compose(new FiniteRelation('other', ['c'], ['d']), 'composition'), /first codomain to equal the next domain/);
+    assert.deepStrictEqual(relation.pairs(), [['a', 'b']]);
+    for (const address of ['bad.left', 'bad.right', 'duplicate']) assert.strictEqual(relation.pairType(address), null);
+  });
+
+  it('keeps typing and validation invariant when the derived index is deleted and rebuilt', () => {
+    const outcomes = [];
+    for (const mode of ['present', 'deleted', 'rebuilt']) {
+      const links = TypedLinkNetwork.withDefaultOntology();
+      const before = links.snapshot();
+      if (mode !== 'present') links.clearTypeIndex();
+      if (mode === 'rebuilt') links.rebuildTypeIndex();
+      assert.deepStrictEqual(links.snapshot(), before);
+      assert.deepStrictEqual(links.typesOf('Value'), ['SubType']);
+      assert.strictEqual(links.validateClosure().closed, true);
+      assert.throws(() => links.define('invalid', 'Value', 'Type', 'Type', 'Type'), /expected Type/);
+      assert.strictEqual(links.doublet('invalid'), null);
+      links.define('valid', 'Value', 'Type', 'SubType', 'Type');
+      assert.strictEqual(links.typeOf('valid'), '(Pair SubType Type)');
+      links.declare('Value', 'Type');
+      assert.deepStrictEqual(links.typesOf('Value'), ['SubType', 'Type']);
+      outcomes.push(links.snapshot());
+    }
+    assert.deepStrictEqual(outcomes[1], outcomes[0]);
+    assert.deepStrictEqual(outcomes[2], outcomes[0]);
+  });
+
+  it('does not authorize a typed link after its authoritative type fact is removed', () => {
+    const snapshot = TypedLinkNetwork.withDefaultOntology().snapshot();
+    snapshot.typeFacts = snapshot.typeFacts.filter(fact => fact.subject !== 'Value');
+    const links = TypedLinkNetwork.fromSnapshot(snapshot, { requireClosed: true });
+    links.typeIndex.set('Value', new Set(['SubType']));
+    for (const mode of ['forged', 'deleted', 'rebuilt']) {
+      if (mode === 'deleted') links.clearTypeIndex();
+      if (mode === 'rebuilt') links.rebuildTypeIndex();
+      assert.deepStrictEqual(links.typesOf('Value'), []);
+      assert.throws(() => links.define('forged', 'Value', 'Type', 'SubType', 'Type'), /has no declared type/);
+      assert.strictEqual(links.doublet('forged'), null);
+      assert.deepStrictEqual(links.snapshot(), snapshot);
+    }
+  });
+
+  it('rejects default ontology closure when a canonical classifier link is missing', () => {
+    for (const address of ['Type', 'SubType', 'Value']) {
+      const snapshot = TypedLinkNetwork.withDefaultOntology().snapshot();
+      snapshot.links = snapshot.links.filter(link => link.address !== address);
+      const open = TypedLinkNetwork.fromSnapshot(snapshot);
+      assert.strictEqual(open.validateClosure().closed, false);
+      assert.deepStrictEqual(open.validateClosure().missingReferences, [address]);
+      assert.throws(() => TypedLinkNetwork.fromSnapshot(snapshot, { requireClosed: true }), /dangling references/);
+    }
+  });
+
+  it('does not report missing or reversed ontology links as exact link-cli pinned types', () => {
+    const absent = new TypedLinkNetwork().linkCliInteropProfile();
+    assert.ok(absent.pinnedTypes.every(mapping => mapping.mappedRmlShape === null && !mapping.exactShape));
+    const snapshot = TypedLinkNetwork.withDefaultOntology().snapshot();
+    const subtype = snapshot.links.find(link => link.address === 'SubType');
+    [subtype.source, subtype.target] = [subtype.target, subtype.source];
+    const profile = TypedLinkNetwork.fromSnapshot(snapshot, { requireClosed: true }).linkCliInteropProfile();
+    assert.deepStrictEqual(profile.pinnedTypes[1].mappedRmlShape, { address: 2, source: 2, target: 1 });
+    assert.strictEqual(profile.pinnedTypes[1].exactShape, false);
+    assert.strictEqual(profile.pinnedTypes[0].exactShape, true);
+    assert.strictEqual(profile.pinnedTypes[2].exactShape, false);
+  });
+});
+
+describe('versioned opaque reference sequences and sets', () => {
+  const fixture = JSON.parse(readFileSync(join(repoRoot, 'test-corpus/reference-sequences/v1.json'), 'utf8'));
+  const restore = triples => {
+    const store = new DoubletSequenceStore();
+    for (const triple of triples) store.define(...triple);
+    return store;
+  };
+  const triples = store => store.entries().map(({ address, source, target }) => [address, source, target]);
+
+  it('preserves nested shared and cyclic element identities in every versioned layout after linked transport', () => {
+    for (const layout of ['balanced', 'left', 'right']) {
+      const store = restore(fixture.links);
+      for (const [name, values] of [['empty', []], ['singleton', ['inner']], ['sequence', fixture.values]]) {
+        const head = store.encodeReferenceSequence(values, name, layout);
+        assert.deepStrictEqual(store.decodeReferenceSequence(head), values);
+        assert.deepStrictEqual(restore(triples(store)).decodeReferenceSequence(head), values);
+      }
+      const pair = store.encodeReferenceSequence(['inner', 'direct-cycle'], 'example', layout);
+      assert.strictEqual(pair, 'example.cell.0');
+      assert.deepStrictEqual(triples(store).filter(([address]) => address.startsWith('example.')), fixture.twoElementEncoding);
+      for (const [address, source, target] of fixture.links) assert.deepStrictEqual(store.doublet(address), { source, target });
+    }
+    const supplied = restore([...fixture.links, ...fixture.nonGeneratedStructure]);
+    assert.deepStrictEqual(supplied.decodeReferenceSequence('root'), ['direct-cycle', 'direct-cycle']);
+    // Raw upstream trees keep their explicit, separate interpretation.
+    assert.deepStrictEqual(supplied.decodeSequence('inner'), ['a', 'b']);
+  });
+
+  it('rejects malformed or cyclic versioned structure and generated-address collisions atomically', () => {
+    for (const layout of ['balanced', 'left', 'right']) {
+      for (const collision of ['reserved.cell.0', 'reserved.children.0']) {
+        const store = restore(fixture.links);
+        const before = triples(store);
+        assert.throws(() => store.encodeReferenceSequence([collision, 'inner'], 'reserved', layout), /collides with an internal link/);
+        assert.deepStrictEqual(triples(store), before);
+        store.define(collision, 'original', 'value');
+        const occupied = triples(store);
+        assert.throws(() => store.encodeReferenceSequence(['inner', 'direct-cycle'], 'reserved', layout), /already defined/);
+        assert.deepStrictEqual(triples(store), occupied);
+      }
+    }
+    const store = restore(fixture.links);
+    assert.throws(() => store.decodeReferenceSequence('missing'), /unknown reference sequence address/);
+    assert.throws(() => store.decodeReferenceSequence('inner'), /invalid reference sequence constructor/);
+    store.define('broken', 'rml.reference-sequence.v1.branch', 'absent-children');
+    assert.throws(() => store.decodeReferenceSequence('broken'), /unknown reference sequence children/);
+    store.define('cycle', 'rml.reference-sequence.v1.branch', 'cycle-children');
+    store.define('cycle-children', 'cycle', 'cycle');
+    assert.throws(() => store.decodeReferenceSequence('cycle'), /reference sequence cycle is cyclic/);
+    assert.throws(() => store.encodeReferenceSequence([''], 'invalid'), /non-empty reference/);
+    assert.throws(() => store.encodeReferenceSequence([], 'invalid', 'unknown'), /layout must/);
+  });
+
+  it('represents nested ordered and extensional sets without flattening their member links', () => {
+    const store = restore(fixture.links);
+    const inner = store.encodeReferenceSet(['b', 'a', 'b'], 'set.inner');
+    const outer = store.encodeReferenceSet([inner], 'set.outer');
+    assert.notStrictEqual(outer, inner);
+    assert.deepStrictEqual(store.decodeReferenceSet(inner), ['a', 'b']);
+    assert.deepStrictEqual(store.decodeReferenceSet(outer), [inner]);
+    const ordered = store.encodeReferenceOrderedSet(['indirect-a', inner, 'direct-cycle'], 'ordered');
+    assert.deepStrictEqual(store.decodeReferenceOrderedSet(ordered), ['indirect-a', inner, 'direct-cycle']);
+    const canonical = store.encodeReferenceSet(['indirect-a', inner, 'direct-cycle', inner], 'canonical');
+    assert.deepStrictEqual(store.decodeReferenceSet(canonical), ['direct-cycle', 'indirect-a', inner]);
+    const restored = restore(triples(store));
+    assert.deepStrictEqual(restored.decodeReferenceSet(outer), [inner]);
+    assert.deepStrictEqual(restored.decodeReferenceOrderedSet(ordered), ['indirect-a', inner, 'direct-cycle']);
+  });
+
+  it('rejects duplicate reference-set members and noncanonical linked order', () => {
+    const store = restore(fixture.links);
+    const before = triples(store);
+    assert.throws(() => store.encodeReferenceOrderedSet(['inner', 'inner'], 'duplicate'), /ordered set contains duplicate inner/);
+    assert.deepStrictEqual(triples(store), before);
+    const duplicate = store.encodeReferenceSequence(['inner', 'inner'], 'duplicate');
+    assert.throws(() => store.decodeReferenceOrderedSet(duplicate), /ordered set contains duplicate inner/);
+    assert.throws(() => store.decodeReferenceSet(duplicate), /strict canonical order/);
+    const unordered = store.encodeReferenceOrderedSet(['inner', 'direct-cycle'], 'unordered');
+    assert.throws(() => store.decodeReferenceSet(unordered), /strict canonical order/);
+  });
+});
+
+describe('bounded iterative reference traversal', () => {
+  it('handles large versioned left and right sequences without host recursion', () => {
+    const values = Array.from({ length: 20_000 }, (_, index) => `item.${index}`);
+    for (const layout of ['balanced', 'left', 'right']) {
+      const store = new DoubletSequenceStore();
+      const head = store.encodeReferenceSequence(values, 'large', layout);
+      assert.strictEqual(head, 'large.cell.0');
+      assert.deepStrictEqual(store.decodeReferenceSequence(head), values);
+      assert.strictEqual(store.nodes.size, 3 * values.length - 2);
+    }
+  });
+
+  it('bounds deep and shared versioned structure by expanded visits and output count', () => {
+    const store = new DoubletSequenceStore();
+    const element = 'rml.reference-sequence.v1.element';
+    const branch = 'rml.reference-sequence.v1.branch';
+    const empty = 'rml.sequence.empty';
+    store.define('opaque', 'opaque', 'opaque');
+    store.define('leaf', element, 'opaque');
+    let root = 'leaf';
+    for (let index = 0; index < 20_000; index++) {
+      store.define(`deep.${index}`, branch, `deep.children.${index}`);
+      store.define(`deep.children.${index}`, root, empty);
+      root = `deep.${index}`;
+    }
+    assert.deepStrictEqual(store.decodeReferenceSequence(root), ['opaque']);
+    assert.throws(() => store.decodeReferenceSequence(root, { maxVisits: 100 }), /visit limit exceeded/);
+    assert.throws(() => store.decodeReferenceSequence(root, { maxValues: 0 }), /value limit exceeded/);
+    store.define('shared', branch, 'shared.children');
+    store.define('shared.children', 'leaf', 'leaf');
+    assert.deepStrictEqual(store.decodeReferenceSequence('shared', { maxVisits: 3, maxValues: 2 }), ['opaque', 'opaque']);
+    assert.throws(() => store.decodeReferenceSequence('shared', { maxVisits: 2 }), /visit limit exceeded/);
+    assert.throws(() => store.decodeReferenceSequence('shared', { maxValues: 1 }), /value limit exceeded/);
+    assert.throws(() => store.decodeReferenceOrderedSet('shared', { maxVisits: 2 }), /visit limit exceeded/);
+    assert.throws(() => store.decodeReferenceSet('shared', { maxValues: 1 }), /value limit exceeded/);
+    let sharedRoot = 'leaf';
+    for (let index = 0; index < 40; index++) {
+      store.define(`dag.${index}`, branch, `dag.children.${index}`);
+      store.define(`dag.children.${index}`, sharedRoot, sharedRoot);
+      sharedRoot = `dag.${index}`;
+    }
+    // Only 81 structural links describe 2^40 emitted values. Count revisits,
+    // rather than just distinct addresses, before that expansion can occur.
+    assert.throws(() => store.decodeReferenceSequence(sharedRoot, { maxVisits: 1000, maxValues: 1000 }), /visit limit exceeded/);
+    assert.throws(() => store.decodeReferenceSequence(sharedRoot, { maxVisits: 1000, maxValues: 3 }), /value limit exceeded/);
+    assert.throws(() => store.decodeReferenceSequence('leaf', { maxVisits: -1 }), /non-negative safe integers/);
+    assert.throws(() => store.decodeReferenceSequence('leaf', { maxValues: Infinity }), /non-negative safe integers/);
+    assert.deepStrictEqual(store.decodeReferenceSequence(empty, { maxVisits: 1, maxValues: 0 }), []);
+    assert.throws(() => store.decodeReferenceSequence(empty, { maxVisits: 0 }), /visit limit exceeded/);
+  });
+});

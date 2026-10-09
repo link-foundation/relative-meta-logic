@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "8fbe26ed62bfa66442b437570bf5bac236b9451ba674566b44ea314c79856ac4",
-  "archiveBytes": 713102,
-  "linkCount": 14509,
+  "archiveSha256": "0d2e11b74a378e8c1684358628dd30cb5bd64cc11c68b5fd72a30c0e7f7f128a",
+  "archiveBytes": 715750,
+  "linkCount": 14528,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -37,8 +37,8 @@
     },
     {
       "path": ".github/workflows/api-docs.yml",
-      "sourceSha256": "1d62645be42ab4476bae694b4abfb25452eb17fb50d5b110713a40c1f6391e0a",
-      "generatedSha256": "1d62645be42ab4476bae694b4abfb25452eb17fb50d5b110713a40c1f6391e0a"
+      "sourceSha256": "cfc9f4f2fc38ba70d1deadffbf84a1a697b439036865293d79a1e0524481bf58",
+      "generatedSha256": "cfc9f4f2fc38ba70d1deadffbf84a1a697b439036865293d79a1e0524481bf58"
     },
     {
       "path": ".github/workflows/bootstrap.yml",
@@ -47,13 +47,13 @@
     },
     {
       "path": ".github/workflows/cache-candidate-validation.yml",
-      "sourceSha256": "d7cc5430b0ee5075dfcf3cab17eda2207b47a6e56695e0d5640af32ec6add3af",
-      "generatedSha256": "d7cc5430b0ee5075dfcf3cab17eda2207b47a6e56695e0d5640af32ec6add3af"
+      "sourceSha256": "3abb5a1d2e1aa5bcd00ddd68e5fbb7e97143f64a716523c7bfcc718e3f0c59ca",
+      "generatedSha256": "3abb5a1d2e1aa5bcd00ddd68e5fbb7e97143f64a716523c7bfcc718e3f0c59ca"
     },
     {
       "path": ".github/workflows/cache-portability.yml",
-      "sourceSha256": "25bc7e03302af296c2810f6a4a780cd1d966cf42a69bf9f80e94fdc53cafa855",
-      "generatedSha256": "25bc7e03302af296c2810f6a4a780cd1d966cf42a69bf9f80e94fdc53cafa855"
+      "sourceSha256": "b66c78e3f74f4ac7f028a5966b3c7ca8b3b005ebb2f71b36aad1372f72a9545b",
+      "generatedSha256": "b66c78e3f74f4ac7f028a5966b3c7ca8b3b005ebb2f71b36aad1372f72a9545b"
     },
     {
       "path": ".github/workflows/docker.yml",
@@ -62,23 +62,23 @@
     },
     {
       "path": ".github/workflows/formal-corpus.yml",
-      "sourceSha256": "0f36bcf7ba340dbc24da911da6bb3295a309196dc0e58de03adb193209ad0fd7",
-      "generatedSha256": "0f36bcf7ba340dbc24da911da6bb3295a309196dc0e58de03adb193209ad0fd7"
+      "sourceSha256": "bfc6b387e96e82b22543df91c5cd65731b28cd82ce01d8b9d6c01fbd126d6a5e",
+      "generatedSha256": "bfc6b387e96e82b22543df91c5cd65731b28cd82ce01d8b9d6c01fbd126d6a5e"
     },
     {
       "path": ".github/workflows/issue-183-acceptance.yml",
-      "sourceSha256": "bf00a8fa2630c0b23f150fc8d6a94bfbc009808bafa75f954dc60ff23eb1f1a8",
-      "generatedSha256": "bf00a8fa2630c0b23f150fc8d6a94bfbc009808bafa75f954dc60ff23eb1f1a8"
+      "sourceSha256": "10c1e2cef23a986bff6236fb94cf63319aacdf5a18b652b0c49552fdc2093159",
+      "generatedSha256": "10c1e2cef23a986bff6236fb94cf63319aacdf5a18b652b0c49552fdc2093159"
     },
     {
       "path": ".github/workflows/linked-implementation.yml",
-      "sourceSha256": "ebfb197b5c2bb9efcc37bbdc19975e99e5adefd56ba6870d6dc88ab3cd023245",
-      "generatedSha256": "ebfb197b5c2bb9efcc37bbdc19975e99e5adefd56ba6870d6dc88ab3cd023245"
+      "sourceSha256": "6abc578a7bacc31b41a97b87b6c74d298b423e2d6513b8d3d516a83e4d059c64",
+      "generatedSha256": "6abc578a7bacc31b41a97b87b6c74d298b423e2d6513b8d3d516a83e4d059c64"
     },
     {
       "path": ".github/workflows/linked-target.yml",
-      "sourceSha256": "cfe377d3871b148467aaaaae7c3379cfc3f4bc72b0108be5daaa06526d828813",
-      "generatedSha256": "cfe377d3871b148467aaaaae7c3379cfc3f4bc72b0108be5daaa06526d828813"
+      "sourceSha256": "612ab0fccc8bdb35b532e09123fbcb198521cc8382dac4a672f4f6758761fe5b",
+      "generatedSha256": "612ab0fccc8bdb35b532e09123fbcb198521cc8382dac4a672f4f6758761fe5b"
     },
     {
       "path": ".github/workflows/lint-english.yml",
@@ -87,23 +87,23 @@
     },
     {
       "path": ".github/workflows/orientation-proofs.yml",
-      "sourceSha256": "37117188effcc335db7d819130b74972c979b920e75a73b98eed0d99293c5e8b",
-      "generatedSha256": "37117188effcc335db7d819130b74972c979b920e75a73b98eed0d99293c5e8b"
+      "sourceSha256": "717480fe79f5b7680d0484c6eb71767bb7c93d9d012a820ff2c1c8220c1695b5",
+      "generatedSha256": "717480fe79f5b7680d0484c6eb71767bb7c93d9d012a820ff2c1c8220c1695b5"
     },
     {
       "path": ".github/workflows/parity.yml",
-      "sourceSha256": "68adc9ae5abf5de6058a2c5ba789cf1edc79fd2c68898d9d904b597eb493fc85",
-      "generatedSha256": "68adc9ae5abf5de6058a2c5ba789cf1edc79fd2c68898d9d904b597eb493fc85"
+      "sourceSha256": "4c9426e041ba2797f3470b566b8ec310845818e91e8d8329ea0fc9fe7bd27ca5",
+      "generatedSha256": "4c9426e041ba2797f3470b566b8ec310845818e91e8d8329ea0fc9fe7bd27ca5"
     },
     {
       "path": ".github/workflows/relational-kernel.yml",
-      "sourceSha256": "46a77a55850995f5943993e26862064b9d4e218604ee8581d69eacae2636cc3e",
-      "generatedSha256": "46a77a55850995f5943993e26862064b9d4e218604ee8581d69eacae2636cc3e"
+      "sourceSha256": "54b5800a9e83a59deb91ccb0d3d5f412c152b04aca8322303b8ac2a194da051d",
+      "generatedSha256": "54b5800a9e83a59deb91ccb0d3d5f412c152b04aca8322303b8ac2a194da051d"
     },
     {
       "path": ".github/workflows/tests.yml",
-      "sourceSha256": "c27084e593caf253c35e15a5af3672f3f96224e010cc06c65a30ca918597bcbf",
-      "generatedSha256": "c27084e593caf253c35e15a5af3672f3f96224e010cc06c65a30ca918597bcbf"
+      "sourceSha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f",
+      "generatedSha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
     },
     {
       "path": ".gitmodules",
@@ -117,18 +117,18 @@
     },
     {
       "path": "docker/Dockerfile.rust",
-      "sourceSha256": "31029fdac62ee33c82f887965d46569a720ef0e8f6e74a8ddabf83ae2da65828",
-      "generatedSha256": "31029fdac62ee33c82f887965d46569a720ef0e8f6e74a8ddabf83ae2da65828"
+      "sourceSha256": "1578aaef6bf46f143fe8c97d9b9c634326b05858f095bc5fae6e5cfdf0d78960",
+      "generatedSha256": "1578aaef6bf46f143fe8c97d9b9c634326b05858f095bc5fae6e5cfdf0d78960"
     },
     {
       "path": "docker/buildkitd.toml",
-      "sourceSha256": "24cdfa17523711a20a1ca684d7726f0ff237e80e3a3932bd0457c15a9ca36e14",
-      "generatedSha256": "24cdfa17523711a20a1ca684d7726f0ff237e80e3a3932bd0457c15a9ca36e14"
+      "sourceSha256": "600ee0b252c40f58fd851a45daa559f4a112308423f31a2d60c574ac8020fd0b",
+      "generatedSha256": "600ee0b252c40f58fd851a45daa559f4a112308423f31a2d60c574ac8020fd0b"
     },
     {
       "path": "docker/ci-build.sh",
-      "sourceSha256": "a952bcd8fd2bedaa064e04078bb49eee4ed69f555fb288bdd52893da42bd36c6",
-      "generatedSha256": "a952bcd8fd2bedaa064e04078bb49eee4ed69f555fb288bdd52893da42bd36c6"
+      "sourceSha256": "8d6d7c30765bd34fb949fa37032873139320a7f316260763b52a5f7998c07a9b",
+      "generatedSha256": "8d6d7c30765bd34fb949fa37032873139320a7f316260763b52a5f7998c07a9b"
     },
     {
       "path": "docker/docker-compose.yml",
@@ -137,8 +137,8 @@
     },
     {
       "path": "docker/run-owned.sh",
-      "sourceSha256": "8d5711e64487f527f8dbefb9a2c08ea6265e142cb2949ae001fc642dee4e27a0",
-      "generatedSha256": "8d5711e64487f527f8dbefb9a2c08ea6265e142cb2949ae001fc642dee4e27a0"
+      "sourceSha256": "0275368d92f515cb4cd2305f248b88276a845f306c6b14fb0375170610c5e2fb",
+      "generatedSha256": "0275368d92f515cb4cd2305f248b88276a845f306c6b14fb0375170610c5e2fb"
     },
     {
       "path": "docs/api/jsdoc.json",
@@ -157,18 +157,18 @@
     },
     {
       "path": "js/package-lock.json",
-      "sourceSha256": "3bd06aad5b8b7eef30ffb0ef519e39d76d05cf832664c6d1d3d4a926d4c4670b",
-      "generatedSha256": "de6d72e294b093fd2bff4863a0cc8e3f2e6a5f026f489858621d79e184704764"
+      "sourceSha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d",
+      "generatedSha256": "11dae44820240a0a85c068de24668233b1af7b95c313a91433657b8ca5a4bd29"
     },
     {
       "path": "js/package.json",
-      "sourceSha256": "6e9fe1aa6523c3251f52537a15d5ad81afd236d34563b11ae086c29d14d56a7e",
-      "generatedSha256": "6b197cd8b328dc93afb9f0ed2e5afc8faa63261d2c5225a8ddf4d5726b4342fb"
+      "sourceSha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af",
+      "generatedSha256": "a535fdb4324a3c1d297caef7226b0a0a890e39d969440fc1456a199450b6b1c8"
     },
     {
       "path": "js/vendor/meta-language-provenance.json",
-      "sourceSha256": "9e6c0e3a6602881102b3c608fa8a26e87aafdb505c3007c4dbf24f1c939c9caa",
-      "generatedSha256": "7424561da44f2ed00c1f9d6249f63a30c89eae14b53e85f5af7a59a7533b7d89"
+      "sourceSha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d",
+      "generatedSha256": "fd4a6abbe23bedb3223ae1f34d79a10488038614f8fc3054cd58b987cc13f46f"
     },
     {
       "path": "lib/algebra/core.lino",
@@ -487,28 +487,28 @@
     },
     {
       "path": "rust/Cargo.lock",
-      "sourceSha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf",
-      "generatedSha256": "402c36994dea43a7c7484cd2bb5b9fa347155262e7c0ac5372ad67cc7170eedf"
+      "sourceSha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e",
+      "generatedSha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
     },
     {
       "path": "rust/Cargo.toml",
-      "sourceSha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40",
-      "generatedSha256": "6ee60f33c1012d95306e592db3a71d3f954aa06a9675c06fc82308c8a3b48c40"
+      "sourceSha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58",
+      "generatedSha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
     },
     {
       "path": "rust/control-flow/Cargo.lock",
-      "sourceSha256": "0618908485bc4c79c581e1a65efb47ddb621a76be77261cffe8251a57a0516ae",
-      "generatedSha256": "0618908485bc4c79c581e1a65efb47ddb621a76be77261cffe8251a57a0516ae"
+      "sourceSha256": "7ffb9f5313d2098188e3f8b620d272de11c636b5c00f4cf036a16f5cfbb00183",
+      "generatedSha256": "7ffb9f5313d2098188e3f8b620d272de11c636b5c00f4cf036a16f5cfbb00183"
     },
     {
       "path": "rust/control-flow/Cargo.toml",
-      "sourceSha256": "4cf4359a965f55f46d97cb84e7eb0e976676c7611cdcd2f3ffdf86b84318fd73",
-      "generatedSha256": "4cf4359a965f55f46d97cb84e7eb0e976676c7611cdcd2f3ffdf86b84318fd73"
+      "sourceSha256": "ac9369d699b2da4ccd3401fd300a38e315eb3f5454d6c1ff40592bf128f28995",
+      "generatedSha256": "ac9369d699b2da4ccd3401fd300a38e315eb3f5454d6c1ff40592bf128f28995"
     },
     {
       "path": "rust/linked-target/Cargo.lock",
-      "sourceSha256": "5eb32262b8a42a26708da46afa1113658a7d00a010da0255cefab83a36981cec",
-      "generatedSha256": "5eb32262b8a42a26708da46afa1113658a7d00a010da0255cefab83a36981cec"
+      "sourceSha256": "09fe6076248d1df12a0c87ddde095c05a254dae8cee36ef73f6c50f1e5e16a3e",
+      "generatedSha256": "09fe6076248d1df12a0c87ddde095c05a254dae8cee36ef73f6c50f1e5e16a3e"
     },
     {
       "path": "rust/linked-target/Cargo.toml",
@@ -517,8 +517,8 @@
     },
     {
       "path": "rust/relational-kernel/Cargo.lock",
-      "sourceSha256": "8434871cf476e412a9148ccc1e23b2de47519265b6b69cb8f91eed82a98d29c9",
-      "generatedSha256": "8434871cf476e412a9148ccc1e23b2de47519265b6b69cb8f91eed82a98d29c9"
+      "sourceSha256": "842c59d3e97784f35d7c0dfb3c5731b2442176a214f724f3db21e287e7973b82",
+      "generatedSha256": "842c59d3e97784f35d7c0dfb3c5731b2442176a214f724f3db21e287e7973b82"
     },
     {
       "path": "rust/relational-kernel/Cargo.toml",
@@ -722,13 +722,13 @@
     },
     {
       "path": "vscode/package-lock.json",
-      "sourceSha256": "fd6f07d2ea702f82f8f5f20beca0d2f5a0933974ee29d43b7a7af9b66f3d7a75",
-      "generatedSha256": "ecb0301782a012de1c5d64fe7a8dfd5a6a509feccf0832e928cb212d8ef8e5a1"
+      "sourceSha256": "d07b80797da66313038452a966e15b9af5a5239fb1acedeafcad37935d2cd256",
+      "generatedSha256": "358b300cb9e6daa34ee6fde015517fc757d61d0b425da1a100517d098a485227"
     },
     {
       "path": "vscode/package.json",
-      "sourceSha256": "68a7de8f5debfcc232411b932bb8f2a060d3141a897aa0b615672acdeea1a190",
-      "generatedSha256": "cf260e50a0a4b35655405981c466362fe1939f6fc2a503a775eb7bfb4106d07e"
+      "sourceSha256": "f55a593b7a244c671960a19930d0b627be5e3c948fc99ddea12ecc9627d0a30c",
+      "generatedSha256": "3b9c4392df7787067465694944abeafc4b9e785eedcbd85cede618a31dafec43"
     },
     {
       "path": "vscode/syntaxes/lino.tmLanguage.json",

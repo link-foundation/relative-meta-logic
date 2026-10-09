@@ -1,14 +1,15 @@
-# Applies only to the dedicated RML builder created by ci-build.sh.
-# This is periodic BuildKit GC, not a hard in-flight filesystem quota.
+# Rendered by ci-build.sh from the SAME aggregate RML_CACHE_BUDGET_BYTES limit.
+# Periodic GC is an aid; wrapper teardown checks local + all owned Docker bytes.
+# This is not a hard in-flight filesystem quota. Never use this template directly.
 [worker.oci]
   gc = true
-  reservedSpace = "256MB"
-  maxUsedSpace = "2GB"
-  minFreeSpace = "2GB"
+  reservedSpace = "0B"
+  maxUsedSpace = "__RML_CACHE_BUDGET_BYTES__B"
+  minFreeSpace = "0B"
 
 [[worker.oci.gcpolicy]]
   all = true
-  reservedSpace = "256MB"
-  maxUsedSpace = "2GB"
-  minFreeSpace = "2GB"
+  reservedSpace = "0B"
+  maxUsedSpace = "__RML_CACHE_BUDGET_BYTES__B"
+  minFreeSpace = "0B"
   keepDuration = "24h"

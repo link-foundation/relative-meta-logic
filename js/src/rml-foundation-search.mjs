@@ -436,7 +436,11 @@ function addressableLinkDescriptor(addressPattern) {
   };
 }
 
-function selfIncidenceByReferenceSlot(addressPattern) {
+/** Classify equality with the link address without assigning roles to slots. */
+export function selfIncidenceByReferenceSlot(addressPattern) {
+  if (!Array.isArray(addressPattern) || addressPattern.length === 0) {
+    throw new TypeError('self-incidence requires a link address');
+  }
   return addressPattern.slice(1)
     .map(referenceAddress => referenceAddress === addressPattern[0]);
 }

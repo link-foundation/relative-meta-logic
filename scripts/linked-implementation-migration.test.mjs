@@ -11,7 +11,7 @@ function fixture(t, withGuard = true) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-source-migration-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   for (const directory of ['scripts', 'js', 'rust']) fs.mkdirSync(path.join(root, directory));
-  for (const file of ['run-with-cache.mjs', 'build-cache.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, file), path.join(root, 'scripts', file));
+  for (const file of ['run-with-cache.mjs', 'build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, file), path.join(root, 'scripts', file));
   fs.writeFileSync(path.join(root, 'js/package.json'), '{"name":"migration-fixture"}');
   fs.writeFileSync(path.join(root, 'rust/Cargo.toml'), '[package]\nname="migration-fixture"\n');
   fs.writeFileSync(path.join(root, '.gitignore'), '.rml-cache/\ntarget/\n');

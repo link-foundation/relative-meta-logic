@@ -71,16 +71,17 @@ jobs:
       - name: Build and assemble API docs and playground
         run: |
           # Retain the deployable site until the upload steps consume it.
-          node scripts/run-with-cache.mjs --retain _site -- bash -euo pipefail -c '
+          node scripts/run-with-cache.mjs --isolate-output target/api-docs --retain _site -- bash -euo pipefail -c '
             cd js
             npm run build:playground
             npm run test:playground
-            npm run docs -- --destination ../_site/api/js
+            npm run docs -- --destination "$RML_CACHE_OUTPUT_DIR/site/api/js"
             cd ..
-            cargo doc --manifest-path rust/Cargo.toml --no-deps --target-dir target/api-docs/rust
-            mkdir -p _site/api/rust
-            cp -R target/api-docs/rust/doc/. _site/api/rust/
-            node scripts/write-docs-index.mjs _site
+            cargo doc --manifest-path rust/Cargo.toml --no-deps --target-dir "$RML_CACHE_OUTPUT_DIR/rust"
+            mkdir -p "$RML_CACHE_OUTPUT_DIR/site/api/rust"
+            cp -R "$RML_CACHE_OUTPUT_DIR/rust/doc/." "$RML_CACHE_OUTPUT_DIR/site/api/rust/"
+            node scripts/write-docs-index.mjs "$RML_CACHE_OUTPUT_DIR/site"
+            node scripts/publish-cache-output.mjs "$RML_CACHE_OUTPUT_DIR/site" _site
           '
       - name: List built site (debug)
         run: |

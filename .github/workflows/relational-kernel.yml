@@ -30,7 +30,7 @@ jobs:
       - name: Verify JavaScript relational foundation
         run: node scripts/run-with-cache.mjs -- node --test --test-concurrency=1 js/tests/relational-*.test.mjs
       - name: Verify complete companion Rust package
-        run: node scripts/run-with-cache.mjs --cache rust/relational-kernel/target --class rust -- cargo test --manifest-path rust/relational-kernel/Cargo.toml --all-targets --locked -j 2 -- --test-threads=1
+        run: node scripts/run-with-cache.mjs --cache rust/relational-kernel/target --class rust --isolate-output rust/relational-kernel/target -- cargo test --manifest-path rust/relational-kernel/Cargo.toml --all-targets --locked -j 2 -- --test-threads=1
       - name: Upload cache diagnostics before teardown
         if: always()
         uses: actions/upload-artifact@v7

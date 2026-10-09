@@ -395,7 +395,7 @@ fn slow_sources() -> Vec<(&'static str, String, Value)> {
                 "x".repeat(2 * wide)
             ),
             form(format!(
-                "(\"{}\" a \"\" {})",
+                "(\"{}\" a ~1{{}} {})",
                 quotes(wide + 1),
                 "x".repeat(2 * wide)
             )),

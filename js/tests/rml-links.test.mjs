@@ -74,16 +74,14 @@ describe('parseLino', () => {
   it('preserves newlines in quoted references while flattening layout', () => {
     assert.deepStrictEqual(parseLino(`(label "first
 second")`), [
-      `(label 'first
-second')`,
+      `(label ~1{66697273740a7365636f6e64})`,
     ]);
   });
 
   it('preserves multiline N-quote references while flattening layout', () => {
     assert.deepStrictEqual(parseLino(`(label ""first
 second"")`), [
-      `(label 'first
-second')`,
+      `(label ~1{66697273740a7365636f6e64})`,
     ]);
   });
 });

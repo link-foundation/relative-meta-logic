@@ -71,6 +71,42 @@ test('paginates conversation, issue comments and review submissions beyond 100',
   assert.equal(calls.filter(call => call.url.includes('page=3')).length, 3);
 });
 
+test('accepts the verified canonical repository-ID pagination path without following header URLs', async () => {
+  const items = Array.from({ length: 205 }, (_, index) => comment(index + 1));
+  const expected = (await snapshot({ conversation: items })).expected;
+  const base = api({ conversation: items });
+  const request = async (url, options) => {
+    const result = await base.request(url, options);
+    const link = result.headers.get('link').replace(REPO, 'https://api.github.com/repositories/1071238333');
+    return { ...result, headers: { get: name => name === 'link' ? link : null } };
+  };
+  const result = await verifyIssue183LiveSources(expected, { request, token: 'test-secret' });
+  assert.equal(result.passed, true);
+  assert.equal(result.observed.conversation.length, 205);
+  assert.ok(base.calls.some(call => call.url === `${REPO}/issues/184/comments?per_page=100&page=3`));
+  assert.ok(base.calls.every(call => call.url.startsWith(`${REPO}/`) || call.url === 'https://api.github.com/graphql'));
+});
+
+test('canonical pagination still rejects foreign repositories, resources, credentials and altered paging', async () => {
+  const expected = (await snapshot()).expected;
+  const valid = 'https://api.github.com/repositories/1071238333/issues/184/comments?per_page=100&page=2';
+  for (const next of [
+    valid.replace('1071238333', '1'), valid.replace('/184/', '/183/'),
+    valid.replace('https://', 'http://'), valid.replace('https://', 'https://attacker@'),
+    valid.replace('page=2', 'page=3'), valid.replace('per_page=100', 'per_page=99'),
+    `${valid}&page=2`, `${valid}&other=1`, `${valid}#fragment`, '/relative/path',
+  ]) {
+    const base = api();
+    const request = async (url, options) => url.includes('issues/184/comments')
+      ? response([comment(1)], 200, `<${next}>; rel="next"`)
+      : base.request(url, options);
+    const result = await verifyIssue183LiveSources(expected, { request, token: 'test-secret' });
+    assert.equal(result.passed, false, next);
+    assert.match(result.errors[0], /unsafe or inconsistent/, next);
+    assert.ok(base.calls.every(call => call.url.startsWith(`${REPO}/`) || call.url === 'https://api.github.com/graphql'));
+  }
+});
+
 test('paginates both review threads and their nested comment connections', async () => {
   const threads = Array.from({ length: 101 }, (_, index) => ({ id: `thread-${index}`, path: 'a.mjs', isResolved: false, isOutdated: false }));
   const comments = Array.from({ length: 105 }, (_, index) => threadComment(index + 1));

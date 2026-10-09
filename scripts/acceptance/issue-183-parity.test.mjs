@@ -5,12 +5,26 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
+import { context, resumeProduction, validatePath } from '../build-cache.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const run = (command, args) => spawnSync(command, args, { cwd: root, encoding: 'utf8', timeout: 1200000, maxBuffer: 32 * 1024 * 1024 });
-const build = run('cargo', ['build', '--locked', '--jobs', '2', '--manifest-path', 'rust/Cargo.toml', '--target-dir', 'rust/target', '--bin', 'rml']);
+// All acceptance producers share the outer operation's private Cargo target.
+// A fixed --target-dir here would override that inherited routing and leave
+// unreceipted outputs in the shared tree.
+const target = process.env.CARGO_TARGET_DIR;
+assert.ok(target && path.isAbsolute(target), 'Acceptance parity requires run-with-cache.mjs --isolate-output rust/target');
+const cache = context(root);
+const production = resumeProduction(cache);
+const relativeTarget = path.relative(root, target).split(path.sep).join('/');
+validatePath(cache, relativeTarget);
+const registered = production.roots.find(output => output.parent === 'rust/target' && output.path === relativeTarget);
+assert.ok(registered, 'Acceptance parity requires the current producer private Cargo target');
+const identity = fs.lstatSync(target);
+assert.ok(identity.isDirectory() && identity.dev === registered.device && identity.ino === registered.inode && identity.birthtimeMs === registered.created && identity.mode === registered.mode, 'Acceptance Cargo target identity changed');
+const build = run('cargo', ['build', '--locked', '--jobs', '2', '--manifest-path', 'rust/Cargo.toml', '--target-dir', target, '--bin', 'rml']);
 assert.equal(build.status, 0, build.stderr);
-const binary = path.join(root, 'rust', 'target', 'debug', process.platform === 'win32' ? 'rml.exe' : 'rml');
+const binary = path.join(target, 'debug', process.platform === 'win32' ? 'rml.exe' : 'rml');
 const script = path.join(root, 'scripts/check-corpus-parity.mjs');
 
 test('the actual JavaScript and Rust command lines agree over every shared corpus source', () => {

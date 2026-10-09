@@ -1,17 +1,19 @@
-# Source-pinned meta-language integration audit
+# Official meta-language release integration audit
 
-Audit date: 2026-10-07. The official source-integration obligation R102 is delivered. Full
+Audit date: 2026-10-08. The official implementation is consumed from release 1.0.0. Full
 language acceptance R101 and R103–R109 remains incomplete.
 
 ## Official source integration and registry status
 
 The implementation merged for [upstream issue 195](https://github.com/link-foundation/meta-language/issues/195)
-on 2026-10-06 is now consumed at exact commit
-`679a3b3c3c56177b8df1ad82672690c6e9889aeb`: the JavaScript runtime is an immutable
-source submodule and Rust uses the same Git revision. The previous published
-artifacts (npm 0.46.0 and crate 0.58.2) remain older than that implementation;
-their publication gap no longer prevents source integration. This does not
-claim a matched new registry release.
+on 2026-10-06 is now consumed at release commit
+`a79782093cae3b33606483ac9f3e1d05faf36de0`: the JavaScript runtime is an immutable
+source submodule and Rust uses the exact official crates.io release `=1.0.0`.
+The release is 17 commits after the previously consumed `679a3b3` source.
+The crate's VCS metadata and 343 compared files match this release source.
+The [2026-10-08 20:16 UTC registry audit](data/meta-language-release-audit-2026-10-08.json)
+confirms npm still exposes only 0.46.0. A matching npm release remains absent;
+RML ships the matching official JavaScript release source with provenance.
 
 [Upstream language source](../../UPSTREAM_LANGUAGE_SOURCE.md) documents the
 installation, file hashes, licenses, package-consumer behavior and exact API
@@ -22,7 +24,7 @@ shared four-language fixture is exercised in both runtimes, including invalid
 input and missing-context/capture refusal. Full semantic translation remains
 open: upstream's unsupported-input envelopes do not satisfy that requirement.
 
-RML now uses maintained links-notation 0.23.0 in both runtimes, with its existing
+RML now uses maintained links-notation 0.25.1 in both runtimes, with its existing
 LiNo frontend and structured-links-network corpus checked for compatibility. Existing
 RML-specific syntax and portable-natural behavior remain separate from the
 newly consumed general-language APIs.
@@ -166,3 +168,9 @@ source preservation, and all twelve unsupported outcomes. They do not establish
 full-language grammar, elaboration, native validity, execution equivalence, or
 proof equivalence. Final test outcomes belong in the integration run report,
 not inferred from these test descriptions.
+
+The release update also runs `upstream-language.test.mjs` and
+`upstream_language_tests.rs` against the shared `release-regressions.json`:
+default arguments, declaration-scope resolution, Unicode escape decoding and
+source-preserving refusals. Registry delivery and those focused regressions do
+not close the full-language semantic or proof obligations above.

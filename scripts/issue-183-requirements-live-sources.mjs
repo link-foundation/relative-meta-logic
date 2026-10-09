@@ -1,6 +1,9 @@
 import crypto from 'node:crypto';
 
 const REPOSITORY = 'link-foundation/relative-meta-logic';
+// Stable ID returned by GET /repos/link-foundation/relative-meta-logic.
+// GitHub uses this spelling in Link headers even for named-repository requests.
+const REPOSITORY_ID = '1071238333';
 const REST = `https://api.github.com/repos/${REPOSITORY}`;
 const GRAPHQL = 'https://api.github.com/graphql';
 const hash = text => crypto.createHash('sha256').update(text).digest('hex');
@@ -48,8 +51,14 @@ export async function fetchIssue183LiveSources({ request = fetch, token, timeout
       const link = response.headers?.get('link') ?? '';
       const next = link.match(/<([^>]+)>;\s*rel="next"/);
       if (next) {
-        const nextUrl = new URL(next[1]);
-        if (nextUrl.origin !== 'https://api.github.com' || nextUrl.pathname !== `/repos/${REPOSITORY}/${resource}` || nextUrl.searchParams.get('page') !== String(page + 1)) fail('unsafe or inconsistent GitHub pagination link');
+        let nextUrl;
+        try { nextUrl = new URL(next[1]); } catch { fail('unsafe or inconsistent GitHub pagination link'); }
+        const paths = [`/repos/${REPOSITORY}/${resource}`, `/repositories/${REPOSITORY_ID}/${resource}`];
+        if (nextUrl.origin !== 'https://api.github.com' || nextUrl.username || nextUrl.password || nextUrl.hash ||
+            !paths.includes(nextUrl.pathname) || nextUrl.searchParams.get('page') !== String(page + 1) ||
+            nextUrl.searchParams.get('per_page') !== '100' || nextUrl.searchParams.size !== 2) fail('unsafe or inconsistent GitHub pagination link');
+        // Validate the header, then construct the next named-repository URL
+        // ourselves. Credentials are never sent to a URL supplied by a header.
       }
       if (!next && value.length < 100) return all;
     }

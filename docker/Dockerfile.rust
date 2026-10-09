@@ -31,10 +31,10 @@ WORKDIR /build/rust
 
 # Consume final binaries before cleanup, in the same layer as compilation.
 # There is deliberately no persistent Cargo target cache mount or dummy build.
-RUN node ../scripts/run-with-cache.mjs -- sh -ec \
+RUN node ../scripts/run-with-cache.mjs --isolate-output rust/target -- sh -ec \
     'cargo build --release --bin rml --bin rml-check --bin rml-meta; \
      mkdir -p /out; \
-     cp target/release/rml target/release/rml-check target/release/rml-meta /out/' \
+     cp "$RML_CACHE_OUTPUT_DIR/release/rml" "$RML_CACHE_OUTPUT_DIR/release/rml-check" "$RML_CACHE_OUTPUT_DIR/release/rml-meta" /out/' \
     && node ../scripts/build-cache.mjs --full
 
 # ---------- Runtime stage ----------

@@ -8,10 +8,17 @@ import { fileURLToPath } from 'node:url';
 
 const source = path.dirname(fileURLToPath(import.meta.url));
 const node = process.execPath;
+// A temporary repository owns its own producer session. Preserve toolchains,
+// but never borrow the caller's target, lease, or Node test-runner context.
+function fixtureEnvironment(extra = {}) {
+  const environment = Object.fromEntries(Object.entries(process.env).filter(([name]) =>
+    !name.startsWith('RML_CACHE_') && !['CARGO_TARGET_DIR', 'NODE_TEST_CONTEXT', 'NODE_UNIQUE_ID'].includes(name)));
+  return { ...environment, ...extra };
+}
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml cache spaces '));
   fs.mkdirSync(path.join(root, 'scripts'));
-  for (const name of ['build-cache.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
+  for (const name of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
   fs.mkdirSync(path.join(root, 'js'));
   fs.mkdirSync(path.join(root, 'rust'));
   fs.writeFileSync(path.join(root, 'js/package.json'), '{"name":"fixture"}\n');
@@ -21,19 +28,21 @@ function fixture(t) {
   const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' });
   git('init', '-q'); git('config', 'user.name', 'Cache fixture'); git('config', 'user.email', 'cache@example.invalid'); git('add', '.'); git('-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture');
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
-  const run = (args, extra = {}) => spawnSync(node, args, { cwd: root, env: { ...process.env, RML_CACHE_MIN_FREE_BYTES: '0', RML_CACHE_LOCK_TIMEOUT_MS: '1000', ...extra }, encoding: 'utf8' });
+  const run = (args, extra = {}) => spawnSync(node, args, { cwd: root, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0', RML_CACHE_LOCK_TIMEOUT_MS: '1000', ...extra }), encoding: 'utf8' });
   const wrap = (program, flags = [], extra = {}) => run(['scripts/run-with-cache.mjs', ...flags, '--', node, '-e', program], extra);
   const clean = (...args) => run(['scripts/build-cache.mjs', ...args]);
   return { root, git, run, wrap, clean };
 }
-const writeProgram = (relative, content = 'cache') => `var fs=require('node:fs'),p=require('node:path');fs.mkdirSync(p.dirname(${JSON.stringify(relative)}),{recursive:true});fs.writeFileSync(${JSON.stringify(relative)},${JSON.stringify(content)});`;
+const writeProgram = (relative, content = 'cache') => relative.startsWith('.rml-cache/evidence/')
+  ? `var fs=require('node:fs'),p=require('node:path');fs.mkdirSync(p.dirname(${JSON.stringify(relative)}),{recursive:true});fs.writeFileSync(${JSON.stringify(relative)},${JSON.stringify(content)});`
+  : `require('./scripts/build-cache.mjs').writeProducedFile(${JSON.stringify(relative)},${JSON.stringify(content)});`;
 function ok(result) { assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`); }
 const exists = (f, p) => fs.existsSync(path.join(f.root, p));
 const read = (f, p) => fs.readFileSync(path.join(f.root, p), 'utf8');
 
 test('a queued lease reloads preceding ownership and preserves preexisting zero-byte files', async t => {
   const f = fixture(t);
-  const { context, lock, inventory, capture, cleanup } = await import('./build-cache.mjs');
+  const { context, lock, inventory, capture, cleanup, beginProduction, isolatedOutput } = await import('./build-cache.mjs');
   fs.mkdirSync(path.join(f.root, 'target'));
   fs.writeFileSync(path.join(f.root, 'target/preexisting-empty'), '');
   const firstContext = context(f.root);
@@ -41,19 +50,22 @@ test('a queued lease reloads preceding ownership and preserves preexisting zero-
   const firstLease = await lock(firstContext);
   const baseline = inventory(firstContext);
   const queuedLease = lock(queuedContext);
-  fs.writeFileSync(path.join(f.root, 'target/generated'), 'compiler output');
-  fs.writeFileSync(path.join(f.root, 'target/generated-empty'), '');
+  beginProduction(firstContext, firstLease);
+  const output = isolatedOutput(firstContext, 'target', 'rust');
+  const relative = path.relative(f.root, output).split(path.sep).join('/');
+  fs.writeFileSync(path.join(output, 'generated'), 'compiler output');
+  fs.writeFileSync(path.join(output, 'generated-empty'), '');
   capture(firstContext, baseline);
   firstLease.release();
   const lease = await queuedLease;
   try {
-    assert.ok(queuedContext.registry.files['target/generated']);
-    assert.ok(queuedContext.registry.files['target/generated-empty']);
+    assert.ok(queuedContext.registry.files[`${relative}/generated`]);
+    assert.ok(queuedContext.registry.files[`${relative}/generated-empty`]);
     assert.equal(queuedContext.registry.files['target/preexisting-empty'], undefined);
     const result = cleanup(queuedContext, { full: true });
     assert.equal(result.reclaimedBytes, Buffer.byteLength('compiler output'));
-    assert.equal(exists(f, 'target/generated'), false);
-    assert.equal(exists(f, 'target/generated-empty'), false);
+    assert.equal(exists(f, `${relative}/generated`), false);
+    assert.equal(exists(f, `${relative}/generated-empty`), false);
     assert.equal(exists(f, 'target/preexisting-empty'), true);
   } finally { lease.release(); }
 });
@@ -205,7 +217,7 @@ test('fresh clone bootstrap composes existing hooks; documentation-only commit c
   ok(f.wrap(writeProgram('target/to-clean')));
   fs.appendFileSync(path.join(f.root, 'README.md'), 'documentation-only edit\n');
   f.git('add', 'README.md');
-  execFileSync('git', ['-C', f.root, 'commit', '-qm', 'docs only'], { env: { ...process.env, RML_CACHE_BUDGET_BYTES: '0' } });
+  execFileSync('git', ['-C', f.root, 'commit', '-qm', 'docs only'], { env: fixtureEnvironment({ RML_CACHE_BUDGET_BYTES: '0' }) });
   assert.equal(exists(f, 'target/to-clean'), false);
   assert.equal(read(f, 'hook-calls'), 'original\npost\n');
   assert.match(fs.readFileSync(path.join(existing, 'pre-commit'), 'utf8'), /echo original/);
@@ -240,7 +252,7 @@ function finished(child) { return new Promise(resolve => child.once('close', (co
 test('active parallel wrapper holds lease; interruption stops child then cleans and keeps logs', { skip: process.platform === 'win32' }, async t => {
   const f = fixture(t);
   const program = writeProgram('.rml-cache/scratch/active') + 'console.log("started");setInterval(()=>{},1000)';
-  const child = spawn(node, ['scripts/run-with-cache.mjs', '--', node, '-e', program], { cwd: f.root, env: { ...process.env, RML_CACHE_MIN_FREE_BYTES: '0' }, stdio: 'pipe' });
+  const child = spawn(node, ['scripts/run-with-cache.mjs', '--', node, '-e', program], { cwd: f.root, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), stdio: 'pipe' });
   const done = finished(child);
   t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); });
   await waitFor(() => exists(f, '.rml-cache/scratch/active'));
@@ -268,13 +280,13 @@ test('a fresh actual git clone installs executable hooks during bootstrap', t =>
   const clone = fs.mkdtempSync(path.join(os.tmpdir(), 'rml clone spaces '));
   t.after(() => fs.rmSync(clone, { recursive: true, force: true }));
   execFileSync('git', ['clone', '-q', '--local', original.root, clone]);
-  const result = spawnSync(node, ['scripts/bootstrap.mjs'], { cwd: clone, encoding: 'utf8' });
+  const result = spawnSync(node, ['scripts/bootstrap.mjs'], { cwd: clone, encoding: 'utf8', env: fixtureEnvironment() });
   ok(result);
   const hookPath = execFileSync('git', ['-C', clone, 'config', '--get', 'core.hooksPath'], { encoding: 'utf8' }).trim();
   assert.match(fs.readFileSync(path.join(hookPath, 'pre-commit'), 'utf8'), /node .*build-cache\.mjs/);
   // Windows does not expose POSIX execute bits through stat; Git must actually
   // invoke the installed hook on every supported platform.
-  const commit = spawnSync('git', ['-C', clone, '-c', 'user.name=Cache fixture', '-c', 'user.email=cache@example.invalid', 'commit', '--allow-empty', '-m', 'exercise installed hooks'], { encoding: 'utf8', env: { ...process.env, RML_CACHE_MIN_FREE_BYTES: '0' } });
+  const commit = spawnSync('git', ['-C', clone, '-c', 'user.name=Cache fixture', '-c', 'user.email=cache@example.invalid', 'commit', '--allow-empty', '-m', 'exercise installed hooks'], { encoding: 'utf8', env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }) });
   ok(commit);
   assert.ok(fs.existsSync(path.join(clone, '.rml-cache/reports/last-cleanup.json')));
 });
@@ -284,7 +296,7 @@ test('an existing failing hook still runs cleanup and keeps its nonzero result',
   fs.writeFileSync(path.join(f.root, '.git/hooks/pre-commit'), '#!/bin/sh\nexit 23\n', { mode: 0o755 });
   ok(f.wrap(writeProgram('target/old')));
   const hookPath = f.git('config', '--get', 'core.hooksPath').trim();
-  const result = spawnSync('sh', [path.join(hookPath, 'pre-commit')], { cwd: f.root, encoding: 'utf8', env: { ...process.env, RML_CACHE_BUDGET_BYTES: '0' } });
+  const result = spawnSync('sh', [path.join(hookPath, 'pre-commit')], { cwd: f.root, encoding: 'utf8', env: fixtureEnvironment({ RML_CACHE_BUDGET_BYTES: '0' }) });
   assert.equal(result.status, 23);
   assert.equal(exists(f, 'target/old'), false);
 });
@@ -417,7 +429,7 @@ test('missing Node is an explicit hook failure instead of silently disabling cle
   const gitBinary = execFileSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).trim();
   fs.symlinkSync(gitBinary, path.join(bin, 'git'));
   const hook = path.join(f.git('config', '--get', 'core.hooksPath').trim(), 'pre-commit');
-  const result = spawnSync('/bin/sh', [hook], { cwd: f.root, encoding: 'utf8', env: { ...process.env, PATH: bin } });
+  const result = spawnSync('/bin/sh', [hook], { cwd: f.root, encoding: 'utf8', env: fixtureEnvironment({ PATH: bin }) });
   assert.equal(result.status, 127);
   assert.match(result.stderr, /requires Node/);
 });
@@ -434,7 +446,7 @@ test('new nested clones retain their own sources and uncommitted work while owne
     fs.writeFileSync(root+'/tracked.rs','uncommitted tracked edit');
     fs.writeFileSync(root+'/new-source.rs','uncommitted untracked source');
     fs.mkdirSync(root+'/rust/target/debug',{recursive:true});
-    fs.writeFileSync(root+'/rust/target/debug/generated','cache');
+    require('./scripts/build-cache.mjs').writeProducedFile(root+'/rust/target/debug/generated','cache');
   `;
   ok(f.wrap(program));
   ok(f.clean('--full'));
@@ -549,3 +561,276 @@ for (const platform of ['darwin', 'win32']) {
     }
   });
 }
+
+for (const exitCode of [0, 41]) {
+  test(`unreceipted output is preserved after a producer exits ${exitCode}`, t => {
+    const f = fixture(t);
+    const result = f.wrap(`const fs=require('node:fs');fs.mkdirSync('target');fs.writeFileSync('target/ambiguous','user or unregistered producer');process.exit(${exitCode});`);
+    assert.equal(result.status, exitCode, result.stderr);
+    ok(f.clean('--full'));
+    assert.equal(read(f, 'target/ambiguous'), 'user or unregistered producer');
+    const registry = JSON.parse(read(f, '.git/rml-cache/registry.json'));
+    assert.equal(registry.files['target/ambiguous'], undefined);
+  });
+}
+
+for (const outcome of ['success', 'failure', 'interrupt']) {
+  test(`concurrent user files and edits survive ${outcome} with explicit producer receipts`, { skip: outcome === 'interrupt' && process.platform === 'win32' }, async t => {
+    const f = fixture(t);
+    ok(f.wrap(writeProgram('target/previous', 'old compiler output')));
+    const program = writeProgram('target/generated', 'owned compiler output') + `
+      const fs=require('node:fs');fs.writeFileSync('ready','yes');
+      const timer=setInterval(()=>{if(fs.existsSync('finish')){clearInterval(timer);process.exit(${outcome === 'failure' ? 29 : 0})}},25);
+    `;
+    const child = spawn(node, ['scripts/run-with-cache.mjs', '--', node, '-e', program], { cwd: f.root, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), stdio: 'pipe' });
+    const done = finished(child);
+    t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); });
+    await waitFor(() => exists(f, 'ready'));
+    fs.writeFileSync(path.join(f.root, 'target/new-user-file'), 'concurrent user data');
+    fs.writeFileSync(path.join(f.root, 'target/previous'), 'user edited existing output during build');
+    if (outcome === 'interrupt') child.kill('SIGTERM');
+    else fs.writeFileSync(path.join(f.root, 'finish'), 'yes');
+    assert.equal((await done).code, outcome === 'interrupt' ? 143 : outcome === 'failure' ? 29 : 0);
+    ok(f.clean('--full'));
+    assert.equal(read(f, 'target/new-user-file'), 'concurrent user data');
+    assert.equal(read(f, 'target/previous'), 'user edited existing output during build');
+    assert.equal(exists(f, 'target/generated'), false);
+    const registry = JSON.parse(read(f, '.git/rml-cache/registry.json'));
+    assert.deepEqual(registry.files, {});
+  });
+}
+
+test('isolated native output is owned without adopting concurrent files in its shared parent', async t => {
+  const f = fixture(t);
+  const program = `const fs=require('node:fs'),path=require('node:path');
+    fs.writeFileSync(path.join(process.env.RML_CACHE_OUTPUT_DIR,'native.bin'),'native output');
+    fs.writeFileSync('ready',process.env.RML_CACHE_OUTPUT_DIR);
+    const timer=setInterval(()=>{if(fs.existsSync('finish')){clearInterval(timer);process.exit(0)}},25);`;
+  const child = spawn(node, ['scripts/run-with-cache.mjs', '--isolate-output', 'target', '--', node, '-e', program], { cwd: f.root, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), stdio: 'pipe' });
+  const done = finished(child);
+  t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); });
+  await waitFor(() => exists(f, 'ready'));
+  const output = read(f, 'ready');
+  assert.notEqual(output, path.join(f.root, 'target'));
+  fs.writeFileSync(path.join(f.root, 'target/private-work'), 'keep me');
+  fs.writeFileSync(path.join(f.root, 'finish'), 'yes');
+  assert.equal((await done).code, 0);
+  ok(f.clean('--full'));
+  assert.equal(fs.existsSync(path.join(output, 'native.bin')), false);
+  assert.equal(read(f, 'target/private-work'), 'keep me');
+});
+
+test('exclusive producer writes cannot overwrite a user file or retroactively adopt matching bytes', t => {
+  const f = fixture(t);
+  fs.mkdirSync(path.join(f.root, 'target'));
+  fs.writeFileSync(path.join(f.root, 'target/collision'), 'matching bytes');
+  const result = f.wrap(writeProgram('target/collision', 'matching bytes'));
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Refusing to replace/);
+  ok(f.clean('--full'));
+  assert.equal(read(f, 'target/collision'), 'matching bytes');
+});
+
+test('legacy temporal ownership is not accepted as proof after the safety upgrade', t => {
+  const f = fixture(t);
+  ok(f.wrap(writeProgram('target/legacy')));
+  const file = path.join(f.root, '.git/rml-cache/registry.json');
+  const registry = JSON.parse(fs.readFileSync(file, 'utf8'));
+  delete registry.files['target/legacy'].proof;
+  fs.writeFileSync(file, JSON.stringify(registry));
+  ok(f.clean('--full'));
+  assert.equal(read(f, 'target/legacy'), 'cache');
+});
+
+test('a native producer reuses unchanged private warm output and quarantines user edits', t => {
+  const f = fixture(t);
+  const program = `const fs=require('node:fs'),path=require('node:path');
+    const target=process.env.CARGO_TARGET_DIR;
+    const cache=path.join(target,'dependency.bin');
+    const reused=fs.existsSync(cache);
+    if(!reused)fs.writeFileSync(cache,'compatible compiled dependency');
+    fs.writeFileSync('native-result.json',JSON.stringify({target,reused}));`;
+  ok(f.wrap(program, ['--isolate-output', 'target']));
+  const first = JSON.parse(read(f, 'native-result.json'));
+  assert.equal(first.reused, false);
+  ok(f.wrap(program, ['--isolate-output', 'target']));
+  const second = JSON.parse(read(f, 'native-result.json'));
+  assert.equal(second.reused, true);
+  assert.notEqual(second.target, first.target);
+  assert.notEqual(fs.statSync(path.join(second.target, 'dependency.bin')).ino, fs.statSync(path.join(first.target, 'dependency.bin')).ino);
+  const located = f.run(['scripts/build-cache.mjs', '--output-path', 'target']);
+  ok(located);
+  assert.equal(located.stdout.trim(), second.target);
+  fs.writeFileSync(path.join(second.target, 'user-note'), 'private work inside old target');
+  assert.notEqual(f.run(['scripts/build-cache.mjs', '--output-path', 'target']).status, 0);
+  ok(f.wrap(program, ['--isolate-output', 'target']));
+  const third = JSON.parse(read(f, 'native-result.json'));
+  assert.equal(third.reused, true);
+  assert.notEqual(third.target, second.target);
+  ok(f.clean('--full'));
+  assert.equal(fs.readFileSync(path.join(second.target, 'user-note'), 'utf8'), 'private work inside old target');
+});
+
+test('a real native make/compiler operation reuses its private compiled artifact', { skip: process.platform === 'win32' }, t => {
+  if (spawnSync('make', ['--version']).status !== 0 || spawnSync('cc', ['--version']).status !== 0) { t.skip('native make/cc toolchain is not installed'); return; }
+  const f = fixture(t);
+  fs.writeFileSync(path.join(f.root, 'native.c'), '#include <stdio.h>\nint main(void) { puts("native cache consumed"); return 0; }\n');
+  fs.writeFileSync(path.join(f.root, 'native.mk'), '.PHONY: all\nall: native\n\t./native\nnative:\n\tcc "$(SOURCE)" -o native\n');
+  const command = ['scripts/run-with-cache.mjs', '--isolate-output', 'target', '--', 'bash', '-ec', 'source="$PWD/native.c"; recipe="$PWD/native.mk"; cd "$RML_CACHE_OUTPUT_DIR"; make -f "$recipe" SOURCE="$source"'];
+  const first = f.run(command);
+  ok(first);
+  assert.match(first.stdout, /native cache consumed/);
+  const location = f.run(['scripts/build-cache.mjs', '--output-path', 'target']);
+  ok(location);
+  const executable = path.join(location.stdout.trim(), 'native');
+  const before = fs.statSync(executable);
+  const second = f.run(command);
+  ok(second);
+  assert.match(second.stdout, /native cache consumed/);
+  assert.doesNotMatch(second.stdout, /cc .* -o native/);
+  const next = f.run(['scripts/build-cache.mjs', '--output-path', 'target']);
+  ok(next);
+  const nextExecutable = path.join(next.stdout.trim(), 'native');
+  const after = fs.statSync(nextExecutable);
+  assert.notEqual(nextExecutable, executable);
+  assert.notEqual(after.ino, before.ino);
+  assert.ok(Math.abs(after.mtimeMs - before.mtimeMs) < 0.01);
+  ok(f.clean('--full'));
+  assert.equal(fs.existsSync(executable), false);
+});
+
+for (const outcome of ['success', 'failure', 'interrupt']) {
+  test(`concurrent writes to the prior private target survive ${outcome} of the next producer`, { skip: outcome === 'interrupt' && process.platform === 'win32' }, async t => {
+    const f = fixture(t);
+    const program = `const fs=require('node:fs'),path=require('node:path');
+      fs.writeFileSync(path.join(process.env.RML_CACHE_OUTPUT_DIR,'dependency.bin'),'verified compiler bytes');
+      fs.writeFileSync('previous-target',process.env.RML_CACHE_OUTPUT_DIR);`;
+    ok(f.wrap(program, ['--isolate-output', 'target']));
+    const previous = read(f, 'previous-target');
+    const waiting = `const fs=require('node:fs'),path=require('node:path');
+      if(fs.readFileSync(path.join(process.env.RML_CACHE_OUTPUT_DIR,'dependency.bin'),'utf8')!=='verified compiler bytes')process.exit(81);
+      fs.writeFileSync('ready',process.env.RML_CACHE_OUTPUT_DIR);
+      const timer=setInterval(()=>{if(fs.existsSync('finish')){clearInterval(timer);process.exit(${outcome === 'failure' ? 37 : 0})}},25);`;
+    const child = spawn(node, ['scripts/run-with-cache.mjs', '--isolate-output', 'target', '--', node, '-e', waiting], { cwd: f.root, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), stdio: 'pipe' });
+    const done = finished(child);
+    t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); });
+    await waitFor(() => exists(f, 'ready'));
+    const current = read(f, 'ready');
+    fs.writeFileSync(path.join(previous, 'dependency.bin'), 'my edited prior artifact');
+    fs.writeFileSync(path.join(previous, 'user-note'), 'my concurrent notes');
+    if (outcome === 'interrupt') child.kill('SIGTERM');
+    else fs.writeFileSync(path.join(f.root, 'finish'), 'yes');
+    assert.equal((await done).code, outcome === 'interrupt' ? 143 : outcome === 'failure' ? 37 : 0);
+    ok(f.clean('--full'));
+    assert.equal(fs.readFileSync(path.join(previous, 'user-note'), 'utf8'), 'my concurrent notes');
+    assert.equal(fs.readFileSync(path.join(previous, 'dependency.bin'), 'utf8'), 'my edited prior artifact');
+    assert.notEqual(current, previous);
+    assert.equal(fs.existsSync(path.join(current, 'dependency.bin')), false);
+  });
+}
+
+test('atomic editor replacement at deletion is restored without deleting its new inode', async t => {
+  const f = fixture(t);
+  ok(f.wrap(writeProgram('target/cache.bin', 'owned cache bytes')));
+  const { context, cleanup } = await import('./build-cache.mjs');
+  const victim = path.join(f.root, 'target/cache.bin');
+  const rename = fs.renameSync;
+  let injected = false;
+  fs.renameSync = (from, to) => {
+    if (!injected && path.basename(from) === 'cache.bin' && path.basename(to) === 'artifact') {
+      injected = true;
+      rename(victim, `${victim}.saved-owned`);
+      fs.writeFileSync(victim, 'concurrent user edit');
+    }
+    return rename(from, to);
+  };
+  let result;
+  try { result = cleanup(context(f.root), { full: true }); }
+  finally { fs.renameSync = rename; }
+  assert.equal(injected, true);
+  assert.equal(fs.readFileSync(victim, 'utf8'), 'concurrent user edit');
+  assert.equal(fs.readFileSync(`${victim}.saved-owned`, 'utf8'), 'owned cache bytes');
+  assert.equal(result.removed.includes('target/cache.bin'), false);
+  assert.ok(result.protected.some(item => /user data restored/.test(item.reason)));
+});
+
+test('an ancestor symlink substitution cannot redirect deletion into outside data', { skip: process.platform === 'win32' }, async t => {
+  const f = fixture(t);
+  ok(f.wrap(writeProgram('target/cache.bin', 'owned cache bytes')));
+  const { context, cleanup } = await import('./build-cache.mjs');
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-delete-outside-'));
+  t.after(() => fs.rmSync(outside, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(outside, 'cache.bin'), 'outside user source');
+  const parent = path.join(f.root, 'target');
+  const rename = fs.renameSync;
+  let injected = false;
+  fs.renameSync = (from, to) => {
+    if (!injected && path.basename(from) === 'cache.bin' && path.basename(to) === 'artifact') {
+      injected = true;
+      rename(parent, `${parent}.saved-owned`);
+      fs.symlinkSync(outside, parent, 'dir');
+    }
+    return rename(from, to);
+  };
+  try {
+    try { cleanup(context(f.root), { full: true }); }
+    catch (error) { assert.match(error.message, /ENOENT|changed|deferred/); }
+  } finally { fs.renameSync = rename; }
+  assert.equal(injected, true);
+  assert.equal(fs.readFileSync(path.join(outside, 'cache.bin'), 'utf8'), 'outside user source');
+  assert.equal(fs.readFileSync(`${parent}.saved-owned/cache.bin`, 'utf8'), 'owned cache bytes');
+});
+
+test('a second editor replacement preserves both versions when exclusive restoration is blocked', async t => {
+  const f = fixture(t);
+  ok(f.wrap(writeProgram('target/cache.bin', 'owned cache bytes')));
+  const { context, cleanup } = await import('./build-cache.mjs');
+  const victim = path.join(f.root, 'target/cache.bin');
+  const rename = fs.renameSync;
+  let injected = false;
+  fs.renameSync = (from, to) => {
+    if (!injected && path.basename(from) === 'cache.bin' && path.basename(to) === 'artifact') {
+      injected = true;
+      rename(victim, `${victim}.saved-owned`);
+      fs.writeFileSync(victim, 'first user version');
+      rename(from, to);
+      fs.writeFileSync(victim, 'second user version');
+      return;
+    }
+    return rename(from, to);
+  };
+  try { assert.throws(() => cleanup(context(f.root), { full: true }), /changed data preserved.*could not be restored exclusively/); }
+  finally { fs.renameSync = rename; }
+  const recovery = fs.readdirSync(path.join(f.root, 'target')).find(name => name.startsWith('.rml-delete-'));
+  assert.ok(recovery);
+  assert.equal(fs.readFileSync(victim, 'utf8'), 'second user version');
+  assert.equal(read(f, `target/${recovery}/artifact`), 'first user version');
+  ok(f.clean('--full'));
+  assert.equal(fs.readFileSync(victim, 'utf8'), 'second user version');
+  assert.equal(read(f, `target/${recovery}/artifact`), 'first user version');
+});
+
+
+test('superseded producer-v1 ownership cannot authorize deletion or warm seeding', t => {
+  const f = fixture(t);
+  const program = `const fs=require('node:fs'),path=require('node:path');fs.writeFileSync(path.join(process.env.RML_CACHE_OUTPUT_DIR,'prior'),'potential user data');fs.writeFileSync('prior-target',process.env.RML_CACHE_OUTPUT_DIR);`;
+  ok(f.wrap(program, ['--isolate-output', 'target']));
+  const previous = read(f, 'prior-target');
+  const file = path.join(f.root, '.git/rml-cache/registry.json');
+  const registry = JSON.parse(fs.readFileSync(file, 'utf8'));
+  for (const record of Object.values(registry.files)) record.proof = 'producer-v1';
+  fs.writeFileSync(file, JSON.stringify(registry));
+  ok(f.wrap(`const fs=require('node:fs'),path=require('node:path');if(fs.existsSync(path.join(process.env.RML_CACHE_OUTPUT_DIR,'prior')))process.exit(87);`, ['--isolate-output', 'target']));
+  ok(f.clean('--full'));
+  assert.equal(fs.readFileSync(path.join(previous, 'prior'), 'utf8'), 'potential user data');
+});
+
+test('the real cache suite runs inside an outer private target without borrowing its fixture environment', t => {
+  const f = fixture(t);
+  fs.copyFileSync(path.join(source, 'build-cache.test.mjs'), path.join(f.root, 'scripts/build-cache.test.mjs'));
+  const result = f.run(['scripts/run-with-cache.mjs', '--isolate-output', 'target', '--', node, '--test', '--test-name-pattern=^all declared cache classes are reclaimed;', 'scripts/build-cache.test.mjs']);
+  ok(result);
+  assert.match(result.stdout, /all declared cache classes are reclaimed; full is idempotent; evidence\/source survive/);
+  assert.match(result.stdout, /(?:pass|passed)\s+1|1\s+(?:pass|passed)/);
+  assert.doesNotMatch(result.stdout + result.stderr, /Unsafe cache path/);
+});

@@ -146,7 +146,7 @@ test('disk exhaustion during a build stops the owned child, records failure, and
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-resource-watch-'));
   try {
     fs.mkdirSync(path.join(root, 'scripts'));
-    for (const file of ['run-with-cache.mjs', 'build-cache.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'bootstrap.mjs', 'initialize-meta-language.mjs']) {
+    for (const file of ['run-with-cache.mjs', 'build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'bootstrap.mjs', 'initialize-meta-language.mjs']) {
       fs.copyFileSync(path.join(scripts, file), path.join(root, 'scripts', file));
     }
     fs.mkdirSync(path.join(root, 'target'));
@@ -163,7 +163,8 @@ test('disk exhaustion during a build stops the owned child, records failure, and
     `);
     fs.writeFileSync(path.join(root, 'build.mjs'), `
       import fs from 'node:fs';
-      fs.writeFileSync('target/generated.bin', 'owned output');
+      const { writeProducedFile } = await import('./scripts/build-cache.mjs');
+      writeProducedFile('target/generated.bin', 'owned output');
       process.on('SIGTERM', () => { fs.writeFileSync('terminated', 'yes'); process.exit(0); });
       fs.writeFileSync('ready', 'yes');
       setInterval(() => {}, 1000);
@@ -194,7 +195,7 @@ test('evidence log failures stop the build, preserve outputs, and release the le
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-log-failure-'));
   try {
     fs.mkdirSync(path.join(root, 'scripts'));
-    for (const file of ['run-with-cache.mjs', 'build-cache.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'bootstrap.mjs', 'initialize-meta-language.mjs']) {
+    for (const file of ['run-with-cache.mjs', 'build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'bootstrap.mjs', 'initialize-meta-language.mjs']) {
       fs.copyFileSync(path.join(scripts, file), path.join(root, 'scripts', file));
     }
     fs.writeFileSync(path.join(root, 'log-probe.mjs'), `
@@ -220,7 +221,8 @@ test('evidence log failures stop the build, preserve outputs, and release the le
     fs.writeFileSync(path.join(root, 'build.mjs'), `
       import fs from 'node:fs';
       fs.mkdirSync('target');
-      fs.writeFileSync('target/generated.bin', 'owned output');
+      const { writeProducedFile } = await import('./scripts/build-cache.mjs');
+      writeProducedFile('target/generated.bin', 'owned output');
       process.on('SIGTERM', () => {});
       console.log('build output');
       setInterval(() => {}, 1000);
@@ -235,5 +237,33 @@ test('evidence log failures stop the build, preserve outputs, and release the le
     assert.equal(fs.existsSync(path.join(root, '.rml-cache', 'state', 'rml-cache', 'lock')), false);
     assert.equal(fs.readFileSync(path.join(root, 'target', 'generated.bin'), 'utf8'), 'owned output');
     assert.ok(JSON.parse(fs.readFileSync(path.join(root, '.rml-cache', 'state', 'rml-cache', 'registry.json'), 'utf8')).files['target/generated.bin']);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
+
+
+test('temporary active growth above the cleanup budget is allowed, then reclaimed safely', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-aggregate-growth-'));
+  try {
+    fs.mkdirSync(path.join(root, 'scripts'));
+    for (const file of ['run-with-cache.mjs', 'build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(scripts, file), path.join(root, 'scripts', file));
+    fs.writeFileSync(path.join(root, 'build.mjs'), `
+      import fs from 'node:fs';
+      import { writeProducedFile } from './scripts/build-cache.mjs';
+      writeProducedFile('target/generated', 'x'.repeat(10000));
+      fs.writeFileSync('target/user', 'keep');
+      setTimeout(() => { fs.writeFileSync('consumed', 'yes'); }, 100);
+    `);
+    const env = { ...process.env, RML_CACHE_SOURCE_ARCHIVE: '1', RML_CACHE_MIN_FREE_BYTES: '0', RML_CACHE_BUDGET_BYTES: '100', RML_CACHE_RESOURCE_INTERVAL_MS: '10', RML_CACHE_SIGNAL_GRACE_MS: '100' };
+    delete env.RML_CACHE_LEASE;
+    const run = spawnSync(process.execPath, ['scripts/run-with-cache.mjs', '--', process.execPath, 'build.mjs'], { cwd: root, env, encoding: 'utf8', timeout: 10000 });
+    assert.equal(run.error, undefined);
+    assert.equal(run.status, 0, run.stderr);
+    assert.equal(fs.readFileSync(path.join(root, 'consumed'), 'utf8'), 'yes');
+    assert.equal(fs.existsSync(path.join(root, 'target/generated')), false);
+    assert.equal(fs.readFileSync(path.join(root, 'target/user'), 'utf8'), 'keep');
+    const report = JSON.parse(fs.readFileSync(path.join(root, '.rml-cache/reports/last-cleanup.json'), 'utf8'));
+    assert.equal(report.reclaimedBytes, 10000);
+    assert.equal(report.afterBytes, 4);
+    assert.equal(report.budgetSatisfied, true);
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });

@@ -34,7 +34,7 @@ import {
   cloneTerm,
   variablesIn,
 } from './rml-linked-program.mjs';
-import { keyOf } from './rml-links.mjs';
+import { keyOf, emitLinoTerm } from './rml-links.mjs';
 
 const PACKAGE_SCHEMA = 'rml-foundation-package/v1';
 const RESULT_SCHEMA = 'rml-foundation-result/v1';
@@ -500,7 +500,7 @@ function planFoundation(foundation, programs, rules) {
   const patterns = new Set();
   for (const member of closure) {
     for (const pattern of member.signature) {
-      const key = keyOf(pattern);
+      const key = emitLinoTerm(pattern);
       if (patterns.has(key)) continue;
       patterns.add(key);
       signature.push(pattern);
@@ -577,8 +577,8 @@ function failureStatus(error) {
 function outcomeOf(result) {
   return JSON.stringify([
     result.status,
-    result.normalized === null ? null : keyOf(result.normalized),
-    (result.answers ?? []).map(answer => keyOf(answer.judgement)),
+    result.normalized === null ? null : emitLinoTerm(result.normalized),
+    (result.answers ?? []).map(answer => emitLinoTerm(answer.judgement)),
   ]);
 }
 
@@ -884,9 +884,9 @@ class FoundationWorkspace {
     const validated = this.#validateChange(change);
     const { dependencies } = result;
     if (validated.type === 'assumption') {
-      if (!result.assumptions.some(item => keyOf(item) === validated.fromKey)) return false;
+      if (!result.assumptions.some(item => emitLinoTerm(item) === validated.fromKey)) return false;
       if (dependencies.scope === 'evidence') {
-        return dependencies.assumptions.some(item => keyOf(item) === validated.fromKey);
+        return dependencies.assumptions.some(item => emitLinoTerm(item) === validated.fromKey);
       }
       return true;
     }
@@ -915,7 +915,7 @@ class FoundationWorkspace {
     const replaced = assumptions => validated.type !== 'assumption'
       ? assumptions
       : assumptions.map(item =>
-        keyOf(item) === validated.fromKey ? cloneTerm(validated.to) : item);
+        emitLinoTerm(item) === validated.fromKey ? cloneTerm(validated.to) : item);
     const revisions = results.map(before => {
       if (!this.affectedBy(before, change)) {
         const after = validated.type === 'assumption'
@@ -1164,7 +1164,7 @@ class FoundationWorkspace {
           ),
           proof: mapper(item.proof.premises[0]),
         })),
-      item => keyOf(item.judgement),
+      item => emitLinoTerm(item.judgement),
     );
     // Answers come from saturation alone.  Under a guarded cycle policy a
     // ground query can also establish an instance through a guarded cycle,
@@ -1508,7 +1508,7 @@ class FoundationWorkspace {
         assertTerm(term, `replaceAssumption ${index === 0 ? 'from' : 'to'}`);
         if (variablesIn(term).size > 0) throw new Error('replaced assumptions must be ground');
       });
-      return { type: 'assumption', fromKey: keyOf(value[0]), to: value[1] };
+      return { type: 'assumption', fromKey: emitLinoTerm(value[0]), to: value[1] };
     }
     const ruleForms = this.#forms
       .map((form, index) => ({ form, index }))

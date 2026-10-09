@@ -19,4 +19,4 @@ export {
   translationContracts,
 } from '#meta-language';
 
-export const META_LANGUAGE_SOURCE_REVISION = '679a3b3c3c56177b8df1ad82672690c6e9889aeb';
+export const META_LANGUAGE_SOURCE_REVISION = 'a79782093cae3b33606483ac9f3e1d05faf36de0';

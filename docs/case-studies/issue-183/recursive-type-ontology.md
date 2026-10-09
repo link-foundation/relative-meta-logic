@@ -21,6 +21,12 @@ construction preserves address identity and terminates productively as a
 finite cyclic graph: inspecting `Type` returns its self-link instead of
 recursively expanding an infinite host object.
 
+All three named terms are types represented by ordinary links. `Value` names
+the third type in this selectable ontology; it is not an irreducible host value
+category. Subtype and instance roles come from the chosen classifier relation:
+`SubType` is classified by `Type`, and `Value` by `SubType`. Additional terms
+receive their declared types through linked `(subject, type)` facts.
+
 Type declarations are themselves addressed doublets. For example, the first
 fact is `rml.type-fact.0: (Type, Type)`, where the source is the subject and the
 target is its type. These type-fact links are the authority. The host
@@ -28,6 +34,15 @@ target is its type. These type-fact links are the authority. The host
 authoritative linked facts, so even a stale or forged JavaScript cache cannot
 add a typing judgement. Clearing or rebuilding it does not change the semantic
 snapshot. Mirrored tests exercise that invariant.
+
+The invariant follows directly from the public operations: `typesOf` reads
+only type-fact links; `typeOf` and endpoint validation call that query; snapshots
+and closure validation inspect only links and type facts. No semantic read
+uses the index. Tests compare accepted/rejected definitions, newly declared
+facts, closure, queries, and snapshots with the index present, deleted, and
+rebuilt. Removing an authoritative fact prevents the corresponding typing even
+if a JavaScript caller forges the cache. This is an invariant of these typed
+network operations, not a soundness theorem for every logical foundation.
 
 `validateClosure`/`validate_closure` reports references that lack defining
 links. The three-link default is recursively closed, including its type facts.
@@ -55,7 +70,7 @@ declares `(Type: Type Type)`, and `(Type 1)` is not of type `(Type 0)`.
 
 The comparison is pinned to link-cli revision
 [`e801cb8`](https://github.com/link-foundation/link-cli/tree/e801cb877f8ed90a103ee253add6f702da89ee40).
-Its `PinnedTypes::next_type` reserves numeric address `n` with shape
+Its [`PinnedTypes::next_type`](https://github.com/link-foundation/link-cli/blob/e801cb877f8ed90a103ee253add6f702da89ee40/rust/src/pinned_types.rs#L35) reserves numeric address `n` with shape
 `n: (1, n)`. Applying the explicit symbolic mapping `Type = 1`, `SubType = 2`,
 and `Value = 3` gives:
 
@@ -70,6 +85,13 @@ adapter must create the `(2, 3)` definition at a non-conflicting address or
 retain a separate name-to-address binding. link-cli's named-type decorator
 stores names in a separate links database, so no RML symbolic name implies a
 numeric identity.
+
+The upstream [pinned-type tests](https://github.com/link-foundation/link-cli/blob/e801cb877f8ed90a103ee253add6f702da89ee40/rust/tests/pinned_types_decorator_tests.rs)
+check reserved identities and rejection of an incompatible reserved shape.
+Its [named-type implementation](https://github.com/link-foundation/link-cli/blob/e801cb877f8ed90a103ee253add6f702da89ee40/rust/src/named_types.rs)
+keeps the name database separate. The [Unicode converter](https://github.com/link-foundation/link-cli/blob/e801cb877f8ed90a103ee253add6f702da89ee40/rust/src/sequences/char_to_unicode_symbol_converter.rs)
+and [converter tests](https://github.com/link-foundation/link-cli/blob/e801cb877f8ed90a103ee253add6f702da89ee40/rust/tests/unicode_sequence_converter_tests.rs)
+provide the independent endpoint-orientation reference used below.
 
 link-cli encodes a Unicode code unit as `(raw-number,
 unicode-symbol-type)`. That instance-first shape agrees with RML's linked type

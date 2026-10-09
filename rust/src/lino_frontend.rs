@@ -539,6 +539,18 @@ pub fn prepare_lino_source(text: &str) -> Result<PreparedLino, LinoParseError> {
             }
         }
         let byte = bytes[index];
+        if !in_reference && byte == b'~' {
+            let mut prefix = index + 1;
+            while prefix < length && bytes[prefix].is_ascii_digit() { prefix += 1; }
+            if prefix > index + 1 && bytes.get(prefix) == Some(&b'{') {
+                let end = source[index..].find('}').map_or(length, |offset| index + offset + 1);
+                let value = links_notation::decode_reference_literal(&source[index..end])
+                    .map_err(|_| LinoParseError::at("invalid or unsupported reference literal", position_at(&source, index), 1))?;
+                quotes.push(QuoteReference { start: index, end, value });
+                index = end;
+                continue;
+            }
+        }
         if !in_reference && matches!(byte, b'"' | b'\'' | b'`') {
             let quote = quote_reader.read(index);
             line += bytes[index..quote.end]
@@ -771,28 +783,9 @@ fn transform_link(item: &RawItem) -> ParsedLink {
     }
 }
 
-// `Link.escapeReference` of links-notation 0.20, which both runtimes share.
+// Delegate canonical spelling to the same released protocol provider as JavaScript.
 fn escape_reference(reference: &str) -> String {
-    if reference.is_empty() {
-        return "\"\"".to_string();
-    }
-    let has_single_quote = reference.contains('\'');
-    let has_double_quote = reference.contains('"');
-    let needs_quoting = reference.starts_with('#')
-        || reference.contains([':', '(', ')', ' ', '\t', '\n', '\r'])
-        || has_double_quote
-        || has_single_quote;
-    if has_single_quote && has_double_quote {
-        format!("'{}'", reference.replace('\'', "\\'"))
-    } else if has_double_quote {
-        format!("'{}'", reference)
-    } else if has_single_quote {
-        format!("\"{}\"", reference)
-    } else if needs_quoting {
-        format!("'{}'", reference)
-    } else {
-        reference.to_string()
-    }
+    links_notation::LiNo::Ref(reference.to_string()).to_string()
 }
 
 /// Format a parsed link the way links-notation's `Link.format(false)` does,
@@ -1179,7 +1172,9 @@ fn read_items(
     prepared: &str,
     quotes: &[QuoteReference],
 ) -> Result<Vec<RawItem>, LinoParseError> {
-    let marker = unused_pair(source);
+    let mut occupied = source.to_string();
+    for quote in quotes { occupied.push_str(&quote.value); }
+    let marker = unused_pair(&occupied);
     let (tokenized, tokens) = tokenize(prepared, quotes, &marker);
     let (groups, missing) = find_groups(&tokenized.text);
     let text = format!("{}{}", tokenized.text, ")".repeat(missing));
@@ -1313,4 +1308,57 @@ pub fn parse_lino_document(text: &str) -> Result<Vec<LinoForm>, LinoParseError> 
         .into_iter()
         .map(|(form, _)| form)
         .collect())
+}
+
+/// Tokenize one semantic form, preserving reference source tokens until AST construction.
+pub fn tokenize_lino_form(text: &str) -> Result<Vec<String>, LinoParseError> {
+    let prepared = prepare_lino_source(text)?;
+    let quoted: HashMap<usize, &QuoteReference> = prepared.quotes.iter().map(|q| (q.start, q)).collect();
+    let mut out = Vec::new();
+    let mut index = 0;
+    let mut depth: isize = 0;
+    while index < prepared.prepared.len() {
+        if let Some(quote) = quoted.get(&index) {
+            let mut end = quote.end;
+            if prepared.prepared.as_bytes().get(end) == Some(&b':') { end += 1; }
+            out.push(prepared.source[index..end].to_string());
+            index = end;
+            continue;
+        }
+        let character = prepared.prepared[index..].chars().next().expect("character boundary");
+        if prepared.source.as_bytes()[index] == b'#' && character == ' ' {
+            while depth > 0 { out.push(")".to_string()); depth -= 1; }
+            break;
+        }
+        if character.is_whitespace() { index += character.len_utf8(); continue; }
+        if character == '#' {
+            while depth > 0 { out.push(")".to_string()); depth -= 1; }
+            break;
+        }
+        if character == '(' || character == ')' {
+            out.push(character.to_string());
+            depth += if character == '(' { 1 } else { -1 };
+            index += 1;
+            continue;
+        }
+        let mut end = index + character.len_utf8();
+        while end < prepared.prepared.len() && !quoted.contains_key(&end) {
+            let c = prepared.prepared[end..].chars().next().expect("character boundary");
+            if c.is_whitespace() || matches!(c, '(' | ')') { break; }
+            end += c.len_utf8();
+        }
+        out.push(prepared.prepared[index..end].to_string());
+        index = end;
+    }
+    Ok(out)
+}
+
+/// Decode a reference token once, after the parser handles structural parentheses.
+pub fn decode_lino_token(token: &str) -> Result<String, LinoParseError> {
+    let prepared = prepare_lino_source(token)?;
+    if let Some(quote) = prepared.quotes.first().filter(|q| q.start == 0) {
+        if quote.end == token.len() { return Ok(quote.value.clone()); }
+        if quote.end + 1 == token.len() && token.ends_with(':') { return Ok(format!("{}:", quote.value)); }
+    }
+    Ok(token.to_string())
 }

@@ -88,7 +88,7 @@ jobs:
         run: node scripts/bootstrap.mjs
       - name: Run full Rust test suite
         working-directory: rust
-        run: node ../scripts/run-with-cache.mjs -- cargo test --all-targets
+        run: node ../scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --all-targets
       - name: Upload cache diagnostics before teardown
         if: always()
         uses: actions/upload-artifact@v7

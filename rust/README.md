@@ -229,8 +229,12 @@ constrain the independent search or select its target architecture.
 membership links and finite set algebra;
 `DoubletSequenceStore` provides finite balanced/left/right sequence trees,
 canonical and order-preserving sets, and bounded observation of
-self-referential right spines. `LinkNetwork` is the unconstrained substrate;
-`TypedLinkNetwork` enforces endpoint types, `LinkGraph` is its
+self-referential right spines. Its explicit `encode_reference_sequence`, `encode_reference_ordered_set`, and
+`encode_reference_set` methods preserve nested/shared/cyclic element identities
+with tagged doublets in the `rml.reference-sequence/v1` format. Their matching
+decoders keep element references opaque; `entries()` exports all structure as
+addressed triples. Raw upstream tree methods retain their leaf-only meaning.
+`LinkNetwork` is the unconstrained substrate; `TypedLinkNetwork` enforces endpoint types, `LinkGraph` is its
 vertex-constrained graph subset with typed edges, and `FiniteRelation` executes
 typed converse, union, intersection, and composition. See
 [`docs/META_THEORY.md`](../docs/META_THEORY.md) for the complete contract.

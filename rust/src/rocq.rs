@@ -87,9 +87,7 @@ impl RocqEmitter {
     }
 
     fn symbol(&mut self, raw: &str) -> Result<String, RocqExportError> {
-        if raw == "_" {
-            return Ok("_".to_string());
-        }
+        if matches!(raw, "Type" | "Prop") { return self.err(format!("Rocq export cannot redeclare or shadow builtin {raw}")); }
         if let Some(rendered) = self.names.get(raw) {
             return Ok(rendered.clone());
         }
@@ -331,7 +329,7 @@ impl RocqEmitter {
                 key_of(node)
             ));
         };
-        let head = head_with_colon.trim_end_matches(':');
+        let head = head_with_colon.strip_suffix(':').unwrap_or(head_with_colon);
         let rhs = &children[1..];
         if head == "Type" {
             return self.err("self-referential `(Type: Type Type)` is not in the Rocq export subset; use `(Type N)` universes");
@@ -469,42 +467,8 @@ fn leaf_eq(node: &Node, expected: &str) -> bool {
 }
 
 fn parse_binding_node(binding: &Node) -> Option<Binding> {
-    let Node::List(children) = binding else {
-        return None;
-    };
-    if children.len() != 2 {
-        return None;
-    }
-    if let Some(name) = leaf(&children[0]).and_then(|s| s.strip_suffix(':')) {
-        return Some(Binding {
-            name: name.to_string(),
-            typ: children[1].clone(),
-        });
-    }
-    if let (Some(type_name), Some(var_name)) = (leaf(&children[0]), leaf(&children[1])) {
-        if type_name
-            .chars()
-            .next()
-            .is_some_and(|c| c.is_ascii_uppercase())
-            && !var_name.ends_with(':')
-        {
-            return Some(Binding {
-                name: var_name.to_string(),
-                typ: Node::Leaf(type_name.to_string()),
-            });
-        }
-    }
-    if matches!(children[0], Node::List(_)) {
-        if let Some(var_name) = leaf(&children[1]) {
-            if !var_name.ends_with(':') {
-                return Some(Binding {
-                    name: var_name.to_string(),
-                    typ: children[0].clone(),
-                });
-            }
-        }
-    }
-    None
+    let (name, type_key) = crate::parse_binding(binding)?;
+    Some(Binding { name, typ: crate::type_key_to_node(&type_key) })
 }
 
 fn parse_binding_nodes(binding: &Node) -> Option<Vec<Binding>> {
@@ -573,58 +537,7 @@ fn sanitize_comment(text: &str) -> String {
 }
 
 fn sanitize_identifier(raw: &str) -> String {
-    let mut out = String::new();
-    let mut previous_underscore = false;
-    for ch in raw.chars() {
-        if ch.is_ascii_alphanumeric() || ch == '_' {
-            out.push(ch);
-            previous_underscore = false;
-        } else if !previous_underscore {
-            out.push('_');
-            previous_underscore = true;
-        }
-    }
-    if out.is_empty()
-        || !out
-            .chars()
-            .next()
-            .is_some_and(|c| c.is_ascii_alphabetic() || c == '_')
-    {
-        out = format!("rml_{}", out);
-    }
-    if rocq_reserved(&out) {
-        out.push_str("_rml");
-    }
-    out
-}
-
-fn rocq_reserved(value: &str) -> bool {
-    matches!(
-        value,
-        "as" | "at"
-            | "by"
-            | "Check"
-            | "Definition"
-            | "else"
-            | "end"
-            | "fix"
-            | "forall"
-            | "fun"
-            | "if"
-            | "in"
-            | "Inductive"
-            | "let"
-            | "match"
-            | "Parameter"
-            | "Prop"
-            | "return"
-            | "Set"
-            | "struct"
-            | "then"
-            | "Type"
-            | "where"
-            | "with"
-    )
+    format!("rml_ref_{}", raw.bytes().map(|byte| format!("{byte:02x}")).collect::<String>())
 }
 
 fn config_head(head: &str) -> bool {

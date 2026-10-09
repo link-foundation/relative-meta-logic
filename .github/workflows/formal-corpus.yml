@@ -20,6 +20,9 @@ on:
       - 'scripts/check-meta-theory-corpus.mjs'
       - 'scripts/check-meta-theory-corpus.test.mjs'
       - 'scripts/generate-meta-theory-corpus.mjs'
+      - 'scripts/check-reference-exports.mjs'
+      - 'scripts/reference-export*'
+      - 'test-corpus/lino-frontend/reference-literals.json'
   push:
     branches: [main]
     paths:
@@ -39,6 +42,9 @@ on:
       - 'scripts/check-meta-theory-corpus.mjs'
       - 'scripts/check-meta-theory-corpus.test.mjs'
       - 'scripts/generate-meta-theory-corpus.mjs'
+      - 'scripts/check-reference-exports.mjs'
+      - 'scripts/reference-export*'
+      - 'test-corpus/lino-frontend/reference-literals.json'
   workflow_dispatch:
 
 env:
@@ -103,8 +109,11 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
       - name: Install repository build lifecycle
         run: node scripts/bootstrap.mjs
+      - name: Install locked JavaScript dependencies
+        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
       - name: Install official Lean 4.34.1 toolchain
         run: |
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:v4.34.1
@@ -113,12 +122,28 @@ jobs:
         env:
           ELAN_TOOLCHAIN: leanprover/lean4:v4.34.1
         run: |
-          node scripts/run-with-cache.mjs --cache .rml-cache/lean --class lean -- bash -euo pipefail -c '
-            mkdir -p .rml-cache/lean/pinned
-            cp -R upstream-meta-theory/drafts/0.0.3/src/lean/. .rml-cache/lean/pinned/
-            cd .rml-cache/lean/pinned
+          node scripts/run-with-cache.mjs --cache .rml-cache/lean --class lean --isolate-output .rml-cache/lean -- bash -euo pipefail -c '
+            mkdir -p "$RML_CACHE_OUTPUT_DIR/pinned"
+            cp -R upstream-meta-theory/drafts/0.0.3/src/lean/. "$RML_CACHE_OUTPUT_DIR/pinned/"
+            cd "$RML_CACHE_OUTPUT_DIR/pinned"
             lean --version
             lake build
+          '
+      - name: Validate exact-reference exports with the pinned Lean oracle
+        env:
+          ELAN_TOOLCHAIN: leanprover/lean4:v4.34.1
+          NODE_OPTIONS: --max-old-space-size=768
+        run: |
+          node scripts/run-with-cache.mjs --cache .rml-cache/compiler --class compiler --isolate-output .rml-cache/compiler --archive "{output}/reference-exports/Lean/report" -- bash -euo pipefail -c '
+            export RML_REFERENCE_OUTPUT="$RML_CACHE_OUTPUT_DIR/reference-exports/Lean"
+            run_lean_oracles() {
+              rustc --version
+              cargo build --locked --manifest-path rust/Cargo.toml --bin rml
+              node scripts/check-reference-exports.mjs --language=Lean
+              node scripts/check-reference-exports.mjs --language=Lean --runtime=rust --rust-binary="$RML_CACHE_OUTPUT_DIR/debug/rml"
+            }
+            export -f run_lean_oracles
+            node scripts/run-with-cache.mjs --isolate-output rust/target -- bash -euo pipefail -c run_lean_oracles
           '
       - name: Upload cache diagnostics before teardown
         if: always()
@@ -152,27 +177,93 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
       - name: Install repository build lifecycle
         run: node scripts/bootstrap.mjs
+      - name: Install locked JavaScript dependencies
+        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
       - name: Build pinned Rocq corpus in an owned scratch copy
         run: |
-          node scripts/run-with-cache.mjs --cache .rml-cache/rocq --class rocq -- bash -euo pipefail -c '
-            mkdir -p .rml-cache/rocq/pinned
-            cp -R upstream-meta-theory/drafts/0.0.3/src/rocq/. .rml-cache/rocq/pinned/
-            runner_owner="$(id -u):$(id -g)"
-            trap "sudo chown -R $runner_owner .rml-cache/rocq" EXIT
-            sudo chown -R 1000:1000 .rml-cache/rocq
-            bash docker/run-owned.sh --init \
-              --volume "$PWD/scripts:/rml/scripts:ro" \
-              --volume "$PWD/.rml-cache/rocq/pinned:/work" --workdir /work \
-              rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782 /bin/bash --login -ec \
-              "bash /rml/scripts/install-rocq-kernel.sh; rocq makefile -f _CoqProject -o Makefile.coq; make -f Makefile.coq"
+          node scripts/run-with-cache.mjs --cache .rml-cache/compiler --class compiler --isolate-output .rml-cache/compiler --archive "{output}/reference-exports/Rocq/report" -- bash -euo pipefail -c '
+            export RML_REFERENCE_OUTPUT="$RML_CACHE_OUTPUT_DIR/reference-exports/Rocq"
+            export RML_REFERENCE_CORPUS="$RML_CACHE_OUTPUT_DIR/pinned"
+            mkdir -p "$RML_REFERENCE_OUTPUT" "$RML_REFERENCE_CORPUS"
+            cp -R upstream-meta-theory/drafts/0.0.3/src/rocq/. "$RML_REFERENCE_CORPUS/"
+            run_rocq_oracles() {
+              rustc --version
+              cargo build --locked --manifest-path rust/Cargo.toml --bin rml
+              cp "$RML_CACHE_OUTPUT_DIR/debug/rml" "$RML_REFERENCE_OUTPUT/producer-rml"
+              node scripts/check-reference-exports.mjs --language=Rocq --runtime=rust --rust-binary="$RML_REFERENCE_OUTPUT/producer-rml" --prepare-only
+              runner_owner="$(id -u):$(id -g)"
+              trap "sudo chown -R $runner_owner \"$RML_REFERENCE_OUTPUT\" \"$RML_REFERENCE_CORPUS\"" EXIT
+              sudo chown -R 1000:1000 "$RML_REFERENCE_OUTPUT" "$RML_REFERENCE_CORPUS"
+              bash docker/run-owned.sh --init \
+                --volume "$PWD:/rml:ro" \
+                --volume "$(command -v node):/usr/local/bin/node:ro" \
+                --volume "$RML_REFERENCE_OUTPUT:/rml/.rml-cache/compiler" \
+                --env RML_REFERENCE_OUTPUT=/rml/.rml-cache/compiler \
+                --env NODE_OPTIONS=--max-old-space-size=768 \
+                --volume "$RML_REFERENCE_CORPUS:/work" --workdir /work \
+                rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782 /bin/bash --login -ec \
+                "bash /rml/scripts/install-rocq-kernel.sh; rocq makefile -f _CoqProject -o Makefile.coq; make -f Makefile.coq; node /rml/scripts/check-reference-exports.mjs --language=Rocq; node /rml/scripts/check-reference-exports.mjs --language=Rocq --runtime=rust --rust-binary=/rml/.rml-cache/compiler/producer-rml --validate-prepared"
+            }
+            export -f run_rocq_oracles
+            node scripts/run-with-cache.mjs --isolate-output rust/target -- bash -euo pipefail -c run_rocq_oracles
           '
       - name: Upload cache diagnostics before teardown
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: cache-diagnostics-formal-rocq-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
+
+  isabelle-reference-exports:
+    name: Isabelle exact-reference compiler controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Install locked JavaScript dependencies
+        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
+      - name: Validate positive and negative reference artifacts with official Isabelle
+        run: |
+          node scripts/run-with-cache.mjs --cache .rml-cache/compiler --class compiler --isolate-output .rml-cache/compiler --archive "{output}/reference-exports/Isabelle/report" -- bash -euo pipefail -c '
+            oracle_output="$RML_CACHE_OUTPUT_DIR/reference-exports/Isabelle"
+            mkdir -p "$oracle_output"
+            runner_owner="$(id -u):$(id -g)"
+            trap "sudo chown -R $runner_owner \"$oracle_output\"" EXIT
+            sudo chown -R 1000:1000 "$oracle_output"
+            bash docker/run-owned.sh --init \
+              --entrypoint /bin/bash \
+              --volume "$PWD:/rml:ro" \
+              --volume "$(command -v node):/usr/local/bin/node:ro" \
+              --volume "$oracle_output:/rml/.rml-cache/compiler" \
+              --env RML_REFERENCE_OUTPUT=/rml/.rml-cache/compiler \
+              --env NODE_OPTIONS=--max-old-space-size=768 \
+              --workdir /rml \
+              makarius/isabelle:Isabelle2025-2@sha256:9bd33b183c399327c5d554fc8cde27c29b5d2b20cdc6fe7a604caa3f951018fc \
+              -ec "node scripts/check-reference-exports.mjs --language=Isabelle --compiler=/home/isabelle/Isabelle/bin/isabelle"
+          '
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cache-diagnostics-formal-isabelle-${{ github.run_attempt }}
           path: |
             .rml-cache/evidence/**
             .rml-cache/reports/**

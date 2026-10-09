@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-export const META_LANGUAGE_REVISION = '679a3b3c3c56177b8df1ad82672690c6e9889aeb';
+export const META_LANGUAGE_REVISION = 'a79782093cae3b33606483ac9f3e1d05faf36de0';
 export const META_LANGUAGE_PATH = 'js/vendor/meta-language';
 export const META_LANGUAGE_URL = 'https://github.com/link-foundation/meta-language.git';
 

@@ -16,7 +16,7 @@ path = "src/main.rs"
 
 [dependencies]
 rml_base = { package = "relative-meta-logic", path = ".." }
-meta-language = { git = "https://github.com/link-foundation/meta-language.git", rev = "679a3b3c3c56177b8df1ad82672690c6e9889aeb", default-features = false }
+meta-language = { version = "=1.0.0", default-features = false }
 serde_json = "1.0.151"
 
 [profile.dev]

@@ -406,6 +406,239 @@ var require_events = __commonJS({
 
 // node_modules/links-notation/dist/index.js
 var import_events = __toESM(require_events(), 1);
+var QUOTES = ['"', "'", "`"];
+var _DelimitedReferences_instances, read_fn, runsOf_fn;
+var DelimitedReferences = class {
+  constructor(document) {
+    __privateAdd(this, _DelimitedReferences_instances);
+    this.document = document;
+    this.runsByQuote = /* @__PURE__ */ new Map();
+    this.readings = /* @__PURE__ */ new Map();
+  }
+  readAt(start) {
+    if (!this.readings.has(start)) {
+      this.readings.set(start, __privateMethod(this, _DelimitedReferences_instances, read_fn).call(this, start));
+    }
+    return this.readings.get(start);
+  }
+  endAt(start) {
+    const reading2 = this.readAt(start);
+    return reading2 === null ? null : start + reading2.length;
+  }
+};
+_DelimitedReferences_instances = new WeakSet();
+read_fn = function(start) {
+  const document = this.document;
+  const quote2 = document[start];
+  if (!QUOTES.includes(quote2)) {
+    return null;
+  }
+  const runs = __privateMethod(this, _DelimitedReferences_instances, runsOf_fn).call(this, quote2);
+  const opening = runs.indexOf(start);
+  const count = runs.end(opening) - start;
+  let closing = opening + 1;
+  while (closing < runs.count) {
+    const length = runs.lengths[closing];
+    if (length < count) {
+      closing = runs.nextLonger[closing];
+    } else if (Math.floor(length / count) % 2 === 1) {
+      break;
+    } else {
+      closing++;
+    }
+  }
+  const end = closing < runs.count ? runs.end(closing) : null;
+  return reading(document, start, quote2, count, end);
+};
+runsOf_fn = function(quote2) {
+  if (!this.runsByQuote.has(quote2)) {
+    this.runsByQuote.set(quote2, new DelimiterRuns(this.document, quote2));
+  }
+  return this.runsByQuote.get(quote2);
+};
+function readReference(document, start) {
+  const quote2 = document[start];
+  if (!QUOTES.includes(quote2)) {
+    return null;
+  }
+  const count = runLength(document, start, quote2);
+  let end = null;
+  let position = document.indexOf(quote2, start + count);
+  while (position !== -1) {
+    const length = runLength(document, position, quote2);
+    if (length >= count && Math.floor(length / count) % 2 === 1) {
+      end = position + length;
+      break;
+    }
+    position = document.indexOf(quote2, position + length);
+  }
+  return reading(document, start, quote2, count, end);
+}
+function reading(document, start, quote2, count, end) {
+  const emptyReference = count % 2 === 0 ? { value: "", length: count } : null;
+  if (end === null) {
+    return emptyReference;
+  }
+  const parts = [];
+  let position = start + count;
+  let run2 = document.indexOf(quote2, position);
+  while (run2 !== -1 && run2 < end) {
+    const length = runLength(document, run2, quote2);
+    const escaped = Math.floor(length / (2 * count)) * count;
+    const closes = run2 + length === end ? count : 0;
+    parts.push(document.slice(position, run2));
+    parts.push(quote2.repeat(length - escaped - closes));
+    position = run2 + length;
+    run2 = document.indexOf(quote2, position);
+  }
+  const value = parts.join("");
+  if (emptyReference !== null && !isSubstantiveBody(value)) {
+    return emptyReference;
+  }
+  return { value, length: end - start };
+}
+function runLength(text, start, quote2) {
+  let end = start;
+  while (end < text.length && text[end] === quote2) {
+    end++;
+  }
+  return end - start;
+}
+var DelimiterRuns = class {
+  constructor(document, quote2) {
+    this.starts = [];
+    this.lengths = [];
+    let position = document.indexOf(quote2);
+    while (position !== -1) {
+      const length = runLength(document, position, quote2);
+      this.starts.push(position);
+      this.lengths.push(length);
+      position = document.indexOf(quote2, position + length);
+    }
+    this.count = this.starts.length;
+    this.nextLonger = new Array(this.count);
+    const longer = [];
+    for (let run2 = this.count - 1; run2 >= 0; run2--) {
+      while (longer.length > 0 && this.lengths[longer[longer.length - 1]] <= this.lengths[run2]) {
+        longer.pop();
+      }
+      this.nextLonger[run2] = longer.length > 0 ? longer[longer.length - 1] : this.count;
+      longer.push(run2);
+    }
+  }
+  end(run2) {
+    return this.starts[run2] + this.lengths[run2];
+  }
+  indexOf(position) {
+    let low = 0;
+    let high = this.count - 1;
+    while (low < high) {
+      const middle = low + high + 1 >> 1;
+      if (this.starts[middle] <= position) {
+        low = middle;
+      } else {
+        high = middle - 1;
+      }
+    }
+    return low;
+  }
+};
+function isSubstantiveBody(content) {
+  let depth = 0;
+  let hasVisible = false;
+  for (const character of content) {
+    if (character === "(") {
+      depth++;
+    } else if (character === ")") {
+      depth--;
+      if (depth < 0) {
+        return false;
+      }
+    }
+    if (!/[ \t\n\r]/.test(character)) {
+      hasVisible = true;
+    }
+  }
+  return hasVisible && depth === 0;
+}
+function hasReferenceLiteralPrefix(text, start = 0) {
+  return /^~[0-9]+\{/.test(text.slice(start));
+}
+function encodeReferenceLiteral(text) {
+  if (typeof text !== "string" || !text.isWellFormed()) {
+    throw new TypeError("Reference must be well-formed Unicode text");
+  }
+  const hex = Array.from(new TextEncoder().encode(text), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `~1{${hex}}`;
+}
+function decodeReferenceLiteral(literal) {
+  const match = /^~([0-9]+)\{([0-9a-fA-F]*)\}$/.exec(literal);
+  if (!match || match[0] !== literal || match[1] !== "1" || match[2].length % 2 !== 0) {
+    throw new TypeError("Invalid or unsupported reference literal (expected ~1{UTF-8 hex})");
+  }
+  return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(Uint8Array.from(match[2].match(/../g) ?? [], (hex) => parseInt(hex, 16)));
+}
+function formatReference(text) {
+  if (typeof text !== "string" || !text.isWellFormed()) {
+    throw new TypeError("Reference must be well-formed Unicode text");
+  }
+  if (!text || /[\u0000-\u001f\u007f]/u.test(text)) {
+    return encodeReferenceLiteral(text);
+  }
+  if (!text.startsWith("#") && !/^~[0-9]+\{/.test(text) && !/[\p{White_Space}\ufeff():"'`]/u.test(text)) {
+    return text;
+  }
+  let choice = null;
+  for (const quote2 of ["'", '"', "`"]) {
+    if (text.startsWith(quote2))
+      continue;
+    let longest = 0;
+    let run2 = 0;
+    for (const character of text) {
+      run2 = character === quote2 ? run2 + 1 : 0;
+      longest = Math.max(longest, run2);
+    }
+    const count = longest + 1 | 1;
+    if (choice === null || count < choice.count)
+      choice = { quote: quote2, count };
+  }
+  const delimiter = choice.quote.repeat(choice.count);
+  return delimiter + text + delimiter;
+}
+function escapeReference(reference, { minimal = false } = {}) {
+  if (reference === null || reference === void 0)
+    return "";
+  if (typeof reference !== "string" || !reference.isWellFormed()) {
+    throw new TypeError("Reference must be well-formed Unicode text");
+  }
+  if (!minimal || !reference || /[\u0000-\u001f\u007f]/u.test(reference)) {
+    return formatReference(reference);
+  }
+  const needsQuoting = /(^| )~[0-9]+\{/.test(reference) || /[:()'"`]|(?! )[\p{White_Space}\ufeff]/u.test(reference) || /(^ | $| {2,}|(^| )#)/.test(reference);
+  if (!needsQuoting)
+    return reference;
+  const singleQuotes = reference.split("'").length - 1;
+  const doubleQuotes = reference.split('"').length - 1;
+  let quote2 = singleQuotes <= doubleQuotes ? "'" : '"';
+  if (reference.startsWith(quote2))
+    quote2 = quote2 === "'" ? '"' : "'";
+  return quote2 + reference.replaceAll(quote2, quote2 + quote2) + quote2;
+}
+function unescapeReference(reference) {
+  if (typeof reference !== "string") {
+    throw new TypeError("Reference must be a string");
+  }
+  if (hasReferenceLiteralPrefix(reference)) {
+    return decodeReferenceLiteral(reference);
+  }
+  if (!QUOTES.includes(reference[0]))
+    return reference;
+  const reading2 = readReference(reference, 0);
+  if (reading2 === null || reading2.length !== reference.length) {
+    throw new SyntaxError("Expected one complete quoted reference");
+  }
+  return reading2.value;
+}
 var Link = class _Link {
   constructor(id = null, values = null) {
     this.id = id;
@@ -442,30 +675,11 @@ var Link = class _Link {
   static getValueString(value) {
     return value && typeof value.toLinkOrIdString === "function" ? value.toLinkOrIdString() : String(value);
   }
-  static escapeReference(reference) {
-    if (reference === null || reference === void 0) {
-      return "";
-    }
-    if (reference === "") {
-      return '""';
-    }
-    const hasSingleQuote = reference.includes("'");
-    const hasDoubleQuote = reference.includes('"');
-    const needsQuoting = reference.startsWith("#") || reference.includes(":") || reference.includes("(") || reference.includes(")") || reference.includes(" ") || reference.includes("	") || reference.includes(`
-`) || reference.includes("\r") || hasDoubleQuote || hasSingleQuote;
-    if (hasSingleQuote && hasDoubleQuote) {
-      return `'${reference.replace(/'/g, "\\'")}'`;
-    }
-    if (hasDoubleQuote) {
-      return `'${reference}'`;
-    }
-    if (hasSingleQuote) {
-      return `"${reference}"`;
-    }
-    if (needsQuoting) {
-      return `'${reference}'`;
-    }
-    return reference;
+  static escapeReference(reference, options = {}) {
+    return escapeReference(reference, options);
+  }
+  static unescapeReference(reference) {
+    return unescapeReference(reference);
   }
   toLinkOrIdString() {
     if (!this.values || this.values.length === 0) {
@@ -601,6 +815,33 @@ var Link = class _Link {
 `);
   }
 };
+var LinksGroup = class _LinksGroup {
+  constructor(element, children = []) {
+    this.element = element;
+    this.children = children;
+  }
+  toList() {
+    const result = [];
+    this._appendToList(result);
+    return result;
+  }
+  _appendToList(list) {
+    list.push(this.element);
+    if (this.children && this.children.length > 0) {
+      for (const child of this.children) {
+        if (child instanceof _LinksGroup) {
+          child._appendToList(list);
+        } else {
+          list.push(child);
+        }
+      }
+    }
+  }
+  toString() {
+    const list = this.toList();
+    return list.map((item) => `(${item.id || item})`).join(" ");
+  }
+};
 var QUOTED_LINE_WIDTH = 80;
 var ELLIPSIS = "...";
 var ParseError = class extends Error {
@@ -672,143 +913,6 @@ function windowAround(lineText, column) {
   const quoted = (start > 0 ? ELLIPSIS : "") + lineText.slice(start, end) + (end < lineText.length ? ELLIPSIS : "");
   const shift = start > 0 ? ELLIPSIS.length : 0;
   return [quoted, target - start + shift + 1];
-}
-var QUOTES = ['"', "'", "`"];
-var _DelimitedReferences_instances, read_fn, runsOf_fn;
-var DelimitedReferences = class {
-  constructor(document) {
-    __privateAdd(this, _DelimitedReferences_instances);
-    this.document = document;
-    this.runsByQuote = /* @__PURE__ */ new Map();
-    this.readings = /* @__PURE__ */ new Map();
-  }
-  readAt(start) {
-    if (!this.readings.has(start)) {
-      this.readings.set(start, __privateMethod(this, _DelimitedReferences_instances, read_fn).call(this, start));
-    }
-    return this.readings.get(start);
-  }
-  endAt(start) {
-    const reading2 = this.readAt(start);
-    return reading2 === null ? null : start + reading2.length;
-  }
-};
-_DelimitedReferences_instances = new WeakSet();
-read_fn = function(start) {
-  const document = this.document;
-  const quote2 = document[start];
-  if (!QUOTES.includes(quote2)) {
-    return null;
-  }
-  const runs = __privateMethod(this, _DelimitedReferences_instances, runsOf_fn).call(this, quote2);
-  const opening = runs.indexOf(start);
-  const count = runs.end(opening) - start;
-  let closing = opening + 1;
-  while (closing < runs.count) {
-    const length = runs.lengths[closing];
-    if (length < count) {
-      closing = runs.nextLonger[closing];
-    } else if (Math.floor(length / count) % 2 === 1) {
-      break;
-    } else {
-      closing++;
-    }
-  }
-  const end = closing < runs.count ? runs.end(closing) : null;
-  return reading(document, start, quote2, count, end);
-};
-runsOf_fn = function(quote2) {
-  if (!this.runsByQuote.has(quote2)) {
-    this.runsByQuote.set(quote2, new DelimiterRuns(this.document, quote2));
-  }
-  return this.runsByQuote.get(quote2);
-};
-function reading(document, start, quote2, count, end) {
-  const emptyReference = count % 2 === 0 ? { value: "", length: count } : null;
-  if (end === null) {
-    return emptyReference;
-  }
-  const parts = [];
-  let position = start + count;
-  let run2 = document.indexOf(quote2, position);
-  while (run2 !== -1 && run2 < end) {
-    const length = runLength(document, run2, quote2);
-    const escaped = Math.floor(length / (2 * count)) * count;
-    const closes = run2 + length === end ? count : 0;
-    parts.push(document.slice(position, run2));
-    parts.push(quote2.repeat(length - escaped - closes));
-    position = run2 + length;
-    run2 = document.indexOf(quote2, position);
-  }
-  const value = parts.join("");
-  if (emptyReference !== null && !isSubstantiveBody(value)) {
-    return emptyReference;
-  }
-  return { value, length: end - start };
-}
-function runLength(text, start, quote2) {
-  let end = start;
-  while (end < text.length && text[end] === quote2) {
-    end++;
-  }
-  return end - start;
-}
-var DelimiterRuns = class {
-  constructor(document, quote2) {
-    this.starts = [];
-    this.lengths = [];
-    let position = document.indexOf(quote2);
-    while (position !== -1) {
-      const length = runLength(document, position, quote2);
-      this.starts.push(position);
-      this.lengths.push(length);
-      position = document.indexOf(quote2, position + length);
-    }
-    this.count = this.starts.length;
-    this.nextLonger = new Array(this.count);
-    const longer = [];
-    for (let run2 = this.count - 1; run2 >= 0; run2--) {
-      while (longer.length > 0 && this.lengths[longer[longer.length - 1]] <= this.lengths[run2]) {
-        longer.pop();
-      }
-      this.nextLonger[run2] = longer.length > 0 ? longer[longer.length - 1] : this.count;
-      longer.push(run2);
-    }
-  }
-  end(run2) {
-    return this.starts[run2] + this.lengths[run2];
-  }
-  indexOf(position) {
-    let low = 0;
-    let high = this.count - 1;
-    while (low < high) {
-      const middle = low + high + 1 >> 1;
-      if (this.starts[middle] <= position) {
-        low = middle;
-      } else {
-        high = middle - 1;
-      }
-    }
-    return low;
-  }
-};
-function isSubstantiveBody(content) {
-  let depth = 0;
-  let hasVisible = false;
-  for (const character of content) {
-    if (character === "(") {
-      depth++;
-    } else if (character === ")") {
-      depth--;
-      if (depth < 0) {
-        return false;
-      }
-    }
-    if (!/[ \t\n\r]/.test(character)) {
-      hasVisible = true;
-    }
-  }
-  return hasVisible && depth === 0;
 }
 var COMMENT = "#";
 var BEFORE_REFERENCE = [" ", "	", `
@@ -956,14 +1060,19 @@ function peg$parse(input, options) {
   const peg$c0 = "(";
   const peg$c1 = ")";
   const peg$c2 = ":";
-  const peg$c3 = '"';
-  const peg$c4 = "'";
-  const peg$c5 = "`";
-  const peg$c6 = " ";
+  const peg$c3 = "~";
+  const peg$c4 = "{";
+  const peg$c5 = "}";
+  const peg$c6 = '"';
+  const peg$c7 = "'";
+  const peg$c8 = "`";
+  const peg$c9 = " ";
   const peg$r0 = /^[ \t]/;
   const peg$r1 = /^[\r\n]/;
-  const peg$r2 = /^[ \t\n\r]/;
-  const peg$r3 = /^[^ \t\n\r(:)]/;
+  const peg$r2 = /^[0-9]/;
+  const peg$r3 = /^[^} \t\r\n()]/;
+  const peg$r4 = /^[ \t\n\r]/;
+  const peg$r5 = /^[^ \t\n\r(:)]/;
   const peg$e0 = peg$classExpectation([" ", "	"], false, false, false);
   const peg$e1 = peg$classExpectation(["\r", `
 `], false, false, false);
@@ -971,13 +1080,19 @@ function peg$parse(input, options) {
   const peg$e3 = peg$literalExpectation("(", false);
   const peg$e4 = peg$literalExpectation(")", false);
   const peg$e5 = peg$literalExpectation(":", false);
-  const peg$e6 = peg$literalExpectation('"', false);
-  const peg$e7 = peg$literalExpectation("'", false);
-  const peg$e8 = peg$literalExpectation("`", false);
-  const peg$e9 = peg$literalExpectation(" ", false);
-  const peg$e10 = peg$classExpectation([" ", "	", `
+  const peg$e6 = peg$literalExpectation("~", false);
+  const peg$e7 = peg$classExpectation([["0", "9"]], false, false, false);
+  const peg$e8 = peg$literalExpectation("{", false);
+  const peg$e9 = peg$classExpectation(["}", " ", "	", "\r", `
+`, "(", ")"], true, false, false);
+  const peg$e10 = peg$literalExpectation("}", false);
+  const peg$e11 = peg$literalExpectation('"', false);
+  const peg$e12 = peg$literalExpectation("'", false);
+  const peg$e13 = peg$literalExpectation("`", false);
+  const peg$e14 = peg$literalExpectation(" ", false);
+  const peg$e15 = peg$classExpectation([" ", "	", `
 `, "\r"], false, false, false);
-  const peg$e11 = peg$classExpectation([" ", "	", `
+  const peg$e16 = peg$classExpectation([" ", "	", `
 `, "\r", "(", ":", ")"], true, false, false);
   function peg$f0() {
     return resetState();
@@ -1074,10 +1189,19 @@ function peg$parse(input, options) {
   function peg$f28(id) {
     return { id, values: [] };
   }
-  function peg$f29(chars) {
+  function peg$f29() {
+    return hasReferenceLiteralPrefix(input, offset());
+  }
+  function peg$f30(literal) {
+    return decodeReferenceLiteral(literal);
+  }
+  function peg$f31() {
+    return !hasReferenceLiteralPrefix(input, offset());
+  }
+  function peg$f32(chars) {
     return chars.join("");
   }
-  function peg$f30() {
+  function peg$f33() {
     const pos = offset();
     const result = parseQuotedStringAt(input, pos, '"');
     if (result) {
@@ -1087,19 +1211,19 @@ function peg$parse(input, options) {
     }
     return false;
   }
-  function peg$f31(chars) {
+  function peg$f34(chars) {
     return parsedValue;
   }
-  function peg$f32(c, cs) {
+  function peg$f35(c, cs) {
     return [c].concat(cs).join("");
   }
-  function peg$f33() {
+  function peg$f36() {
     return parsedLength > 1 && (parsedLength--, true);
   }
-  function peg$f34(c) {
+  function peg$f37(c) {
     return c;
   }
-  function peg$f35() {
+  function peg$f38() {
     const pos = offset();
     const result = parseQuotedStringAt(input, pos, "'");
     if (result) {
@@ -1109,19 +1233,19 @@ function peg$parse(input, options) {
     }
     return false;
   }
-  function peg$f36(chars) {
+  function peg$f39(chars) {
     return parsedValue;
   }
-  function peg$f37(c, cs) {
+  function peg$f40(c, cs) {
     return [c].concat(cs).join("");
   }
-  function peg$f38() {
+  function peg$f41() {
     return parsedLength > 1 && (parsedLength--, true);
   }
-  function peg$f39(c) {
+  function peg$f42(c) {
     return c;
   }
-  function peg$f40() {
+  function peg$f43() {
     const pos = offset();
     const result = parseQuotedStringAt(input, pos, "`");
     if (result) {
@@ -1131,34 +1255,34 @@ function peg$parse(input, options) {
     }
     return false;
   }
-  function peg$f41(chars) {
+  function peg$f44(chars) {
     return parsedValue;
   }
-  function peg$f42(c, cs) {
+  function peg$f45(c, cs) {
     return [c].concat(cs).join("");
   }
-  function peg$f43() {
+  function peg$f46() {
     return parsedLength > 1 && (parsedLength--, true);
   }
-  function peg$f44(c) {
+  function peg$f47(c) {
     return c;
   }
-  function peg$f45() {
+  function peg$f48() {
     return indentationStack.slice();
   }
-  function peg$f46(spaces) {
+  function peg$f49(spaces) {
     setBaseIndentation(spaces);
   }
-  function peg$f47(spaces) {
+  function peg$f50(spaces) {
     return normalizeIndentation(spaces) > getCurrentIndentation();
   }
-  function peg$f48(spaces) {
+  function peg$f51(spaces) {
     pushIndentation(spaces);
   }
-  function peg$f49(spaces) {
+  function peg$f52(spaces) {
     return checkIndentation(spaces);
   }
-  function peg$f50() {
+  function peg$f53() {
     return isInsideNestedContext();
   }
   let peg$currPos = options.peg$currPos | 0;
@@ -2006,30 +2130,198 @@ function peg$parse(input, options) {
   }
   function peg$parsereference() {
     let s0;
-    s0 = peg$parsequotedReference();
+    s0 = peg$parsereferenceLiteral();
     if (s0 === peg$FAILED) {
-      s0 = peg$parsesimpleReference();
+      s0 = peg$parsequotedReference();
+      if (s0 === peg$FAILED) {
+        s0 = peg$parsesimpleReference();
+      }
     }
     return s0;
   }
-  function peg$parsesimpleReference() {
-    let s0, s1, s2;
+  function peg$parsereferenceLiteral() {
+    let s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
     s0 = peg$currPos;
-    s1 = [];
-    s2 = peg$parsereferenceSymbol();
-    if (s2 !== peg$FAILED) {
-      while (s2 !== peg$FAILED) {
-        s1.push(s2);
-        s2 = peg$parsereferenceSymbol();
+    s1 = peg$currPos;
+    peg$silentFails++;
+    if (input.charCodeAt(peg$currPos) === 126) {
+      s2 = peg$c3;
+      peg$currPos++;
+    } else {
+      s2 = peg$FAILED;
+      if (peg$silentFails === 0) {
+        peg$fail(peg$e6);
       }
+    }
+    peg$silentFails--;
+    if (s2 !== peg$FAILED) {
+      peg$currPos = s1;
+      s1 = void 0;
     } else {
       s1 = peg$FAILED;
     }
     if (s1 !== peg$FAILED) {
-      peg$savedPos = s0;
-      s1 = peg$f29(s1);
+      peg$savedPos = peg$currPos;
+      s2 = peg$f29();
+      if (s2) {
+        s2 = void 0;
+      } else {
+        s2 = peg$FAILED;
+      }
+      if (s2 !== peg$FAILED) {
+        s3 = peg$currPos;
+        s4 = peg$currPos;
+        if (input.charCodeAt(peg$currPos) === 126) {
+          s5 = peg$c3;
+          peg$currPos++;
+        } else {
+          s5 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e6);
+          }
+        }
+        if (s5 !== peg$FAILED) {
+          s6 = [];
+          s7 = input.charAt(peg$currPos);
+          if (peg$r2.test(s7)) {
+            peg$currPos++;
+          } else {
+            s7 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e7);
+            }
+          }
+          if (s7 !== peg$FAILED) {
+            while (s7 !== peg$FAILED) {
+              s6.push(s7);
+              s7 = input.charAt(peg$currPos);
+              if (peg$r2.test(s7)) {
+                peg$currPos++;
+              } else {
+                s7 = peg$FAILED;
+                if (peg$silentFails === 0) {
+                  peg$fail(peg$e7);
+                }
+              }
+            }
+          } else {
+            s6 = peg$FAILED;
+          }
+          if (s6 !== peg$FAILED) {
+            if (input.charCodeAt(peg$currPos) === 123) {
+              s7 = peg$c4;
+              peg$currPos++;
+            } else {
+              s7 = peg$FAILED;
+              if (peg$silentFails === 0) {
+                peg$fail(peg$e8);
+              }
+            }
+            if (s7 !== peg$FAILED) {
+              s8 = [];
+              s9 = input.charAt(peg$currPos);
+              if (peg$r3.test(s9)) {
+                peg$currPos++;
+              } else {
+                s9 = peg$FAILED;
+                if (peg$silentFails === 0) {
+                  peg$fail(peg$e9);
+                }
+              }
+              while (s9 !== peg$FAILED) {
+                s8.push(s9);
+                s9 = input.charAt(peg$currPos);
+                if (peg$r3.test(s9)) {
+                  peg$currPos++;
+                } else {
+                  s9 = peg$FAILED;
+                  if (peg$silentFails === 0) {
+                    peg$fail(peg$e9);
+                  }
+                }
+              }
+              if (input.charCodeAt(peg$currPos) === 125) {
+                s9 = peg$c5;
+                peg$currPos++;
+              } else {
+                s9 = peg$FAILED;
+                if (peg$silentFails === 0) {
+                  peg$fail(peg$e10);
+                }
+              }
+              if (s9 !== peg$FAILED) {
+                s5 = [s5, s6, s7, s8, s9];
+                s4 = s5;
+              } else {
+                peg$currPos = s4;
+                s4 = peg$FAILED;
+              }
+            } else {
+              peg$currPos = s4;
+              s4 = peg$FAILED;
+            }
+          } else {
+            peg$currPos = s4;
+            s4 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s4;
+          s4 = peg$FAILED;
+        }
+        if (s4 !== peg$FAILED) {
+          s3 = input.substring(s3, peg$currPos);
+        } else {
+          s3 = s4;
+        }
+        if (s3 !== peg$FAILED) {
+          peg$savedPos = s0;
+          s0 = peg$f30(s3);
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+    } else {
+      peg$currPos = s0;
+      s0 = peg$FAILED;
     }
-    s0 = s1;
+    return s0;
+  }
+  function peg$parsesimpleReference() {
+    let s0, s1, s2, s3;
+    s0 = peg$currPos;
+    peg$savedPos = peg$currPos;
+    s1 = peg$f31();
+    if (s1) {
+      s1 = void 0;
+    } else {
+      s1 = peg$FAILED;
+    }
+    if (s1 !== peg$FAILED) {
+      s2 = [];
+      s3 = peg$parsereferenceSymbol();
+      if (s3 !== peg$FAILED) {
+        while (s3 !== peg$FAILED) {
+          s2.push(s3);
+          s3 = peg$parsereferenceSymbol();
+        }
+      } else {
+        s2 = peg$FAILED;
+      }
+      if (s2 !== peg$FAILED) {
+        peg$savedPos = s0;
+        s0 = peg$f32(s2);
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+    } else {
+      peg$currPos = s0;
+      s0 = peg$FAILED;
+    }
     return s0;
   }
   function peg$parsequotedReference() {
@@ -2049,12 +2341,12 @@ function peg$parse(input, options) {
     s1 = peg$currPos;
     peg$silentFails++;
     if (input.charCodeAt(peg$currPos) === 34) {
-      s2 = peg$c3;
+      s2 = peg$c6;
       peg$currPos++;
     } else {
       s2 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$e6);
+        peg$fail(peg$e11);
       }
     }
     peg$silentFails--;
@@ -2066,7 +2358,7 @@ function peg$parse(input, options) {
     }
     if (s1 !== peg$FAILED) {
       peg$savedPos = peg$currPos;
-      s2 = peg$f30();
+      s2 = peg$f33();
       if (s2) {
         s2 = void 0;
       } else {
@@ -2076,7 +2368,7 @@ function peg$parse(input, options) {
         s3 = peg$parseconsumeDouble();
         if (s3 !== peg$FAILED) {
           peg$savedPos = s0;
-          s0 = peg$f31(s3);
+          s0 = peg$f34(s3);
         } else {
           peg$currPos = s0;
           s0 = peg$FAILED;
@@ -2111,7 +2403,7 @@ function peg$parse(input, options) {
         s3 = peg$parseconsumeDoubleMore();
       }
       peg$savedPos = s0;
-      s0 = peg$f32(s1, s2);
+      s0 = peg$f35(s1, s2);
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;
@@ -2122,7 +2414,7 @@ function peg$parse(input, options) {
     let s0, s1, s2;
     s0 = peg$currPos;
     peg$savedPos = peg$currPos;
-    s1 = peg$f33();
+    s1 = peg$f36();
     if (s1) {
       s1 = void 0;
     } else {
@@ -2140,7 +2432,7 @@ function peg$parse(input, options) {
       }
       if (s2 !== peg$FAILED) {
         peg$savedPos = s0;
-        s0 = peg$f34(s2);
+        s0 = peg$f37(s2);
       } else {
         peg$currPos = s0;
         s0 = peg$FAILED;
@@ -2157,12 +2449,12 @@ function peg$parse(input, options) {
     s1 = peg$currPos;
     peg$silentFails++;
     if (input.charCodeAt(peg$currPos) === 39) {
-      s2 = peg$c4;
+      s2 = peg$c7;
       peg$currPos++;
     } else {
       s2 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$e7);
+        peg$fail(peg$e12);
       }
     }
     peg$silentFails--;
@@ -2174,7 +2466,7 @@ function peg$parse(input, options) {
     }
     if (s1 !== peg$FAILED) {
       peg$savedPos = peg$currPos;
-      s2 = peg$f35();
+      s2 = peg$f38();
       if (s2) {
         s2 = void 0;
       } else {
@@ -2184,7 +2476,7 @@ function peg$parse(input, options) {
         s3 = peg$parseconsumeSingle();
         if (s3 !== peg$FAILED) {
           peg$savedPos = s0;
-          s0 = peg$f36(s3);
+          s0 = peg$f39(s3);
         } else {
           peg$currPos = s0;
           s0 = peg$FAILED;
@@ -2219,7 +2511,7 @@ function peg$parse(input, options) {
         s3 = peg$parseconsumeSingleMore();
       }
       peg$savedPos = s0;
-      s0 = peg$f37(s1, s2);
+      s0 = peg$f40(s1, s2);
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;
@@ -2230,7 +2522,7 @@ function peg$parse(input, options) {
     let s0, s1, s2;
     s0 = peg$currPos;
     peg$savedPos = peg$currPos;
-    s1 = peg$f38();
+    s1 = peg$f41();
     if (s1) {
       s1 = void 0;
     } else {
@@ -2248,7 +2540,7 @@ function peg$parse(input, options) {
       }
       if (s2 !== peg$FAILED) {
         peg$savedPos = s0;
-        s0 = peg$f39(s2);
+        s0 = peg$f42(s2);
       } else {
         peg$currPos = s0;
         s0 = peg$FAILED;
@@ -2265,12 +2557,12 @@ function peg$parse(input, options) {
     s1 = peg$currPos;
     peg$silentFails++;
     if (input.charCodeAt(peg$currPos) === 96) {
-      s2 = peg$c5;
+      s2 = peg$c8;
       peg$currPos++;
     } else {
       s2 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$e8);
+        peg$fail(peg$e13);
       }
     }
     peg$silentFails--;
@@ -2282,7 +2574,7 @@ function peg$parse(input, options) {
     }
     if (s1 !== peg$FAILED) {
       peg$savedPos = peg$currPos;
-      s2 = peg$f40();
+      s2 = peg$f43();
       if (s2) {
         s2 = void 0;
       } else {
@@ -2292,7 +2584,7 @@ function peg$parse(input, options) {
         s3 = peg$parseconsumeBacktick();
         if (s3 !== peg$FAILED) {
           peg$savedPos = s0;
-          s0 = peg$f41(s3);
+          s0 = peg$f44(s3);
         } else {
           peg$currPos = s0;
           s0 = peg$FAILED;
@@ -2327,7 +2619,7 @@ function peg$parse(input, options) {
         s3 = peg$parseconsumeBacktickMore();
       }
       peg$savedPos = s0;
-      s0 = peg$f42(s1, s2);
+      s0 = peg$f45(s1, s2);
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;
@@ -2338,7 +2630,7 @@ function peg$parse(input, options) {
     let s0, s1, s2;
     s0 = peg$currPos;
     peg$savedPos = peg$currPos;
-    s1 = peg$f43();
+    s1 = peg$f46();
     if (s1) {
       s1 = void 0;
     } else {
@@ -2356,7 +2648,7 @@ function peg$parse(input, options) {
       }
       if (s2 !== peg$FAILED) {
         peg$savedPos = s0;
-        s0 = peg$f44(s2);
+        s0 = peg$f47(s2);
       } else {
         peg$currPos = s0;
         s0 = peg$FAILED;
@@ -2372,7 +2664,7 @@ function peg$parse(input, options) {
     s0 = peg$currPos;
     s1 = "";
     peg$savedPos = s0;
-    s1 = peg$f45();
+    s1 = peg$f48();
     s0 = s1;
     return s0;
   }
@@ -2381,28 +2673,28 @@ function peg$parse(input, options) {
     s0 = peg$currPos;
     s1 = [];
     if (input.charCodeAt(peg$currPos) === 32) {
-      s2 = peg$c6;
+      s2 = peg$c9;
       peg$currPos++;
     } else {
       s2 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$e9);
+        peg$fail(peg$e14);
       }
     }
     while (s2 !== peg$FAILED) {
       s1.push(s2);
       if (input.charCodeAt(peg$currPos) === 32) {
-        s2 = peg$c6;
+        s2 = peg$c9;
         peg$currPos++;
       } else {
         s2 = peg$FAILED;
         if (peg$silentFails === 0) {
-          peg$fail(peg$e9);
+          peg$fail(peg$e14);
         }
       }
     }
     peg$savedPos = s0;
-    s1 = peg$f46(s1);
+    s1 = peg$f49(s1);
     s0 = s1;
     return s0;
   }
@@ -2411,28 +2703,28 @@ function peg$parse(input, options) {
     s0 = peg$currPos;
     s1 = [];
     if (input.charCodeAt(peg$currPos) === 32) {
-      s2 = peg$c6;
+      s2 = peg$c9;
       peg$currPos++;
     } else {
       s2 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$e9);
+        peg$fail(peg$e14);
       }
     }
     while (s2 !== peg$FAILED) {
       s1.push(s2);
       if (input.charCodeAt(peg$currPos) === 32) {
-        s2 = peg$c6;
+        s2 = peg$c9;
         peg$currPos++;
       } else {
         s2 = peg$FAILED;
         if (peg$silentFails === 0) {
-          peg$fail(peg$e9);
+          peg$fail(peg$e14);
         }
       }
     }
     peg$savedPos = peg$currPos;
-    s2 = peg$f47(s1);
+    s2 = peg$f50(s1);
     if (s2) {
       s2 = void 0;
     } else {
@@ -2440,7 +2732,7 @@ function peg$parse(input, options) {
     }
     if (s2 !== peg$FAILED) {
       peg$savedPos = s0;
-      s0 = peg$f48(s1);
+      s0 = peg$f51(s1);
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;
@@ -2452,28 +2744,28 @@ function peg$parse(input, options) {
     s0 = peg$currPos;
     s1 = [];
     if (input.charCodeAt(peg$currPos) === 32) {
-      s2 = peg$c6;
+      s2 = peg$c9;
       peg$currPos++;
     } else {
       s2 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$e9);
+        peg$fail(peg$e14);
       }
     }
     while (s2 !== peg$FAILED) {
       s1.push(s2);
       if (input.charCodeAt(peg$currPos) === 32) {
-        s2 = peg$c6;
+        s2 = peg$c9;
         peg$currPos++;
       } else {
         s2 = peg$FAILED;
         if (peg$silentFails === 0) {
-          peg$fail(peg$e9);
+          peg$fail(peg$e14);
         }
       }
     }
     peg$savedPos = peg$currPos;
-    s2 = peg$f49(s1);
+    s2 = peg$f52(s1);
     if (s2) {
       s2 = void 0;
     } else {
@@ -2684,7 +2976,7 @@ function peg$parse(input, options) {
     let s0, s1, s2, s3;
     s0 = peg$currPos;
     peg$savedPos = peg$currPos;
-    s1 = peg$f50();
+    s1 = peg$f53();
     if (s1) {
       s1 = void 0;
     } else {
@@ -2783,12 +3075,12 @@ function peg$parse(input, options) {
   function peg$parsewhiteSpaceSymbol() {
     let s0;
     s0 = input.charAt(peg$currPos);
-    if (peg$r2.test(s0)) {
+    if (peg$r4.test(s0)) {
       peg$currPos++;
     } else {
       s0 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$e10);
+        peg$fail(peg$e15);
       }
     }
     return s0;
@@ -2796,12 +3088,12 @@ function peg$parse(input, options) {
   function peg$parsereferenceSymbol() {
     let s0;
     s0 = input.charAt(peg$currPos);
-    if (peg$r3.test(s0)) {
+    if (peg$r5.test(s0)) {
       peg$currPos++;
     } else {
       s0 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$e11);
+        peg$fail(peg$e16);
       }
     }
     return s0;
@@ -2925,6 +3217,15 @@ var Parser = class {
     this.comments = options.comments ?? true;
   }
   parse(input) {
+    return this._parse(input, (raw) => this.transformResult(raw));
+  }
+  parseGroups(input) {
+    return this._parse(input, (raw) => raw.map((item) => this._transformGroup(item)));
+  }
+  _transformGroup(item) {
+    return new LinksGroup(this.transformLink(item), (item.children || []).map((child) => this._transformGroup(child)));
+  }
+  _parse(input, transform) {
     if (typeof input !== "string") {
       throw new TypeError("Input must be a string");
     }
@@ -2936,7 +3237,7 @@ var Parser = class {
       const rawResult = peg$parse(prepared, {
         maxDepth: this.maxDepth
       });
-      return this.transformResult(rawResult);
+      return transform(rawResult);
     } catch (error) {
       if (error && error.location) {
         throw new ParseError(input, error);
@@ -3221,6 +3522,7 @@ function nestingError(source, offset) {
 }
 function prepareLinoSource(text) {
   const source = normalizeLinoSource(text);
+  if (!source.isWellFormed()) throw new LinoParseError("source must be well-formed Unicode text");
   if (source.length > MAX_LINO_SOURCE_UNITS) {
     throw new LinoParseError(`source longer than ${MAX_LINO_SOURCE_UNITS} UTF-16 code units`);
   }
@@ -3268,6 +3570,19 @@ function prepareLinoSource(text) {
       }
     }
     const character = source[index];
+    if (!inReference && character === "~" && /^~[0-9]+\{/.test(source.slice(index))) {
+      const close = source.indexOf("}", index);
+      const end = close < 0 ? source.length : close + 1;
+      let value;
+      try {
+        value = decodeReferenceLiteral(source.slice(index, end));
+      } catch {
+        throw new LinoParseError("invalid or unsupported reference literal", { ...positionAt2(source, index), length: 1 });
+      }
+      quotes.push({ start: index, end, value });
+      index = end;
+      continue;
+    }
     if (!inReference && (character === '"' || character === "'" || character === "`")) {
       const { end, value } = readQuote(index);
       quotes.push({ start: index, end, value });
@@ -3412,7 +3727,7 @@ function findGroups(text) {
   return { groups, missing };
 }
 function readItems(source, prepared, quotes) {
-  const marker = unusedPair(source);
+  const marker = unusedPair(source + quotes.map((quote2) => quote2.value).join(""));
   const tokenized = tokenize(prepared, quotes, marker);
   const { groups, missing } = findGroups(tokenized.text);
   const text = tokenized.text + ")".repeat(missing);
@@ -3560,6 +3875,62 @@ function parseLinoLinkDocument(text) {
 function parseLinoDocument(text) {
   return parseLinoLinkDocument(text).map(({ form }) => form);
 }
+function tokenizeLinoForm(text) {
+  const { source, prepared, quotes } = prepareLinoSource(text);
+  const quoted = new Map(quotes.map((quote2) => [quote2.start, quote2]));
+  const out = [];
+  let index = 0;
+  let depth = 0;
+  while (index < prepared.length) {
+    const quote2 = quoted.get(index);
+    if (quote2) {
+      let end2 = quote2.end;
+      if (prepared[end2] === ":") end2 += 1;
+      out.push(source.slice(index, end2));
+      index = end2;
+      continue;
+    }
+    const character = prepared[index];
+    if (source[index] === "#" && character === " ") {
+      while (depth > 0) {
+        out.push(")");
+        depth -= 1;
+      }
+      break;
+    }
+    if (/\p{White_Space}/u.test(character)) {
+      index += 1;
+      continue;
+    }
+    if (character === "#") {
+      while (depth > 0) {
+        out.push(")");
+        depth -= 1;
+      }
+      break;
+    }
+    if (character === "(" || character === ")") {
+      out.push(character);
+      depth += character === "(" ? 1 : -1;
+      index += 1;
+      continue;
+    }
+    let end = index + 1;
+    while (end < prepared.length && !quoted.has(end) && !/[()]/.test(prepared[end]) && !/\p{White_Space}/u.test(prepared[end])) end += 1;
+    out.push(prepared.slice(index, end));
+    index = end;
+  }
+  return out;
+}
+function decodeLinoToken(token) {
+  const { quotes } = prepareLinoSource(token);
+  const quote2 = quotes[0];
+  if (quote2?.start === 0) {
+    if (quote2.end === token.length) return quote2.value;
+    if (quote2.end === token.length - 1 && token.endsWith(":")) return quote2.value + ":";
+  }
+  return token;
+}
 
 // src/rml-links-browser-entry.mjs
 var process = { argv: [], env: {}, cwd: (() => "/"), exit(code = 0) {
@@ -3646,46 +4017,7 @@ function formatDiagnostic(diag, sourceText) {
   return lines.join("\n");
 }
 function tokenizeOne(s) {
-  const commentIdx = s.indexOf("#");
-  if (commentIdx !== -1) {
-    s = s.substring(0, commentIdx);
-    let depth = 0;
-    for (let i2 = 0; i2 < s.length; i2++) {
-      if (s[i2] === "(") {
-        depth++;
-      } else {
-        if (s[i2] === ")") {
-          depth--;
-        }
-      }
-    }
-    while (depth > 0) {
-      s += ")";
-      depth--;
-    }
-  }
-  const out = [];
-  let i = 0;
-  const isWS = ((c) => /\p{White_Space}/u.test(c));
-  while (i < s.length) {
-    const c = s[i];
-    if (isWS(c)) {
-      i++;
-      continue;
-    }
-    if (c === "(" || c === ")") {
-      out.push(c);
-      i++;
-      continue;
-    }
-    let j = i;
-    while (j < s.length && !isWS(s[j]) && s[j] !== "(" && s[j] !== ")") {
-      j++;
-    }
-    out.push(s.slice(i, j));
-    i = j;
-  }
-  return out;
+  return tokenizeLinoForm(s);
 }
 function parseOne(tokens) {
   let i = 0;
@@ -3699,7 +4031,7 @@ function parseOne(tokens) {
       if (tokens[i] === "(") {
         arr.push(read());
       } else {
-        arr.push(tokens[i]);
+        arr.push(decodeLinoToken(tokens[i]));
         i++;
       }
     }
@@ -3728,6 +4060,49 @@ function keyOf(node) {
     return "(" + node.map(keyOf).join(" ") + ")";
   }
   return String(node);
+}
+function emitLinoTerm(node) {
+  const parts = [];
+  const active = /* @__PURE__ */ new Set();
+  let units = 0;
+  const append2 = ((text) => {
+    units += text.length;
+    if (units > MAX_LINO_SOURCE_UNITS) {
+      throw new RangeError("LiNo term exceeds the source length limit");
+    }
+    parts.push(text);
+  });
+  const visit = ((value, depth) => {
+    if (!Array.isArray(value)) {
+      const reference = String(value);
+      if (reference.length > MAX_LINO_SOURCE_UNITS) {
+        throw new RangeError("LiNo term exceeds the source length limit");
+      }
+      append2(Link.escapeReference(reference));
+      return;
+    }
+    if (active.has(value)) {
+      throw new TypeError("LiNo term contains a cyclic array");
+    }
+    if (depth >= MAX_LINO_NESTING_DEPTH) {
+      throw new RangeError("LiNo term exceeds the nesting limit");
+    }
+    active.add(value);
+    append2("(");
+    for (let index = 0; index < value.length; index += 1) {
+      if (index) {
+        append2(" ");
+      }
+      visit(value[index], depth + 1);
+    }
+    append2(")");
+    active.delete(value);
+  });
+  visit(node, 0);
+  return parts.join("");
+}
+function isDefinitionForm(node, operators) {
+  return Array.isArray(node) && typeof node[0] === "string" && node[0].endsWith(":") && !(node.length === 3 && typeof node[1] === "string" && (node[1] === "of" || operators.has(node[1])));
 }
 function isStructurallySame(a, b) {
   if (Array.isArray(a) || Array.isArray(b)) {
@@ -3761,13 +4136,13 @@ function universeTypeKey(node) {
   return level === null ? null : `(Type ${level + 1})`;
 }
 function inferTypeKey(node, env) {
-  const recorded = env.getType(node);
+  const recorded = env.getTypeNode(node);
   if (recorded) {
     return recorded;
   }
   const universeType = universeTypeKey(node);
   if (universeType) {
-    env.setType(node, universeType);
+    env.setTypeNode(node, _parseTypeKeyToNode(universeType));
     return universeType;
   }
   return null;
@@ -3820,13 +4195,13 @@ var Env = class {
     this.hi = opts.hi !== void 0 ? opts.hi : 1;
     this.valence = opts.valence !== void 0 ? opts.valence : 0;
     this.ops = new Map(Object.entries({ "not": ((x) => this.hi - (x - this.lo)), "and": ((...xs) => xs.length ? xs.reduce(((a, b) => a + b), 0) / xs.length : this.lo), "or": ((...xs) => xs.length ? Math.max(...xs) : this.lo), "both": ((...xs) => xs.length ? decRound(xs.reduce(((a, b) => a + b), 0) / xs.length) : this.lo), "neither": ((...xs) => xs.length ? decRound(xs.reduce(((a, b) => a * b), 1)) : this.lo), "=": ((L, R, ctx) => {
-      const kPrefix = keyOf(["=", L, R]);
+      const kPrefix = emitLinoTerm(["=", L, R]);
       if (this.assign.has(kPrefix)) {
         const v = this.assign.get(kPrefix);
         this.trace("lookup", `${kPrefix} \u2192 ${formatTraceValue(v)}`);
         return v;
       }
-      const kInfix = keyOf([L, "=", R]);
+      const kInfix = emitLinoTerm([L, "=", R]);
       if (this.assign.has(kInfix)) {
         const v = this.assign.get(kInfix);
         this.trace("lookup", `${kInfix} \u2192 ${formatTraceValue(v)}`);
@@ -3893,22 +4268,37 @@ var Env = class {
     return this.domainPlugins.get(name) || null;
   }
   setExprProb(exprNode, p) {
-    this.assign.set(keyOf(exprNode), this.clamp(p));
+    this.assign.set(emitLinoTerm(exprNode), this.clamp(p));
   }
-  setType(exprNode, typeExpr) {
-    const key = typeof exprNode === "string" ? exprNode : keyOf(exprNode);
-    this.types.set(key, typeof typeExpr === "string" ? typeExpr : keyOf(typeExpr));
+  setTypeNode(exprNode, typeNode) {
+    const key = emitLinoTerm(exprNode);
+    const type = emitLinoTerm(typeNode);
+    this.types.set(key, type);
   }
-  getType(exprNode) {
-    const key = typeof exprNode === "string" ? exprNode : keyOf(exprNode);
+  getTypeNode(exprNode) {
+    const key = emitLinoTerm(exprNode);
     if (this.types.has(key)) {
       return this.types.get(key);
     }
-    const resolved = this._resolveQualified(key);
-    if (resolved !== key && this.types.has(resolved)) {
-      return this.types.get(resolved);
+    if (typeof exprNode === "string") {
+      const resolved = this._resolveQualified(exprNode);
+      if (resolved !== exprNode) {
+        return this.types.get(emitLinoTerm(resolved)) ?? null;
+      }
     }
     return null;
+  }
+  setType(expr, typeExpr) {
+    this.setTypeNode(_legacyTypeInput(expr), _legacyTypeInput(typeExpr));
+  }
+  getType(expr) {
+    return this.getTypeNode(_legacyTypeInput(expr));
+  }
+  setTypeSource(exprSource, typeSource) {
+    this.setTypeNode(_parseTypeKeyToNode(exprSource), _parseTypeKeyToNode(typeSource));
+  }
+  getTypeSource(exprSource) {
+    return this.getTypeNode(_parseTypeKeyToNode(exprSource));
   }
   setLambda(name, param, paramType, body) {
     this.lambdas.set(name, { param, paramType, body });
@@ -3958,7 +4348,7 @@ var Env = class {
     }
     if (this.namespace) {
       const qualified = `${this.namespace}.${name}`;
-      if (this.ops.has(qualified) || this.symbolProb.has(qualified) || this.terms.has(qualified) || this.types.has(qualified) || this.lambdas.has(qualified) || this.templates.has(qualified)) {
+      if (this.ops.has(qualified) || this.symbolProb.has(qualified) || this.terms.has(qualified) || this.types.has(emitLinoTerm(qualified)) || this.lambdas.has(qualified) || this.templates.has(qualified)) {
         return qualified;
       }
     }
@@ -4139,7 +4529,7 @@ var Env = class {
     for (const [status, names] of bySemanticStatus.entries()) {
       semanticBuckets[status] = names.slice().sort();
     }
-    return { activeFoundation: active, description: foundation ? foundation.description : null, numericDomain: foundation ? foundation.numericDomain : null, truthDomain: foundation ? foundation.truthDomain : null, rootConstructs: this.listRootConstructs().map(((rc) => ({ name: rc.name, kind: rc.kind || null, status: rc.status || null, semanticStatus: semanticStatusForDescriptor(rc), dependsOn: (rc.dependsOn || []).slice(), encodedAs: rc.encodedAs || null, pureLinksReady: typeof rc.pureLinksReady === "boolean" ? rc.pureLinksReady : null, override: rc.override || null, plannedAs: rc.plannedAs || null }))), byStatus: buckets, bySemanticStatus: semanticBuckets, foundations: [...this.foundations.values()].map(((f) => ({ name: f.name, description: f.description || null, uses: (f.uses || []).slice(), defines: [...(f.defines || /* @__PURE__ */ new Map()).entries()].map((([k, v]) => ({ construct: k, implementation: v }))), extends: f.extends || null, numericDomain: f.numericDomain || null, truthDomain: f.truthDomain || null, carrier: Array.isArray(f.carrier) ? f.carrier.slice() : null, strictCarrier: f.strictCarrier === true, truthTables: f.truthTables instanceof Map && f.truthTables.size > 0 ? [...f.truthTables.entries()].sort((([a], [b]) => a < b ? -1 : a > b ? 1 : 0)).map((([op, rows]) => ({ op, rows: rows.map(((r) => ({ inputs: r.inputs.slice(), output: r.output }))) }))) : null, experimental: f.experimental === true, root: f.root || null, abits: Array.isArray(f.abits) && f.abits.length > 0 ? f.abits.map(((a) => ({ symbol: a.symbol, meaning: a.meaning }))) : null }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), activeImplementations: [...this.activeImplementations.entries()].map((([construct, impl]) => ({ construct, foundation: impl.foundation || null, implementation: impl.implementation || null, status: impl.status || null, semanticStatus: impl.semanticStatus || semanticStatusForTrustStatus(impl.status) || null, dependsOn: Array.isArray(impl.dependsOn) ? impl.dependsOn.slice() : [] }))).sort(((a, b) => a.construct < b.construct ? -1 : a.construct > b.construct ? 1 : 0)), proofRules: [...this.proofRules.entries()].map((([name, r]) => ({ name, premises: r.premises.map(((p) => keyOf(p))), conclusion: keyOf(r.conclusion) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), proofAssumptions: [...this.proofAssumptions.entries()].map((([name, a]) => ({ name, kind: a.kind, judgement: keyOf(a.judgement) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), proofObjects: [...this.proofObjects.entries()].map((([name, po]) => ({ name, rule: po.rule, premises: po.premises.map(((p) => keyOf(p))), premiseRefs: (po.premiseRefs || []).slice(), conclusion: keyOf(po.conclusion) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), strictPureLinks: this.strictPureLinks === true, allowedHostPrimitives: [...this.allowedHostPrimitives].sort(), dependencyGraph: buildDependencyGraph(this) };
+    return { activeFoundation: active, description: foundation ? foundation.description : null, numericDomain: foundation ? foundation.numericDomain : null, truthDomain: foundation ? foundation.truthDomain : null, rootConstructs: this.listRootConstructs().map(((rc) => ({ name: rc.name, kind: rc.kind || null, status: rc.status || null, semanticStatus: semanticStatusForDescriptor(rc), dependsOn: (rc.dependsOn || []).slice(), encodedAs: rc.encodedAs || null, pureLinksReady: typeof rc.pureLinksReady === "boolean" ? rc.pureLinksReady : null, override: rc.override || null, plannedAs: rc.plannedAs || null }))), byStatus: buckets, bySemanticStatus: semanticBuckets, foundations: [...this.foundations.values()].map(((f) => ({ name: f.name, description: f.description || null, uses: (f.uses || []).slice(), defines: [...(f.defines || /* @__PURE__ */ new Map()).entries()].map((([k, v]) => ({ construct: k, implementation: v }))), extends: f.extends || null, numericDomain: f.numericDomain || null, truthDomain: f.truthDomain || null, carrier: Array.isArray(f.carrier) ? f.carrier.slice() : null, strictCarrier: f.strictCarrier === true, truthTables: f.truthTables instanceof Map && f.truthTables.size > 0 ? [...f.truthTables.entries()].sort((([a], [b]) => a < b ? -1 : a > b ? 1 : 0)).map((([op, rows]) => ({ op, rows: rows.map(((r) => ({ inputs: r.inputs.slice(), output: r.output }))) }))) : null, experimental: f.experimental === true, root: f.root || null, abits: Array.isArray(f.abits) && f.abits.length > 0 ? f.abits.map(((a) => ({ symbol: a.symbol, meaning: a.meaning }))) : null }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), activeImplementations: [...this.activeImplementations.entries()].map((([construct, impl]) => ({ construct, foundation: impl.foundation || null, implementation: impl.implementation || null, status: impl.status || null, semanticStatus: impl.semanticStatus || semanticStatusForTrustStatus(impl.status) || null, dependsOn: Array.isArray(impl.dependsOn) ? impl.dependsOn.slice() : [] }))).sort(((a, b) => a.construct < b.construct ? -1 : a.construct > b.construct ? 1 : 0)), proofRules: [...this.proofRules.entries()].map((([name, r]) => ({ name, premises: r.premises.map(((p) => emitLinoTerm(p))), conclusion: emitLinoTerm(r.conclusion) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), proofAssumptions: [...this.proofAssumptions.entries()].map((([name, a]) => ({ name, kind: a.kind, judgement: emitLinoTerm(a.judgement) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), proofObjects: [...this.proofObjects.entries()].map((([name, po]) => ({ name, rule: po.rule, premises: po.premises.map(((p) => emitLinoTerm(p))), premiseRefs: (po.premiseRefs || []).slice(), conclusion: emitLinoTerm(po.conclusion) }))).sort(((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), strictPureLinks: this.strictPureLinks === true, allowedHostPrimitives: [...this.allowedHostPrimitives].sort(), dependencyGraph: buildDependencyGraph(this) };
   }
   proofReport(name) {
     if (typeof name !== "string" || !name) {
@@ -4160,7 +4550,7 @@ var Env = class {
       seen.add(refName);
       const ax = this.getProofAssumption(refName);
       if (ax) {
-        dependencies.push({ name: ax.name, kind: ax.kind, judgement: keyOf(ax.judgement) });
+        dependencies.push({ name: ax.name, kind: ax.kind, judgement: emitLinoTerm(ax.judgement) });
         return;
       }
       const dep = this.getProofObject(refName);
@@ -4174,7 +4564,7 @@ var Env = class {
       if (dep.rule) {
         rules.add(dep.rule);
       }
-      dependencies.push({ name: dep.name, kind: "proof-object", rule: dep.rule, judgement: keyOf(dep.conclusion) });
+      dependencies.push({ name: dep.name, kind: "proof-object", rule: dep.rule, judgement: emitLinoTerm(dep.conclusion) });
     });
     for (const ref of po.premiseRefs || []) {
       walk(ref);
@@ -4233,7 +4623,7 @@ var Env = class {
     for (const key of Object.keys(byTrustStatus)) {
       byTrustStatus[key].sort();
     }
-    return { kind: "proof-report", name, rule: po.rule, conclusion: keyOf(po.conclusion), premises: (po.premises || []).map(keyOf), premiseRefs: (po.premiseRefs || []).slice(), verdict: verdict.ok ? { ok: true } : { ok: false, error: verdict.error }, dependencies, rules: [...rules].sort(), rootConstructsUsed, bySemanticStatus, byTrustStatus, activeFoundation: this.activeFoundation || "default-rml", strictPureLinks: this.strictPureLinks === true };
+    return { kind: "proof-report", name, rule: po.rule, conclusion: emitLinoTerm(po.conclusion), premises: (po.premises || []).map(emitLinoTerm), premiseRefs: (po.premiseRefs || []).slice(), verdict: verdict.ok ? { ok: true } : { ok: false, error: verdict.error }, dependencies, rules: [...rules].sort(), rootConstructsUsed, bySemanticStatus, byTrustStatus, activeFoundation: this.activeFoundation || "default-rml", strictPureLinks: this.strictPureLinks === true };
   }
   dependencyClosure(name) {
     if (typeof name !== "string" || !name) {
@@ -5164,7 +5554,7 @@ function matchProofPattern(pattern, candidate, subs) {
   if (typeof pattern === "string") {
     if (pattern.startsWith("?")) {
       if (Object.prototype.hasOwnProperty.call(subs, pattern)) {
-        return keyOf(subs[pattern]) === keyOf(candidate);
+        return isStructurallySame(subs[pattern], candidate);
       }
       subs[pattern] = candidate;
       return true;
@@ -5489,13 +5879,18 @@ function parseBinding(binding) {
   if (binding.length === 2 && typeof binding[0] === "string" && binding[0].endsWith(":")) {
     return { paramName: binding[0].slice(0, -1), paramType: binding[1] };
   }
-  if (binding.length === 2 && typeof binding[0] === "string" && typeof binding[1] === "string" && /^[A-Z]/.test(binding[0]) && !binding[1].endsWith(":")) {
+  if (binding.length === 2 && typeof binding[0] === "string" && typeof binding[1] === "string" && /^\p{Uppercase}/u.test(binding[0])) {
     return { paramName: binding[1], paramType: binding[0] };
   }
-  if (binding.length === 2 && Array.isArray(binding[0]) && typeof binding[1] === "string" && !binding[1].endsWith(":")) {
+  if (binding.length === 2 && Array.isArray(binding[0]) && typeof binding[1] === "string") {
     return { paramName: binding[1], paramType: binding[0] };
   }
   return null;
+}
+function makeTypeBinding(paramName, paramType) {
+  const prefix = [paramType, paramName];
+  const parsed = parseBinding(prefix);
+  return parsed && parsed.paramName === paramName && isStructurallySame(parsed.paramType, paramType) ? prefix : [`${paramName}:`, paramType];
 }
 function parseBindings(binding) {
   if (!Array.isArray(binding)) {
@@ -5545,14 +5940,14 @@ function tokenBaseName(token) {
   if (typeof token !== "string") {
     return null;
   }
-  return token.replace(/[:,]+$/g, "");
+  return token;
 }
 function isVariableToken(token) {
   if (typeof token !== "string") {
     return false;
   }
   const base = tokenBaseName(token);
-  return !!base && base === token && !isNum(base) && !NON_VARIABLE_TOKENS.has(base);
+  return base === token && !isNum(base) && !NON_VARIABLE_TOKENS.has(base);
 }
 function bindingParamNames(binding) {
   const parsed = parseBindings(binding);
@@ -5596,12 +5991,8 @@ function freeVariables(expr, bound = /* @__PURE__ */ new Set()) {
       nested.add(param);
     }
     if (binder.kind !== "fresh") {
-      const paramSet = new Set(binder.params);
-      for (const child of expr[binder.bindingIndex]) {
-        if (typeof child === "string" && paramSet.has(tokenBaseName(child))) {
-          continue;
-        }
-        addAll(freeVariables(child, bound));
+      for (const binding of parseBindings(expr[binder.bindingIndex]) || []) {
+        addAll(freeVariables(binding.paramType, bound));
       }
     }
     addAll(freeVariables(expr[binder.bodyIndex], nested));
@@ -5616,11 +6007,11 @@ function containsFree(expr, name) {
   return freeVariables(expr).has(name);
 }
 function envCanEvaluateName(env, name) {
-  if (env.symbolProb.has(name) || env.terms.has(name) || env.types.has(name) || env.lambdas.has(name) || env.ops.has(name) || env.templates.has(name)) {
+  if (env.symbolProb.has(name) || env.terms.has(name) || env.types.has(emitLinoTerm(name)) || env.lambdas.has(name) || env.ops.has(name) || env.templates.has(name)) {
     return true;
   }
   const resolved = env._resolveQualified(name);
-  return resolved !== name && (env.symbolProb.has(resolved) || env.terms.has(resolved) || env.types.has(resolved) || env.lambdas.has(resolved) || env.ops.has(resolved) || env.templates.has(resolved));
+  return resolved !== name && (env.symbolProb.has(resolved) || env.terms.has(resolved) || env.types.has(emitLinoTerm(resolved)) || env.lambdas.has(resolved) || env.ops.has(resolved) || env.templates.has(resolved));
 }
 function hasUnresolvedFreeVariables(expr, env) {
   for (const name of freeVariables(expr)) {
@@ -5633,12 +6024,15 @@ function hasUnresolvedFreeVariables(expr, env) {
 function collectNames(expr, out = /* @__PURE__ */ new Set()) {
   if (typeof expr === "string") {
     const base = tokenBaseName(expr);
-    if (base && !isNum(base) && !NON_VARIABLE_TOKENS.has(base)) {
+    if (!isNum(base) && !NON_VARIABLE_TOKENS.has(base)) {
       out.add(base);
     }
     return out;
   }
   if (Array.isArray(expr)) {
+    for (const name of binderInfo(expr)?.params || []) {
+      out.add(name);
+    }
     for (const child of expr) {
       collectNames(child, out);
     }
@@ -5657,6 +6051,13 @@ function freshName(base, avoid) {
 function renameBindingParam(binding, oldName, newName) {
   if (!Array.isArray(binding)) {
     return binding;
+  }
+  const single = parseBinding(binding);
+  if (single) {
+    if (single.paramName !== oldName) {
+      return cloneTerm(binding);
+    }
+    return typeof binding[0] === "string" && binding[0].endsWith(":") ? [`${newName}:`, cloneTerm(binding[1])] : [cloneTerm(binding[0]), newName];
   }
   return binding.map(((child) => {
     if (typeof child !== "string") {
@@ -5853,8 +6254,8 @@ function _containsLambdaOrApply(node) {
 }
 function classifyEqualityRule(L, R, op, env) {
   const isInequality = op === "!=";
-  const kPrefix = keyOf(["=", L, R]);
-  const kInfix = keyOf([L, "=", R]);
+  const kPrefix = emitLinoTerm(["=", L, R]);
+  const kInfix = emitLinoTerm([L, "=", R]);
   if (env.assign.has(kPrefix) || env.assign.has(kInfix)) {
     return isInequality ? "assigned-inequality" : "assigned-equality";
   }
@@ -5904,7 +6305,7 @@ function buildProof(node, env) {
   if (!Array.isArray(node)) {
     return _wrap("literal", String(node));
   }
-  if (typeof node[0] === "string" && node[0].endsWith(":")) {
+  if (isDefinitionForm(node, env.ops)) {
     return _wrap("definition", node);
   }
   if (node.length === 4 && node[1] === "has" && node[2] === "probability" && isNum(node[3])) {
@@ -6112,7 +6513,10 @@ function _smtTrustedNode(smtOptions) {
   return ["by", "smt-trusted", _smtSolverProofName(smtOptions)];
 }
 function _smtEscapeSymbol(raw) {
-  return `|${String(raw).replace(/\\/g, "\\\\").replace(/\|/g, "\\|")}|`;
+  const text = String(raw);
+  const safe = /^[A-Za-z_][A-Za-z0-9_]*$/.test(text) && !text.startsWith("rml_hex_");
+  const name = safe ? text : "rml_hex_" + Array.from(new TextEncoder().encode(text), ((byte) => byte.toString(16).padStart(2, "0"))).join("");
+  return `|${name}|`;
 }
 function _smtDeclare(ctx, raw, sort) {
   const key = String(raw);
@@ -6153,7 +6557,7 @@ function _smtTerm(node, ctx) {
     if (node === "true" || node === "false") {
       throw _rewriteError(`SMT bridge cannot use Boolean constant ${node} as a Real term`);
     }
-    return _smtDeclare(ctx, node, "Real");
+    return _smtDeclare(ctx, emitLinoTerm(node), "Real");
   }
   if (!Array.isArray(node) || node.length === 0) {
     throw _rewriteError(`SMT bridge cannot translate term ${keyOf(node)}`);
@@ -6166,7 +6570,7 @@ function _smtTerm(node, ctx) {
   if (typeof head === "string" && ["+", "-", "*", "/"].includes(head) && node.length >= 3) {
     return `(${head} ${node.slice(1).map(((arg) => _smtTerm(arg, ctx))).join(" ")})`;
   }
-  return _smtDeclare(ctx, keyOf(node), "Real");
+  return _smtDeclare(ctx, emitLinoTerm(node), "Real");
 }
 function _smtEquality(left, right, ctx) {
   if (_smtIsBoolish(left) || _smtIsBoolish(right)) {
@@ -6185,7 +6589,7 @@ function _smtFormula(node, ctx) {
     if (isNum(node)) {
       throw _rewriteError(`SMT bridge cannot use numeric literal ${node} as a Boolean formula`);
     }
-    return _smtDeclare(ctx, node, "Bool");
+    return _smtDeclare(ctx, emitLinoTerm(node), "Bool");
   }
   if (!Array.isArray(node) || node.length === 0) {
     throw _rewriteError(`SMT bridge cannot translate formula ${keyOf(node)}`);
@@ -6216,7 +6620,7 @@ function _smtFormula(node, ctx) {
   if ((head === "=>" || head === "implies") && node.length === 3) {
     return `(=> ${_smtFormula(node[1], ctx)} ${_smtFormula(node[2], ctx)})`;
   }
-  return _smtDeclare(ctx, keyOf(node), "Bool");
+  return _smtDeclare(ctx, emitLinoTerm(node), "Bool");
 }
 function smtLibForGoal(goal) {
   const ctx = { declarations: /* @__PURE__ */ new Map() };
@@ -6265,37 +6669,29 @@ function _runSmtSolver(smtLib, smtOptions) {
   return { status: result, reason: `SMT solver ${solverName} returned ${result}` };
 }
 function _tptpIdentifier(raw, role) {
-  let cleaned = String(raw).replace(/[^A-Za-z0-9_]/g, "_");
-  if (!cleaned) {
-    cleaned = role === "var" ? "X" : "rml_symbol";
+  const text = String(raw);
+  const prefix = role === "var" ? "V_rml_hex_" : "rml_hex_";
+  const safe = role === "var" ? /^[A-Z][A-Za-z0-9_]*$/ : /^[a-z][A-Za-z0-9_]*$/;
+  if (safe.test(text) && !text.startsWith(prefix)) {
+    return text;
   }
-  if (role === "var") {
-    cleaned = cleaned[0].toUpperCase() + cleaned.slice(1);
-    if (!/^[A-Z]/.test(cleaned)) {
-      cleaned = `V_${cleaned}`;
-    }
-    return cleaned;
-  }
-  cleaned = cleaned.toLowerCase();
-  if (!/^[a-z]/.test(cleaned)) {
-    cleaned = `rml_${cleaned}`;
-  }
-  return cleaned;
+  const hex = Array.from(new TextEncoder().encode(text), ((byte) => byte.toString(16).padStart(2, "0"))).join("");
+  return prefix + hex;
 }
 function _tptpTerm(node, boundVars) {
   if (typeof node === "string") {
     if (boundVars.has(node)) {
       return _tptpIdentifier(node, "var");
     }
-    if (isNum(node)) {
-      return _tptpIdentifier(`num_${node}`, "term");
-    }
-    return _tptpIdentifier(node, "term");
+    return _tptpIdentifier(emitLinoTerm(node), "term");
   }
   if (!Array.isArray(node) || node.length === 0 || typeof node[0] !== "string") {
     throw _rewriteError(`TPTP export supports first-order terms only (got ${keyOf(node)})`);
   }
-  const head = _tptpIdentifier(node[0], "term");
+  if (node.length === 1) {
+    return _tptpIdentifier(emitLinoTerm(node), "term");
+  }
+  const head = _tptpIdentifier(emitLinoTerm(node[0]), "term");
   const args = node.slice(1).map(((arg) => _tptpTerm(arg, boundVars))).join(", ");
   return `${head}(${args})`;
 }
@@ -6340,7 +6736,7 @@ function _tptpFormula(node, boundVars = /* @__PURE__ */ new Set()) {
     if (boundVars.has(node)) {
       return _tptpIdentifier(node, "var");
     }
-    return _tptpIdentifier(node, "pred");
+    return _tptpIdentifier(emitLinoTerm(node), "pred");
   }
   if (!Array.isArray(node) || node.length === 0) {
     throw _rewriteError(`TPTP export supports first-order formulas only (got ${keyOf(node)})`);
@@ -6354,7 +6750,7 @@ function _tptpFormula(node, boundVars = /* @__PURE__ */ new Set()) {
   }
   const ascription = _typeAscription(node);
   if (ascription) {
-    return `${_tptpIdentifier(keyOf(ascription.type), "pred")}(${_tptpTerm(ascription.term, boundVars)})`;
+    return `${_tptpIdentifier(emitLinoTerm(ascription.type), "pred")}(${_tptpTerm(ascription.term, boundVars)})`;
   }
   const equality = _asEquality(node);
   if (equality) {
@@ -6396,7 +6792,7 @@ function _tptpFormula(node, boundVars = /* @__PURE__ */ new Set()) {
     if ((head === "<=>" || head === "iff") && node.length === 3) {
       return _tptpJoinFormula("<=>", node.slice(1), boundVars);
     }
-    const predicate = _tptpIdentifier(head, "pred");
+    const predicate = _tptpIdentifier(emitLinoTerm(node.length === 1 ? node : head), "pred");
     if (node.length === 1) {
       return predicate;
     }
@@ -6924,15 +7320,16 @@ function conversionOptionsFrom(ctx, options) {
 }
 function parseTermInput(term) {
   if (Array.isArray(term)) {
+    emitLinoTerm(term);
     return desugarHoas(term);
   }
   if (typeof term !== "string") {
     return String(term);
   }
   const trimmed = term.trim();
-  if (trimmed.startsWith("(")) {
+  if (trimmed.startsWith("(") || trimmed.startsWith("'") || trimmed.startsWith('"') || trimmed.startsWith("~1{")) {
     try {
-      return desugarHoas(parseOne(tokenizeOne(trimmed)));
+      return desugarHoas(_parseTypeKeyToNode(trimmed));
     } catch (_) {
       return term;
     }
@@ -7090,7 +7487,7 @@ function etaContract(term, env, options) {
 }
 function lookupAssignedInfix(env, op, left, right) {
   for (const expr of [[op, left, right], [left, op, right]]) {
-    const key = keyOf(expr);
+    const key = emitLinoTerm(expr);
     if (env.assign.has(key)) {
       const value = env.assign.get(key);
       env.trace("lookup", `${key} \u2192 ${formatTraceValue(value)}`);
@@ -7736,7 +8133,7 @@ function _buildPi(params, result) {
   let out = result;
   for (let i = params.length - 1; i >= 0; i--) {
     const p = params[i];
-    out = ["Pi", [p.type, p.name], out];
+    out = ["Pi", makeTypeBinding(p.name, p.type), out];
   }
   return out;
 }
@@ -7806,7 +8203,7 @@ function _buildCaseType(ctor, typeName, motiveVar) {
 }
 function buildEliminatorType(decl) {
   const motiveVar = "_motive";
-  const motiveType = ["Pi", [decl.name, "_"], ["Type", "0"]];
+  const motiveType = ["Pi", makeTypeBinding("_", decl.name), ["Type", "0"]];
   const caseParams = decl.constructors.map(((c) => ({ name: `case_${c.name}`, type: _buildCaseType(c, decl.name, motiveVar) })));
   const targetVar = "_target";
   const final = ["apply", motiveVar, targetVar];
@@ -7817,12 +8214,12 @@ function buildEliminatorType(decl) {
 function registerInductive(env, decl) {
   const storeType = env.qualifyName(decl.name);
   env.terms.add(storeType);
-  env.setType(storeType, ["Type", "0"]);
+  env.setTypeNode(storeType, ["Type", "0"]);
   evalNode(["Type", "0"], env);
   for (const ctor of decl.constructors) {
     const storeName = env.qualifyName(ctor.name);
     env.terms.add(storeName);
-    env.setType(storeName, ctor.type);
+    env.setTypeNode(storeName, ctor.type);
     if (Array.isArray(ctor.type)) {
       evalNode(ctor.type, env);
     }
@@ -7831,7 +8228,7 @@ function registerInductive(env, decl) {
   const elimType = buildEliminatorType(decl);
   const storeElim = env.qualifyName(elimName);
   env.terms.add(storeElim);
-  env.setType(storeElim, elimType);
+  env.setTypeNode(storeElim, elimType);
   evalNode(elimType, env);
   env.inductives.set(decl.name, { name: decl.name, constructors: decl.constructors, elimName, elimType });
   return 1;
@@ -7914,12 +8311,12 @@ function parseConstructorClauseCo(clause, typeName) {
 function registerCoinductive(env, decl) {
   const storeType = env.qualifyName(decl.name);
   env.terms.add(storeType);
-  env.setType(storeType, ["Type", "0"]);
+  env.setTypeNode(storeType, ["Type", "0"]);
   evalNode(["Type", "0"], env);
   for (const ctor of decl.constructors) {
     const storeName = env.qualifyName(ctor.name);
     env.terms.add(storeName);
-    env.setType(storeName, ctor.type);
+    env.setTypeNode(storeName, ctor.type);
     if (Array.isArray(ctor.type)) {
       evalNode(ctor.type, env);
     }
@@ -7928,7 +8325,7 @@ function registerCoinductive(env, decl) {
   const corecType = buildCorecursorType(decl);
   const storeCorec = env.qualifyName(corecName);
   env.terms.add(storeCorec);
-  env.setType(storeCorec, corecType);
+  env.setTypeNode(storeCorec, corecType);
   evalNode(corecType, env);
   env.coinductives.set(decl.name, { name: decl.name, constructors: decl.constructors, corecName, corecType });
   return 1;
@@ -7949,19 +8346,19 @@ function checkModeAtCall(name, args, env) {
   return null;
 }
 function contextHasName(env, name) {
-  if (env.terms.has(name) || env.types.has(name) || env.lambdas.has(name) || env.symbolProb.has(name) || env.ops.has(name)) {
+  if (env.terms.has(name) || env.types.has(emitLinoTerm(name)) || env.lambdas.has(name) || env.symbolProb.has(name) || env.ops.has(name)) {
     return true;
   }
   const resolved = env._resolveQualified(name);
-  return resolved !== name && (env.terms.has(resolved) || env.types.has(resolved) || env.lambdas.has(resolved) || env.symbolProb.has(resolved) || env.ops.has(resolved));
+  return resolved !== name && (env.terms.has(resolved) || env.types.has(emitLinoTerm(resolved)) || env.lambdas.has(resolved) || env.symbolProb.has(resolved) || env.ops.has(resolved));
 }
 function evalFresh(varName, body, env) {
   if (contextHasName(env, varName)) {
     throw new RmlError("E010", `fresh variable "${varName}" already appears in context`);
   }
   const hadTerm = env.terms.has(varName);
-  const hadType = env.types.has(varName);
-  const previousType = env.types.get(varName);
+  const hadType = env.types.has(emitLinoTerm(varName));
+  const previousType = env.types.get(emitLinoTerm(varName));
   const hadLambda = env.lambdas.has(varName);
   const previousLambda = env.lambdas.get(varName);
   const hadSymbol = env.symbolProb.has(varName);
@@ -7974,9 +8371,9 @@ function evalFresh(varName, body, env) {
       env.terms.delete(varName);
     }
     if (hadType) {
-      env.types.set(varName, previousType);
+      env.types.set(emitLinoTerm(varName), previousType);
     } else {
-      env.types.delete(varName);
+      env.types.delete(emitLinoTerm(varName));
     }
     if (hadLambda) {
       env.lambdas.set(varName, previousLambda);
@@ -8011,7 +8408,7 @@ function automaticSequencesDomainPlugin(forms, env) {
     const storeName = env.qualifyName(decision.theorem);
     const truthValue = decision.value ? env.hi : env.lo;
     env.terms.add(storeName);
-    env.setType(storeName, "Theorem");
+    env.setTypeNode(storeName, "Theorem");
     env.setSymbolProb(storeName, truthValue);
     env.automaticSequenceDecisions.set(storeName, { ...decision, theorem: storeName, truthValue });
     env.trace("domain", `${storeName} decided by automatic-sequences`);
@@ -8039,7 +8436,7 @@ function evalNode(node, env) {
   if (Array.isArray(node)) {
     node = desugarHoas(node);
   }
-  if (typeof node[0] === "string" && node[0].endsWith(":")) {
+  if (isDefinitionForm(node, env.ops)) {
     const head2 = node[0].slice(0, -1);
     return defineForm(head2, node.slice(1), env);
   }
@@ -8164,7 +8561,7 @@ function evalNode(node, env) {
       return v;
     }
     if (isTermResult(v)) {
-      return { query: true, value: keyOf(v.term), typeQuery: true };
+      return { query: true, value: emitLinoTerm(v.term), typeQuery: true };
     }
     return { query: true, value: env.clamp(v) };
   }
@@ -8238,11 +8635,11 @@ function evalNode(node, env) {
     if (level === null) {
       return 0;
     }
-    env.setType(node, ["Type", String(level + 1)]);
+    env.setTypeNode(node, ["Type", String(level + 1)]);
     return 1;
   }
   if (node.length === 1 && node[0] === "Prop") {
-    env.setType(["Prop"], ["Type", "1"]);
+    env.setTypeNode(["Prop"], ["Type", "1"]);
     return 1;
   }
   if (node.length === 3 && node[0] === "Pi") {
@@ -8251,8 +8648,8 @@ function evalNode(node, env) {
     if (parsed) {
       const { paramName, paramType } = parsed;
       env.terms.add(paramName);
-      env.setType(paramName, paramType);
-      env.setType(node, ["Type", "0"]);
+      env.setTypeNode(paramName, paramType);
+      env.setTypeNode(node, ["Type", "0"]);
     }
     return 1;
   }
@@ -8263,15 +8660,14 @@ function evalNode(node, env) {
       const { paramName, paramType } = bindings[0];
       const body = node[2];
       env.terms.add(paramName);
-      env.setType(paramName, paramType);
+      env.setTypeNode(paramName, paramType);
       for (let i = 1; i < bindings.length; i++) {
         env.terms.add(bindings[i].paramName);
-        env.setType(bindings[i].paramName, bindings[i].paramType);
+        env.setTypeNode(bindings[i].paramName, bindings[i].paramType);
       }
-      const bodyType = env.getType(body);
-      const paramTypeKey = typeof paramType === "string" ? paramType : keyOf(paramType);
-      const bodyTypeKey = bodyType || "unknown";
-      env.setType(node, "(Pi (" + paramTypeKey + " " + paramName + ") " + bodyTypeKey + ")");
+      const bodyType = env.getTypeNode(body);
+      const bodyTypeNode = bodyType === null ? "unknown" : _parseTypeKeyToNode(bodyType);
+      env.setTypeNode(node, ["Pi", makeTypeBinding(paramName, paramType), bodyTypeNode]);
     }
     return 1;
   }
@@ -8310,7 +8706,7 @@ function evalNode(node, env) {
     const expectedType = node[2];
     const actualType = inferTypeKey(expr, env);
     if (actualType) {
-      const expectedKey = typeof expectedType === "string" ? expectedType : keyOf(expectedType);
+      const expectedKey = emitLinoTerm(expectedType);
       return actualType === expectedKey ? env.hi : env.lo;
     }
     return env.lo;
@@ -8353,13 +8749,13 @@ function _reinitOps(env) {
   env.ops.set("both", ((...xs) => xs.length ? decRound(xs.reduce(((a, b) => a + b), 0) / xs.length) : env.lo));
   env.ops.set("neither", ((...xs) => xs.length ? decRound(xs.reduce(((a, b) => a * b), 1)) : env.lo));
   env.ops.set("=", ((L, R, ctx) => {
-    const kPrefix = keyOf(["=", L, R]);
+    const kPrefix = emitLinoTerm(["=", L, R]);
     if (env.assign.has(kPrefix)) {
       const v = env.assign.get(kPrefix);
       env.trace("lookup", `${kPrefix} \u2192 ${formatTraceValue(v)}`);
       return v;
     }
-    const kInfix = keyOf([L, "=", R]);
+    const kInfix = emitLinoTerm([L, "=", R]);
     if (env.assign.has(kInfix)) {
       const v = env.assign.get(kInfix);
       env.trace("lookup", `${kInfix} \u2192 ${formatTraceValue(v)}`);
@@ -8401,14 +8797,14 @@ function defineForm(head, rhs, env) {
     const typeName = rhs[0];
     if (/^[A-Z]/.test(typeName)) {
       env.terms.add(storeName);
-      env.setType(storeName, typeName);
+      env.setTypeNode(storeName, typeName);
       return 1;
     }
   }
   if (rhs.length === 2 && Array.isArray(rhs[0]) && typeof rhs[1] === "string" && rhs[1] === head) {
     const typeExpr = rhs[0];
     env.terms.add(storeName);
-    env.setType(storeName, typeExpr);
+    env.setTypeNode(storeName, typeExpr);
     evalNode(typeExpr, env);
     return 1;
   }
@@ -8417,7 +8813,7 @@ function defineForm(head, rhs, env) {
     if (!isOp) {
       const typeExpr = rhs[0];
       env.terms.add(storeName);
-      env.setType(storeName, typeExpr);
+      env.setTypeNode(storeName, typeExpr);
       evalNode(typeExpr, env);
       return 1;
     }
@@ -8463,20 +8859,20 @@ function defineForm(head, rhs, env) {
         env.terms.add(storeName);
         env.setLambda(storeName, paramName, paramType, body);
         const hadParamTerm = env.terms.has(paramName);
-        const previousParamType = env.getType(paramName);
+        const previousParamType = env.types.get(emitLinoTerm(paramName)) ?? null;
         env.terms.add(paramName);
-        env.setType(paramName, paramType);
-        const paramTypeKey = typeof paramType === "string" ? paramType : keyOf(paramType);
-        const bodyTypeKey = env.getType(body) || (typeof body === "string" ? body : keyOf(body));
+        env.setTypeNode(paramName, paramType);
+        const bodyTypeKey = env.getTypeNode(body);
+        const bodyTypeNode = bodyTypeKey === null ? body : _parseTypeKeyToNode(bodyTypeKey);
         if (!hadParamTerm) {
           env.terms.delete(paramName);
         }
         if (previousParamType === null) {
-          env.types.delete(paramName);
+          env.types.delete(emitLinoTerm(paramName));
         } else {
-          env.setType(paramName, previousParamType);
+          env.types.set(emitLinoTerm(paramName), previousParamType);
         }
-        env.setType(storeName, "(Pi (" + paramTypeKey + " " + paramName + ") " + bodyTypeKey + ")");
+        env.setTypeNode(storeName, ["Pi", makeTypeBinding(paramName, paramType), bodyTypeNode]);
         return 1;
       }
     }
@@ -8511,21 +8907,27 @@ function _typeKeyOf(typeNode) {
   if (typeNode === null || typeNode === void 0) {
     return null;
   }
-  return typeof typeNode === "string" ? typeNode : keyOf(typeNode);
+  return emitLinoTerm(typeNode);
+}
+function _legacyTypeInput(input) {
+  if (typeof input !== "string") {
+    return input;
+  }
+  try {
+    return _parseTypeKeyToNode(input);
+  } catch (_) {
+    return input;
+  }
 }
 function _parseTypeKeyToNode(typeKey) {
   if (typeof typeKey !== "string") {
     return typeKey;
   }
-  const trimmed = typeKey.trim();
-  if (trimmed.startsWith("(")) {
-    try {
-      return parseOne(tokenizeOne(trimmed));
-    } catch (_) {
-      return typeKey;
-    }
+  const wrapper = parseOne(["(", ...tokenizeOne(typeKey), ")"]);
+  if (wrapper.length !== 1) {
+    throw new RmlError("E002", "expected exactly one serialized term");
   }
-  return typeKey;
+  return wrapper[0];
 }
 function _diag(code, message, span) {
   return new Diagnostic({ code, message, span: span || { file: null, line: 1, col: 1, length: 0 } });
@@ -8547,20 +8949,20 @@ function _spanFromCtx(ctx, options) {
   return null;
 }
 function _snapshotTypeBinding(env, name) {
-  return { name, hadTerm: env.terms.has(name), hadType: env.types.has(name), previousType: env.types.get(name) };
+  return { name, hadTerm: env.terms.has(name), hadType: env.types.has(emitLinoTerm(name)), previousType: env.types.get(emitLinoTerm(name)) };
 }
 function _extendTypeBinding(env, name, typeKey) {
   env.terms.add(name);
-  env.types.set(name, typeKey);
+  env.types.set(emitLinoTerm(name), typeKey);
 }
 function _restoreTypeBinding(env, snap) {
   if (!snap.hadTerm) {
     env.terms.delete(snap.name);
   }
   if (snap.hadType) {
-    env.types.set(snap.name, snap.previousType);
+    env.types.set(emitLinoTerm(snap.name), snap.previousType);
   } else {
-    env.types.delete(snap.name);
+    env.types.delete(emitLinoTerm(snap.name));
   }
 }
 function _typesAgree(a, b, env) {
@@ -8573,7 +8975,7 @@ function _typesAgree(a, b, env) {
     return true;
   }
   try {
-    return isConvertible(aN, bN, env);
+    return isConvertible(emitLinoTerm(aN), emitLinoTerm(bN), env);
   } catch (_) {
     return false;
   }
@@ -8597,7 +8999,7 @@ function _synthLeaf(term, env) {
   }
   const resolved = env._resolveQualified(term);
   if (resolved !== term) {
-    const fromAlias = env.types.get(resolved);
+    const fromAlias = env.types.get(emitLinoTerm(resolved));
     if (fromAlias) {
       return _parseTypeKeyToNode(fromAlias);
     }
@@ -8605,11 +9007,11 @@ function _synthLeaf(term, env) {
   return null;
 }
 function _synthApply(node, env, span, diagnostics) {
-  const fnSynth = synth(node[1], env, { span, parentDiagnostics: diagnostics });
+  const fnSynth = synthNode(node[1], env, { span, parentDiagnostics: diagnostics });
   for (const d of fnSynth.diagnostics) {
     diagnostics.push(d);
   }
-  if (!fnSynth.type) {
+  if (fnSynth.type === null) {
     diagnostics.push(_diag("E020", `Cannot synthesize type of \`${keyOf(node[1])}\` in \`${keyOf(node)}\``, span));
     return null;
   }
@@ -8624,7 +9026,7 @@ function _synthApply(node, env, span, diagnostics) {
     return null;
   }
   const domainNode = typeof parsed.paramType === "string" ? parsed.paramType : parsed.paramType;
-  const argCheck = check(node[2], domainNode, env, { span, parentDiagnostics: diagnostics });
+  const argCheck = checkNode(node[2], domainNode, env, { span, parentDiagnostics: diagnostics });
   for (const d of argCheck.diagnostics) {
     diagnostics.push(d);
   }
@@ -8644,7 +9046,7 @@ function _synthLambda(node, env, span, diagnostics) {
   _extendTypeBinding(env, parsed.paramName, paramTypeKey);
   let bodyType = null;
   try {
-    const bodySynth = synth(node[2], env, { span, parentDiagnostics: diagnostics });
+    const bodySynth = synthNode(node[2], env, { span, parentDiagnostics: diagnostics });
     for (const d of bodySynth.diagnostics) {
       diagnostics.push(d);
     }
@@ -8652,14 +9054,14 @@ function _synthLambda(node, env, span, diagnostics) {
   } finally {
     _restoreTypeBinding(env, snap);
   }
-  if (!bodyType) {
+  if (bodyType === null) {
     return null;
   }
-  return ["Pi", [parsed.paramType, parsed.paramName], bodyType];
+  return ["Pi", makeTypeBinding(parsed.paramName, parsed.paramType), bodyType];
 }
 function _synthOfMembership(node, env, span, diagnostics) {
   const expected = node[2];
-  const result = check(node[0], expected, env, { span, parentDiagnostics: diagnostics });
+  const result = checkNode(node[0], expected, env, { span, parentDiagnostics: diagnostics });
   for (const d of result.diagnostics) {
     diagnostics.push(d);
   }
@@ -8669,13 +9071,20 @@ function _synthOfMembership(node, env, span, diagnostics) {
   return ["Type", "0"];
 }
 function synth(term, ctx, options) {
+  return synthNode(parseTermInput(term), ctx, options);
+}
+function check(term, expectedType, ctx, options) {
+  return checkNode(parseTermInput(term), parseTermInput(expectedType), ctx, options);
+}
+function synthNode(term, ctx, options) {
+  emitLinoTerm(term);
   const env = _envFromCtx(ctx);
   const span = _spanFromCtx(ctx, options);
   const diagnostics = [];
-  const node = parseTermInput(term);
+  const node = desugarHoas(term);
   if (typeof node === "string") {
     const t = _synthLeaf(node, env);
-    if (!t && !isNum(node)) {
+    if (t === null && !isNum(node)) {
       diagnostics.push(_diag("E020", `Cannot synthesize type of symbol \`${node}\``, span));
     }
     return { type: t, diagnostics };
@@ -8704,7 +9113,7 @@ function synth(term, ctx, options) {
     return { type: ["Type", "0"], diagnostics };
   }
   if (_isForallNode(node)) {
-    return synth(_expandForall(node), env, { span, parentDiagnostics: diagnostics });
+    return synthNode(_expandForall(node), env, { span, parentDiagnostics: diagnostics });
   }
   if (node.length === 3 && node[0] === "lambda") {
     const lambdaType = _synthLambda(node, env, span, diagnostics);
@@ -8715,15 +9124,15 @@ function synth(term, ctx, options) {
     return { type: appType, diagnostics };
   }
   if (node.length === 4 && node[0] === "subst" && typeof node[2] === "string") {
-    const reduced = subst(parseTermInput(node[1]), node[2], parseTermInput(node[3]));
-    return synth(reduced, env, { span, parentDiagnostics: diagnostics });
+    const reduced = subst(node[1], node[2], node[3]);
+    return synthNode(reduced, env, { span, parentDiagnostics: diagnostics });
   }
   if (node.length === 3 && node[0] === "type" && node[1] === "of") {
-    const innerSynth = synth(node[2], env, { span });
+    const innerSynth = synthNode(node[2], env, { span });
     for (const d of innerSynth.diagnostics) {
       diagnostics.push(d);
     }
-    if (innerSynth.type) {
+    if (innerSynth.type !== null) {
       return { type: ["Type", "0"], diagnostics };
     }
     diagnostics.push(_diag("E020", `Cannot synthesize type referenced by \`${keyOf(node)}\``, span));
@@ -8740,12 +9149,14 @@ function synth(term, ctx, options) {
   diagnostics.push(_diag("E020", `Cannot synthesize type of \`${keyOf(node)}\``, span));
   return { type: null, diagnostics };
 }
-function check(term, expectedType, ctx, options) {
+function checkNode(term, expectedType, ctx, options) {
+  emitLinoTerm(term);
+  emitLinoTerm(expectedType);
   const env = _envFromCtx(ctx);
   const span = _spanFromCtx(ctx, options);
   const diagnostics = [];
-  const node = parseTermInput(term);
-  let expectedNode = parseTermInput(expectedType);
+  const node = desugarHoas(term);
+  let expectedNode = desugarHoas(expectedType);
   if (_isForallNode(expectedNode)) {
     expectedNode = _expandForall(expectedNode);
   }
@@ -8753,7 +9164,7 @@ function check(term, expectedType, ctx, options) {
     const lambdaParsed = parseBinding(node[1]);
     const piParsed = parseBinding(expectedNode[1]);
     if (lambdaParsed && piParsed) {
-      const domainOk = _typesAgree(parseTermInput(lambdaParsed.paramType), parseTermInput(piParsed.paramType), env);
+      const domainOk = _typesAgree(lambdaParsed.paramType, piParsed.paramType, env);
       if (!domainOk) {
         diagnostics.push(_diag("E021", `Lambda parameter type \`${keyOf(lambdaParsed.paramType)}\` does not match Pi domain \`${keyOf(piParsed.paramType)}\``, span));
         return { ok: false, diagnostics };
@@ -8763,7 +9174,7 @@ function check(term, expectedType, ctx, options) {
       const snap = _snapshotTypeBinding(env, lambdaParsed.paramName);
       _extendTypeBinding(env, lambdaParsed.paramName, paramTypeKey);
       try {
-        const bodyResult = check(node[2], codomain, env, { span, parentDiagnostics: diagnostics });
+        const bodyResult = checkNode(node[2], codomain, env, { span, parentDiagnostics: diagnostics });
         for (const d of bodyResult.diagnostics) {
           diagnostics.push(d);
         }
@@ -8780,11 +9191,11 @@ function check(term, expectedType, ctx, options) {
   if (typeof node === "string" && isNum(node)) {
     return { ok: true, diagnostics };
   }
-  const synthResult = synth(node, env, { span });
+  const synthResult = synthNode(node, env, { span });
   for (const d of synthResult.diagnostics) {
     diagnostics.push(d);
   }
-  if (!synthResult.type) {
+  if (synthResult.type === null) {
     return { ok: false, diagnostics };
   }
   const ok = _typesAgree(synthResult.type, expectedNode, env);
@@ -9590,7 +10001,7 @@ function parseExpressionShape(expression, options = {}) {
 function buildArithmeticFormalization(expression, valueKind) {
   const eq = valueKind === "truth-value" ? splitTopLevelEquals(expression) : null;
   const ast = eq ? [parseExpressionShape(eq[0], { unwrapSingle: true }), "=", parseExpressionShape(eq[1], { unwrapSingle: true })] : parseExpressionShape(expression, { unwrapSingle: true });
-  return { ast, lino: keyOf(ast), valueKind };
+  return { ast, lino: emitLinoTerm(ast), valueKind };
 }
 function partialFormalization(request, interpretation, unknowns, level = 2) {
   const uniqueUnknowns = [...new Set(unknowns)];
@@ -9615,7 +10026,7 @@ function formalizeSelectedInterpretation(request = {}) {
   if ((interpretation.lino || interpretation.formalExpression || interpretation.formal_expression) && rawExpression) {
     try {
       const ast = parseExpressionShape(rawExpression);
-      return { type: "rml-formalization", sourceText: request.text || "", interpretation, formalSystem, dependencies, computable: true, formalizationLevel: 3, unknowns: [], valueKind: Array.isArray(ast) && ast[0] === "?" ? "query" : "truth-value", ast, lino: keyOf(ast) };
+      return { type: "rml-formalization", sourceText: request.text || "", interpretation, formalSystem, dependencies, computable: true, formalizationLevel: 3, unknowns: [], valueKind: Array.isArray(ast) && ast[0] === "?" ? "query" : "truth-value", ast, lino: emitLinoTerm(ast) };
     } catch (error) {
       return partialFormalization(request, interpretation, ["unsupported-lino-shape", error.message], 1);
     }
@@ -9919,7 +10330,6 @@ var IsabelleExportError = class extends Error {
     this.node = node;
   }
 };
-var ISABELLE_RESERVED = /* @__PURE__ */ new Set(["and", "assumes", "begin", "binder", "case", "class", "consts", "datatype", "definition", "else", "end", "fixes", "for", "fun", "if", "imports", "in", "infix", "infixl", "infixr", "let", "locale", "module", "notation", "of", "open", "or", "shows", "structure", "syntax", "then", "theory", "type", "typedecl", "where"]);
 function _isUniverseAnnotation(node) {
   if (node === "Type") {
     return true;
@@ -10021,11 +10431,7 @@ var IsabelleExportContext = class {
     return unique;
   }
   localName(name) {
-    let base = _isabelleBaseName(name, "x");
-    if (ISABELLE_RESERVED.has(base)) {
-      base = `x_${base}`;
-    }
-    return base;
+    return "v_ref_" + Array.from(new TextEncoder().encode(String(name)), ((byte) => byte.toString(16).padStart(2, "0"))).join("");
   }
   ensureTypedecl(name) {
     if (name === "Type" || name === "Prop") {
@@ -10055,6 +10461,9 @@ var IsabelleExportContext = class {
     this.definitions.push({ name, typeNode, valueNode });
   }
   addDatatype(decl) {
+    if (decl.name === "Type" || decl.name === "Prop" || decl.constructors.some(((ctor) => ctor.name === "Type" || ctor.name === "Prop"))) {
+      throw new IsabelleExportError("cannot redeclare builtin Type or Prop");
+    }
     if (this.datatypeNames.has(decl.name)) {
       throw new IsabelleExportError(`duplicate datatype "${decl.name}"`);
     }
@@ -10117,7 +10526,7 @@ var IsabelleExportContext = class {
       }
       const nextLocals = new Map(locals);
       nextLocals.set(binding.paramName, { typeNode: binding.paramType, localName: this.localName(binding.paramName) });
-      return ["Pi", [binding.paramType, binding.paramName], this.inferTermType(node[2], nextLocals)];
+      return ["Pi", makeTypeBinding(binding.paramName, binding.paramType), this.inferTermType(node[2], nextLocals)];
     }
     if (node.length === 3 && node[0] === "apply") {
       const fnType = this.inferTermType(node[1], locals);
@@ -10183,6 +10592,9 @@ var IsabelleExportContext = class {
         this.ensureTypedecl(head);
       }
       return;
+    }
+    if (head === "Type" || head === "Prop") {
+      throw new IsabelleExportError("cannot redeclare builtin Type or Prop", node);
     }
     if (_isTypedSelfDeclaration(head, rhs)) {
       this.addConst(head, rhs[0]);
@@ -10328,11 +10740,13 @@ export {
   buildEliminatorType,
   buildProof,
   check,
+  checkNode,
   checkProofObject,
   computeFormSpans,
   decRound,
   decideAutomaticSequenceTheorem,
   decodeAnum,
+  emitLinoTerm,
   encodeAnum,
   evalNode,
   evaluate,
@@ -10348,6 +10762,7 @@ export {
   goalToTptp,
   isConvertible,
   isCovered,
+  isDefinitionForm,
   isNum,
   isStructurallySame,
   isTerminating,
@@ -10386,6 +10801,7 @@ export {
   subst,
   substitute,
   synth,
+  synthNode,
   tokenizeOne,
   whnf
 };

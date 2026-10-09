@@ -217,7 +217,7 @@ describe('shared LiNo front end time', () => {
     ['a colon without a name inside groups nested to the limit', `${'('.repeat(depth)}:${')'.repeat(depth)}`,
       () => failure('unexpected ":"', depth + 1)],
     ['a wide unclosed quote before a long run of quotes', `${quotes(wide + 1)} a ${quotes(wide - 4)} ${'x'.repeat(2 * wide)}`,
-      () => form(`("${quotes(wide + 1)}" a "" ${'x'.repeat(2 * wide)})`)],
+      () => form(`("${quotes(wide + 1)}" a ~1{} ${'x'.repeat(2 * wide)})`)],
     ['unclosed quotes of ever smaller widths', `${oddWidths.map(width => `${quotes(width)}x`).join(' ')} ${"a' ".repeat(words)}`,
       () => form(`(${oddWidths.slice(0, -1).map(width => `"${quotes(width)}x"`).join(' ')} 'x a' ${Array(words - 1).fill(`"a'"`).join(' ')})`)],
     ['even quotes of ever smaller widths around an unclosed parenthesis',

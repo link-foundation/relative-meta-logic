@@ -330,6 +330,10 @@ const sequences = new DoubletSequenceStore();
 const finite = sequences.encodeSequence(['a', 'b', 'c', 'd'], 'finite', 'balanced');
 const values = sequences.decodeSequence(finite);
 const set = sequences.encodeSet(['b', 'a', 'b'], 'canonical-set');
+// Use explicit reference leaves when set members can themselves be links.
+const innerSet = sequences.encodeReferenceSet(['b', 'a'], 'inner-set');
+const outerSet = sequences.encodeReferenceSet([innerSet], 'outer-set');
+const nestedMembers = sequences.decodeReferenceSet(outerSet); // [innerSet]
 const membershipSets = new MembershipSetStore();
 membershipSets.define('a-in-example', 'a', 'example-set');
 const graph = new LinkGraph('example-graph');

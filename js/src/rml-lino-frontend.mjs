@@ -62,7 +62,7 @@
 // the pieces put together read as the whole document does, and a document
 // fails where the earliest failure of a piece is.
 
-import { Link, Parser } from 'links-notation';
+import { Link, Parser, decodeReferenceLiteral } from 'links-notation';
 
 /** Deepest nesting of parentheses plus indentation levels a document may use. */
 export const MAX_LINO_NESTING_DEPTH = 64;
@@ -304,6 +304,7 @@ function nestingError(source, offset) {
  */
 export function prepareLinoSource(text) {
   const source = normalizeLinoSource(text);
+  if (!source.isWellFormed()) throw new LinoParseError('source must be well-formed Unicode text');
   if (source.length > MAX_LINO_SOURCE_UNITS) {
     throw new LinoParseError(`source longer than ${MAX_LINO_SOURCE_UNITS} UTF-16 code units`);
   }
@@ -357,6 +358,16 @@ export function prepareLinoSource(text) {
       }
     }
     const character = source[index];
+    if (!inReference && character === '~' && /^~[0-9]+\{/.test(source.slice(index))) {
+      const close = source.indexOf('}', index);
+      const end = close < 0 ? source.length : close + 1;
+      let value;
+      try { value = decodeReferenceLiteral(source.slice(index, end)); }
+      catch { throw new LinoParseError('invalid or unsupported reference literal', { ...positionAt(source, index), length: 1 }); }
+      quotes.push({ start: index, end, value });
+      index = end;
+      continue;
+    }
     if (!inReference && (character === '"' || character === "'" || character === '`')) {
       const { end, value } = readQuote(index);
       quotes.push({ start: index, end, value });
@@ -542,7 +553,7 @@ function findGroups(text) {
 // The items links-notation reads from the prepared text, read one piece at a
 // time as the header of this file describes, or the failure it reports.
 function readItems(source, prepared, quotes) {
-  const marker = unusedPair(source);
+  const marker = unusedPair(source + quotes.map(quote => quote.value).join(''));
   const tokenized = tokenize(prepared, quotes, marker);
   const { groups, missing } = findGroups(tokenized.text);
   const text = tokenized.text + ')'.repeat(missing);
@@ -746,4 +757,50 @@ export function parseLinoLinkDocument(text) {
  * parseLinoLinkDocument to keep the parser tree without reparsing source. */
 export function parseLinoDocument(text) {
   return parseLinoLinkDocument(text).map(({ form }) => form);
+}
+
+/** Tokenize one semantic form without exposing quoted reference contents as syntax. */
+export function tokenizeLinoForm(text) {
+  const { source, prepared, quotes } = prepareLinoSource(text);
+  const quoted = new Map(quotes.map(quote => [quote.start, quote]));
+  const out = [];
+  let index = 0;
+  let depth = 0;
+  while (index < prepared.length) {
+    const quote = quoted.get(index);
+    if (quote) {
+      let end = quote.end;
+      if (prepared[end] === ':') end += 1;
+      out.push(source.slice(index, end));
+      index = end;
+      continue;
+    }
+    const character = prepared[index];
+    if (source[index] === '#' && character === ' ') { while (depth > 0) { out.push(')'); depth -= 1; } break; }
+    if (/\p{White_Space}/u.test(character)) { index += 1; continue; }
+    // Legacy single-form inline comments complete their open parentheses.
+    if (character === '#') { while (depth > 0) { out.push(')'); depth -= 1; } break; }
+    if (character === '(' || character === ')') {
+      out.push(character);
+      depth += character === '(' ? 1 : -1;
+      index += 1;
+      continue;
+    }
+    let end = index + 1;
+    while (end < prepared.length && !quoted.has(end) && !/[()]/.test(prepared[end]) && !/\p{White_Space}/u.test(prepared[end])) end += 1;
+    out.push(prepared.slice(index, end));
+    index = end;
+  }
+  return out;
+}
+
+/** Decode an opaque source token once, after structural parentheses were read. */
+export function decodeLinoToken(token) {
+  const { quotes } = prepareLinoSource(token);
+  const quote = quotes[0];
+  if (quote?.start === 0) {
+    if (quote.end === token.length) return quote.value;
+    if (quote.end === token.length - 1 && token.endsWith(':')) return quote.value + ':';
+  }
+  return token;
 }

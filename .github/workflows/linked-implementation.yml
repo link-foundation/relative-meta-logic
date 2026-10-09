@@ -31,13 +31,13 @@ jobs:
       - name: Check source-free JavaScript execution and archives
         run: node scripts/run-with-cache.mjs -- node --test scripts/linked-runtime.test.mjs scripts/linked-rust-runtime.test.mjs scripts/linked-implementation-configuration.test.mjs
       - name: Build the pinned generic Rust syntax adapter
-        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-helper --retain .rml-cache/linked-runtime-helper -- cargo build --locked --manifest-path scripts/linked-runtime-rust/Cargo.toml --target-dir .rml-cache/linked-runtime-helper
+        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-helper --retain .rml-cache/linked-runtime-helper --isolate-output .rml-cache/linked-runtime-helper -- cargo build --locked --manifest-path scripts/linked-runtime-rust/Cargo.toml --target-dir .rml-cache/linked-runtime-helper
       - name: Check exact syntax consistency in both languages
         run: |
           node scripts/generate-linked-runtime.mjs --check
-          node scripts/generate-linked-rust-runtime.mjs --check .rml-cache/linked-runtime-helper/debug/rml-linked-rust-ast
+          node scripts/generate-linked-rust-runtime.mjs --check "$(node scripts/build-cache.mjs --output-path .rml-cache/linked-runtime-helper)/debug/rml-linked-rust-ast"
       - name: Execute generated native artifacts and definition replacements
-        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-native -- node scripts/verify-linked-rust-runtime.mjs .rml-cache/linked-runtime-helper/debug/rml-linked-rust-ast .rml-cache/linked-runtime-native
+        run: node scripts/run-with-cache.mjs --cache .rml-cache/linked-runtime-native --isolate-output .rml-cache/linked-runtime-native -- node scripts/verify-linked-rust-runtime.mjs "$(node scripts/build-cache.mjs --output-path .rml-cache/linked-runtime-helper)/debug/rml-linked-rust-ast" "{output}"
       - name: Preserve execution and cleanup evidence
         if: always()
         uses: actions/upload-artifact@v7

@@ -126,7 +126,7 @@ fn parse_lino_keeps_multiline_parenthesized_rml_forms_flat() {
 fn parse_lino_preserves_newlines_in_quoted_references() {
     assert_eq!(
         parse_lino("(label \"first\nsecond\")").expect("valid LiNo"),
-        vec!["(label 'first\nsecond')"]
+        vec!["(label ~1{66697273740a7365636f6e64})"]
     );
 }
 
@@ -134,7 +134,7 @@ fn parse_lino_preserves_newlines_in_quoted_references() {
 fn parse_lino_preserves_multiline_n_quote_references() {
     assert_eq!(
         parse_lino("(label \"\"first\nsecond\"\")").expect("valid LiNo"),
-        vec!["(label 'first\nsecond')"]
+        vec!["(label ~1{66697273740a7365636f6e64})"]
     );
 }
 

@@ -1,0 +1,21 @@
+{
+  "schema": "rml.reference-sequence/v1",
+  "links": [
+    ["inner", "a", "b"],
+    ["direct-cycle", "direct-cycle", "direct-cycle"],
+    ["indirect-a", "x", "indirect-b"],
+    ["indirect-b", "y", "indirect-a"]
+  ],
+  "values": ["inner", "direct-cycle", "indirect-a", "inner", "rml.sequence.empty", "rml.reference-sequence.v1.element"],
+  "twoElementEncoding": [
+    ["example.cell.0", "rml.reference-sequence.v1.branch", "example.children.0"],
+    ["example.cell.1", "rml.reference-sequence.v1.element", "inner"],
+    ["example.cell.2", "rml.reference-sequence.v1.element", "direct-cycle"],
+    ["example.children.0", "example.cell.1", "example.cell.2"]
+  ],
+  "nonGeneratedStructure": [
+    ["root", "rml.reference-sequence.v1.branch", "children"],
+    ["children", "leaf", "leaf"],
+    ["leaf", "rml.reference-sequence.v1.element", "direct-cycle"]
+  ]
+}

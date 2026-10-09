@@ -3,9 +3,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
 import { describe, it } from 'node:test';
-import { loadIssue183Inputs, runIssue183Acceptance, sha256, validateIssue183Inventory, parseCargoAssertions, captureIssue183SourceState } from './issue-183-requirements.mjs';
+import { loadIssue183Inputs, runIssue183Acceptance, sha256, validateIssue183Inventory, parseCargoAssertions, captureIssue183SourceState, createIssue183ProgressJournal } from './issue-183-requirements.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_URL = 'https://github.com/link-foundation/relative-meta-logic/issues/183';
@@ -61,6 +62,15 @@ function rejected(input, pattern) {
   return report;
 }
 
+function progressFixture(context) {
+  const input = fixture(context);
+  fs.writeFileSync(path.join(input.root, '.gitignore'), '.evidence/\n');
+  assert.equal(spawnSync('git', ['init', '-q'], { cwd: input.root }).status, 0);
+  const output = path.join(input.root, '.evidence', 'acceptance.json');
+  const readProgress = () => JSON.parse(fs.readFileSync(`${output}.progress.json`, 'utf8'));
+  return { input, output, readProgress };
+}
+
 describe('execution-backed issue 183 acceptance', () => {
   it('executes positive and negative behavioral assertions and records the actual command/version', context => {
     const report = runIssue183Acceptance(fixture(context));
@@ -70,6 +80,145 @@ describe('execution-backed issue 183 acceptance', () => {
     assert.equal(report.checks[0].exitCode, 0);
     assert.ok(report.checks[0].command.includes('--test'));
     assert.equal(report.requirements.length, 1);
+  });
+
+  it('publishes final reports separately from provisional producer evidence', context => {
+    const { input, output, readProgress } = progressFixture(context);
+    const journal = createIssue183ProgressJournal(output);
+    const before = captureIssue183SourceState(input.root);
+    const report = runIssue183Acceptance({ ...input, onCheck: (result, partial) => {
+      journal.record(partial);
+      const progress = readProgress();
+      assert.equal(progress.schema, 'rml-issue-183-acceptance-progress/v1');
+      assert.equal(progress.provisional, true);
+      assert.equal(progress.passed, false);
+      assert.equal(progress.phase, 'running');
+      assert.equal(progress.finalReport, undefined);
+      assert.equal(progress.sourceState.sha256, before.sha256);
+      assert.deepEqual(progress.checks, [result]);
+      assert.equal(fs.existsSync(output), false);
+    } });
+    assert.equal(report.passed, true, failureText(report));
+    journal.finalize(report);
+    const progress = readProgress();
+    const final = JSON.parse(fs.readFileSync(output, 'utf8'));
+    assert.equal(progress.passed, false);
+    assert.equal(progress.provisional, true);
+    assert.equal(progress.phase, 'finalized');
+    assert.equal(final.schema, 'rml-issue-183-acceptance/v1');
+    assert.equal(final.passed, true);
+    assert.equal(final.runId, progress.runId);
+    assert.equal(progress.finalReport.sha256, sha256(fs.readFileSync(output)));
+    assert.deepEqual(final.checks, report.checks);
+    assert.equal(captureIssue183SourceState(input.root).sha256, before.sha256);
+
+    // A new invocation starts empty. It never treats the saved successful run
+    // as execution evidence, and cannot be confused with that run's final file.
+    const next = createIssue183ProgressJournal(output);
+    const restarted = readProgress();
+    assert.equal(restarted.passed, false);
+    assert.equal(restarted.finalReport, undefined);
+    assert.deepEqual(restarted.checks, []);
+    assert.notEqual(restarted.runId, final.runId);
+    mutate(input, 'implementation.mjs', text => text.replace('return value + 1', 'return value - 1'));
+    const rerun = runIssue183Acceptance({ ...input, onCheck: (_result, partial) => next.record(partial) });
+    assert.equal(rerun.passed, false);
+    assert.equal(readProgress().checks[0].passed, false);
+    assert.match(readProgress().checks[0].error, /stale or corrupt/);
+  });
+
+  it('preserves completed producer receipts when the aggregate is interrupted or times out', async context => {
+    for (const mode of ['SIGTERM', 'timeout']) {
+      await context.test(mode, async inner => {
+        const { input, output, readProgress } = progressFixture(inner);
+        input.manifest.checks.push({ ...structuredClone(input.manifest.checks[0]), id: 'unexecuted' });
+        fs.writeFileSync(path.join(input.root, 'input.json'), JSON.stringify(input));
+        const driver = path.join(input.root, 'run.mjs');
+        fs.writeFileSync(driver, `import fs from 'node:fs';
+import { runIssue183Acceptance, createIssue183ProgressJournal } from ${JSON.stringify(new URL('./issue-183-requirements.mjs', import.meta.url).href)};
+const input = JSON.parse(fs.readFileSync(new URL('./input.json', import.meta.url)));
+const journal = createIssue183ProgressJournal(${JSON.stringify(output)});
+const report = runIssue183Acceptance({ ...input, onCheck: (result, partial) => {
+  journal.record(partial);
+  // Pause between producers so the parent can interrupt the aggregate itself.
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10000);
+} });
+journal.finalize(report);
+process.exitCode = report.passed ? 0 : 1;
+`);
+        const before = captureIssue183SourceState(input.root);
+        if (mode === 'timeout') {
+          const killed = spawnSync(process.execPath, [driver], { cwd: input.root, timeout: 2500, encoding: 'utf8' });
+          assert.equal(killed.error?.code, 'ETIMEDOUT');
+          assert.notEqual(killed.status, 0);
+        } else {
+          const child = spawn(process.execPath, [driver], { cwd: input.root, stdio: 'ignore' });
+          const closed = once(child, 'close');
+          inner.after(() => child.kill('SIGKILL'));
+          const deadline = Date.now() + 5000;
+          while ((!fs.existsSync(`${output}.progress.json`) || readProgress().checks.length === 0) && Date.now() < deadline) {
+            await new Promise(resolve => setTimeout(resolve, 20));
+          }
+          assert.equal(readProgress().checks.length, 1, 'the first real producer must finish before interruption');
+          child.kill('SIGTERM');
+          const [code, signal] = await closed;
+          assert.ok(code !== 0 || signal === 'SIGTERM');
+        }
+        const progress = readProgress();
+        assert.equal(progress.passed, false);
+        assert.equal(progress.provisional, true);
+        assert.equal(progress.phase, 'running');
+        assert.equal(progress.finalReport, undefined);
+        assert.equal(fs.existsSync(output), false);
+        assert.equal(progress.sourceState.sha256, before.sha256);
+        assert.equal(progress.sourceSha256, input.manifest.sourceSnapshot.sha256);
+        assert.equal(progress.manifestSha256, sha256(JSON.stringify(input.manifest)));
+        assert.equal(progress.ledgerSha256, sha256(input.ledger));
+        assert.equal(progress.checks.length, 1);
+        const receipt = progress.checks[0];
+        assert.equal(receipt.id, 'increment');
+        assert.equal(receipt.passed, true);
+        assert.equal(receipt.exitCode, 0);
+        assert.equal(receipt.assertions.length, 2);
+        assert.deepEqual(receipt.inputPins, input.manifest.checks[0].files);
+        assert.ok(receipt.command.includes('--test'));
+        assert.match(receipt.stdout, /test:pass/);
+      });
+    }
+  });
+
+  it('retains failed and timed-out producer evidence without certifying completion', async context => {
+    for (const mode of ['failure', 'timeout']) {
+      await context.test(mode, inner => {
+        const { input, output, readProgress } = progressFixture(inner);
+        const badFile = 'failed.test.mjs';
+        const contents = mode === 'timeout'
+          ? `${TEST}\nAtomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10000);\n`
+          : TEST.replace('fixture.expected)', 'fixture.expected + 1)');
+        fs.writeFileSync(path.join(input.root, badFile), contents);
+        const failed = structuredClone(input.manifest.checks[0]);
+        failed.id = 'failed';
+        failed.testFiles = [badFile];
+        failed.files.find(pin => pin.role === 'test').path = badFile;
+        failed.files.find(pin => pin.role === 'test').sha256 = sha256(contents);
+        failed.assertions.forEach(assertion => { assertion.file = badFile; });
+        if (mode === 'timeout') failed.timeoutMs = 100;
+        input.manifest.checks.push(failed);
+        const journal = createIssue183ProgressJournal(output);
+        const report = runIssue183Acceptance({ ...input, onCheck: (_result, partial) => journal.record(partial) });
+        assert.equal(report.passed, false);
+        const progress = readProgress();
+        assert.equal(progress.checks.length, 2);
+        assert.equal(progress.checks[0].passed, true);
+        assert.equal(progress.checks[0].assertions.length, 2);
+        assert.equal(progress.checks[1].passed, false);
+        assert.match(progress.checks[1].error, /execution failed/);
+        assert.equal(progress.passed, false);
+        journal.finalize(report);
+        assert.equal(JSON.parse(fs.readFileSync(output, 'utf8')).passed, false);
+        assert.deepEqual(readProgress().checks, report.checks);
+      });
+    }
   });
 
   it('preserves every incomplete status and fails completion without erasing its evidence', async context => {
@@ -294,6 +443,7 @@ describe('execution-backed issue 183 acceptance', () => {
     assert.doesNotMatch(workflow, /^\s+(?:contents|issues|pull-requests): write$/m);
     assert.match(workflow, /GITHUB_TOKEN: \$\{\{ github.token \}\}/);
     assert.match(workflow, /node scripts\/check-issue-183-completion\.mjs --report/);
+    assert.match(workflow, /run-with-cache\.mjs --isolate-output rust\/target -- node scripts\/check-issue-183-completion\.mjs/);
     assert.doesNotMatch(workflow, /^\s*(?:paths|paths-ignore|continue-on-error|workflow_dispatch):/m);
     const gate = workflow.slice(workflow.indexOf('- name: Enforce complete'), workflow.indexOf('- name: Archive'));
     assert.doesNotMatch(gate, /if:|\|\|\s*true|continue-on-error/);

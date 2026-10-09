@@ -40,7 +40,8 @@ for (const filename of workflows) {
 
 test('docs and parity consume build outputs before cleanup can evict them', () => {
   const docs = read('.github/workflows/api-docs.yml');
-  assert.match(docs, /run-with-cache\.mjs --retain _site --/);
+  assert.match(docs, /run-with-cache\.mjs --isolate-output target\/api-docs --retain _site --/);
+  assert.match(docs, /publish-cache-output\.mjs/);
   assert.ok(docs.indexOf('actions/upload-pages-artifact@') < docs.indexOf('run: node scripts/build-cache.mjs --full'));
   const parityStep = steps(jobs(read('.github/workflows/parity.yml'))[0]).find(s => s.includes('cargo build'));
   assert.match(parityStep, /run-with-cache\.mjs/);
@@ -51,9 +52,14 @@ test('formal jobs preserve the pinned checkout and own only disposable proof-bui
   const formal = read('.github/workflows/formal-corpus.yml');
   assert.equal((formal.match(/path: upstream-meta-theory/g) ?? []).length, 3);
   for (const language of ['lean', 'rocq']) {
-    assert.ok(formal.includes(`--cache .rml-cache/${language} --class ${language}`));
     assert.ok(formal.includes(`cp -R upstream-meta-theory/drafts/0.0.3/src/${language}/.`));
   }
+  assert.match(formal, /--cache \.rml-cache\/lean --class lean --isolate-output \.rml-cache\/lean/);
+  assert.match(formal, /--cache \.rml-cache\/compiler --class compiler --isolate-output \.rml-cache\/compiler/);
+  assert.match(formal, /RML_REFERENCE_CORPUS="\$RML_CACHE_OUTPUT_DIR\/pinned"/);
+  assert.match(formal, /cp -R upstream-meta-theory\/drafts\/0\.0\.3\/src\/rocq\/\. "\$RML_REFERENCE_CORPUS\/"/);
+  assert.match(formal, /--volume "\$RML_REFERENCE_CORPUS:\/work"/);
+  assert.doesNotMatch(formal, /(?:chown|chmod)[^\n]*RML_CACHE_OUTPUT_DIR/);
   assert.doesNotMatch(formal, /sudo chown -R \S+ \.(?:\s|$)/);
   assert.doesNotMatch(formal, /rm -rf.*upstream-meta-theory/);
 });
@@ -68,7 +74,9 @@ test('Docker lifecycle never uses global pruning, remote cache exports, or anony
   assert.match(helper, /docker buildx rm "\$builder"/);
   assert.match(helper, /owned_volume/);
   assert.match(helper, /current_id == "\$container_id"/);
-  assert.match(read('docker/buildkitd.toml'), /maxUsedSpace = "2GB"/);
+  assert.match(read('docker/buildkitd.toml'), /maxUsedSpace = "__RML_CACHE_BUDGET_BYTES__B"/);
+  assert.doesNotMatch(read('docker/buildkitd.toml'), /2GB|256MB/);
+  assert.match(helper, /budget check/);
   for (const file of ['docker/Dockerfile.js', 'docker/Dockerfile.rust']) {
     assert.match(read(file), /RML_CACHE_SOURCE_ARCHIVE=1/);
     assert.match(read(file), /RUN node \.\.\/scripts\/run-with-cache\.mjs/);
@@ -100,6 +108,7 @@ const s = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path)) : { calls: [],
 s.calls.push(args);
 const save = () => fs.writeFileSync(path, JSON.stringify(s));
 const stop = (code=0, output='') => { save(); if (output) process.stdout.write(output+'\\n'); process.exit(code); };
+const missing = kind => { save(); process.stderr.write('Error: No such '+kind+'\\n'); process.exit(1); };
 const value = flag => args[args.indexOf(flag)+1];
 const format = () => value('--format');
 if (args[0] === 'volume') {
@@ -110,8 +119,9 @@ if (args[0] === 'volume') {
     stop(0,s.volume);
   }
   if (args[1] === 'inspect') {
-    if (!s.volume) stop(1);
+    if (!s.volume) missing('volume');
     if (!args.includes('--format')) stop(0,s.volume);
+    if (format() === '{{json .}}') stop(0,JSON.stringify({Name:s.volume,Labels:{'org.link-foundation.rml.owner':process.env.MOCK_VOLUME_MISMATCH ? 'someone-else' : s.owner,'org.link-foundation.rml.run':s.run}}));
     if (format().includes('.owner')) stop(0, process.env.MOCK_VOLUME_MISMATCH ? 'someone-else' : s.owner);
     if (format().includes('.run')) stop(0,s.run);
   }
@@ -121,12 +131,19 @@ if (args[0] === 'buildx') {
   if (args[1] === 'create') { s.builder=value('--name'); s.node=value('--node'); stop(); }
   if (args[1] === 'inspect') {
     if (!s.builder) stop(1);
-    if (process.env.MOCK_BOOTSTRAP_FAIL) stop(9);
-    s.container='owned-container-id'; stop();
+    if (process.env.MOCK_BOOTSTRAP_FAIL && args.includes('--bootstrap')) stop(9);
+    if (args.includes('--bootstrap')) s.container='owned-container-id';
+    stop(0,'Name: '+s.builder+'\\nDriver: docker-container\\nNodes:\\nName: '+s.node+'\\nEndpoint: '+(s.endpointChanged ? 'unix:///foreign.sock' : 'unix:///docker.sock'));
   }
   if (args[1] === 'rm') { delete s.builder; delete s.container; delete s.volume; stop(); }
+  if (args[1] === 'du') {
+    if (process.env.MOCK_ACCOUNTING_UNSUPPORTED) stop(2,'unknown flag: --format');
+    if (process.env.MOCK_ACCOUNTING_MALFORMED) stop(0,'not numeric JSON');
+    stop(0,JSON.stringify({ID:'owned-buildkit-record',Size:process.env.MOCK_BUILDKIT_BYTES ?? '100'}));
+  }
   if (args[1] === 'build') {
     if (process.env.MOCK_BUILD_FAIL) stop(17);
+    if (process.env.MOCK_BUILDER_ENDPOINT_CHANGE) s.endpointChanged=true;
     const id='sha256:'+String(Object.keys(s.images).length+1).repeat(64);
     s.images[id]=true;
     fs.writeFileSync(value('--iidfile'),id);
@@ -134,12 +151,15 @@ if (args[0] === 'buildx') {
   }
 }
 if (args[0] === 'inspect') {
-  if (!s.container) stop(1);
+  if (!s.container) missing('container');
+  if (format() === '{{json .}}') stop(0,JSON.stringify({Id:process.env.MOCK_BUILDER_MISMATCH ? 'foreign-container-id' : s.container,Mounts:[{Destination:'/var/lib/buildkit',Name:s.volume,Type:'volume'}]}));
   if (format() === '{{.Id}}') stop(0,s.container);
   stop(0,s.volume);
 }
 if (args[0] === 'image') {
   if (args[1] === 'inspect') {
+    if (!s.images[args[2]]) missing('image');
+    if (format() === '{{json .}}') stop(0,JSON.stringify({Id:args[2],Size:Number(process.env.MOCK_IMAGE_BYTES ?? '200'),Config:{Labels:{'org.link-foundation.rml.owner':process.env.MOCK_IMAGE_MISMATCH ? 'someone-else' : s.owner,'org.link-foundation.rml.run':s.run}}}));
     if (format().includes('.owner')) stop(0,process.env.MOCK_IMAGE_MISMATCH ? 'someone-else' : s.owner);
     stop(0,s.run);
   }
@@ -147,19 +167,27 @@ if (args[0] === 'image') {
 }
 if (args[0] === 'container') {
   if (args[1] === 'inspect') {
-    if (!s.containers?.[args[2]]) stop(1);
-    if (format() === '{{.Id}}') stop(0,args[2]);
-    if (format().includes('.owner')) stop(0,process.env.MOCK_CONTAINER_MISMATCH ? 'someone-else' : s.containers[args[2]].owner);
-    stop(0,s.containers[args[2]].run);
+    const cid=Object.keys(s.containers ?? {}).find(id => id===args[2] || s.containers[id].name===args[2]);
+    if (!cid) missing('container');
+    const container=s.containers[cid];
+    if (format() === '{{json .}}') stop(0,JSON.stringify({Id:cid,Name:'/'+container.name,SizeRw:process.env.MOCK_CONTAINER_SIZE_UNSUPPORTED ? undefined : Number(process.env.MOCK_CONTAINER_BYTES ?? 40),Config:{Labels:{'org.link-foundation.rml.owner':process.env.MOCK_CONTAINER_MISMATCH ? 'someone-else' : container.owner,'org.link-foundation.rml.run':container.run}}}));
+    if (format() === '{{.Id}}') stop(0,cid);
+    if (format().includes('.owner')) stop(0,process.env.MOCK_CONTAINER_MISMATCH ? 'someone-else' : container.owner);
+    stop(0,container.run);
   }
   if (args[1] === 'stop' || args[1] === 'wait') stop(process.env.MOCK_CONTAINER_STOP_FAIL ? 27 : 0);
-  if (args[1] === 'rm') { delete s.containers[args[2]]; stop(); }
+  if (args[1] === 'rm') {
+    if (process.env.MOCK_CONTAINER_RENAMED_REMAINS) s.containers[args[2]].name='unexpected-renamed-container';
+    else delete s.containers[args[2]];
+    stop();
+  }
 }
 if (args[0] === 'run') {
   const cid='c'.repeat(64);
   s.containers ??= {};
-  s.containers[cid]={owner:value('--label').split('=').slice(1).join('='),run:args[args.lastIndexOf('--label')+1].split('=').slice(1).join('=')};
+  s.containers[cid]={name:value('--name'),owner:value('--label').split('=').slice(1).join('='),run:args[args.lastIndexOf('--label')+1].split('=').slice(1).join('=')};
   fs.writeFileSync(value('--cidfile'),cid);
+  if (process.env.MOCK_LOCAL_BYTES) fs.writeFileSync(require('node:path').join(process.env.RML_CACHE_OUTPUT_DIR, 'owned-temporary-output'),Buffer.alloc(Number(process.env.MOCK_LOCAL_BYTES)));
   stop(process.env.MOCK_SMOKE_FAIL ? 23 : 0);
 }
 if (args[0] === 'compose') stop();
@@ -171,8 +199,13 @@ function exerciseDocker(env = {}) {
   try {
     mkdirSync(join(fixture, 'docker'));
     mkdirSync(join(fixture, 'bin'));
+    mkdirSync(join(fixture, 'scripts'));
+    const privateOutput = join(fixture, '.rml-cache/scratch/private-output');
+    mkdirSync(privateOutput, { recursive: true });
     copyFileSync(join(root, 'docker/ci-build.sh'), join(fixture, 'docker/ci-build.sh'));
     copyFileSync(join(root, 'docker/run-owned.sh'), join(fixture, 'docker/run-owned.sh'));
+    copyFileSync(join(root, 'docker/buildkitd.toml'), join(fixture, 'docker/buildkitd.toml'));
+    for (const script of ['docker-cache-budget.mjs', 'build-cache.mjs', 'cache-policy.json']) copyFileSync(join(root, 'scripts', script), join(fixture, 'scripts', script));
     writeFileSync(join(fixture, 'bin/fake-docker.cjs'), fakeDocker);
     // Generate a real Bash signal: Node's process.kill on Windows terminates a
     // native PID and cannot exercise Git Bash's POSIX signal/trap semantics.
@@ -187,11 +220,11 @@ exit "$status"
     const state = join(fixture, 'docker.json');
     const result = spawnSync('bash', ['docker/ci-build.sh'], {
       cwd: fixture,
-      env: { ...process.env, PATH: `${join(fixture, 'bin')}:${process.env.PATH}`, MOCK_DOCKER_PROGRAM: join(fixture, 'bin/fake-docker.cjs'), MOCK_DOCKER_STATE: state, ...env },
-      encoding: 'utf8', timeout: 20000,
+      env: { ...process.env, RML_CACHE_SOURCE_ARCHIVE: '1', RML_CACHE_OUTPUT_DIR: privateOutput, PATH: `${join(fixture, 'bin')}:${process.env.PATH}`, MOCK_DOCKER_PROGRAM: join(fixture, 'bin/fake-docker.cjs'), MOCK_DOCKER_STATE: state, ...env },
+      encoding: 'utf8', timeout: 60000,
     });
     assert.ifError(result.error);
-    return { ...result, state: JSON.parse(readFileSync(state, 'utf8')), externalLeases: readdirSync(join(fixture, '.rml-cache/evidence')).filter(p => p.startsWith('external-lease-')) };
+    return { ...result, state: JSON.parse(readFileSync(state, 'utf8')), externalLeases: readdirSync(join(fixture, '.rml-cache/evidence')).filter(p => p.startsWith('external-lease-')), budgetReports: readdirSync(join(fixture, '.rml-cache/reports')).filter(p => p.startsWith('docker-budget-')).map(p => JSON.parse(readFileSync(join(fixture, '.rml-cache/reports', p), 'utf8'))) };
   } finally { rmSync(fixture, { recursive: true, force: true }); }
 }
 
@@ -206,6 +239,15 @@ test('Docker success consumes both images and removes only owned exact resources
   assert.equal(result.state.calls.filter(a => a[0] === 'container' && a[1] === 'wait').length, 2);
   assert.equal(result.state.calls.filter(a => a[0] === 'run').length, 2);
   for (const call of result.state.calls.filter(a => a[0] === 'image' && a[1] === 'rm')) assert.match(call[2], /^sha256:[0-9a-f]{64}$/);
+  assert.equal(result.budgetReports.length, 3);
+  const report = result.budgetReports.find(report => report.resourceKind === 'buildx');
+  assert.equal(report.dockerBytes, 500);
+  assert.equal(report.beforeBytes - report.afterBytes, 500);
+  assert.equal(report.reclaimedBytes, 500);
+  assert.equal(report.resourcesRemoved, true);
+  assert.equal(report.budgetSatisfied, true);
+  assert.match(report.metric, /logical.*shared/);
+  for (const containerReport of result.budgetReports.filter(report => report.resourceKind === 'docker-container')) assert.equal(containerReport.reclaimedBytes, 40);
 });
 
 for (const [name, env, status] of [
@@ -250,4 +292,100 @@ test('failed Docker container stop preserves the external lease instead of freei
   assert.equal(result.status, 1);
   assert.equal(result.state.calls.filter(a => a[0] === 'container' && a[1] === 'rm').length, 0);
   assert.ok(result.externalLeases.length > 0);
+});
+
+for (const [name, env] of [
+  ['unsupported exact-byte accounting', { MOCK_ACCOUNTING_UNSUPPORTED: '1' }],
+  ['malformed exact-byte accounting', { MOCK_ACCOUNTING_MALFORMED: '1' }],
+]) {
+  test(`Docker ${name} fails before any workload and still removes exact resources`, () => {
+    const result = exerciseDocker(env);
+    assert.equal(result.status, 1, result.stderr);
+    assert.equal(result.state.calls.filter(a => a[0] === 'buildx' && a[1] === 'build').length, 0);
+    assert.equal(result.state.builder, undefined);
+    assert.equal(result.state.volume, undefined);
+    assert.equal(result.budgetReports[0].beforeBytes, null);
+    assert.equal(result.budgetReports[0].reclaimedBytes, null);
+    assert.match(result.budgetReports[0].accountingError, /accounting unavailable/);
+  });
+}
+
+test('Docker temporary aggregate excess is measured and then reclaimed before the final budget boundary', () => {
+  // The generated config and IID files count as local bytes. Either daemon
+  // class individually fits 1500 bytes; the aggregate is deliberately larger.
+  const result = exerciseDocker({ RML_CACHE_BUDGET_BYTES: '1500', MOCK_BUILDKIT_BYTES: '600', MOCK_IMAGE_BYTES: '600' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.state.calls.filter(a => a[0] === 'run').length, 2);
+  assert.equal(result.state.builder, undefined);
+  assert.deepEqual(result.state.images, {});
+  const report = result.budgetReports.find(report => report.resourceKind === 'buildx');
+  assert.equal(report.budgetBytes, 1500);
+  assert.equal(report.dockerBytes, 1800);
+  assert.ok(report.beforeBytes > report.budgetBytes);
+  assert.ok(report.afterBytes < report.budgetBytes);
+  assert.equal(report.reclaimedBytes, 1800);
+  assert.equal(report.budgetSatisfied, true);
+  assert.equal(report.finalBudgetEnforcement, 'outer-wrapper-postflight');
+});
+
+test('Docker changed builder endpoint preserves its state and fails closed', () => {
+  const result = exerciseDocker({ MOCK_BUILDER_ENDPOINT_CHANGE: '1' });
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /endpoint identity changed/);
+  assert.equal(result.state.calls.filter(a => a[0] === 'buildx' && a[1] === 'rm').length, 0);
+  assert.ok(result.state.volume);
+  assert.ok(result.externalLeases.length > 0);
+});
+
+test('Docker writable container layers consume the aggregate budget and are measured on teardown', () => {
+  const result = exerciseDocker({ RML_CACHE_BUDGET_BYTES: '10000', MOCK_CONTAINER_BYTES: '20000' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(result.state.containers, {});
+  assert.equal(result.state.builder, undefined);
+  const report = result.budgetReports.find(report => report.resourceKind === 'docker-container');
+  assert.ok(report.beforeBytes > report.budgetBytes);
+  assert.ok(report.afterBytes < report.budgetBytes);
+  assert.equal(report.reclaimedBytes, 20000);
+});
+
+test('Docker refuses already over-budget resources before the first workload', () => {
+  const result = exerciseDocker({ RML_CACHE_BUDGET_BYTES: '1500', MOCK_BUILDKIT_BYTES: '2000' });
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /Aggregate local \+ Docker cache budget exceeded/);
+  assert.equal(result.state.calls.filter(a => a[0] === 'buildx' && a[1] === 'build').length, 0);
+  assert.equal(result.state.builder, undefined);
+});
+
+test('Docker leaves temporary local excess to the outer wrapper and reports it truthfully', () => {
+  const result = exerciseDocker({ RML_CACHE_BUDGET_BYTES: '10000', MOCK_LOCAL_BYTES: '20000' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(result.externalLeases, []);
+  const report = result.budgetReports.find(report => report.resourceKind === 'buildx');
+  assert.equal(report.resourcesRemoved, true);
+  assert.equal(report.remainingDockerBytes, 0);
+  assert.ok(report.afterBytes > report.budgetBytes);
+  assert.equal(report.budgetSatisfied, false);
+  assert.equal(report.localCleanupRequired, true);
+  assert.equal(report.finalBudgetEnforcement, 'outer-wrapper-postflight');
+});
+
+test('Docker unsupported writable-layer size never claims successful accounting', () => {
+  const result = exerciseDocker({ MOCK_CONTAINER_SIZE_UNSUPPORTED: '1' });
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /writable-layer size/);
+  assert.deepEqual(result.state.containers, {});
+  const report = result.budgetReports.find(report => report.resourceKind === 'docker-container');
+  assert.equal(report.beforeBytes, null);
+  assert.equal(report.reclaimedBytes, null);
+  assert.match(report.accountingError, /integer bytes/);
+});
+
+test('Docker final absence checks immutable container IDs as well as names', () => {
+  const result = exerciseDocker({ MOCK_CONTAINER_RENAMED_REMAINS: '1' });
+  assert.equal(result.status, 1, result.stderr);
+  assert.ok(Object.keys(result.state.containers).length > 0);
+  assert.ok(result.externalLeases.length > 0);
+  const report = result.budgetReports.find(report => report.resourceKind === 'docker-container');
+  assert.equal(report.resourcesRemoved, false);
+  assert.equal(report.afterBytes, null);
 });

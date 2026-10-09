@@ -14,6 +14,7 @@
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
+import { Link } from 'links-notation';
 import { spawnSync } from 'node:child_process';
 import {
   LinoParseError,
@@ -22,6 +23,8 @@ import {
   normalizeLinoSource,
   parseLinoDocument,
   prepareLinoSource,
+  tokenizeLinoForm,
+  decodeLinoToken,
 } from './rml-lino-frontend.mjs';
 
 // ---------- Structured Diagnostics ----------
@@ -95,37 +98,7 @@ function formatDiagnostic(diag, sourceText) {
 
 // ---------- helpers: canonical keys & tokenization of a single link string ----------
 function tokenizeOne(s) {
-  // s is a single-link string like "( (a = a) has probability 1 )"
-  // Strip inline comments (everything after #) but balance parens
-  const commentIdx = s.indexOf('#');
-  if (commentIdx !== -1) {
-    s = s.substring(0, commentIdx);
-    // Count unmatched opening parens and add closing parens to balance
-    let depth = 0;
-    for (let i = 0; i < s.length; i++) {
-      if (s[i] === '(') depth++;
-      else if (s[i] === ')') depth--;
-    }
-    // Add missing closing parens
-    while (depth > 0) {
-      s += ')';
-      depth--;
-    }
-  }
-
-  const out = [];
-  let i = 0;
-  const isWS = c => /\p{White_Space}/u.test(c);
-  while (i < s.length) {
-    const c = s[i];
-    if (isWS(c)) { i++; continue; }
-    if (c === '(' || c === ')') { out.push(c); i++; continue; }
-    let j = i;
-    while (j < s.length && !isWS(s[j]) && s[j] !== '(' && s[j] !== ')') j++;
-    out.push(s.slice(i, j));
-    i = j;
-  }
-  return out;
+  return tokenizeLinoForm(s);
 }
 function parseOne(tokens) {
   let i = 0;
@@ -135,7 +108,7 @@ function parseOne(tokens) {
     const arr = [];
     while (i < tokens.length && tokens[i] !== ')') {
       if (tokens[i] === '(') arr.push(read());
-      else { arr.push(tokens[i]); i++; }
+      else { arr.push(decodeLinoToken(tokens[i])); i++; }
     }
     if (tokens[i] !== ')') throw new RmlError('E002', 'expected ")"');
     i++;
@@ -160,6 +133,43 @@ function keyOf(node) {
   if (Array.isArray(node)) return '(' + node.map(keyOf).join(' ') + ')';
   return String(node);
 }
+/** Lossless LiNo transport and semantic identity; keyOf remains display-only. */
+export function emitLinoTerm(node) {
+  const parts = [];
+  const active = new Set();
+  let units = 0;
+  const append = text => {
+    units += text.length;
+    if (units > MAX_LINO_SOURCE_UNITS) throw new RangeError('LiNo term exceeds the source length limit');
+    parts.push(text);
+  };
+  const visit = (value, depth) => {
+    if (!Array.isArray(value)) {
+      const reference = String(value);
+      if (reference.length > MAX_LINO_SOURCE_UNITS) throw new RangeError('LiNo term exceeds the source length limit');
+      append(Link.escapeReference(reference));
+      return;
+    }
+    if (active.has(value)) throw new TypeError('LiNo term contains a cyclic array');
+    if (depth >= MAX_LINO_NESTING_DEPTH) throw new RangeError('LiNo term exceeds the nesting limit');
+    active.add(value);
+    append('(');
+    for (let index = 0; index < value.length; index += 1) {
+      if (index) append(' ');
+      visit(value[index], depth + 1);
+    }
+    append(')');
+    active.delete(value);
+  };
+  visit(node, 0);
+  return parts.join('');
+}
+
+export function isDefinitionForm(node, operators) {
+  return Array.isArray(node) && typeof node[0] === 'string' && node[0].endsWith(':') &&
+    !(node.length === 3 && typeof node[1] === 'string' && (node[1] === 'of' || operators.has(node[1])));
+}
+
 function isStructurallySame(a,b){
   if (Array.isArray(a) || Array.isArray(b)){
     if (!Array.isArray(a) || !Array.isArray(b)) return false;
@@ -183,12 +193,12 @@ function universeTypeKey(node) {
 }
 
 function inferTypeKey(node, env) {
-  const recorded = env.getType(node);
+  const recorded = env.getTypeNode(node);
   if (recorded) return recorded;
 
   const universeType = universeTypeKey(node);
   if (universeType) {
-    env.setType(node, universeType);
+    env.setTypeNode(node, _parseTypeKeyToNode(universeType));
     return universeType;
   }
 
@@ -362,13 +372,13 @@ class Env {
       'neither': (...xs)=> xs.length ? decRound(xs.reduce((a,b)=>a*b,1)) : this.lo,
       '='  : (L,R,ctx)=> {
         // If assigned explicitly, use that (check both prefix and infix key forms)
-        const kPrefix = keyOf(['=',L,R]);
+        const kPrefix = emitLinoTerm(['=',L,R]);
         if (this.assign.has(kPrefix)) {
           const v = this.assign.get(kPrefix);
           this.trace('lookup', `${kPrefix} → ${formatTraceValue(v)}`);
           return v;
         }
-        const kInfix = keyOf([L,'=',R]);
+        const kInfix = emitLinoTerm([L,'=',R]);
         if (this.assign.has(kInfix)) {
           const v = this.assign.get(kInfix);
           this.trace('lookup', `${kInfix} → ${formatTraceValue(v)}`);
@@ -454,18 +464,38 @@ class Env {
   }
 
   setExprProb(exprNode, p){
-    this.assign.set(keyOf(exprNode), this.clamp(p));
+    this.assign.set(emitLinoTerm(exprNode), this.clamp(p));
   }
-  setType(exprNode, typeExpr){
-    const key = typeof exprNode === 'string' ? exprNode : keyOf(exprNode);
-    this.types.set(key, typeof typeExpr === 'string' ? typeExpr : keyOf(typeExpr));
+  // Exact AST API: strings are decoded atoms, arrays are lists. Both keys and
+  // values are canonical LiNo; later mutation of input arrays cannot change them.
+  setTypeNode(exprNode, typeNode){
+    const key = emitLinoTerm(exprNode);
+    const type = emitLinoTerm(typeNode);
+    this.types.set(key, type);
   }
-  getType(exprNode){
-    const key = typeof exprNode === 'string' ? exprNode : keyOf(exprNode);
+  getTypeNode(exprNode){
+    const key = emitLinoTerm(exprNode);
     if (this.types.has(key)) return this.types.get(key);
-    const resolved = this._resolveQualified(key);
-    if (resolved !== key && this.types.has(resolved)) return this.types.get(resolved);
+    if (typeof exprNode === 'string') {
+      const resolved = this._resolveQualified(exprNode);
+      if (resolved !== exprNode) return this.types.get(emitLinoTerm(resolved)) ?? null;
+    }
     return null;
+  }
+  // Legacy string inputs denote serialized LiNo where possible; arrays are ASTs.
+  // Use the Node methods for decoded atoms whose text resembles LiNo source.
+  setType(expr, typeExpr){
+    this.setTypeNode(_legacyTypeInput(expr), _legacyTypeInput(typeExpr));
+  }
+  getType(expr){
+    return this.getTypeNode(_legacyTypeInput(expr));
+  }
+  // Strict serialized-input variants reject malformed or multiple terms.
+  setTypeSource(exprSource, typeSource){
+    this.setTypeNode(_parseTypeKeyToNode(exprSource), _parseTypeKeyToNode(typeSource));
+  }
+  getTypeSource(exprSource){
+    return this.getTypeNode(_parseTypeKeyToNode(exprSource));
   }
   setLambda(name, param, paramType, body){
     this.lambdas.set(name, { param, paramType, body });
@@ -520,7 +550,7 @@ class Env {
         this.ops.has(qualified) ||
         this.symbolProb.has(qualified) ||
         this.terms.has(qualified) ||
-        this.types.has(qualified) ||
+        this.types.has(emitLinoTerm(qualified)) ||
         this.lambdas.has(qualified) ||
         this.templates.has(qualified)
       ) {
@@ -931,24 +961,24 @@ class Env {
       proofRules: [...this.proofRules.entries()]
         .map(([name, r]) => ({
           name,
-          premises: r.premises.map(p => keyOf(p)),
-          conclusion: keyOf(r.conclusion),
+          premises: r.premises.map(p => emitLinoTerm(p)),
+          conclusion: emitLinoTerm(r.conclusion),
         }))
         .sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
       proofAssumptions: [...this.proofAssumptions.entries()]
         .map(([name, a]) => ({
           name,
           kind: a.kind,
-          judgement: keyOf(a.judgement),
+          judgement: emitLinoTerm(a.judgement),
         }))
         .sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
       proofObjects: [...this.proofObjects.entries()]
         .map(([name, po]) => ({
           name,
           rule: po.rule,
-          premises: po.premises.map(p => keyOf(p)),
+          premises: po.premises.map(p => emitLinoTerm(p)),
           premiseRefs: (po.premiseRefs || []).slice(),
-          conclusion: keyOf(po.conclusion),
+          conclusion: emitLinoTerm(po.conclusion),
         }))
         .sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
       strictPureLinks: this.strictPureLinks === true,
@@ -993,7 +1023,7 @@ class Env {
       seen.add(refName);
       const ax = this.getProofAssumption(refName);
       if (ax) {
-        dependencies.push({ name: ax.name, kind: ax.kind, judgement: keyOf(ax.judgement) });
+        dependencies.push({ name: ax.name, kind: ax.kind, judgement: emitLinoTerm(ax.judgement) });
         return;
       }
       const dep = this.getProofObject(refName);
@@ -1007,7 +1037,7 @@ class Env {
         name: dep.name,
         kind: 'proof-object',
         rule: dep.rule,
-        judgement: keyOf(dep.conclusion),
+        judgement: emitLinoTerm(dep.conclusion),
       });
     };
     for (const ref of po.premiseRefs || []) walk(ref);
@@ -1052,8 +1082,8 @@ class Env {
       kind: 'proof-report',
       name,
       rule: po.rule,
-      conclusion: keyOf(po.conclusion),
-      premises: (po.premises || []).map(keyOf),
+      conclusion: emitLinoTerm(po.conclusion),
+      premises: (po.premises || []).map(emitLinoTerm),
       premiseRefs: (po.premiseRefs || []).slice(),
       verdict: verdict.ok ? { ok: true } : { ok: false, error: verdict.error },
       dependencies,
@@ -2224,7 +2254,7 @@ function matchProofPattern(pattern, candidate, subs) {
   if (typeof pattern === 'string') {
     if (pattern.startsWith('?')) {
       if (Object.prototype.hasOwnProperty.call(subs, pattern)) {
-        return keyOf(subs[pattern]) === keyOf(candidate);
+        return isStructurallySame(subs[pattern], candidate);
       }
       subs[pattern] = candidate;
       return true;
@@ -2639,19 +2669,28 @@ function parseBinding(binding) {
     return { paramName: binding[0].slice(0, -1), paramType: binding[1] };
   }
   // ['A', 'x'] — prefix type form: type name first, then variable name
-  // Type names must start with uppercase (convention from Lean/Rocq)
+  // Match Rust char::is_uppercase using Unicode's derived Uppercase property.
+  // This includes non-Lu uppercase characters; reference text is never case-folded.
   if (binding.length === 2 && typeof binding[0] === 'string' && typeof binding[1] === 'string'
-      && /^[A-Z]/.test(binding[0]) && !binding[1].endsWith(':')) {
+      && /^\p{Uppercase}/u.test(binding[0])) {
     return { paramName: binding[1], paramType: binding[0] };
   }
   // [<type-expr>, 'x'] — prefix complex-type form: the type is a list expression
   // such as (Pi (A x) B), (Type 0), or (forall A T). The variable name must be a
-  // plain identifier (no trailing colon, must not look like a type name itself).
-  if (binding.length === 2 && Array.isArray(binding[0]) && typeof binding[1] === 'string'
-      && !binding[1].endsWith(':')) {
+  // decoded reference; punctuation inside its text is not a syntax marker.
+  if (binding.length === 2 && Array.isArray(binding[0]) && typeof binding[1] === 'string') {
     return { paramName: binding[1], paramType: binding[0] };
   }
   return null;
+}
+
+// Preserve ordinary prefix spelling; use colon form when an arbitrary type
+// atom cannot occupy the prefix type position without changing its meaning.
+function makeTypeBinding(paramName, paramType) {
+  const prefix = [paramType, paramName];
+  const parsed = parseBinding(prefix);
+  return parsed && parsed.paramName === paramName && isStructurallySame(parsed.paramType, paramType)
+    ? prefix : [`${paramName}:`, paramType];
 }
 
 // ---------- Multi-binding parser ----------
@@ -2716,13 +2755,13 @@ function cloneTerm(node) {
 
 function tokenBaseName(token) {
   if (typeof token !== 'string') return null;
-  return token.replace(/[:,]+$/g, '');
+  return token;
 }
 
 function isVariableToken(token) {
   if (typeof token !== 'string') return false;
   const base = tokenBaseName(token);
-  return !!base && base === token && !isNum(base) && !NON_VARIABLE_TOKENS.has(base);
+  return base === token && !isNum(base) && !NON_VARIABLE_TOKENS.has(base);
 }
 
 function bindingParamNames(binding) {
@@ -2760,10 +2799,8 @@ function freeVariables(expr, bound = new Set()) {
     const nested = new Set(bound);
     for (const param of binder.params) nested.add(param);
     if (binder.kind !== 'fresh') {
-      const paramSet = new Set(binder.params);
-      for (const child of expr[binder.bindingIndex]) {
-        if (typeof child === 'string' && paramSet.has(tokenBaseName(child))) continue;
-        addAll(freeVariables(child, bound));
+      for (const binding of parseBindings(expr[binder.bindingIndex]) || []) {
+        addAll(freeVariables(binding.paramType, bound));
       }
     }
     addAll(freeVariables(expr[binder.bodyIndex], nested));
@@ -2782,7 +2819,7 @@ function envCanEvaluateName(env, name) {
   if (
     env.symbolProb.has(name) ||
     env.terms.has(name) ||
-    env.types.has(name) ||
+    env.types.has(emitLinoTerm(name)) ||
     env.lambdas.has(name) ||
     env.ops.has(name) ||
     env.templates.has(name)
@@ -2793,7 +2830,7 @@ function envCanEvaluateName(env, name) {
   return resolved !== name && (
     env.symbolProb.has(resolved) ||
     env.terms.has(resolved) ||
-    env.types.has(resolved) ||
+    env.types.has(emitLinoTerm(resolved)) ||
     env.lambdas.has(resolved) ||
     env.ops.has(resolved) ||
     env.templates.has(resolved)
@@ -2810,10 +2847,11 @@ function hasUnresolvedFreeVariables(expr, env) {
 function collectNames(expr, out = new Set()) {
   if (typeof expr === 'string') {
     const base = tokenBaseName(expr);
-    if (base && !isNum(base) && !NON_VARIABLE_TOKENS.has(base)) out.add(base);
+    if (!isNum(base) && !NON_VARIABLE_TOKENS.has(base)) out.add(base);
     return out;
   }
   if (Array.isArray(expr)) {
+    for (const name of binderInfo(expr)?.params || []) out.add(name);
     for (const child of expr) collectNames(child, out);
   }
   return out;
@@ -2831,6 +2869,13 @@ function freshName(base, avoid) {
 
 function renameBindingParam(binding, oldName, newName) {
   if (!Array.isArray(binding)) return binding;
+  const single = parseBinding(binding);
+  if (single) {
+    if (single.paramName !== oldName) return cloneTerm(binding);
+    return typeof binding[0] === 'string' && binding[0].endsWith(':')
+      ? [`${newName}:`, cloneTerm(binding[1])]
+      : [cloneTerm(binding[0]), newName];
+  }
   return binding.map(child => {
     if (typeof child !== 'string') return cloneTerm(child);
     if (child === oldName) return newName;
@@ -3053,8 +3098,8 @@ function _containsLambdaOrApply(node) {
 
 function classifyEqualityRule(L, R, op, env) {
   const isInequality = op === '!=';
-  const kPrefix = keyOf(['=', L, R]);
-  const kInfix = keyOf([L, '=', R]);
+  const kPrefix = emitLinoTerm(['=', L, R]);
+  const kInfix = emitLinoTerm([L, '=', R]);
   if (env.assign.has(kPrefix) || env.assign.has(kInfix)) {
     return isInequality ? 'assigned-inequality' : 'assigned-equality';
   }
@@ -3117,7 +3162,7 @@ function buildProof(node, env) {
   if (!Array.isArray(node)) return _wrap('literal', String(node));
 
   // Definitions and operator redefs: (head: ...)
-  if (typeof node[0] === 'string' && node[0].endsWith(':')) {
+  if (isDefinitionForm(node, env.ops)) {
     return _wrap('definition', node);
   }
 
@@ -3419,7 +3464,10 @@ function _smtTrustedNode(smtOptions) {
 }
 
 function _smtEscapeSymbol(raw) {
-  return `|${String(raw).replace(/\\/g, '\\\\').replace(/\|/g, '\\|')}|`;
+  const text = String(raw);
+  const safe = /^[A-Za-z_][A-Za-z0-9_]*$/.test(text) && !text.startsWith('rml_hex_');
+  const name = safe ? text : 'rml_hex_' + Array.from(new TextEncoder().encode(text), byte => byte.toString(16).padStart(2, '0')).join('');
+  return `|${name}|`;
 }
 
 function _smtDeclare(ctx, raw, sort) {
@@ -3464,7 +3512,7 @@ function _smtTerm(node, ctx) {
     if (node === 'true' || node === 'false') {
       throw _rewriteError(`SMT bridge cannot use Boolean constant ${node} as a Real term`);
     }
-    return _smtDeclare(ctx, node, 'Real');
+    return _smtDeclare(ctx, emitLinoTerm(node), 'Real');
   }
   if (!Array.isArray(node) || node.length === 0) {
     throw _rewriteError(`SMT bridge cannot translate term ${keyOf(node)}`);
@@ -3479,7 +3527,7 @@ function _smtTerm(node, ctx) {
     return `(${head} ${node.slice(1).map(arg => _smtTerm(arg, ctx)).join(' ')})`;
   }
 
-  return _smtDeclare(ctx, keyOf(node), 'Real');
+  return _smtDeclare(ctx, emitLinoTerm(node), 'Real');
 }
 
 function _smtEquality(left, right, ctx) {
@@ -3494,7 +3542,7 @@ function _smtFormula(node, ctx) {
     if (node === 'true') return 'true';
     if (node === 'false') return 'false';
     if (isNum(node)) throw _rewriteError(`SMT bridge cannot use numeric literal ${node} as a Boolean formula`);
-    return _smtDeclare(ctx, node, 'Bool');
+    return _smtDeclare(ctx, emitLinoTerm(node), 'Bool');
   }
   if (!Array.isArray(node) || node.length === 0) {
     throw _rewriteError(`SMT bridge cannot translate formula ${keyOf(node)}`);
@@ -3520,7 +3568,7 @@ function _smtFormula(node, ctx) {
     return `(=> ${_smtFormula(node[1], ctx)} ${_smtFormula(node[2], ctx)})`;
   }
 
-  return _smtDeclare(ctx, keyOf(node), 'Bool');
+  return _smtDeclare(ctx, emitLinoTerm(node), 'Bool');
 }
 
 function smtLibForGoal(goal) {
@@ -3594,28 +3642,24 @@ function _runSmtSolver(smtLib, smtOptions) {
 }
 
 function _tptpIdentifier(raw, role) {
-  let cleaned = String(raw).replace(/[^A-Za-z0-9_]/g, '_');
-  if (!cleaned) cleaned = role === 'var' ? 'X' : 'rml_symbol';
-  if (role === 'var') {
-    cleaned = cleaned[0].toUpperCase() + cleaned.slice(1);
-    if (!/^[A-Z]/.test(cleaned)) cleaned = `V_${cleaned}`;
-    return cleaned;
-  }
-  cleaned = cleaned.toLowerCase();
-  if (!/^[a-z]/.test(cleaned)) cleaned = `rml_${cleaned}`;
-  return cleaned;
+  const text = String(raw);
+  const prefix = role === 'var' ? 'V_rml_hex_' : 'rml_hex_';
+  const safe = role === 'var' ? /^[A-Z][A-Za-z0-9_]*$/ : /^[a-z][A-Za-z0-9_]*$/;
+  if (safe.test(text) && !text.startsWith(prefix)) return text;
+  const hex = Array.from(new TextEncoder().encode(text), byte => byte.toString(16).padStart(2, '0')).join('');
+  return prefix + hex;
 }
 
 function _tptpTerm(node, boundVars) {
   if (typeof node === 'string') {
     if (boundVars.has(node)) return _tptpIdentifier(node, 'var');
-    if (isNum(node)) return _tptpIdentifier(`num_${node}`, 'term');
-    return _tptpIdentifier(node, 'term');
+    return _tptpIdentifier(emitLinoTerm(node), 'term');
   }
   if (!Array.isArray(node) || node.length === 0 || typeof node[0] !== 'string') {
     throw _rewriteError(`TPTP export supports first-order terms only (got ${keyOf(node)})`);
   }
-  const head = _tptpIdentifier(node[0], 'term');
+  if (node.length === 1) return _tptpIdentifier(emitLinoTerm(node), 'term');
+  const head = _tptpIdentifier(emitLinoTerm(node[0]), 'term');
   const args = node.slice(1).map(arg => _tptpTerm(arg, boundVars)).join(', ');
   return `${head}(${args})`;
 }
@@ -3654,7 +3698,7 @@ function _tptpFormula(node, boundVars = new Set()) {
     if (node === 'true') return '$true';
     if (node === 'false') return '$false';
     if (boundVars.has(node)) return _tptpIdentifier(node, 'var');
-    return _tptpIdentifier(node, 'pred');
+    return _tptpIdentifier(emitLinoTerm(node), 'pred');
   }
   if (!Array.isArray(node) || node.length === 0) {
     throw _rewriteError(`TPTP export supports first-order formulas only (got ${keyOf(node)})`);
@@ -3670,7 +3714,7 @@ function _tptpFormula(node, boundVars = new Set()) {
 
   const ascription = _typeAscription(node);
   if (ascription) {
-    return `${_tptpIdentifier(keyOf(ascription.type), 'pred')}(${_tptpTerm(ascription.term, boundVars)})`;
+    return `${_tptpIdentifier(emitLinoTerm(ascription.type), 'pred')}(${_tptpTerm(ascription.term, boundVars)})`;
   }
 
   const equality = _asEquality(node);
@@ -3701,7 +3745,7 @@ function _tptpFormula(node, boundVars = new Set()) {
     if ((head === '<=>' || head === 'iff') && node.length === 3) {
       return _tptpJoinFormula('<=>', node.slice(1), boundVars);
     }
-    const predicate = _tptpIdentifier(head, 'pred');
+    const predicate = _tptpIdentifier(emitLinoTerm(node.length === 1 ? node : head), 'pred');
     if (node.length === 1) return predicate;
     const args = node.slice(1).map(arg => _tptpTerm(arg, boundVars)).join(', ');
     return `${predicate}(${args})`;
@@ -4400,12 +4444,15 @@ function conversionOptionsFrom(ctx, options) {
 }
 
 function parseTermInput(term) {
-  if (Array.isArray(term)) return desugarHoas(term);
+  if (Array.isArray(term)) {
+    emitLinoTerm(term); // Validate caller arrays before recursive desugaring.
+    return desugarHoas(term);
+  }
   if (typeof term !== 'string') return String(term);
   const trimmed = term.trim();
-  if (trimmed.startsWith('(')) {
+  if (trimmed.startsWith('(') || trimmed.startsWith("'") || trimmed.startsWith('"') || trimmed.startsWith('~1{')) {
     try {
-      return desugarHoas(parseOne(tokenizeOne(trimmed)));
+      return desugarHoas(_parseTypeKeyToNode(trimmed));
     } catch (_) {
       return term;
     }
@@ -4576,7 +4623,7 @@ function etaContract(term, env, options) {
 
 function lookupAssignedInfix(env, op, left, right) {
   for (const expr of [[op, left, right], [left, op, right]]) {
-    const key = keyOf(expr);
+    const key = emitLinoTerm(expr);
     if (env.assign.has(key)) {
       const value = env.assign.get(key);
       env.trace('lookup', `${key} → ${formatTraceValue(value)}`);
@@ -5395,7 +5442,7 @@ function _buildPi(params, result) {
   let out = result;
   for (let i = params.length - 1; i >= 0; i--) {
     const p = params[i];
-    out = ['Pi', [p.type, p.name], out];
+    out = ['Pi', makeTypeBinding(p.name, p.type), out];
   }
   return out;
 }
@@ -5509,7 +5556,7 @@ function _buildCaseType(ctor, typeName, motiveVar) {
 // throughout, and each constructor case parameter binds `case_<ctorName>`.
 function buildEliminatorType(decl) {
   const motiveVar = '_motive';
-  const motiveType = ['Pi', [decl.name, '_'], ['Type', '0']];
+  const motiveType = ['Pi', makeTypeBinding('_', decl.name), ['Type', '0']];
   const caseParams = decl.constructors.map(c => ({
     name: `case_${c.name}`,
     type: _buildCaseType(c, decl.name, motiveVar),
@@ -5526,13 +5573,13 @@ function buildEliminatorType(decl) {
 function registerInductive(env, decl) {
   const storeType = env.qualifyName(decl.name);
   env.terms.add(storeType);
-  env.setType(storeType, ['Type', '0']);
+  env.setTypeNode(storeType, ['Type', '0']);
   evalNode(['Type', '0'], env);
 
   for (const ctor of decl.constructors) {
     const storeName = env.qualifyName(ctor.name);
     env.terms.add(storeName);
-    env.setType(storeName, ctor.type);
+    env.setTypeNode(storeName, ctor.type);
     if (Array.isArray(ctor.type)) evalNode(ctor.type, env);
   }
 
@@ -5540,7 +5587,7 @@ function registerInductive(env, decl) {
   const elimType = buildEliminatorType(decl);
   const storeElim = env.qualifyName(elimName);
   env.terms.add(storeElim);
-  env.setType(storeElim, elimType);
+  env.setTypeNode(storeElim, elimType);
   evalNode(elimType, env);
 
   env.inductives.set(decl.name, {
@@ -5713,13 +5760,13 @@ function parseConstructorClauseCo(clause, typeName) {
 function registerCoinductive(env, decl) {
   const storeType = env.qualifyName(decl.name);
   env.terms.add(storeType);
-  env.setType(storeType, ['Type', '0']);
+  env.setTypeNode(storeType, ['Type', '0']);
   evalNode(['Type', '0'], env);
 
   for (const ctor of decl.constructors) {
     const storeName = env.qualifyName(ctor.name);
     env.terms.add(storeName);
-    env.setType(storeName, ctor.type);
+    env.setTypeNode(storeName, ctor.type);
     if (Array.isArray(ctor.type)) evalNode(ctor.type, env);
   }
 
@@ -5727,7 +5774,7 @@ function registerCoinductive(env, decl) {
   const corecType = buildCorecursorType(decl);
   const storeCorec = env.qualifyName(corecName);
   env.terms.add(storeCorec);
-  env.setType(storeCorec, corecType);
+  env.setTypeNode(storeCorec, corecType);
   evalNode(corecType, env);
 
   env.coinductives.set(decl.name, {
@@ -5763,13 +5810,13 @@ function checkModeAtCall(name, args, env) {
 }
 
 function contextHasName(env, name) {
-  if (env.terms.has(name) || env.types.has(name) || env.lambdas.has(name) || env.symbolProb.has(name) || env.ops.has(name)) {
+  if (env.terms.has(name) || env.types.has(emitLinoTerm(name)) || env.lambdas.has(name) || env.symbolProb.has(name) || env.ops.has(name)) {
     return true;
   }
   const resolved = env._resolveQualified(name);
   return resolved !== name && (
     env.terms.has(resolved) ||
-    env.types.has(resolved) ||
+    env.types.has(emitLinoTerm(resolved)) ||
     env.lambdas.has(resolved) ||
     env.symbolProb.has(resolved) ||
     env.ops.has(resolved)
@@ -5781,8 +5828,8 @@ function evalFresh(varName, body, env) {
     throw new RmlError('E010', `fresh variable "${varName}" already appears in context`);
   }
   const hadTerm = env.terms.has(varName);
-  const hadType = env.types.has(varName);
-  const previousType = env.types.get(varName);
+  const hadType = env.types.has(emitLinoTerm(varName));
+  const previousType = env.types.get(emitLinoTerm(varName));
   const hadLambda = env.lambdas.has(varName);
   const previousLambda = env.lambdas.get(varName);
   const hadSymbol = env.symbolProb.has(varName);
@@ -5792,8 +5839,8 @@ function evalFresh(varName, body, env) {
     return evalNode(body, env);
   } finally {
     if (!hadTerm) env.terms.delete(varName);
-    if (hadType) env.types.set(varName, previousType);
-    else env.types.delete(varName);
+    if (hadType) env.types.set(emitLinoTerm(varName), previousType);
+    else env.types.delete(emitLinoTerm(varName));
     if (hadLambda) env.lambdas.set(varName, previousLambda);
     else env.lambdas.delete(varName);
     if (hadSymbol) env.symbolProb.set(varName, previousSymbol);
@@ -5828,7 +5875,7 @@ function automaticSequencesDomainPlugin(forms, env) {
     const storeName = env.qualifyName(decision.theorem);
     const truthValue = decision.value ? env.hi : env.lo;
     env.terms.add(storeName);
-    env.setType(storeName, 'Theorem');
+    env.setTypeNode(storeName, 'Theorem');
     env.setSymbolProb(storeName, truthValue);
     env.automaticSequenceDecisions.set(storeName, {
       ...decision,
@@ -5869,7 +5916,7 @@ function evalNode(node, env){
   }
 
   // Definitions & operator redefs:  (head: ...)
-  if (typeof node[0] === 'string' && node[0].endsWith(':')) {
+  if (isDefinitionForm(node, env.ops)) {
     const head = node[0].slice(0,-1);
     return defineForm(head, node.slice(1), env);
   }
@@ -6077,7 +6124,7 @@ function evalNode(node, env){
     const v = evalNode(target, env);
     // If inner result is already a query (e.g. from (type of x)), pass it through
     if (v && typeof v === 'object' && v.query) return v;
-    if (isTermResult(v)) return { query:true, value: keyOf(v.term), typeQuery: true };
+    if (isTermResult(v)) return { query:true, value: emitLinoTerm(v.term), typeQuery: true };
     return { query:true, value: env.clamp(v) };
   }
 
@@ -6173,13 +6220,13 @@ function evalNode(node, env){
     const level = parseUniverseLevelToken(node[1]);
     if (level === null) return 0;
     // (Type N) has type (Type N+1)
-    env.setType(node, ['Type', String(level + 1)]);
+    env.setTypeNode(node, ['Type', String(level + 1)]);
     return 1; // valid expression
   }
 
   // Prop: (Prop) is sugar for (Type 0) in the propositions-as-types interpretation
   if (node.length === 1 && node[0] === 'Prop') {
-    env.setType(['Prop'], ['Type', '1']);
+    env.setTypeNode(['Prop'], ['Type', '1']);
     return 1;
   }
 
@@ -6190,8 +6237,8 @@ function evalNode(node, env){
     if (parsed) {
       const { paramName, paramType } = parsed;
       env.terms.add(paramName);
-      env.setType(paramName, paramType);
-      env.setType(node, ['Type', '0']);
+      env.setTypeNode(paramName, paramType);
+      env.setTypeNode(node, ['Type', '0']);
     }
     return 1;
   }
@@ -6206,16 +6253,15 @@ function evalNode(node, env){
       const { paramName, paramType } = bindings[0];
       const body = node[2];
       env.terms.add(paramName);
-      env.setType(paramName, paramType);
+      env.setTypeNode(paramName, paramType);
       // Register additional bindings
       for (let i = 1; i < bindings.length; i++) {
         env.terms.add(bindings[i].paramName);
-        env.setType(bindings[i].paramName, bindings[i].paramType);
+        env.setTypeNode(bindings[i].paramName, bindings[i].paramType);
       }
-      const bodyType = env.getType(body);
-      const paramTypeKey = typeof paramType === 'string' ? paramType : keyOf(paramType);
-      const bodyTypeKey = bodyType || 'unknown';
-      env.setType(node, '(Pi (' + paramTypeKey + ' ' + paramName + ') ' + bodyTypeKey + ')');
+      const bodyType = env.getTypeNode(body);
+      const bodyTypeNode = bodyType === null ? 'unknown' : _parseTypeKeyToNode(bodyType);
+      env.setTypeNode(node, ['Pi', makeTypeBinding(paramName, paramType), bodyTypeNode]);
     }
     return 1;
   }
@@ -6268,7 +6314,7 @@ function evalNode(node, env){
     const expectedType = node[2];
     const actualType = inferTypeKey(expr, env);
     if (actualType) {
-      const expectedKey = typeof expectedType === 'string' ? expectedType : keyOf(expectedType);
+      const expectedKey = emitLinoTerm(expectedType);
       return actualType === expectedKey ? env.hi : env.lo;
     }
     return env.lo;
@@ -6319,13 +6365,13 @@ function _reinitOps(env) {
   env.ops.set('both', (...xs) => xs.length ? decRound(xs.reduce((a,b)=>a+b,0)/xs.length) : env.lo);
   env.ops.set('neither', (...xs) => xs.length ? decRound(xs.reduce((a,b)=>a*b,1)) : env.lo);
   env.ops.set('=', (L,R,ctx) => {
-    const kPrefix = keyOf(['=',L,R]);
+    const kPrefix = emitLinoTerm(['=',L,R]);
     if (env.assign.has(kPrefix)) {
       const v = env.assign.get(kPrefix);
       env.trace('lookup', `${kPrefix} → ${formatTraceValue(v)}`);
       return v;
     }
-    const kInfix = keyOf([L,'=',R]);
+    const kInfix = emitLinoTerm([L,'=',R]);
     if (env.assign.has(kInfix)) {
       const v = env.assign.get(kInfix);
       env.trace('lookup', `${kInfix} → ${formatTraceValue(v)}`);
@@ -6384,7 +6430,7 @@ function defineForm(head, rhs, env){
     // Only if typeName starts with uppercase (type convention) and is not an operator
     if (/^[A-Z]/.test(typeName)) {
       env.terms.add(storeName);
-      env.setType(storeName, typeName);
+      env.setTypeNode(storeName, typeName);
       return 1;
     }
   }
@@ -6393,7 +6439,7 @@ function defineForm(head, rhs, env){
   if (rhs.length === 2 && Array.isArray(rhs[0]) && typeof rhs[1] === 'string' && rhs[1] === head) {
     const typeExpr = rhs[0];
     env.terms.add(storeName);
-    env.setType(storeName, typeExpr);
+    env.setTypeNode(storeName, typeExpr);
     evalNode(typeExpr, env);
     return 1;
   }
@@ -6406,7 +6452,7 @@ function defineForm(head, rhs, env){
     if (!isOp) {
       const typeExpr = rhs[0];
       env.terms.add(storeName);
-      env.setType(storeName, typeExpr);
+      env.setTypeNode(storeName, typeExpr);
       evalNode(typeExpr, env);
       return 1;
     }
@@ -6468,15 +6514,15 @@ function defineForm(head, rhs, env){
         env.terms.add(storeName);
         env.setLambda(storeName, paramName, paramType, body);
         const hadParamTerm = env.terms.has(paramName);
-        const previousParamType = env.getType(paramName);
+        const previousParamType = env.types.get(emitLinoTerm(paramName)) ?? null;
         env.terms.add(paramName);
-        env.setType(paramName, paramType);
-        const paramTypeKey = typeof paramType === 'string' ? paramType : keyOf(paramType);
-        const bodyTypeKey = env.getType(body) || (typeof body === 'string' ? body : keyOf(body));
+        env.setTypeNode(paramName, paramType);
+        const bodyTypeKey = env.getTypeNode(body);
+        const bodyTypeNode = bodyTypeKey === null ? body : _parseTypeKeyToNode(bodyTypeKey);
         if (!hadParamTerm) env.terms.delete(paramName);
-        if (previousParamType === null) env.types.delete(paramName);
-        else env.setType(paramName, previousParamType);
-        env.setType(storeName, '(Pi (' + paramTypeKey + ' ' + paramName + ') ' + bodyTypeKey + ')');
+        if (previousParamType === null) env.types.delete(emitLinoTerm(paramName));
+        else env.types.set(emitLinoTerm(paramName), previousParamType);
+        env.setTypeNode(storeName, ['Pi', makeTypeBinding(paramName, paramType), bodyTypeNode]);
         return 1;
       }
     }
@@ -6550,20 +6596,21 @@ function _maybeWarnShadow(env, name) {
 
 function _typeKeyOf(typeNode) {
   if (typeNode === null || typeNode === undefined) return null;
-  return typeof typeNode === 'string' ? typeNode : keyOf(typeNode);
+  return emitLinoTerm(typeNode);
+}
+
+function _legacyTypeInput(input) {
+  if (typeof input !== 'string') return input;
+  try { return _parseTypeKeyToNode(input); } catch (_) { return input; }
 }
 
 function _parseTypeKeyToNode(typeKey) {
   if (typeof typeKey !== 'string') return typeKey;
-  const trimmed = typeKey.trim();
-  if (trimmed.startsWith('(')) {
-    try {
-      return parseOne(tokenizeOne(trimmed));
-    } catch (_) {
-      return typeKey;
-    }
-  }
-  return typeKey;
+  // Add the single-term wrapper after source validation so it cannot consume
+  // a caller's last permitted nesting level or two source units.
+  const wrapper = parseOne(['(', ...tokenizeOne(typeKey), ')']);
+  if (wrapper.length !== 1) throw new RmlError('E002', 'expected exactly one serialized term');
+  return wrapper[0];
 }
 
 function _diag(code, message, span) {
@@ -6592,20 +6639,20 @@ function _snapshotTypeBinding(env, name) {
   return {
     name,
     hadTerm: env.terms.has(name),
-    hadType: env.types.has(name),
-    previousType: env.types.get(name),
+    hadType: env.types.has(emitLinoTerm(name)),
+    previousType: env.types.get(emitLinoTerm(name)),
   };
 }
 
 function _extendTypeBinding(env, name, typeKey) {
   env.terms.add(name);
-  env.types.set(name, typeKey);
+  env.types.set(emitLinoTerm(name), typeKey);
 }
 
 function _restoreTypeBinding(env, snap) {
   if (!snap.hadTerm) env.terms.delete(snap.name);
-  if (snap.hadType) env.types.set(snap.name, snap.previousType);
-  else env.types.delete(snap.name);
+  if (snap.hadType) env.types.set(emitLinoTerm(snap.name), snap.previousType);
+  else env.types.delete(emitLinoTerm(snap.name));
 }
 
 // Best-effort node equality after beta-normalisation. Falls back to plain
@@ -6616,7 +6663,7 @@ function _typesAgree(a, b, env) {
   const bN = _expandForall(b);
   if (isStructurallySame(aN, bN)) return true;
   try {
-    return isConvertible(aN, bN, env);
+    return isConvertible(emitLinoTerm(aN), emitLinoTerm(bN), env);
   } catch (_) {
     return false;
   }
@@ -6653,7 +6700,7 @@ function _synthLeaf(term, env) {
   // Resolve through namespaces / aliases the same way getType does.
   const resolved = env._resolveQualified(term);
   if (resolved !== term) {
-    const fromAlias = env.types.get(resolved);
+    const fromAlias = env.types.get(emitLinoTerm(resolved));
     if (fromAlias) return _parseTypeKeyToNode(fromAlias);
   }
   // Named lambda introduced via `(name: lambda (A x) body)` records the Pi
@@ -6664,9 +6711,9 @@ function _synthLeaf(term, env) {
 function _synthApply(node, env, span, diagnostics) {
   // (apply f a) — synth f, expect Pi; check a against domain; result is
   // codomain with x := a substituted.
-  const fnSynth = synth(node[1], env, { span, parentDiagnostics: diagnostics });
+  const fnSynth = synthNode(node[1], env, { span, parentDiagnostics: diagnostics });
   for (const d of fnSynth.diagnostics) diagnostics.push(d);
-  if (!fnSynth.type) {
+  if (fnSynth.type === null) {
     diagnostics.push(_diag(
       'E020',
       `Cannot synthesize type of \`${keyOf(node[1])}\` in \`${keyOf(node)}\``,
@@ -6698,7 +6745,7 @@ function _synthApply(node, env, span, diagnostics) {
   const domainNode = typeof parsed.paramType === 'string'
     ? parsed.paramType
     : parsed.paramType;
-  const argCheck = check(node[2], domainNode, env, { span, parentDiagnostics: diagnostics });
+  const argCheck = checkNode(node[2], domainNode, env, { span, parentDiagnostics: diagnostics });
   for (const d of argCheck.diagnostics) diagnostics.push(d);
   if (!argCheck.ok) return null;
   // Substitute x := a in the codomain to get the result type.
@@ -6722,21 +6769,21 @@ function _synthLambda(node, env, span, diagnostics) {
   _extendTypeBinding(env, parsed.paramName, paramTypeKey);
   let bodyType = null;
   try {
-    const bodySynth = synth(node[2], env, { span, parentDiagnostics: diagnostics });
+    const bodySynth = synthNode(node[2], env, { span, parentDiagnostics: diagnostics });
     for (const d of bodySynth.diagnostics) diagnostics.push(d);
     bodyType = bodySynth.type;
   } finally {
     _restoreTypeBinding(env, snap);
   }
-  if (!bodyType) return null;
-  return ['Pi', [parsed.paramType, parsed.paramName], bodyType];
+  if (bodyType === null) return null;
+  return ['Pi', makeTypeBinding(parsed.paramName, parsed.paramType), bodyType];
 }
 
 function _synthTypeOfQuery(node, env) {
   // (type of expr) reports the synthesized type literally.
   const inner = node[2];
-  const result = synth(inner, env);
-  if (result.type) return ['Type', '0'];
+  const result = synthNode(inner, env);
+  if (result.type !== null) return ['Type', '0'];
   return null;
 }
 
@@ -6744,7 +6791,7 @@ function _synthOfMembership(node, env, span, diagnostics) {
   // (expr of Type) — checks membership and produces a (Type 0) result if
   // the check holds. We delegate to `check` against the declared type.
   const expected = node[2];
-  const result = check(node[0], expected, env, { span, parentDiagnostics: diagnostics });
+  const result = checkNode(node[0], expected, env, { span, parentDiagnostics: diagnostics });
   for (const d of result.diagnostics) diagnostics.push(d);
   if (!result.ok) return null;
   return ['Type', '0'];
@@ -6754,15 +6801,24 @@ function _synthOfMembership(node, env, span, diagnostics) {
  * Synthesize the type of a kernel term.
  */
 function synth(term, ctx, options) {
+  return synthNode(parseTermInput(term), ctx, options);
+}
+
+function check(term, expectedType, ctx, options) {
+  return checkNode(parseTermInput(term), parseTermInput(expectedType), ctx, options);
+}
+
+function synthNode(term, ctx, options) {
+  emitLinoTerm(term); // Reject cycles and resource-limit violations before recursion.
   const env = _envFromCtx(ctx);
   const span = _spanFromCtx(ctx, options);
   const diagnostics = [];
-  const node = parseTermInput(term);
+  const node = desugarHoas(term);
 
   // Leaves: numeric literals and bare symbols.
   if (typeof node === 'string') {
     const t = _synthLeaf(node, env);
-    if (!t && !isNum(node)) {
+    if (t === null && !isNum(node)) {
       diagnostics.push(_diag(
         'E020',
         `Cannot synthesize type of symbol \`${node}\``,
@@ -6818,7 +6874,7 @@ function synth(term, ctx, options) {
   // type variable ranging over `Type`; the body `T` is the polymorphic type.
   // Synthesised as a Type because the surface form is itself a type.
   if (_isForallNode(node)) {
-    return synth(_expandForall(node), env, { span, parentDiagnostics: diagnostics });
+    return synthNode(_expandForall(node), env, { span, parentDiagnostics: diagnostics });
   }
 
   // (lambda (A x) body)
@@ -6835,15 +6891,15 @@ function synth(term, ctx, options) {
 
   // (subst term x replacement) — synth the substituted term.
   if (node.length === 4 && node[0] === 'subst' && typeof node[2] === 'string') {
-    const reduced = subst(parseTermInput(node[1]), node[2], parseTermInput(node[3]));
-    return synth(reduced, env, { span, parentDiagnostics: diagnostics });
+    const reduced = subst(node[1], node[2], node[3]);
+    return synthNode(reduced, env, { span, parentDiagnostics: diagnostics });
   }
 
   // (type of expr) — kernel returns the type of expr.
   if (node.length === 3 && node[0] === 'type' && node[1] === 'of') {
-    const innerSynth = synth(node[2], env, { span });
+    const innerSynth = synthNode(node[2], env, { span });
     for (const d of innerSynth.diagnostics) diagnostics.push(d);
-    if (innerSynth.type) {
+    if (innerSynth.type !== null) {
       // (type of expr) itself is a (Type 0)-level term — a representation
       // of a type. Its synthesised type is therefore (Type 0).
       return { type: ['Type', '0'], diagnostics };
@@ -6877,12 +6933,14 @@ function synth(term, ctx, options) {
 /**
  * Check that a kernel term has the expected type.
  */
-function check(term, expectedType, ctx, options) {
+function checkNode(term, expectedType, ctx, options) {
+  emitLinoTerm(term);
+  emitLinoTerm(expectedType); // Validate both inputs before desugaring or extending context.
   const env = _envFromCtx(ctx);
   const span = _spanFromCtx(ctx, options);
   const diagnostics = [];
-  const node = parseTermInput(term);
-  let expectedNode = parseTermInput(expectedType);
+  const node = desugarHoas(term);
+  let expectedNode = desugarHoas(expectedType);
 
   // Prenex polymorphism (D9): `(forall A T)` is sugar for `(Pi (Type A) T)`.
   // Expand once here so the lambda-vs-Pi rule below applies uniformly. The
@@ -6903,8 +6961,8 @@ function check(term, expectedType, ctx, options) {
     const piParsed = parseBinding(expectedNode[1]);
     if (lambdaParsed && piParsed) {
       const domainOk = _typesAgree(
-        parseTermInput(lambdaParsed.paramType),
-        parseTermInput(piParsed.paramType),
+        lambdaParsed.paramType,
+        piParsed.paramType,
         env,
       );
       if (!domainOk) {
@@ -6923,7 +6981,7 @@ function check(term, expectedType, ctx, options) {
       const snap = _snapshotTypeBinding(env, lambdaParsed.paramName);
       _extendTypeBinding(env, lambdaParsed.paramName, paramTypeKey);
       try {
-        const bodyResult = check(node[2], codomain, env, { span, parentDiagnostics: diagnostics });
+        const bodyResult = checkNode(node[2], codomain, env, { span, parentDiagnostics: diagnostics });
         for (const d of bodyResult.diagnostics) diagnostics.push(d);
         return { ok: bodyResult.ok, diagnostics };
       } finally {
@@ -6953,9 +7011,9 @@ function check(term, expectedType, ctx, options) {
   }
 
   // Default mode-switch: synthesise and compare with definitional equality.
-  const synthResult = synth(node, env, { span });
+  const synthResult = synthNode(node, env, { span });
   for (const d of synthResult.diagnostics) diagnostics.push(d);
-  if (!synthResult.type) {
+  if (synthResult.type === null) {
     return { ok: false, diagnostics };
   }
   const ok = _typesAgree(synthResult.type, expectedNode, env);
@@ -8026,7 +8084,7 @@ function buildArithmeticFormalization(expression, valueKind) {
     : parseExpressionShape(expression, { unwrapSingle: true });
   return {
     ast,
-    lino: keyOf(ast),
+    lino: emitLinoTerm(ast),
     valueKind,
   };
 }
@@ -8101,7 +8159,7 @@ function formalizeSelectedInterpretation(request = {}) {
         unknowns: [],
         valueKind: Array.isArray(ast) && ast[0] === '?' ? 'query' : 'truth-value',
         ast,
-        lino: keyOf(ast),
+        lino: emitLinoTerm(ast),
       };
     } catch (error) {
       return partialFormalization(request, interpretation, ['unsupported-lino-shape', error.message], 1);
@@ -8462,14 +8520,6 @@ class IsabelleExportError extends Error {
   }
 }
 
-const ISABELLE_RESERVED = new Set([
-  'and', 'assumes', 'begin', 'binder', 'case', 'class', 'consts', 'datatype',
-  'definition', 'else', 'end', 'fixes', 'for', 'fun', 'if', 'imports', 'in',
-  'infix', 'infixl', 'infixr', 'let', 'locale', 'module', 'notation', 'of',
-  'open', 'or', 'shows', 'structure', 'syntax', 'then', 'theory', 'type',
-  'typedecl', 'where',
-]);
-
 function _isUniverseAnnotation(node) {
   if (node === 'Type') return true;
   return Array.isArray(node) &&
@@ -8582,9 +8632,8 @@ class IsabelleExportContext {
   }
 
   localName(name) {
-    let base = _isabelleBaseName(name, 'x');
-    if (ISABELLE_RESERVED.has(base)) base = `x_${base}`;
-    return base;
+    // Bound identifiers cannot alias one another or the rml_ global namespace.
+    return 'v_ref_' + Array.from(new TextEncoder().encode(String(name)), byte => byte.toString(16).padStart(2, '0')).join('');
   }
 
   ensureTypedecl(name) {
@@ -8614,6 +8663,7 @@ class IsabelleExportContext {
   }
 
   addDatatype(decl) {
+    if (decl.name === 'Type' || decl.name === 'Prop' || decl.constructors.some(ctor => ctor.name === 'Type' || ctor.name === 'Prop')) throw new IsabelleExportError('cannot redeclare builtin Type or Prop');
     if (this.datatypeNames.has(decl.name)) {
       throw new IsabelleExportError(`duplicate datatype "${decl.name}"`);
     }
@@ -8680,7 +8730,7 @@ class IsabelleExportContext {
         typeNode: binding.paramType,
         localName: this.localName(binding.paramName),
       });
-      return ['Pi', [binding.paramType, binding.paramName], this.inferTermType(node[2], nextLocals)];
+      return ['Pi', makeTypeBinding(binding.paramName, binding.paramType), this.inferTermType(node[2], nextLocals)];
     }
     if (node.length === 3 && node[0] === 'apply') {
       const fnType = this.inferTermType(node[1], locals);
@@ -8741,6 +8791,7 @@ class IsabelleExportContext {
       if (head !== 'Type') this.ensureTypedecl(head);
       return;
     }
+    if (head === 'Type' || head === 'Prop') throw new IsabelleExportError('cannot redeclare builtin Type or Prop', node);
     if (_isTypedSelfDeclaration(head, rhs)) {
       this.addConst(head, rhs[0]);
       return;
@@ -9058,6 +9109,8 @@ export {
   subst,
   substitute,
   synth,
+  synthNode,
+  checkNode,
   check,
   isTotal,
   isTerminating,

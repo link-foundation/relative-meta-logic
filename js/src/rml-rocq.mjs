@@ -1,6 +1,7 @@
 import {
   LinoParseError,
   keyOf,
+  parseBinding,
   parseInductiveForm,
   parseLino,
   readLinoForm,
@@ -12,33 +13,6 @@ class RocqExportError extends Error {
     this.name = 'RocqExportError';
   }
 }
-
-const ROCQ_RESERVED = new Set([
-  'as',
-  'at',
-  'by',
-  'Check',
-  'Definition',
-  'else',
-  'end',
-  'fix',
-  'forall',
-  'fun',
-  'if',
-  'in',
-  'Inductive',
-  'let',
-  'match',
-  'Parameter',
-  'Prop',
-  'return',
-  'Set',
-  'struct',
-  'then',
-  'Type',
-  'where',
-  'with',
-]);
 
 const CONFIG_HEADS = new Set(['range', 'valence']);
 const OPERATOR_HEADS = new Set(['=', '!=', 'and', 'or', 'not', 'is', '?:', 'both', 'neither']);
@@ -62,30 +36,12 @@ function sanitizeComment(text) {
 }
 
 function sanitizeIdentifier(raw) {
-  let out = String(raw).replace(/[^A-Za-z0-9_]/g, '_');
-  out = out.replace(/_+/g, '_');
-  if (out.length === 0 || !/^[A-Za-z_]/.test(out)) out = `rml_${out}`;
-  if (ROCQ_RESERVED.has(out)) out = `${out}_rml`;
-  return out;
+  return 'rml_ref_' + Array.from(new TextEncoder().encode(String(raw)), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 function parseBindingNode(binding) {
-  if (!Array.isArray(binding) || binding.length !== 2) return null;
-  if (typeof binding[0] === 'string' && binding[0].endsWith(':')) {
-    return { name: binding[0].slice(0, -1), type: binding[1] };
-  }
-  if (
-    typeof binding[0] === 'string' &&
-    typeof binding[1] === 'string' &&
-    /^[A-Z]/.test(binding[0]) &&
-    !binding[1].endsWith(':')
-  ) {
-    return { name: binding[1], type: binding[0] };
-  }
-  if (Array.isArray(binding[0]) && typeof binding[1] === 'string' && !binding[1].endsWith(':')) {
-    return { name: binding[1], type: binding[0] };
-  }
-  return null;
+  const parsed = parseBinding(binding);
+  return parsed ? { name: parsed.paramName, type: parsed.paramType } : null;
 }
 
 function parseBindingNodes(binding) {
@@ -143,7 +99,7 @@ class RocqEmitter {
   }
 
   symbol(raw) {
-    if (raw === '_') return '_';
+    if (raw === 'Type' || raw === 'Prop') this.error(`Rocq export cannot redeclare or shadow builtin ${raw}`);
     if (this.names.has(raw)) return this.names.get(raw);
     const rendered = sanitizeIdentifier(raw);
     const previous = this.used.get(rendered);

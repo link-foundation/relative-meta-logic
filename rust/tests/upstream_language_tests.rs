@@ -34,9 +34,97 @@ fn project(fixture: &Value) -> ProgramProjectContext {
 }
 
 #[test]
-fn upstream_source_revision_matches_the_dependency_pin() {
-    assert!(include_str!("../Cargo.toml").contains(META_LANGUAGE_SOURCE_REVISION));
-    assert!(include_str!("../Cargo.lock").contains(META_LANGUAGE_SOURCE_REVISION));
+fn upstream_release_translation_regressions_preserve_defaults_scope_and_unicode() {
+    let release: Value = serde_json::from_str(include_str!(
+        "../../test-corpus/upstream-meta-language/release-regressions.json"
+    ))
+    .unwrap();
+    for fixture in array(&release, "supported") {
+        for target in strings(&fixture["targets"]) {
+            let result = translate_program(text(fixture, "source"), "JavaScript", &target).unwrap();
+            assert_eq!(
+                result.contract().support,
+                TranslationSupport::SemanticTranslation,
+                "{} to {target}",
+                text(fixture, "name")
+            );
+            assert!(
+                result.diagnostic().is_none(),
+                "{} to {target}: {:?}",
+                text(fixture, "name"),
+                result.diagnostic()
+            );
+            assert!(result.semantics().is_some());
+            if target == "Rust" {
+                for expected in strings(&fixture["rustIncludes"]) {
+                    assert!(
+                        result.code().contains(&expected),
+                        "{}: {expected}",
+                        text(fixture, "name")
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn upstream_release_refuses_unsafe_translation_without_losing_source() {
+    let release: Value = serde_json::from_str(include_str!(
+        "../../test-corpus/upstream-meta-language/release-regressions.json"
+    ))
+    .unwrap();
+    for fixture in array(&release, "refused") {
+        let result = translate_program(text(fixture, "source"), "JavaScript", "Rust").unwrap();
+        assert_eq!(
+            result.contract().support,
+            TranslationSupport::PortableEncoding
+        );
+        assert!(result.semantics().is_none());
+        assert!(
+            result
+                .diagnostic()
+                .unwrap()
+                .message
+                .contains(text(fixture, "reason")),
+            "{}",
+            text(fixture, "name")
+        );
+        assert_eq!(
+            decode_program_translation(result.code(), "Rust")
+                .unwrap()
+                .source(),
+            text(fixture, "source")
+        );
+    }
+}
+
+#[test]
+fn upstream_release_matches_the_published_crate_and_javascript_source() {
+    let provenance: Value = serde_json::from_str(include_str!(
+        "../../js/vendor/meta-language-provenance.json"
+    ))
+    .unwrap();
+    assert_eq!(provenance["revision"], META_LANGUAGE_SOURCE_REVISION);
+    assert_eq!(
+        provenance["rust"]["revision"],
+        META_LANGUAGE_SOURCE_REVISION
+    );
+    assert_eq!(provenance["sourceVersion"], "1.0.0");
+    assert!(include_str!("../Cargo.toml")
+        .contains("meta-language = { version = \"=1.0.0\", default-features = false }"));
+    let locked: Vec<_> = include_str!("../Cargo.lock")
+        .split("[[package]]")
+        .filter(|package| {
+            package
+                .trim_start()
+                .starts_with("name = \"meta-language\"\n")
+        })
+        .collect();
+    assert_eq!(locked.len(), 1);
+    for key in ["version", "source", "checksum"] {
+        assert!(locked[0].contains(&format!("{key} = \"{}\"", text(&provenance["rust"], key))));
+    }
 }
 
 #[test]

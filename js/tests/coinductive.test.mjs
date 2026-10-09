@@ -139,9 +139,9 @@ describe('generated corecursor type-checks', () => {
       '(Pi (' +
         '(Type 0) _state_type) ' +
         '(Pi (' +
-          '(Pi (_state_type _state) ' +
-            '(Pi (Natural head) (Pi (_state_type tail) Stream))) case_cons) ' +
-          '(Pi (_state_type _seed) Stream)))',
+          '(Pi (_state: _state_type) ' +
+            '(Pi (Natural head) (Pi (tail: _state_type) Stream))) case_cons) ' +
+          '(Pi (_seed: _state_type) Stream)))',
     );
   });
 
@@ -165,9 +165,11 @@ describe('generated corecursor type-checks', () => {
       '  (constructor (cons (Pi (Natural head) (Pi (Stream tail) Stream)))))',
       { env },
     );
-    const corecTypeKey = keyOf(env.coinductives.get('Stream').corecType);
-    const result = evalNode(['?', ['Stream-corec', 'of', corecTypeKey]], env);
+    const typeNode = env.coinductives.get('Stream').corecType;
+    const result = evalNode(['?', ['Stream-corec', 'of', typeNode]], env);
     assert.strictEqual(result.value, 1);
+    const collidingAtom = evalNode(['?', ['Stream-corec', 'of', keyOf(typeNode)]], env);
+    assert.strictEqual(collidingAtom.value, 0);
   });
 });
 

@@ -36,7 +36,7 @@ use crate::linked_program::{
     ExecutionBasis, GoalNormalization, LinkedProgram, LinkedProgramRegistry, LinkedProof,
     ReductionStopped, RewriteTraceStep, SearchEnd,
 };
-use crate::{key_of, Node};
+use crate::{emit_lino_term, key_of, Node};
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
@@ -1230,7 +1230,7 @@ fn plan_foundation(
     let mut patterns = BTreeSet::new();
     for &member in &closure {
         for pattern in &foundations[member].signature {
-            if patterns.insert(key_of(pattern)) {
+            if patterns.insert(emit_lino_term(pattern)) {
                 signature.push(pattern.clone());
             }
         }
@@ -1357,12 +1357,12 @@ fn bounded(ended: SearchEnd) -> bool {
 fn outcome_of(result: &FoundationResult) -> (&'static str, Option<String>, Vec<String>) {
     (
         result.status,
-        result.normalized.as_ref().map(key_of),
+        result.normalized.as_ref().map(emit_lino_term),
         result
             .answers
             .iter()
             .flatten()
-            .map(|answer| key_of(&answer.judgement))
+            .map(|answer| emit_lino_term(&answer.judgement))
             .collect(),
     )
 }
@@ -1898,7 +1898,7 @@ impl FoundationWorkspace {
                 ValidatedChange::Assumption { from_key, to } => assumptions
                     .iter()
                     .map(|item| {
-                        if key_of(item) == *from_key {
+                        if emit_lino_term(item) == *from_key {
                             to.clone()
                         } else {
                             item.clone()
@@ -2319,7 +2319,7 @@ impl FoundationWorkspace {
                 })
             })
             .collect();
-        answers.sort_by_cached_key(|item| key_of(&item.judgement));
+        answers.sort_by_cached_key(|item| emit_lino_term(&item.judgement));
         // Answers come from saturation alone. Under a guarded cycle policy a
         // ground query can also establish an instance through a guarded
         // cycle, so only an inductive foundation can report its answers
@@ -2764,7 +2764,7 @@ impl FoundationWorkspace {
                 if !result
                     .assumptions
                     .iter()
-                    .any(|item| key_of(item) == *from_key)
+                    .any(|item| emit_lino_term(item) == *from_key)
                 {
                     return false;
                 }
@@ -2772,7 +2772,7 @@ impl FoundationWorkspace {
                     return dependencies
                         .assumptions
                         .iter()
-                        .any(|item| key_of(item) == *from_key);
+                        .any(|item| emit_lino_term(item) == *from_key);
                 }
                 true
             }
@@ -2819,7 +2819,7 @@ impl FoundationWorkspace {
                 }
             }
             return Ok(ValidatedChange::Assumption {
-                from_key: key_of(from),
+                from_key: emit_lino_term(from),
                 to: to.clone(),
             });
         }

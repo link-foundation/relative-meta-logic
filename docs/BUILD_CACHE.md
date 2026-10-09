@@ -19,7 +19,7 @@ npm --prefix js test
 npm --prefix js run docs
 
 # Wrap an entire Rust producer/consumer operation in one lease.
-node scripts/run-with-cache.mjs -- cargo test --manifest-path rust/Cargo.toml --all-targets
+node scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --manifest-path rust/Cargo.toml --all-targets
 
 # Inspect, perform normal bounded cleanup, or remove all provably owned outputs.
 node scripts/build-cache.mjs --report --json
@@ -48,10 +48,12 @@ A top-level runner:
 
 1. Obtains one worktree lease, deferring if another owned build holds it.
 2. Performs safe bounded cleanup and checks free space before spawning the build.
-3. Records a baseline of recognized generated paths, points `TMPDIR`/`TMP`/`TEMP`
-   at a per-run repository-owned scratch directory, then executes the command.
+3. Records a baseline of recognized generated paths, allocates a fresh private
+   producer directory, and points `TMPDIR`/`TMP`/`TEMP` and
+   `RML_CACHE_OUTPUT_DIR` there before executing the command.
 4. Captures output and the command's exit status in `.rml-cache/evidence/`.
-5. Registers newly generated files and cleans up after success, failure or a
+5. Registers only exact producer receipts or privately routed outputs and cleans
+   up after success, failure or a
    handled signal without converting a failed build into success. An already
    nonzero command status is preserved. A successful command becomes exit 2 when
    cleanup or archiving fails or the aggregate remains over budget.
@@ -67,7 +69,7 @@ The docs workflow retains `_site` until the Pages artifact has been uploaded.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `RML_CACHE_BUDGET_BYTES` | 1 GiB | Aggregate limit across registered local generated files |
+| `RML_CACHE_BUDGET_BYTES` | 1 GiB | One aggregate limit across recognized local files and provably owned Docker resources |
 | `RML_CACHE_MIN_FREE_BYTES` | 256 MiB | Minimum available bytes at the pre-build check |
 | `RML_CACHE_STALE_HOURS` | 24 hours | Maximum warm-cache age since the last content or modification-time update |
 
@@ -78,8 +80,12 @@ within the budget. Development and test Cargo profiles disable debug information
 and incremental compilation. `--full` also releases artifact-retention requests
 and removes all currently provable generated files in registered roots.
 
-These are cleanup-time limits, not a hard filesystem quota. An active compiler
-can exceed them; the free-space check happens before execution, not continuously.
+This is one enforceable cleanup-time budget, not a hard filesystem quota or an
+active-build quota. A producer may temporarily exceed it while its consumers run;
+preflight and post-cleanup must satisfy the combined limit. The separate free-space
+reserve is checked throughout the command and stops the owned process group if
+the filesystem runs low. Active checks do not repeatedly hash build outputs or
+query the Docker daemon.
 Protected pre-existing or edited data can keep the reported total above budget.
 The report marks this as blocked rather than deleting data to force compliance.
 Byte accounting uses logical regular-file sizes, not physical filesystem blocks;
@@ -88,28 +94,108 @@ Evidence and reports are intentionally outside the disposable byte budget and
 survive full cleanup; manage their retention separately. Routine CI artifacts retain them
 for seven days; the issue acceptance workflow uses thirty days.
 
+The issue-183 CLI's `--report path` also writes `path.progress.json` before
+execution and atomically updates it after each producer result. It preserves
+actual assertion receipts, command output, input pins and the run's source
+hashes if the aggregate is interrupted or times out. This journal always has
+`provisional: true` and `passed: false`; it is never imported as proof. The
+separate final report is published only after the full gate and live-source
+checks finish. A finalized journal identifies that report by its SHA-256 and
+matching run ID, so an earlier run's final file cannot certify a new run.
+Keep these outputs in ignored `.rml-cache/evidence/` (as CI does), or outside
+the source tree; writing them into source inputs must fail source freshness.
+
 ## Ownership and source safety
 
-The registry lives in the worktree's own Git administrative directory. Ownership
-comes from observing a file being created during a leased operation, with its
-content hash and size, rather than from a broad directory name or extension.
-Files that predate registration are not retroactively adopted. A user-modified
-output loses cleanup ownership, even when it is ignored by Git.
+The registry lives in the worktree's own Git administrative directory. A file
+appearing during a build is **not** proof that the build created it. Ownership
+requires either an exact producer receipt or output routed into a private
+producer directory freshly allocated by the lifecycle for that operation. Receipts bind the
+producer's expected bytes to the file's hash, size, mtime, mode, device and inode.
+Only unchanged previously proven outputs keep their ownership. Legacy entries
+created by the earlier temporal-snapshot policy, including `producer-v1` receipts
+from the superseded reused-directory implementation, are preserved as unproven
+data. New ownership requires `producer-v2` evidence.
+They still consume the aggregate budget: upgrading a checkout with a large legacy
+cache may therefore block a build. Review those files and move or remove them
+explicitly, or use a fresh checkout; there is no automatic blanket adoption or
+legacy-cache purge. Fresh clones have no such unproven retained output.
+
+JavaScript producers can use `writeProducedFile(relative, bytes)` from
+`scripts/build-cache.mjs` while running under the wrapper. It exclusively creates
+the named file and records the exact bytes; it refuses to adopt or overwrite an
+existing unowned file, even when its contents happen to match. A user edit after
+production invalidates the receipt. JSDoc writes to a private directory, safely
+clears only its previously proven destination outputs, then publishes its exact
+bytes through this API. VS Code server staging likewise clears only its proven outputs
+and preserves unowned modules. Local publication is also available through
+`scripts/publish-cache-output.mjs` and refuses name collisions with user data.
+
+For native producers, use `--isolate-output <registered-root>`. The wrapper
+always allocates a randomized private child of that root. Compatible prior cache
+files are copied into it only after their directory identity and every retained
+file match producer proof. The copy is revalidated through an open file descriptor
+and uses independent inodes, never hard links. Timestamps and modes are retained
+so native build tools can reuse compatible artifacts. The previous exposed target
+is not used as the next producer's destination: concurrent edits or new files
+there remain at their original paths and lose or never gain cleanup ownership.
+Unknown/edited prior generations are preserved; a compatible older generation
+may supply verified warm bytes. The wrapper exposes the new target's path as
+`RML_CACHE_OUTPUT_DIR`, substitutes `{output}` in command arguments, and sets
+`CARGO_TARGET_DIR` to it. Direct `--target-dir` arguments are redirected as well.
+Keep consumers inside the same operation and use that path rather than assuming
+outputs are at the shared root. The command's evidence receipt records the path. For a retained output consumed
+by a later operation, `node scripts/build-cache.mjs --output-path <root>` resolves
+only a still-proven private target; it refuses unknown or edited contents.
+The ordinary Rust test, parity, syntax-provider, generated-native verification,
+source-migration, API documentation, Docker compilation and formal
+CI recipes route their producers this way; private `TMPDIR` output is also owned.
 
 Tracked files, unknown/pre-existing files, symlinks and paths crossing a filesystem
 or another worktree boundary are protected. Nested Git clones are independent
 source boundaries: their metadata and both tracked and untracked source are
-preserved, even if the build created the clone. Only recognized generated roots
-inside those clones are considered for ownership and cleanup. A source tree
-cannot be registered as a cache. Empty directories are removed only after owned
-files have been removed. Full cleanup is idempotent; it is not a recursive purge
-of arbitrary directories. In particular, the tracked `vscode/server/.gitignore`
-and original Lean/Rocq proofs remain intact.
+preserved. Only recognized generated roots inside those clones are considered,
+and still require producer proof. A source tree cannot be registered as a cache.
+Full cleanup is idempotent and preserves the tracked `vscode/server/.gitignore` and
+original Lean/Rocq proofs.
 
-Do not edit output roots while a leased build is running. A user-created file
-added there during that build is indistinguishable from command-created output.
-The lifecycle therefore cannot promise absolute safety for concurrent edits
-inside generated-output directories.
+Concurrent user writes to a shared output root stay unowned and survive cleanup,
+including during a failed or interrupted producer. Editing an existing owned
+file during the build also removes its cleanup eligibility. Private producer
+directories are dedicated inputs/outputs of that specific command, not shared
+editing locations. Arbitrary commands that ignore private output routing and do
+not supply receipts leave ambiguous files protected; `--cache` alone is only a
+path/class registration, not evidence of authorship. Those files still count
+against the budget, and a protected excess blocks further builds rather than
+weakening source safety. Remaining raw/custom producer integrations must adopt
+this contract before their outputs can be automatically reclaimed.
+
+Deletion uses a separate transaction. A candidate is atomically renamed into a
+fresh same-parent quarantine before its detached inode/content are checked. Only
+a matching detached artifact is deleted. An editor replacement is restored with
+an exclusive link; if another replacement already occupies its name, both versions
+are preserved and cleanup fails with the recovery path. Recovery files are never
+adopted by capture or deleted by a later full cleanup. Ordinary empty parent
+directories are left in place instead of recursively removing names that another
+writer may have replaced. On Linux, open directory descriptors anchor both rename
+paths against ancestor substitution; the portable fallback uses the same-parent
+quarantine and validates ancestry. Native macOS/Windows transaction behavior still
+requires platform CI, and stronger platform-specific path anchoring remains an
+explicit portability limit.
+
+The concurrency regressions cover writes to shared roots, edits/new files in a
+known prior private target during the next build, atomic editor replacement at
+deletion, ancestor symlink substitution, and blocked restoration. Fresh active
+producer and transaction directories are dedicated work areas, not a security
+boundary against a same-account writer deliberately discovering and modifying
+them. Actual C/make testing confirms warm artifact reuse after copying; Cargo's
+reuse across relocated targets has not yet been measured in this task, so this
+is not a claim that every native tool avoids recompilation.
+
+Nested wrappers retain the outer lease and record their cache roots, retention
+requests, isolated output paths and archive failures through atomic per-operation
+metadata. They resolve their own `{output}` arguments and defer capture/cleanup to
+the outer operation, including when sibling wrappers run concurrently.
 
 The lease records the process realm as well as the hostname and PID. Linux uses
 its kernel boot ID and PID namespace. macOS uses XNU's `kern.bootsessionuuid`
@@ -153,11 +239,11 @@ runner; absolute targets outside the worktree are rejected. When the command is
 a shell expression or third-party build tool, register its output explicitly:
 
 ```sh
-node scripts/run-with-cache.mjs --cache build-output/cargo --class rust -- \
-  cargo build --manifest-path rust/Cargo.toml --target-dir build-output/cargo
+node scripts/run-with-cache.mjs --cache build-output/cargo --class rust \
+  --isolate-output build-output/cargo -- cargo build --manifest-path rust/Cargo.toml
 
-node scripts/run-with-cache.mjs --cache .rml-cache/parser --class parser -- \
-  your-parser-build-command
+node scripts/run-with-cache.mjs --cache .rml-cache/parser --class parser \
+  --isolate-output .rml-cache/parser -- your-parser-build-command --output-dir "{output}"
 ```
 
 `--retain <registered-root>` protects a consumer's required outputs across
@@ -176,8 +262,8 @@ checkout or generated repository data to clean. Rust build caches are no longer
 exported through a post-job `rust-cache` action after teardown.
 
 The formal workflow checks out RML at the root and the exact pinned meta-theory
-revision under `upstream-meta-theory`. Lean and Rocq build disposable copies in
-`.rml-cache/lean/pinned` and `.rml-cache/rocq/pinned`. This contains `.lake`, generated
+revision under `upstream-meta-theory`. Lean and Rocq build disposable copies in private per-operation directories below
+`.rml-cache/lean` and `.rml-cache/rocq`. This contains `.lake`, generated
 Makefiles, `.vo`, `.vos`, `.vok`, `.glob`, `.aux` and any future tool-generated files
 without classifying proof/source files in the upstream checkout as garbage.
 Rocq changes permissions only on its scratch copy and restores runner ownership
@@ -212,12 +298,31 @@ the resource has been independently stopped and that lease safely resolved. A ch
 uses global system/image/container/volume pruning, force-removes unrelated
 images, or exports an unbounded remote GitHub Actions cache.
 
-`docker/buildkitd.toml` applies periodic GC only to this dedicated builder: a 2 GB
-maximum-used-space target, 256 MB reserved space, 2 GB minimum-free-space target,
-and a 24-hour age policy. BuildKit GC is not a hard in-flight quota and is not
-included in the Node runner's filesystem byte accounting. Docker's shared base
-images, unrelated builders, other named volumes, package-manager caches and
-remote registry caches remain outside scope.
+`RML_CACHE_BUDGET_BYTES` covers both local generated files and the dedicated
+Docker resources. There is no additional independent 2 GB allowance. The helper
+generates its private BuildKit GC configuration from the same remaining budget
+and uses exact-byte Docker/Buildx accounting at lifecycle checkpoints. The outer
+wrapper includes those measurements in its preflight and cleanup reports. Unsupported,
+malformed or ambiguous accounting fails closed; it never authorizes deletion of
+unknown resources. Cleanup evidence reports measured before, after and reclaimed
+logical bytes and whether exact owned resources were removed.
+
+These are conservative logical byte counts. BuildKit cache records and loaded
+image sizes can include the same shared layers, so they are deliberately counted
+more than once rather than claiming physical allocation or disk reclamation.
+Owned containers contribute their writable-layer `SizeRw` (the shared image
+rootfs is excluded). The formats are documented by Docker for
+[Buildx disk usage](https://docs.docker.com/reference/cli/docker/buildx/du/) and
+[container size inspection](https://docs.docker.com/reference/cli/docker/inspect/#inspect-the-size-of-a-container--s---size).
+Unknown or legacy external leases without verifiable accounting fail closed.
+Intermediate helper reports can truthfully show temporary excess and
+`localCleanupRequired`; final aggregate enforcement belongs to the outer wrapper
+after local output cleanup.
+GC is periodic and the wrapper polls only the free-space reserve, so neither is
+a hard in-flight quota.
+Unrelated builders, volumes, images, package-manager caches and remote registries
+remain outside scope. Ownership mismatches or unresolved external leases remain
+protected and prevent a clean lifecycle success.
 
 The Rust Dockerfile copies runnable binaries to `/out` before cleanup in the same
 layer that compiles them. The final runtime image copies only those binaries and

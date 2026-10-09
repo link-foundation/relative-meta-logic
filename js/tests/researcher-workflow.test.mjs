@@ -8,7 +8,10 @@ import { TypedSemanticArchive } from '../src/rml-semantic-archive.mjs';
 import { translatePortableNatural } from '../src/rml-portable-natural.mjs';
 const expected = () => JSON.parse(readFileSync(new URL('../../test-corpus/researcher-workflow/expected.json', import.meta.url)));
 
-for (const executionBasis of ['direct-structural', 's-k']) test(`researcher lifecycle uses public APIs on ${executionBasis}`, { timeout: 900_000 }, () => {
+for (const [executionBasis, assertionName] of [
+  ['direct-structural', 'researcher lifecycle uses public APIs on direct-structural'],
+  ['s-k', 'researcher lifecycle uses public APIs on s-k'],
+]) test(assertionName, { timeout: 900_000 }, () => {
   const { report } = runResearcherWorkflow({ executionBasis });
   assert.deepEqual(report, { ...expected(), executionBasis });
 });
