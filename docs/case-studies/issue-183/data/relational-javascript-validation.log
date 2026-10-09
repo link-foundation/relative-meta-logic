@@ -1,0 +1,107 @@
+build-cache: before=1051446599 after=1051446599 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget
+✔ relational rewrite codec checks every output constructor and arity (9.49661ms)
+✔ relational import inference and proof codecs reject malformed source outputs (4.172603ms)
+✔ quoted result codec rejects wrong tags and noncanonical atom codes (2.284079ms)
+✔ recursive substitution replacement changes execution through the actual quoted source image (1146.998789ms)
+✔ the quoted interpreter obeys a replaced linked occurs-check definition (457.891667ms)
+✔ replacing the linked interpreter unifier blocks quoted execution while direct Horn execution still works (53.569255ms)
+✔ linked Horn scheduling preserves S/K rotation even when the first rule stays productive (14096.351206ms)
+✔ an unfinished conclusion normalization is blocked rather than reported as saturation (9465.88724ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26718.764595
+✔ Horn source preserves shared reductions imports judgements inference fixed point and proof trees (482.359761ms)
+✔ Horn source substitution replacement leaves generic resolver and concurrent baseline unchanged (61.25666ms)
+✔ generic first-order unification freshens scopes rejects occurs cycles and backtracks honestly (0.748267ms)
+✔ independent Horn replay rejects forged goals clauses premises context and substitution evidence (75.956122ms)
+✔ Horn source imports detect missing dependencies and cycles without host graph resolution (20.927519ms)
+✔ every declared Horn host operation is removable and no minimality is inferred from removal (18.965155ms)
+✔ quoted Horn interpreter executes its actual source image with linked unification and freshening (39.253772ms)
+✔ linked meta unification performs an occurs check and source replacement changes it (38.174697ms)
+✔ source descriptions and generated clause images preserve the actual declared program (595.778134ms)
+✔ Horn source and execution validation fails closed instead of claiming exhausted success (56.110621ms)
+✔ immutable ground-term shortcut follows bound aliases and rolls back branches without stale groundness (0.967917ms)
+✔ source-defined replay binds interned proof codes to the expected source and atom dictionary (123.047455ms)
+✔ conditional trailing and constructor discrimination preserve all finite branch answers (5.290777ms)
+✔ relational rewrite codec checks every output constructor and arity (8.798148ms)
+✔ relational import inference and proof codecs reject malformed source outputs (3.504887ms)
+✔ quoted result codec rejects wrong tags and noncanonical atom codes (2.07199ms)
+✔ independently replays js generic and linked-interpreter certificates (87.81999ms)
+✔ independently replays rust generic and linked-interpreter certificates (62.725252ms)
+✔ recursive substitution replacement changes execution through the actual quoted source image (1029.537479ms)
+✔ the quoted interpreter obeys a replaced linked occurs-check definition (453.179588ms)
+✔ replacing the linked interpreter unifier blocks quoted execution while direct Horn execution still works (43.067431ms)
+✔ linked Horn scheduling preserves S/K rotation even when the first rule stays productive (14607.845707ms)
+✔ an unfinished conclusion normalization is blocked rather than reported as saturation (9604.613971ms)
+✔ actual quoted Horn image preserves the entire six-capability workload (144104.756495ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 174470.841618
+   Compiling relative-meta-logic v0.39.0 (/workspace/shared/rml-horn-verification/rust)
+    Finished `test` profile [unoptimized] target(s) in 23.19s
+     Running tests/relational_kernel_tests.rs (rust/target/debug/deps/relational_kernel_tests-d132d4ba767fb9de)
+
+running 14 tests
+test actual_quoted_horn_image_preserves_the_entire_six_capability_workload ... ok
+test conditional_trailing_and_constructor_discrimination_preserve_all_branch_answers ... ok
+test each_explicit_horn_host_operation_has_a_removal_witness ... ok
+test horn_source_and_resolution_bounds_reject_instead_of_claiming_success ... ok
+test horn_unifier_freshens_scopes_rejects_occurs_cycles_and_backtracks ... ok
+test immutable_ground_shortcut_follows_aliases_backtracks_and_owns_input_terms ... ok
+test independent_horn_replay_rejects_goal_clause_premise_and_context_tampering ... ok
+test linked_description_generation_preserves_and_executes_the_real_clause_image ... ok
+test linked_horn_interpreter_executes_the_actual_source_image ... ok
+test linked_meta_occurs_check_can_be_replaced_as_source_without_changing_host_unification ... ok
+test relational_source_preserves_imported_facts_two_inferences_fixed_point_and_complete_proofs ... ok
+test relational_source_preserves_shared_sk_reductions_and_independently_replays_each_step ... ok
+test source_replacement_changes_recursive_substitution_on_the_unchanged_horn_machine ... ok
+test source_replay_binds_atom_codes_to_expected_source_context ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 90.57s
+
+     Running tests/relational_protocol_tests.rs (rust/target/debug/deps/relational_protocol_tests-37b788062a035a3f)
+
+running 3 tests
+test imports_inference_and_proof_codecs_reject_malformed_source_outputs ... ok
+test quoted_result_codec_rejects_tags_and_noncanonical_atom_codes ... ok
+test rewrite_codec_checks_all_constructors_and_arities ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/relational_receipt_tests.rs (rust/target/debug/deps/relational_receipt_tests-fd9a587ea104c476)
+
+running 2 tests
+test independently_replays_javascript_receipts ... ok
+test independently_replays_rust_receipts ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/relational_replacement_self_tests.rs (rust/target/debug/deps/relational_replacement_self_tests-6bfe1700ccc35d77)
+
+running 3 tests
+test quoted_interpreter_obeys_replaced_linked_occurs_check ... ok
+test recursive_substitution_replacement_changes_execution_through_the_quoted_source_image ... ok
+test replaced_linked_interpreter_unifier_blocks_quoted_execution_but_not_direct_execution ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+     Running tests/relational_scheduling_tests.rs (rust/target/debug/deps/relational_scheduling_tests-6c50f9054dcb4f14)
+
+running 2 tests
+test linked_scheduling_preserves_sk_rotation_under_a_productive_first_rule ... ok
+test unfinished_conclusion_normalization_is_blocked_not_saturated ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.89s
+
+lint-english: 3 file(s) clean.
+build-cache: before=1173133044 after=1056952806 reclaimed=116180238 budget=1073741824 bytes; 1 protected paths; within budget

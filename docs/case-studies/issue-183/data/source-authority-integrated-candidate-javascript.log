@@ -1,0 +1,19 @@
+build-cache: before=2495434 after=2495434 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget
+✔ candidate validation applies exactly the five reviewed files and records tree/patch evidence (71.153096ms)
+✔ directory aliases preserve checkout identity while distinct directories remain separate (66.659529ms)
+✔ candidate validation refuses tracked dirty state before applying the patch (36.372973ms)
+✔ candidate validation refuses untracked dirty state before applying the patch (35.86095ms)
+✔ candidate validation refuses ignored dirty state before applying the patch (36.358711ms)
+✔ candidate validation rejects baseline drift and a tampered patch (34.342204ms)
+✔ candidate verification rejects changed source hashes and expanded changed-file scope (83.848143ms)
+✔ candidate manifest cannot expand the frozen five-file repair allowlist (27.970499ms)
+✔ separate candidate workflow keeps all platforms and bootstrap/archive/final-cleanup ordering (0.534335ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 468.458226
+build-cache: before=2495434 after=2495434 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget

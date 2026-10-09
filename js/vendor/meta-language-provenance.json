@@ -1,0 +1,998 @@
+{
+  "schema": "rml-upstream-meta-language/v1",
+  "repository": "https://github.com/link-foundation/meta-language",
+  "revision": "a79782093cae3b33606483ac9f3e1d05faf36de0",
+  "issue": "https://github.com/link-foundation/meta-language/issues/195",
+  "pullRequest": "https://github.com/link-foundation/meta-language/pull/196",
+  "sourceVersion": "1.0.0",
+  "distribution": "official-release-source-and-published-rust-crate",
+  "javascript": {
+    "sourceDirectory": "js",
+    "files": [
+      {
+        "path": "README.md",
+        "sha256": "078cab9d236ccbf468706b0ac12335c836adae861fe05a5efac5cd5a83c8292e"
+      },
+      {
+        "path": "package.json",
+        "sha256": "162ad406bfdf073e64e600e95f04fad8839617597b52a1f89da1ec754b792704"
+      },
+      {
+        "path": "src/access.js",
+        "sha256": "33727e0cda6a6e38a6448ed82bf8b2e1470cad5f74dfb41ac87f3eb249be9bbd"
+      },
+      {
+        "path": "src/api-style-fixtures.js",
+        "sha256": "e501adcaf81b46e634d2b3ed5f5727b98d951016dad32de286a7475aea988fdd"
+      },
+      {
+        "path": "src/builtin-grammar.js",
+        "sha256": "d3fa53900c2b2e2024f5883880cc03bbcbed3e5f77e9ba29c6a5abb8f51ac890"
+      },
+      {
+        "path": "src/cli.js",
+        "sha256": "0cc06ee63123d04f4d45671dd757bacd04dd9b5bd74f2b212af4542de5f96687"
+      },
+      {
+        "path": "src/concept-distinctions.js",
+        "sha256": "a09c8e410a10598b643ca33662d8ea7db2d40eec391c43f6b373f85b31c8a88e"
+      },
+      {
+        "path": "src/concept-ontology.js",
+        "sha256": "add3255346840ff55b88dd0c291a7121eaf2eb5ebf0325ee113e0202c598f66d"
+      },
+      {
+        "path": "src/concept-records.js",
+        "sha256": "9b63cfcc5fa7aca4293df640f1f9d603514981e757eb60bdea0f513ab03e050c"
+      },
+      {
+        "path": "src/data/concept-records.json",
+        "sha256": "d67b888c74c67a2b53b89f1e8e1aa1eec28f628a8d512284d1c36dd22b10b89b"
+      },
+      {
+        "path": "src/data/foundation-models.json",
+        "sha256": "79944887475a47e4563a499c0718453fee33c680ee8c86e51a3a8b7bfb5db243"
+      },
+      {
+        "path": "src/data/language-catalog.json",
+        "sha256": "00c534f4e442b96fcd0c559c1de4f0676f8431023336e1d6e0868636902b778a"
+      },
+      {
+        "path": "src/data/native-grammars/c.lino",
+        "sha256": "072a86132b93eaf09b43b6176e5e2b7dfb53897bbdf020c46da6b19b797cf6e3"
+      },
+      {
+        "path": "src/data/native-grammars/csv.lino",
+        "sha256": "16c5828535c024d166af69c67a64f8b7a4215a278f2341935d35321be96f7912"
+      },
+      {
+        "path": "src/data/native-grammars/diff.lino",
+        "sha256": "172ac3b6c6eb5d91ab1d343d2c5bb3b11ef9547ae117071782028c684a43dde7"
+      },
+      {
+        "path": "src/data/native-grammars/go.lino",
+        "sha256": "f4aac3f302af5129c9b3d4dc399d8b2cc1d01a5941f5a43ccbda2923d6abd17c"
+      },
+      {
+        "path": "src/data/native-grammars/graphql.lino",
+        "sha256": "0bd7ad56a4ae7353382ef35f579a6d10fedaa26abbd5e89e273d7f0e828f9751"
+      },
+      {
+        "path": "src/data/native-grammars/ini.lino",
+        "sha256": "82fc3b1768069dbebbab486ed2fe89955daac6c9df56baf1bbab92344756ec00"
+      },
+      {
+        "path": "src/data/native-grammars/java.lino",
+        "sha256": "0132f86a290c49c4c0b6350c7b8ca787b19da35d6b3470042f80423bbc48be0f"
+      },
+      {
+        "path": "src/data/native-grammars/javascript.lino",
+        "sha256": "6028ef294138760a3e05571f0375cd23f65b36972b04f0f23951fcd200136d27"
+      },
+      {
+        "path": "src/data/native-grammars/json.lino",
+        "sha256": "76f719035d2b507a1dbbddc86388eb03a7a4bb52bdc2be56354d39b014a59c71"
+      },
+      {
+        "path": "src/data/native-grammars/json5.lino",
+        "sha256": "2aaa4d4408807207be935ec51bd476a828556f05e654abae2728f408fb3e86d2"
+      },
+      {
+        "path": "src/data/native-grammars/lean.lino",
+        "sha256": "47b1810a4d04b2c37c5c00b59b34590fc953935d0005f5a2f719e4994a0c209c"
+      },
+      {
+        "path": "src/data/native-grammars/make.lino",
+        "sha256": "96234322e161c508060123cb96ce93c79686eeb189f497868ae9c025554d3c95"
+      },
+      {
+        "path": "src/data/native-grammars/proto.lino",
+        "sha256": "b5c57025d05c1ba460def4bc11ce9ef3a2e96fd011565538df226ac860949499"
+      },
+      {
+        "path": "src/data/native-grammars/racket.lino",
+        "sha256": "88d1c0cbfda09e27794e9ca60ec086111b687fa40e2346843e6c20c2329ef658"
+      },
+      {
+        "path": "src/data/native-grammars/regex.lino",
+        "sha256": "622c798974c15ea5f35590b1a4bc40227d48aa78318aa605db957f0fcd73eb2d"
+      },
+      {
+        "path": "src/data/native-grammars/rocq.lino",
+        "sha256": "10d786039923e35a8c4d853623eabf4b00aaf9519368dad39cb369c2e67b5842"
+      },
+      {
+        "path": "src/data/native-grammars/rust.lino",
+        "sha256": "734187afa0b6e0e2b81cdef00887ab58dbbf782cb721752205326e629edc5742"
+      },
+      {
+        "path": "src/data/native-grammars/scheme.lino",
+        "sha256": "d9ebf24ecf0262933df12f4af4721e1f6a1137f413cb0f88f12dc4710d2ea2ad"
+      },
+      {
+        "path": "src/data/native-grammars/solidity.lino",
+        "sha256": "2d1a2a9605657614df6fe1efa75ed3beac6e3e5adf4b9194cd1d7e5dc4c025ab"
+      },
+      {
+        "path": "src/data/native-grammars/tsx.lino",
+        "sha256": "638a86ff97c12e68194be07225fdcb4b894c2c2f2c62785871f448926af018e2"
+      },
+      {
+        "path": "src/data/native-grammars/typescript.lino",
+        "sha256": "ea41cbf602fcb9b91a74d6b4fbbf3669165ea60beb81c58d81dbe561b6df4492"
+      },
+      {
+        "path": "src/decorators.js",
+        "sha256": "e8e66c56c16a93e21e9eb5bb0cf46bcc32345a9df6576abfa1b1c9ee09316cec"
+      },
+      {
+        "path": "src/foundation-models.js",
+        "sha256": "331ae3190b4acf627591d819516aa7ebc84a88a68a0e76dde209d6d76f635d56"
+      },
+      {
+        "path": "src/grammar-concepts.js",
+        "sha256": "9bbf95e764f1e38b72ab20cce5e6bb17b840b183740a194d22717134e801932e"
+      },
+      {
+        "path": "src/grammar-decorators.js",
+        "sha256": "c793d4ec2e498a598e2844f5e60ca44b5ed4e3c253c6717974224d4c41b2e523"
+      },
+      {
+        "path": "src/grammar-emitters.js",
+        "sha256": "48feb0651e4b916b99a41c74be7ac18057e600894ca745a1c789e60e83908229"
+      },
+      {
+        "path": "src/grammar-emitters/abnf.js",
+        "sha256": "b5b2682e79eb197fcc1db1963de90b9316f9e40b8a63c4420542f639c342a893"
+      },
+      {
+        "path": "src/grammar-emitters/antlr.js",
+        "sha256": "3d1b25aca65df5a6bd9d0ae6da056dd7f6451df26199cc045597394cbdced29e"
+      },
+      {
+        "path": "src/grammar-emitters/bnf-ebnf.js",
+        "sha256": "2906a6a3590b3c5ceec7ea7c063eb627d986f25605a2a1f901adb5834972e7bc"
+      },
+      {
+        "path": "src/grammar-emitters/common.js",
+        "sha256": "921c9ecffd86e476f0503e1129ef8653e1fb4582c799109d10c73a84cfaa53d0"
+      },
+      {
+        "path": "src/grammar-emitters/gbnf.js",
+        "sha256": "75c8d7723795292b20839be333cdb75eb42145bbafffd7b8e32b81b9e30dc604"
+      },
+      {
+        "path": "src/grammar-emitters/lark.js",
+        "sha256": "06ba6edd0bed371085cb7e5676d63fdb69de9c8af30f0467bb30e9693446b48a"
+      },
+      {
+        "path": "src/grammar-emitters/pest.js",
+        "sha256": "b2796a76c7653979153632b97dcaaeb7868ad4663c7a76b53970e2becb9fc4ed"
+      },
+      {
+        "path": "src/grammar-emitters/structural.js",
+        "sha256": "fbde4c977e9d1f8b143497b1d1a3f7ec3c622e1ff9e50bef11a6cd6252e42fde"
+      },
+      {
+        "path": "src/grammar-emitters/tree-sitter-json.js",
+        "sha256": "080b71be2e3e4a1829f387ab7a3efdfa88253f677ebb8acabbbc5d4313c7185a"
+      },
+      {
+        "path": "src/grammar-feature-forms.js",
+        "sha256": "719bf9ea947202cf3595ca09fefd21e30086c69c12fd8c76aaa946706d4fa3e1"
+      },
+      {
+        "path": "src/grammar-importers.js",
+        "sha256": "3668a301352dda4a838dfb6e3bf4f6ce73243c4564a87e6518bb85ba23ff6bb0"
+      },
+      {
+        "path": "src/grammar-importers/abnf.js",
+        "sha256": "67c5e1201f6b69e5087b177e01117ea9a30836d07b9db35250f6884231875310"
+      },
+      {
+        "path": "src/grammar-importers/antlr-lexer.js",
+        "sha256": "7d771f1409b9e3de150ce683d5099cb4ff897700740d71f14f6f3a04956d62bc"
+      },
+      {
+        "path": "src/grammar-importers/antlr.js",
+        "sha256": "91004bf19d14ca9658b9315ec6c47af3b8ae6fe5e61debd486a732cc94fa8801"
+      },
+      {
+        "path": "src/grammar-importers/bnf-ebnf.js",
+        "sha256": "01138b6dc43be2146b2dfbd8e85697c8e07eeff5bf721b7eb394af0742edc239"
+      },
+      {
+        "path": "src/grammar-importers/common.js",
+        "sha256": "201c023470c7552f6a70ed693a20a33963b293e805cb608876591c5c27c16a95"
+      },
+      {
+        "path": "src/grammar-importers/gbnf.js",
+        "sha256": "9ae70860256c1f7e995a6fbe766ca13c16d4cd286086e00c3c09fae9ff07ef9d"
+      },
+      {
+        "path": "src/grammar-importers/lark-lexer.js",
+        "sha256": "09b9d3183a6f5cbca622af7fdf6b7ad80798283c366ee4e75c3fc819ab02fcff"
+      },
+      {
+        "path": "src/grammar-importers/lark.js",
+        "sha256": "5e358770f05cf2c25ae1d0f692f94ea3448cf9c9931981c36acf1e22d9f6c0ee"
+      },
+      {
+        "path": "src/grammar-importers/pest.js",
+        "sha256": "75f5e821c3664e07d8bc92a9a3dbda152e422cb86b4d486e0a0d96a90cf09c92"
+      },
+      {
+        "path": "src/grammar-importers/tree-sitter-json.js",
+        "sha256": "296cef1fec1e936fec5b5a99a70c58aac8ce1a3b1f35faf934485202695755b7"
+      },
+      {
+        "path": "src/grammar-importers/tree-sitter-keywords.js",
+        "sha256": "7598caf1c0a74fbb48d6d43e34c3c87646bfaed7bd51dd53987fa0b030485d2e"
+      },
+      {
+        "path": "src/grammar-importers/tree-sitter-native.js",
+        "sha256": "26f0d3d0849d7fd39a17ab1f96d237398f21724fee2914a67d9a73032fd17f8c"
+      },
+      {
+        "path": "src/grammar-importers/tree-sitter-token-conflicts.js",
+        "sha256": "7118153bd776bc737735b07393cc5b29ee345fdf8f3c189f5c5f58c617a4e200"
+      },
+      {
+        "path": "src/grammar-interchange.js",
+        "sha256": "dae77978886db93cdef9aeeb577839543c0d9edf78ade9618476b89d025ec7ec"
+      },
+      {
+        "path": "src/grammar-links.js",
+        "sha256": "6c475fe2d636378845f46a10f3dda2c34ec108bbfa0c813a421540597d7af175"
+      },
+      {
+        "path": "src/grammar-lossless.js",
+        "sha256": "1264e6755392a016465ef4a8e39bb3c2b609331f12f1b150727d38b5f3fe0d86"
+      },
+      {
+        "path": "src/grammar-lowering.js",
+        "sha256": "db540def965b2641ea9dc90b4d12e0cff709924914f529bc8bd029d2e2ec6345"
+      },
+      {
+        "path": "src/grammar-merge-normalize.js",
+        "sha256": "3f394714d9b5b35e4f34da446f9c573b41ffe590253f58d31eadd4fd27519056"
+      },
+      {
+        "path": "src/grammar-merge.js",
+        "sha256": "699f07bef199913623818704c5fe2627b4efc7f31b95d44a748d73d08f27b751"
+      },
+      {
+        "path": "src/grammar-reconcile.js",
+        "sha256": "0121d740a82664c2535c2dbcf6f0df1738436a8fd1f5dad963995fb360c2c72d"
+      },
+      {
+        "path": "src/grammar-rename.js",
+        "sha256": "b57d5d59d49d5b53f61fa0ba8bd2788047866e7a9cdc5d136c602f558d6a09d9"
+      },
+      {
+        "path": "src/grammar-reverse.js",
+        "sha256": "17d70a676a13d2adea3f5732f86b4df2fff6603f92d8ee8e88544c4f2fabf548"
+      },
+      {
+        "path": "src/grammar-round-trip.js",
+        "sha256": "f86c41b3363274d46d60382062a10bcc5f45307d315ba38f610bf56bcc13c9a1"
+      },
+      {
+        "path": "src/grammar-runtime.js",
+        "sha256": "9157c49c2d917dff5d3e13dbbbf60940971a837f6edc588fc80bf2682362cef1"
+      },
+      {
+        "path": "src/grammar-runtime/executor.js",
+        "sha256": "4865669668b754878ad17e9f39cb0ac8bf73086af5c8e114d4c646c7eb52aeab"
+      },
+      {
+        "path": "src/grammar-runtime/load.js",
+        "sha256": "190ddcc664fd04d2a1ff34458788e59a3d89a2f0a623a2bcac36d84fad8e3dd4"
+      },
+      {
+        "path": "src/grammar-runtime/operations.js",
+        "sha256": "40da01ef401a395099c92ed41c05e4f9e55971c3cae6af9282313b538842cbf8"
+      },
+      {
+        "path": "src/grammar-runtime/syntax-tree.js",
+        "sha256": "40c1621e428e11660bdfffa6eee1bc9bdb535a4ff07a0d9afa7b8b76559a6a5a"
+      },
+      {
+        "path": "src/grammar-runtime/text.js",
+        "sha256": "445388c8a0bb21c4f41f2a4408edee9e505b47e72032d4966daea3d04f5a5829"
+      },
+      {
+        "path": "src/grammar-tiering.js",
+        "sha256": "77b4d73dd9e0fc863da8dd51c6c529cffb4b685cab1c47d47bdc9adc5bb32c72"
+      },
+      {
+        "path": "src/grammar-validate.js",
+        "sha256": "19cd7e6369ea7ed1a844eddecacebb60bfef7fc30c02a7b45d67bfa47267034c"
+      },
+      {
+        "path": "src/grammar.js",
+        "sha256": "4a5cd4523f32df492d9b07ffd0199d73b999902450b65cc1e1bf3f1febed70f1"
+      },
+      {
+        "path": "src/graphql-adapter.js",
+        "sha256": "74cb524b126c88d7aca863fa9668292568f58de79cb57bcb03fb3069d0262d88"
+      },
+      {
+        "path": "src/index.d.ts",
+        "sha256": "10c22ff39a187f33cb71cd341738345cdbbcbb9b654a465c9a07d53a60379e41"
+      },
+      {
+        "path": "src/index.js",
+        "sha256": "a64d168b383530161cba84f2cfad0460e8326976365313808ba7f19bf1b40ed8"
+      },
+      {
+        "path": "src/language-catalog.js",
+        "sha256": "2be74aa0b7ddd361de53a113bb93a2e7623cf8de9e6e96489f70eb54f83135f0"
+      },
+      {
+        "path": "src/language-identification.js",
+        "sha256": "609ddf867ea79d6539cc5e2564308ee6b475a065f199b62a4fbebd950a0cd171"
+      },
+      {
+        "path": "src/language-profile.js",
+        "sha256": "a13730452c97a1b47748e3b1b4338e75f9a6f39e7384fe8d4632f02833b33382"
+      },
+      {
+        "path": "src/language-support.js",
+        "sha256": "e2729b15e6ab42a914c643366ea75ece4873a87a7844589253e572a04aa35f55"
+      },
+      {
+        "path": "src/language-trigrams.js",
+        "sha256": "bdde05b3d8080eda7d9dbede4753b1430658ae8c3fbd7e57429f5c162865f327"
+      },
+      {
+        "path": "src/lino-grammar.js",
+        "sha256": "67968feec93376b4cc1fdd3afd03b4961a67eb5cc329f72de3cf4a99c55843dc"
+      },
+      {
+        "path": "src/lino-semantics.js",
+        "sha256": "cc90839346c1a6bb46aa2031b32d4f8471b3b0833fee6c64e40c0f6859fd19b4"
+      },
+      {
+        "path": "src/lino-serialization.js",
+        "sha256": "54256f24e35df374d8ffc47aaf4cebdbb3e9e65b8c36d5dd96bc4baa84286e94"
+      },
+      {
+        "path": "src/native-grammar-parser.js",
+        "sha256": "2834fd2a6d17392e92e8515040001cdae899574e502c5550216e3702737acd6f"
+      },
+      {
+        "path": "src/natural-language.js",
+        "sha256": "8e91ccd8d83893fb1750985b89cd8a0f826c54c2ab9a6aba495c4ba1be7430ef"
+      },
+      {
+        "path": "src/network.js",
+        "sha256": "03f97240e304bfc247431122fe59e66890477136eb11c3c4bae5ff5c5e9289a9"
+      },
+      {
+        "path": "src/parser-registry.js",
+        "sha256": "632614f6bac4f6ad8119232ba8c7e607f551b96612f85b7b6af692aca20d806f"
+      },
+      {
+        "path": "src/pdf-grammar.js",
+        "sha256": "d0d1a6eaecb7a8baf4ffb38ab4c47ebc512840e3f6b6cba9453ef92d8322142a"
+      },
+      {
+        "path": "src/primitives.js",
+        "sha256": "46f8d0850d5e0a1fc13e9651fca8c7cc3efbd1d4c40fcee2f87608dc2d172247"
+      },
+      {
+        "path": "src/program-binding-extents.js",
+        "sha256": "13618770bfbefed3d621e74490bdbfaac8f86027b4eab6944d93f64ff8597a1c"
+      },
+      {
+        "path": "src/program-project-javascript.js",
+        "sha256": "41aeb79694016b193491d677d8b4f72641ad308f8a2d21f8af66feb68b91e62e"
+      },
+      {
+        "path": "src/program-project-lean.js",
+        "sha256": "223203567e6a3475bd2e6ad73e357c19edf157f769a86b1add4593d7334cb402"
+      },
+      {
+        "path": "src/program-project-rocq.js",
+        "sha256": "8bf698ca4c44e43dc0efb4a5f4fb6cbfbe3e8482e3cbc63dff92e965e7cfd566"
+      },
+      {
+        "path": "src/program-project-rust.js",
+        "sha256": "e46257d039dd0c0ead40a6b47a331590c9443865f66e05a131441dff3891c95c"
+      },
+      {
+        "path": "src/program-project-tree.js",
+        "sha256": "b7d3b17d837e45eaed19014a39d5c8527edd6fa12830e620e29ed49faf42d1de"
+      },
+      {
+        "path": "src/program-project.js",
+        "sha256": "54970f595f6a900f76833165791ac08ca1d6f65676e8a115d9b70952ff9a2f1a"
+      },
+      {
+        "path": "src/program-representation.js",
+        "sha256": "124675e2b0ddeb96fc4e810c33481382aca664ec73665fe0b3d94e78e710ad3f"
+      },
+      {
+        "path": "src/program-snapshot.js",
+        "sha256": "f8e4449238643bba1e778e018885f1cc55d82e891af119803d4b51074e5d7d29"
+      },
+      {
+        "path": "src/program-translation.js",
+        "sha256": "9917b100b0898b1bf22007d07893b1af437478899908e6285afc553ef49a8d60"
+      },
+      {
+        "path": "src/programming-language-parser.js",
+        "sha256": "774f232cda8b14a6911e45f12d6bffa6746fc351e8743b2e907054fe46bcd928"
+      },
+      {
+        "path": "src/query-algebra-syntax.js",
+        "sha256": "a3b1f42c161fb155ee2eb65f00636431f92d162d050a46118b77cba543c4b2b5"
+      },
+      {
+        "path": "src/query-algebra.d.ts",
+        "sha256": "7e59dcd587cdf0f4c8c3cd4f3e2e979aa175a4f1a7c0f266b8b3acc8d10e463e"
+      },
+      {
+        "path": "src/query-algebra.js",
+        "sha256": "21cab0153254ea4c9fc49daf09c2bb0fb57abb5a91d4412b2263eac1973b1751"
+      },
+      {
+        "path": "src/query-plan-parser.js",
+        "sha256": "6f37c0a55ecf23a85f27615019b913677e8148a6dddab83e680ea1b7319d8869"
+      },
+      {
+        "path": "src/query-plan.js",
+        "sha256": "0ac9b89b8e6412a25df2da37493cca7fea8b8a6ea965249d8aef36723a7d8adf"
+      },
+      {
+        "path": "src/query.js",
+        "sha256": "8e78ac9a9dd97be6f52050f2fa5c0956ebe5f0d1cfd9a24e0ca5afb87b7958dc"
+      },
+      {
+        "path": "src/regions.js",
+        "sha256": "b287ab216caae7dbf8c3bea28f61cf8ef97f11b2062dec4082c9ec95bbf2a590"
+      },
+      {
+        "path": "src/self-translation.js",
+        "sha256": "7423189411f41537ee0f4b53adeca1bf5ba0724377dad3d52be525177edfe524"
+      },
+      {
+        "path": "src/semantics.js",
+        "sha256": "3521acfc0ef8aa8b9850521025ad7cc98df2ded8a66988e949e6cd4b7b405ff8"
+      },
+      {
+        "path": "src/source-boundaries.js",
+        "sha256": "2835bf20d8dec8d1fee0ae587d39b71dbbbac420df72ee32d4dd88bf8001dba8"
+      },
+      {
+        "path": "src/sql-adapter.js",
+        "sha256": "7f05bb3efecbba6143fe4b3e61d1dfa22031c158bad5d440eb5919d9f38293e2"
+      },
+      {
+        "path": "src/substitution.js",
+        "sha256": "433b6c5a5cf783e45cce662c4c354cc32453f1ffedae094e759707057aa8cf1c"
+      },
+      {
+        "path": "src/text-grammar.js",
+        "sha256": "bb9651d4586b1ffed06790af4eac043551b5682fa9604e850c76d6dd5157c9f2"
+      },
+      {
+        "path": "src/transform.js",
+        "sha256": "cf8d8fec058d1f672d313be968f50eebf56dc7157bf0815a55c9651a94c5707d"
+      },
+      {
+        "path": "src/translation-renderer.js",
+        "sha256": "d6f8366c64955ce228a67f49ff6163975c83d9872d9df7d101a6c2615bd56870"
+      },
+      {
+        "path": "src/translation.js",
+        "sha256": "2ccfb088942eea671b237fe22d76348aded126c88a7e5107ceffe7e6892a711e"
+      },
+      {
+        "path": "src/translation/aborts.js",
+        "sha256": "27d6594367c1197b31de2d40479f4238dc31372e31ba50f0c7cdb8c8de84ec04"
+      },
+      {
+        "path": "src/translation/check.js",
+        "sha256": "ac80ea7a958dab27f966f82666ab52f3e3c263d50627c44e05de00cad3ebe841"
+      },
+      {
+        "path": "src/translation/diagnostics.js",
+        "sha256": "a5d8ddf02252f016b8568373248b67165b37ce747442a21a7bef3c63e2a385ab"
+      },
+      {
+        "path": "src/translation/emit-common.js",
+        "sha256": "ef47281989c92a80c6b153862f8aec5f948b5bb9e15d86624537618eed426e74"
+      },
+      {
+        "path": "src/translation/emit-javascript.js",
+        "sha256": "29d6c50b92acf568dbbdbce4bf6e68a2ad08c04157dcb57994a5a75ce0195c13"
+      },
+      {
+        "path": "src/translation/emit-lean.js",
+        "sha256": "c7586ac250bf411bcec5585e11d3d54e82e2d26a5dbda96b58a797b96692d3c7"
+      },
+      {
+        "path": "src/translation/emit-rocq.js",
+        "sha256": "9ffdeb04e4322fa1e39348fea994f871d67b39dca0002608629db018dcbc55cc"
+      },
+      {
+        "path": "src/translation/emit-rust.js",
+        "sha256": "ab5105621a976b88e8154c7c0d79725cccf1f0407f7916b7fff4f04060ec6081"
+      },
+      {
+        "path": "src/translation/frontend-rules.js",
+        "sha256": "d318a452d0de2580441887cd08188bd77135e81a762e95e3c3b412dc200f5fa1"
+      },
+      {
+        "path": "src/translation/ir.js",
+        "sha256": "a54f47fc4056bbff205051c366fe0a7b406f14c23d62164aa6fda3d1677ea77e"
+      },
+      {
+        "path": "src/translation/javascript-infer.js",
+        "sha256": "739c7a8a1b3e803e0278a5b8e1eb8167f32656a99af21dad27dcc55740a590df"
+      },
+      {
+        "path": "src/translation/javascript-lower.js",
+        "sha256": "cfa4f6315fb2c699f944d75d911af7696cb70e1c2b92e40ffc11870ebcd85132"
+      },
+      {
+        "path": "src/translation/javascript.js",
+        "sha256": "c5019c932273d537f72a212163bbb12b3fede51997781bc04dbf83b10bbdfba7"
+      },
+      {
+        "path": "src/translation/lean-root-names.js",
+        "sha256": "3ee4a2b5242dc22cc3f3301d3c59092104986e22f46a5ccdcdf937f98e548a05"
+      },
+      {
+        "path": "src/translation/lean.js",
+        "sha256": "194c5b36ff9e12fc71bdf56be1dee7c8e26dfc7386cdf6d87ff869ceb38f7730"
+      },
+      {
+        "path": "src/translation/lexer.js",
+        "sha256": "c923f0f2251bfc7b9948a102531137a3961b6a5522ea03099a5399ed9912848d"
+      },
+      {
+        "path": "src/translation/output.js",
+        "sha256": "6d9e6b49a58f9ab575a194c31ed4c640964177546bf465a9696d61804b7ac53e"
+      },
+      {
+        "path": "src/translation/proof.js",
+        "sha256": "db7e1d966a7aab8eba534135071aab8c73f2d6cf829a8f1a61a1d473571f1eae"
+      },
+      {
+        "path": "src/translation/rocq.js",
+        "sha256": "72afe2a7f81606d88a6c7bae9888219573a8cf20f3567e34b5d93c501576dd2f"
+      },
+      {
+        "path": "src/translation/rust.js",
+        "sha256": "84a1162355ab7363169dffebc483eae4ef7627f7444554c913fe02df7bd6219c"
+      },
+      {
+        "path": "src/translation/types.js",
+        "sha256": "84690186d2fbfdd0ddc6267d43dfb4b899f47cd7a9b1d2bf608ce89b179bbc58"
+      },
+      {
+        "path": "src/tree-sitter-node-kind.js",
+        "sha256": "63040cbe74b58cf9c01d459fd8f3597bc58e56c9ac810f489dbbc357702082e0"
+      },
+      {
+        "path": "src/unicode-bidi-classes.js",
+        "sha256": "8f4bf2f7cd9b646bcd062760c98bccf57a498bcef1cae4c86b64604e3e035868"
+      },
+      {
+        "path": "src/vendor/grammars/NOTICE.md",
+        "sha256": "4dd79944877d91b2dae92755be8f9b5b4f0e9cda013b7901824a6fe844e249bc"
+      },
+      {
+        "path": "src/vendor/grammars/agda.LICENSE",
+        "sha256": "8f89e877dff1d9b93170c4dfb269a51c913fec0eb723c5e1c5df7fcb2fce33ee"
+      },
+      {
+        "path": "src/vendor/grammars/agda.wasm.gz",
+        "sha256": "720c96f00c664694b124c29076f8dbb6648c42f9f14ca5bef05507f45faad9d6"
+      },
+      {
+        "path": "src/vendor/grammars/bash.LICENSE",
+        "sha256": "49bf33cf78ef5897e4e161ce1517df7de1ae5042a65b6bcfd44401e0fc606559"
+      },
+      {
+        "path": "src/vendor/grammars/bash.wasm.gz",
+        "sha256": "c8dba79ee1dafd8c7223f7e7e419465968ec21dafeb9bd0d3b8f6baa4977d7a5"
+      },
+      {
+        "path": "src/vendor/grammars/cmake.LICENSE",
+        "sha256": "97334c0f9c0962b33cbe03223f584b8ed64c2d14419ce80cc2e945eb8d367d28"
+      },
+      {
+        "path": "src/vendor/grammars/cmake.wasm.gz",
+        "sha256": "b3e1021d4cd1fce98b61f2bdef54c8af57249564108e0061c14cf7fa7f98c104"
+      },
+      {
+        "path": "src/vendor/grammars/cpp.LICENSE",
+        "sha256": "be2e75233e39e3d078e3a942baaf94b66a3d96d29951482b59aeeca1bb4f32ba"
+      },
+      {
+        "path": "src/vendor/grammars/cpp.wasm.gz",
+        "sha256": "971ef32b3d5fed65be2741feae2dfab6d4055667962c09ed3eee7f3cbd8bd820"
+      },
+      {
+        "path": "src/vendor/grammars/csharp.LICENSE",
+        "sha256": "778fb7d63b8c1844da315648c02f325c4713a6f4a5d19644fd413421422776d3"
+      },
+      {
+        "path": "src/vendor/grammars/csharp.wasm.gz",
+        "sha256": "c004e131af17c12cc9d1a69f214806747f8c0c64216f3afc3ec2474d952ac26d"
+      },
+      {
+        "path": "src/vendor/grammars/css.LICENSE",
+        "sha256": "c5cfb43042b6b72045f4ba997834d0a7786d2793d91680868b5815b39f14fc78"
+      },
+      {
+        "path": "src/vendor/grammars/css.wasm.gz",
+        "sha256": "c21a784ac56fc30f5c28a748a942eeffbf0a066823fa79e82dce0d5b80e9a9e7"
+      },
+      {
+        "path": "src/vendor/grammars/dart.LICENSE",
+        "sha256": "37255daf7e1cfaa7f90f56bcfe02d8dd4452587fabec5fae84790344ae3a3be2"
+      },
+      {
+        "path": "src/vendor/grammars/dart.wasm.gz",
+        "sha256": "d1ebf109cf2aea4d49fb56a16165f9e69174975199b8d2bf355140946c82d3a5"
+      },
+      {
+        "path": "src/vendor/grammars/dtd.LICENSE",
+        "sha256": "26915d0d9503c6de3e23389be7616e57b86df97116a84b2e940865deba2b5185"
+      },
+      {
+        "path": "src/vendor/grammars/dtd.wasm.gz",
+        "sha256": "ba7268e7ba51ad0be77f84e543aa92cb5651306a7cf59965009009aeba1f9489"
+      },
+      {
+        "path": "src/vendor/grammars/elixir.LICENSE",
+        "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+      },
+      {
+        "path": "src/vendor/grammars/elixir.wasm.gz",
+        "sha256": "e9faf1892da06f41816585c8421a7abb3480dc3eef4899a286ec8c9ca8b6a932"
+      },
+      {
+        "path": "src/vendor/grammars/elm.LICENSE",
+        "sha256": "26f7bf09693dd895ea64777316bad0133b131a8478a660b4785d4b9d1322f9a1"
+      },
+      {
+        "path": "src/vendor/grammars/elm.wasm.gz",
+        "sha256": "53fa834ebd4d8ae5dcf1ac517d091c0ecc375fb3d59ebb6c7b1f783fd299ff72"
+      },
+      {
+        "path": "src/vendor/grammars/erlang.LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      {
+        "path": "src/vendor/grammars/erlang.wasm.gz",
+        "sha256": "d2a1fe335c414c06a8ca528d67896001f5d88d6bfe12bd0c55c09cae3c5b2d76"
+      },
+      {
+        "path": "src/vendor/grammars/grammar-lock.json",
+        "sha256": "c646e9df5e5287337ad01a88994a0b0f5f8fd94877be0bb93648c02c243f66cb"
+      },
+      {
+        "path": "src/vendor/grammars/groovy.LICENSE",
+        "sha256": "e3d79d5c619616e0c1b36b971f097890f7879bcc93e51fbcf85d3ce25bf423cf"
+      },
+      {
+        "path": "src/vendor/grammars/groovy.wasm.gz",
+        "sha256": "a5781d83153b75cf2c8faa137a3afd8b43d3e8cb38f3afdc79ab67a46c54de58"
+      },
+      {
+        "path": "src/vendor/grammars/haskell.LICENSE",
+        "sha256": "2e0110e07abef7c2548b26ec9d6969775617ca539a0dc8dbeeb14d6452c711d1"
+      },
+      {
+        "path": "src/vendor/grammars/haskell.wasm.gz",
+        "sha256": "fa8c38f73c44aa1485421b6138866f37b14e42fb018c93cf828477cff6047a4a"
+      },
+      {
+        "path": "src/vendor/grammars/hcl.LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      {
+        "path": "src/vendor/grammars/hcl.wasm.gz",
+        "sha256": "9fb89eb4e4c180397dcd0f1556e09c520f77930a021e1a918442a8299b88af21"
+      },
+      {
+        "path": "src/vendor/grammars/html.LICENSE",
+        "sha256": "02ef5decd324c352b59836e94181baae45850f3fc7cf062f7b59e485f820fb3f"
+      },
+      {
+        "path": "src/vendor/grammars/html.wasm.gz",
+        "sha256": "9f33c69b6bd2e1fb40d181c665500a71010532be74dba830e5b6d9e5c8952593"
+      },
+      {
+        "path": "src/vendor/grammars/kotlin.LICENSE",
+        "sha256": "bd21c882cd232c0eba8e7e89ed25de6cff311c9086fa8d0009e278690e2d1a3b"
+      },
+      {
+        "path": "src/vendor/grammars/kotlin.wasm.gz",
+        "sha256": "b5ae1a11c663beb0af8de7e59a527caae39f32a36dd3967bde01d50dbbe855df"
+      },
+      {
+        "path": "src/vendor/grammars/lean.LICENSE",
+        "sha256": "86a1bb8325269d1c32fca7af28000fbd1a7e2034e9869607f788ec89304ad836"
+      },
+      {
+        "path": "src/vendor/grammars/lean.wasm.gz",
+        "sha256": "3999aeb64163ef67e51079b4d5d0a197c6fdcfd41f45d835e2853dd691197500"
+      },
+      {
+        "path": "src/vendor/grammars/lua.LICENSE",
+        "sha256": "01783d6f1f1150fd7af5d726aa10705ac10abd37c29248ddbdeb479ef527345e"
+      },
+      {
+        "path": "src/vendor/grammars/lua.wasm.gz",
+        "sha256": "3c3900046bab17fd2424d82c2ac026648c8e5d9093e69e296c9e5b03cf7e38f6"
+      },
+      {
+        "path": "src/vendor/grammars/markdown.LICENSE",
+        "sha256": "fa044cd5c1905b4229ab58cedf13330af8cbe0e0573ff2dd7ab5a9fb0f73690b"
+      },
+      {
+        "path": "src/vendor/grammars/markdown.wasm.gz",
+        "sha256": "2aa6ba84f08943e598a1fd8c1df3619896917309a81ddc7dde374b307d0189aa"
+      },
+      {
+        "path": "src/vendor/grammars/markdown_inline.LICENSE",
+        "sha256": "fa044cd5c1905b4229ab58cedf13330af8cbe0e0573ff2dd7ab5a9fb0f73690b"
+      },
+      {
+        "path": "src/vendor/grammars/markdown_inline.wasm.gz",
+        "sha256": "7aa0b89b178d9a76243140b472256fea1c8f8a3fe6658fc6aa88f9c6afd60499"
+      },
+      {
+        "path": "src/vendor/grammars/matlab.LICENSE",
+        "sha256": "8673f5acd59bfb3bd129760a57f72092d5e3c01e05837532eac9497cf8006a46"
+      },
+      {
+        "path": "src/vendor/grammars/matlab.wasm.gz",
+        "sha256": "5051e4b7091ba362ab52884cb2076f04a73cc65a8b030f96d3cd17eef54440d4"
+      },
+      {
+        "path": "src/vendor/grammars/nix.LICENSE",
+        "sha256": "c1b72e50266464ec5118d26200e17bf1f472d142e62ab637e1ffc23986657a78"
+      },
+      {
+        "path": "src/vendor/grammars/nix.wasm.gz",
+        "sha256": "83a21da0056a86597a2b80edbe3e0aedae81de32f1bd08cd2b4f1f6656538aa3"
+      },
+      {
+        "path": "src/vendor/grammars/ocaml.LICENSE",
+        "sha256": "f977a20805dd6e275f14bc090a5f8e638401dad4df366841c1060f12c75b74ae"
+      },
+      {
+        "path": "src/vendor/grammars/ocaml.wasm.gz",
+        "sha256": "549ec50e0c70dee9830b0a6566dbbc05c159520b059e5b89028320f0392e9e69"
+      },
+      {
+        "path": "src/vendor/grammars/ocaml_interface.LICENSE",
+        "sha256": "f977a20805dd6e275f14bc090a5f8e638401dad4df366841c1060f12c75b74ae"
+      },
+      {
+        "path": "src/vendor/grammars/ocaml_interface.wasm.gz",
+        "sha256": "ef0f63a536cd2a134ec821d18c7e959bd6612a9327191a6440c9e2cd13debfe5"
+      },
+      {
+        "path": "src/vendor/grammars/odin.LICENSE",
+        "sha256": "ca4e7b0a8aede51940927e3e8097103041deb699f7b44c877434b9b88dc1336f"
+      },
+      {
+        "path": "src/vendor/grammars/odin.wasm.gz",
+        "sha256": "a91aff4452326cb622a31bb399a04247d68e96dac10ff2ec6f18e39e492ada77"
+      },
+      {
+        "path": "src/vendor/grammars/pascal.LICENSE",
+        "sha256": "2e2fcc500eacb15b76c11fd2229aebf0a5b4c8ed476f068447c6dce778a17ac9"
+      },
+      {
+        "path": "src/vendor/grammars/pascal.wasm.gz",
+        "sha256": "8821298b071b1bdf26b09aa6da89bc47b68f25979dea83e83b9dfd8799a3c876"
+      },
+      {
+        "path": "src/vendor/grammars/perl.LICENSE",
+        "sha256": "68a9a526ae357ed5a2f8ca5dabb14131b283554b69639bb04816088d4b1f2fa0"
+      },
+      {
+        "path": "src/vendor/grammars/perl.wasm.gz",
+        "sha256": "15f275e96855458ea88576fb2b92f1b751bef04776becb45ad869e1304eaf085"
+      },
+      {
+        "path": "src/vendor/grammars/php.LICENSE",
+        "sha256": "664764fabf40c0b318e06324a5a12379092a2df25b8cbf2415f71bc0bb352346"
+      },
+      {
+        "path": "src/vendor/grammars/php.wasm.gz",
+        "sha256": "eceb56e217add4332743d6956a7a5a352533c42c9d89457a087a3a9464f5397b"
+      },
+      {
+        "path": "src/vendor/grammars/powershell.LICENSE",
+        "sha256": "1fca8454c0d77a73f9922a52d39e1f7c339f5da5d03f2766eff66b859fa19477"
+      },
+      {
+        "path": "src/vendor/grammars/powershell.wasm.gz",
+        "sha256": "355f229ec759cdc826aab8a6251f34510e72b50b02c110b7f3e95b38db33708c"
+      },
+      {
+        "path": "src/vendor/grammars/python.LICENSE",
+        "sha256": "d724405ce238a22c0d35769c5a36b386ad5958192efe8bbb304fb2896254575f"
+      },
+      {
+        "path": "src/vendor/grammars/python.wasm.gz",
+        "sha256": "e741c08d453088f3e4a64a3f42a633bf8fed6714a0e2508024ec62a2088916d5"
+      },
+      {
+        "path": "src/vendor/grammars/r.LICENSE",
+        "sha256": "de2e49529f03d573bc3fa229dc83acfe22c63a5ad1766b289563edfd45b72dea"
+      },
+      {
+        "path": "src/vendor/grammars/r.wasm.gz",
+        "sha256": "b064c4989c43b63cf0f7cf129fa98bb34cfa946dd0c26d618d3021bc6914181a"
+      },
+      {
+        "path": "src/vendor/grammars/rocq.LICENSE",
+        "sha256": "c6319c469101bb058c1daf6e8103cd27bd03d94c9bf0683b563a4018f4e2c91e"
+      },
+      {
+        "path": "src/vendor/grammars/rocq.wasm.gz",
+        "sha256": "d04aa761788366765fb6da34f477d76ba3696e7525d55ce3e246b0d1073120b4"
+      },
+      {
+        "path": "src/vendor/grammars/ruby.LICENSE",
+        "sha256": "d1bf807dbcded8daa3dcbd6fa18647f67d83fc66fd8dc7aa66cd230fcc2a6a29"
+      },
+      {
+        "path": "src/vendor/grammars/ruby.wasm.gz",
+        "sha256": "b2b06a31a0beb070f0bbe2b9ae84289529ef8611073c3c6a28bfd1345a0812ab"
+      },
+      {
+        "path": "src/vendor/grammars/scala.LICENSE",
+        "sha256": "1f95ed26e1f4074074c9c7083e61c0a9e4c3b9f435745044995f3beb4ed28575"
+      },
+      {
+        "path": "src/vendor/grammars/scala.wasm.gz",
+        "sha256": "1a78da535956ec838faea015f4b5bec6692476dc3707d8a863a6c8decc7a0970"
+      },
+      {
+        "path": "src/vendor/grammars/sql.LICENSE",
+        "sha256": "846262c0d43edcff636a709ef1db747cde99198a91a22a47f64a7fe201eeec2d"
+      },
+      {
+        "path": "src/vendor/grammars/sql.wasm.gz",
+        "sha256": "a444ea2578493911f0382cc37ba9ecaca2b20caa79f3aa99b5d15192c612f745"
+      },
+      {
+        "path": "src/vendor/grammars/swift.LICENSE",
+        "sha256": "3533cec129bb4bba015c0d61d86dd7c3b7e82110e4d2ff7837a01eff5bad5ccc"
+      },
+      {
+        "path": "src/vendor/grammars/swift.wasm.gz",
+        "sha256": "1b750baeb1f52780c0c7ae1d36d3ca057d64277538354e5646b530950e21cdd5"
+      },
+      {
+        "path": "src/vendor/grammars/toml.LICENSE",
+        "sha256": "727b92d95e4b902448b6fb3a4b27da5f5644b9f5ca757b565bdeab82880c0d4a"
+      },
+      {
+        "path": "src/vendor/grammars/toml.wasm.gz",
+        "sha256": "2db4085173508848227c56940c8e56130c497e5c491f665474ddba70b873acea"
+      },
+      {
+        "path": "src/vendor/grammars/vb.LICENSE",
+        "sha256": "cc6a3992e1206fed48199bb49fe903bddd72021b8ba7dea8f5fca135dcdb9258"
+      },
+      {
+        "path": "src/vendor/grammars/vb.wasm.gz",
+        "sha256": "8969ca8ba8725e2ef498d34b446512b1f7b140b585b2818cffede6044cbff9c5"
+      },
+      {
+        "path": "src/vendor/grammars/xml.LICENSE",
+        "sha256": "26915d0d9503c6de3e23389be7616e57b86df97116a84b2e940865deba2b5185"
+      },
+      {
+        "path": "src/vendor/grammars/xml.wasm.gz",
+        "sha256": "e7a749104362ddae24bc78589e7d038add1d47574ba7f952a7f5f04d7738cc3e"
+      },
+      {
+        "path": "src/vendor/grammars/yaml.LICENSE",
+        "sha256": "2d181298822a124f6d106118dcc69c8d4d26ac668559be29682c452e712b0947"
+      },
+      {
+        "path": "src/vendor/grammars/yaml.wasm.gz",
+        "sha256": "1bde925b9d39b2d066048e36bffdcf263c0ff4cda5414bd892bef18baad7e43c"
+      },
+      {
+        "path": "src/vendor/grammars/zig.LICENSE",
+        "sha256": "a17746751bd7f794d24dd8881f27b23e9031561b718a035939107a42a394b2b8"
+      },
+      {
+        "path": "src/vendor/grammars/zig.wasm.gz",
+        "sha256": "7f281234b01bc421598dca19591828d00ebda2f97b47ae3f14c7f50867ba3d45"
+      },
+      {
+        "path": "src/vendor/web-tree-sitter/LICENSE",
+        "sha256": "c5cfb43042b6b72045f4ba997834d0a7786d2793d91680868b5815b39f14fc78"
+      },
+      {
+        "path": "src/vendor/web-tree-sitter/runtime-lock.json",
+        "sha256": "0e20eeb7fed65ab9a6d8d139b857acbad98208ba214b4009ade2a47805118528"
+      },
+      {
+        "path": "src/vendor/web-tree-sitter/utf8-input.patch",
+        "sha256": "1a780dcd81642f3a6fe987ea4bb765f8340e1a4253badf75059f9cb7bf71976e"
+      },
+      {
+        "path": "src/vendor/web-tree-sitter/web-tree-sitter.wasm.gz",
+        "sha256": "45d96a9331acf5bfd1e76a7690a01d25c6b15c5ac7b873db890db46cdfa0baa6"
+      }
+    ],
+    "directory": "js/vendor/meta-language/js",
+    "upstreamDependencyVersions": {
+      "links-notation": "0.22.0",
+      "web-tree-sitter": "0.27.0"
+    },
+    "consumerDependencyVersions": {
+      "links-notation": "0.25.1",
+      "web-tree-sitter": "0.27.1"
+    },
+    "distribution": "git-submodule-snapshot"
+  },
+  "rust": {
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "version": "1.0.0",
+    "revision": "a79782093cae3b33606483ac9f3e1d05faf36de0",
+    "checksum": "1efbbc346bbcbc4aff425ce14eb6ed7c6808f756f841503f0f9961f0a54fb57d",
+    "defaultFeatures": false,
+    "vcsPath": "rust",
+    "publishedSourceFilesVerified": 343
+  },
+  "license": {
+    "path": "js/vendor/LICENSE.meta-language",
+    "sha256": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e"
+  },
+  "corpus": {
+    "path": "test-corpus/upstream-meta-language/four-language-conformance.json",
+    "sourcePath": "parity/fixtures/four-language-conformance.json",
+    "sha256": "62acd6b21258ae11df3a95b2a9a6d44ff97021dc89384e3993f2a705e406699c"
+  },
+  "submodule": {
+    "name": "meta-language",
+    "path": "js/vendor/meta-language",
+    "url": "https://github.com/link-foundation/meta-language.git",
+    "revision": "a79782093cae3b33606483ac9f3e1d05faf36de0"
+  },
+  "release": {
+    "tag": "v1.0.0",
+    "tagObject": "a831045fa62503b32dca035b396278772b2d9cab",
+    "url": "https://github.com/link-foundation/meta-language/releases/tag/v1.0.0",
+    "publishedAt": "2026-10-08T12:27:43Z"
+  }
+}

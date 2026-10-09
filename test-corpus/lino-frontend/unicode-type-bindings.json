@@ -1,0 +1,21 @@
+{
+  "uppercase": [
+    "Carrier",
+    "Étage",
+    "Étage",
+    "Ω",
+    "Ⅰ",
+    "Ⓐ",
+    "𐐀"
+  ],
+  "lowercase": [
+    "carrier",
+    "étage",
+    "étage",
+    "ω",
+    "ⅰ",
+    "ⓐ",
+    "𐐨"
+  ],
+  "parameter": "名:"
+}

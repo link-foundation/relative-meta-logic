@@ -1,0 +1,475 @@
+# Linked foundation packages.
+#
+# A linked foundation is a named, versioned package of ordinary linked
+# programs.  Each program plays one declared role: axioms, inference, typing,
+# reduction, equality, truth, or proof.  A linked instance imports one
+# unchanged theory into one selected foundation, optionally renaming the
+# theory's constants.  The foundation workspace in both runtimes reads these
+# forms as data, so none of the logics below has a host branch or enum case.
+#
+# Role kinds are fixed by the workspace contract: axioms are linked facts,
+# inference and typing are linked inferences, and reduction, equality, truth,
+# and proof are linked rewrites.  A proof program rewrites
+# (refutation-of goal) to the judgement that refutes the goal; a foundation
+# without one reports refutations as undefined.
+#
+# These packages witness issue 183: classical, intuitionistic, and minimal
+# treatment of one theory, two versions of a resource-sensitive foundation,
+# fuzzy and probabilistic truth policies, and inductive versus guarded
+# coinductive typing of streams.
+
+(namespace linked-foundation-packages)
+
+# ---------------------------------------------------------------------------
+# Propositional logic packages.
+#
+# Introduction rules require a (proposition ...) fact for the compound they
+# build, so saturation stays finite: rules only form propositions that a
+# theory or an assumption names.
+
+(linked-program natural-deduction)
+
+(linked-inference natural-deduction and-introduction
+  (premise (proposition (and ?p ?q)))
+  (premise (holds ?p))
+  (premise (holds ?q))
+  (conclusion (holds (and ?p ?q))))
+
+(linked-inference natural-deduction and-elimination-left
+  (premise (holds (and ?p ?q)))
+  (conclusion (holds ?p)))
+
+(linked-inference natural-deduction and-elimination-right
+  (premise (holds (and ?p ?q)))
+  (conclusion (holds ?q)))
+
+(linked-inference natural-deduction or-introduction-left
+  (premise (proposition (or ?p ?q)))
+  (premise (holds ?p))
+  (conclusion (holds (or ?p ?q))))
+
+(linked-inference natural-deduction or-introduction-right
+  (premise (proposition (or ?p ?q)))
+  (premise (holds ?q))
+  (conclusion (holds (or ?p ?q))))
+
+(linked-inference natural-deduction or-elimination
+  (premise (holds (or ?p ?q)))
+  (premise (holds (implies ?p ?r)))
+  (premise (holds (implies ?q ?r)))
+  (conclusion (holds ?r)))
+
+(linked-inference natural-deduction implies-elimination
+  (premise (holds (implies ?p ?q)))
+  (premise (holds ?p))
+  (conclusion (holds ?q)))
+
+# A statement is refuted when its negation holds.
+
+(linked-program refutation-by-negation)
+
+(linked-rewrite refutation-by-negation refute-by-negation
+  (from (refutation-of (holds ?p)))
+  (to (holds (not ?p))))
+
+# Explosion: from a contradiction every named proposition follows.  Minimal
+# logic omits it, which makes minimal logic the paraconsistent witness.
+
+(linked-program explosion)
+
+(linked-inference explosion ex-falso
+  (premise (holds (not ?p)))
+  (premise (holds ?p))
+  (premise (proposition ?q))
+  (conclusion (holds ?q)))
+
+(linked-program excluded-middle)
+
+(linked-inference excluded-middle excluded-middle-for-proposition
+  (premise (proposition ?p))
+  (conclusion (holds (or ?p (not ?p)))))
+
+(linked-program double-negation)
+
+(linked-rewrite double-negation remove-double-negation
+  (from (not (not ?p)))
+  (to ?p))
+
+(linked-foundation minimal-logic (version 1)
+  (inference natural-deduction)
+  (proof refutation-by-negation)
+  (signature (holds ?p) (proposition ?p))
+  (cycle-policy inductive))
+
+(linked-foundation intuitionistic-logic (version 1)
+  (depends-on minimal-logic (version 1))
+  (inference explosion)
+  (cycle-policy inductive))
+
+(linked-foundation classical-logic (version 1)
+  (depends-on intuitionistic-logic (version 1))
+  (inference excluded-middle)
+  (equality double-negation)
+  (cycle-policy inductive))
+
+# The lawn theory knows that the lawn is wet whether or not it rained, but it
+# does not know whether it rained.  Only excluded middle lets that case split
+# prove the lawn wet.
+
+(linked-program lawn)
+
+(linked-fact lawn rain-is-a-proposition
+  (judgement (proposition rain)))
+
+(linked-fact lawn frost-is-a-proposition
+  (judgement (proposition frost)))
+
+(linked-fact lawn rain-wets-the-lawn
+  (judgement (holds (implies rain wet-lawn))))
+
+(linked-fact lawn sprinkler-wets-the-lawn-without-rain
+  (judgement (holds (implies (not rain) wet-lawn))))
+
+(linked-instance lawn-in-minimal-logic
+  (theory lawn)
+  (foundation minimal-logic (version 1)))
+
+(linked-instance lawn-in-intuitionistic-logic
+  (theory lawn)
+  (foundation intuitionistic-logic (version 1)))
+
+(linked-instance lawn-in-classical-logic
+  (theory lawn)
+  (foundation classical-logic (version 1)))
+
+# The same unchanged theory with renamed constants.
+
+(linked-instance garden-in-classical-logic
+  (theory lawn (rebind wet-lawn wet-garden) (rebind rain storm))
+  (foundation classical-logic (version 1)))
+
+# ---------------------------------------------------------------------------
+# Unary arithmetic shared by the resource and truth packages.
+
+(linked-program unary-calculation)
+
+(linked-rewrite unary-calculation zero-numeral
+  (from zero)
+  (to z))
+
+(linked-rewrite unary-calculation one-numeral
+  (from one)
+  (to (s z)))
+
+(linked-rewrite unary-calculation two-numeral
+  (from two)
+  (to (s (s z))))
+
+(linked-rewrite unary-calculation three-numeral
+  (from three)
+  (to (s (s (s z)))))
+
+(linked-rewrite unary-calculation four-numeral
+  (from four)
+  (to (s (s (s (s z))))))
+
+(linked-rewrite unary-calculation plus-zero
+  (from (plus z ?n))
+  (to ?n))
+
+(linked-rewrite unary-calculation plus-successor
+  (from (plus (s ?m) ?n))
+  (to (s (plus ?m ?n))))
+
+(linked-rewrite unary-calculation minus-zero
+  (from (minus ?m z))
+  (to ?m))
+
+(linked-rewrite unary-calculation minus-from-zero
+  (from (minus z ?n))
+  (to z))
+
+(linked-rewrite unary-calculation minus-successors
+  (from (minus (s ?m) (s ?n)))
+  (to (minus ?m ?n)))
+
+(linked-rewrite unary-calculation times-zero
+  (from (times z ?n))
+  (to z))
+
+(linked-rewrite unary-calculation times-successor
+  (from (times (s ?m) ?n))
+  (to (plus ?n (times ?m ?n))))
+
+(linked-rewrite unary-calculation min-zero-left
+  (from (min z ?n))
+  (to z))
+
+(linked-rewrite unary-calculation min-zero-right
+  (from (min ?m z))
+  (to z))
+
+(linked-rewrite unary-calculation min-successors
+  (from (min (s ?m) (s ?n)))
+  (to (s (min ?m ?n))))
+
+(linked-rewrite unary-calculation max-zero-left
+  (from (max z ?n))
+  (to ?n))
+
+(linked-rewrite unary-calculation max-zero-right
+  (from (max ?m z))
+  (to ?m))
+
+(linked-rewrite unary-calculation max-successors
+  (from (max (s ?m) (s ?n)))
+  (to (s (max ?m ?n))))
+
+(linked-rewrite unary-calculation at-most-zero
+  (from (at-most z ?n))
+  (to yes))
+
+(linked-rewrite unary-calculation at-most-exceeded
+  (from (at-most (s ?m) z))
+  (to no))
+
+(linked-rewrite unary-calculation at-most-successors
+  (from (at-most (s ?m) (s ?n)))
+  (to (at-most ?m ?n)))
+
+(linked-foundation unary-arithmetic (version 1)
+  (reduction unary-calculation)
+  (cycle-policy inductive))
+
+# ---------------------------------------------------------------------------
+# Resource-sensitive packages.  Version 1 treats resources as reusable, so a
+# combination costs as much as its dearest part.  Version 2 treats them as
+# consumable, so a combination costs the sum of its parts.
+
+(linked-program budgeting)
+
+(linked-inference budgeting combined-cost
+  (premise (wanted (both ?first ?second)))
+  (premise (costs ?first ?first-price))
+  (premise (costs ?second ?second-price))
+  (conclusion
+    (costs (both ?first ?second) (combine ?first-price ?second-price))))
+
+(linked-inference budgeting affordability
+  (premise (wanted ?goal))
+  (premise (costs ?goal ?price))
+  (premise (budget ?money))
+  (conclusion (affordable ?goal (at-most ?price ?money))))
+
+(linked-program unaffordability)
+
+(linked-rewrite unaffordability refute-affordability
+  (from (refutation-of (affordable ?goal yes)))
+  (to (affordable ?goal no)))
+
+(linked-program reusable-resources)
+
+(linked-rewrite reusable-resources combine-reusable
+  (from (combine ?first-price ?second-price))
+  (to (max ?first-price ?second-price)))
+
+(linked-program consumable-resources)
+
+(linked-rewrite consumable-resources combine-consumable
+  (from (combine ?first-price ?second-price))
+  (to (plus ?first-price ?second-price)))
+
+(linked-foundation resource-logic (version 1)
+  (depends-on unary-arithmetic (version 1))
+  (inference budgeting)
+  (truth reusable-resources)
+  (proof unaffordability)
+  (signature
+    (affordable ?goal ?answer)
+    (budget ?money)
+    (costs ?goal ?price)
+    (wanted ?goal))
+  (cycle-policy inductive))
+
+(linked-foundation resource-logic (version 2)
+  (depends-on unary-arithmetic (version 1))
+  (inference budgeting)
+  (truth consumable-resources)
+  (proof unaffordability)
+  (signature
+    (affordable ?goal ?answer)
+    (budget ?money)
+    (costs ?goal ?price)
+    (wanted ?goal))
+  (cycle-policy inductive))
+
+(linked-program cafe)
+
+(linked-fact cafe coffee-price
+  (judgement (costs coffee one)))
+
+(linked-fact cafe cake-price
+  (judgement (costs cake one)))
+
+(linked-fact cafe coffee-and-cake-wanted
+  (judgement (wanted (both coffee cake))))
+
+(linked-instance cafe-with-reusable-resources
+  (theory cafe)
+  (foundation resource-logic (version 1)))
+
+(linked-instance cafe-with-consumable-resources
+  (theory cafe)
+  (foundation resource-logic (version 2)))
+
+# ---------------------------------------------------------------------------
+# Truth-degree packages.  A degree is (ratio numerator denominator).  The
+# theory states how degrees flow between statements; the selected foundation
+# decides how (disjoin ...) and (conjoin ...) combine them.  The degrees
+# themselves are user assumptions supplied with each question.
+
+(linked-program weather)
+
+(linked-inference weather wet-grass-from-rain-or-sprinkler
+  (premise (value rain ?rain-degree))
+  (premise (value sprinkler ?sprinkler-degree))
+  (conclusion (value wet-grass (disjoin ?rain-degree ?sprinkler-degree))))
+
+(linked-inference weather slippery-from-wet-grass-and-dark
+  (premise (value wet-grass ?wet-degree))
+  (premise (value dark ?dark-degree))
+  (conclusion (value slippery (conjoin ?wet-degree ?dark-degree))))
+
+# Gödel fuzzy truth: disjunction is the maximum and conjunction the minimum.
+
+(linked-program minimum-truth)
+
+(linked-rewrite minimum-truth maximum-disjunction
+  (from (disjoin (ratio ?first ?whole) (ratio ?second ?whole)))
+  (to (ratio (max ?first ?second) ?whole)))
+
+(linked-rewrite minimum-truth minimum-conjunction
+  (from (conjoin (ratio ?first ?whole) (ratio ?second ?whole)))
+  (to (ratio (min ?first ?second) ?whole)))
+
+# Łukasiewicz fuzzy truth: disjunction is the bounded sum and conjunction the
+# bounded difference.
+
+(linked-program bounded-sum-truth)
+
+(linked-rewrite bounded-sum-truth bounded-sum-disjunction
+  (from (disjoin (ratio ?first ?whole) (ratio ?second ?whole)))
+  (to (ratio (min ?whole (plus ?first ?second)) ?whole)))
+
+(linked-rewrite bounded-sum-truth bounded-difference-conjunction
+  (from (conjoin (ratio ?first ?whole) (ratio ?second ?whole)))
+  (to (ratio (minus (plus ?first ?second) ?whole) ?whole)))
+
+# Probability of independent events: conjunction multiplies, and disjunction
+# is the complement of both complements.
+
+(linked-program product-probability)
+
+(linked-rewrite product-probability independent-conjunction
+  (from (conjoin (ratio ?first ?first-whole) (ratio ?second ?second-whole)))
+  (to (ratio (times ?first ?second) (times ?first-whole ?second-whole))))
+
+(linked-rewrite product-probability complement-ratio
+  (from (complement (ratio ?part ?whole)))
+  (to (ratio (minus ?whole ?part) ?whole)))
+
+(linked-rewrite product-probability independent-disjunction
+  (from (disjoin ?first ?second))
+  (to (complement (conjoin (complement ?first) (complement ?second)))))
+
+(linked-foundation minimum-fuzzy-logic (version 1)
+  (depends-on unary-arithmetic (version 1))
+  (truth minimum-truth)
+  (signature (value ?statement ?degree))
+  (cycle-policy inductive))
+
+(linked-foundation bounded-sum-fuzzy-logic (version 1)
+  (depends-on unary-arithmetic (version 1))
+  (truth bounded-sum-truth)
+  (signature (value ?statement ?degree))
+  (cycle-policy inductive))
+
+(linked-foundation independent-probability (version 1)
+  (depends-on unary-arithmetic (version 1))
+  (truth product-probability)
+  (signature (value ?statement ?degree))
+  (cycle-policy inductive))
+
+(linked-instance weather-in-minimum-fuzzy-logic
+  (theory weather)
+  (foundation minimum-fuzzy-logic (version 1)))
+
+(linked-instance weather-in-bounded-sum-fuzzy-logic
+  (theory weather)
+  (foundation bounded-sum-fuzzy-logic (version 1)))
+
+(linked-instance weather-as-independent-probability
+  (theory weather)
+  (foundation independent-probability (version 1)))
+
+# ---------------------------------------------------------------------------
+# Stream typing.  The inductive foundation accepts only well-founded
+# evidence.  The guarded coinductive foundation also accepts a cyclic proof
+# when its final step is the productive-stream guard, so a stream that
+# unfolds into itself is typed while a bare alias loop is not.
+
+(linked-program stream-typing)
+
+(linked-inference stream-typing empty-stream
+  (premise (empty ?stream))
+  (conclusion (stream ?stream)))
+
+(linked-inference stream-typing productive-stream
+  (premise (unfolds ?stream ?head ?tail))
+  (premise (stream ?tail))
+  (conclusion (stream ?stream)))
+
+(linked-inference stream-typing alias-stream
+  (premise (aliases ?stream ?target))
+  (premise (stream ?target))
+  (conclusion (stream ?stream)))
+
+(linked-foundation finite-streams (version 1)
+  (typing stream-typing)
+  (signature
+    (aliases ?stream ?target)
+    (empty ?stream)
+    (stream ?stream)
+    (unfolds ?stream ?head ?tail))
+  (cycle-policy inductive))
+
+(linked-foundation productive-streams (version 1)
+  (typing stream-typing)
+  (signature
+    (aliases ?stream ?target)
+    (empty ?stream)
+    (stream ?stream)
+    (unfolds ?stream ?head ?tail))
+  (cycle-policy guarded-coinductive (guard stream-typing productive-stream)))
+
+(linked-program stream-examples)
+
+(linked-fact stream-examples ones-unfolds-into-itself
+  (judgement (unfolds ones one ones)))
+
+(linked-fact stream-examples loop-aliases-itself
+  (judgement (aliases loop loop)))
+
+(linked-fact stream-examples nil-is-empty
+  (judgement (empty nil)))
+
+(linked-fact stream-examples countdown-unfolds-into-nil
+  (judgement (unfolds countdown one nil)))
+
+(linked-instance finite-stream-examples
+  (theory stream-examples)
+  (foundation finite-streams (version 1)))
+
+(linked-instance productive-stream-examples
+  (theory stream-examples)
+  (foundation productive-streams (version 1)))

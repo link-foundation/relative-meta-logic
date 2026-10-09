@@ -45,7 +45,9 @@ fn load_expected() -> Vec<(String, Vec<ExpectedValue>)> {
         .unwrap_or_else(|e| panic!("could not read {}: {}", path.display(), e));
 
     let mut out = Vec::new();
-    for link_str in parse_lino(&text) {
+    let links =
+        parse_lino(&text).unwrap_or_else(|e| panic!("{} is not valid LiNo: {}", path.display(), e));
+    for link_str in links {
         let toks = tokenize_one(&link_str);
         let ast = parse_one(&toks)
             .unwrap_or_else(|e| panic!("failed to parse expected.lino entry {}: {}", link_str, e));

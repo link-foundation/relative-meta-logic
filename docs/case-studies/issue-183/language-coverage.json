@@ -1,0 +1,661 @@
+{
+  "schema": "rml:language-coverage:1",
+  "auditedAt": "2026-10-07",
+  "requirementScope": "Full four-language grammar, semantic representation, and twelve directed faithful translations remain required. Inventory statuses do not narrow acceptance.",
+  "publishedDependencies": {
+    "npmMetaLanguage": "0.46.0",
+    "rustMetaLanguage": "0.58.2",
+    "issue195": "closed 2026-10-06; official resolving implementation consumed by immutable source pin; matching registry delivery remains absent"
+  },
+  "rmlExtension": {
+    "schema": "rml:structure:1",
+    "coverage": "complete shared LiNo frontend syntax tree, categorized forms and source locations; unrecognized forms retained",
+    "sourcePreservation": "exact independent source-token plane",
+    "canonicalRoundTrip": "structured network with source tokens discarded",
+    "resolution": "not-run",
+    "elaboration": "not-run",
+    "execution": "not-run",
+    "verification": "not-run"
+  },
+  "languages": [
+    {
+      "language": "JavaScript",
+      "languageVersion": "Official upstream declaration: ECMAScript 2026, ECMA-262, 17th edition; independent full native conformance remains unestablished",
+      "preservation": {
+        "status": "official grammar CST plus ordered source fragments and RML portable-natural links network",
+        "evidence": [
+          "js/src/rml-upstream-language.mjs",
+          "rust/src/upstream_language.rs",
+          "js/src/cst-js.mjs",
+          "rust/src/cst_js.rs"
+        ]
+      },
+      "grammar": "Official grammar-backed parsing is consumed in both runtimes and tested against the shared four-language fixture; complete production conformance is not inferred from finite tests",
+      "structure": "Official grammar constructs, bindings and project facts; separately registered RML portable-natural operation links network; source fragments retained for official snapshots",
+      "scopeAndBindings": "Official scoped binding identities, capture-aware rename and shared positive/negative transformation cases; arbitrary semantic preservation remains unestablished",
+      "typesAndUniverses": "portable natural/boolean checking; general types, dependent universes, coercions, and ownership open",
+      "modulesAndImports": "Official multi-file project modules, manifest dependencies and symbol references exercised through shared fixtures; missing context diagnosed; general project elaboration remains open",
+      "recursion": "Recursive source syntax represented by upstream grammar; portable-natural fragment still refuses recursive calls; arbitrary recursive execution/verification remains open",
+      "proofForms": "Not native proof syntax; faithful arbitrary proof encoding remains open",
+      "runtimeFacilitiesAndEffects": "pure bounded natural arithmetic fragment only; effects unsupported and source retained",
+      "standardsAndExtensions": "Official version, edition and extension declarations exposed; dynamic extensions are parsed, full native standard/extension semantic conformance remains open",
+      "resolution": "Official binding and project-symbol resolution tested with shared modules and missing-context refusals; complete language resolution/elaboration remains open",
+      "elaboration": "Official type elaboration explicitly unavailable; portable-natural expressions checked separately; full language/type/proof elaboration remains open",
+      "execution": "portable-fragment bounded interpreter plus earlier language-core demonstrations",
+      "verification": "fragment links-network reimport and finite observations checked; no general or formal equivalence proof",
+      "portableOracle": {
+        "status": "passed-eight-observations-per-incoming-path",
+        "version": "Node24.19.0"
+      },
+      "upstreamDeclaration": {
+        "schemaVersion": 2,
+        "name": "JavaScript",
+        "aliases": [
+          "javascript",
+          "js",
+          "ecmascript"
+        ],
+        "version": "ECMAScript 2026",
+        "edition": "ECMA-262, 17th edition",
+        "extensions": [
+          ".js",
+          ".mjs",
+          ".cjs"
+        ],
+        "sourceBytes": "preserved",
+        "concreteSyntax": "concrete-syntax",
+        "bindingResolution": "parsed",
+        "typeElaboration": "unavailable",
+        "dynamicExtensions": "parsed",
+        "proofSyntax": "not-applicable",
+        "emitter": "ordered source-token emitter"
+      }
+    },
+    {
+      "language": "Rust",
+      "languageVersion": "Official upstream declaration: Rust 1.99.0, 2024; independent full native conformance remains unestablished",
+      "preservation": {
+        "status": "official grammar CST plus ordered source fragments and RML portable-natural links network",
+        "evidence": [
+          "js/src/rml-upstream-language.mjs",
+          "rust/src/upstream_language.rs",
+          "js/src/cst-rust.mjs",
+          "rust/src/cst_rust.rs"
+        ]
+      },
+      "grammar": "Official grammar-backed parsing is consumed in both runtimes and tested against the shared four-language fixture; complete production conformance is not inferred from finite tests",
+      "structure": "Official grammar constructs, bindings and project facts; separately registered RML portable-natural operation links network; source fragments retained for official snapshots",
+      "scopeAndBindings": "Official scoped binding identities, capture-aware rename and shared positive/negative transformation cases; arbitrary semantic preservation remains unestablished",
+      "typesAndUniverses": "portable natural/boolean checking; general types, dependent universes, coercions, and ownership open",
+      "modulesAndImports": "Official multi-file project modules, manifest dependencies and symbol references exercised through shared fixtures; missing context diagnosed; general project elaboration remains open",
+      "recursion": "Recursive source syntax represented by upstream grammar; portable-natural fragment still refuses recursive calls; arbitrary recursive execution/verification remains open",
+      "proofForms": "Not native proof syntax; faithful arbitrary proof encoding remains open",
+      "runtimeFacilitiesAndEffects": "pure bounded natural arithmetic fragment only; effects unsupported and source retained",
+      "standardsAndExtensions": "Official version, edition and extension declarations exposed; dynamic extensions are parsed, full native standard/extension semantic conformance remains open",
+      "resolution": "Official binding and project-symbol resolution tested with shared modules and missing-context refusals; complete language resolution/elaboration remains open",
+      "elaboration": "Official type elaboration explicitly unavailable; portable-natural expressions checked separately; full language/type/proof elaboration remains open",
+      "execution": "portable-fragment bounded interpreter plus earlier language-core demonstrations",
+      "verification": "fragment links-network reimport and finite observations checked; no general or formal equivalence proof",
+      "portableOracle": {
+        "status": "passed-eight-observations-per-incoming-path",
+        "version": "rustc1.99.0 / edition2021"
+      },
+      "upstreamDeclaration": {
+        "schemaVersion": 2,
+        "name": "Rust",
+        "aliases": [
+          "rust",
+          "rs"
+        ],
+        "version": "Rust 1.99.0",
+        "edition": "2024",
+        "extensions": [
+          ".rs"
+        ],
+        "sourceBytes": "preserved",
+        "concreteSyntax": "concrete-syntax",
+        "bindingResolution": "parsed",
+        "typeElaboration": "unavailable",
+        "dynamicExtensions": "parsed",
+        "proofSyntax": "not-applicable",
+        "emitter": "ordered source-token emitter"
+      }
+    },
+    {
+      "language": "Rocq",
+      "languageVersion": "Official upstream declaration: Rocq 9.3, Vernacular; independent full native conformance remains unestablished",
+      "preservation": {
+        "status": "official grammar CST plus ordered source fragments and RML portable-natural links network",
+        "evidence": [
+          "js/src/rml-upstream-language.mjs",
+          "rust/src/upstream_language.rs",
+          "js/src/cst-rocq.mjs",
+          "rust/src/cst_rocq.rs"
+        ]
+      },
+      "grammar": "Official grammar-backed parsing is consumed in both runtimes and tested against the shared four-language fixture; complete production conformance is not inferred from finite tests",
+      "structure": "Official grammar constructs, bindings and project facts; separately registered RML portable-natural operation links network; source fragments retained for official snapshots",
+      "scopeAndBindings": "Official scoped binding identities, capture-aware rename and shared positive/negative transformation cases; arbitrary semantic preservation remains unestablished",
+      "typesAndUniverses": "portable natural/boolean checking; general types, dependent universes, coercions, and ownership open",
+      "modulesAndImports": "Official multi-file project modules, manifest dependencies and symbol references exercised through shared fixtures; missing context diagnosed; general project elaboration remains open",
+      "recursion": "Recursive source syntax represented by upstream grammar; portable-natural fragment still refuses recursive calls; arbitrary recursive execution/verification remains open",
+      "proofForms": "Official proof/tactic/extension syntax parsed; general proof elaboration and native RML replay remain open",
+      "runtimeFacilitiesAndEffects": "pure bounded natural arithmetic fragment only; effects unsupported and source retained",
+      "standardsAndExtensions": "Official version, edition and extension declarations exposed; dynamic extensions are parsed, full native standard/extension semantic conformance remains open",
+      "resolution": "Official binding and project-symbol resolution tested with shared modules and missing-context refusals; complete language resolution/elaboration remains open",
+      "elaboration": "Official type elaboration explicitly unavailable; portable-natural expressions checked separately; full language/type/proof elaboration remains open",
+      "execution": "portable-fragment bounded interpreter plus earlier language-core demonstrations",
+      "verification": "fragment links-network reimport and finite observations checked; no general or formal equivalence proof",
+      "portableOracle": {
+        "status": "passed-eight-observations-per-incoming-path",
+        "version": "Rocq9.1.1 / OCaml4.14.2",
+        "negativeChecks": "three false-observation proofs rejected"
+      },
+      "upstreamDeclaration": {
+        "schemaVersion": 2,
+        "name": "Rocq",
+        "aliases": [
+          "rocq",
+          "coq"
+        ],
+        "version": "Rocq 9.3",
+        "edition": "Vernacular",
+        "extensions": [
+          ".v"
+        ],
+        "sourceBytes": "preserved",
+        "concreteSyntax": "concrete-syntax",
+        "bindingResolution": "parsed",
+        "typeElaboration": "unavailable",
+        "dynamicExtensions": "parsed",
+        "proofSyntax": "parsed",
+        "emitter": "ordered source-token emitter"
+      }
+    },
+    {
+      "language": "Lean",
+      "languageVersion": "Official upstream declaration: Lean 4.34.1, Lean 4; independent full native conformance remains unestablished",
+      "preservation": {
+        "status": "official grammar CST plus ordered source fragments and RML portable-natural links network",
+        "evidence": [
+          "js/src/rml-upstream-language.mjs",
+          "rust/src/upstream_language.rs",
+          "js/src/cst-lean.mjs",
+          "rust/src/cst_lean.rs"
+        ]
+      },
+      "grammar": "Official grammar-backed parsing is consumed in both runtimes and tested against the shared four-language fixture; complete production conformance is not inferred from finite tests",
+      "structure": "Official grammar constructs, bindings and project facts; separately registered RML portable-natural operation links network; source fragments retained for official snapshots",
+      "scopeAndBindings": "Official scoped binding identities, capture-aware rename and shared positive/negative transformation cases; arbitrary semantic preservation remains unestablished",
+      "typesAndUniverses": "portable natural/boolean checking; general types, dependent universes, coercions, and ownership open",
+      "modulesAndImports": "Official multi-file project modules, manifest dependencies and symbol references exercised through shared fixtures; missing context diagnosed; general project elaboration remains open",
+      "recursion": "Recursive source syntax represented by upstream grammar; portable-natural fragment still refuses recursive calls; arbitrary recursive execution/verification remains open",
+      "proofForms": "Official proof/tactic/extension syntax parsed; general proof elaboration and native RML replay remain open",
+      "runtimeFacilitiesAndEffects": "pure bounded natural arithmetic fragment only; effects unsupported and source retained",
+      "standardsAndExtensions": "Official version, edition and extension declarations exposed; dynamic extensions are parsed, full native standard/extension semantic conformance remains open",
+      "resolution": "Official binding and project-symbol resolution tested with shared modules and missing-context refusals; complete language resolution/elaboration remains open",
+      "elaboration": "Official type elaboration explicitly unavailable; portable-natural expressions checked separately; full language/type/proof elaboration remains open",
+      "execution": "portable-fragment bounded interpreter plus earlier language-core demonstrations",
+      "verification": "fragment links-network reimport and finite observations checked; no general or formal equivalence proof",
+      "portableOracle": {
+        "status": "passed-eight-observations-per-incoming-path",
+        "version": "4.28.0"
+      },
+      "upstreamDeclaration": {
+        "schemaVersion": 2,
+        "name": "Lean",
+        "aliases": [
+          "lean",
+          "lean4"
+        ],
+        "version": "Lean 4.34.1",
+        "edition": "Lean 4",
+        "extensions": [
+          ".lean"
+        ],
+        "sourceBytes": "preserved",
+        "concreteSyntax": "concrete-syntax",
+        "bindingResolution": "parsed",
+        "typeElaboration": "unavailable",
+        "dynamicExtensions": "parsed",
+        "proofSyntax": "parsed",
+        "emitter": "ordered source-token emitter"
+      }
+    }
+  ],
+  "translations": [
+    {
+      "source": "JavaScript",
+      "target": "Rust",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "JavaScript",
+      "target": "Rocq",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations",
+      "negativeNativeValidation": "false-observation proof rejected"
+    },
+    {
+      "source": "JavaScript",
+      "target": "Lean",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "Rust",
+      "target": "JavaScript",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "Rust",
+      "target": "Rocq",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations",
+      "negativeNativeValidation": "false-observation proof rejected"
+    },
+    {
+      "source": "Rust",
+      "target": "Lean",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "Rocq",
+      "target": "JavaScript",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "Rocq",
+      "target": "Rust",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "Rocq",
+      "target": "Lean",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "Lean",
+      "target": "JavaScript",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "Lean",
+      "target": "Rust",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations"
+    },
+    {
+      "source": "Lean",
+      "target": "Rocq",
+      "status": "portable-natural-fragment",
+      "contractVersion": 1,
+      "preserves": [
+        "original source in preservedSource",
+        "function arity and lexical parameter binding",
+        "pure natural-number return observations under explicit range assumptions",
+        "conditional branch choice and acyclic call structure"
+      ],
+      "doesNotEstablish": [
+        "full-language grammar",
+        "effects",
+        "ownership",
+        "modules",
+        "general types",
+        "universes",
+        "assumption/proof translation",
+        "formal semantic-equivalence theorem"
+      ],
+      "requiredRuntimeOrEncoding": "JavaScript safe-integer Number / Rust u64 / Lean Nat / Rocq nat; all evaluated intermediates <=9007199254740991",
+      "evidence": [
+        "js/src/rml-portable-natural.mjs",
+        "rust/src/portable_natural.rs",
+        "js/tests/portable-natural.test.mjs",
+        "rust/tests/portable_natural_tests.rs",
+        "scripts/check-portable-native.mjs"
+      ],
+      "fullLanguageStatus": "open",
+      "contract": "portable-natural-translation.md",
+      "nativeValidation": "passed-eight-observations",
+      "negativeNativeValidation": "false-observation proof rejected"
+    }
+  ],
+  "portableFragment": {
+    "schema": "rml:portable-natural:1",
+    "fullSupport": false,
+    "limitationsAreNotAcceptanceChanges": true,
+    "contract": "portable-natural-translation.md",
+    "nativeReceipt": "data/portable-native-results.json",
+    "toolchainProvenance": "data/portable-native-toolchain.json",
+    "nativeObservedCases": 96,
+    "nativeDirectedPathsPassed": 12,
+    "falseRocqObservationProofsRejected": 3
+  },
+  "consumedImplementation": {
+    "repository": "https://github.com/link-foundation/meta-language",
+    "revision": "679a3b3c3c56177b8df1ad82672690c6e9889aeb",
+    "javascript": "registered submodule with 235 provenance-verified runtime files",
+    "rust": "same Git revision locked in Cargo.lock",
+    "sourceIntegration": "delivered",
+    "registryPublication": "open",
+    "evidence": [
+      "docs/UPSTREAM_LANGUAGE_SOURCE.md",
+      "js/vendor/meta-language-provenance.json",
+      "js/tests/upstream-language.test.mjs",
+      "rust/tests/upstream_language_tests.rs"
+    ],
+    "conformanceBoundary": "Official declared versions are metadata, not independent native conformance certification; full semantics remain required."
+  },
+  "upstreamTranslation": {
+    "pathsExercised": 12,
+    "fixture": "test-corpus/upstream-meta-language/translation-programs.json",
+    "status": "semantic contracts for the official supported output-program fixture",
+    "unsupported": "reversible source envelope with diagnostic and no semantic result; not counted as translation of behavior or proof",
+    "nativeValidation": "The separate portable-natural native receipt does not certify every program emitted by the upstream translator",
+    "fullLanguageStatus": "open"
+  }
+}

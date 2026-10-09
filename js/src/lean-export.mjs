@@ -7,13 +7,10 @@
 import {
   Diagnostic,
   RmlError,
-  computeFormSpans,
   isNum,
   keyOf,
   parseBinding,
-  parseLino,
-  parseOne,
-  tokenizeOne,
+  readLinoForms,
 } from './rml-links.mjs';
 
 const HEADER = [
@@ -22,25 +19,15 @@ const HEADER = [
   '',
 ];
 
-const RESERVED = new Set([
-  'Type', 'Prop', 'Sort',
-  'axiom', 'def', 'fun', 'inductive', 'where',
-  'match', 'with', 'let', 'in', 'if', 'then', 'else',
-  'forall', 'by', 'theorem', 'example', 'namespace', 'open', 'import',
-  'true', 'false',
-]);
-
 const PROBABILISTIC_HEADS = new Set([
   'range', 'valence', '=', '!=', 'and', 'or', 'not', 'both', 'neither',
 ]);
 
+// Encode every source identifier, including the escape prefix itself. This
+// avoids keyword inventories and makes the mapping injective over Unicode text.
 function leanIdent(raw) {
-  if (raw === '_') return '_';
-  let out = String(raw).replace(/[^A-Za-z0-9_]/g, '_');
-  if (!out) out = 'rml';
-  if (!/^[A-Za-z_]/.test(out)) out = `rml_${out}`;
-  if (RESERVED.has(out)) out = `rml_${out}`;
-  return out;
+  if (typeof raw !== 'string' || !raw.isWellFormed()) throw new TypeError('Lean identifier must be well-formed Unicode text');
+  return 'rml_ref_' + Array.from(new TextEncoder().encode(String(raw)), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 function withScope(scope, from, to) {
@@ -57,15 +44,6 @@ function resolveName(name, scope) {
 
 function unsupported(message, span) {
   throw new RmlError('E050', message, span);
-}
-
-function parseForms(text) {
-  return parseLino(text)
-    .filter(linkStr => {
-      const s = String(linkStr).trim();
-      return !s.match(/^\(#\s/);
-    })
-    .map(linkStr => parseOne(tokenizeOne(String(linkStr))));
 }
 
 function unwrapForm(form) {
@@ -206,7 +184,21 @@ function inferType(node, ctx, bindings = new Map()) {
 }
 
 function declareType(ctx, name, typeNode) {
+  if (name === 'Type' || name === 'Prop') unsupported(`Lean export cannot redeclare builtin ${name}`);
   ctx.types.set(name, cloneNode(typeNode));
+}
+
+// Lean cannot generate executable code for a value that depends on an axiom.
+// Respect lambda shadowing and ignore type annotations when tracking that dependency.
+function dependsOnNoncomputable(node, ctx, bound = new Set()) {
+  if (typeof node === 'string') return !bound.has(node) && ctx.noncomputable.has(node);
+  if (!Array.isArray(node)) return false;
+  if (node.length === 3 && node[0] === 'lambda') {
+    const binding = parseBinding(node[1]);
+    if (binding) return dependsOnNoncomputable(node[2], ctx, new Set([...bound, binding.paramName]));
+  }
+  if (['Type', 'Prop', 'Pi', 'forall'].includes(node[0])) return false;
+  return node.some(child => dependsOnNoncomputable(child, ctx, bound));
 }
 
 function exportDefinition(form, ctx, span) {
@@ -236,6 +228,7 @@ function exportDefinition(form, ctx, span) {
   if (rhs.length === 2 && rhs[1] === head) {
     const typeNode = rhs[0];
     declareType(ctx, head, typeNode);
+    ctx.noncomputable.add(head);
     ctx.lines.push(`axiom ${leanIdent(head)} : ${typeToLean(typeNode, ctx, new Map(), span)}`);
     return;
   }
@@ -243,6 +236,7 @@ function exportDefinition(form, ctx, span) {
   if (rhs.length === 1 && Array.isArray(rhs[0])) {
     const typeNode = rhs[0];
     declareType(ctx, head, typeNode);
+    ctx.noncomputable.add(head);
     ctx.lines.push(`axiom ${leanIdent(head)} : ${typeToLean(typeNode, ctx, new Map(), span)}`);
     return;
   }
@@ -254,10 +248,12 @@ function exportDefinition(form, ctx, span) {
     const typeNode = inferType(lambdaNode, ctx);
     if (!typeNode) unsupported(`Lean export could not infer a Lean type for \`${head}\``, span);
     declareType(ctx, head, typeNode);
+    const noncomputable = dependsOnNoncomputable(lambdaNode, ctx);
+    if (noncomputable) ctx.noncomputable.add(head);
     const param = leanIdent(binding.paramName);
     const scope = withScope(new Map(), binding.paramName, param);
     ctx.lines.push(
-      `def ${leanIdent(head)} : ${typeToLean(typeNode, ctx, new Map(), span)} := ` +
+      `${noncomputable ? 'noncomputable ' : ''}def ${leanIdent(head)} : ${typeToLean(typeNode, ctx, new Map(), span)} := ` +
       `fun ${param} => ${termToLean(rhs[2], ctx, scope, span)}`,
     );
     return;
@@ -327,28 +323,29 @@ function exportForm(form, ctx, span) {
 function exportLean(text, options = {}) {
   const sourceText = String(text);
   const file = options.file || null;
-  const spans = computeFormSpans(sourceText, file);
   let forms;
+  let spans;
   try {
-    forms = parseForms(sourceText);
+    ({ forms, spans } = readLinoForms(sourceText, file));
   } catch (err) {
     const diag = new Diagnostic({
-      code: 'E006',
-      message: `LiNo parse failure: ${err && err.message ? err.message : String(err)}`,
-      span: { file, line: 1, col: 1, length: 0 },
+      code: (err && err.code) || 'E000',
+      message: err && err.message ? err.message : String(err),
+      span: (err && err.span) || { file, line: 1, col: 1, length: 0 },
     });
     return { source: '', diagnostics: [diag] };
   }
 
   const ctx = {
     types: new Map(),
+    noncomputable: new Set(),
     lines: [],
     blocks: [],
     diagnostics: [],
   };
 
   for (let idx = 0; idx < forms.length; idx++) {
-    const span = spans[idx] || { file, line: 1, col: 1, length: 0 };
+    const span = spans[idx];
     try {
       exportForm(forms[idx], ctx, span);
     } catch (err) {

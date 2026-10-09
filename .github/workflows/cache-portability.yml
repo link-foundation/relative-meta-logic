@@ -1,0 +1,49 @@
+name: cache-portability
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cache-portability-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  cache-lifecycle:
+    name: Cache lifecycle (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Execute installed hooks and real platform lifecycle
+        run: node scripts/run-with-cache.mjs -- node --test --test-concurrency=2 scripts/build-cache.test.mjs scripts/build-cache-policy.test.mjs scripts/build-cache-nested.test.mjs scripts/build-vsix-output.test.mjs scripts/docker-cache-budget.test.mjs scripts/build-resource-monitor.test.mjs scripts/build-output-publication.test.mjs scripts/ci-source-context.test.mjs
+      - name: Archive platform evidence before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cache-portability-${{ matrix.os }}-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

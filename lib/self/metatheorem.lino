@@ -23,7 +23,7 @@
 (Definition-form: (Type 0) Definition-form)
 
 (rml-metatheorem-checker: Metatheorem-checker rml-metatheorem-checker)
-(metatheorem-checker rml-metatheorem-checker matches relative-meta-logic version-0-19-0)
+(metatheorem-checker rml-metatheorem-checker matches relative-meta-logic version-0-21-0)
 (metatheorem-checker rml-metatheorem-checker has host-metatheorem-checker-presentation rule-links)
 
 # Check kinds emitted per candidate (D12 totality, D14 coverage, D13 termination).

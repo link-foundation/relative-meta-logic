@@ -1,0 +1,53 @@
+# Additive proposition formation, separate from proof checking. Import before
+# formal-semantics so these constructors reduce through the ordinary checker.
+# An fs-ok fs-t-prop result certifies a well-formed proposition, not its truth.
+# Universal bodies are checked under a fresh arbitrary neutral. No finite set
+# of inputs, declaration names, or host-language predicates grants acceptance.
+
+(linked-program formal-propositions)
+
+(linked-rewrite formal-propositions proposition-type
+  (from (fs-infer (fs-prop-type) ?locals ?globals))
+  (to (fs-ok fs-kind fs-t-prop)))
+
+# Both sides must independently infer the same normalized dependent type.
+# Values may differ: equality is being formed, not proved by reflexivity.
+(linked-rewrite formal-propositions equality-proposition
+  (from (fs-infer (fs-equal ?left ?right) ?locals ?globals))
+  (to (fs-equality-proposition-result
+    (fs-infer ?left ?locals ?globals) (fs-infer ?right ?locals ?globals))))
+(linked-rewrite formal-propositions equality-proposition-result
+  (from (fs-equality-proposition-result (fs-ok ?type ?left) (fs-ok ?type ?right)))
+  (to (fs-ok fs-t-prop (fs-v-equality ?type ?left ?right))))
+(linked-rewrite formal-propositions equality-proposition-mismatch
+  (from (fs-equality-proposition-result (fs-ok ?left-type ?left) (fs-ok ?right-type ?right)))
+  (to (fs-error equality-type-mismatch)))
+
+# A source annotation supplies the explicit quantifier domain.
+(linked-rewrite formal-propositions universal-proposition
+  (from (fs-infer (fs-forall ?domain ?body) ?locals ?globals))
+  (to (fs-universal-domain (fs-infer ?domain ?locals ?globals) ?body ?locals ?globals)))
+(linked-rewrite formal-propositions universal-domain
+  (from (fs-universal-domain (fs-ok fs-kind ?domain) ?body ?locals ?globals))
+  (to (fs-universal-depth ?domain ?body ?locals ?globals (fs-depth ?locals))))
+
+# An unannotated source binder may obtain its domain from its occurrence as
+# an application argument. The elaborator supplies that source function term;
+# this linked rule obtains its checked domain. There is no default Nat domain.
+(linked-rewrite formal-propositions inferred-universal-proposition
+  (from (fs-infer (fs-forall-domain-of ?function ?body) ?locals ?globals))
+  (to (fs-universal-function (fs-infer ?function ?locals ?globals) ?body ?locals ?globals)))
+(linked-rewrite formal-propositions inferred-universal-arrow
+  (from (fs-universal-function (fs-ok (fs-t-arrow ?domain ?codomain) ?function) ?body ?locals ?globals))
+  (to (fs-universal-depth ?domain ?body ?locals ?globals (fs-depth ?locals))))
+(linked-rewrite formal-propositions inferred-universal-pi
+  (from (fs-universal-function (fs-ok (fs-t-pi ?domain ?codomain) ?function) ?body ?locals ?globals))
+  (to (fs-universal-depth ?domain ?body ?locals ?globals (fs-depth ?locals))))
+
+(linked-rewrite formal-propositions universal-depth
+  (from (fs-universal-depth ?domain ?body ?locals ?globals (fs-depth-ok ?level)))
+  (to (fs-universal-formed ?domain ?body ?locals
+    (fs-check ?body fs-t-prop (fs-bind ?domain (fs-neutral ?level) ?locals) ?globals))))
+(linked-rewrite formal-propositions universal-formed
+  (from (fs-universal-formed ?domain ?body ?locals (fs-ok fs-t-prop ?value)))
+  (to (fs-ok fs-t-prop (fs-v-forall ?domain (fs-proposition-closure ?body ?locals)))))

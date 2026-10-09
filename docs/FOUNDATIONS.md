@@ -6,6 +6,79 @@ The two together let users replace the meaning of operators such as `and`,
 `or`, `both`, `neither` without touching the evaluator, and inspect what the
 prover is actually trusting at any point in time.
 
+This is the compatibility surface for the original general-purpose evaluator.
+It is distinct from the executable linked-program meta-theory in
+[`META_THEORY.md`](./META_THEORY.md). That newer path publishes its exact K0
+host report, executes a links-defined K1 meta-interpreter, and supports
+foundation-polymorphic imports. Legacy host primitives and external tactics
+listed here cannot authorize a linked-program theory definition.
+The linked-program engine also has an
+[architecture-neutral foundation search](./case-studies/issue-183/foundation-search.md)
+that compares closed S/K, direct structural, and Horn-relational execution.
+The latter two remain controls rather than ranking peers until they eliminate
+host/self duplication. The report names no winner. Its two-model witness shows
+only that the tested ordered-link host signature does not select between two
+functions; it does not make a claim about link ontology. These measured
+execution bases are distinct from the legacy configurable operator registry
+documented on this page. The v14 report additionally performs an independent
+finite symmetry experiment over two unlabelled reference occurrences. It
+derives equality coincidence as complete for that contract while eliminating
+an invariant source/target selector, unique dynamics, and
+representation-independent reification. The contract is not claimed to
+exhaust links or supply execution semantics. Its observation-loss follow-up
+derives wider multiplicity spectra without a new primitive and uses an
+explicitly conditional second equivalence to measure 33 joint classes and
+5–9 refinements per coarse fibre. The exact singleton-orbit histogram and
+provenance split distinguish base-forced, refinement-present,
+interaction-only, and symmetric cases without assigning semantic roles or
+claiming an unbounded invariant. Its derivation check further proves that an
+observation derived from the tested base and respecting occurrence relabelling
+cannot create new occurrence distinctions; the interaction-only conditional
+fails that criterion. All three execution bases remain
+controls that cannot constrain the independent ontology investigation;
+primitive categories, the structure/transformation relation, intrinsic
+authority, and comparative minimality remain explicitly unresolved.
+
+The addressable part of that investigation also classifies self-incidence per
+ordered reference slot. Its Boolean mask realizes all `2/4/8/16` patterns at
+widths one through four, is invariant under address renaming, and is
+equivariant under slot permutation. Combined with the reference-equality
+matrix it is complete for the tested ordered address/equality contract, but it
+does not establish intrinsic slot identity or endpoint semantics.
+
+Those local descriptors are not compositionally faithful: for two through
+four ordered one-reference links they collapse `10/77/799` shared-address
+classes to `4/8/16`. Cross-reference equality plus reference-to-link-address
+incidence recovers a complete descriptor for the tested shared-address
+contract, without assigning semantic roles to incidence.
+
+The embedded v11 probe keeps logical implication, binary link structure,
+composition, and execution separate. Its connected
+`[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` countermodel keeps the `P`/`Q` link
+identities distinct from the pairwise-distinct `K`/`A`/`B` addresses and has
+self-incidence, shared-address incidence, recursive references, and `[2,0]`,
+but no proposed `[0,2]`. The conservative extension adding `[7,0,2]` preserves
+every premise. Since raw formation admits all 49 ordered pairs over the seven
+existing addresses, it provides no composition-specific selection law or
+semantic role assignment.
+
+Its authority follow-up adds ordinary link `[9,7,7]` to duplicate candidates
+`[7,0,2]` and `[8,0,2]`. The added incidence breaks the candidate-swap
+symmetry, but both opposite singleton readings remain equivariant. The tested
+removal, replacement, duplication, forgery, context, and recursive variants
+therefore distinguish structural selection from justification, activation,
+and execution; they do not establish that external authority is irreducible.
+
+The structural-admissibility follow-up represents descriptions, mapping
+certificates, candidates, and contexts with the same ordinary records. An
+external exact-cover verifier rejects incomplete or inconsistent certificates
+and enumerates `ZERO`/`ONE`/`MANY` admissible candidates without choosing from
+the `MANY` case. A locally isomorphic second candidate still passes, and the
+records do not authorize the verifier or their assigned roles. The subsequent
+local-verifier probe factors one record check into a reusable incidence join
+and emits a four-link trace. The trace can be inspected by the same join; its
+execution and selection remain externally supplied.
+
 The headline guarantee is backward compatibility:
 
 > Every `.lino` source file that ran before this surface existed runs
@@ -84,7 +157,7 @@ Semantic statuses make the "built from links/references" claim more precise:
 | `links-described` | The construct is represented as links/LiNo data, but host code still interprets that description. |
 | `links-checked` | Links-level rows, rules, or proof objects are checked by the host replay/matching machinery. |
 | `links-evaluated` | Behaviour is obtained by evaluator rules expressed at links level. This is reserved for future milestones unless a construct explicitly opts in. |
-| `self-hosted` | The checker/evaluator for the construct is itself represented and justified in the links substrate. No bundled default construct currently claims this status. |
+| `self-hosted` | The checker/evaluator for the construct is itself represented and justified in the links substrate. No bundled default construct in this legacy registry claims this status; `links-meta-foundation` provides the corresponding K1 experiment in the linked-program engine. |
 
 The default derivation is deliberately conservative: host and configurable
 trust statuses become `host-trusted`, `links-encoded` becomes
@@ -538,9 +611,9 @@ The companion helpers `encodeAnum` / `decodeAnum` (JS) and
 that four-character alphabet:
 
 ```js
-import { encodeAnum, decodeAnum, parseLino } from 'relative-meta-logic';
+import { encodeAnum, decodeAnum, parseLinoForms } from 'relative-meta-logic';
 
-const node = parseLino('(? (1 + 2))')[0];
+const node = parseLinoForms('(? (1 + 2))')[0];
 const wire = encodeAnum(node);
 // wire is a string drawn only from [ ] 0 1
 const back = decodeAnum(wire);

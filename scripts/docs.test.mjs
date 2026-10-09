@@ -88,7 +88,7 @@ describe('generated API reference documentation', () => {
 
   it('defines a JavaScript docs script for JSDoc generation', () => {
     const packageJson = JSON.parse(read('js/package.json'));
-    assert.equal(packageJson.scripts.docs, 'jsdoc -c ../docs/api/jsdoc.json');
+    assert.equal(packageJson.scripts.docs, 'node ../scripts/run-with-cache.mjs -- node ../scripts/build-docs.mjs');
   });
 
   it('writes a Pages landing page and copies playground assets', () => {

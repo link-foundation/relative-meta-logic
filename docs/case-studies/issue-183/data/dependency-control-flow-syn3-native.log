@@ -1,0 +1,25 @@
+build-cache: before=417424907 after=417424907 reclaimed=0 budget=1073741824 bytes; 699 protected paths; within budget
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 8 tests
+test arithmetic_failures_are_not_proofs_or_exhaustion ... ok
+test every_scalar_operation_matches_shared_expected_values ... ok
+test companion_cli_runs_without_main_crate_exports ... ok
+test malformed_programs_cannot_claim_elaboration ... ok
+test replacing_a_linked_instruction_changes_native_execution ... ok
+test lowered_rust_syntax_uses_the_same_native_machine ... ok
+test shared_negative_semantic_corpus_rejects_exact_obligations ... ok
+test shared_semantic_programs_execute_and_reload_without_source ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+build-cache: before=1521042249 after=1073217162 reclaimed=447825087 budget=1073741824 bytes; 699 protected paths; within budget

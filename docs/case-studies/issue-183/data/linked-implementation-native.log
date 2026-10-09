@@ -1,0 +1,295 @@
+build-cache: before=6 after=6 reclaimed=0 budget=1073741824 bytes; 2 protected paths; within budget
+   Compiling find-msvc-tools v0.1.13
+   Compiling shlex v2.0.1
+   Compiling tree-sitter-language v0.1.8
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling cc v1.2.67
+   Compiling unicode-ident v1.0.26
+   Compiling memchr v2.8.3
+   Compiling equivalent v1.0.2
+   Compiling zmij v1.0.23
+   Compiling crossbeam-utils v0.8.23
+   Compiling cfg-if v1.0.5
+   Compiling syn v3.0.6
+   Compiling include_dir_macros v0.7.4
+   Compiling serde_core v1.0.229
+   Compiling include_dir v0.7.4
+   Compiling serde_json v1.0.151
+   Compiling crossbeam-epoch v0.9.21
+   Compiling hashbrown v0.17.1
+   Compiling itoa v1.0.18
+   Compiling crc32fast v1.5.2
+   Compiling crossbeam-deque v0.8.8
+   Compiling libc v0.2.189
+   Compiling indexmap v2.14.2
+   Compiling autocfg v1.5.1
+   Compiling typenum v1.20.1
+   Compiling num-traits v0.2.19
+   Compiling aho-corasick v1.1.5
+   Compiling hybrid-array v0.4.15
+   Compiling adler2 v2.0.1
+   Compiling parking_lot_core v0.9.12
+   Compiling simd-adler32 v0.3.10
+   Compiling utf8parse v0.2.2
+   Compiling heck v0.5.0
+   Compiling regex-syntax v0.8.11
+   Compiling rayon-core v1.13.0
+   Compiling anstyle-parse v1.0.0
+   Compiling miniz_oxide v0.9.1
+   Compiling tree-sitter v0.27.0
+   Compiling serde v1.0.229
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling scopeguard v1.2.0
+   Compiling colorchoice v1.0.5
+   Compiling anstyle v1.0.14
+   Compiling fst v0.4.7
+   Compiling regex-automata v0.4.18
+   Compiling either v1.18.0
+   Compiling anstyle-query v1.1.5
+   Compiling smallvec v1.16.1
+   Compiling anstream v1.0.0
+   Compiling lock_api v0.4.14
+   Compiling serde_derive v1.0.229
+   Compiling flate2 v1.1.10
+   Compiling regex v1.13.1
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling tree-sitter-html v0.23.2
+   Compiling tree-sitter-zig v1.1.2
+   Compiling tree-sitter-swift v0.7.4
+   Compiling tree-sitter-haskell v0.24.1
+   Compiling tree-sitter-xml v0.7.0
+   Compiling ts-parser-perl v2.0.0
+   Compiling tree-sitter-scala v0.26.2
+   Compiling tree-sitter-erlang v0.20.0
+   Compiling tree-sitter-r v1.3.0
+   Compiling tree-sitter-elixir v0.3.5
+   Compiling tree-sitter-powershell v0.26.4
+   Compiling tree-sitter-css v0.25.0
+   Compiling tree-sitter-bash v0.25.1
+   Compiling tree-sitter-pascal v0.10.2
+   Compiling tree-sitter-c-sharp v0.23.5
+   Compiling tree-sitter-ocaml v0.26.0
+   Compiling tree-sitter-md-025 v0.5.6
+   Compiling tree-sitter-lua v0.5.0
+   Compiling tree-sitter-vb-dotnet v0.1.0
+   Compiling tree-sitter-kotlin-ng v1.1.0
+   Compiling tree-sitter-hcl v1.1.0
+   Compiling tree-sitter-yaml v0.7.2
+   Compiling tree-sitter-sequel v0.3.11
+   Compiling tree-sitter-groovy v0.1.2
+   Compiling tree-sitter-ruby v0.23.1
+   Compiling tree-sitter-elm v5.9.4
+   Compiling tree-sitter-python v0.25.0
+   Compiling tree-sitter-dart v0.2.0
+   Compiling tree-sitter-php v0.24.2
+   Compiling tree-sitter-cpp v0.23.4
+   Compiling tree-sitter-agda v1.3.3
+   Compiling tree-sitter-odin v1.3.0
+   Compiling tree-sitter-nix v0.3.0
+   Compiling tree-sitter-toml-ng v0.7.0
+   Compiling tree-sitter-matlab v1.3.1
+   Compiling syn v2.0.119
+   Compiling nom v8.0.0
+   Compiling allocator-api2 v0.2.21
+   Compiling strsim v0.11.1
+   Compiling const-oid v0.10.2
+   Compiling foldhash v0.1.5
+   Compiling hashbrown v0.14.5
+   Compiling clap_lex v1.1.1
+   Compiling once_cell v1.21.4
+   Compiling clap_builder v4.6.7
+   Compiling dashmap v6.2.1
+   Compiling hashbrown v0.15.5
+   Compiling digest v0.11.3
+   Compiling strum_macros v0.27.2
+   Compiling rayon v1.12.0
+   Compiling meta-language v0.58.2 (https://github.com/link-foundation/meta-language.git?rev=679a3b3c3c56177b8df1ad82672690c6e9889aeb#679a3b3c)
+   Compiling counter v0.7.1
+   Compiling itertools v0.14.0
+   Compiling clap_derive v4.6.7
+   Compiling lingua-hindi-language-model v1.3.0
+   Compiling lingua-arabic-language-model v1.3.0
+   Compiling lingua-portuguese-language-model v1.3.0
+   Compiling lingua-russian-language-model v1.3.0
+   Compiling lingua-english-language-model v1.3.0
+   Compiling lingua-spanish-language-model v1.3.0
+   Compiling lingua-chinese-language-model v1.3.0
+   Compiling lingua-french-language-model v1.3.0
+   Compiling lingua-urdu-language-model v1.3.0
+   Compiling lingua-bengali-language-model v1.3.0
+   Compiling fastrand v2.5.0
+   Compiling strum v0.27.2
+   Compiling maplit v1.0.2
+   Compiling cpufeatures v0.3.1
+   Compiling streaming-iterator v0.1.9
+   Compiling tinyvec v1.13.3
+   Compiling clap v4.6.7
+   Compiling lingua v1.8.0
+   Compiling unicode-normalization v0.1.25
+   Compiling sha2 v0.11.0
+   Compiling links-notation v0.22.0
+   Compiling whatlang v0.18.0
+   Compiling links-notation-macro v0.1.0
+   Compiling unicode-bidi v0.3.18
+   Compiling unicode-segmentation v1.13.3
+   Compiling links-notation v0.23.0
+   Compiling relative-meta-logic v0.39.0 (<CHECKOUT>/.rml-cache/scratch/1791414150780-5/rml-linked-rust-jd2MRj/rust)
+    Finished `test` profile [unoptimized] target(s) in 1m 02s
+     Running tests/kernel_replacement_tests.rs (.rml-cache/r151-native-target/debug/deps/kernel_replacement_tests-d2ad83ae4f5876d0)
+
+running 4 tests
+test replacement_cannot_bypass_disabled_contraction_operations ... ok
+test runtime_linked_artifacts_fail_closed_on_missing_roots_forged_references_and_bounds ... ok
+test runtime_loaded_linked_k0_substitution_changes_nested_execution_without_host_changes ... ok
+test loaded_baseline_preserves_proof_search_inference_imports_and_verification ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/lino_frontend_tests.rs (.rml-cache/r151-native-target/debug/deps/lino_frontend_tests-880d3aebd2dbab6b)
+
+running 11 tests
+test blanks_a_comment_one_byte_at_a_time ... ok
+test counts_parentheses_and_indentation_levels_together ... ok
+test normalizes_a_leading_byte_order_mark_and_every_line_ending ... ok
+test keeps_references_of_private_use_characters_apart_from_the_names_it_makes ... ok
+test reads_indented_ids_nested_as_deep_as_the_nesting_limit_allows ... ok
+test reads_the_deepest_indentation_the_nesting_limit_allows ... ok
+test refuses_indented_ids_nested_one_level_more_than_the_limit ... ok
+test refuses_one_indentation_level_more_than_the_limit ... ok
+test measures_the_source_length_in_utf16_code_units ... ok
+test every_shared_case_reads_the_same_way ... ok
+test reads_every_source_built_to_be_slow_within_the_limit ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.89s
+
+     Running tests/r151_authority.rs (.rml-cache/r151-native-target/debug/deps/r151_authority-64a7ff24ac4c8b38)
+
+running 1 test
+test source_free_rust_authority_changes_parser_and_verifier ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
+
+   Compiling relative-meta-logic v0.39.0 (<CHECKOUT>/.rml-cache/scratch/1791414150780-5/rml-linked-rust-jd2MRj/rust)
+    Finished `test` profile [unoptimized] target(s) in 0.62s
+     Running tests/linked_proof_tests.rs (.rml-cache/r151-native-target/debug/deps/linked_proof_tests-e3c1f27e3ed32894)
+
+running 1 test
+test shared_linked_proof_adversarial_corpus ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 7.65s
+
+   Compiling relative-meta-logic v0.39.0 (<CHECKOUT>/.rml-cache/scratch/1791414150780-5/rml-linked-rust-jd2MRj/rust)
+   Compiling rml-relational-kernel v0.1.0 (<CHECKOUT>/.rml-cache/scratch/1791414150780-5/rml-linked-rust-jd2MRj/rust/relational-kernel)
+    Finished `test` profile [unoptimized] target(s) in 18.49s
+     Running unittests src/lib.rs (.rml-cache/r151-native-target/debug/deps/rml_relational-c4c86c76473fed05)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/relational_kernel_tests.rs (.rml-cache/r151-native-target/debug/deps/relational_kernel_tests-63db060be8f45cb3)
+
+running 14 tests
+test horn_source_and_resolution_bounds_reject_instead_of_claiming_success ... ok
+test horn_unifier_freshens_scopes_rejects_occurs_cycles_and_backtracks ... ok
+test immutable_ground_shortcut_follows_aliases_backtracks_and_owns_input_terms ... ok
+test conditional_trailing_and_constructor_discrimination_preserve_all_branch_answers ... ok
+test each_explicit_horn_host_operation_has_a_removal_witness ... ok
+test independent_horn_replay_rejects_goal_clause_premise_and_context_tampering ... ok
+test linked_horn_interpreter_executes_the_actual_source_image ... ok
+test linked_meta_occurs_check_can_be_replaced_as_source_without_changing_host_unification ... ok
+test relational_source_preserves_imported_facts_two_inferences_fixed_point_and_complete_proofs ... ok
+test source_replacement_changes_recursive_substitution_on_the_unchanged_horn_machine ... ok
+test linked_description_generation_preserves_and_executes_the_real_clause_image ... ok
+test source_replay_binds_atom_codes_to_expected_source_context ... ok
+test relational_source_preserves_shared_sk_reductions_and_independently_replays_each_step ... ok
+test actual_quoted_horn_image_preserves_the_entire_six_capability_workload has been running for over 60 seconds
+test actual_quoted_horn_image_preserves_the_entire_six_capability_workload ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 89.90s
+
+     Running tests/relational_protocol_tests.rs (.rml-cache/r151-native-target/debug/deps/relational_protocol_tests-aef7d53a96d590cb)
+
+running 3 tests
+test quoted_result_codec_rejects_tags_and_noncanonical_atom_codes ... ok
+test imports_inference_and_proof_codecs_reject_malformed_source_outputs ... ok
+test rewrite_codec_checks_all_constructors_and_arities ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/relational_receipt_tests.rs (.rml-cache/r151-native-target/debug/deps/relational_receipt_tests-9e7ed7363f11b733)
+
+running 2 tests
+test independently_replays_javascript_receipts ... ok
+test independently_replays_rust_receipts ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/relational_replacement_self_tests.rs (.rml-cache/r151-native-target/debug/deps/relational_replacement_self_tests-df92e053d93f0d34)
+
+running 3 tests
+test replaced_linked_interpreter_unifier_blocks_quoted_execution_but_not_direct_execution ... ok
+test quoted_interpreter_obeys_replaced_linked_occurs_check ... ok
+test recursive_substitution_replacement_changes_execution_through_the_quoted_source_image ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.79s
+
+     Running tests/relational_scheduling_tests.rs (.rml-cache/r151-native-target/debug/deps/relational_scheduling_tests-fb55099dad19d4a6)
+
+running 2 tests
+test unfinished_conclusion_normalization_is_blocked_not_saturated ... ok
+test linked_scheduling_preserves_sk_rotation_under_a_productive_first_rule ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.84s
+
+     Running unittests examples/relational_kernel_receipt.rs (.rml-cache/r151-native-target/debug/examples/relational_kernel_receipt-87dd2aa3ac04cf84)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling relative-meta-logic v0.39.0 (<CHECKOUT>/.rml-cache/scratch/1791414150780-5/rml-linked-rust-jd2MRj/rust)
+    Finished `test` profile [unoptimized] target(s) in 13.76s
+     Running tests/r151_authority.rs (.rml-cache/r151-native-target/debug/deps/r151_authority-64a7ff24ac4c8b38)
+
+running 1 test
+test source_free_rust_authority_changes_parser_and_verifier ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling relative-meta-logic v0.39.0 (<CHECKOUT>/.rml-cache/scratch/1791414150780-5/rml-linked-rust-jd2MRj/rust)
+    Finished `test` profile [unoptimized] target(s) in 13.74s
+     Running tests/r151_authority.rs (.rml-cache/r151-native-target/debug/deps/r151_authority-64a7ff24ac4c8b38)
+
+running 1 test
+test source_free_rust_authority_changes_parser_and_verifier ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
+
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling serde v1.0.229
+   Compiling syn v3.0.6
+   Compiling syn v2.0.119
+   Compiling serde_derive v1.0.229
+   Compiling syn-serde v0.3.2 (<CHECKOUT>/.rml-cache/scratch/1791414150780-5/rml-linked-rust-jd2MRj/scripts/linked-runtime-rust/vendor/syn-serde)
+   Compiling rml-linked-rust-ast v0.1.0 (<CHECKOUT>/.rml-cache/scratch/1791414150780-5/rml-linked-rust-jd2MRj/scripts/linked-runtime-rust)
+    Finished `dev` profile [unoptimized] target(s) in 6.69s
+{
+  "schema": "rml-linked-rust-native-acceptance/v1",
+  "modules": 34,
+  "archiveSha256": "d289f8f2eb3ed2b180fe12b176bb546630fab8287ae83337a4522e90a4d023e7",
+  "seedHelperSha256": "c608386305efa1fc521d20903684d3c21bdccf992b082f4b553dd3ab61f1b4ea",
+  "sourceFreeNativeCompilation": true,
+  "sourceFreeCompanions": [
+    "rust/relational-kernel"
+  ],
+  "parserMutation": true,
+  "verifierMutation": true,
+  "generatorFixedPoint": true,
+  "syntaxRegressions": 3,
+  "fullImplementationClosure": false
+}
+build-cache: before=1244365516 after=1072246815 reclaimed=172118701 budget=1073741824 bytes; 2 protected paths; within budget

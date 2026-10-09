@@ -1,0 +1,125 @@
+{
+  "schema": "rml:orientation-independence:1",
+  "status": "passed-selected-kernels",
+  "scope": "CONDITIONAL_UNBOUNDED_THEOREMS_NOT_INTRINSIC_LINK_AUTHORITY",
+  "requirementStatus": {
+    "R147": "PARTIAL_ENDOGENOUS_CONSEQUENCE_OPEN",
+    "R148": "PARTIAL_INTRINSIC_ORIENTATION_OPEN"
+  },
+  "sourceHashes": {
+    "test-corpus/orientation-independence/OrientationIndependence.lean": "2728113d0332f4a7eb5ccc35d043044f0a5f8b940846be6d094d5145bc32126d",
+    "test-corpus/orientation-independence/OrientationIndependence.v": "9e4e5ddc7af370c35e729e52eff72a4440b4c6af76e4b8c1622810faf2fc80b8"
+  },
+  "theoremNames": [
+    "reverse_equivariant",
+    "reverse_selector_distinct",
+    "equal_stabilizers",
+    "reverse_orbit",
+    "reversal_closed_criterion_has_alternative",
+    "stabilizer_obstruction",
+    "exchanged_pair_obstruction",
+    "reverse_pair_involutive",
+    "reverse_pair_commutes",
+    "reverse_pair_nonfixed",
+    "rigid_candidates_separated",
+    "rigid_candidate_distinction_is_invariant",
+    "rigid_reverse_commutes",
+    "ordered_alignment_equivariant",
+    "ordered_alignment_excludes_reverse",
+    "diagonal_reversal_fixed",
+    "asymmetric_selector_equivariant",
+    "noncommuting_reversal_breaks_equivariance",
+    "same_observation_nondefinability",
+    "positive_facts_only",
+    "every_fact_possible",
+    "unrecorded_fact_has_countermodel",
+    "new_consequence_excludes_base",
+    "union_consequence",
+    "empty_class_is_vacuous",
+    "faithful_encoding_injective",
+    "faithful_encoding_preserves_distinction",
+    "transport_equivariant",
+    "transport_reversal",
+    "faithful_transport_preserves_alternatives",
+    "derived_carrier_preserves_stabilizer",
+    "equivariant_composition",
+    "recursive_carrier_equivariant",
+    "same_reduct_all_observations",
+    "augmented_expansion_admissible",
+    "augmented_expansion_omits_other",
+    "reduct_expansions_orientation_independent",
+    "no_reduct_readout_of_all_expansions",
+    "conservative_definition_expands_every_reduct",
+    "ordered_chain_forward_unrecorded",
+    "ordered_chain_reverse_unrecorded",
+    "ordered_chain_expansions_independent"
+  ],
+  "kernels": [
+    {
+      "language": "Lean",
+      "version": "Lean (version 4.28.0, x86_64-unknown-linux-gnu, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b, Release)",
+      "checkedTheorems": 42,
+      "axioms": [],
+      "negatives": [
+        {
+          "id": "same-full-reduct-does-not-force-forward-consequence",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
+        {
+          "id": "equal-stabilizers-do-not-imply-same-orbit",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
+        {
+          "id": "ordered-alignment-is-not-reversal-closed",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
+        {
+          "id": "noncommuting-reversal-is-not-equivariant",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
+        {
+          "id": "positive-records-do-not-force-unrecorded-fact",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "language": "Rocq",
+      "version": "The Rocq Prover, version 9.1.1",
+      "checkedTheorems": 42,
+      "axioms": [],
+      "negatives": [
+        {
+          "id": "same-full-reduct-does-not-force-forward-consequence",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
+        {
+          "id": "equal-stabilizers-do-not-imply-same-orbit",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
+        {
+          "id": "ordered-alignment-is-not-reversal-closed",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
+        {
+          "id": "noncommuting-reversal-is-not-equivariant",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        },
+        {
+          "id": "positive-records-do-not-force-unrecorded-fact",
+          "status": "rejected-false-claim",
+          "exitCode": 1
+        }
+      ]
+    }
+  ]
+}

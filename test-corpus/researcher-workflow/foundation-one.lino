@@ -1,0 +1,16 @@
+(linked-program rules)
+(linked-inference rules admission
+  (premise (input ?x)) (conclusion (accepted ?x)))
+(linked-inference rules publication
+  (premise (accepted ?x)) (conclusion (publishable ?x)))
+(linked-program computation)
+(linked-rewrite computation unwrap (from (identity ?x)) (to ?x))
+(linked-rewrite computation length-empty (from (length nil)) (to z))
+(linked-rewrite computation length-step
+  (from (length (cons ?head ?tail))) (to (s (length ?tail))))
+(linked-program contrary)
+(linked-rewrite contrary refutation
+  (from (refutation-of (publishable ?x))) (to (rejected ?x)))
+(linked-foundation review-policy (version 1)
+  (inference rules) (reduction computation) (proof contrary)
+  (cycle-policy inductive))

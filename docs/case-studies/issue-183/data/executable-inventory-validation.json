@@ -1,0 +1,145 @@
+{
+  "schema": "rml-executable-inventory-validation/v1",
+  "baseDependencyCommit": "782ca7e0f58ddc4a26c8bfc5b7b8baf071badce6",
+  "requiredAdditions": "18-file linked target ABI checkpoint",
+  "tools": {
+    "node": "v24.19.0",
+    "babelParser": "8.0.7",
+    "syn": "3.0.6",
+    "genericRustHelperSha256": "05e71c9e5d8e260f8250bee91548b945260a3fd7d6ec7ebe636b0bcaaf9fe5d1"
+  },
+  "currentTree": {
+    "schema": "rml-current-linked-implementation/v1",
+    "currentTreeConsistent": true,
+    "implementations": [
+      {
+        "manifest": "lib/linked-runtime/manifest.json",
+        "modules": 150,
+        "archiveSha256": "ea7dc6f64285257eed9941e7f22773f4e783406cd8bc72daab8be4ca16848976"
+      },
+      {
+        "manifest": "lib/linked-runtime/rust-manifest.json",
+        "modules": 44,
+        "archiveSha256": "4d726ea76f3935cd3ae6529bb326d964c12efcd943e0f221a9ddbc7a0da6cf04"
+      }
+    ],
+    "configuration": {
+      "files": 138,
+      "providers": 911,
+      "currentTreeConsistent": true
+    }
+  },
+  "discovery": {
+    "javascript": 150,
+    "rust": 44,
+    "providers": 35,
+    "configuration": 23,
+    "evidence": 196,
+    "entrypoints": 28,
+    "boundaries": 7
+  },
+  "staticImportEdges": 461,
+  "dynamicImportSites": [
+    {
+      "from": "experiments/issue-181-meta-language-js-smoke.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "experiments/issue-181-meta-language-js-smoke.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "experiments/lino-frontend/deep-documents.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "experiments/lino-frontend/depth-cost.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "experiments/lino-frontend/quote-reading.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "experiments/lino-frontend/upstream.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "js/src/rml-links.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "js/src/rml-links.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "js/src/rml-links.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "scripts/control-flow/verify-native.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "scripts/verify-linked-target.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "scripts/verify-linked-target.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "scripts/verify-linked-target.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "scripts/verify-linked-target.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "scripts/verify-linked-target.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "scripts/verify-linked-target.mjs",
+      "expression": "ImportExpression"
+    },
+    {
+      "from": "scripts/verify-linked-target.mjs",
+      "expression": "ImportExpression"
+    }
+  ],
+  "tests": {
+    "passed": 62,
+    "failed": 0,
+    "skipped": 0,
+    "sourceFreeEditorTests": 4,
+    "sourceFreeLspTests": 2,
+    "sourceFreeRebuiltPlaygroundTests": 4,
+    "negativeUnrepresentedEntrypoint": true,
+    "negativeOutsideRootSource": true,
+    "negativeLoaderModeDrift": true,
+    "editorSelectionMutation": true,
+    "liveLspDiagnosticMutation": true,
+    "rebuiltBrowserAstExactlyMatchesAuthority": true,
+    "command": "node --test scripts/build-cache-policy.test.mjs scripts/linked-runtime.test.mjs scripts/linked-rust-runtime.test.mjs scripts/linked-implementation-configuration.test.mjs scripts/linked-target-abi.test.mjs scripts/linked-executable-inventory.test.mjs .github/candidates/cache-portability/validate.test.mjs",
+    "execution": "Sources/configuration and Rust guard inputs were reconstructed from archives on a separate tmpfs; only declared generic dependencies and independent tests were supplied externally."
+  },
+  "rustValidation": {
+    "modules": 44,
+    "exactAstRoundTrip": true,
+    "nativeCompilationRepeated": false,
+    "reason": "No maintained Rust semantic implementation changed in this inventory task. All 44 sources round-trip under the frozen Syn3 helper; larger native integration remains assigned to the combined checkpoint."
+  },
+  "cleanup": {
+    "sourceCheckout": "build-cache: before=5425122 after=5425122 reclaimed=0 budget=1073741824 bytes; 115 protected paths; within budget",
+    "sourceFreeProbe": "build-cache: before=0 after=0 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget"
+  },
+  "boundaries": [
+    "Generic package/tool providers and explicit OS/build helpers remain trusted providers, not claimed minimal primitives.",
+    "Independent tests/corpus inputs and registered generated output roots are classified separately; arbitrary pre-existing caches are not certified.",
+    "Dynamic import sites remain explicit provider/caller-input boundaries rather than statically resolved edges.",
+    "This snapshot excludes later pending runtime/corpus/workflow additions and must be recaptured after integration."
+  ],
+  "fullR151Closure": false
+}

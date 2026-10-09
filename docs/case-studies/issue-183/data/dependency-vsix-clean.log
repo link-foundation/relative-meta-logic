@@ -1,0 +1,47 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> relative-meta-logic@0.1.0 package
+> node ../scripts/run-with-cache.mjs -- npm run package:raw
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> relative-meta-logic@0.1.0 package:raw
+> npm run copy-server && vsce package --out relative-meta-logic.vsix
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> relative-meta-logic@0.1.0 copy-server
+> node ../scripts/run-with-cache.mjs -- node scripts/copy-server.mjs
+
+Copied 44 RML language server source files to server.
+Executing prepublish script 'npm run vscode:prepublish'...
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> relative-meta-logic@0.1.0 vscode:prepublish
+> npm run copy-server
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> relative-meta-logic@0.1.0 copy-server
+> node ../scripts/run-with-cache.mjs -- node scripts/copy-server.mjs
+
+Copied 44 RML language server source files to server.
+ WARNING  This extension consists of 490 files, out of which 226 are JavaScript files. For performance reasons, you should bundle your extension: https://aka.ms/vscode-bundle-extension. You should also exclude unnecessary files by adding them to your .vscodeignore: https://aka.ms/vscode-vscodeignore.
+
+ INFO  Files included in the VSIX:
+relative-meta-logic.vsix
+├─ [Content_Types].xml 
+├─ extension.vsixmanifest 
+└─ extension/
+   ├─ LICENSE.txt [1.18 KB]
+   ├─ language-configuration.json [0.29 KB]
+   ├─ package.json [2.41 KB]
+   ├─ readme.md 
+   ├─ node_modules/ (437 files) [2.86 MB]
+   ├─ server/ (44 files) [1.58 MB]
+   ├─ src/ (2 files) [3.2 KB]
+   └─ syntaxes/ (1 file) [2.54 KB]
+
+=> Run vsce ls --tree to see all included files.
+
+ DONE  Packaged: relative-meta-logic.vsix (490 files, 1.24 MB)

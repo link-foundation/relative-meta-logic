@@ -1,0 +1,16 @@
+[package]
+name = "rml-linked-rust-ast"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "Unlicense"
+
+[dependencies]
+syn = { version = "=3.0.6", features = ["full", "visit", "visit-mut"] }
+syn-serde = { version = "=0.3.2", path = "vendor/syn-serde", features = ["json"] }
+quote = "=1.0.47"
+serde_json = "=1.0.151"
+
+[profile.dev]
+debug = 0
+incremental = false

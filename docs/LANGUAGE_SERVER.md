@@ -10,6 +10,13 @@ that are useful while writing RML:
 - Completion for keywords, operators, terms, templates, relations, and local
   definitions
 
+The server reads a document through the same LiNo front end as the
+evaluator, once per change. RML spans count columns in Unicode code points
+(see [`DIAGNOSTICS.md`](./DIAGNOSTICS.md)); the server converts them to the
+UTF-16 positions LSP uses, so a diagnostic or a definition after an emoji or
+a leading byte order mark lands on the right character. LF, CRLF, and a lone
+CR each end a line, the way both LSP and the front end count lines.
+
 ## Install
 
 From the repository checkout:

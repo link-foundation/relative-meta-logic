@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/parity.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - 'js/**'
       - 'rust/**'
       - 'scripts/check-corpus-parity.mjs'
@@ -15,6 +20,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/parity.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - 'js/**'
       - 'rust/**'
       - 'scripts/check-corpus-parity.mjs'
@@ -28,19 +38,38 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: '20'
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
           cache: npm
           cache-dependency-path: js/package-lock.json
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Install JavaScript dependencies
         working-directory: js
-        run: npm ci
+        run: node ../scripts/run-with-cache.mjs -- npm ci
       - name: Run parity runner tests
-        run: node --test scripts/check-corpus-parity.test.mjs
-      - name: Build Rust CLI
-        working-directory: rust
-        run: cargo build --bin rml
-      - name: Compare JavaScript and Rust corpus output
-        run: node scripts/check-corpus-parity.mjs
+        run: node scripts/run-with-cache.mjs -- node --test scripts/check-corpus-parity.test.mjs
+      - name: Build and consume Rust CLI for corpus parity
+        run: |
+          node scripts/run-with-cache.mjs --isolate-output rust/target -- bash -euo pipefail -c '
+            cargo build --manifest-path rust/Cargo.toml --bin rml
+            node scripts/check-corpus-parity.mjs --rust-bin "$RML_CACHE_OUTPUT_DIR/debug/rml"
+          '
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cache-diagnostics-parity-test-corpus-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

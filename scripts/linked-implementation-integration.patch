@@ -1,0 +1,26 @@
+--- a/scripts/run-with-cache.mjs
++++ b/scripts/run-with-cache.mjs
+@@ -54,6 +54,11 @@
+ async function main() {
+   const opts = options(process.argv.slice(2));
+   const c = context();
++  const authorityGuard = path.join(c.root, 'scripts/check-linked-implementation.mjs');
++  if (fs.existsSync(authorityGuard)) {
++    const { checkCurrentLinkedImplementation } = await import(new URL('./check-linked-implementation.mjs', import.meta.url));
++    checkCurrentLinkedImplementation(c.root);
++  }
+   if (inheritedLease(c)) {
+     // The outer operation owns both lifecycle and cleanup, including all nested npm scripts.
+     process.exitCode = await execute(opts.command, process.env);
+--- a/js/package.json
++++ b/js/package.json
+@@ -28,7 +28,8 @@
+     "prepare": "node -e \"const p='../scripts/bootstrap.mjs'; if(require('node:fs').existsSync('../.git') && require('node:fs').existsSync(p)) import(p).then(m=>m.bootstrap())\"",
+     "cache:clean": "node ../scripts/build-cache.mjs",
+     "cache:full": "node ../scripts/build-cache.mjs --full",
+-    "test:cache": "node --test --test-concurrency=2 ../scripts/build-cache*.test.mjs"
++    "test:cache": "node --test --test-concurrency=2 ../scripts/build-cache*.test.mjs",
++    "prepack": "node ../scripts/check-linked-implementation.mjs"
+   },
+   "keywords": [
+     "logic",

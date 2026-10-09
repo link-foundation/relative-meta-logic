@@ -1,8 +1,39 @@
 {
   "_comment": "Allow-list for scripts/lint-english.mjs. Every entry is a deliberate exception that should still read as English in context. Add inline reasons in this file's history (commit messages / PR descriptions).",
   "identifiers": [
+    "ADD_FACTS",
+    "FIND_KNOWN_PROOF",
+    "INFER_ONCE",
+    "NAMED_RULE",
+    "PATTERN_ATOM",
+    "PATTERN_LIST",
+    "PATTERN_VARIABLE",
+    "PROGRAM_IMPORT",
+    "RESOLVE_FACTS",
+    "RESOLVE_INFERENCES",
+    "RESOLVE_REWRITES",
+    "REWRITE_ONCE",
     "decodeAnum",
-    "encodeAnum"
+    "encodeAnum",
+    "rAPPEND",
+    "rATOM",
+    "rCONS",
+    "rFACT",
+    "rFALSE",
+    "rINFERENCE",
+    "rKNOWN",
+    "rLIST",
+    "rNAMED_RULE",
+    "rNIL",
+    "rPATTERN_ATOM",
+    "rPATTERN_LIST",
+    "rPATTERN_VARIABLE",
+    "rPROOF",
+    "rREWRITE_ONCE",
+    "rTRUE"
+  ],
+  "identifierFiles": [
+    "upstream-0.0.3.lino"
   ],
   "links": []
 }

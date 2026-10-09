@@ -10,6 +10,7 @@ name: tests
 on:
   pull_request:
     branches: [main]
+    types: [opened, edited, reopened, synchronize, ready_for_review]
   push:
     branches: [main]
   workflow_dispatch:
@@ -23,30 +24,82 @@ jobs:
     name: JS (node --test)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
         with:
-          node-version: '20'
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
           cache: npm
           cache-dependency-path: js/package-lock.json
+      # Runs on every PR 184 event type, since a newer run can cancel the
+      # `edited` run that saw an externally appended closing directive.
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Remove premature issue-closing metadata
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.number == 184 &&
+          github.event.pull_request.head.ref == 'issue-183-7fedfddffe9c'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/issue-183-pr-body.mjs
       - name: Install JavaScript dependencies
         working-directory: js
-        run: npm ci
+        run: node ../scripts/run-with-cache.mjs -- npm ci
+      - name: Install editor runtime providers for source-free integration tests
+        run: node scripts/run-with-cache.mjs -- npm --prefix vscode ci --omit=dev
       - name: Run full JS test suite
         working-directory: js
         run: npm test
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cache-diagnostics-tests-js-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
 
   rust:
     name: Rust (cargo test)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Full unfiltered recursive corpus adds approximately 14 minutes at opt-level 1.
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v7
         with:
-          workspaces: rust
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Run full Rust test suite
         working-directory: rust
-        run: cargo test --all-targets
+        run: node ../scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --all-targets
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cache-diagnostics-tests-rust-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

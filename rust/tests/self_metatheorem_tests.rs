@@ -44,6 +44,7 @@ fn parse_forms() -> Vec<Node> {
     let text = fs::read_to_string(&path)
         .unwrap_or_else(|e| panic!("could not read {}: {}", path.display(), e));
     parse_lino(&text)
+        .unwrap_or_else(|e| panic!("{} is not valid LiNo: {}", path.display(), e))
         .into_iter()
         .map(|link| {
             parse_one(&tokenize_one(&link))

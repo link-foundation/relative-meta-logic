@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/docker.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - '.dockerignore'
       - 'docker/**'
       - 'js/**'
@@ -17,6 +22,11 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/docker.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - '.dockerignore'
       - 'docker/**'
       - 'js/**'
@@ -32,36 +42,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build JavaScript image
-        uses: docker/build-push-action@v6
+      - uses: actions/checkout@v7
         with:
-          context: .
-          file: docker/Dockerfile.js
-          tags: rml-js:ci
-          load: true
-          cache-from: type=gha,scope=rml-js
-          cache-to: type=gha,scope=rml-js,mode=max
-
-      - name: Smoke-test JavaScript image
-        run: docker run --rm rml-js:ci
-
-      - name: Build Rust image
-        uses: docker/build-push-action@v6
+          submodules: recursive
+      - uses: actions/setup-node@v7
         with:
-          context: .
-          file: docker/Dockerfile.rust
-          tags: rml-rust:ci
-          load: true
-          cache-from: type=gha,scope=rml-rust
-          cache-to: type=gha,scope=rml-rust,mode=max
-
-      - name: Smoke-test Rust image
-        run: docker run --rm rml-rust:ci
-
-      - name: Validate docker-compose configuration
-        run: docker compose -f docker/docker-compose.yml config
+          node-version: '22'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Build and smoke-test images in a project-owned builder
+        env:
+          RML_DOCKER_OWNER: ${{ github.repository }}
+        run: node scripts/run-with-cache.mjs -- bash docker/ci-build.sh
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cache-diagnostics-docker-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
