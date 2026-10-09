@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "0d2e11b74a378e8c1684358628dd30cb5bd64cc11c68b5fd72a30c0e7f7f128a",
-  "archiveBytes": 715750,
+  "archiveSha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8",
+  "archiveBytes": 715752,
   "linkCount": 14528,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
@@ -87,8 +87,8 @@
     },
     {
       "path": ".github/workflows/orientation-proofs.yml",
-      "sourceSha256": "717480fe79f5b7680d0484c6eb71767bb7c93d9d012a820ff2c1c8220c1695b5",
-      "generatedSha256": "717480fe79f5b7680d0484c6eb71767bb7c93d9d012a820ff2c1c8220c1695b5"
+      "sourceSha256": "4acb3f4628d4ebc6b64a8a771e1c8cff8f21208ba3650e74a2e28b61f755e992",
+      "generatedSha256": "4acb3f4628d4ebc6b64a8a771e1c8cff8f21208ba3650e74a2e28b61f755e992"
     },
     {
       "path": ".github/workflows/parity.yml",

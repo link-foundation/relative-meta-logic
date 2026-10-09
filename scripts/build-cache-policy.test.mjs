@@ -64,6 +64,14 @@ test('formal jobs preserve the pinned checkout and own only disposable proof-bui
   assert.doesNotMatch(formal, /rm -rf.*upstream-meta-theory/);
 });
 
+test('orientation Docker jobs retain host ownership of the private producer root', () => {
+  const orientation = read('.github/workflows/orientation-proofs.yml');
+  assert.match(orientation, /sudo chown -R 1000:1000 "\$RML_CACHE_OUTPUT_DIR\/orientation-native"/);
+  assert.match(orientation, /--volume "\$RML_CACHE_OUTPUT_DIR\/orientation-native:\/rml-native"/);
+  assert.doesNotMatch(orientation, /(?:chown|chmod)[^\n]*"\$RML_CACHE_OUTPUT_DIR"/);
+  assert.doesNotMatch(orientation, /(?:chown|chmod)[^\n]*\\"\$RML_CACHE_OUTPUT_DIR\\"/);
+});
+
 test('Docker lifecycle never uses global pruning, remote cache exports, or anonymous persistent target mounts', () => {
   const sources = ['.github/workflows/docker.yml', 'docker/ci-build.sh', 'docker/Dockerfile.js', 'docker/Dockerfile.rust'].map(read).join('\n');
   assert.doesNotMatch(sources, /docker\s+(?:system|builder|image|container|volume)\s+prune|docker\s+buildx\s+prune/);
@@ -136,11 +144,6 @@ if (args[0] === 'buildx') {
     stop(0,'Name: '+s.builder+'\\nDriver: docker-container\\nNodes:\\nName: '+s.node+'\\nEndpoint: '+(s.endpointChanged ? 'unix:///foreign.sock' : 'unix:///docker.sock'));
   }
   if (args[1] === 'rm') { delete s.builder; delete s.container; delete s.volume; stop(); }
-  if (args[1] === 'du') {
-    if (process.env.MOCK_ACCOUNTING_UNSUPPORTED) stop(2,'unknown flag: --format');
-    if (process.env.MOCK_ACCOUNTING_MALFORMED) stop(0,'not numeric JSON');
-    stop(0,JSON.stringify({ID:'owned-buildkit-record',Size:process.env.MOCK_BUILDKIT_BYTES ?? '100'}));
-  }
   if (args[1] === 'build') {
     if (process.env.MOCK_BUILD_FAIL) stop(17);
     if (process.env.MOCK_BUILDER_ENDPOINT_CHANGE) s.endpointChanged=true;
@@ -181,6 +184,12 @@ if (args[0] === 'container') {
     else delete s.containers[args[2]];
     stop();
   }
+}
+if (args[0] === 'exec') {
+  if (args[1] !== s.container || args[2] !== 'buildctl' || args[3] !== 'du' || args[4] !== '--format') stop(31,'unexpected BuildKit accounting command');
+  if (process.env.MOCK_ACCOUNTING_UNSUPPORTED) stop(2,'unknown flag: --format');
+  if (process.env.MOCK_ACCOUNTING_MALFORMED) stop(0,'not numeric JSON');
+  stop(0,JSON.stringify({ID:'owned-buildkit-record',Size:process.env.MOCK_BUILDKIT_BYTES ?? '100'}));
 }
 if (args[0] === 'run') {
   const cid='c'.repeat(64);

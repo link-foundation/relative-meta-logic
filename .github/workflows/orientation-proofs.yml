@@ -83,8 +83,8 @@ jobs:
           node scripts/run-with-cache.mjs --cache .rml-cache/rocq --class rocq --isolate-output .rml-cache/rocq -- bash -euo pipefail -c '
             mkdir -p "$RML_CACHE_OUTPUT_DIR/orientation-native" .rml-cache/evidence
             runner_owner="$(id -u):$(id -g)"
-            trap "sudo chown -R $runner_owner \"$RML_CACHE_OUTPUT_DIR\"" EXIT
-            sudo chown -R 1000:1000 "$RML_CACHE_OUTPUT_DIR"
+            trap "sudo chown -R $runner_owner \"$RML_CACHE_OUTPUT_DIR/orientation-native\"" EXIT
+            sudo chown -R 1000:1000 "$RML_CACHE_OUTPUT_DIR/orientation-native"
             bash docker/run-owned.sh --init \
               --volume "$PWD/scripts:/rml/scripts:ro" \
               --volume "$PWD/test-corpus/orientation-independence:/rml/test-corpus/orientation-independence:ro" \

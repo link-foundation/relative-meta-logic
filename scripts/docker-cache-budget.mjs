@@ -89,7 +89,11 @@ export function measureDockerResource(record, { run = execFileSync } = {}) {
       container.Mounts.filter(m => m.Destination === '/var/lib/buildkit').length !== 1 ||
       !container.Mounts.some(m => m.Destination === '/var/lib/buildkit' && m.Name === record.volume && m.Type === 'volume')) throw new Error('Docker builder container identity or state mount changed');
   let records;
-  try { records = command(run, ['buildx', 'du', '--builder', record.builder, '--format=json']).split('\n').filter(Boolean).map(line => JSON.parse(line)); }
+  // Buildx's formatter exposes human-rounded Size strings even with JSON
+  // output. Buildctl templates receive raw UsageInfo values. Read the exact
+  // byte field inside the already verified immutable owned builder container.
+  const format = '{{range .}}{{printf "{\\"ID\\":%q,\\"Size\\":%d}\\n" .ID .Size}}{{end}}';
+  try { records = command(run, ['exec', record.containerId, 'buildctl', 'du', '--format', format]).split('\n').filter(Boolean).map(line => JSON.parse(line)); }
   catch (error) { throw new Error(`BuildKit exact-byte accounting unavailable: ${error.message}`); }
   const ids = new Set();
   let builderBytes = 0;
@@ -198,7 +202,7 @@ async function main() {
     const template = fs.readFileSync(path.join(root, 'docker', 'buildkitd.toml'), 'utf8');
     const { context, validatePath, roots } = await import('./build-cache.mjs');
     const c = context(root);
-    const relative = path.relative(root, path.resolve(configPath ?? ''));
+    const relative = path.relative(root, path.resolve(configPath ?? '')).split(path.sep).join('/');
     const config = validatePath(c, relative);
     if (!roots(c).some(item => relative.split(path.sep).join('/').startsWith(`${item.path}/`))) throw new Error('Docker configuration must be inside a registered generated root');
     fs.writeFileSync(config, template.replaceAll('__RML_CACHE_BUDGET_BYTES__', String(local.budgetBytes - local.localBytes)), { flag: 'wx' });

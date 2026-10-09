@@ -27,8 +27,10 @@ function daemon(overrides = {}) {
     if (args[0] === 'inspect') return JSON.stringify(values.container);
     if (args[0] === 'image') return JSON.stringify(values.image);
     if (args[0] === 'buildx' && args[1] === 'inspect') return values.builder;
-    if (args[0] === 'buildx' && args[1] === 'du') {
-      assert.deepEqual(args.slice(2), ['--builder', record.builder, '--format=json']);
+    if (args[0] === 'exec') {
+      assert.deepEqual(args.slice(0, 5), ['exec', record.containerId, 'buildctl', 'du', '--format']);
+      assert.match(args[5], /\.ID \.Size/);
+      assert.match(args[5], /%d/);
       if (values.du instanceof Error) throw values.du;
       return Array.isArray(values.du) ? values.du.map(row => JSON.stringify(row)).join('\n') : values.du;
     }
@@ -65,6 +67,17 @@ test('Docker accounting does not require Docker when no owned builder is registe
     fs.unlinkSync(lease);
     assert.deepEqual(measureDockerCaches(root, { run() { throw new Error('must not execute Docker'); } }), { bytes: 0, resources: [] });
   });
+});
+
+test('Docker accounting reads exact raw bytes from only the verified immutable BuildKit container', () => {
+  const docker = daemon({ du: [{ ID: 'raw-layer', Size: 829889526 }] });
+  const result = measureDockerResource(record, docker);
+  assert.equal(result.builderBytes, 829889526);
+  assert.ok(docker.calls.some(args => args[0] === 'exec' && args[1] === record.containerId));
+  assert.ok(docker.calls.every(args => !(args[0] === 'buildx' && args[1] === 'du')));
+  const changed = daemon({ container: { Id: 'foreign', Mounts: [] } });
+  assert.throws(() => measureDockerResource(record, changed), /identity/);
+  assert.ok(changed.calls.every(args => args[0] !== 'exec'));
 });
 
 for (const [name, value] of [['human-readable size', '1.2GB'], ['negative size', -1], ['fractional size', 1.5], ['missing size', undefined], ['unsafe integer', '9007199254740992'], ['null size', null], ['boolean size', false], ['empty size', '']]) {
