@@ -60,6 +60,59 @@ formal systems. A foundation's declaration grants the guard policy; the runtime
 does not derive its intrinsic authority from bare links. Signatures, package
 loading, search orchestration and result classification remain host mechanisms.
 
+## One outcome contract
+
+A status says what a search found. Every `ask` and `execute` result now also
+carries an additive `outcome` (Rust `outcome: ResultOutcome`) with schema
+`rml-foundation-outcome/v1`. `FoundationWorkspace.outcomes()` /
+`FoundationWorkspace::outcomes()` list the kinds and
+`FoundationWorkspace.classifyOutcome(result)` / `classify_result` and
+`classify_execution` recompute one; both runtimes use the same table:
+
+| kind | truth | meaning |
+|------|-------|---------|
+| `proved` | `true` | the query was derived and its evidence uses no caller assumption |
+| `refuted` | `false` | the foundation-defined refutation was derived without caller assumptions |
+| `contradictory` | `both` | both sides were derived without caller assumptions |
+| `assumption-dependent` | the derived side | established evidence uses at least one caller assumption |
+| `unknown` | `undetermined` | a fixed point without evidence for either side; not falsity |
+| `exhausted` | `undetermined` | a declared bound stopped the work |
+| `unsupported` | `undetermined` | outside the signature or the supported mechanisms |
+| `computed` | `not-applicable` | an execution reached a normal form; not a proof |
+
+Only the established side decides assumption dependence: an answer asked with
+an unused assumption stays `proved`, and `outcome.assumptions` lists exactly the
+caller assumptions that the reported evidence uses. `outcome.coinductive` marks
+evidence closed through a guarded hypothesis. A dependence label describes the
+reported proof; it does not claim that no assumption-free proof exists.
+Package answers, revisions and package executions carry the same field because
+they wrap these results. `status` and every existing field are unchanged.
+
+## Independent replay of foundation proofs
+
+`workspace.replay(result)` (Rust `replay(&result)`) checks an `ask` result
+without searching. Each proof step must instantiate its named fact or
+inference from the instance closure after import rebinding: the premise
+patterns match the normalized premise judgements and the instantiated
+conclusion normalizes to the step's judgement. The root must normalize to the
+query, refutation or pattern answer it supports, and each pattern answer must
+be an instance of the normalized pattern. Assumption leaves must name the
+result's own assumptions and roles must match the foundation's role table.
+
+The cycle policy is read from the loaded foundation, not from the result. A
+coinductive hypothesis leaf is accepted only under a declared
+guarded-coinductive policy, only when it equals the hypothesis recorded for
+that side, and only when the root step of that proof is one of the declared
+guards. The status must agree with which sides carry evidence, and the
+recorded foundation and cycle policy must equal the loaded ones. A rejected
+replay names its reason, for example `step-does-not-instantiate-rule`,
+`forged-assumption`, `hypothesis-under-inductive-policy`,
+`hypothesis-without-final-guard`, `evidence-status-mismatch` or
+`cycle-policy-mismatch`. Replay is a host check of foundation-level proof
+objects using the loaded linked rules and the registry's rewriting; it is not
+the linked `proof-verifier.lino` certificate checker and grants the foundation
+no intrinsic authority.
+
 ## Outcomes and bounds
 
 - `proved`: a query proof was found.
@@ -95,7 +148,9 @@ cargo test --manifest-path rust/Cargo.toml --test foundation_context_tests --tes
 ```
 
 Both context test files load exactly the same Links fixture and exercise the
-public direct-structural and default closed S/K runtimes. The existing package
+public direct-structural and default closed S/K runtimes. The outcome contract,
+replay and cycle-policy comparisons are exercised on the unseen modal logic of
+[`FOUNDATION_PACKAGES.md`](FOUNDATION_PACKAGES.md#an-unseen-logic-as-data). The existing package
 suite additionally covers inherited foundation roles, ambiguity rejection,
 rebinding, contradiction isolation and resource/probability examples. These
 focused tests are not a substitute for the repository's full acceptance gate or

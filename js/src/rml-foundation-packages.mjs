@@ -100,6 +100,24 @@ class FoundationPackages {
     return this.#answer(selection, this.#workspace.execute(instance, term, options));
   }
 
+  /**
+   * Replay the evidence currently visible in an answer returned by this
+   * package workspace against its loaded rules and declared cycle policy.
+   * Only the transport identities of its instance and theory come from the
+   * recorded answer; a changed proof, status, assumption or policy in
+   * `answer.result` is replayed as given and rejected if it does not check.
+   * Foreign or untracked answers are rejected rather than trusted.
+   */
+  replay(answer) {
+    const saved = this.#answers.get(answer);
+    if (!saved || saved.raw.schema !== 'rml-foundation-result/v1') {
+      throw new Error('package replay requires a query answer returned by this package workspace');
+    }
+    const visible = structuredClone(answer.result);
+    const replayed = this.#workspace.replay({ ...visible, instance: saved.raw.instance, theory: saved.raw.theory });
+    return { ...replayed, instance: saved.selection.instance, package: { ...answer.package } };
+  }
+
   /** Explicitly scope each rule mutation to its source package. */
   revise(answers, selection, change) {
     const plan = this.#plan(selection.name, selection.version);

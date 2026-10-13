@@ -3,8 +3,8 @@
 //! judgement symbols and caller assumptions keep their source identities.
 
 use crate::foundation_workspace::{
-    FoundationBounds, FoundationChange, FoundationExecution, FoundationRef, FoundationResult,
-    FoundationWorkspace,
+    FoundationBounds, FoundationChange, FoundationExecution, FoundationRef, FoundationReplay,
+    FoundationResult, FoundationWorkspace,
 };
 use crate::linked_program::ExecutionBasis;
 use crate::{parse_lino, parse_one, tokenize_one, Node};
@@ -56,6 +56,14 @@ pub struct PackageExecution {
     pub result: FoundationExecution,
     pub theory_package: FoundationRef,
     pub programs: Vec<ProgramOrigin>,
+}
+/// The replay of one package answer, as returned by
+/// [`FoundationPackages::replay`]. Its `replay.instance` is the package's own
+/// instance name.
+#[derive(Debug, Clone)]
+pub struct PackageReplay {
+    pub package: FoundationRef,
+    pub replay: FoundationReplay,
 }
 #[derive(Debug, Clone)]
 pub struct PackageResultRevision {
@@ -521,6 +529,29 @@ impl FoundationPackages {
                 version: theory.version.clone(),
             },
             programs: self.programs(),
+        })
+    }
+    /// Replay the evidence currently visible in an answer returned by this
+    /// package workspace against its loaded rules and declared cycle policy.
+    /// Only the transport identities of its instance and theory come from
+    /// the recorded answer; a changed proof, status, assumption or policy in
+    /// `answer.result` is replayed as given and rejected if it does not
+    /// check. Answers from another package workspace are rejected.
+    pub fn replay(&self, answer: &PackageResult) -> Result<PackageReplay, String> {
+        if !Rc::ptr_eq(&self.owner, &answer.owner) {
+            return Err(
+                "package replay requires a query answer returned by this package workspace"
+                    .to_string(),
+            );
+        }
+        let mut visible = answer.result.clone();
+        visible.instance = answer.raw.instance.clone();
+        visible.theory = answer.raw.theory.clone();
+        let mut replay = self.workspace.replay(&visible)?;
+        replay.instance = answer.selection.instance.clone();
+        Ok(PackageReplay {
+            package: answer.package.clone(),
+            replay,
         })
     }
     pub fn revise(
