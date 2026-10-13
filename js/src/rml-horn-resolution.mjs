@@ -4,6 +4,27 @@ import { parseLino, parseOne, tokenizeOne } from './rml-links.mjs';
 export const HORN_OPERATIONS = Object.freeze([
   'horn-freshen-clause', 'horn-unify', 'horn-resolve-goal', 'horn-project-answer',
 ]);
+// Individually removable laws of the generic resolver. Removing one replaces
+// it by its weakest alternative so that a workload can test its necessity; the
+// default (nothing removed) is the ordinary resolution relation.
+export const HORN_LAWS = Object.freeze([
+  'follow-bindings', 'atom-identity', 'constructor-decomposition', 'variable-orientation',
+  'occurs-check', 'branch-local-undo', 'standardize-apart', 'backtracking',
+  'leftmost-goal-selection', 'source-clause-order',
+]);
+const LAW_FLAGS = Object.freeze({
+  'follow-bindings': 'dereference', 'atom-identity': 'atomIdentity',
+  'constructor-decomposition': 'decomposition', 'variable-orientation': 'orientation',
+  'occurs-check': 'occursCheck', 'branch-local-undo': 'undo', 'standardize-apart': 'standardizeApart',
+  backtracking: 'backtracking', 'leftmost-goal-selection': 'leftmost', 'source-clause-order': 'clauseOrder',
+});
+const NO_ABLATION = Object.freeze(Object.fromEntries(Object.values(LAW_FLAGS).map(flag => [flag, false])));
+function ablation(laws = []) {
+  if (!Array.isArray(laws)) throw new Error('ablatedLaws must be a list of Horn law names');
+  if (laws.length === 0) return NO_ABLATION;
+  for (const law of laws) if (!Object.hasOwn(LAW_FLAGS, law)) throw new Error(`unknown Horn law ${law}`);
+  return Object.freeze(Object.fromEntries(Object.entries(LAW_FLAGS).map(([law, flag]) => [flag, laws.includes(law)])));
+}
 const variable = value => value !== null && typeof value === 'object' && !Array.isArray(value) && typeof value.variable === 'string';
 const key = term => Array.isArray(term) && typeof term[0] === 'string' ? `${term.length}:${term[0]}` : null;
 
@@ -34,22 +55,23 @@ function sourceTerm(term, scope, variables = new Map()) {
   if (result.every(syntacticallyGround)) groundTerms.add(result);
   return result;
 }
-function walk(term, bindings) {
+function walk(term, bindings, laws = NO_ABLATION) {
+  if (laws.dereference) return term;
   while (variable(term) && bindings.has(term)) term = bindings.get(term);
   return term;
 }
 // Eagerly resolve already-bound children before storing a new binding. The
 // resulting immutable ground subtrees can safely skip future occurs scans.
 // This is generic finite-tree unification, independent of every predicate.
-function bindingValue(forbidden, term, bindings, depth = 0) {
+function bindingValue(forbidden, term, bindings, depth = 0, laws = NO_ABLATION) {
   if (depth > 512) throw new Error('Horn binding depth bound exceeded');
-  const value = walk(term, bindings);
+  const value = walk(term, bindings, laws);
   if (syntacticallyGround(value)) return value;
-  if (variable(value)) return value === forbidden ? null : value;
+  if (variable(value)) return value === forbidden && !laws.occursCheck ? null : value;
   const children = [];
   let changed = false;
   for (const child of value) {
-    const result = bindingValue(forbidden, child, bindings, depth + 1);
+    const result = bindingValue(forbidden, child, bindings, depth + 1, laws);
     if (result === null) return null;
     children.push(result); changed ||= result !== child;
   }
@@ -57,20 +79,25 @@ function bindingValue(forbidden, term, bindings, depth = 0) {
   if (children.every(syntacticallyGround)) groundTerms.add(result);
   return result;
 }
-function unify(left, right, bindings, trail) {
+function unify(left, right, bindings, trail, laws = NO_ABLATION) {
   const pending = [[left, right]];
   while (pending.length) {
-    let [a, b] = pending.pop(); a = walk(a, bindings); b = walk(b, bindings);
-    if (a === b) continue;
+    let [a, b] = pending.pop(); a = walk(a, bindings, laws); b = walk(b, bindings, laws);
+    if (a === b) {
+      if (laws.atomIdentity && typeof a === 'string') return false;
+      continue;
+    }
     if (variable(a) || variable(b)) {
+      if (laws.orientation && !variable(a)) return false;
       // Bind the younger of two free variables to the older one. Either
       // orientation is the same substitution up to renaming; this one keeps
       // long deterministic recursions from retaining a chain of output cells.
       if (!variable(a) || variable(b) && b.birth > a.birth) [a, b] = [b, a];
-      const value = bindingValue(a, b, bindings);
+      const value = bindingValue(a, b, bindings, 0, laws);
       if (value === null) return false;
       bindings.set(a, value); trail.push(a);
     } else if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
+      if (laws.decomposition) return false;
       for (let i = a.length - 1; i >= 0; --i) pending.push([a[i], b[i]]);
     } else return false;
   }
@@ -78,12 +105,12 @@ function unify(left, right, bindings, trail) {
 }
 // Read-only, conservative constructor discrimination. Variables remain
 // wildcards, so this index cannot prune a unifiable clause.
-function compatible(pattern, goal, bindings) {
+function compatible(pattern, goal, bindings, laws = NO_ABLATION) {
   const captured = new Map(), pending = [[pattern, goal]];
   const samePossible = (a, b) => {
     const pairs = [[a, b]];
     while (pairs.length) {
-      let [x, y] = pairs.pop(); x = walk(x, bindings); y = walk(y, bindings);
+      let [x, y] = pairs.pop(); x = walk(x, bindings, laws); y = walk(y, bindings, laws);
       if (variable(x) || variable(y) || x === y) continue;
       if (!Array.isArray(x) || !Array.isArray(y) || x.length !== y.length) return false;
       for (let i = 0; i < x.length; i++) pairs.push([x[i], y[i]]);
@@ -91,7 +118,7 @@ function compatible(pattern, goal, bindings) {
     return true;
   };
   while (pending.length) {
-    const [p, raw] = pending.pop(), value = walk(raw, bindings);
+    const [p, raw] = pending.pop(), value = walk(raw, bindings, laws);
     if (typeof p === 'string' && p.startsWith('?') && p.length > 1) {
       if (captured.has(p) && !samePossible(captured.get(p), value)) return false;
       captured.set(p, value); continue;
@@ -102,11 +129,11 @@ function compatible(pattern, goal, bindings) {
   }
   return true;
 }
-function project(term, bindings, depth = 0) {
+function project(term, bindings, depth = 0, laws = NO_ABLATION) {
   if (depth > 512) throw new Error('Horn answer depth bound exceeded');
-  const value = walk(term, bindings);
+  const value = walk(term, bindings, laws);
   if (variable(value)) return `?${value.variable}`;
-  return Array.isArray(value) ? value.map(child => project(child, bindings, depth + 1)) : value;
+  return Array.isArray(value) ? value.map(child => project(child, bindings, depth + 1, laws)) : value;
 }
 function budget(options = {}) {
   const { maxSteps = 1_000_000, maxDepth = 2048, maxAnswers = 1, disabledOperations = [] } = options;
@@ -150,9 +177,15 @@ export class HornResolution {
   query(goal, options = {}) {
     checkData(goal);
     const state = budget(options), bindings = new WeakMap(), trail = [], events = [], choices = [], answers = [];
+    const laws = ablation(options.ablatedLaws), sharedScopes = new Map();
     const query = sourceTerm(goal, 'query');
     let goals = [{ term: query, id: 0, depth: 0 }], fresh = 0, proofId = 0, exhausted = false;
-    const rollback = mark => { while (trail.length > mark) bindings.delete(trail.pop()); };
+    const rollback = mark => {
+      while (trail.length > mark) {
+        const cell = trail.pop();
+        if (!laws.undo) bindings.delete(cell);
+      }
+    };
     const advance = () => {
       while (choices.length) {
         const choice = choices[choices.length - 1];
@@ -161,12 +194,17 @@ export class HornResolution {
           state.observe('horn-resolve-goal');
           const clause = choice.candidates[choice.next++];
           state.observe('horn-freshen-clause');
-          const scope = `clause-${++fresh}`;
-          const variables = new Map();
+          // Without standardization apart every use of a clause shares one scope.
+          const scope = laws.standardizeApart ? `shared-${clause.name}` : `clause-${++fresh}`;
+          if (laws.standardizeApart && !sharedScopes.has(clause.name)) sharedScopes.set(clause.name, new Map());
+          const variables = laws.standardizeApart ? sharedScopes.get(clause.name) : new Map();
           const head = sourceTerm(clause.head, scope, variables), body = clause.body.map(term => sourceTerm(term, scope, variables));
           state.observe('horn-unify');
           const localTrail = [];
-          if (!unify(choice.goal.term, head, bindings, localTrail)) { for (const cell of localTrail) bindings.delete(cell); continue; }
+          if (!unify(choice.goal.term, head, bindings, localTrail, laws)) {
+            if (!laws.undo) for (const cell of localTrail) bindings.delete(cell);
+            continue;
+          }
           // Only bindings of cells that survive the next available alternative
           // need undo records. Fresh local cells are owned by this branch.
           const keepChoice = choice.next < choice.candidates.length;
@@ -176,7 +214,7 @@ export class HornResolution {
           const children = body.map(term => ({ term, id: ++proofId, depth: choice.goal.depth + 1 }));
           if (children.some(child => child.depth > state.maxDepth)) throw new Error('Horn resolution depth bound exceeded');
           if (options.captureProof !== false) events.push({ id: choice.goal.id, clause: clause.name, term: choice.goal.term, children: children.map(child => child.id) });
-          goals = [...children, ...choice.rest];
+          goals = laws.leftmost ? [...choice.rest, ...children] : [...children, ...choice.rest];
           return true;
         }
         choices.pop();
@@ -189,15 +227,20 @@ export class HornResolution {
         const proofs = new Map();
         if (options.captureProof !== false) for (let i = events.length - 1; i >= 0; --i) {
           const event = events[i];
-          proofs.set(event.id, { clause: event.clause, goal: project(event.term, bindings), premises: event.children.map(id => proofs.get(id)) });
+          proofs.set(event.id, { clause: event.clause, goal: project(event.term, bindings, 0, laws), premises: event.children.map(id => proofs.get(id)) });
         }
-        answers.push({ goal: project(query, bindings), proof: proofs.get(0) ?? null });
+        answers.push({ goal: project(query, bindings, 0, laws), proof: proofs.get(0) ?? null });
         if (answers.length >= state.maxAnswers) break;
         if (!advance()) { exhausted = true; break; }
       } else {
-        const [first, ...rest] = goals;
+        // The selection rule: the leftmost goal, or the rightmost when removed.
+        const first = laws.leftmost ? goals.at(-1) : goals[0];
+        const rest = laws.leftmost ? goals.slice(0, -1) : goals.slice(1);
         state.observe('horn-resolve-goal');
-        const candidates = (this.#index.get(key(walk(first.term, bindings))) ?? []).filter(clause => { state.observe('horn-unify'); return compatible(clause.head, first.term, bindings); });
+        let candidates = (this.#index.get(key(walk(first.term, bindings, laws))) ?? []).filter(clause => { state.observe('horn-unify'); return compatible(clause.head, first.term, bindings, laws); });
+        if (laws.clauseOrder) candidates = candidates.reverse();
+        // Without backtracking only the first applicable clause is ever tried.
+        if (laws.backtracking) candidates = candidates.slice(0, 1);
         choices.push({ goal: first, rest, candidates, next: 0, mark: trail.length, eventMark: events.length, birth: variableSerial });
         if (!advance()) { exhausted = true; break; }
       }

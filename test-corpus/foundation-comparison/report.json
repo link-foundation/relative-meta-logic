@@ -1,0 +1,298 @@
+{
+  "schema": "rml-meta-foundation-comparison/v1",
+  "upperLayer": {
+    "source": "lib/meta-theory/fixed-point-source.lino",
+    "sha256": "5428d711d66b409fc9f0257675d280c75d6718f522a59eadafbcc8398ba44bbe",
+    "sharedByteIdenticalByBothFoundations": true,
+    "rewrittenForEitherFoundation": false
+  },
+  "workload": {
+    "program": "test-corpus/lambda-kernel/workload.lino",
+    "cases": "test-corpus/lambda-kernel/cases.json"
+  },
+  "preservation": {
+    "sameReductionsJudgementsAndProofs": true,
+    "matchesSharedFixture": true,
+    "mechanismReplacementRows": 5
+  },
+  "foundations": {
+    "closed-s-k": {
+      "primitive": "leftmost S/K contraction on addressed doublet links",
+      "linkSubstitution": {
+        "path": "scripts/combinator-source.mjs",
+        "authority": "HOST_BRACKET_ABSTRACTION_COMPILER",
+        "linked": false
+      },
+      "removal": {
+        "declaredLaws": [
+          "contract-s-link",
+          "contract-k-link"
+        ],
+        "singleRemoval": {
+          "contract-s-link": "FAILED_DISABLED_OPERATION",
+          "contract-k-link": "FAILED_DISABLED_OPERATION"
+        },
+        "removable": [],
+        "reducedBasis": [
+          "contract-s-link",
+          "contract-k-link"
+        ],
+        "reducedBasisRemovalMinimal": true
+      },
+      "selfInterpretation": {
+        "program": "test-corpus/foundation-comparison/sk-laws.lino",
+        "baseline": [
+          "a",
+          [
+            "K",
+            "a"
+          ],
+          "b"
+        ],
+        "replacement": [
+          [
+            "K",
+            "a"
+          ],
+          "b",
+          [
+            "a",
+            "b"
+          ]
+        ]
+      },
+      "selfDescription": "SOURCE_AS_ADDRESSED_LINKS",
+      "selfGeneration": "NOT_ESTABLISHED_HOST_COMPILER_GENERATES_ARTIFACT",
+      "trustBoundary": [
+        "S and K contraction equations and leftmost head reduction order",
+        "host bracket-abstraction compiler (binder elimination) producing the closed artifact",
+        "artifact parsing, Scott/UTF-8 input encoding and output decoding, public-call orchestration",
+        "LiNo parsing and leading-? pattern elaboration of RML programs",
+        "contraction budgets, allocation, JavaScript/Rust runtimes, operating system and processor"
+      ]
+    },
+    "horn-resolution": {
+      "primitive": "first-order unification and SLD resolution over finite link trees",
+      "linkSubstitution": {
+        "path": "lib/meta-theory/horn-link-substitution.lino",
+        "authority": "LINKED_HORN_CLAUSES",
+        "linked": true
+      },
+      "removal": {
+        "declaredLaws": [
+          "follow-bindings",
+          "atom-identity",
+          "constructor-decomposition",
+          "variable-orientation",
+          "occurs-check",
+          "branch-local-undo",
+          "standardize-apart",
+          "backtracking",
+          "leftmost-goal-selection",
+          "source-clause-order",
+          "answer-projection"
+        ],
+        "removalMargin": 1.1,
+        "removalBaselineSteps": {
+          "reduce": [
+            460850,
+            345836,
+            501722,
+            1214918,
+            588489,
+            1112279
+          ],
+          "prove": 7493852
+        },
+        "singleRemoval": {
+          "follow-bindings": "FAILED_SEARCH_BOUND",
+          "atom-identity": "FAILED_NO_ANSWER",
+          "constructor-decomposition": "FAILED_NO_ANSWER",
+          "variable-orientation": "FAILED_NO_ANSWER",
+          "occurs-check": "PRESERVED",
+          "branch-local-undo": "PRESERVED",
+          "standardize-apart": "FAILED_NO_ANSWER",
+          "backtracking": "PRESERVED",
+          "leftmost-goal-selection": "FAILED_DEPTH_BOUND",
+          "source-clause-order": "PRESERVED",
+          "answer-projection": "FAILED_DISABLED_OPERATION"
+        },
+        "removable": [
+          "occurs-check",
+          "branch-local-undo",
+          "backtracking",
+          "source-clause-order"
+        ],
+        "jointRemoval": "PRESERVED",
+        "reducedBasis": [
+          "follow-bindings",
+          "atom-identity",
+          "constructor-decomposition",
+          "variable-orientation",
+          "standardize-apart",
+          "leftmost-goal-selection",
+          "answer-projection"
+        ],
+        "reducedBasisRemoval": {
+          "follow-bindings": "FAILED_SEARCH_BOUND",
+          "atom-identity": "FAILED_NO_ANSWER",
+          "constructor-decomposition": "FAILED_NO_ANSWER",
+          "variable-orientation": "FAILED_NO_ANSWER",
+          "standardize-apart": "FAILED_NO_ANSWER",
+          "leftmost-goal-selection": "FAILED_SEARCH_BOUND",
+          "answer-projection": "FAILED_DISABLED_OPERATION"
+        },
+        "reducedBasisRemovalMinimal": true
+      },
+      "selfInterpretation": {
+        "program": "test-corpus/foundation-comparison/sk-laws.lino",
+        "baseline": [
+          "a",
+          [
+            "K",
+            "a"
+          ],
+          "b"
+        ],
+        "replacement": [
+          [
+            "K",
+            "a"
+          ],
+          "b",
+          [
+            "a",
+            "b"
+          ]
+        ],
+        "quotedLinkSubstitution": [
+          {
+            "name": "equal binder codes",
+            "direct": "yes",
+            "interpreted": "yes"
+          },
+          {
+            "name": "distinct binder codes",
+            "direct": "no",
+            "interpreted": "no"
+          },
+          {
+            "name": "lexical capture",
+            "direct": [
+              "marked",
+              "outer",
+              "end"
+            ],
+            "interpreted": [
+              "marked",
+              "outer",
+              "end"
+            ]
+          },
+          {
+            "name": "shadowed binder",
+            "direct": [
+              "marked",
+              "inner",
+              "end"
+            ],
+            "interpreted": [
+              "marked",
+              "inner",
+              "end"
+            ]
+          }
+        ]
+      },
+      "selfDescription": "CLAUSE_IMAGE_DESCRIBED_BY_LINKED_RELATION",
+      "selfGeneration": "CLAUSE_IMAGE_REGENERATED_BY_LINKED_RELATION",
+      "trustBoundary": [
+        "resolution law: follow-bindings",
+        "resolution law: atom-identity",
+        "resolution law: constructor-decomposition",
+        "resolution law: variable-orientation",
+        "resolution law: standardize-apart",
+        "resolution law: leftmost-goal-selection",
+        "resolution law: answer-projection",
+        "predicate/arity indexing and conservative head discrimination",
+        "lambda-source LiNo parsing and validation, injective binder-name interning, caching of linked binder resolution as root facts",
+        "first-order RML input encoding, UTF-8 bit decoding and rule-name splitting",
+        "LiNo parsing and leading-? pattern elaboration of RML programs",
+        "step/depth bounds, allocation, JavaScript/Rust runtimes, operating system and processor"
+      ]
+    }
+  },
+  "nonEquivalence": {
+    "criterion": "LOCKSTEP_BISIMULATION_PRESERVES_REACHABLE_TERMINAL_OBSERVATION_COUNT_AND_FAILURE",
+    "sk": {
+      "leaves": 6,
+      "terms": 34491,
+      "explored": 34491,
+      "branchingStates": 10917,
+      "maxNormalForms": 1,
+      "failureStates": false
+    },
+    "renamed": {
+      "leaves": 6,
+      "terms": 34491,
+      "explored": 34491,
+      "branchingStates": 10917,
+      "maxNormalForms": 1,
+      "failureStates": false
+    },
+    "horn": {
+      "distinctAnswers": 2,
+      "answers": [
+        [
+          "choice",
+          "left"
+        ],
+        [
+          "choice",
+          "right"
+        ]
+      ],
+      "failingAnswers": 0,
+      "failingExhausted": true
+    },
+    "pairs": [
+      {
+        "left": "closed-s-k",
+        "right": "horn-resolution",
+        "separated": true,
+        "classification": "NOT_A_LOCKSTEP_RE_ENCODING"
+      },
+      {
+        "left": "closed-s-k",
+        "right": "renamed-s-k-control",
+        "separated": false,
+        "classification": "RE_ENCODING_NOT_EXCLUDED"
+      }
+    ],
+    "scope": "Finite exhaustive exploration of S/K terms over {S, K, x} up to the stated leaf count; the all-terms statement is the classical Church-Rosser theorem, cited rather than re-proved. Weaker simulations are not excluded."
+  },
+  "hostOperationGroups": {
+    "closed-s-k": [
+      "contract-s-link",
+      "contract-k-link"
+    ],
+    "horn-resolution": [
+      "horn-freshen-clause",
+      "horn-unify",
+      "horn-resolve-goal",
+      "horn-project-answer"
+    ]
+  },
+  "gate": {
+    "genuinelyDifferentFoundations": 2,
+    "r149Satisfied": false,
+    "openReasons": [
+      "The S/K foundation still compiles its Link-as-substitution layer with a host bracket-abstraction compiler.",
+      "Both foundations keep host LiNo parsing, ? elaboration and data codecs above the primitive laws.",
+      "Self-generation of the S/K artifact by linked definitions is not established.",
+      "Removal minimality is relative to this one workload and these law decompositions, not global."
+    ]
+  },
+  "globalMinimalityClaimed": false,
+  "rankingClaimed": false
+}

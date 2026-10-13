@@ -53,6 +53,8 @@ pub struct Options {
     pub include_source_proof: bool,
     pub normalization_fuel: usize,
     pub disabled: BTreeSet<String>,
+    /// Individually removed resolution laws; see [`LAWS`].
+    pub ablated: BTreeSet<String>,
 }
 impl Default for Options {
     fn default() -> Self {
@@ -65,6 +67,7 @@ impl Default for Options {
             include_source_proof: false,
             normalization_fuel: 32,
             disabled: BTreeSet::new(),
+            ablated: BTreeSet::new(),
         }
     }
 }
@@ -103,7 +106,58 @@ enum Term {
     List(Vec<Arc<Term>>, bool),
 }
 type Ref = Arc<Term>;
-type Bindings = ();
+/// Individually removable laws of the generic resolver. Removing one replaces
+/// it by its weakest alternative so that a workload can test its necessity; the
+/// default (nothing removed) is the ordinary resolution relation.
+pub const LAWS: &[&str] = &[
+    "follow-bindings",
+    "atom-identity",
+    "constructor-decomposition",
+    "variable-orientation",
+    "occurs-check",
+    "branch-local-undo",
+    "standardize-apart",
+    "backtracking",
+    "leftmost-goal-selection",
+    "source-clause-order",
+];
+#[derive(Clone, Copy, Debug, Default)]
+struct Laws {
+    dereference: bool,
+    atom_identity: bool,
+    decomposition: bool,
+    orientation: bool,
+    occurs_check: bool,
+    undo: bool,
+    standardize_apart: bool,
+    backtracking: bool,
+    leftmost: bool,
+    clause_order: bool,
+}
+impl Laws {
+    fn from_options(options: &Options) -> Result<Self, String> {
+        let mut laws = Laws::default();
+        for law in &options.ablated {
+            match law.as_str() {
+                "follow-bindings" => laws.dereference = true,
+                "atom-identity" => laws.atom_identity = true,
+                "constructor-decomposition" => laws.decomposition = true,
+                "variable-orientation" => laws.orientation = true,
+                "occurs-check" => laws.occurs_check = true,
+                "branch-local-undo" => laws.undo = true,
+                "standardize-apart" => laws.standardize_apart = true,
+                "backtracking" => laws.backtracking = true,
+                "leftmost-goal-selection" => laws.leftmost = true,
+                "source-clause-order" => laws.clause_order = true,
+                other => return Err(format!("unknown Horn law {other}")),
+            }
+        }
+        Ok(laws)
+    }
+}
+// Variable cells own their bindings; the per-query context carries only the
+// selected (possibly ablated) resolution laws.
+type Bindings = Laws;
 static VARIABLE_SERIAL: AtomicUsize = AtomicUsize::new(0);
 fn check_data(node: &Node) -> Result<(), String> {
     let mut pending = vec![(node, 0)];
@@ -151,7 +205,10 @@ fn source_term_with_variables(
         }
     }
 }
-fn walk(mut term: Ref, _bindings: &Bindings) -> Ref {
+fn walk(mut term: Ref, laws: &Bindings) -> Ref {
+    if laws.dereference {
+        return term;
+    }
     loop {
         let next = match term.as_ref() {
             Term::Variable(_, _, binding) => binding.borrow().clone(),
@@ -194,7 +251,7 @@ fn binding_value(
         return Ok(Some(value));
     }
     match value.as_ref() {
-        Term::Variable(_, _, _) => Ok(if Arc::ptr_eq(forbidden, &value) {
+        Term::Variable(_, _, _) => Ok(if Arc::ptr_eq(forbidden, &value) && !bindings.occurs_check {
             None
         } else {
             Some(value.clone())
@@ -226,7 +283,16 @@ fn unify(a: Ref, b: Ref, bindings: &mut Bindings, trail: &mut Vec<Ref>) -> Resul
         let a = walk(a, bindings);
         let b = walk(b, bindings);
         if Arc::ptr_eq(&a, &b) {
+            if bindings.atom_identity && matches!(a.as_ref(), Term::Atom(_)) {
+                return Ok(false);
+            }
             continue;
+        }
+        if bindings.orientation
+            && !matches!(a.as_ref(), Term::Variable(_, _, _))
+            && matches!(b.as_ref(), Term::Variable(_, _, _))
+        {
+            return Ok(false);
         }
         match (a.as_ref(), b.as_ref()) {
             // Bind the younger of two free variables to the older one. Either
@@ -255,8 +321,10 @@ fn unify(a: Ref, b: Ref, bindings: &mut Bindings, trail: &mut Vec<Ref>) -> Resul
                 *cell.borrow_mut() = Some(value);
                 trail.push(b.clone());
             }
-            (Term::Atom(x), Term::Atom(y)) if x == y => {}
-            (Term::List(xs, _), Term::List(ys, _)) if xs.len() == ys.len() => {
+            (Term::Atom(x), Term::Atom(y)) if x == y && !bindings.atom_identity => {}
+            (Term::List(xs, _), Term::List(ys, _))
+                if xs.len() == ys.len() && !bindings.decomposition =>
+            {
                 pending.extend(xs.iter().cloned().zip(ys.iter().cloned()).rev());
             }
             _ => return Ok(false),
@@ -377,11 +445,15 @@ struct Search<'a> {
     goals: Vec<Goal>,
     fresh: usize,
     proof_id: usize,
+    shared_scopes: BTreeMap<String, BTreeMap<String, Ref>>,
 }
 impl Search<'_> {
     fn rollback(&mut self, mark: usize) {
         while self.trail.len() > mark {
-            unbind(&self.trail.pop().unwrap());
+            let cell = self.trail.pop().unwrap();
+            if !self.bindings.undo {
+                unbind(&cell);
+            }
         }
     }
     fn advance(&mut self) -> Result<bool, String> {
@@ -394,14 +466,24 @@ impl Search<'_> {
                 let clause = &self.resolver.clauses[choice.candidates[choice.next]];
                 choice.next += 1;
                 self.budget.observe("horn-freshen-clause")?;
-                self.fresh += 1;
-                let scope = format!("clause-{}", self.fresh);
-                let mut variables = BTreeMap::new();
-                let head = source_term_with_variables(&clause.head, Some(&scope), &mut variables);
+                // Without standardization apart every use of a clause shares one scope.
+                let scope = if self.bindings.standardize_apart {
+                    format!("shared-{}", clause.name)
+                } else {
+                    self.fresh += 1;
+                    format!("clause-{}", self.fresh)
+                };
+                let mut fresh_variables = BTreeMap::new();
+                let variables: &mut BTreeMap<String, Ref> = if self.bindings.standardize_apart {
+                    self.shared_scopes.entry(clause.name.clone()).or_default()
+                } else {
+                    &mut fresh_variables
+                };
+                let head = source_term_with_variables(&clause.head, Some(&scope), &mut *variables);
                 let body = clause
                     .body
                     .iter()
-                    .map(|term| source_term_with_variables(term, Some(&scope), &mut variables))
+                    .map(|term| source_term_with_variables(term, Some(&scope), &mut *variables))
                     .collect::<Vec<_>>();
                 self.budget.observe("horn-unify")?;
                 let mut local_trail = Vec::new();
@@ -411,8 +493,10 @@ impl Search<'_> {
                     &mut self.bindings,
                     &mut local_trail,
                 )? {
-                    for cell in &local_trail {
-                        unbind(cell);
+                    if !self.bindings.undo {
+                        for cell in &local_trail {
+                            unbind(cell);
+                        }
                     }
                     continue;
                 }
@@ -448,8 +532,13 @@ impl Search<'_> {
                         children: children.iter().map(|child| child.id).collect(),
                     });
                 }
-                self.goals = children;
-                self.goals.extend(choice.rest.iter().cloned());
+                if self.bindings.leftmost {
+                    self.goals = choice.rest.clone();
+                    self.goals.extend(children);
+                } else {
+                    self.goals = children;
+                    self.goals.extend(choice.rest.iter().cloned());
+                }
                 if keep_choice {
                     self.choices.push(choice);
                 }
@@ -531,7 +620,7 @@ impl HornResolution {
         let mut search = Search {
             resolver: self,
             budget: Budget::new(options)?,
-            bindings: (),
+            bindings: Laws::from_options(options)?,
             trail: Vec::new(),
             events: Vec::new(),
             choices: Vec::new(),
@@ -542,7 +631,9 @@ impl HornResolution {
             }],
             fresh: 0,
             proof_id: 0,
+            shared_scopes: BTreeMap::new(),
         };
+        let laws = search.bindings;
         let mut answers = Vec::new();
         let mut exhausted = false;
         loop {
@@ -579,7 +670,12 @@ impl HornResolution {
                     break;
                 }
             } else {
-                let first = search.goals.remove(0);
+                // The selection rule: the leftmost goal, or the rightmost when removed.
+                let first = if laws.leftmost {
+                    search.goals.pop().expect("a selected goal")
+                } else {
+                    search.goals.remove(0)
+                };
                 search.budget.observe("horn-resolve-goal")?;
                 let available = term_key(first.term.clone(), &search.bindings)
                     .and_then(|key| self.index.get(&key))
@@ -595,6 +691,13 @@ impl HornResolution {
                     ) {
                         candidates.push(index);
                     }
+                }
+                if laws.clause_order {
+                    candidates.reverse();
+                }
+                // Without backtracking only the first applicable clause is ever tried.
+                if laws.backtracking {
+                    candidates.truncate(1);
                 }
                 search.choices.push(Choice {
                     goal: first,
@@ -627,7 +730,7 @@ impl HornResolution {
         check_data(goal)?;
         let query = source_term(goal, Some("replay-query"));
         let mut budget = Budget::new(options)?;
-        let mut bindings = ();
+        let mut bindings = Laws::default();
         let mut trail = Vec::new();
         let mut pending = vec![(query.clone(), proof, 0)];
         let mut fresh = 0;
