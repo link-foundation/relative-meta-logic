@@ -45,9 +45,11 @@ export function rustImplementationInventory(root = repositoryRoot) {
 export function captureRustImplementation(helper, root = repositoryRoot) {
   const modules = {};
   for (const path of rustImplementationInventory(root)) {
-    const syntax = rustAstTool('parse', readFileSync(resolve(root, path), 'utf8'), helper);
-    const generated = rustAstTool('emit', JSON.stringify(syntax), helper);
-    if (key(rustAstTool('parse', generated, helper)) !== key(syntax)) throw new Error(`structured Rust generation changed the AST: ${path}`);
+    // Name the module in helper failures; a whole-tree capture otherwise hides which file failed.
+    const step = (stage, run) => { try { return run(); } catch (error) { throw new Error(`${path} (${stage}): ${error.message}`); } };
+    const syntax = step('source parse', () => rustAstTool('parse', readFileSync(resolve(root, path), 'utf8'), helper));
+    const generated = step('emit', () => rustAstTool('emit', JSON.stringify(syntax), helper));
+    if (key(step('generated parse', () => rustAstTool('parse', generated, helper))) !== key(syntax)) throw new Error(`structured Rust generation changed the AST: ${path}`);
     modules[path] = syntax;
   }
   return encodeLinkedValues({ format: 'syn-rust-ast/v1', modules });
