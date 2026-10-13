@@ -876,13 +876,14 @@ function hostedOutsideTree(p, executable, cwd, root, separator, { platform, run,
       : run('ps', ['-p', String(p.pid), '-o', 'args='], queryOptions).trim().split(/\s+/);
     const script = args[1];
     if (!script || script.startsWith('-') || packageManager.test(script)) return false;
-    const resolved = realPath(path.resolve(cwd, script));
+    // The process runs on Linux or macOS, so its script path resolves with POSIX rules.
+    const resolved = realPath(path.posix.resolve(cwd, script));
     if (inside(resolved) || packageManager.test(resolved) || !isFile(resolved)) return false;
     const open = platform === 'linux'
       ? readDir(`/proc/${p.pid}/fd`).map(fd => readLink(`/proc/${p.pid}/fd/${fd}`))
       : run('lsof', ['-a', '-p', String(p.pid), '-d', '^cwd', '-Fn'], queryOptions).split('\n').filter(line => line.startsWith('n')).map(line => line.slice(1));
-    // Pipes, sockets and anonymous inodes are not paths; every absolute path must lie outside the tree.
-    return open.length > 0 && !open.some(file => file.startsWith('/') && inside(file));
+    // Pipes, sockets and anonymous inodes never name the tree; every open file must lie outside it.
+    return open.length > 0 && !open.some(inside);
   } catch { return false; }
 }
 
