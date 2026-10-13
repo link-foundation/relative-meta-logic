@@ -1,0 +1,68 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 9a88a02fad9e1a4fb0adaf0dc03106ac2cc55122eba992a0b4c9cafdc2e79741)
+    (bytes 72)
+    (utf16 72))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 81)
+    (links 81)
+    (sha256 e427ac744e17c800ce96262d0ab9b2699c8006e7fc8d1a8359df4321724281d7))
+  (target
+    (language JavaScript)
+    (sha256 ef1aa8c97daee5c08065e6ebb2d7ef6304405e3ce45382778119e5d4bb649a58)
+    (bytes 186))
+  (correspondence
+    (construct
+      (kind function)
+      (source RML_STRUCTURE_SCHEMA)
+      (target RML_STRUCTURE_SCHEMA)
+      (signature "() -> string")
+      (span 4 59)
+      (bytes 4 59)
+      (span-sha256 6507cef34f31e2cabc05b9d8992ddc2d86292c8b96f532bfcab59a285bb2d93e)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: string; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 2)
+    (encoding program-output "main prints the lines the source program prints, in order, with console.log")
+    (encoding numbers "every natural, integer and machine integer is a BigInt; machine-integer results are range-checked and throw RangeError where Rust would panic"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target JavaScript)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 588aaafc48082f0bf04436ca3e9b475bc7c1303b45cb5670765040c199466432))

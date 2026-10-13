@@ -5,7 +5,7 @@
     (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
     (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
   (implementation
-    (file "js/src/rml-certified-translation.mjs" ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6)
+    (file "js/src/rml-certified-translation.mjs" 92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585)
     (file "scripts/generate-certified-translations.mjs" f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13)
     (file "js/vendor/meta-language-pr201/upstream-files.json" 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
   (recipe

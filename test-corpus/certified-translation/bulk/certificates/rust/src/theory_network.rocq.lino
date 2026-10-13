@@ -1,0 +1,248 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 793780600adec1f7317acaab3f3d6deeea4bc4182f5b8569b838b6bf904c7c4f)
+    (bytes 69)
+    (utf16 69))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 81)
+    (links 81)
+    (sha256 45c51daa13e51f65756c2c022c28c6ecb0925d7e2f474894240e573a94baded7))
+  (target
+    (language Rocq)
+    (sha256 ebc5b64348827969e290b9a7fe91b69b50182c89cb0abc2fe4f610dac69af273)
+    (bytes 602))
+  (correspondence
+    (construct
+      (kind function)
+      (source EMPTY_SEQUENCE)
+      (target EMPTY_SEQUENCE)
+      (signature "() -> string")
+      (span 4 56)
+      (bytes 4 56)
+      (span-sha256 9175133c204db6d1086e2a7562ebaaf45002b0f73860d8731d6201992175ce42)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: string; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rocq)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 d568b4b9bee1326c4a7394d16178b1ef5b90cef16b5ce1f93550119d890edd8d))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 01433d3aff90d55a3cb2a9f40e88c1fc26c307943ed78bb128a602f222ff66c7)
+    (bytes 122)
+    (utf16 122))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 69)
+    (links 69)
+    (sha256 6c8a8068989c341847f5458a0c649f5106384268d970c72b0a10332608ea3c8f))
+  (target
+    (language Rocq)
+    (sha256 783ce3c6aa76398a2c1484844432a999bedbca4a6f0c56865fd50fd269d92f61)
+    (bytes 646))
+  (correspondence
+    (construct
+      (kind data)
+      (source SequenceLayout)
+      (target SequenceLayout)
+      (signature "Balanced() | Left() | Right()")
+      (span 49 109)
+      (bytes 49 109)
+      (span-sha256 c75b90ab9aa7ad20ddb556169f983656510e71641b40a6da93671b567e64c7b0))
+    (construct
+      (kind constructor)
+      (source SequenceLayout.Balanced)
+      (target Balanced)
+      (signature SequenceLayout)
+      (span 49 109)
+      (bytes 49 109)
+      (span-sha256 c75b90ab9aa7ad20ddb556169f983656510e71641b40a6da93671b567e64c7b0))
+    (construct
+      (kind constructor)
+      (source SequenceLayout.Left)
+      (target Left)
+      (signature SequenceLayout)
+      (span 49 109)
+      (bytes 49 109)
+      (span-sha256 c75b90ab9aa7ad20ddb556169f983656510e71641b40a6da93671b567e64c7b0))
+    (construct
+      (kind constructor)
+      (source SequenceLayout.Right)
+      (target Right)
+      (signature SequenceLayout)
+      (span 49 109)
+      (bytes 49 109)
+      (span-sha256 c75b90ab9aa7ad20ddb556169f983656510e71641b40a6da93671b567e64c7b0)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: none; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rocq)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed SequenceLayout.Balanced Balanced)
+    (renamed SequenceLayout.Left Left)
+    (renamed SequenceLayout.Right Right))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 2cf8a2f52f690ff5981b890f14c607cb8a2f1f0edcaf0a3d4035ac83d36743b5))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 dfc2d8a1e2216f193924c875dd424c750fd1d2d5818f9c3a3ebb481d28f12132)
+    (bytes 143)
+    (utf16 143))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 90)
+    (links 90)
+    (sha256 0b9e2709d78ce6c5eb11c73faa5e0d2232e723f3d9b1d1ecf6b4f859f8055bc9))
+  (target
+    (language Rocq)
+    (sha256 5e5a2205d66b3b0a6b68a660fe52af9729f8671f457887edb37074d0e9b1c2be)
+    (bytes 655))
+  (correspondence
+    (construct
+      (kind data)
+      (source SequenceTree)
+      (target SequenceTree)
+      (signature "Leaf(string) | Branch(SequenceTree, SequenceTree)")
+      (span 39 130)
+      (bytes 39 130)
+      (span-sha256 d875dc0d692c27b55ba4119a4e478024701e633a6d2afda4ee2d0aeb42c31b08))
+    (construct
+      (kind constructor)
+      (source SequenceTree.Leaf)
+      (target Leaf)
+      (signature "string -> SequenceTree")
+      (span 39 130)
+      (bytes 39 130)
+      (span-sha256 d875dc0d692c27b55ba4119a4e478024701e633a6d2afda4ee2d0aeb42c31b08))
+    (construct
+      (kind constructor)
+      (source SequenceTree.Branch)
+      (target Branch)
+      (signature "SequenceTree -> SequenceTree -> SequenceTree")
+      (span 39 130)
+      (bytes 39 130)
+      (span-sha256 d875dc0d692c27b55ba4119a4e478024701e633a6d2afda4ee2d0aeb42c31b08)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: none; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rocq)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed SequenceTree.Leaf Leaf)
+    (renamed SequenceTree.Branch Branch))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 e57e6199d5775b64e10ac012620425cb942446cdbd4340575609930aa5a2aef6))

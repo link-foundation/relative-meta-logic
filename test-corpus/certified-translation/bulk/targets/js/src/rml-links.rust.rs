@@ -1,0 +1,1732 @@
+// rml-certified-item js/src/rml-links.mjs#clamp01@4365 target-sha256=5149fd1c11bd4f9989119d7e14d9bb44f30e5f4b2d936ee600958461f4bbdf48
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// The Math functions that Rust's f64 methods do not share with JavaScript.
+pub mod ml_math {
+    /// Math.round: the nearest integer, the one towards +Infinity on a tie,
+    /// with the sign of a zero result from the argument.
+    pub fn round(x: f64) -> f64 {
+        if !x.is_finite() || x == 0.0 {
+            return x;
+        }
+        if x > 0.0 && x < 0.5 {
+            return 0.0;
+        }
+        if x < 0.0 && x >= -0.5 {
+            return -0.0;
+        }
+        let floor = x.floor();
+        if x - floor >= 0.5 {
+            floor + 1.0
+        } else {
+            floor
+        }
+    }
+
+    /// Math.sign, which keeps -0, 0 and NaN, where f64::signum does not.
+    pub fn sign(x: f64) -> f64 {
+        if x > 0.0 {
+            1.0
+        } else if x < 0.0 {
+            -1.0
+        } else {
+            x
+        }
+    }
+
+    /// Math.max of two Numbers: NaN when either is, and 0 above -0.
+    pub fn max(a: f64, b: f64) -> f64 {
+        if a > b {
+            a
+        } else if b > a {
+            b
+        } else if a == b {
+            if a.is_sign_negative() {
+                b
+            } else {
+                a
+            }
+        } else {
+            f64::NAN
+        }
+    }
+
+    /// Math.min of two Numbers: NaN when either is, and -0 below 0.
+    pub fn min(a: f64, b: f64) -> f64 {
+        if a < b {
+            a
+        } else if b < a {
+            b
+        } else if a == b {
+            if a.is_sign_negative() {
+                a
+            } else {
+                b
+            }
+        } else {
+            f64::NAN
+        }
+    }
+
+    pub fn max_of(values: &[f64]) -> f64 {
+        values.iter().fold(f64::NEG_INFINITY, |a, &b| max(a, b))
+    }
+
+    pub fn min_of(values: &[f64]) -> f64 {
+        values.iter().fold(f64::INFINITY, |a, &b| min(a, b))
+    }
+
+    pub fn is_integer(x: f64) -> bool {
+        x.is_finite() && x.trunc() == x
+    }
+
+    pub fn is_safe_integer(x: f64) -> bool {
+        is_integer(x) && x.abs() <= 9007199254740991.0
+    }
+}
+
+pub fn clamp01(x: f64) -> f64 {
+    crate::ml_math::max(0f64, crate::ml_math::min(1f64, x))
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#quantize@7735 target-sha256=242996af2c0544b11a7faf107c3a1d4913622038b4190b4c54471a10707f5991
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// The Math functions that Rust's f64 methods do not share with JavaScript.
+pub mod ml_math {
+    /// Math.round: the nearest integer, the one towards +Infinity on a tie,
+    /// with the sign of a zero result from the argument.
+    pub fn round(x: f64) -> f64 {
+        if !x.is_finite() || x == 0.0 {
+            return x;
+        }
+        if x > 0.0 && x < 0.5 {
+            return 0.0;
+        }
+        if x < 0.0 && x >= -0.5 {
+            return -0.0;
+        }
+        let floor = x.floor();
+        if x - floor >= 0.5 {
+            floor + 1.0
+        } else {
+            floor
+        }
+    }
+
+    /// Math.sign, which keeps -0, 0 and NaN, where f64::signum does not.
+    pub fn sign(x: f64) -> f64 {
+        if x > 0.0 {
+            1.0
+        } else if x < 0.0 {
+            -1.0
+        } else {
+            x
+        }
+    }
+
+    /// Math.max of two Numbers: NaN when either is, and 0 above -0.
+    pub fn max(a: f64, b: f64) -> f64 {
+        if a > b {
+            a
+        } else if b > a {
+            b
+        } else if a == b {
+            if a.is_sign_negative() {
+                b
+            } else {
+                a
+            }
+        } else {
+            f64::NAN
+        }
+    }
+
+    /// Math.min of two Numbers: NaN when either is, and -0 below 0.
+    pub fn min(a: f64, b: f64) -> f64 {
+        if a < b {
+            a
+        } else if b < a {
+            b
+        } else if a == b {
+            if a.is_sign_negative() {
+                a
+            } else {
+                b
+            }
+        } else {
+            f64::NAN
+        }
+    }
+
+    pub fn max_of(values: &[f64]) -> f64 {
+        values.iter().fold(f64::NEG_INFINITY, |a, &b| max(a, b))
+    }
+
+    pub fn min_of(values: &[f64]) -> f64 {
+        values.iter().fold(f64::INFINITY, |a, &b| min(a, b))
+    }
+
+    pub fn is_integer(x: f64) -> bool {
+        x.is_finite() && x.trunc() == x
+    }
+
+    pub fn is_safe_integer(x: f64) -> bool {
+        is_integer(x) && x.abs() <= 9007199254740991.0
+    }
+}
+
+pub fn quantize(x: f64, valence: f64, lo: f64, hi: f64) -> f64 {
+    if (valence < (2f64)) {
+        x
+    } else {
+        {
+            let step = ((hi - lo) / (valence - 1f64));
+            {
+                let level = crate::ml_math::round(((x - lo) / step));
+                (lo + (crate::ml_math::max(0f64, crate::ml_math::min((valence - 1f64), level)) * step))
+            }
+        }
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_isStrictlyOffendingStatus@114116 target-sha256=9ad020a2246c3beae043a281e57ace19311056f8605d0be8361f0a62f4032024
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+pub fn _is_strictly_offending_status(status: String) -> bool {
+    ((status == "host-primitive") || (status == "host-derived"))
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#tokenBaseName@122238 target-sha256=04f8cb5bbaf540bb6500080dde6983a6113909062971c24bc5b8119bb90677b0
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+pub fn token_base_name(token: Option<f64>) -> Option<f64> {
+    if ((match token.clone() { Some(ml_present) => { let _ = ml_present; String::from("number") }, None => String::from("object") }) != "string") {
+        None::<f64>
+    } else {
+        token.clone()
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_stripWithProof@140800 target-sha256=90f6719681714d70af95975f210b66e3614aa64157cdbbb7427b00e4dea49940
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn _strip_with_proof(parts: Vec<String>) -> Vec<String> {
+    if (((((parts.len() as f64)) >= (3f64)) && match (crate::ml_array::optional_at(&parts, crate::ml_array::number_index(((parts.len() as f64) - 2f64))), String::from("with")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false }) && match (crate::ml_array::optional_at(&parts, crate::ml_array::number_index(((parts.len() as f64) - 1f64))), String::from("proof")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false }) {
+        crate::ml_array::slice(&parts, 0f64, (-2f64))
+    } else {
+        parts.clone()
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_queryRequestsProof@141191 target-sha256=3cbbf20d696c0a6493ebb3b916b0650be23ca31c3306f410b4590ee2e73e6b60
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn _query_requests_proof(node: Vec<String>) -> bool {
+    if (!({
+        let ml_array_test1 = node.clone();
+        true
+    }) || !(match (crate::ml_array::optional_at(&node, crate::ml_array::number_index(0f64)), String::from("?")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false })) {
+        false
+    } else {
+        {
+            let parts = crate::ml_array::slice(&node, 1f64, f64::INFINITY);
+            (((((parts.len() as f64)) >= (3f64)) && match (crate::ml_array::optional_at(&parts, crate::ml_array::number_index(((parts.len() as f64) - 2f64))), String::from("with")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false }) && match (crate::ml_array::optional_at(&parts, crate::ml_array::number_index(((parts.len() as f64) - 1f64))), String::from("proof")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false })
+        }
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_isTacticNode@143276 target-sha256=42fd6e5095336d052a74aca50ac949566b91d97bd8951ff344d6d8b373c7dab6
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn _is_tactic_node(value: Vec<f64>) -> bool {
+    (({
+        let ml_array_test1 = value.clone();
+        true
+    } && (((value.len() as f64)) > (0f64))) && ((match crate::ml_array::optional_at(&value, crate::ml_array::number_index(0f64)) { Some(ml_present) => { let _ = ml_present; String::from("number") }, None => String::from("undefined") }) == "string"))
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_asEquality@143966 target-sha256=146698a985992653f5b166825cf60403b186c413a6f2abf07dffe7cab3c2f54a
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn _as_equality(node: Vec<String>) -> Option<(Option<String>, Option<String>)> {
+    if (({
+        let ml_array_test1 = node.clone();
+        true
+    } && (((node.len() as f64)) == (3f64))) && match (crate::ml_array::optional_at(&node, crate::ml_array::number_index(1f64)), String::from("=")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false }) {
+        Some({
+            let ml_field2 = crate::ml_array::optional_at(&node, crate::ml_array::number_index(0f64));
+            {
+                let ml_field3 = crate::ml_array::optional_at(&node, crate::ml_array::number_index(2f64));
+                (ml_field2.clone(), ml_field3.clone())
+            }
+        })
+    } else {
+        None::<(Option<String>, Option<String>)>
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_smtNumber@147261 target-sha256=c1f79a65ca25ddd719f971f62ed86355e3d18b7c9c1b91fcf4bfd17c5175ac6d
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// JavaScript's Number operations that Rust's f64 does not share.
+pub mod ml_number {
+    /// ECMAScript Number::toString: the shortest decimal that reads back as
+    /// the value, the even one on a tie, laid out as JavaScript prints it.
+    pub fn js_number(x: f64) -> String {
+        if x.is_nan() {
+            return String::from("NaN");
+        }
+        if x.is_infinite() {
+            return String::from(if x > 0.0 { "Infinity" } else { "-Infinity" });
+        }
+        if x == 0.0 {
+            return String::from("0");
+        }
+        let (mut digits, n) = decimal(&format!("{:e}", x.abs()));
+        // Rust's shortest digits round a tie away from zero; ECMAScript takes the even neighbour.
+        let (exact, _) = decimal(&format!("{:.800e}", x.abs()));
+        let rest = &exact[digits.len().min(exact.len())..];
+        if digits.len() > 1 && rest.starts_with('5') && rest[1..].bytes().all(|b| b == b'0') {
+            let last = digits.as_bytes()[digits.len() - 1] - b'0';
+            let down = exact[..digits.len()].to_string();
+            let other = if digits == down { increment(&down) } else { Some(down) };
+            if let Some(other) = other {
+                let back = format!("{}.{}e{}", &other[..1], &other[1..], n - 1);
+                if last % 2 == 1 && back.parse::<f64>() == Ok(x.abs()) {
+                    digits = other.trim_end_matches('0').to_string();
+                }
+            }
+        }
+        let k = digits.len() as i32;
+        let body = if k <= n && n <= 21 {
+            format!("{digits}{}", "0".repeat((n - k) as usize))
+        } else if 0 < n && n <= 21 {
+            format!("{}.{}", &digits[..n as usize], &digits[n as usize..])
+        } else if -6 < n && n <= 0 {
+            format!("0.{}{digits}", "0".repeat((-n) as usize))
+        } else {
+            let sign = if n - 1 < 0 { '-' } else { '+' };
+            let power = (n - 1).abs();
+            if k == 1 {
+                format!("{digits}e{sign}{power}")
+            } else {
+                format!("{}.{}e{sign}{power}", &digits[..1], &digits[1..])
+            }
+        };
+        if x < 0.0 {
+            format!("-{body}")
+        } else {
+            body
+        }
+    }
+
+    /// What console.log prints: -0 as "-0", where String(-0) is "0".
+    pub fn js_console(x: f64) -> String {
+        if x == 0.0 && x.is_sign_negative() {
+            String::from("-0")
+        } else {
+            js_number(x)
+        }
+    }
+
+    /// SameValue, as Object.is and assert.strictEqual compare: NaN equals
+    /// NaN, and 0 differs from -0.
+    pub fn same_value(a: f64, b: f64) -> bool {
+        if a.is_nan() || b.is_nan() {
+            a.is_nan() && b.is_nan()
+        } else {
+            a.to_bits() == b.to_bits()
+        }
+    }
+
+    /// A decimal digit string plus one, or None when it gains a digit.
+    fn increment(digits: &str) -> Option<String> {
+        let mut bytes = digits.as_bytes().to_vec();
+        for index in (0..bytes.len()).rev() {
+            if bytes[index] == b'9' {
+                bytes[index] = b'0';
+            } else {
+                bytes[index] += 1;
+                return String::from_utf8(bytes).ok();
+            }
+        }
+        None
+    }
+
+    /// The significant digits without trailing zeros, and the exponent n with
+    /// value 0.digits × 10^n, of Rust's {:e} text.
+    fn decimal(text: &str) -> (String, i32) {
+        let (mantissa, exponent) = text.split_once('e').expect("exponent");
+        let digits: String = mantissa.chars().filter(|c| *c != '.').collect();
+        let digits = digits.trim_end_matches('0').to_string();
+        let digits = if digits.is_empty() { String::from("0") } else { digits };
+        (digits, exponent.parse::<i32>().expect("exponent") + 1)
+    }
+}
+
+/// JavaScript strings retain every UTF-16 code unit, including isolated surrogates.
+pub mod ml_string {
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+    pub struct Text(pub Vec<u16>);
+
+    impl std::fmt::Display for Text {
+        fn fmt(&self, out: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            out.write_str(&String::from_utf16_lossy(&self.0))
+        }
+    }
+
+    impl Text {
+        pub fn from_text(text: &str) -> Self { Self(text.encode_utf16().collect()) }
+        pub fn from_units(units: Vec<u16>) -> Self { Self(units) }
+        pub fn length(&self) -> f64 { self.0.len() as f64 }
+        pub fn concat(&self, other: &Self) -> Self {
+            let mut units = self.0.clone(); units.extend_from_slice(&other.0); Self(units)
+        }
+        pub fn starts_with(&self, search: &Self) -> bool { self.0.starts_with(&search.0) }
+        pub fn ends_with(&self, search: &Self) -> bool { self.0.ends_with(&search.0) }
+        pub fn contains(&self, search: &Self) -> bool { self.index_of(search, 0.0) >= 0.0 }
+        pub fn slice(&self, start: f64, end: f64) -> Self {
+            let first = relative(start, self.0.len()); let last = relative(end, self.0.len());
+            Self(self.0[first..last.max(first)].to_vec())
+        }
+        pub fn index_of(&self, search: &Self, position: f64) -> f64 {
+            let start = absolute(position, self.0.len());
+            if search.0.is_empty() { return start as f64; }
+            if search.0.len() > self.0.len() { return -1.0; }
+            (start..=self.0.len() - search.0.len()).find(|&index| self.0[index..].starts_with(&search.0)).map_or(-1.0, |index| index as f64)
+        }
+        pub fn last_index_of(&self, search: &Self, position: f64) -> f64 {
+            let position = if position.is_nan() { f64::INFINITY } else { position };
+            let start = absolute(position, self.0.len());
+            if search.0.is_empty() { return start as f64; }
+            if search.0.len() > self.0.len() { return -1.0; }
+            (0..=start.min(self.0.len() - search.0.len())).rev().find(|&index| self.0[index..].starts_with(&search.0)).map_or(-1.0, |index| index as f64)
+        }
+        pub fn split(&self, separator: Option<&Self>, limit: f64) -> Vec<Self> {
+            let maximum = uint32(limit) as usize;
+            if maximum == 0 { return Vec::new(); }
+            let separator = match separator { Some(value) => value, None => return vec![self.clone()] };
+            if separator.0.is_empty() { return self.0.iter().take(maximum).map(|&unit| Self(vec![unit])).collect(); }
+            let mut out = Vec::new(); let mut start = 0;
+            loop {
+                let index = self.index_of(separator, start as f64);
+                if index < 0.0 { break; }
+                out.push(Self(self.0[start..index as usize].to_vec()));
+                if out.len() == maximum { return out; }
+                start = index as usize + separator.0.len();
+            }
+            out.push(Self(self.0[start..].to_vec())); out
+        }
+        pub fn code_point_at(&self, position: f64) -> Option<f64> {
+            let index = integer(position);
+            if index < 0.0 || index >= self.0.len() as f64 { return None; }
+            let index = index as usize; let first = self.0[index];
+            if (0xd800..=0xdbff).contains(&first) {
+                if let Some(&second) = self.0.get(index + 1) {
+                    if (0xdc00..=0xdfff).contains(&second) { return Some(((first as u32 - 0xd800) * 1024 + second as u32 - 0xdc00 + 0x10000) as f64); }
+                }
+            }
+            Some(first as f64)
+        }
+        pub fn code_points(&self) -> Vec<Self> {
+            let mut out = Vec::new(); let mut index = 0;
+            while index < self.0.len() {
+                let first = self.0[index];
+                let width = if (0xd800..=0xdbff).contains(&first) && self.0.get(index + 1).map_or(false, |second| (0xdc00..=0xdfff).contains(second)) { 2 } else { 1 };
+                out.push(Self(self.0[index..index + width].to_vec())); index += width;
+            }
+            out
+        }
+        pub fn repeat(&self, count: f64) -> Self {
+            let count = integer(count);
+            if count < 0.0 || !count.is_finite() { panic!("Invalid count value: {}", count); }
+            if self.0.is_empty() { return Self(Vec::new()); }
+            let size = count * self.0.len() as f64;
+            if size > 536870888.0 { panic!("Invalid string length"); }
+            Self(self.0.repeat(count as usize))
+        }
+        pub fn pad(&self, length: f64, fill: &Self, start: bool) -> Self {
+            let length = integer(length).max(0.0);
+            if length <= self.0.len() as f64 || fill.0.is_empty() { return self.clone(); }
+            if length > 536870888.0 { panic!("Invalid string length"); }
+            let count = length as usize - self.0.len();
+            let padding: Vec<u16> = fill.0.iter().copied().cycle().take(count).collect();
+            let pad = Self(padding); if start { pad.concat(self) } else { self.concat(&pad) }
+        }
+        pub fn replace(&self, search: &Self, replacement: &Self, all: bool) -> Self {
+            let mut out = Vec::new(); let mut start = 0; let mut from = 0;
+            loop {
+                let index = self.index_of(search, from as f64);
+                if index < 0.0 { break; }
+                let index = index as usize;
+                out.extend_from_slice(&self.0[start..index]);
+                substitute(&mut out, &self.0, &search.0, &replacement.0, index);
+                start = index + search.0.len();
+                if !all || (search.0.is_empty() && index == self.0.len()) { break; }
+                from = start + usize::from(search.0.is_empty());
+            }
+            out.extend_from_slice(&self.0[start..]); Self(out)
+        }
+        pub fn trim(&self, start: bool, end: bool, rust: bool) -> Self {
+            let whitespace = |unit: u16| char::from_u32(unit as u32).map_or(false, |c| if rust { c.is_whitespace() } else { (c.is_whitespace() && c != '\u{85}') || c == '\u{feff}' });
+            let mut first = 0; let mut last = self.0.len();
+            if start { while first < last && whitespace(self.0[first]) { first += 1; } }
+            if end { while last > first && whitespace(self.0[last - 1]) { last -= 1; } }
+            Self(self.0[first..last].to_vec())
+        }
+        pub fn map_case(&self, upper: bool) -> Self {
+            let mut out = Vec::new(); let mut run = String::new();
+            let flush = |run: &mut String, out: &mut Vec<u16>| { let mapped = if upper { run.to_uppercase() } else { run.to_lowercase() }; out.extend(mapped.encode_utf16()); run.clear(); };
+            for scalar in char::decode_utf16(self.0.iter().copied()) {
+                match scalar { Ok(c) => run.push(c), Err(error) => { flush(&mut run, &mut out); out.push(error.unpaired_surrogate()); } }
+            }
+            flush(&mut run, &mut out); Self(out)
+        }
+    }
+    pub fn join(values: &[Text], separator: &Text) -> Text {
+        let mut units = Vec::new();
+        for (index, value) in values.iter().enumerate() { if index != 0 { units.extend_from_slice(&separator.0); } units.extend_from_slice(&value.0); }
+        Text(units)
+    }
+    pub fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    pub fn absolute(value: f64, length: usize) -> usize { integer(value).max(0.0).min(length as f64) as usize }
+    pub fn relative(value: f64, length: usize) -> usize { let value = integer(value); if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize } }
+    fn uint32(value: f64) -> u32 { if !value.is_finite() || value == 0.0 { 0 } else { value.trunc().rem_euclid(4294967296.0) as u32 } }
+    fn substitute(out: &mut Vec<u16>, text: &[u16], search: &[u16], replacement: &[u16], position: usize) {
+        let mut index = 0;
+        while index < replacement.len() {
+            if replacement[index] == 36 && index + 1 < replacement.len() {
+                match replacement[index + 1] {
+                    36 => { out.push(36); index += 2; continue; }
+                    38 => { out.extend_from_slice(search); index += 2; continue; }
+                    96 => { out.extend_from_slice(&text[..position]); index += 2; continue; }
+                    39 => { out.extend_from_slice(&text[position + search.len()..]); index += 2; continue; }
+                    _ => {}
+                }
+            }
+            out.push(replacement[index]); index += 1;
+        }
+    }
+}
+
+pub fn _smt_number(raw_: f64) -> crate::ml_string::Text {
+    {
+        let text = crate::ml_string::Text::from_text(&crate::ml_number::js_number(raw_));
+        if text.starts_with(&crate::ml_string::Text::from_units(vec![45])) {
+            ((crate::ml_string::Text::from_units(vec![40, 45, 32])).concat(&text.slice(1f64, f64::INFINITY))).concat(&crate::ml_string::Text::from_units(vec![41]))
+        } else {
+            text.clone()
+        }
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_smtLeaf@147393 target-sha256=a16a330171030a716d3a31a0ae744d1e632be2eb799c31e9aea809c4df1b337e
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+pub fn _smt_leaf(node: f64, value: f64) -> bool {
+    (("number" == "string") && (node == value))
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_typeAscription@166700 target-sha256=afa7e1e4d310596cf74f42e4186971a736a58b211583b5a9222f945366a404e8
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn _type_ascription(node: Vec<String>) -> Option<(Option<String>, Option<String>)> {
+    if (({
+        let ml_array_test1 = node.clone();
+        true
+    } && (((node.len() as f64)) == (3f64))) && match (crate::ml_array::optional_at(&node, crate::ml_array::number_index(1f64)), String::from("of")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false }) {
+        Some({
+            let ml_field2 = crate::ml_array::optional_at(&node, crate::ml_array::number_index(0f64));
+            {
+                let ml_field3 = crate::ml_array::optional_at(&node, crate::ml_array::number_index(2f64));
+                (ml_field2.clone(), ml_field3.clone())
+            }
+        })
+    } else {
+        None::<(Option<String>, Option<String>)>
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#exampleConstructorPattern@211830 target-sha256=99ad846535563c9effd89d1347266d29401872cbe981d34375a7fe34fb2b70f3
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// JavaScript strings retain every UTF-16 code unit, including isolated surrogates.
+pub mod ml_string {
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+    pub struct Text(pub Vec<u16>);
+
+    impl std::fmt::Display for Text {
+        fn fmt(&self, out: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            out.write_str(&String::from_utf16_lossy(&self.0))
+        }
+    }
+
+    impl Text {
+        pub fn from_text(text: &str) -> Self { Self(text.encode_utf16().collect()) }
+        pub fn from_units(units: Vec<u16>) -> Self { Self(units) }
+        pub fn length(&self) -> f64 { self.0.len() as f64 }
+        pub fn concat(&self, other: &Self) -> Self {
+            let mut units = self.0.clone(); units.extend_from_slice(&other.0); Self(units)
+        }
+        pub fn starts_with(&self, search: &Self) -> bool { self.0.starts_with(&search.0) }
+        pub fn ends_with(&self, search: &Self) -> bool { self.0.ends_with(&search.0) }
+        pub fn contains(&self, search: &Self) -> bool { self.index_of(search, 0.0) >= 0.0 }
+        pub fn slice(&self, start: f64, end: f64) -> Self {
+            let first = relative(start, self.0.len()); let last = relative(end, self.0.len());
+            Self(self.0[first..last.max(first)].to_vec())
+        }
+        pub fn index_of(&self, search: &Self, position: f64) -> f64 {
+            let start = absolute(position, self.0.len());
+            if search.0.is_empty() { return start as f64; }
+            if search.0.len() > self.0.len() { return -1.0; }
+            (start..=self.0.len() - search.0.len()).find(|&index| self.0[index..].starts_with(&search.0)).map_or(-1.0, |index| index as f64)
+        }
+        pub fn last_index_of(&self, search: &Self, position: f64) -> f64 {
+            let position = if position.is_nan() { f64::INFINITY } else { position };
+            let start = absolute(position, self.0.len());
+            if search.0.is_empty() { return start as f64; }
+            if search.0.len() > self.0.len() { return -1.0; }
+            (0..=start.min(self.0.len() - search.0.len())).rev().find(|&index| self.0[index..].starts_with(&search.0)).map_or(-1.0, |index| index as f64)
+        }
+        pub fn split(&self, separator: Option<&Self>, limit: f64) -> Vec<Self> {
+            let maximum = uint32(limit) as usize;
+            if maximum == 0 { return Vec::new(); }
+            let separator = match separator { Some(value) => value, None => return vec![self.clone()] };
+            if separator.0.is_empty() { return self.0.iter().take(maximum).map(|&unit| Self(vec![unit])).collect(); }
+            let mut out = Vec::new(); let mut start = 0;
+            loop {
+                let index = self.index_of(separator, start as f64);
+                if index < 0.0 { break; }
+                out.push(Self(self.0[start..index as usize].to_vec()));
+                if out.len() == maximum { return out; }
+                start = index as usize + separator.0.len();
+            }
+            out.push(Self(self.0[start..].to_vec())); out
+        }
+        pub fn code_point_at(&self, position: f64) -> Option<f64> {
+            let index = integer(position);
+            if index < 0.0 || index >= self.0.len() as f64 { return None; }
+            let index = index as usize; let first = self.0[index];
+            if (0xd800..=0xdbff).contains(&first) {
+                if let Some(&second) = self.0.get(index + 1) {
+                    if (0xdc00..=0xdfff).contains(&second) { return Some(((first as u32 - 0xd800) * 1024 + second as u32 - 0xdc00 + 0x10000) as f64); }
+                }
+            }
+            Some(first as f64)
+        }
+        pub fn code_points(&self) -> Vec<Self> {
+            let mut out = Vec::new(); let mut index = 0;
+            while index < self.0.len() {
+                let first = self.0[index];
+                let width = if (0xd800..=0xdbff).contains(&first) && self.0.get(index + 1).map_or(false, |second| (0xdc00..=0xdfff).contains(second)) { 2 } else { 1 };
+                out.push(Self(self.0[index..index + width].to_vec())); index += width;
+            }
+            out
+        }
+        pub fn repeat(&self, count: f64) -> Self {
+            let count = integer(count);
+            if count < 0.0 || !count.is_finite() { panic!("Invalid count value: {}", count); }
+            if self.0.is_empty() { return Self(Vec::new()); }
+            let size = count * self.0.len() as f64;
+            if size > 536870888.0 { panic!("Invalid string length"); }
+            Self(self.0.repeat(count as usize))
+        }
+        pub fn pad(&self, length: f64, fill: &Self, start: bool) -> Self {
+            let length = integer(length).max(0.0);
+            if length <= self.0.len() as f64 || fill.0.is_empty() { return self.clone(); }
+            if length > 536870888.0 { panic!("Invalid string length"); }
+            let count = length as usize - self.0.len();
+            let padding: Vec<u16> = fill.0.iter().copied().cycle().take(count).collect();
+            let pad = Self(padding); if start { pad.concat(self) } else { self.concat(&pad) }
+        }
+        pub fn replace(&self, search: &Self, replacement: &Self, all: bool) -> Self {
+            let mut out = Vec::new(); let mut start = 0; let mut from = 0;
+            loop {
+                let index = self.index_of(search, from as f64);
+                if index < 0.0 { break; }
+                let index = index as usize;
+                out.extend_from_slice(&self.0[start..index]);
+                substitute(&mut out, &self.0, &search.0, &replacement.0, index);
+                start = index + search.0.len();
+                if !all || (search.0.is_empty() && index == self.0.len()) { break; }
+                from = start + usize::from(search.0.is_empty());
+            }
+            out.extend_from_slice(&self.0[start..]); Self(out)
+        }
+        pub fn trim(&self, start: bool, end: bool, rust: bool) -> Self {
+            let whitespace = |unit: u16| char::from_u32(unit as u32).map_or(false, |c| if rust { c.is_whitespace() } else { (c.is_whitespace() && c != '\u{85}') || c == '\u{feff}' });
+            let mut first = 0; let mut last = self.0.len();
+            if start { while first < last && whitespace(self.0[first]) { first += 1; } }
+            if end { while last > first && whitespace(self.0[last - 1]) { last -= 1; } }
+            Self(self.0[first..last].to_vec())
+        }
+        pub fn map_case(&self, upper: bool) -> Self {
+            let mut out = Vec::new(); let mut run = String::new();
+            let flush = |run: &mut String, out: &mut Vec<u16>| { let mapped = if upper { run.to_uppercase() } else { run.to_lowercase() }; out.extend(mapped.encode_utf16()); run.clear(); };
+            for scalar in char::decode_utf16(self.0.iter().copied()) {
+                match scalar { Ok(c) => run.push(c), Err(error) => { flush(&mut run, &mut out); out.push(error.unpaired_surrogate()); } }
+            }
+            flush(&mut run, &mut out); Self(out)
+        }
+    }
+    pub fn join(values: &[Text], separator: &Text) -> Text {
+        let mut units = Vec::new();
+        for (index, value) in values.iter().enumerate() { if index != 0 { units.extend_from_slice(&separator.0); } units.extend_from_slice(&value.0); }
+        Text(units)
+    }
+    pub fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    pub fn absolute(value: f64, length: usize) -> usize { integer(value).max(0.0).min(length as f64) as usize }
+    pub fn relative(value: f64, length: usize) -> usize { let value = integer(value); if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize } }
+    fn uint32(value: f64) -> u32 { if !value.is_finite() || value == 0.0 { 0 } else { value.trunc().rem_euclid(4294967296.0) as u32 } }
+    fn substitute(out: &mut Vec<u16>, text: &[u16], search: &[u16], replacement: &[u16], position: usize) {
+        let mut index = 0;
+        while index < replacement.len() {
+            if replacement[index] == 36 && index + 1 < replacement.len() {
+                match replacement[index + 1] {
+                    36 => { out.push(36); index += 2; continue; }
+                    38 => { out.extend_from_slice(search); index += 2; continue; }
+                    96 => { out.extend_from_slice(&text[..position]); index += 2; continue; }
+                    39 => { out.extend_from_slice(&text[position + search.len()..]); index += 2; continue; }
+                    _ => {}
+                }
+            }
+            out.push(replacement[index]); index += 1;
+        }
+    }
+}
+
+pub fn example_constructor_pattern(ctor: (crate::ml_string::Text, Vec<f64>)) -> crate::ml_string::Text {
+    if (((((ctor.clone()).1).len() as f64)) == (0f64)) {
+        (ctor.clone()).0
+    } else {
+        (((crate::ml_string::Text::from_units(vec![40])).concat(&(ctor.clone()).0)).concat(&(crate::ml_string::Text::from_units(vec![32, 95])).repeat((((ctor.clone()).1).len() as f64)))).concat(&crate::ml_string::Text::from_units(vec![41]))
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_isPiSig@218989 target-sha256=5a5de3e63b7e9f8d4902a0055825355446d63ee55d488083291cc4af76b63bc9
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn _is_pi_sig(node: Vec<String>) -> bool {
+    (({
+        let ml_array_test1 = node.clone();
+        true
+    } && (((node.len() as f64)) == (3f64))) && match (crate::ml_array::optional_at(&node, crate::ml_array::number_index(0f64)), String::from("Pi")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false })
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#decideAutomaticSequenceTheorem@235140 target-sha256=420eb3fc7df2f6696bb7204ada8f40c1e0e5074120861b94f36a228426fef6ac
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+pub fn decide_automatic_sequence_theorem(name: String) -> Option<(Vec<String>, String, String, bool)> {
+    if (name == "thue-morse-cube-free") {
+        Some({
+            let ml_field1 = name.clone();
+            {
+                let ml_field2 = true;
+                {
+                    let ml_field3 = String::from("built-in Buchi emptiness certificate");
+                    {
+                        let ml_field4 = vec![String::from("buchi-emptiness"), String::from("thue-morse"), String::from("cube-free")];
+                        (ml_field4.clone(), ml_field3.clone(), ml_field1.clone(), ml_field2)
+                    }
+                }
+            }
+        })
+    } else {
+        None::<(Vec<String>, String, String, bool)>
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_isForallNode@268074 target-sha256=28b1627795270fdb91dfad4c254795112beb9bd083ae36e3863ac4811acc8926
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn _is_forall_node(node: Vec<String>) -> bool {
+    ((({
+        let ml_array_test1 = node.clone();
+        true
+    } && (((node.len() as f64)) == (3f64))) && match (crate::ml_array::optional_at(&node, crate::ml_array::number_index(0f64)), String::from("forall")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false }) && ((match crate::ml_array::optional_at(&node, crate::ml_array::number_index(1f64)) { Some(ml_present) => { let _ = ml_present; String::from("string") }, None => String::from("undefined") }) == "string"))
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#_unquotePath@314231 target-sha256=b85622870c863ecd0b5616a981648c820d165155480d50f578e59e638acf87ce
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn _unquote_path(s: Vec<String>) -> Vec<String> {
+    if ("object" != "string") {
+        s.clone()
+    } else {
+        if (((((s.len() as f64)) >= (2f64)) && (match (crate::ml_array::optional_at(&s, crate::ml_array::number_index(0f64)), String::from("\"")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false } || match (crate::ml_array::optional_at(&s, crate::ml_array::number_index(0f64)), String::from("'")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false })) && match (crate::ml_array::optional_at(&s, crate::ml_array::number_index(((s.len() as f64) - 1f64))), crate::ml_array::optional_at(&s, crate::ml_array::number_index(0f64))) { (Some(ml_left), Some(ml_right)) => ml_left == ml_right, (None, None) => true, _ => false }) {
+            crate::ml_array::slice(&s, 1f64, (-1f64))
+        } else {
+            s.clone()
+        }
+    }
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#isProbabilityAssignment@328782 target-sha256=78c641a558efb009a356c3f1d8f7d23d55de6e0a9e0811fc75aa13283c942f17
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn is_probability_assignment(node: Vec<String>) -> bool {
+    ((({
+        let ml_array_test1 = node.clone();
+        true
+    } && (((node.len() as f64)) == (4f64))) && match (crate::ml_array::optional_at(&node, crate::ml_array::number_index(1f64)), String::from("has")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false }) && match (crate::ml_array::optional_at(&node, crate::ml_array::number_index(2f64)), String::from("probability")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false })
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}
+// rml-certified-item js/src/rml-links.mjs#isQueryForm@328939 target-sha256=1a71152797155aeacbd76e7d4217c1b1e38beee398ed2e533004ad6152f4aeea
+// Translated from JavaScript by meta-language: portable core, Rust target.
+#![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
+
+/// Reads of JavaScript arrays, which the portable core never mutates.
+pub mod ml_array {
+    pub fn optional_at<T: Clone>(values: &[T], index: Option<usize>) -> Option<T> {
+        index.and_then(|index| values.get(index)).cloned()
+    }
+    /// The element at an index; a read outside the array, undefined in
+    /// JavaScript, aborts.
+    pub fn at<T: Clone>(values: &[T], index: Option<usize>) -> T {
+        match index.and_then(|index| values.get(index)) {
+            Some(value) => value.clone(),
+            None => panic!("array index out of range"),
+        }
+    }
+
+    /// The index a Number names: a non-negative integer, -0 included.
+    pub fn number_index(index: f64) -> Option<usize> {
+        if index >= 0.0 && index.fract() == 0.0 && index < 9007199254740992.0 {
+            Some(index as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn append<T>(mut left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        left.extend(right);
+        left
+    }
+    fn integer(value: f64) -> f64 { if value.is_nan() { 0.0 } else { value.trunc() } }
+    fn relative(value: f64, length: usize) -> usize {
+        let value = integer(value);
+        if value < 0.0 { (length as f64 + value).max(0.0) as usize } else { value.min(length as f64) as usize }
+    }
+    pub fn slice<T: Clone>(values: &[T], start: f64, end: f64) -> Vec<T> {
+        let start = relative(start, values.len()); let end = relative(end, values.len());
+        values[start..end.max(start)].to_vec()
+    }
+    pub fn index_of<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> f64 {
+        if values.is_empty() { return -1.0; }
+        let from = integer(from);
+        if reverse {
+            if from < -(values.len() as f64) { return -1.0; }
+            let start = if from < 0.0 { (values.len() as f64 + from) as usize } else { from.min((values.len() - 1) as f64) as usize };
+            (0..=start).rev().find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        } else {
+            let start = if from < 0.0 { (values.len() as f64 + from).max(0.0) as usize } else { from.min(values.len() as f64) as usize };
+            (start..values.len()).find(|&index| equal(&values[index], search)).map_or(-1.0, |index| index as f64)
+        }
+    }
+    pub fn includes<T, F: Fn(&T, &T) -> bool>(values: &[T], search: &T, from: f64, reverse: bool, equal: F) -> bool {
+        index_of(values, search, from, reverse, equal) >= 0.0
+    }
+    pub fn set<T, F: Fn(&T, &T) -> bool>(values: Vec<T>, equal: F) -> Vec<T> {
+        let mut out = Vec::new();
+        for value in values { if !out.iter().any(|previous| equal(previous, &value)) { out.push(value); } }
+        out
+    }
+    pub fn map<K, V, F: Fn(&K, &K) -> bool>(values: Vec<(K, V)>, equal: F) -> Vec<(K, V)> {
+        let mut out: Vec<(K, V)> = Vec::new();
+        for (key, value) in values {
+            if let Some(index) = out.iter().position(|(previous, _)| equal(previous, &key)) { out[index].1 = value; }
+            else { out.push((key, value)); }
+        }
+        out
+    }
+}
+
+pub fn is_query_form(node: Vec<String>) -> bool {
+    ({
+        let ml_array_test1 = node.clone();
+        true
+    } && match (crate::ml_array::optional_at(&node, crate::ml_array::number_index(0f64)), String::from("?")) { (Some(ml_left), ml_right) => ml_left == ml_right, _ => false })
+}
+
+fn ml_main() {
+
+}
+
+// Deep recursion in the source is not bounded by a small native stack.
+fn main() {
+    let check = std::env::args().any(|argument| argument == "--ml-check-theorems");
+    let worker = std::thread::Builder::new()
+        .stack_size(1 << 28)
+        .spawn(move || { ml_main() })
+        .expect("spawn the program thread");
+    if worker.join().is_err() {
+        std::process::exit(101);
+    }
+}

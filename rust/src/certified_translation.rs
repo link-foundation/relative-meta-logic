@@ -175,7 +175,9 @@ fn atom_text(text: &str) -> String {
     if !text.contains('\'') && !newline {
         return format!("'{text}'");
     }
-    format!("(percent-encoded {})", encode_uri_component(text))
+    // encodeURIComponent keeps parentheses, which would unbalance the Links form.
+    let encoded = encode_uri_component(text).replace('(', "%28").replace(')', "%29");
+    format!("(percent-encoded {encoded})")
 }
 
 fn serialize_indented(node: &LinksNode, indent: &str) -> String {

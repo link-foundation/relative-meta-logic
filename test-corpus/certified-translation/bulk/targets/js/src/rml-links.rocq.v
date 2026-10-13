@@ -1,0 +1,389 @@
+(* rml-certified-item js/src/rml-links.mjs#clamp01@4365 target-sha256=1be47a347bab2feb51a187e272db6b3b861445311021e6380cda375518385347 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* Math.trunc, exactly from the binary form: towards zero, a zero result
+   keeping the sign of the argument. *)
+Definition ml_trunc (x : float) : float :=
+  match Prim2SF x with
+  | S754_finite negative m e =>
+      if Z.leb 0 e then x
+      else
+        let magnitude := PrimFloat.of_uint63 (Uint63.of_Z (Z.div (Z.pos m) (2 ^ (- e)))) in
+        if negative then PrimFloat.opp magnitude else magnitude
+  | _ => x
+  end.
+Definition ml_floor (x : float) : float :=
+  let t := ml_trunc x in if PrimFloat.ltb x t then PrimFloat.sub t 1%float else t.
+Definition ml_ceil (x : float) : float :=
+  let t := ml_trunc x in if PrimFloat.ltb t x then PrimFloat.add t 1%float else t.
+(* Math.round: the nearest integer, the one towards +Infinity on a tie, and -0
+   from -0.5 up to 0. *)
+Definition ml_round (x : float) : float :=
+  if orb (orb (PrimFloat.is_nan x) (PrimFloat.is_infinity x)) (PrimFloat.is_zero x) then x
+  else if andb (PrimFloat.ltb 0%float x) (PrimFloat.ltb x 0.5%float) then 0%float
+  else if andb (PrimFloat.ltb x 0%float) (PrimFloat.leb (PrimFloat.opp 0.5%float) x) then PrimFloat.opp 0%float
+  else let f := ml_floor x in if PrimFloat.leb 0.5%float (PrimFloat.sub x f) then PrimFloat.add f 1%float else f.
+(* Math.sign: 1 or -1, and -0, 0 and NaN as they are. *)
+Definition ml_sign (x : float) : float :=
+  if PrimFloat.ltb 0%float x then 1%float else if PrimFloat.ltb x 0%float then PrimFloat.opp 1%float else x.
+(* Math.max and Math.min of two Numbers: NaN when either is, and 0 above -0. *)
+Definition ml_max (a b : float) : float :=
+  if PrimFloat.ltb b a then a else if PrimFloat.ltb a b then b
+  else if PrimFloat.eqb a b then (if PrimFloat.get_sign a then b else a) else PrimFloat.nan.
+Definition ml_min (a b : float) : float :=
+  if PrimFloat.ltb a b then a else if PrimFloat.ltb b a then b
+  else if PrimFloat.eqb a b then (if PrimFloat.get_sign a then a else b) else PrimFloat.nan.
+Definition ml_is_finite (x : float) : bool := negb (orb (PrimFloat.is_nan x) (PrimFloat.is_infinity x)).
+Definition ml_is_integer (x : float) : bool := andb (ml_is_finite x) (PrimFloat.eqb (ml_trunc x) x).
+Definition ml_is_safe_integer (x : float) : bool :=
+  andb (ml_is_integer x) (PrimFloat.leb (PrimFloat.abs x) 9007199254740991%float).
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition clamp01 (x : float) : float :=
+  (ml_max 0%float (ml_min 1%float x)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#quantize@7735 target-sha256=18d68c9ee0e92eb2768879bb076dcc6f0168b8b9153925b1493f0a30746d040c *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* Math.trunc, exactly from the binary form: towards zero, a zero result
+   keeping the sign of the argument. *)
+Definition ml_trunc (x : float) : float :=
+  match Prim2SF x with
+  | S754_finite negative m e =>
+      if Z.leb 0 e then x
+      else
+        let magnitude := PrimFloat.of_uint63 (Uint63.of_Z (Z.div (Z.pos m) (2 ^ (- e)))) in
+        if negative then PrimFloat.opp magnitude else magnitude
+  | _ => x
+  end.
+Definition ml_floor (x : float) : float :=
+  let t := ml_trunc x in if PrimFloat.ltb x t then PrimFloat.sub t 1%float else t.
+Definition ml_ceil (x : float) : float :=
+  let t := ml_trunc x in if PrimFloat.ltb t x then PrimFloat.add t 1%float else t.
+(* Math.round: the nearest integer, the one towards +Infinity on a tie, and -0
+   from -0.5 up to 0. *)
+Definition ml_round (x : float) : float :=
+  if orb (orb (PrimFloat.is_nan x) (PrimFloat.is_infinity x)) (PrimFloat.is_zero x) then x
+  else if andb (PrimFloat.ltb 0%float x) (PrimFloat.ltb x 0.5%float) then 0%float
+  else if andb (PrimFloat.ltb x 0%float) (PrimFloat.leb (PrimFloat.opp 0.5%float) x) then PrimFloat.opp 0%float
+  else let f := ml_floor x in if PrimFloat.leb 0.5%float (PrimFloat.sub x f) then PrimFloat.add f 1%float else f.
+(* Math.sign: 1 or -1, and -0, 0 and NaN as they are. *)
+Definition ml_sign (x : float) : float :=
+  if PrimFloat.ltb 0%float x then 1%float else if PrimFloat.ltb x 0%float then PrimFloat.opp 1%float else x.
+(* Math.max and Math.min of two Numbers: NaN when either is, and 0 above -0. *)
+Definition ml_max (a b : float) : float :=
+  if PrimFloat.ltb b a then a else if PrimFloat.ltb a b then b
+  else if PrimFloat.eqb a b then (if PrimFloat.get_sign a then b else a) else PrimFloat.nan.
+Definition ml_min (a b : float) : float :=
+  if PrimFloat.ltb a b then a else if PrimFloat.ltb b a then b
+  else if PrimFloat.eqb a b then (if PrimFloat.get_sign a then a else b) else PrimFloat.nan.
+Definition ml_is_finite (x : float) : bool := negb (orb (PrimFloat.is_nan x) (PrimFloat.is_infinity x)).
+Definition ml_is_integer (x : float) : bool := andb (ml_is_finite x) (PrimFloat.eqb (ml_trunc x) x).
+Definition ml_is_safe_integer (x : float) : bool :=
+  andb (ml_is_integer x) (PrimFloat.leb (PrimFloat.abs x) 9007199254740991%float).
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition quantize (x : float) (valence : float) (lo : float) (hi : float) : float :=
+  (if (PrimFloat.ltb valence 2%float) then x else (let step := (PrimFloat.div (PrimFloat.sub hi lo) (PrimFloat.sub valence 1%float)) in (let level := (ml_round (PrimFloat.div (PrimFloat.sub x lo) step)) in (PrimFloat.add lo (PrimFloat.mul (ml_max 0%float (ml_min (PrimFloat.sub valence 1%float) level)) step))))).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#_isStrictlyOffendingStatus@114116 target-sha256=902ba3fe4ad0903014866234993753b21b98b1fb08e86d96783986ad6cca3af7 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition _isStrictlyOffendingStatus (status : string) : bool :=
+  (orb (String.eqb status "host-primitive"%string) (String.eqb status "host-derived"%string)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#tokenBaseName@122238 target-sha256=439fc15e9f7e314cb5c59bd1fc7f41c66d5dce4d6652cb00c00a80776522b11b *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition tokenBaseName (token : (option float)) : (option float) :=
+  (if (negb (String.eqb (match token with | Some ml_present => "number"%string | None => "object"%string end) "string"%string)) then (@None float) else token).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#_isTacticNode@143276 target-sha256=339df1b8009f84ca47951e14807f23c723ee3b243fd2e0ee3e8d30c5c67a266e *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* The index a Number names, exactly from its binary form; -1 when it names none. *)
+Definition ml_float_index (x : float) : Z :=
+  match Prim2SF x with
+  | S754_zero _ => 0%Z
+  | S754_finite false m e =>
+      if Z.leb 0 e then Z.shiftl (Z.pos m) e
+      else if Z.eqb (Z.modulo (Z.pos m) (2 ^ (- e))) 0 then Z.div (Z.pos m) (2 ^ (- e)) else (-1)%Z
+  | _ => (-1)%Z
+  end.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition _isTacticNode (value : (list float)) : bool :=
+  (andb (andb (let ml_array_test1 := value in true) (PrimFloat.ltb 0%float (PrimFloat.of_uint63 (Uint63.of_Z (Z.of_nat (List.length value)))))) (String.eqb (match (let ml_index := (ml_float_index 0%float) in if Z.ltb ml_index 0 then None else List.nth_error value (Z.to_nat ml_index)) with | Some ml_present => "number"%string | None => "undefined"%string end) "string"%string)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#_asEquality@143966 target-sha256=f97e95e33a48813ba988c9db2d55af74f3b46448d7142738297aa59ef02cd016 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* The index a Number names, exactly from its binary form; -1 when it names none. *)
+Definition ml_float_index (x : float) : Z :=
+  match Prim2SF x with
+  | S754_zero _ => 0%Z
+  | S754_finite false m e =>
+      if Z.leb 0 e then Z.shiftl (Z.pos m) e
+      else if Z.eqb (Z.modulo (Z.pos m) (2 ^ (- e))) 0 then Z.div (Z.pos m) (2 ^ (- e)) else (-1)%Z
+  | _ => (-1)%Z
+  end.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition _asEquality (node : (list string)) : (option ((option string) * (option string))%type) :=
+  (if (andb (andb (let ml_array_test1 := node in true) (PrimFloat.eqb (PrimFloat.of_uint63 (Uint63.of_Z (Z.of_nat (List.length node)))) 3%float)) (match ((let ml_index := (ml_float_index 1%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)), "="%string) with | (Some ml_left, ml_right) => (String.eqb ml_left ml_right) | _ => false end)) then (Some (let ml_field2 := (let ml_index := (ml_float_index 0%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)) in (let ml_field3 := (let ml_index := (ml_float_index 2%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)) in (ml_field2, ml_field3)))) else (@None ((option string) * (option string))%type)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#_smtLeaf@147393 target-sha256=3476d10c207f02ac090ef23adc047bb10f4db774305ef26c3b482ea08ab49091 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition _smtLeaf (node : float) (value : float) : bool :=
+  (andb (String.eqb "number"%string "string"%string) (PrimFloat.eqb node value)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#_typeAscription@166700 target-sha256=6aaf644c07e26a56ad96a8980715cba335ea4640c3ba95cc4480dd26a8880919 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* The index a Number names, exactly from its binary form; -1 when it names none. *)
+Definition ml_float_index (x : float) : Z :=
+  match Prim2SF x with
+  | S754_zero _ => 0%Z
+  | S754_finite false m e =>
+      if Z.leb 0 e then Z.shiftl (Z.pos m) e
+      else if Z.eqb (Z.modulo (Z.pos m) (2 ^ (- e))) 0 then Z.div (Z.pos m) (2 ^ (- e)) else (-1)%Z
+  | _ => (-1)%Z
+  end.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition _typeAscription (node : (list string)) : (option ((option string) * (option string))%type) :=
+  (if (andb (andb (let ml_array_test1 := node in true) (PrimFloat.eqb (PrimFloat.of_uint63 (Uint63.of_Z (Z.of_nat (List.length node)))) 3%float)) (match ((let ml_index := (ml_float_index 1%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)), "of"%string) with | (Some ml_left, ml_right) => (String.eqb ml_left ml_right) | _ => false end)) then (Some (let ml_field2 := (let ml_index := (ml_float_index 0%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)) in (let ml_field3 := (let ml_index := (ml_float_index 2%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)) in (ml_field2, ml_field3)))) else (@None ((option string) * (option string))%type)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#_isPiSig@218989 target-sha256=f638d393e10f0ee67e837bcbe4eb2450293e365a9e646b14a27bc250339aebe7 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* The index a Number names, exactly from its binary form; -1 when it names none. *)
+Definition ml_float_index (x : float) : Z :=
+  match Prim2SF x with
+  | S754_zero _ => 0%Z
+  | S754_finite false m e =>
+      if Z.leb 0 e then Z.shiftl (Z.pos m) e
+      else if Z.eqb (Z.modulo (Z.pos m) (2 ^ (- e))) 0 then Z.div (Z.pos m) (2 ^ (- e)) else (-1)%Z
+  | _ => (-1)%Z
+  end.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition _isPiSig (node : (list string)) : bool :=
+  (andb (andb (let ml_array_test1 := node in true) (PrimFloat.eqb (PrimFloat.of_uint63 (Uint63.of_Z (Z.of_nat (List.length node)))) 3%float)) (match ((let ml_index := (ml_float_index 0%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)), "Pi"%string) with | (Some ml_left, ml_right) => (String.eqb ml_left ml_right) | _ => false end)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#decideAutomaticSequenceTheorem@235140 target-sha256=3f892540e4f1e9f226aa7d9dae162fae6a8b3836b377b4b0498dc338a5dc7111 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition decideAutomaticSequenceTheorem (name : string) : (option ((list string) * string * string * bool)%type) :=
+  (if (String.eqb name "thue-morse-cube-free"%string) then (Some (let ml_field1 := name in (let ml_field2 := true in (let ml_field3 := "built-in Buchi emptiness certificate"%string in (let ml_field4 := ("buchi-emptiness"%string :: "thue-morse"%string :: "cube-free"%string :: @nil string) in (ml_field4, ml_field3, ml_field1, ml_field2)))))) else (@None ((list string) * string * string * bool)%type)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#_isForallNode@268074 target-sha256=a37c9c6b12e019906a303c8bbc21fbce12eb24892a512129353374d14ea68275 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* The index a Number names, exactly from its binary form; -1 when it names none. *)
+Definition ml_float_index (x : float) : Z :=
+  match Prim2SF x with
+  | S754_zero _ => 0%Z
+  | S754_finite false m e =>
+      if Z.leb 0 e then Z.shiftl (Z.pos m) e
+      else if Z.eqb (Z.modulo (Z.pos m) (2 ^ (- e))) 0 then Z.div (Z.pos m) (2 ^ (- e)) else (-1)%Z
+  | _ => (-1)%Z
+  end.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition _isForallNode (node : (list string)) : bool :=
+  (andb (andb (andb (let ml_array_test1 := node in true) (PrimFloat.eqb (PrimFloat.of_uint63 (Uint63.of_Z (Z.of_nat (List.length node)))) 3%float)) (match ((let ml_index := (ml_float_index 0%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)), "forall"%string) with | (Some ml_left, ml_right) => (String.eqb ml_left ml_right) | _ => false end)) (String.eqb (match (let ml_index := (ml_float_index 1%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)) with | Some ml_present => "string"%string | None => "undefined"%string end) "string"%string)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#isProbabilityAssignment@328782 target-sha256=5b13eeb736f85447add3866631d22884c23707d136f9ab3af1b72322eb44415b *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* The index a Number names, exactly from its binary form; -1 when it names none. *)
+Definition ml_float_index (x : float) : Z :=
+  match Prim2SF x with
+  | S754_zero _ => 0%Z
+  | S754_finite false m e =>
+      if Z.leb 0 e then Z.shiftl (Z.pos m) e
+      else if Z.eqb (Z.modulo (Z.pos m) (2 ^ (- e))) 0 then Z.div (Z.pos m) (2 ^ (- e)) else (-1)%Z
+  | _ => (-1)%Z
+  end.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition isProbabilityAssignment (node : (list string)) : bool :=
+  (andb (andb (andb (let ml_array_test1 := node in true) (PrimFloat.eqb (PrimFloat.of_uint63 (Uint63.of_Z (Z.of_nat (List.length node)))) 4%float)) (match ((let ml_index := (ml_float_index 1%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)), "has"%string) with | (Some ml_left, ml_right) => (String.eqb ml_left ml_right) | _ => false end)) (match ((let ml_index := (ml_float_index 2%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)), "probability"%string) with | (Some ml_left, ml_right) => (String.eqb ml_left ml_right) | _ => false end)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item js/src/rml-links.mjs#isQueryForm@328939 target-sha256=0462c2b3fb5cb29f95600dd6ea96f78081b6f79f83ce8d09d54fc8af26720e81 *)
+(* Translated from JavaScript by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+(* The index a Number names, exactly from its binary form; -1 when it names none. *)
+Definition ml_float_index (x : float) : Z :=
+  match Prim2SF x with
+  | S754_zero _ => 0%Z
+  | S754_finite false m e =>
+      if Z.leb 0 e then Z.shiftl (Z.pos m) e
+      else if Z.eqb (Z.modulo (Z.pos m) (2 ^ (- e))) 0 then Z.div (Z.pos m) (2 ^ (- e)) else (-1)%Z
+  | _ => (-1)%Z
+  end.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition isQueryForm (node : (list string)) : bool :=
+  (andb (let ml_array_test1 := node in true) (match ((let ml_index := (ml_float_index 0%float) in if Z.ltb ml_index 0 then None else List.nth_error node (Z.to_nat ml_index)), "?"%string) with | (Some ml_left, ml_right) => (String.eqb ml_left ml_right) | _ => false end)).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
