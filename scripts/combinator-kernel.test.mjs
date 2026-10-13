@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -63,4 +63,39 @@ test('the one-name iota basis exposes the same two residual contractions', () =>
     observedExternalOperations: ['contract-k-link', 'contract-s-link'],
     semanticInformationReduced: false,
   });
+});
+
+test('rejects a drifted source as the authority for the checked-in artifact', () => {
+  const source = readFileSync(
+    new URL('../lib/meta-theory/fixed-point-source.lino', import.meta.url),
+    'utf8',
+  );
+  const artifact = readFileSync(
+    new URL('../lib/meta-theory/fixed-point.ski', import.meta.url),
+    'utf8',
+  );
+  // Changing one addressed node yields a different artifact, and dropping one
+  // breaks the declared node count, so neither can stand in for the source.
+  const changed = source.replace(
+    '(bootstrap-source-node n3 (variable no))',
+    '(bootstrap-source-node n3 (variable yes))',
+  );
+  assert.notEqual(changed, source);
+  assert.notEqual(serializeCombinatorSource(changed), artifact);
+  const dropped = source.replace('(bootstrap-source-node n15 (lambda nil n14))\n', '');
+  assert.notEqual(dropped, source);
+  assert.throws(
+    () => serializeCombinatorSource(dropped),
+    /fixed-point bootstrap source counts do not match its declaration/,
+  );
+});
+
+test('keeps no host-language semantic description in the runtime', () => {
+  const runtimeDirectory = new URL('../js/src/', import.meta.url);
+  for (const file of readdirSync(runtimeDirectory).filter(name => name.endsWith('.mjs'))) {
+    const text = readFileSync(new URL(file, runtimeDirectory), 'utf8');
+    // The generator lives in scripts/ and the runtime never imports it.
+    assert.doesNotMatch(text, /from ['"][^'"]*scripts\//, file);
+    assert.doesNotMatch(text, /function\s+buildSourceKernel|buildSourceKernel\s*\(/, file);
+  }
 });
