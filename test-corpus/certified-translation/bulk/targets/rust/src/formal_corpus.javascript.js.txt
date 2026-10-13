@@ -11,3 +11,21 @@ function main() {
 }
 
 main();
+// rml-certified-item rust/src/formal_corpus.rs#FormalToken@369 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/formal_corpus.rs#Contract@1635 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();

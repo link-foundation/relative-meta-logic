@@ -34,3 +34,39 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
+(* rml-certified-item rust/src/portable_natural.rs#PortableError@1518 target-sha256=5d543795978318e4a1698bb89bc5835eb534d36e7dc5df5c708dda1c32484521 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive PortableError : Type :=
+| PortableError_2 : string -> string -> N -> PortableError.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/portable_natural.rs#Token@2914 target-sha256=44978bb22c7e1c15acedba0b705526cdc065db81ec6f9252817a466c77359bfb *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive Token : Type :=
+| Token_2 : string -> N -> N -> Token.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

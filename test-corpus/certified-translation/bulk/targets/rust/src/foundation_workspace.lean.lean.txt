@@ -166,6 +166,196 @@ def HYPOTHESIS_PROGRAM : String :=
 
 def main : IO Unit := do
   pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#ResultStatus@3728 target-sha256=8c93ceaeb7e22d80ba916f7cde97537958fa86cee24e8b207f1255e95fbd2955
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive ResultStatus where
+  | ResultStatus (field0 : String) (field1 : String) (field2 : Bool) (field3 : Bool) : ResultStatus
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#OutcomeKind@5692 target-sha256=36bf3276155ab58098e2b8024fa9a697b4a27c225579918da0b972475f43dbb3
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive OutcomeKind where
+  | OutcomeKind (field0 : String) (field1 : String) (field2 : Bool) (field3 : String) : OutcomeKind
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#ReplayCheck@8716 target-sha256=90f23f3caa9fdcc5ad2cc3abbf2998e43d16c90b2ad82cb8dfc3b4441c5c00b6
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive ReplayCheck where
+  | ReplayCheck (field0 : String) (field1 : Bool) (field2 : String) (field3 : Nat) : ReplayCheck
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#FoundationRole@14479 target-sha256=cc4a42750477d44a3de71a4dca7028142bd9592277e0a780e11c0bee7bc1d046
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive FoundationRole where
+  | FoundationRole (field0 : String) (field1 : String) : FoundationRole
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#FoundationRef@14649 target-sha256=11317d76913e04a798fa4436b4ad199995b0709e706b646f1060bd66ae06ad30
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive FoundationRef where
+  | FoundationRef (field0 : String) (field1 : String) : FoundationRef
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#Rebinding@14815 target-sha256=54f349f6bdd1713969e7a2c22c2ac6c19a27c878ffb9ea0539bab08c5da4beaa
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive Rebinding where
+  | Rebinding (field0 : String) (field1 : String) : Rebinding
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#Guard@15405 target-sha256=309e8012c92fdafdb7fc203bda7cd671499d1d9f8c2b1c7da24ae88d27204088
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive Guard where
+  | Guard (field0 : String) (field1 : String) : Guard
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#RoleDeclaration@15851 target-sha256=532552b7afc97ad49cd406c7c8523bd4116c5958e8f557dd4ee20584f844541c
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive FoundationRef where
+  | FoundationRef (field0 : String) (field1 : String) : FoundationRef
+  deriving Repr, DecidableEq, Inhabited
+
+inductive RoleDeclaration where
+  | RoleDeclaration (field0 : String) (field1 : String) (field2 : String) (field3 : FoundationRef) : RoleDeclaration
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#RuleDescription@16093 target-sha256=0d3edb30488d50e39e995f598eedcfd83683a95fe44b1b8e9ca572bc9b523bd7
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive RuleDescription where
+  | RuleDescription (field0 : String) (field1 : String) (field2 : String) (field3 : String) : RuleDescription
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#ClosureMember@18639 target-sha256=13a8f061d8911cd8d2a75cb829c6f96d24621b56336aca81fe44b7ebe5fa1df9
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive ClosureMember where
+  | ClosureMember (field0 : String) (field1 : String) : ClosureMember
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#FoundationBounds@19170 target-sha256=50caa7593c30894540cf397c092c94fe14495a6447352bf42a6774870a827cd9
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive FoundationBounds where
+  | FoundationBounds (field0 : Nat) (field1 : Nat) (field2 : Nat) : FoundationBounds
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#ExecutionBounds@20781 target-sha256=2913a5c9831af4fd6e09f79795512418ecd664970db0d1516a79dc23f655f03b
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive ExecutionBounds where
+  | ExecutionBounds (field0 : Nat) : ExecutionBounds
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#RoleEntry@22907 target-sha256=cda3f171c3e6ef444e00d3cdba2d81003a0ae55876726d2440cacf5b45df7ed8
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive FoundationRef where
+  | FoundationRef (field0 : String) (field1 : String) : FoundationRef
+  deriving Repr, DecidableEq, Inhabited
+
+inductive RoleEntry where
+  | RoleEntry (field0 : String) (field1 : String) (field2 : FoundationRef) : RoleEntry
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/foundation_workspace.rs#SynthesizedNames@23763 target-sha256=3d1a34f7b635f1582b096d6d0e41492dc99fc81e80a4f62966400a29ab4d3043
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SynthesizedNames where
+  | SynthesizedNames (field0 : String) (field1 : String) (field2 : String) (field3 : String) : SynthesizedNames
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
 -- rml-certified-item rust/src/foundation_workspace.rs#rule_key@27610 target-sha256=78d0e7be08a9d2110ec329e776f79e2e4e9717eed609ceb4ab666a41546b6be6
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.

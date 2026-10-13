@@ -254,6 +254,10 @@
       "sha256": "31a7492c180268241398b06f00d37ed2c7c4e621ee734bb55794d2f47852ed0f"
     },
     {
+      "path": "lib/meta-theory/proof-verifier-natural.lino",
+      "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+    },
+    {
       "path": "lib/meta-theory/proof-verifier.lino",
       "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
     },
@@ -271,7 +275,7 @@
     },
     {
       "path": "lib/meta-theory/upstream-0.0.3-native-conversion.lino",
-      "sha256": "eebabfcee597e265b90a4ff21d9aa6189a1153f50b942c099d0f80e06f3a02cf"
+      "sha256": "3326ee477fff3aa366c19ae5f84c32d15dcf4fc978118133657dc94c417856b2"
     },
     {
       "path": "lib/meta-theory/upstream-0.0.3-native.lino",
@@ -4573,6 +4577,80 @@
       }
     },
     {
+      "input": "lib/meta-theory/proof-verifier-natural.lino",
+      "mode": "run",
+      "status": 0,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      }
+    },
+    {
+      "input": "lib/meta-theory/proof-verifier-natural.lino",
+      "mode": "trace",
+      "status": 0,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "971cc62cf76a92535f883230ea1d5965d023ceb5b34e8442f9610e9192bf847d",
+        "bytes": 22720
+      }
+    },
+    {
+      "input": "lib/meta-theory/proof-verifier-natural.lino",
+      "mode": "extract-js",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "3e0d491cfc6d0c3b205cf90331d8ec08f4cbce0a762a811efced89bc8b6cf42c",
+        "bytes": 110,
+        "text": "Cannot extract unsupported form \"(linked-program linked-proof-verifier-natural (uses linked-proof-verifier))\"\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/proof-verifier-natural.lino",
+      "mode": "extract-rust",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "3e0d491cfc6d0c3b205cf90331d8ec08f4cbce0a762a811efced89bc8b6cf42c",
+        "bytes": 110,
+        "text": "Cannot extract unsupported form \"(linked-program linked-proof-verifier-natural (uses linked-proof-verifier))\"\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/proof-verifier-natural.lino",
+      "mode": "export-rocq",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "b7ca593f2fe2a6e51c60832dc8d1e0fb8b17b08e49ead47010c328f2b5878535",
+        "bytes": 146,
+        "text": "Rocq export error: top-level form `(linked-program linked-proof-verifier-natural (uses linked-proof-verifier))` is outside the Rocq export subset\n"
+      }
+    },
+    {
       "input": "lib/meta-theory/proof-verifier.lino",
       "mode": "run",
       "status": 0,
@@ -4894,8 +4972,8 @@
         "text": ""
       },
       "stderr": {
-        "sha256": "ecd8f34f1f87476f2b4997d32d55aaacc8645db3f6ffc892e85f1e56c57bcc9d",
-        "bytes": 28004
+        "sha256": "a3ccfc5679be6a7f78d035112d56b79d64997235f45ffdefc9e33ae63ed4f759",
+        "bytes": 79637
       }
     },
     {

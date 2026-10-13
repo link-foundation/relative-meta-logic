@@ -11,3 +11,39 @@ function main() {
 }
 
 main();
+// rml-certified-item rust/src/meta_language_structure.rs#ExpansionBudget@21853 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/meta_language_structure.rs#RmlDeclaration@44386 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/meta_language_structure.rs#RmlBinder@44544 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/meta_language_structure.rs#RmlRenameError@72151 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();

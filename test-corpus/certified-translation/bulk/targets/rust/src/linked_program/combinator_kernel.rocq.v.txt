@@ -58,3 +58,21 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#KernelSourceSummary@1442 target-sha256=915bfad4eb43385090250d2477ac68ccd6d113a912f11e771b74b677a16e64c4 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive KernelSourceSummary : Type :=
+| KernelSourceSummary_2 : string -> string -> string -> string -> N -> N -> N -> KernelSourceSummary.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

@@ -1,0 +1,13 @@
+-- rml-certified-item rust/src/rocq.rs#RocqExportError@491 target-sha256=79919e0c0904068beeb58b3142451f73a0960ae8dd21db51a42210d6d5290904
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive RocqExportError where
+  | RocqExportError (field0 : String) : RocqExportError
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

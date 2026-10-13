@@ -121,3 +121,16 @@ def program_address (name : String) : String :=
 
 def main : IO Unit := do
   pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#ClosureRole@22999 target-sha256=29e3e212d0b3c226971afd2309aa6720fd4718ff9ce7aec564995d4c40af0d71
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive ClosureRole where
+  | ClosureRole (field0 : String) (field1 : String) : ClosureRole
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

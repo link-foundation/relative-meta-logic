@@ -24,3 +24,21 @@ function main() {
 }
 
 main();
+// rml-certified-item rust/src/portable_natural.rs#PortableError@1518 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/portable_natural.rs#Token@2914 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();

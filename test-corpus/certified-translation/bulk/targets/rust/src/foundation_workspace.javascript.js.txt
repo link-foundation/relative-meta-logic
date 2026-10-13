@@ -180,6 +180,132 @@ function main() {
 }
 
 main();
+// rml-certified-item rust/src/foundation_workspace.rs#ResultStatus@3728 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#OutcomeKind@5692 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#ReplayCheck@8716 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#FoundationRole@14479 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#FoundationRef@14649 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#Rebinding@14815 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#Guard@15405 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#RoleDeclaration@15851 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#RuleDescription@16093 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#ClosureMember@18639 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#FoundationBounds@19170 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#ExecutionBounds@20781 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#RoleEntry@22907 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#SynthesizedNames@23763 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
 // rml-certified-item rust/src/foundation_workspace.rs#rule_key@27610 target-sha256=045664ea20181907cb39f72fd6b9d8dcc4a2216158749d5489a2c0347cafa374
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';

@@ -16,6 +16,96 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
+(* rml-certified-item rust/src/theory_network.rs#Theory@772 target-sha256=ec26091021895e886a062d3f01d34da5fe3f9ee405c54c360f745055ccc52051 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive Theory : Type :=
+| Theory_2 : string -> string -> Theory.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/theory_network.rs#TheoryDefinition@881 target-sha256=284c763d6e1e5dcf9371d3f762e768c7f78b1710d445a1d57c6f2c4e534ec0f7 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive TheoryDefinition : Type :=
+| TheoryDefinition_2 : string -> string -> string -> string -> TheoryDefinition.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/theory_network.rs#TheoryWitness@1048 target-sha256=c0259b3da87c200aa8a43a26fcf3ad1ff36b33cfa7729317cdf0ae87257b7a51 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive TheoryWitness : Type :=
+| TheoryWitness_2 : string -> string -> string -> string -> TheoryWitness.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/theory_network.rs#TheoryTerm@1744 target-sha256=e972cd01d32ab91f10db3b81ab96cf93ddb855b5453aec72318801303005b528 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive TheoryTerm : Type :=
+| TheoryTerm_2 : string -> string -> string -> TheoryTerm.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/theory_network.rs#LinkNode@36752 target-sha256=6aed2f1408e094c50bafec127dc2dd283c4a2faf602ff1757f183e21cbca8e2b *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkNode : Type :=
+| LinkNode_2 : string -> string -> LinkNode.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
 (* rml-certified-item rust/src/theory_network.rs#SequenceLayout@48851 target-sha256=783ce3c6aa76398a2c1484844432a999bedbca4a6f0c56865fd50fd269d92f61 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.

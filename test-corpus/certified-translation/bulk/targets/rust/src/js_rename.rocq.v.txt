@@ -34,6 +34,66 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
+(* rml-certified-item rust/src/js_rename.rs#SourceLocation@1006 target-sha256=6e0a57237bb0f6173cddc4e65fb766f3006b3a43acd3729d280d9bd66f011b2d *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive SourceLocation : Type :=
+| SourceLocation_2 : N -> N -> N -> SourceLocation.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/js_rename.rs#IdentifierReplacement@1142 target-sha256=c7a67f4bd1625b18d19732f2f4a151fdef2bed7f97cc93646efeb6285d77fad4 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive SourceLocation : Type :=
+| SourceLocation_2 : N -> N -> N -> SourceLocation.
+
+Inductive IdentifierReplacement : Type :=
+| IdentifierReplacement_2 : string -> string -> SourceLocation -> SourceLocation -> IdentifierReplacement.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/js_rename.rs#Token@1575 target-sha256=c1b02837bdf76a6cf1325ead5a775ebdb599df2840735d59adfd87dfae22f9d6 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive SourceLocation : Type :=
+| SourceLocation_2 : N -> N -> N -> SourceLocation.
+
+Inductive Token : Type :=
+| Token_2 : string -> string -> SourceLocation -> SourceLocation -> N -> N -> Token.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
 (* rml-certified-item rust/src/js_rename.rs#fail@1901 target-sha256=3837d28aebc4189db7ee5b1397d82d5de8e7c780fddd9484cdbb05b900854232 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.

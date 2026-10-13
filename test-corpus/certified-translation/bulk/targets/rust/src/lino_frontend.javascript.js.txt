@@ -42,6 +42,33 @@ function main() {
 }
 
 main();
+// rml-certified-item rust/src/lino_frontend.rs#LinoParseError@5231 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/lino_frontend.rs#LogicalLine@16954 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/lino_frontend.rs#QuoteReference@17373 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
 // rml-certified-item rust/src/lino_frontend.rs#DROPPED_LINE@31975 target-sha256=970d7cd7216bc948af8d8475916f37b1e492e03c62bc3efca16e57691010e4a2
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
@@ -49,6 +76,15 @@ main();
 function DROPPED_LINE() {
   return "unexpected indentation under a value of an indented id";
 }
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/lino_frontend.rs#LinoForm@34239 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
 
 function main() {
 

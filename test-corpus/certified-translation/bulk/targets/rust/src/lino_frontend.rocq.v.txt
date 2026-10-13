@@ -61,6 +61,60 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
+(* rml-certified-item rust/src/lino_frontend.rs#LinoParseError@5231 target-sha256=cddd40ce17e505167a766a20babf99be3317372b1a33455057af8b5bc9a9b1b0 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinoParseError : Type :=
+| LinoParseError_2 : string -> N -> N -> N -> LinoParseError.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lino_frontend.rs#LogicalLine@16954 target-sha256=0d62605136fb3f9b3d6355480c35d29fe78664572d488c0a52dca82b99b087ca *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LogicalLine : Type :=
+| LogicalLine_2 : N -> N -> N -> LogicalLine.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lino_frontend.rs#QuoteReference@17373 target-sha256=fb4dd9abeaf726ef7eac484691ae214e6d0abd21edb9620734a0a8482baddff5 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive QuoteReference : Type :=
+| QuoteReference_2 : N -> N -> string -> QuoteReference.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
 (* rml-certified-item rust/src/lino_frontend.rs#DROPPED_LINE@31975 target-sha256=9733c288502c974a91a2d0a954e549ee0bec29fcc7b0c189bb51d0c82b673430 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
@@ -74,6 +128,24 @@ Ltac ml_close := first [reflexivity | lia | nia | congruence].
 
 Definition DROPPED_LINE : string :=
   "unexpected indentation under a value of an indented id"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lino_frontend.rs#LinoForm@34239 target-sha256=75028184a84430e9b3f7e860a5ba81d466724bb18e97b896b88f4c6f5b7bab11 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinoForm : Type :=
+| LinoForm_2 : string -> N -> N -> N -> LinoForm.
 
 Definition main : list string :=
   nil.

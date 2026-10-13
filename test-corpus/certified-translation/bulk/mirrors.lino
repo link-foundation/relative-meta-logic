@@ -6,13 +6,13 @@
     (path JavaScript Rust)
     (source "js/src/rml-links.mjs" quantize)
     (hand-written "rust/src/lib.rs" quantize (present true))
-    (item "js/src/rml-links.mjs#quantize@7735")
+    (item "js/src/rml-links.mjs#quantize@8125")
     (correspondence domain-widened)
     (certified-signature "pub fn quantize(x: f64, valence: f64, lo: f64, hi: f64) -> f64 {")
     (mirror-signature "pub fn quantize(x: f64, valence: u32, lo: f64, hi: f64) -> f64 {")
     (probe
       (program-sha256 8f7300318b01ef7f6801eed4e4e166197cc3100550e10c2bc73004269ef7c633)
-      (certificate-sha256 3fd213371d4bf70e422b5782d967c40d32f512f15ab95f6221a5dbaa5f15800e)
+      (certificate-sha256 e38c1f1a044cce71164005b4c6cfb6869b76271821ab48990ae25f32b70cc6a8)
       (target-sha256 d887ff901e360463f844de7ffe91d0f921d1dd9a928edb80885d66af6a1d7257))
     (observer certified-intermediate-javascript completed)
     (call
@@ -56,13 +56,13 @@
     (path JavaScript Rust)
     (source "js/src/rml-links.mjs" _isStrictlyOffendingStatus)
     (hand-written "rust/src/lib.rs" is_strictly_offending_status (present true))
-    (item "js/src/rml-links.mjs#_isStrictlyOffendingStatus@114116")
+    (item "js/src/rml-links.mjs#_isStrictlyOffendingStatus@114504")
     (correspondence domain-widened)
     (certified-signature "pub fn _is_strictly_offending_status(status: String) -> bool {")
     (mirror-signature "fn is_strictly_offending_status(status: Option<&String>) -> bool {")
     (probe
       (program-sha256 5f77d4c3470257aa1cd92f7ba098a101d15c4768db0040f2b7e7e6852e1459f9)
-      (certificate-sha256 5a8a4ce796b5dbe0ef93e752c141a556ec1d5647a85eb57f1a031f19274798bb)
+      (certificate-sha256 ff34b0d55cb7ffc4294574ede3de2060dcce426002f4ade9ba5af009dbfcea0e)
       (target-sha256 5583f07fe40924bb4b5330b5d7bed7af387a72fffc6e4815d9ffd616c1c6c04b))
     (observer rml-evaluation completed)
     (observer certified-intermediate-javascript completed)
@@ -96,7 +96,7 @@
     (mirror-signature "fn prefix_marker(name: &str) -> &'static str {")
     (probe
       (program-sha256 7a1d97698ba8b4dfbae1bb79187cf4f305e483ea3bc7eb9b1502678307257524)
-      (certificate-sha256 9380bcd327835277f58373fb8fe2368b14ec4048391df381bc45b1a83cd31d7d)
+      (certificate-sha256 57fbe506dadf33509cc5f2c092a9fa6de485a2b8b9b143740cc3cbc0a15c4ab3)
       (target-sha256 e05c9de27734fbdac1912c5edafbd7c33646ee4383596239160b287387b8b432))
     (observer rml-evaluation completed)
     (observer certified-intermediate-javascript completed)
@@ -148,7 +148,7 @@
     (mirror-signature "fn is_lean_punct_char(c: char) -> bool {")
     (probe
       (program-sha256 d4f10f9bc87eb7b36214d8ae1e3a040c6900ebb3e15857e710d9463bb0359667)
-      (certificate-sha256 3fd5ddb04182450a5d4dab5140b15ff50c1cd0c2c7fb8714bb0fe86513cdc6cc)
+      (certificate-sha256 a6bde6437b42e6633f57ff45c0ece14a72858d1d4932a5e1a33baefd70f6d579)
       (target-sha256 e2ab499a813ef95b8f90470040703f23fbc1487907537c69682e063180ca10b1))
     (observer certified-intermediate-javascript completed)
     (call
@@ -183,7 +183,7 @@
     (mirror-signature "fn is_rocq_punct_char(c: char) -> bool {")
     (probe
       (program-sha256 dd73a9075069c21a06e2644c9a3b10782037dbd727d766099ea7a7df98d8fcd7)
-      (certificate-sha256 f9633c18086b212845b88f4e6b42fcb70229cded31c62385477108b23034bc61)
+      (certificate-sha256 b0b48b954495d930780130ede3c146c67aad921b106865071c8d75664ebddb3c)
       (target-sha256 2690ece2568d8076422cf9880447ea54651b0bab146bd0c390350d2f433586ef))
     (observer certified-intermediate-javascript completed)
     (call
@@ -218,7 +218,7 @@
     (mirror-signature "fn scan_block_comment(chars: &[char], i: usize) -> usize {")
     (probe
       (program-sha256 217703d61570a936b56e992350f1018205a88f83ab5d146f1ddb4dc875c03eea)
-      (certificate-sha256 b86a5c613daf885e54a71c51421b8559f5d0764ea3ad55a91864795cb4ef48cf)
+      (certificate-sha256 2c0da05ac9d21abee08ac511892be428ae11eb361fbc625e65f73720aaa2e087)
       (target-sha256 6677efb1766b486f64facfe645d318a1077619987eef2be66dd5548137c5450f))
     (observer certified-intermediate-javascript completed)
     (call
@@ -253,7 +253,7 @@
     (mirror-signature "fn scan_block_comment(chars: &[char], i: usize) -> usize {")
     (probe
       (program-sha256 356fcd1ea8b17642631c5e7a7ed51b5b4a12dbea44f49f9a048f92172bda834b)
-      (certificate-sha256 441622ea8545d0ed637458c3b5ac0164fc1503c21126a3ea9209a3d5bdc0f98d)
+      (certificate-sha256 3578a7187bc4dd208dc2b3958197a98b1eb7f4cc75b74f38ea3937b92391b409)
       (target-sha256 0ebd797f61a2c41862b16226b1e4b126d2167c7d4965b81820293ab90112755e))
     (observer certified-intermediate-javascript completed)
     (call
@@ -283,7 +283,7 @@
     (mirror-signature "fn scan_block_comment(chars: &[char], i: usize) -> usize {")
     (probe
       (program-sha256 c81c6ad27767a7681f0a80ac8627dc3157d84171052cd7066e6bf2f01637792d)
-      (certificate-sha256 2af6566a5d249b999cb6b3c7efe183a0919b7758d743b924a66353a741b34879)
+      (certificate-sha256 5c8dd2a8ec3f50109363916c4fe8e731eb684a19b88f6eeb9fd44d48a2db5fe6)
       (target-sha256 5759f6adaa8ecc46e65199300bcc5557877da775ea63858005c4acad347b5a59))
     (observer certified-intermediate-javascript completed)
     (call
@@ -308,7 +308,7 @@
     (mirror-signature "fn range_within(inner: [usize; 2], outer: [usize; 2]) -> bool {")
     (probe
       (program-sha256 d2e5dab40f8e5247ff6fe9a096acc2f84538a5b39c577a8075c18f563dc0a960)
-      (certificate-sha256 db35d83a9a9b326bbcf7e6447338d87207e3fb599dc4b461fdd2e4c847e2d7f7)
+      (certificate-sha256 31fed5f5c7819a43c81a6766383877dc213a1cec8c10c0a85473412c88622d25)
       (target-sha256 da99492bbb45cb098d73532281f9535cf6b9cf010229e509b88be6c323263e18))
     (observer certified-intermediate-javascript completed)
     (call
@@ -338,7 +338,7 @@
     (mirror-signature "fn is_variable(term: &Node) -> bool {")
     (probe
       (program-sha256 7222ad3cdc552120bbd70ed224a9c89eb426db3a807366fe55a9b7206e9f5d0b)
-      (certificate-sha256 38815050a7bae15739536e5990006ed07813ddcfdc97ed8b779a6528c5fd3c42)
+      (certificate-sha256 9d8b15c89ae45295e47c2c54cc64039e53b546bd4c21858bdc3556cd69b182a5)
       (target-sha256 0f1c4e86ce865b104007aef99126ed1aa989381ba6f71bd6749c911142b694d7))
     (observer certified-intermediate-javascript completed)
     (call
@@ -367,13 +367,13 @@
     (path JavaScript Rust)
     (source "js/src/rml-links.mjs" _isPiSig)
     (hand-written "rust/src/lib.rs" is_pi_sig (present true))
-    (item "js/src/rml-links.mjs#_isPiSig@218989")
+    (item "js/src/rml-links.mjs#_isPiSig@219377")
     (correspondence domain-widened)
     (certified-signature "pub fn _is_pi_sig(node: Vec<String>) -> bool {")
     (mirror-signature "fn is_pi_sig(node: &Node) -> bool {")
     (probe
       (program-sha256 79a5ff807966b1abd4c15fe6a73ecac81589b98166e1d10c020ea692ae220158)
-      (certificate-sha256 fd564179c9f2155c7c78ed2e53459d30e8b45112a8e0eeea82e279eb9ebe07a2)
+      (certificate-sha256 cda9a4241797c94055b7ec7ef56d19bdc3f06d24218867e7cb8975a32b350790)
       (target-sha256 86ba2f6a09945dee02d0a20ac64df94e26ff8b5145fa53aebc0399baeb718a1b))
     (observer certified-intermediate-javascript completed)
     (call
@@ -397,13 +397,13 @@
     (path JavaScript Rust)
     (source "js/src/rml-links.mjs" _isForallNode)
     (hand-written "rust/src/lib.rs" is_forall_node (present true))
-    (item "js/src/rml-links.mjs#_isForallNode@268074")
+    (item "js/src/rml-links.mjs#_isForallNode@268462")
     (correspondence domain-widened)
     (certified-signature "pub fn _is_forall_node(node: Vec<String>) -> bool {")
     (mirror-signature "fn is_forall_node(node: &Node) -> bool {")
     (probe
       (program-sha256 ee592665a45c3fe4a5f125c9e7aaa30448ea0729e689fece0663c70714fb47cf)
-      (certificate-sha256 f70f1dec9622b85d548194c937acb51d6d5a10ce0a306f8b30b2b0d3b171babd)
+      (certificate-sha256 9931d0924dca02fccbd6d621e74428239f5ce7df501a176be9f18f0f274cf89c)
       (target-sha256 20c9d2db614c392fec47885db434602fa72928440c65dd7695239787d5d24d84))
     (observer certified-intermediate-javascript completed)
     (call
@@ -427,7 +427,7 @@
     (path JavaScript Rust)
     (source "js/src/rml-links.mjs" tokenBaseName)
     (hand-written "rust/src/lib.rs" token_base_name (present true))
-    (item "js/src/rml-links.mjs#tokenBaseName@122238")
+    (item "js/src/rml-links.mjs#tokenBaseName@122626")
     (correspondence signature-differs)
     (certified-signature "pub fn token_base_name(token: Option<f64>) -> Option<f64> {")
     (mirror-signature "fn token_base_name(token: &str) -> String {")
@@ -453,7 +453,7 @@
     (mirror-signature "function ruleKey(kind, program, rule) {")
     (probe
       (program-sha256 eeae22fc942c18783ce6c74f3142fc08f3e4ceaa835a69ef5387358493fc7f91)
-      (certificate-sha256 6064980efee94c1349da37ef01bc1739d8b2771e78472c4f6666307f1393e12a)
+      (certificate-sha256 0382306ad562895e6a9054c6c55108248582531872cd78db5cf38c0198ca94cc)
       (target-sha256 d85a3fdc6214da9b9c2f38472e2aa2951779def707fb54c75903de999c4eba7f))
     (observer rml-evaluation completed)
     (observer certified-javascript-target completed)
@@ -481,7 +481,7 @@
     (mirror-signature "function tokenBaseName(token) {")
     (probe
       (program-sha256 10640a2ad23d11d2be6434d80652ac74873d49a978f9e7d1345ceff7e9d16221)
-      (certificate-sha256 dd02a2d04c33267e115cb47e8fd6ede2cacaaa73aa9a8cb49c6476b2a8db1d87)
+      (certificate-sha256 68b3c039bb6fe5fe3a73c12a98024ebc0a1c65b538d6f63afd2de7b298898fc2)
       (target-sha256 b06d907121e863b7c891f5389bc8a6d6d1ffb850b423b4e61ceb95f818b0537a))
     (observer rml-evaluation completed)
     (observer certified-javascript-target completed)

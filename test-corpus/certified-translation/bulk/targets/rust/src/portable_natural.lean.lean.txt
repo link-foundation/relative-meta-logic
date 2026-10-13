@@ -22,3 +22,29 @@ def RESERVED : String :=
 
 def main : IO Unit := do
   pure ()
+-- rml-certified-item rust/src/portable_natural.rs#PortableError@1518 target-sha256=ddd47da6445c30584ae9b0776c1ce0745ea1e2ed491db6623890f050191602ce
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive PortableError where
+  | PortableError (field0 : String) (field1 : String) (field2 : Nat) : PortableError
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/portable_natural.rs#Token@2914 target-sha256=9ba5252234b6d00bb80344a47dc5e0415225a9c790b827e1448a3cfb62a5cb31
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive Token where
+  | Token (field0 : String) (field1 : Nat) (field2 : Nat) : Token
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

@@ -25,7 +25,7 @@ fn main() {
         std::process::exit(101);
     }
 }
-// rml-certified-item js/src/rml-linked-program.mjs#requireProofBounds@62470 target-sha256=356d3b895d3b2997154b72191bfad5eef1153489d8713ebb9afffa12ef7776b7
+// rml-certified-item js/src/rml-linked-program.mjs#requireProofBounds@63148 target-sha256=356d3b895d3b2997154b72191bfad5eef1153489d8713ebb9afffa12ef7776b7
 // Translated from JavaScript by meta-language: portable core, Rust target.
 #![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
 

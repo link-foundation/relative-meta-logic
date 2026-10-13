@@ -22,3 +22,29 @@ def JAVA_SCRIPT_LANGUAGE : String :=
 
 def main : IO Unit := do
   pure ()
+-- rml-certified-item rust/src/meta_language_support.rs#SubstitutionSmokeReport@1046 target-sha256=c912da9574ef3ddef50684eb0b8bdbd5bbc2481f0273e25672e1d166fffec93c
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SubstitutionSmokeReport where
+  | SubstitutionSmokeReport (field0 : Nat) (field1 : Bool) : SubstitutionSmokeReport
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/meta_language_support.rs#TruthSmokeReport@1172 target-sha256=80aba56bc57d407f2eb71b9a51281e88f8eb07a1c5422eec93f49d8f0bce858f
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive TruthSmokeReport where
+  | TruthSmokeReport (field0 : String) (field1 : Nat) (field2 : Nat) : TruthSmokeReport
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

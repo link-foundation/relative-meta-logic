@@ -22,6 +22,53 @@ def UNSUPPORTED : String :=
 
 def main : IO Unit := do
   pure ()
+-- rml-certified-item rust/src/js_rename.rs#SourceLocation@1006 target-sha256=ef6d371fa6c113e98c1e3272371fa7d2dd971797d030db73ce1b7bfdbe1cc87f
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SourceLocation where
+  | SourceLocation (field0 : Nat) (field1 : Nat) (field2 : Nat) : SourceLocation
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/js_rename.rs#IdentifierReplacement@1142 target-sha256=6203a13941a435274520e963be94ecdc049dbae376dbbd6936d5699321512b62
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SourceLocation where
+  | SourceLocation (field0 : Nat) (field1 : Nat) (field2 : Nat) : SourceLocation
+  deriving Repr, DecidableEq, Inhabited
+
+inductive IdentifierReplacement where
+  | IdentifierReplacement (field0 : String) (field1 : String) (field2 : SourceLocation) (field3 : SourceLocation) : IdentifierReplacement
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/js_rename.rs#Token@1575 target-sha256=a71bcc20964cda6621d1560be6a26323e953442a1775bbc70b8867f882a8ee5e
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SourceLocation where
+  | SourceLocation (field0 : Nat) (field1 : Nat) (field2 : Nat) : SourceLocation
+  deriving Repr, DecidableEq, Inhabited
+
+inductive Token where
+  | Token (field0 : String) (field1 : String) (field2 : SourceLocation) (field3 : SourceLocation) (field4 : Nat) (field5 : Nat) : Token
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
 -- rml-certified-item rust/src/js_rename.rs#fail@1901 target-sha256=aef714b9686bcf0e69353c8e662730355eaa2302237dbb8c68019e32fd1ce434
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.

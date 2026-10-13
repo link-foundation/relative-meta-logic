@@ -38,6 +38,25 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#EnvOptions@28055 target-sha256=ec165b15ceda5d4ae0bc1af1ba5fc7d7d4bd4082c1407ad9c6f1291239aa810b *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
+Set Warnings "-inexact-float".
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive EnvOptions : Type :=
+| EnvOptions_2 : float -> float -> N -> EnvOptions.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
 (* rml-certified-item rust/src/lib.rs#ModeFlag@49434 target-sha256=ba39138f99809b97a5780885fbd9d43e8139d09bb936dbf5f2992304be6f251d *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
@@ -76,7 +95,61 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#DEFAULT_SIMPLIFY_MAX_STEPS@279286 target-sha256=69591937721741bdc3b61dc2dcb22489d01b80d33a30124716f16ba34f739697 *)
+(* rml-certified-item rust/src/lib.rs#StrictFoundationDecl@177295 target-sha256=11985579db74734030b79740731214a853b21da7b0bad049dd36db470c288135 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive StrictFoundationDecl : Type :=
+| StrictFoundationDecl_2 : string -> StrictFoundationDecl.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#PURE_BETA_STEPS@262035 target-sha256=373d9486bad6fb3b02cf27a37211389410ca90d832b856e0e2b23db0adb91b84 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition PURE_BETA_STEPS : N :=
+  10000%N.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#PURE_BETA_DEPTH@262074 target-sha256=b3ed0c501ef2ca14620405173d52bcbdd53d48c14a07241e5c17dab4230159a1 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition PURE_BETA_DEPTH : N :=
+  256%N.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#DEFAULT_SIMPLIFY_MAX_STEPS@281578 target-sha256=69591937721741bdc3b61dc2dcb22489d01b80d33a30124716f16ba34f739697 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -94,7 +167,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#DEFAULT_ATP_TIMEOUT_MS@279333 target-sha256=207054a3fb6205f123256d5f7e3c4d138c2747f70553c374109a0dc193e386d4 *)
+(* rml-certified-item rust/src/lib.rs#DEFAULT_ATP_TIMEOUT_MS@281625 target-sha256=207054a3fb6205f123256d5f7e3c4d138c2747f70553c374109a0dc193e386d4 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -112,7 +185,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#DEFAULT_SMT_TIMEOUT_MS@279375 target-sha256=819631e3d6ac68c011f084fcd2591747ef00e9987cb06a6f9a10693e6f721306 *)
+(* rml-certified-item rust/src/lib.rs#DEFAULT_SMT_TIMEOUT_MS@281667 target-sha256=819631e3d6ac68c011f084fcd2591747ef00e9987cb06a6f9a10693e6f721306 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -130,7 +203,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#RewriteDirection@279691 target-sha256=7e72956a91d1d2ee6f451b51090677d129e3c27349b70dff54fd24b1539512ce *)
+(* rml-certified-item rust/src/lib.rs#RewriteDirection@281983 target-sha256=7e72956a91d1d2ee6f451b51090677d129e3c27349b70dff54fd24b1539512ce *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -149,7 +222,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#RewriteOccurrence@279849 target-sha256=99123db84383fdecf057f8a1a0ab3b04995b610c66819867910ec88f9294ba29 *)
+(* rml-certified-item rust/src/lib.rs#RewriteOccurrence@282141 target-sha256=99123db84383fdecf057f8a1a0ab3b04995b610c66819867910ec88f9294ba29 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -168,7 +241,51 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#AtpStatusKind@281521 target-sha256=bd79b4c479751e5960b2ba3aaeba9a4b4421f974beda4b8c9d22d0fca801d410 *)
+(* rml-certified-item rust/src/lib.rs#RewriteOptions@282284 target-sha256=1c85381cb9633c5073fc6a0b31e6a11d7b145304140da3b530bbcdfd06b9ffab *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive RewriteDirection : Type :=
+| Forward : RewriteDirection
+| Backward : RewriteDirection.
+
+Inductive RewriteOccurrence : Type :=
+| All : RewriteOccurrence
+| Index : N -> RewriteOccurrence.
+
+Inductive RewriteOptions : Type :=
+| RewriteOptions_2 : RewriteDirection -> RewriteOccurrence -> RewriteOptions.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#SimplifyOptions@282856 target-sha256=c31a6496bf28336fa9f18f935663a5d7cf84ded4b40eeb240a704e8c264bf7d4 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive SimplifyOptions : Type :=
+| SimplifyOptions_2 : N -> SimplifyOptions.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#AtpStatusKind@283813 target-sha256=bd79b4c479751e5960b2ba3aaeba9a4b4421f974beda4b8c9d22d0fca801d410 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -189,7 +306,31 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#SmtSort@284722 target-sha256=7fc51210be0d0cd81359b0ac61e6ab2a3256f7c57e53b45836069928482036ea *)
+(* rml-certified-item rust/src/lib.rs#AtpStatus@283971 target-sha256=5f66d9d32c234b01b674c68b23fd82b9d586a062c89d0f81054f733d29a49e9c *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive AtpStatusKind : Type :=
+| Proved : AtpStatusKind
+| Unknown : AtpStatusKind
+| Timeout : AtpStatusKind
+| Failure : AtpStatusKind.
+
+Inductive AtpStatus : Type :=
+| AtpStatus_2 : string -> AtpStatusKind -> AtpStatus.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#SmtSort@287014 target-sha256=7fc51210be0d0cd81359b0ac61e6ab2a3256f7c57e53b45836069928482036ea *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -208,7 +349,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#SmtStatus@285066 target-sha256=71977829fa1002b3f0f0b4742664838a4d8f66e53a6578e99e7ff6e5bb211d48 *)
+(* rml-certified-item rust/src/lib.rs#SmtStatus@287358 target-sha256=71977829fa1002b3f0f0b4742664838a4d8f66e53a6578e99e7ff6e5bb211d48 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -230,7 +371,122 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#FormalizationResultValue@438408 target-sha256=930c9577f623eb1fdf91ded0263dcf4ab6c06c2751ed6404f230b8338e8ff4a1 *)
+(* rml-certified-item rust/src/lib.rs#SmtRunResult@287480 target-sha256=56874ed98e50c0c1c5f4ae1bc46252ff4456b513808c11a012558a0e52e323f2 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive SmtStatus : Type :=
+| Unsat : SmtStatus
+| Sat : SmtStatus
+| Unknown : SmtStatus
+| Timeout : SmtStatus
+| Error : SmtStatus.
+
+Inductive SmtRunResult : Type :=
+| SmtRunResult_2 : SmtStatus -> string -> SmtRunResult.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#AtpRunSuccess@311411 target-sha256=1ef3056190c4e8a0bd20a5f8f07495b7a9848a9af32569624f6a6ec618bca8fd *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive AtpRunSuccess : Type :=
+| AtpRunSuccess_2 : string -> AtpRunSuccess.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#TotalityDiagnostic@344698 target-sha256=4ba27a2edf10187c86d65037f5e249c0e54809a708e0736f61ae4a1a1496247b *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive TotalityDiagnostic : Type :=
+| TotalityDiagnostic_2 : string -> string -> TotalityDiagnostic.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#TerminationDiagnostic@350595 target-sha256=0424fb4fdaa96f514db4ecd36664f57f698f210fbd664c3b44120e2f584e2998 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive TerminationDiagnostic : Type :=
+| TerminationDiagnostic_2 : string -> string -> TerminationDiagnostic.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#CoverageDiagnostic@361114 target-sha256=82e966d36182f37bd204e6ffcbc0faa5a15a7abefaf05390403a48b866e2846b *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive CoverageDiagnostic : Type :=
+| CoverageDiagnostic_2 : string -> string -> CoverageDiagnostic.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#Dependency@439807 target-sha256=3ddb86317b2ad7841dbc66687a13a6abd9a4a057f1f6d29ef1d8555f5b324034 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive Dependency : Type :=
+| Dependency_2 : string -> string -> string -> Dependency.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/lib.rs#FormalizationResultValue@440912 target-sha256=930c9577f623eb1fdf91ded0263dcf4ab6c06c2751ed6404f230b8338e8ff4a1 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
 Set Warnings "-inexact-float".
@@ -252,7 +508,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/lib.rs#ExtractTarget@447128 target-sha256=cb4aedee9543c08c80b7439a3b8bc4c4d7589267e7e9dae483306d0b75e724c4 *)
+(* rml-certified-item rust/src/lib.rs#ExtractTarget@449632 target-sha256=cb4aedee9543c08c80b7439a3b8bc4c4d7589267e7e9dae483306d0b75e724c4 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 

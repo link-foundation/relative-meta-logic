@@ -1,4 +1,4 @@
-(* rml-certified-item rust/src/certified_translation.rs#CERTIFIED_TRANSLATION_SCHEMA@873 target-sha256=e78c37426f8088005780959ed6505fe7485295a0ac3961db70d739aaa61d959b *)
+(* rml-certified-item rust/src/certified_translation.rs#CERTIFIED_TRANSLATION_SCHEMA@1034 target-sha256=e78c37426f8088005780959ed6505fe7485295a0ac3961db70d739aaa61d959b *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -16,7 +16,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/certified_translation.rs#TRANSLATION_REFUSAL_SCHEMA@953 target-sha256=3ac51c75183e64f30d4ead54c4852e10c8dd384ae1bc2e3c76004ead0397d67c *)
+(* rml-certified-item rust/src/certified_translation.rs#TRANSLATION_REFUSAL_SCHEMA@1114 target-sha256=3ac51c75183e64f30d4ead54c4852e10c8dd384ae1bc2e3c76004ead0397d67c *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -29,6 +29,78 @@ Ltac ml_close := first [reflexivity | lia | nia | congruence].
 
 Definition TRANSLATION_REFUSAL_SCHEMA : string :=
   "rml:translation-refusal:1"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/certified_translation.rs#SURFACE_LOWERING_SCHEMA@2009 target-sha256=860ca00826259660ad0167cb8e099ee06b8c61d647272f52448b7db875874f17 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition SURFACE_LOWERING_SCHEMA : string :=
+  "rml:surface-lowering:1"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/certified_translation.rs#CONCEPT_SPACE_SCHEMA@2932 target-sha256=75286fb3a2114077372333393622094136f8c81155152b1f6b8ac3dbe5217271 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition CONCEPT_SPACE_SCHEMA : string :=
+  "rml:certified-concept-space:1"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/certified_translation.rs#RML_CONCEPT_NAMESPACE@3059 target-sha256=cc08476d745cf179a5c5b8ba04799ea4786da0476a612fcea4db317f7ac7af2a *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition RML_CONCEPT_NAMESPACE : string :=
+  "rml."%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/certified_translation.rs#CertificateError@4832 target-sha256=b66d72badad6c58ab55456fd3c9fafab153985f714159bfbd8e9a04cf0db024e *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive CertificateError : Type :=
+| CertificateError_2 : string -> string -> CertificateError.
 
 Definition main : list string :=
   nil.

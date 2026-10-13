@@ -181,3 +181,21 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
+(* rml-certified-item rust/src/semantic_closure.rs#ClosureRole@22999 target-sha256=6d52afbe46c9035891903c45286546ec9513cc55abef66095ae17fa1450ea3fa *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive ClosureRole : Type :=
+| ClosureRole_2 : string -> string -> ClosureRole.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

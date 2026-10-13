@@ -1,3 +1,16 @@
+-- rml-certified-item rust/src/meta.rs#MetaDiagnostic@945 target-sha256=ce3480cdb950a4ac595a59346c74d1d59627f5bd08f2ab20774c48179e750e56
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive MetaDiagnostic where
+  | MetaDiagnostic (field0 : String) (field1 : String) : MetaDiagnostic
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
 -- rml-certified-item rust/src/meta.rs#CheckKind@1800 target-sha256=751d9e6c9f358da90c5e4ab2b03d83529f2e5c55ba2c82afe3f3da780a2c487e
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.

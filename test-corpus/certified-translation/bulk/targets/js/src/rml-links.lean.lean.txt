@@ -29,7 +29,7 @@ def clamp01 (x : Float) : Float :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#quantize@7735 target-sha256=82ede8024a79bf940fb74ed25493f8b71070187b1c02449dc4aafc3ed0857689
+-- rml-certified-item js/src/rml-links.mjs#quantize@8125 target-sha256=82ede8024a79bf940fb74ed25493f8b71070187b1c02449dc4aafc3ed0857689
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -62,7 +62,7 @@ def quantize (x : Float) (valence : Float) (lo : Float) (hi : Float) : Float :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#_isStrictlyOffendingStatus@114116 target-sha256=c5ca9c2efd2e22cdadb6cf2fc2ae8695da9dc8f8b15d736f31a429f491d150f8
+-- rml-certified-item js/src/rml-links.mjs#_isStrictlyOffendingStatus@114504 target-sha256=c5ca9c2efd2e22cdadb6cf2fc2ae8695da9dc8f8b15d736f31a429f491d150f8
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -74,7 +74,7 @@ def _isStrictlyOffendingStatus (status : String) : Bool :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#tokenBaseName@122238 target-sha256=667bfc9fb41c6a1e79e51b63575fb23473ae5e35aa9cc2f9bec6f38cfe565f8e
+-- rml-certified-item js/src/rml-links.mjs#tokenBaseName@122626 target-sha256=667bfc9fb41c6a1e79e51b63575fb23473ae5e35aa9cc2f9bec6f38cfe565f8e
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -86,7 +86,7 @@ def tokenBaseName (token : (Option Float)) : (Option Float) :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#_isTacticNode@143276 target-sha256=0d2d8e6910a1f2e16bd0fc47c6ab612115f3401f03216182c58c5f7e1712b820
+-- rml-certified-item js/src/rml-links.mjs#_isTacticNode@143664 target-sha256=0d2d8e6910a1f2e16bd0fc47c6ab612115f3401f03216182c58c5f7e1712b820
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -99,7 +99,7 @@ def _isTacticNode (value : (Array Float)) : Bool :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#_asEquality@143966 target-sha256=906914ca85f8c5d6f6581b31480bc69baaece15c8d1cfa29e8eaec53e94d9ea8
+-- rml-certified-item js/src/rml-links.mjs#_asEquality@144354 target-sha256=906914ca85f8c5d6f6581b31480bc69baaece15c8d1cfa29e8eaec53e94d9ea8
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -114,7 +114,7 @@ def _asEquality (node : (Array String)) : (Option ((Option String) × (Option St
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#_smtLeaf@147393 target-sha256=48691e7991ba2c88a303f1a8e085b967587fe203944279dbf4920c5b04b0f08d
+-- rml-certified-item js/src/rml-links.mjs#_smtLeaf@147781 target-sha256=48691e7991ba2c88a303f1a8e085b967587fe203944279dbf4920c5b04b0f08d
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -126,7 +126,7 @@ def _smtLeaf (node : Float) (value : Float) : Bool :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#_typeAscription@166700 target-sha256=b53037ed0fef1bd60fe9b26d503bf0ec76eb9c85f897318d1153f85b4dd5e9e9
+-- rml-certified-item js/src/rml-links.mjs#_typeAscription@167088 target-sha256=b53037ed0fef1bd60fe9b26d503bf0ec76eb9c85f897318d1153f85b4dd5e9e9
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -141,7 +141,7 @@ def _typeAscription (node : (Array String)) : (Option ((Option String) × (Optio
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#_isPiSig@218989 target-sha256=821397c77941b725fd04218ce486f03c3d1a8f6f8c6c115627d5e55fe4e48d62
+-- rml-certified-item js/src/rml-links.mjs#_isPiSig@219377 target-sha256=821397c77941b725fd04218ce486f03c3d1a8f6f8c6c115627d5e55fe4e48d62
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -154,7 +154,7 @@ def _isPiSig (node : (Array String)) : Bool :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#decideAutomaticSequenceTheorem@235140 target-sha256=7ef0a0ed6394c252cabbd0ecfb389e9cafce46372059ff196e448630a109768f
+-- rml-certified-item js/src/rml-links.mjs#decideAutomaticSequenceTheorem@235528 target-sha256=7ef0a0ed6394c252cabbd0ecfb389e9cafce46372059ff196e448630a109768f
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -170,7 +170,7 @@ def decideAutomaticSequenceTheorem (name : String) : (Option ((Array String) × 
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#_isForallNode@268074 target-sha256=90c4f31896ea50938cebbe15269bf54bc71b0440e282fc0cc5335ac9baffb040
+-- rml-certified-item js/src/rml-links.mjs#_isForallNode@268462 target-sha256=90c4f31896ea50938cebbe15269bf54bc71b0440e282fc0cc5335ac9baffb040
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -183,7 +183,7 @@ def _isForallNode (node : (Array String)) : Bool :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#isProbabilityAssignment@328782 target-sha256=54be432c115cf60cb97a1cf0acb1bee299b8f4e9eb13d6f5c47cb674cd677bbb
+-- rml-certified-item js/src/rml-links.mjs#isProbabilityAssignment@329178 target-sha256=54be432c115cf60cb97a1cf0acb1bee299b8f4e9eb13d6f5c47cb674cd677bbb
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -196,7 +196,7 @@ def isProbabilityAssignment (node : (Array String)) : Bool :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-links.mjs#isQueryForm@328939 target-sha256=99305b4fe63cee829fed8ee7be4dd75c3e5a5f058afa201a1fb97101690aabab
+-- rml-certified-item js/src/rml-links.mjs#isQueryForm@329335 target-sha256=99305b4fe63cee829fed8ee7be4dd75c3e5a5f058afa201a1fb97101690aabab
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false

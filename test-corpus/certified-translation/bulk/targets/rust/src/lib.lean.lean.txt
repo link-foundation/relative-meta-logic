@@ -27,6 +27,19 @@ inductive Aggregator where
 
 def main : IO Unit := do
   pure ()
+-- rml-certified-item rust/src/lib.rs#EnvOptions@28055 target-sha256=98e285c2ce9cf025ccfc02fa9f1da494965b25389477114ce9c5354bfac28270
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive EnvOptions where
+  | EnvOptions (field0 : Float) (field1 : Float) (field2 : Nat) : EnvOptions
+  deriving Repr, Inhabited
+
+def main : IO Unit := do
+  pure ()
 -- rml-certified-item rust/src/lib.rs#ModeFlag@49434 target-sha256=fdcb5380d2587d322e20c75cdac834a88f6fae2614e4faa6acc2745a651d0200
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
@@ -54,7 +67,44 @@ def token_base_name (token : String) : String :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#DEFAULT_SIMPLIFY_MAX_STEPS@279286 target-sha256=ebd1a89224c48a1127610a6d85325e19337e8f7815ace97eec6864c4bf6b62dc
+-- rml-certified-item rust/src/lib.rs#StrictFoundationDecl@177295 target-sha256=8fd84bd31953b3c9de880f297b00efc4d66fd77aa16d3c2a7ca15dc3c4c7aff6
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive StrictFoundationDecl where
+  | StrictFoundationDecl (field0 : String) : StrictFoundationDecl
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#PURE_BETA_STEPS@262035 target-sha256=b8c28196dd94fe2be77e9a5c3aeb1d1f3d0337a8a8006319513c5a0a7a0bc216
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def PURE_BETA_STEPS : Nat :=
+  (10000 : Nat)
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#PURE_BETA_DEPTH@262074 target-sha256=c936334153bdcd30a2ea0a2534a534a15f686e3a3add2590c09403339ef7b077
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def PURE_BETA_DEPTH : Nat :=
+  (256 : Nat)
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#DEFAULT_SIMPLIFY_MAX_STEPS@281578 target-sha256=ebd1a89224c48a1127610a6d85325e19337e8f7815ace97eec6864c4bf6b62dc
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -66,7 +116,7 @@ def DEFAULT_SIMPLIFY_MAX_STEPS : Nat :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#DEFAULT_ATP_TIMEOUT_MS@279333 target-sha256=5b7653c602ae78dfeeb4984afe3d72cf346a141e089393bfc161e30c0b1add06
+-- rml-certified-item rust/src/lib.rs#DEFAULT_ATP_TIMEOUT_MS@281625 target-sha256=5b7653c602ae78dfeeb4984afe3d72cf346a141e089393bfc161e30c0b1add06
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -78,7 +128,7 @@ def DEFAULT_ATP_TIMEOUT_MS : Nat :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#DEFAULT_SMT_TIMEOUT_MS@279375 target-sha256=b669b4c7acdc4d4a715805f2f93e42bb125c72c6b38b78c3938001b4094caa68
+-- rml-certified-item rust/src/lib.rs#DEFAULT_SMT_TIMEOUT_MS@281667 target-sha256=b669b4c7acdc4d4a715805f2f93e42bb125c72c6b38b78c3938001b4094caa68
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -90,7 +140,7 @@ def DEFAULT_SMT_TIMEOUT_MS : Nat :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#RewriteDirection@279691 target-sha256=7817f5e47f64b82c91754790b2e77bf95ff4ea1654062400a4f0e656183a29cc
+-- rml-certified-item rust/src/lib.rs#RewriteDirection@281983 target-sha256=7817f5e47f64b82c91754790b2e77bf95ff4ea1654062400a4f0e656183a29cc
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -104,7 +154,7 @@ inductive RewriteDirection where
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#RewriteOccurrence@279849 target-sha256=e119fdb5cdfddd90aaa99de2c0ae20dea763e47740fe59528d9ca9302266c66e
+-- rml-certified-item rust/src/lib.rs#RewriteOccurrence@282141 target-sha256=e119fdb5cdfddd90aaa99de2c0ae20dea763e47740fe59528d9ca9302266c66e
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -118,7 +168,43 @@ inductive RewriteOccurrence where
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#AtpStatusKind@281521 target-sha256=5c5987125798bab9a30d81897e3f9deda512ce6bfc60584aa8daaa336ae391de
+-- rml-certified-item rust/src/lib.rs#RewriteOptions@282284 target-sha256=35538a81501da5a7a1c6aa084e566e9231bce5162fe725d3893a012458d6fab4
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive RewriteDirection where
+  | Forward : RewriteDirection
+  | Backward : RewriteDirection
+  deriving Repr, DecidableEq, Inhabited
+
+inductive RewriteOccurrence where
+  | All : RewriteOccurrence
+  | Index (field0 : Nat) : RewriteOccurrence
+  deriving Repr, DecidableEq, Inhabited
+
+inductive RewriteOptions where
+  | RewriteOptions (field0 : RewriteDirection) (field1 : RewriteOccurrence) : RewriteOptions
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#SimplifyOptions@282856 target-sha256=f116df7d0c073996edcc1c33fe773065f1e6e2e2d610a25e70c79a9e4480ce31
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SimplifyOptions where
+  | SimplifyOptions (field0 : Nat) : SimplifyOptions
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#AtpStatusKind@283813 target-sha256=5c5987125798bab9a30d81897e3f9deda512ce6bfc60584aa8daaa336ae391de
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -134,7 +220,27 @@ inductive AtpStatusKind where
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#SmtSort@284722 target-sha256=24ab54c6c8f123bfe678f2d1920462746a359bc77dbdb2ae73521dfe4d7a964e
+-- rml-certified-item rust/src/lib.rs#AtpStatus@283971 target-sha256=cbd98a25b8bb64908f495c7b2f536d8560a8143a5f9e9c78a01bc77f279af0b6
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive AtpStatusKind where
+  | Proved : AtpStatusKind
+  | Unknown : AtpStatusKind
+  | Timeout : AtpStatusKind
+  | Failure : AtpStatusKind
+  deriving Repr, DecidableEq, Inhabited
+
+inductive AtpStatus where
+  | AtpStatus (field0 : String) (field1 : AtpStatusKind) : AtpStatus
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#SmtSort@287014 target-sha256=24ab54c6c8f123bfe678f2d1920462746a359bc77dbdb2ae73521dfe4d7a964e
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -148,7 +254,7 @@ inductive SmtSort where
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#SmtStatus@285066 target-sha256=18c48e5b88290cd08f7753608b7b9565821cb777a7bfcc8d786bf5cb175c5f42
+-- rml-certified-item rust/src/lib.rs#SmtStatus@287358 target-sha256=18c48e5b88290cd08f7753608b7b9565821cb777a7bfcc8d786bf5cb175c5f42
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -165,7 +271,93 @@ inductive SmtStatus where
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#FormalizationResultValue@438408 target-sha256=3bbc03b998dbe42a5b4f7b5fa46e987e398047b4460275c1816fbbec948d1228
+-- rml-certified-item rust/src/lib.rs#SmtRunResult@287480 target-sha256=81adc163bcb263557d02260fda8de78d608df35c8fc00283b84c69be3fc76d74
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SmtStatus where
+  | Unsat : SmtStatus
+  | Sat : SmtStatus
+  | Unknown : SmtStatus
+  | Timeout : SmtStatus
+  | Error : SmtStatus
+  deriving Repr, DecidableEq, Inhabited
+
+inductive SmtRunResult where
+  | SmtRunResult (field0 : SmtStatus) (field1 : String) : SmtRunResult
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#AtpRunSuccess@311411 target-sha256=f32981acd4cceca3cb57e3b850ffcb9c1b5dd2ee0afd573c6f28716a06915fe6
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive AtpRunSuccess where
+  | AtpRunSuccess (field0 : String) : AtpRunSuccess
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#TotalityDiagnostic@344698 target-sha256=d7c74ff1de31bf2fdcfe2a8f9d6b04889ec88dcb1476e09610246e7beb46ad10
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive TotalityDiagnostic where
+  | TotalityDiagnostic (field0 : String) (field1 : String) : TotalityDiagnostic
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#TerminationDiagnostic@350595 target-sha256=15b2d2744f07f3cf6cbc12e7d6904a2d2c3abe86c5801cbb39a5789d1ad7b252
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive TerminationDiagnostic where
+  | TerminationDiagnostic (field0 : String) (field1 : String) : TerminationDiagnostic
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#CoverageDiagnostic@361114 target-sha256=50dfeba4a7ab7ec652a3813dc38c2510496470348e9c69dbd7427ecff6f4d621
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive CoverageDiagnostic where
+  | CoverageDiagnostic (field0 : String) (field1 : String) : CoverageDiagnostic
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#Dependency@439807 target-sha256=f8a17fd8da6883f5679b95b114ea0e73bfb88d7131216b529fee21a3bbf5eac8
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive Dependency where
+  | Dependency (field0 : String) (field1 : String) (field2 : String) : Dependency
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lib.rs#FormalizationResultValue@440912 target-sha256=3bbc03b998dbe42a5b4f7b5fa46e987e398047b4460275c1816fbbec948d1228
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -181,7 +373,7 @@ inductive FormalizationResultValue where
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item rust/src/lib.rs#ExtractTarget@447128 target-sha256=302831114294fa6acd8eb43d34a963795243cc95b0132ef941068bfb39408d7e
+-- rml-certified-item rust/src/lib.rs#ExtractTarget@449632 target-sha256=302831114294fa6acd8eb43d34a963795243cc95b0132ef941068bfb39408d7e
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false

@@ -1,4 +1,4 @@
-// rml-certified-item rust/src/certified_translation.rs#CERTIFIED_TRANSLATION_SCHEMA@873 target-sha256=445b4b0ad4b5d81ccb15a2a664b2c691f77517430abc60a2ca5f306f5b9bab0a
+// rml-certified-item rust/src/certified_translation.rs#CERTIFIED_TRANSLATION_SCHEMA@1034 target-sha256=445b4b0ad4b5d81ccb15a2a664b2c691f77517430abc60a2ca5f306f5b9bab0a
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -11,13 +11,61 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/certified_translation.rs#TRANSLATION_REFUSAL_SCHEMA@953 target-sha256=5f44e4e72a74ce6c1009125aa116c90f88f591c6671423d7bf93eb945a0408f4
+// rml-certified-item rust/src/certified_translation.rs#TRANSLATION_REFUSAL_SCHEMA@1114 target-sha256=5f44e4e72a74ce6c1009125aa116c90f88f591c6671423d7bf93eb945a0408f4
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
 function TRANSLATION_REFUSAL_SCHEMA() {
   return "rml:translation-refusal:1";
 }
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/certified_translation.rs#SURFACE_LOWERING_SCHEMA@2009 target-sha256=74f085bbbfa28bdd2b673b8fd80c4cd79e77a4ff9313cf55b18d18f6373b5c7a
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function SURFACE_LOWERING_SCHEMA() {
+  return "rml:surface-lowering:1";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/certified_translation.rs#CONCEPT_SPACE_SCHEMA@2932 target-sha256=3bfc833fb0c3a903b7a7dca54968c68bb2dadf6af82c3128ee4d67419c82beef
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function CONCEPT_SPACE_SCHEMA() {
+  return "rml:certified-concept-space:1";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/certified_translation.rs#RML_CONCEPT_NAMESPACE@3059 target-sha256=cfb2f2fe48573523dec614a34752b4ae5e189762055719cc8905db80163aa3a9
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function RML_CONCEPT_NAMESPACE() {
+  return "rml.";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/certified_translation.rs#CertificateError@4832 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
 
 function main() {
 

@@ -1,4 +1,4 @@
-(* rml-certified-item js/src/rml-certified-translation.mjs#section@34417 target-sha256=a7c5ed097357862042442ee415f35a61be819dec99516ce3e2130f761c3687e3 *)
+(* rml-certified-item js/src/rml-certified-translation.mjs#section@40983 target-sha256=a7c5ed097357862042442ee415f35a61be819dec99516ce3e2130f761c3687e3 *)
 (* Translated from JavaScript by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
 Set Warnings "-inexact-float".
@@ -27,7 +27,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item js/src/rml-certified-translation.mjs#sections@34517 target-sha256=5b818798adb34f0865f2e6f927029a78da91ae5e577a67edaf98eeb3890592eb *)
+(* rml-certified-item js/src/rml-certified-translation.mjs#sections@41083 target-sha256=5b818798adb34f0865f2e6f927029a78da91ae5e577a67edaf98eeb3890592eb *)
 (* Translated from JavaScript by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii Floats.
 Set Warnings "-inexact-float".

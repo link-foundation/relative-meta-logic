@@ -43,6 +43,27 @@ inductive GoalNormalization where
 
 def main : IO Unit := do
   pure ()
+-- rml-certified-item rust/src/linked_program.rs#ReductionStopped@6600 target-sha256=b69f8dae0b862253f56392a100fb031aaec1c74c6e94c790aa55bd329072ec2f
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive GoalNormalization where
+  | Normal : GoalNormalization
+  | RewriteLimit : GoalNormalization
+  | RewriteCycle : GoalNormalization
+  | RewriteStalled : GoalNormalization
+  | ContractionLimit : GoalNormalization
+  deriving Repr, DecidableEq, Inhabited
+
+inductive ReductionStopped where
+  | ReductionStopped (field0 : GoalNormalization) (field1 : String) : ReductionStopped
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
 -- rml-certified-item rust/src/linked_program.rs#ReduceFailure@6988 target-sha256=e02f9e0be70691ee8acc6c095d30f4e662c51746f2ee9e29fae1d07e03375f69
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
@@ -71,6 +92,578 @@ inductive AddedFact where
   | Duplicate : AddedFact
   | New : AddedFact
   | OverLimit : AddedFact
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapSemanticSource@9099 target-sha256=15a10ce53b9e975aca6b24fd1b9c79f069cae111b433ad6584e6af998e0bc099
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapSemanticSource where
+  | BootstrapSemanticSource (field0 : String) (field1 : String) (field2 : String) (field3 : String) (field4 : Nat) (field5 : Nat) (field6 : Nat) (field7 : String) (field8 : Bool) : BootstrapSemanticSource
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapSemanticLawProvenance@9486 target-sha256=28971cc3bfea82ca45421829f60299d69992108d2b88ea9a5c917ba063fda36e
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapSemanticLawProvenance where
+  | BootstrapSemanticLawProvenance (field0 : String) (field1 : String) (field2 : String) : BootstrapSemanticLawProvenance
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapMinimizationExperiment@9662 target-sha256=102bf6bdd77ba6661aec149c20a09c53ae178cbee99ea5aff44b82d14e87ea5c
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapMinimizationExperiment where
+  | BootstrapMinimizationExperiment (field0 : String) (field1 : String) (field2 : String) (field3 : String) : BootstrapMinimizationExperiment
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapObservedPathSegment@10224 target-sha256=2200cf45a3e8d12437b1af164970e6d6df9538517296a9fa3cbb60799caa738c
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapObservedPathSegment where
+  | BootstrapObservedPathSegment (field0 : String) (field1 : String) : BootstrapObservedPathSegment
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapObservedLinkedCapabilitySegment@10374 target-sha256=fb069d1b819c112064757ce4c263f8e557b26b9e42da696f67c7d02df0ef61bf
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapObservedLinkedCapabilitySegment where
+  | BootstrapObservedLinkedCapabilitySegment (field0 : String) (field1 : String) : BootstrapObservedLinkedCapabilitySegment
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapPrimitiveMetric@11295 target-sha256=dddda6bdd57701754cf4fd8e7dd798e3d3c0d97d6974c35a66cd1502cdc0db0a
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapPrimitiveMetric where
+  | BootstrapPrimitiveMetric (field0 : Nat) (field1 : Nat) : BootstrapPrimitiveMetric
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapRemovalExperiment@13354 target-sha256=a5a43e054a008cb218cbedb2eb7165e3081ed3da2faff1ad02f692ea6e6b5ff0
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapRemovalExperiment where
+  | BootstrapRemovalExperiment (field0 : String) (field1 : String) (field2 : Bool) (field3 : String) : BootstrapRemovalExperiment
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapProvenanceItem@15483 target-sha256=1187f65e95be4b2c1ecf7a0f8ca10b12d07e2b58469efd595ddb9b26303ee8ea
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapProvenanceItem where
+  | BootstrapProvenanceItem (field0 : String) (field1 : String) : BootstrapProvenanceItem
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#BootstrapEliminatedSource@15618 target-sha256=b68258945e30fdabc46f8b0718fe42d98e86e58524006f6a609493efb27493dd
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive BootstrapEliminatedSource where
+  | BootstrapEliminatedSource (field0 : String) (field1 : String) (field2 : Bool) : BootstrapEliminatedSource
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkModelAssumption@16895 target-sha256=dc8420e4bba7bd175878d75879f5045d756fbdcf961bdab31b21d669e5001ddc
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkModelAssumption where
+  | LinkModelAssumption (field0 : String) (field1 : String) (field2 : String) : LinkModelAssumption
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#FoundationalOpenQuestion@17050 target-sha256=7218a7613c2435c5e86afaac3ed02fd64ee67b7523f2842cb7be5ac094cad630
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive FoundationalOpenQuestion where
+  | FoundationalOpenQuestion (field0 : String) (field1 : String) (field2 : String) : FoundationalOpenQuestion
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#ImportedPrimitiveCategory@17214 target-sha256=bbdb65840c59e0cf2e08c0654be0ecee20775d0c5647edf7b43d08c8f26551eb
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive ImportedPrimitiveCategory where
+  | ImportedPrimitiveCategory (field0 : String) (field1 : String) (field2 : String) : ImportedPrimitiveCategory
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyAssumption@17394 target-sha256=636c6a0e52adeed1dfb9dcd8ed5e550651e7a02c521f031a11fdf795cb1bedc8
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyAssumption where
+  | LinkOntologyAssumption (field0 : String) (field1 : String) (field2 : String) : LinkOntologyAssumption
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyConditionalAssumption@19379 target-sha256=eee7b0a9ad50562cd5654b239c4e12f2d41ebfdc67adebbdd2f2bcb200b59afe
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyConditionalAssumption where
+  | LinkOntologyConditionalAssumption (field0 : String) (field1 : String) (field2 : String) (field3 : String) : LinkOntologyConditionalAssumption
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyRefinementEncoding@19595 target-sha256=3a052a10c8d45888dd24404574f0a0f9da129851bdfa7055f91245e058b332aa
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyRefinementEncoding where
+  | LinkOntologyRefinementEncoding (field0 : String) (field1 : Nat) (field2 : Bool) : LinkOntologyRefinementEncoding
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologySingletonOrbitHistogram@20154 target-sha256=10bb78032c32123b4b68068ee604d901d3ee82c2a9cb7e03db3bbb989dd04a71
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologySingletonOrbitHistogram where
+  | LinkOntologySingletonOrbitHistogram (field0 : Nat) (field1 : Nat) : LinkOntologySingletonOrbitHistogram
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyAsymmetryProvenanceClassification@20304 target-sha256=8f0141d96e20d1d7769c03834f7cbcd20c2218515f173c7d3a87c7dd71108f11
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyAsymmetryProvenanceClassification where
+  | LinkOntologyAsymmetryProvenanceClassification (field0 : String) (field1 : Nat) : LinkOntologyAsymmetryProvenanceClassification
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyDerivationEnumeration@21360 target-sha256=076eb35676543df900d95ce57af6b3f970c6d30ab9d706b68c346b71d1c8e274
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyDerivationEnumeration where
+  | LinkOntologyDerivationEnumeration (field0 : Nat) (field1 : Nat) (field2 : Nat) (field3 : Nat) (field4 : Nat) (field5 : Nat) : LinkOntologyDerivationEnumeration
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyLossAudit@23696 target-sha256=a46f9426f474f22904a0fcf2e1fd6366f896df86e656afeb803a48661a0770d2
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyLossAudit where
+  | LinkOntologyLossAudit (field0 : String) (field1 : String) (field2 : String) : LinkOntologyLossAudit
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyAddressableProjectionFibreHistogram@23874 target-sha256=fde2f337b2b7c6aa092c228020774105c77e10c5205437b98d5379dcc6ef1931
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyAddressableProjectionFibreHistogram where
+  | LinkOntologyAddressableProjectionFibreHistogram (field0 : Nat) (field1 : Nat) : LinkOntologyAddressableProjectionFibreHistogram
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyStartingRepresentationJustification@24490 target-sha256=a49acf730c9f5ab4eccee81deec7439ea7b9d14ffe7d66ae08c9074191ad961d
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyStartingRepresentationJustification where
+  | LinkOntologyStartingRepresentationJustification (field0 : String) (field1 : String) (field2 : String) : LinkOntologyStartingRepresentationJustification
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologySharedCompositionFibreHistogram@27106 target-sha256=84030e74cb8b216989a8db86715d86acf3956ba31eb057e5d8c89c1393d9dbf1
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologySharedCompositionFibreHistogram where
+  | LinkOntologySharedCompositionFibreHistogram (field0 : Nat) (field1 : Nat) : LinkOntologySharedCompositionFibreHistogram
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologySharedCompositionClassification@28135 target-sha256=8ef860c71f2a1276b01d21e674064d8c9f4cc9717d6bee494cbcdc280e9bbed8
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologySharedCompositionClassification where
+  | LinkOntologySharedCompositionClassification (field0 : String) (field1 : String) (field2 : String) (field3 : String) : LinkOntologySharedCompositionClassification
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologySemanticSeparation@29123 target-sha256=fcddce33d3858a640292216903b4e7cbb7543c64ace93b0f2249c2051800218f
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologySemanticSeparation where
+  | LinkOntologySemanticSeparation (field0 : String) (field1 : String) (field2 : String) (field3 : String) : LinkOntologySemanticSeparation
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyCompositionCommonFacts@30248 target-sha256=cdce7cd869d661e6a8092b551f8b47fbc840705cf1324866ece1d5b906228bf7
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyCompositionCommonFacts where
+  | LinkOntologyCompositionCommonFacts (field0 : Bool) (field1 : Bool) (field2 : Bool) (field3 : Bool) (field4 : Bool) (field5 : Bool) : LinkOntologyCompositionCommonFacts
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyTransitionLawRemoval@32410 target-sha256=11b30a61890848ad33421afb13a6cd8607c2a6a268b015a4a7a585dcc6a2aee1
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyTransitionLawRemoval where
+  | LinkOntologyTransitionLawRemoval (field0 : String) (field1 : String) (field2 : String) (field3 : String) (field4 : String) : LinkOntologyTransitionLawRemoval
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyTransitionStageBoundary@32731 target-sha256=49feea00721442de416430188592585fdfebfb753133715e925a1c547780e751
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyTransitionStageBoundary where
+  | LinkOntologyTransitionStageBoundary (field0 : Bool) (field1 : Bool) (field2 : Bool) (field3 : Bool) (field4 : Bool) : LinkOntologyTransitionStageBoundary
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyAdmittedLawCriterion@34377 target-sha256=dd98c7462afafbba30316d0b5a4bae62d7ebd3867a8a60ad9a2028a32aa29445
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyAdmittedLawCriterion where
+  | LinkOntologyAdmittedLawCriterion (field0 : String) (field1 : Nat) (field2 : Nat) : LinkOntologyAdmittedLawCriterion
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyConsequenceSlotOrder@35816 target-sha256=f747a4c93fc5dddc90bb260c77e57dc178f17596701e816b338a38972377d66a
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyConsequenceSlotOrder where
+  | LinkOntologyConsequenceSlotOrder (field0 : Nat) (field1 : Nat) (field2 : Bool) (field3 : Bool) : LinkOntologyConsequenceSlotOrder
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyConsequenceAssumptionRemoval@36088 target-sha256=da31032a9f547e2c6d63974fc8d65c649a0cf2448c105bcd078e553a7d652dc2
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyConsequenceAssumptionRemoval where
+  | LinkOntologyConsequenceAssumptionRemoval (field0 : String) (field1 : String) (field2 : String) (field3 : String) : LinkOntologyConsequenceAssumptionRemoval
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyConsequenceSelfApplication@36363 target-sha256=2535f9925c9011593f2896ba26e8822da3c369e55c3973afa1139380dd96d4a1
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyConsequenceSelfApplication where
+  | LinkOntologyConsequenceSelfApplication (field0 : Bool) (field1 : Bool) (field2 : Nat) (field3 : Bool) : LinkOntologyConsequenceSelfApplication
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyOrientationTally@37719 target-sha256=87462531a038c3fc570762533bd9793aa9cb09f4e9cc7d6ed7e71eb29072e5f6
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyOrientationTally where
+  | LinkOntologyOrientationTally (field0 : String) (field1 : Nat) (field2 : Nat) (field3 : Nat) : LinkOntologyOrientationTally
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyOrientationTaggedEncoding@39612 target-sha256=a94b9074a1d4a826ebde49f5c9cde7207587f3d584b7ae2016c6eac1e8a0c0d7
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyOrientationTaggedEncoding where
+  | LinkOntologyOrientationTaggedEncoding (field0 : String) (field1 : Nat) (field2 : Bool) (field3 : Bool) (field4 : String) (field5 : Nat) : LinkOntologyOrientationTaggedEncoding
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyOrientationAsymmetry@40956 target-sha256=6a2901e2dd4508d7184007fe8020bb33685be522a3f854c79db65080bb632da3
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyOrientationAsymmetry where
+  | LinkOntologyOrientationAsymmetry (field0 : String) (field1 : String) : LinkOntologyOrientationAsymmetry
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyOrientationNoGo@41100 target-sha256=e77a1ab45b93c380391a9b9cce29a91b87118c0dedc403e072da9c6342b259ef
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyOrientationNoGo where
+  | LinkOntologyOrientationNoGo (field0 : String) (field1 : String) : LinkOntologyOrientationNoGo
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyAuthorityDistinctions@46831 target-sha256=1414b08d7e12d38b5342224428e3969c1396c42395045a639efa2524a54d6b7d
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyAuthorityDistinctions where
+  | LinkOntologyAuthorityDistinctions (field0 : String) (field1 : String) (field2 : String) (field3 : String) (field4 : String) (field5 : String) : LinkOntologyAuthorityDistinctions
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyAdmissibilityAdversarialBoundary@48462 target-sha256=21da6fdd281c38db3dac84e93f8f29cd01e2dac77d67b54abaaff50cc19f28b4
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyAdmissibilityAdversarialBoundary where
+  | LinkOntologyAdmissibilityAdversarialBoundary (field0 : Bool) (field1 : Bool) (field2 : Bool) (field3 : Bool) (field4 : Bool) : LinkOntologyAdmissibilityAdversarialBoundary
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyAuthorityRegress@48868 target-sha256=adc831bf1c7b3f0b6b6c3176cb7c2ae198abeae523a1c0ea67a8469d532152b3
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyAuthorityRegress where
+  | LinkOntologyAuthorityRegress (field0 : Bool) (field1 : Bool) (field2 : Bool) (field3 : Bool) (field4 : Bool) (field5 : Bool) (field6 : String) : LinkOntologyAuthorityRegress
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyAdmissibilityDistinctions@49337 target-sha256=5ff1d181fe0891b4d1a93807cf3b31bdaa81a7c24bde99894e831c68bab17d38
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyAdmissibilityDistinctions where
+  | LinkOntologyAdmissibilityDistinctions (field0 : String) (field1 : String) (field2 : String) (field3 : String) (field4 : String) (field5 : String) (field6 : String) (field7 : String) (field8 : String) : LinkOntologyAdmissibilityDistinctions
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyVerifierStepRemovalTests@50472 target-sha256=507835598984236ad49c8ae50a6dcf6d4443617b50958fbac0913ae9b6d49d2a
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyVerifierStepRemovalTests where
+  | LinkOntologyVerifierStepRemovalTests (field0 : String) (field1 : String) (field2 : String) (field3 : Bool) (field4 : String) (field5 : String) : LinkOntologyVerifierStepRemovalTests
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyVerifierStepBoundaries@50868 target-sha256=616e29840a56c4c6b88ddbcd814e3ca2f3de84ffe1d9c3088478f10ab1359f21
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyVerifierStepBoundaries where
+  | LinkOntologyVerifierStepBoundaries (field0 : String) (field1 : String) (field2 : String) : LinkOntologyVerifierStepBoundaries
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyQuotientEnumeration@51462 target-sha256=74180b6bc94a36d2359dcbdb2b18fa38b84a8ff5cf93105c7611493d0dcc188e
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyQuotientEnumeration where
+  | LinkOntologyQuotientEnumeration (field0 : Nat) (field1 : Nat) (field2 : Nat) (field3 : Nat) : LinkOntologyQuotientEnumeration
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyQuotientTransformation@51749 target-sha256=1a36ad60059c23c5babf742c9b99356fd62ba6e4ce873fb8d363b049ea3ccff0
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyQuotientTransformation where
+  | LinkOntologyQuotientTransformation (field0 : String) (field1 : String) (field2 : String) (field3 : String) : LinkOntologyQuotientTransformation
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_program.rs#LinkOntologyResult@54835 target-sha256=033818bf1b6a867cb1921f59802801c05881c5f7aed0df8c049cd88a664bc3e7
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkOntologyResult where
+  | LinkOntologyResult (field0 : String) (field1 : String) (field2 : String) : LinkOntologyResult
   deriving Repr, DecidableEq, Inhabited
 
 def main : IO Unit := do

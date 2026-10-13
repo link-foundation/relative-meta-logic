@@ -43,6 +43,45 @@ def LINO_PIECE_DEPTH : Nat :=
 
 def main : IO Unit := do
   pure ()
+-- rml-certified-item rust/src/lino_frontend.rs#LinoParseError@5231 target-sha256=1f1bae4cd09c23245e7934b83bc23d3b9145684e3f2f56ac3be65bd6f7382ce4
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinoParseError where
+  | LinoParseError (field0 : String) (field1 : Nat) (field2 : Nat) (field3 : Nat) : LinoParseError
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lino_frontend.rs#LogicalLine@16954 target-sha256=56dd2783dfaa8ca6e5729f0dbdf84bc0d95a8f92b6afca6bda882374f63ad854
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LogicalLine where
+  | LogicalLine (field0 : Nat) (field1 : Nat) (field2 : Nat) : LogicalLine
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lino_frontend.rs#QuoteReference@17373 target-sha256=ed0fa7ecce45ec4b528261f63eaa0a6bfb0456824bd4bff7f0633341803811f5
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive QuoteReference where
+  | QuoteReference (field0 : Nat) (field1 : Nat) (field2 : String) : QuoteReference
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
 -- rml-certified-item rust/src/lino_frontend.rs#DROPPED_LINE@31975 target-sha256=ce0c6f344fae0db5e7989e44f7faed1e8df6c58b02b5b7d68b06e0a94a89ca2b
 -- Translated from Rust by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
@@ -52,6 +91,19 @@ set_option linter.constructorNameAsVariable false
 
 def DROPPED_LINE : String :=
   "unexpected indentation under a value of an indented id"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/lino_frontend.rs#LinoForm@34239 target-sha256=a76dccc1fae860bfedc8731c4ce073fc709bbc86513ec1926f2f85b29b0f722a
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinoForm where
+  | LinoForm (field0 : String) (field1 : Nat) (field2 : Nat) (field3 : Nat) : LinoForm
+  deriving Repr, DecidableEq, Inhabited
 
 def main : IO Unit := do
   pure ()
