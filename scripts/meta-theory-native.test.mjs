@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-  NATIVE_CASES_PATH, NATIVE_COVERAGE_PATH, NATIVE_PRELUDE_PATH, NATIVE_PROGRAM_PATH,
+  NATIVE_CASES_PATH, NATIVE_CONVERSION_PATH, NATIVE_COVERAGE_PATH, NATIVE_PRELUDE_PATH, NATIVE_PROGRAM_PATH,
   ablationOutcome, executeNative, expandRequest, metaTheoryNativeArtifacts, validateNativeEvidence,
 } from './generate-meta-theory-native.mjs';
 import {
@@ -20,6 +20,7 @@ describe('native linked execution of the pinned meta-theory corpus', () => {
   it('regenerates the program, cases and coverage byte-for-byte from the preserved tokens', () => {
     const artifacts = metaTheoryNativeArtifacts();
     assert.equal(artifacts.program, program);
+    assert.equal(artifacts.conversion, read(NATIVE_CONVERSION_PATH));
     assert.equal(`${JSON.stringify(artifacts.cases, null, 2)}\n`, read(NATIVE_CASES_PATH));
     assert.equal(`${JSON.stringify(artifacts.coverage, null, 2)}\n`, read(NATIVE_COVERAGE_PATH));
   });

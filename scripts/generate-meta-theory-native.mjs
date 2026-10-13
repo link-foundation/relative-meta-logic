@@ -29,6 +29,7 @@ export const NATIVE_PROGRAM_PATH = 'lib/meta-theory/upstream-0.0.3-native.lino';
 export const NATIVE_PRELUDE_PATH = 'lib/meta-theory/meta-theory-native-prelude.lino';
 export const NATIVE_CASES_PATH = 'test-corpus/meta-theory-native/cases.json';
 export const NATIVE_COVERAGE_PATH = 'test-corpus/meta-theory-native/coverage.json';
+export const NATIVE_CONVERSION_PATH = 'lib/meta-theory/upstream-0.0.3-native-conversion.lino';
 
 /** The upstream comment on the command's last line, if any (the source-stated expectation). */
 function sourceExpectation(command, rawModules) {
@@ -191,6 +192,7 @@ export function metaTheoryNativeArtifacts() {
     corpusFingerprint: corpus.fingerprint,
     programHash,
     preludeHash,
+    conversionHash: nativeSha256(native.conversionProgramSource()),
     semantics: 'untyped call-by-value linked execution; typing is the separate formal-propositions layer',
     declarationCount: declarations.length,
     elaborated: count(entry => entry.status === 'elaborated'),
@@ -209,6 +211,7 @@ export function metaTheoryNativeArtifacts() {
   };
   return {
     program,
+    conversion: native.conversionProgramSource(),
     cases: { schema: `${META_THEORY_NATIVE_SCHEMA}-cases`, corpusFingerprint: corpus.fingerprint, programHash, preludeHash,
       program: META_THEORY_NATIVE_PROGRAM, maxSteps: NATIVE_MAX_STEPS, cases },
     coverage,
@@ -291,6 +294,7 @@ function main() {
   const artifacts = metaTheoryNativeArtifacts();
   const outputs = [
     [NATIVE_PROGRAM_PATH, artifacts.program],
+    [NATIVE_CONVERSION_PATH, artifacts.conversion],
     [NATIVE_CASES_PATH, `${JSON.stringify(artifacts.cases, null, 2)}\n`],
     [NATIVE_COVERAGE_PATH, `${JSON.stringify(artifacts.coverage, null, 2)}\n`],
   ];
