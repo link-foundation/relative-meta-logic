@@ -17,7 +17,7 @@ describe('registered RML syntax extension', () => {
     const network = parseRmlToMetaLanguage(item.source);
     assert.equal(reconstructRmlFromMetaLanguage(network), item.source);
     const stages = rmlRepresentationStages(network);
-    assert.equal(stages.resolution, 'not-run');
+    assert.equal(stages.resolution, item.error ? 'not-run' : item.resolution);
     assert.equal(stages.elaboration, 'not-run');
     assert.equal(stages.execution, 'not-run');
     assert.equal(stages.verification, 'not-run');

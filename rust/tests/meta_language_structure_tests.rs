@@ -23,14 +23,15 @@ fn shared_structure_corpus_discards_source_without_claiming_semantics() {
             item["name"]
         );
         let stages = rml_representation_stages(&network);
-        for stage in [
-            stages.resolution,
-            stages.elaboration,
-            stages.execution,
-            stages.verification,
-        ] {
+        for stage in [stages.elaboration, stages.execution, stages.verification] {
             assert_eq!(stage, "not-run");
         }
+        assert_eq!(
+            stages.resolution,
+            item["resolution"].as_str().unwrap_or("not-run"),
+            "{}",
+            item["name"]
+        );
         if let Some(error) = item["error"].as_str() {
             assert_eq!(stages.parsing, "rejected");
             assert_eq!(stages.diagnostic.as_deref(), Some(error));

@@ -16,8 +16,12 @@ import {
   TruthValue,
 } from '#meta-language';
 import { rewriteJavaScriptIdentifier } from './rml-js-rename.mjs';
+import { LinoParseError } from './rml-lino-frontend.mjs';
 import { evaluate, parseLino } from './rml-links.mjs';
-import { attachRmlStructure, rmlStructuredForms, rmlRepresentationStages } from './rml-meta-structure.mjs';
+import {
+  attachRmlStructure, emitRmlExactSource, emitRmlFromStructure, resolveRmlStructure,
+  rmlRepresentationStages, rmlStructuredForms,
+} from './rml-meta-structure.mjs';
 export * from './rml-meta-structure.mjs';
 
 const RML_META_LANGUAGE = 'RML';
@@ -42,6 +46,12 @@ function parseRmlToMetaLanguage(source, options = {}) {
   const language = options.language ?? RML_META_LANGUAGE;
   const network = LinkNetwork.parse(String(source), language, defaultConfiguration(options.configuration));
   attachRmlStructure(network, String(source), language);
+  // Resolution is a separate stage; a rejected parse has no syntax to resolve.
+  try {
+    resolveRmlStructure(network, language);
+  } catch (error) {
+    if (!(error instanceof LinoParseError)) throw error;
+  }
   return network;
 }
 
@@ -87,6 +97,22 @@ function rmlMetaLanguageParityReport(source, options = {}) {
     evaluationParityOk: sameJson(direct.results, meta.results) &&
       sameJson(direct.diagnostics, meta.diagnostics),
   };
+}
+
+/**
+ * Report every representation stage separately. Execution runs only on request,
+ * through the RML evaluator, on the exact source when its layout is intact and
+ * otherwise on canonical structure; it never upgrades resolution or verification.
+ */
+function rmlStageReport(network, options = {}) {
+  const language = options.language ?? RML_META_LANGUAGE;
+  const stages = rmlRepresentationStages(network, language);
+  if (!options.execute || stages.parsing !== 'parsed') return stages;
+  const input = ['verified', 'edited'].includes(stages.exactSource) ? 'exact-source' : 'canonical-structure';
+  const text = input === 'exact-source' ? emitRmlExactSource(network, language) : emitRmlFromStructure(network, language);
+  const result = evaluate(text, options.evaluationOptions ?? {});
+  return { ...stages, execution: 'executed', executionInput: input, executionResults: result.results.length,
+    executionDiagnostics: result.diagnostics.map(diagnostic => diagnostic.code) };
 }
 
 function rewriteJavaScriptIdentifierViaMetaLanguage(source, from, to) {
@@ -170,6 +196,7 @@ export {
   renderMetaLanguageTranslationSmoke,
   rewriteJavaScriptIdentifierViaMetaLanguage,
   rmlMetaLanguageParityReport,
+  rmlStageReport,
 };
 
 export * from './rml-upstream-language.mjs';

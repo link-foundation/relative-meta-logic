@@ -10,12 +10,21 @@
   "rmlExtension": {
     "schema": "rml:structure:1",
     "coverage": "complete shared LiNo frontend syntax tree, categorized forms and source locations; unrecognized forms retained",
-    "sourcePreservation": "exact independent source-token plane",
+    "sourcePreservation": "exact independent source-token plane, plus layout links that spell every character bound to syntax occurrences",
     "canonicalRoundTrip": "structured network with source tokens discarded",
-    "resolution": "not-run",
+    "exactRoundTrip": "byte-exact source emitted from layout links after the buffer is discarded, verified against a SHA-256 provenance receipt; explicit layout-refusal receipt otherwise",
+    "resolution": "checked declarations, binders, roles and bound/global/ambiguous/free resolutions keyed by occurrence address; recomputed and compared on every read",
     "elaboration": "not-run",
-    "execution": "not-run",
-    "verification": "not-run"
+    "execution": "optional RML evaluator run on exact or canonical source, reported separately",
+    "verification": "not-run",
+    "evidence": [
+      "js/src/rml-meta-structure.mjs",
+      "rust/src/meta_language_structure.rs",
+      "js/tests/meta-language-semantics.test.mjs",
+      "rust/tests/meta_language_semantics_tests.rs",
+      "test-corpus/meta-language/rml-semantics.json",
+      "test-corpus/meta-language/rml-binding-rewrites.json"
+    ]
   },
   "languages": [
     {
@@ -657,5 +666,54 @@
     "unsupported": "reversible source envelope with diagnostic and no semantic result; not counted as translation of behavior or proof",
     "nativeValidation": "The separate portable-natural native receipt does not certify every program emitted by the upstream translator",
     "fullLanguageStatus": "open"
+  },
+  "constructInventory": {
+    "classifier": "docs/case-studies/issue-183/language-construct-classifier.json",
+    "inventory": "docs/case-studies/issue-183/language-constructs.json",
+    "corpus": "test-corpus/meta-language/construct-corpus.json",
+    "axes": [
+      "grammar",
+      "structure",
+      "scope",
+      "types",
+      "modules",
+      "recursion",
+      "proofForms",
+      "runtime",
+      "standards",
+      "extensions"
+    ],
+    "languages": {
+      "JavaScript": {
+        "rules": 143,
+        "observable": 109,
+        "exercised": 103,
+        "refusedPrograms": 0
+      },
+      "Rust": {
+        "rules": 184,
+        "observable": 158,
+        "exercised": 146,
+        "refusedPrograms": 0
+      },
+      "Lean": {
+        "rules": 147,
+        "observable": 119,
+        "exercised": 107,
+        "refusedPrograms": 3
+      },
+      "Rocq": {
+        "rules": 265,
+        "observable": 219,
+        "exercised": 191,
+        "refusedPrograms": 1
+      }
+    },
+    "gate": [
+      "node scripts/language-construct-inventory.mjs --check",
+      "js/tests/language-construct-inventory.test.mjs",
+      "rust/tests/language_construct_inventory_tests.rs"
+    ],
+    "boundary": "Every upstream native-grammar rule is classified and corpus exercise is measured by native construct trees. This audits the upstream native grammars; it does not prove they equal the production languages, and recorded refusals (Lean structured induction alternatives and where-declarations, Rocq CoFixpoint) show they do not."
   }
 }

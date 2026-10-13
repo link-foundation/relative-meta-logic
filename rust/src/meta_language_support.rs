@@ -52,7 +52,60 @@ pub struct MetaLanguageFeatureReport {
 pub fn parse_rml_to_meta_language(source: &str) -> LinkNetwork {
     let mut network = LinkNetwork::parse(source, RML_META_LANGUAGE, ParseConfiguration::default());
     attach_rml_structure(&mut network, source);
+    // Resolution is a separate stage; a rejected parse has no syntax to resolve, and an
+    // absent semantic root stays visible as `resolution: "not-run"`.
+    if rml_structured_document(&network).is_ok() {
+        let _ = resolve_rml_structure(&mut network);
+    }
     network
+}
+
+/// Every representation stage reported separately. Execution runs only on request,
+/// through the RML evaluator, on the exact source when its layout is intact and
+/// otherwise on canonical structure; it never upgrades resolution or verification.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RmlStageReport {
+    pub stages: RmlRepresentationStages,
+    pub execution: &'static str,
+    pub execution_input: Option<&'static str>,
+    pub execution_results: usize,
+    pub execution_diagnostics: Vec<String>,
+}
+
+pub fn rml_stage_report(network: &LinkNetwork, execute: bool) -> RmlStageReport {
+    let stages = rml_representation_stages(network);
+    if !execute || stages.parsing != "parsed" {
+        return RmlStageReport {
+            stages,
+            execution: "not-run",
+            execution_input: None,
+            execution_results: 0,
+            execution_diagnostics: Vec::new(),
+        };
+    }
+    let exact = matches!(stages.exact_source, "verified" | "edited");
+    let text = if exact {
+        emit_rml_exact_source(network)
+    } else {
+        emit_rml_from_structure(network).map_err(|error| error.to_string())
+    }
+    .unwrap_or_default();
+    let result = evaluate(&text, None, None);
+    RmlStageReport {
+        stages,
+        execution: "executed",
+        execution_input: Some(if exact {
+            "exact-source"
+        } else {
+            "canonical-structure"
+        }),
+        execution_results: result.results.len(),
+        execution_diagnostics: result
+            .diagnostics
+            .iter()
+            .map(|diagnostic| diagnostic.code.clone())
+            .collect(),
+    }
 }
 
 pub fn reconstruct_rml_from_meta_language(network: &LinkNetwork) -> String {

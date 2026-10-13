@@ -783,8 +783,8 @@ fn transform_link(item: &RawItem) -> ParsedLink {
     }
 }
 
-// Delegate canonical spelling to the same released protocol provider as JavaScript.
-fn escape_reference(reference: &str) -> String {
+/// Canonical reference spelling, delegated to the same released protocol provider as JavaScript.
+pub fn escape_reference(reference: &str) -> String {
     links_notation::LiNo::Ref(reference.to_string()).to_string()
 }
 
