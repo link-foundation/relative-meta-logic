@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Native-validity oracles for the certified translation corpus. Each committed
 // target is compiled or checked by its own toolchain and run; its printed lines
-// must equal the RML observation recorded in the certificate. Kernel or
+// must equal the RML observation recorded in the certificate. Each hand-written
+// source is also run natively against its hand-written lines. Kernel or
 // compiler acceptance is oracle evidence only: it never changes a certificate
 // obligation, and this script is meant for CI (do not run toolchains locally
 // when the repository policy forbids it).
@@ -23,7 +24,7 @@ const output = option('output');
 const directory = mkdtempSync(join(tmpdir(), 'rml-certified-native-'));
 const commands = { JavaScript: process.execPath, Rust: process.env.RUSTC ?? 'rustc', Lean: process.env.LEAN ?? 'lean', Rocq: process.env.ROCQ ?? process.env.COQC ?? 'rocq' };
 let rocqPrefix = process.env.COQC && !process.env.ROCQ ? [] : ['compile'];
-const versions = {}; const skipped = []; const checks = []; const failures = []; const negativeChecks = [];
+const versions = {}; const skipped = []; const checks = []; const sourceChecks = []; const failures = []; const negativeChecks = [];
 const sha256 = text => createHash('sha256').update(text).digest('hex');
 
 function run(command, args, { allowFailure = false } = {}) {
@@ -107,11 +108,29 @@ try {
     }
     if (!negatives.has(target)) { negatives.add(target); negative(target, code, name); }
   }
+  // Source oracle: each hand-written source runs under its own toolchain and must print the
+  // hand-written lines. This independently checks RML surface lowering (records, structures,
+  // monomorphized type parameters), since the certified observation is of the lowered program.
+  for (const item of corpus.translations) {
+    if (!languages.has(item.language) || !versions[item.language]) continue;
+    const code = readFileSync(join(CORPUS_DIRECTORY, item.source), 'utf8');
+    const file = join(directory, `${item.name.replaceAll('-', '_')}_source.${CERTIFIED_EXTENSIONS[item.language]}`);
+    writeFileSync(file, code);
+    try {
+      const observed = observe(item.language, file);
+      const status = JSON.stringify(observed) === JSON.stringify(item.lines) ? 'passed' : 'mismatch';
+      sourceChecks.push({ case: item.name, language: item.language, sourceSha256: sha256(code), status, expected: item.lines, observed });
+      if (status !== 'passed') failures.push({ case: item.name, source: item.language, reason: 'source observation mismatch', expected: item.lines, observed });
+    } catch (error) {
+      sourceChecks.push({ case: item.name, language: item.language, sourceSha256: sha256(code), status: 'failed', error: error.message.slice(0, 4000) });
+      failures.push({ case: item.name, source: item.language, reason: error.message.slice(0, 4000) });
+    }
+  }
   const missingRequired = [...required].filter(language => !versions[language]);
   const report = { schema: 'rml:certified-translation-native-results:1',
     status: failures.length || missingRequired.length ? 'failed' : skipped.length ? 'passed-available-oracles' : 'passed-all-oracles',
     authority: 'native toolchains are validity oracles; their acceptance does not discharge any RML certificate obligation',
-    corpus: CORPUS_DIRECTORY.split('/').slice(-2).join('/'), versions, checks, negativeChecks, skipped, missingRequired, failures };
+    corpus: CORPUS_DIRECTORY.split('/').slice(-2).join('/'), versions, checks, sourceChecks, negativeChecks, skipped, missingRequired, failures };
   const text = `${JSON.stringify(report, null, 2)}\n`;
   if (output) writeFileSync(output, text);
   console.log(text);

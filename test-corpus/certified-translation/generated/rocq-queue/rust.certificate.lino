@@ -118,7 +118,7 @@
     (types checked-intermediate "declaration types are the checked intermediate types: nat, priority, queue, string; target representations are listed under encodings")
     (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
     (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
-    (proof-obligations partially-discharged "1 theorem(s) and assertion(s): 0 discharged by RML evaluation, 1 open, 0 refuted"))
+    (proof-obligations partially-discharged "1 theorem(s) and assertion(s): 0 discharged by RML evaluation, 1 open, 0 refuted; 2 termination obligation(s): 2 discharged by RML structural decrease, 0 open (general or mutual recursion)"))
   (assumptions (count 0))
   (encodings
     (count 4)
@@ -143,6 +143,22 @@
       (status open)
       (by bounded-runtime-check-not-proof))
     (obligation
+      (id "termination:score")
+      (kind termination)
+      (source score)
+      (target "structural:q")
+      (closed true)
+      (status discharged)
+      (by rml-structural-decrease))
+    (obligation
+      (id "termination:urgent")
+      (kind termination)
+      (source urgent)
+      (target "structural:q")
+      (closed true)
+      (status discharged)
+      (by rml-structural-decrease))
+    (obligation
       (id emitter-faithfulness)
       (kind trust)
       (source intermediate)
@@ -150,7 +166,7 @@
       (closed false)
       (status open)
       (by native-oracle-ci)))
-  (verdict (discharged 0) (open 2) (assumed 0) (refuted 0))
+  (verdict (discharged 2) (open 2) (assumed 0) (refuted 0))
   (losses
     (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
     (renamed priority Priority)
@@ -165,4 +181,4 @@
     (runtime none)
     (external-kernels oracle-only)
     (proof-authority rml))
-  (digest sha256 865b44eb9a090e24f2db1fd6b157821925075ef6887e32739ebfa97f81192ff1))
+  (digest sha256 377a0838f8a56ee4c1d83785b7ffb81716c90d92e9244e20d5778ea315f35f3d))

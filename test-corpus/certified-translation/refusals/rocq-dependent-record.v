@@ -1,8 +1,6 @@
-(* Records are outside the admitted core; the refusal keeps the source and its span. *)
+(* A record whose field type depends on an earlier field has no constructor-application lowering; RML refuses it with the span. *)
 From Stdlib Require Import Arith String.
 
-Record point : Type := { px : nat; py : nat }.
-
-Definition origin : point := {| px := 0; py := 0 |}.
+Record bounded : Type := mkBounded { limit : nat; within : limit = limit }.
 
 Definition main : list string := nil.

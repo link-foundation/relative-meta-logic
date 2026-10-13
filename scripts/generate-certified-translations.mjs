@@ -18,7 +18,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 export const CORPUS_DIRECTORY = join(root, 'test-corpus/certified-translation');
 export const GENERATED_DIRECTORY = join(CORPUS_DIRECTORY, 'generated');
 const sha256 = value => createHash('sha256').update(value).digest('hex');
-const implementation = ['js/src/rml-certified-translation.mjs',
+const implementation = ['js/src/rml-certified-translation.mjs', 'js/src/rml-surface-lowering.mjs',
   'scripts/generate-certified-translations.mjs', 'js/vendor/meta-language-pr201/upstream-files.json'];
 
 export function readCertifiedCorpus() {

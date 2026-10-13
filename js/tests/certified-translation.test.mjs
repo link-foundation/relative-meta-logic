@@ -253,6 +253,7 @@ describe('first-refusal receipts keep the source and name every loss', () => {
       assert.equal(result.preservedSource, source);
       assert.equal(result.stage, item.stage);
       assert.equal(result.diagnostic.kind, item.kind);
+      if (item.stage === 'rml-lowering') assert.ok(result.diagnostic.message.startsWith(`${item.construct}:`), result.diagnostic.message);
       if (result.diagnostic.span) {
         assert.equal(sha256(source.slice(result.diagnostic.span.start, result.diagnostic.span.end)), result.diagnostic.span.sha256);
         assert.equal(Buffer.byteLength(source.slice(0, result.diagnostic.span.start)), result.diagnostic.span.byteStart);
@@ -269,7 +270,7 @@ describe('first-refusal receipts keep the source and name every loss', () => {
     const receipt = generated('refusals/rust-generic-function.javascript.refusal.lino');
     const fixed = 'fn ident(x: i64) -> i64 { x }\nfn main() { println!("{}", ident(3)); }\n';
     assert.deepEqual(codes(checkTranslationRefusal(receipt, { source: fixed })), ['RML_REFUSAL_NOT_REFUSED']);
-    const tampered = receipt.replace('generic function', 'generic fn');
+    const tampered = receipt.replace('generic call', 'generic fn');
     assert.deepEqual(codes(checkTranslationRefusal(tampered, { source: read('refusals/rust-generic-function.rs') })), ['RML_REFUSAL_MISMATCH']);
   });
 });
@@ -292,11 +293,87 @@ describe('RML-native evaluation semantics', () => {
   });
 });
 
+describe('surface lowering and termination evidence are certified', () => {
+  const lowered = ['rust-records', 'rust-generic', 'lean-structure', 'rocq-record'];
+  it('every lowered certificate lists its rewrites with exact original spans; others carry no lowering section', () => {
+    for (const item of corpus.translations) for (const target of targets(item.language)) {
+      const [form] = readLinksDocument(generated(`${stem(item.name, target)}.certificate.lino`));
+      const lowering = sectionOf(form, 'lowering');
+      if (!lowered.includes(item.name)) { assert.equal(lowering, undefined, item.name); continue; }
+      const source = read(item.source);
+      assert.equal(sectionOf(lowering, 'schema')[1], 'rml:surface-lowering:1');
+      const rewrites = lowering.filter(entry => Array.isArray(entry) && entry[0] === 'rewrite');
+      assert.equal(sectionOf(lowering, 'count')[1], String(rewrites.length));
+      for (const rewrite of rewrites) {
+        const [, start, end] = sectionOf(rewrite, 'span');
+        assert.equal(sha256(source.slice(Number(start), Number(end))), sectionOf(rewrite, 'span-sha256')[1]);
+      }
+    }
+  });
+  it('rejects a forged, hidden or dropped lowering section', () => {
+    const source = read('sources/rust-records.rs');
+    const certificate = generated('rust-records/lean.certificate.lino');
+    const renamed = editCertificate(certificate, form => { sectionOf(sectionOf(form, 'lowering'), 'rewrite')[1][1] = 'rust-macro-expansion'; });
+    assert.ok(codes(checkTranslationCertificate(renamed, { source })).includes('RML_CERT_LOWERING'));
+    const dropped = editCertificate(certificate, form => { form.splice(form.indexOf(sectionOf(form, 'lowering')), 1); });
+    assert.ok(codes(checkTranslationCertificate(dropped, { source })).includes('RML_CERT_LOWERING'));
+    const plain = generated('lean-list/rust.certificate.lino');
+    const invented = editCertificate(plain, form => { form.splice(4, 0, ['lowering', ['schema', 'rml:surface-lowering:1'], ['count', '0']]); });
+    assert.ok(codes(checkTranslationCertificate(invented, { source: read('sources/lean-list.lean') })).includes('RML_CERT_LOWERING'));
+  });
+  it('the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original', () => {
+    const source = read('sources/rust-records.rs');
+    const result = translateCertified(source, 'Rust', 'JavaScript');
+    assert.deepEqual(runJavaScriptTarget(result.targetSource), ['7', '3', '2', '30', '12', '7']);
+    const [form] = readLinksDocument(result.certificate);
+    const manhattan = sectionOf(form, 'correspondence').find(entry => Array.isArray(entry) && sectionOf(entry, 'source')?.[1] === 'manhattan');
+    const [, start, end] = sectionOf(manhattan, 'span');
+    assert.match(source.slice(Number(start), Number(end)), /^fn manhattan\(point: Point\) -> i64/u);
+  });
+  it('a refusal inside lowered code points at the original source', () => {
+    const source = 'struct P {\n    a: i64,\n}\n\nfn main() {\n    let p = P { a: 1 };\n    println!("{}", p.a + true);\n}\n';
+    const result = translateCertified(source, 'Rust', 'Lean');
+    assert.equal(result.status, 'refused');
+    assert.notEqual(result.stage, 'rml-lowering');
+    const { start, end } = result.diagnostic.span;
+    assert.ok(start >= source.indexOf('println') && end <= source.length, `${start}..${end}`);
+  });
+  it('structural recursion is discharged by RML; general and mutual recursion stay open', () => {
+    const lean = translateCertified(read('sources/lean-list.lean'), 'Lean', 'Rust');
+    assert.deepEqual(lean.obligations.filter(item => item.kind === 'termination').map(item => [item.id, item.status, item.by, item.target]), [
+      ['termination:length', 'discharged', 'rml-structural-decrease', 'structural:ml_arg0'],
+      ['termination:total', 'discharged', 'rml-structural-decrease', 'structural:ml_arg0'],
+      ['termination:append', 'discharged', 'rml-structural-decrease', 'structural:left'],
+    ]);
+    const fold = translateCertified(read('sources/rust-fold.rs'), 'Rust', 'Lean');
+    assert.deepEqual(fold.obligations.filter(item => item.kind === 'termination').map(item => [item.id, item.status, item.by]), [
+      ['termination:gcd', 'open', 'unproved-general-recursion'],
+      ['termination:triangle', 'open', 'unproved-general-recursion'],
+    ]);
+    const mutual = translateCertified('fn even(n: i64) -> bool {\n    if n == 0 { true } else { odd(n - 1) }\n}\n\nfn odd(n: i64) -> bool {\n    if n == 0 { false } else { even(n - 1) }\n}\n\nfn main() {\n    println!("{}", even(10));\n}\n', 'Rust', 'JavaScript');
+    assert.equal(mutual.status, 'translated');
+    assert.deepEqual(mutual.obligations.filter(item => item.kind === 'termination').map(item => [item.id, item.status, item.target]), [
+      ['termination:even', 'open', 'mutual-recursion'],
+      ['termination:odd', 'open', 'mutual-recursion'],
+    ]);
+  });
+  it('rejects a termination obligation promoted to a structural discharge RML did not derive', () => {
+    const source = read('sources/rust-fold.rs');
+    const certificate = generated('rust-fold/lean.certificate.lino');
+    const forged = editCertificate(certificate, form => {
+      const obligation = sectionOf(form, 'obligations').find(entry => Array.isArray(entry) && sectionOf(entry, 'id')?.[1] === 'termination:gcd');
+      sectionOf(obligation, 'status')[1] = 'discharged';
+      sectionOf(obligation, 'by')[1] = 'rml-structural-decrease';
+    });
+    assert.ok(codes(checkTranslationCertificate(forged, { source })).includes('RML_CERT_OBLIGATION_FORGED'));
+  });
+});
+
 describe('bulk freshness gate', () => {
   it('the committed generated corpus is fresh', () => {
     const report = checkCertifiedCorpus();
     assert.deepEqual({ stale: report.stale, missing: report.missing, unexpected: report.unexpected }, { stale: [], missing: [], unexpected: [] });
-    assert.equal(report.files, 8 * 3 * 2 + 8 + 11 * 3 + 1);
+    assert.equal(report.files, 12 * 3 * 2 + 12 + 16 * 3 + 1);
   });
   it('detects stale and missing outputs', () => {
     const files = buildCertifiedCorpus();

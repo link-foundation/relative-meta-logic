@@ -3,7 +3,8 @@
 //! re-serialize and integrity-check exactly the same Links documents.
 use rml::certified_translation::{
     check_certificate_integrity, check_refusal_integrity, read_links_document, serialize_links,
-    sha256_hex, CertificateInputs, LinksNode, CERTIFIED_LANGUAGES,
+    sha256_hex, CertificateInputs, LinksNode, CERTIFIED_LANGUAGES, LOWERING_KINDS, REFUSAL_STAGES,
+    SURFACE_LOWERING_SCHEMA,
 };
 use serde_json::Value;
 use std::fs;
@@ -255,4 +256,105 @@ fn refusal_receipts_retain_the_source_and_reject_tampering() {
     assert!(!check_refusal_integrity(&tampered, &source, &translator.lock_sha256).valid);
     let emitted = receipt.replace("(status not-emitted)", "(status emitted)");
     assert!(!check_refusal_integrity(&emitted, &source, &translator.lock_sha256).valid);
+}
+
+const LOWERED_CASES: &[&str] = &["rust-records", "rust-generic", "lean-structure", "rocq-record"];
+
+fn first_rewrite(form: &mut LinksNode) -> &mut LinksNode {
+    items_mut(section_mut(form, "lowering"))
+        .iter_mut()
+        .find(|item| item.head() == Some("rewrite"))
+        .unwrap()
+}
+
+#[test]
+fn lowered_certificates_record_every_rewrite_with_an_exact_span() {
+    let translator = translator();
+    let cases = translations();
+    for name in LOWERED_CASES {
+        let case = cases.iter().find(|case| case.name == *name).unwrap();
+        for target in CERTIFIED_LANGUAGES.iter().filter(|target| **target != case.language) {
+            let (certificate, emitted, intermediate) = certificate_files(case, target);
+            let form = read_links_document(&certificate).unwrap().remove(0);
+            let lowering = form
+                .section("lowering")
+                .unwrap_or_else(|| panic!("{name} {target} has no lowering section"));
+            assert_eq!(lowering.field("schema"), Some(SURFACE_LOWERING_SCHEMA));
+            let rewrites: Vec<&LinksNode> = lowering.sections("rewrite").collect();
+            assert!(!rewrites.is_empty());
+            assert!(rewrites
+                .iter()
+                .all(|rewrite| LOWERING_KINDS.contains(&rewrite.field("kind").unwrap())));
+            assert_eq!(
+                check(&certificate, case, Some(emitted.as_str()), Some(intermediate.as_str()), &translator),
+                Vec::<&str>::new(),
+                "{name} to {target}"
+            );
+        }
+    }
+    let plain = cases.iter().find(|case| case.name == "lean-list").unwrap();
+    let (certificate, _, _) = certificate_files(plain, "Rust");
+    assert!(read_links_document(&certificate).unwrap()[0].section("lowering").is_none());
+
+    let case = cases.iter().find(|case| case.name == "rust-records").unwrap();
+    let (certificate, _, _) = certificate_files(case, "Lean");
+    let renamed = forge(&certificate, |form| set_field(first_rewrite(form), "kind", "rust-macro-expansion"));
+    assert!(check(&renamed, case, None, None, &translator).contains(&"RML_CERT_LOWERING"));
+    let moved = forge(&certificate, |form| {
+        let span = section_mut(first_rewrite(form), "span");
+        items_mut(span)[1] = LinksNode::Atom("1".to_string());
+    });
+    assert!(check(&moved, case, None, None, &translator).contains(&"RML_CERT_LOWERING"));
+    let hidden = forge(&certificate, |form| {
+        items_mut(section_mut(form, "lowering")).retain(|item| item.head() != Some("rewrite"));
+    });
+    assert!(check(&hidden, case, None, None, &translator).contains(&"RML_CERT_LOWERING"));
+}
+
+fn obligation_field(certificate: &str, id: &str, name: &str) -> Option<String> {
+    let form = read_links_document(certificate).unwrap().remove(0);
+    let obligations = form.section("obligations")?;
+    let found = obligations.sections("obligation").find(|item| item.field("id") == Some(id))?;
+    found.field(name).map(str::to_string)
+}
+
+#[test]
+fn termination_obligations_discharge_only_by_structural_decrease() {
+    let translator = translator();
+    let cases = translations();
+    let lean = cases.iter().find(|case| case.name == "lean-list").unwrap();
+    let (certificate, _, _) = certificate_files(lean, "Rust");
+    assert_eq!(obligation_field(&certificate, "termination:length", "status").as_deref(), Some("discharged"));
+    assert_eq!(obligation_field(&certificate, "termination:length", "by").as_deref(), Some("rml-structural-decrease"));
+
+    let fold = cases.iter().find(|case| case.name == "rust-fold").unwrap();
+    let (certificate, _, _) = certificate_files(fold, "Lean");
+    assert_eq!(obligation_field(&certificate, "termination:gcd", "status").as_deref(), Some("open"));
+    assert_eq!(obligation_field(&certificate, "termination:gcd", "by").as_deref(), Some("unproved-general-recursion"));
+    let promoted = forge(&certificate, |form| set_field(obligation_mut(form, "termination:gcd"), "status", "discharged"));
+    assert!(check(&promoted, fold, None, None, &translator).contains(&"RML_CERT_OBLIGATION_FORGED"));
+    let misused = forge(&certificate, |form| {
+        let obligation = obligation_mut(form, "emitter-faithfulness");
+        set_field(obligation, "status", "discharged");
+        set_field(obligation, "by", "rml-structural-decrease");
+    });
+    assert!(check(&misused, fold, None, None, &translator).contains(&"RML_CERT_OBLIGATION_FORGED"));
+}
+
+#[test]
+fn refusal_receipts_name_a_known_pipeline_stage() {
+    let translator = translator();
+    let receipt = generated("refusals/rust-generic-function.javascript.refusal.lino");
+    let source = read("refusals/rust-generic-function.rs");
+    let form = read_links_document(&receipt).unwrap().remove(0);
+    assert_eq!(form.field("stage"), Some("rml-lowering"));
+    assert!(REFUSAL_STAGES.contains(&"rml-lowering"));
+    assert!(check_refusal_integrity(&receipt, &source, &translator.lock_sha256).valid);
+    let restaged = forge(&receipt, |form| set_field(form, "stage", "kernel"));
+    let report = check_refusal_integrity(&restaged, &source, &translator.lock_sha256);
+    assert!(!report.valid);
+    assert!(report
+        .errors
+        .iter()
+        .any(|error| error.message.contains("unknown pipeline stage")));
 }

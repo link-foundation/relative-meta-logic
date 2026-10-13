@@ -86,7 +86,7 @@
     (types checked-intermediate "declaration types are the checked intermediate types: geometry.Shape, string, u64; target representations are listed under encodings")
     (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
     (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
-    (proof-obligations discharged "1 theorem(s) and assertion(s): 1 discharged by RML evaluation, 0 open, 0 refuted"))
+    (proof-obligations discharged "1 theorem(s) and assertion(s): 1 discharged by RML evaluation, 0 open, 0 refuted; 2 termination obligation(s): 2 discharged by RML structural decrease, 0 open (general or mutual recursion)"))
   (assumptions (count 0))
   (encodings
     (count 5)
@@ -111,6 +111,22 @@
       (status discharged)
       (by rml-evaluation))
     (obligation
+      (id "termination:geometry.area")
+      (kind termination)
+      (source geometry.area)
+      (target "structural:shape")
+      (closed true)
+      (status discharged)
+      (by rml-structural-decrease))
+    (obligation
+      (id "termination:geometry.count")
+      (kind termination)
+      (source geometry.count)
+      (target "structural:shape")
+      (closed true)
+      (status discharged)
+      (by rml-structural-decrease))
+    (obligation
       (id emitter-faithfulness)
       (kind trust)
       (source intermediate)
@@ -118,7 +134,7 @@
       (closed false)
       (status open)
       (by native-oracle-ci)))
-  (verdict (discharged 1) (open 1) (assumed 0) (refuted 0))
+  (verdict (discharged 3) (open 1) (assumed 0) (refuted 0))
   (losses
     (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
     (renamed geometry.Shape.Square geometry.Square)
@@ -130,4 +146,4 @@
     (runtime none)
     (external-kernels oracle-only)
     (proof-authority rml))
-  (digest sha256 63a20c124e4a442ddb58c19645eb925d32f7ffaf80975c70394efa2162b249c2))
+  (digest sha256 d4f7c4695c051e44d6ed61f242af4c42b5f6ebb097019c2f7f2c70fd4d45701b))

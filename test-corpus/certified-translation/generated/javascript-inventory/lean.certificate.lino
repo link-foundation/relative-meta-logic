@@ -78,7 +78,7 @@
     (types checked-intermediate "declaration types are the checked intermediate types: Stock, float, string; target representations are listed under encodings")
     (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
     (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
-    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted; 2 termination obligation(s): 2 discharged by RML structural decrease, 0 open (general or mutual recursion)"))
   (assumptions (count 0))
   (encodings
     (count 2)
@@ -93,6 +93,22 @@
     (line empty))
   (obligations
     (obligation
+      (id "termination:total")
+      (kind termination)
+      (source total)
+      (target "structural:stock")
+      (closed true)
+      (status discharged)
+      (by rml-structural-decrease))
+    (obligation
+      (id "termination:kinds")
+      (kind termination)
+      (source kinds)
+      (target "structural:stock")
+      (closed true)
+      (status discharged)
+      (by rml-structural-decrease))
+    (obligation
       (id emitter-faithfulness)
       (kind trust)
       (source intermediate)
@@ -100,7 +116,7 @@
       (closed false)
       (status open)
       (by native-oracle-ci)))
-  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (verdict (discharged 2) (open 1) (assumed 0) (refuted 0))
   (losses
     (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
   (authority
@@ -109,4 +125,4 @@
     (runtime none)
     (external-kernels oracle-only)
     (proof-authority rml))
-  (digest sha256 d85510bb47eee8d4470d8106568914b23303f0e9f68b711caf07f84740f85e00))
+  (digest sha256 5f27990ece47229da8f743238a6d6531416e7fd9ab1e9ea2477866e8595e452a))

@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 143065ad253c84a49d86f5c995272e4d738ea50e6fb6b4d606562e97e84a2595)
+    (bytes 389)
+    (utf16 389))
+  (target (language Lean) (status not-emitted))
+  (stage rml-lowering)
+  (diagnostic
+    (kind unsupported)
+    (message "ambiguous field read: field x belongs to Point, Interval; annotate the receiver with its struct type")
+    (span 327 329)
+    (bytes 327 329)
+    (span-sha256 bb42e4c602551e7cef9f8a8d21cd0ab74dc5fb8948089ad752b9c18a4eccde79))
+  (preserved-source
+    (sha256 143065ad253c84a49d86f5c995272e4d738ea50e6fb6b4d606562e97e84a2595)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 a6ae26f3b7df2de04052cdb9cfc5061df261ff8e9cd051e621338c0e9b4f9968))

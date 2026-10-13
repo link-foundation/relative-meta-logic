@@ -32,12 +32,38 @@ pub const CERTIFIED_AUTHORITY: &[(&str, &str)] = &[
     ("proof-authority", "rml"),
 ];
 const OBLIGATION_STATUSES: &[&str] = &["discharged", "open", "assumed", "refuted"];
+/// Justifications that never discharge an obligation: native oracles and unproved general recursion.
 const ORACLE_ONLY: &[&str] = &[
     "target-kernel-oracle",
     "bounded-runtime-check-not-proof",
     "native-oracle-ci",
     "unevaluated",
+    "unproved-general-recursion",
 ];
+pub const SURFACE_LOWERING_SCHEMA: &str = "rml:surface-lowering:1";
+/// Every rewrite kind `js/src/rml-surface-lowering.mjs` may record in a certificate's lowering section.
+pub const LOWERING_KINDS: &[&str] = &[
+    "rust-monomorphize",
+    "rust-instantiation",
+    "rust-struct",
+    "rust-struct-variant",
+    "rust-struct-literal",
+    "rust-struct-pattern",
+    "rust-tuple-struct",
+    "rust-field-read",
+    "lean-monomorphize",
+    "lean-instantiation",
+    "lean-structure",
+    "lean-structure-instance",
+    "lean-field-read",
+    "rocq-monomorphize",
+    "rocq-instantiation",
+    "rocq-record",
+    "rocq-record-instance",
+    "rocq-projection",
+];
+/// The pipeline stages a first-refusal receipt may name.
+pub const REFUSAL_STAGES: &[&str] = &["rml-lowering", "frontend", "checker", "archive-validation", "emitter"];
 
 /// A Links value as the certificate reader sees it: an atom or an ordered list.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -306,6 +332,20 @@ fn span_ok(owner: &LinksNode, source: &str, units: &[u16]) -> bool {
         && owner.field("span-sha256") == Some(sha256_hex(text.as_bytes()).as_str())
 }
 
+/// Check the `(lowering …)` section: schema, rewrite count, known kinds and an exact span for every rewrite.
+fn lowering_ok(lowering: &LinksNode, source: &str, units: &[u16]) -> bool {
+    let rewrites: Vec<&LinksNode> = lowering.sections("rewrite").collect();
+    lowering.field("schema") == Some(SURFACE_LOWERING_SCHEMA)
+        && lowering.field("lowered-sha256").is_some_and(|hash| hash.len() == 64)
+        && lowering.field("count") == Some(rewrites.len().to_string().as_str())
+        && !rewrites.is_empty()
+        && rewrites.iter().all(|rewrite| {
+            rewrite.field("kind").is_some_and(|kind| LOWERING_KINDS.contains(&kind))
+                && rewrite.section("span").is_some()
+                && span_ok(rewrite, source, units)
+        })
+}
+
 fn source_ok(form: &LinksNode, source: &str) -> bool {
     let Some(section) = form.section("source") else {
         return false;
@@ -403,6 +443,11 @@ pub fn check_certificate_integrity(certificate: &str, inputs: CertificateInputs<
     if constructs.is_empty() || constructs.iter().any(|construct| !span_ok(construct, inputs.source, &units)) {
         reject(&mut errors, "RML_CERT_CORRESPONDENCE", "a correspondence span does not identify the certified source text");
     }
+    if let Some(lowering) = form.section("lowering") {
+        if !lowering_ok(lowering, inputs.source, &units) {
+            reject(&mut errors, "RML_CERT_LOWERING", "a surface rewrite does not identify the certified source text or names an unknown kind");
+        }
+    }
     let declared: Vec<&str> = form
         .section("preservation")
         .map(|node| node.items()[1..].iter().filter_map(LinksNode::head).collect())
@@ -434,7 +479,9 @@ pub fn check_certificate_integrity(certificate: &str, inputs: CertificateInputs<
             continue;
         };
         counts[index] += 1;
-        let discharged_by_rml = status != "discharged" || (by == "rml-evaluation" && obligation.field("closed") == Some("true"));
+        let closed = obligation.field("closed") == Some("true");
+        let structural = by == "rml-structural-decrease" && obligation.field("kind") == Some("termination");
+        let discharged_by_rml = status != "discharged" || ((by == "rml-evaluation" || structural) && closed);
         let oracle_stays_open = !ORACLE_ONLY.contains(&by) || status == "open";
         let trust_stays_open = obligation.field("id") != Some("emitter-faithfulness") || status == "open";
         if !discharged_by_rml || !oracle_stays_open || !trust_stays_open {
@@ -492,6 +539,9 @@ pub fn check_refusal_integrity(receipt: &str, source: &str, translator_lock_sha2
         || preserved.and_then(|node| node.field("status")) != Some("retained-unchanged")
     {
         reject(&mut errors, "RML_REFUSAL_MISMATCH", "the receipt does not retain this exact source");
+    }
+    if !form.field("stage").is_some_and(|stage| REFUSAL_STAGES.contains(&stage)) {
+        reject(&mut errors, "RML_REFUSAL_MISMATCH", "the receipt names an unknown pipeline stage");
     }
     if form.section("target").and_then(|node| node.field("status")) != Some("not-emitted") {
         reject(&mut errors, "RML_REFUSAL_MISMATCH", "a refusal must not emit a target");
