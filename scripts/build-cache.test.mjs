@@ -646,6 +646,18 @@ test('source-archive symlink state is rejected before creating anything outside 
   assert.deepEqual(fs.readdirSync(external), []);
 });
 
+test('the wrapped child sees a complete owner record naming it and no staged replacement', t => {
+  const f = fixture(t);
+  // The owner record is replaced after the child starts; the child must never read a partial record.
+  const program = `const fs=require('node:fs'),path=require('node:path');
+    const lock=path.join('.git','rml-cache','lock');let owner;
+    for(const end=Date.now()+10000;Date.now()<end;){owner=JSON.parse(fs.readFileSync(path.join(lock,'owner.json'),'utf8'));if(owner.child)break;}
+    if(owner.token!==process.env.RML_CACHE_LEASE)process.exit(3);
+    if(${process.platform === 'win32' ? 'false' : 'owner.child!==process.pid'})process.exit(4);
+    if(fs.readdirSync(lock).join()!=='owner.json')process.exit(5);`;
+  ok(f.wrap(program));
+});
+
 for (const scope of ['foreign-namespace', 'foreign-boot', 'unknown-identity', 'legacy-owner']) {
   test(`shared-filesystem ${scope} lease is deferred, never classified dead or removed`, t => {
     const f = fixture(t);

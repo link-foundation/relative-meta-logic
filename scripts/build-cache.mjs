@@ -129,7 +129,14 @@ export async function lock(c, { timeout = Number(process.env.RML_CACHE_LOCK_TIME
       }
       return {
         token,
-        child(pid) { owner.child = pid; fs.writeFileSync(path.join(dir, 'owner.json'), JSON.stringify(owner)); },
+        // The child may already be validating its inherited lease, so replace the
+        // owner record atomically instead of truncating it in place.
+        child(pid) {
+          owner.child = pid;
+          const staged = path.join(dir, `owner.json.${process.pid}.tmp`);
+          try { fs.writeFileSync(staged, JSON.stringify(owner), { flag: 'wx' }); fs.renameSync(staged, path.join(dir, 'owner.json')); }
+          finally { fs.rmSync(staged, { force: true }); }
+        },
         release() { fs.unlinkSync(path.join(dir, 'owner.json')); fs.rmdirSync(dir); },
       };
     } catch (error) {
@@ -151,10 +158,17 @@ export async function lock(c, { timeout = Number(process.env.RML_CACHE_LOCK_TIME
 }
 export function inheritedLease(c, { identity } = {}) {
   if (!process.env.RML_CACHE_LEASE) return false;
-  try {
-    const owner = JSON.parse(fs.readFileSync(path.join(c.state, 'lock', 'owner.json'), 'utf8'));
-    return owner.token === process.env.RML_CACHE_LEASE && sameProcessRealm(owner, identity ?? processIdentity()) && alive(owner.pid);
-  } catch { return false; }
+  // A Windows sharing violation during the owner's atomic replace is transient;
+  // retry it briefly, but a missing or still-unreadable record fails closed.
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const owner = JSON.parse(fs.readFileSync(path.join(c.state, 'lock', 'owner.json'), 'utf8'));
+      return owner.token === process.env.RML_CACHE_LEASE && sameProcessRealm(owner, identity ?? processIdentity()) && alive(owner.pid);
+    } catch (error) {
+      if (error.code === 'ENOENT' || attempt >= 5) return false;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20);
+    }
+  }
 }
 /**
  * Worktree-relative spelling of an absolute or base-relative target. Only an
