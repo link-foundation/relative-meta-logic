@@ -688,24 +688,28 @@
         "rules": 143,
         "observable": 109,
         "exercised": 103,
+        "refusalReceipts": 6,
         "refusedPrograms": 0
       },
       "Rust": {
         "rules": 184,
         "observable": 158,
-        "exercised": 146,
+        "exercised": 151,
+        "refusalReceipts": 7,
         "refusedPrograms": 0
       },
       "Lean": {
         "rules": 147,
         "observable": 119,
-        "exercised": 107,
+        "exercised": 115,
+        "refusalReceipts": 4,
         "refusedPrograms": 3
       },
       "Rocq": {
         "rules": 265,
         "observable": 219,
-        "exercised": 191,
+        "exercised": 215,
+        "refusalReceipts": 4,
         "refusedPrograms": 1
       }
     },
@@ -714,6 +718,6 @@
       "js/tests/language-construct-inventory.test.mjs",
       "rust/tests/language_construct_inventory_tests.rs"
     ],
-    "boundary": "Every upstream native-grammar rule is classified and corpus exercise is measured by native construct trees. This audits the upstream native grammars; it does not prove they equal the production languages, and recorded refusals (Lean structured induction alternatives and where-declarations, Rocq CoFixpoint) show they do not."
+    "boundary": "Every upstream native-grammar rule is classified and corpus exercise is measured by native construct trees; every observable construct the corpus does not exercise carries a refusal receipt (alias, extra, keyword-boundary lookahead or unreferenced rule) checked against the grammar text with an accepted probe. This audits the upstream native grammars; it does not prove they equal the production languages, and recorded refusals (Lean structured induction alternatives and where-local declarations after a body, Rocq CoFixpoint) show they do not."
   }
 }

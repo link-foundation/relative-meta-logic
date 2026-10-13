@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { nativeGrammarRuleConcepts } from '#meta-language';
 import {
-  CLASSIFIER_PATH, INVENTORY_PATH, buildLanguageConstructInventory, classifyConstructs,
-  renderLanguageConstructInventory,
+  CLASSIFIER_PATH, INVENTORY_PATH, buildLanguageConstructInventory, checkConstructReceipts, classifyConstructs,
+  grammarRuleUses, nativeRuleKinds, renderLanguageConstructInventory,
 } from '../src/rml-language-inventory.mjs';
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
@@ -43,6 +43,60 @@ describe('four-language construct inventory', () => {
       assert.equal(language.unexercised.length, language.observable - language.exercised);
       assert.ok(language.exercised / language.observable > 0.85, `${language.language} corpus exercises too little`);
     }
+  });
+
+  it('exercises every observable construct or holds a checked refusal receipt for it', () => {
+    const byName = Object.fromEntries(inventory.languages.map(language => [language.language, language]));
+    for (const language of inventory.languages) {
+      assert.deepEqual(language.receiptProblems, [], language.language);
+      assert.deepEqual(language.unreceipted, [], language.language);
+      assert.deepEqual(language.refusalReceipts.map(row => row[0]), language.unexercised, language.language);
+      assert.ok(language.refusalReceipts.every(row => typeof row[2] === 'string'), language.language);
+    }
+    assert.deepEqual(inventory.languages.map(language => [language.language, language.unexercised.length]),
+      [['JavaScript', 6], ['Rust', 7], ['Lean', 4], ['Rocq', 4]]);
+    const exercised = (language, rule) => byName[language].constructs.find(row => row[0] === rule)[4] > 0;
+    for (const rule of ['for_lifetimes', 'generic_type_with_turbofish', 'generic_pattern', 'negative_literal', 'frontmatter']) assert.ok(exercised('Rust', rule), rule);
+    for (const rule of ['syntax_group', 'where_declaration', 'have', 'if_let', 'tuple_pattern', 'list_pattern', 'constructor_pattern', 'do_if_let']) assert.ok(exercised('Lean', rule), rule);
+    for (const rule of ['discriminated_database', 'declaration_notations', 'scope_key', 'printing_modifier', 'plural_variable_modifier',
+      'binder_interpretation', 'section_variable_expression', 'expression_ops', 'atomic_expression', 'expression_leaf', 'rewrite_term',
+      'term_in_pattern', 'custom_operation', 'ltac_evaluation', 'tactic_branch', 'oriented_term', 'tactic_alternative', 'with_clause',
+      'metavariable', 'integer', 'hexadecimal_natural_number', 'custom_notation_block', 'imp_evaluation_operation', 'imp_program']) assert.ok(exercised('Rocq', rule), rule);
+    const receipt = (language, rule) => byName[language].refusalReceipts.find(row => row[0] === rule).slice(1);
+    assert.deepEqual(receipt('JavaScript', 'jsx_identifier'), ['alias', 'every reference renames it to identifier']);
+    assert.deepEqual(receipt('Rust', 'last_match_arm'), ['alias', 'every reference renames it to match_arm']);
+    assert.deepEqual(receipt('Lean', 'do_try'), ['unreferenced', 'no other grammar rule or declaration references it']);
+    assert.equal(receipt('Rocq', 'comment')[0], 'extra');
+    assert.match(receipt('Rocq', 'word_characters')[1], /^only a negative lookahead \(keyword boundary\) in \d+ rules$/);
+  });
+
+  it('rejects a refusal receipt whose reason, staleness or probe does not hold', () => {
+    const grammar = 'native-rust';
+    const { text, kinds } = nativeRuleKinds(grammar);
+    const none = new Map();
+    const receipts = [
+      { rule: 'last_match_arm', reason: 'unreferenced', probe: 'fn f() {}\n' },
+      { rule: 'for_lifetimes', reason: 'alias', probe: "type F = for<'a> fn(&'a u8);\n" },
+      { rule: 'delimited_token_tree', reason: 'alias', probe: 'fn f( {\n' },
+      { rule: 'no_such_rule', reason: 'alias', probe: 'fn f() {}\n' },
+      { rule: 'word_characters', reason: 'guess', probe: 'fn f() {}\n' },
+    ];
+    const checked = checkConstructReceipts(grammar, text, kinds, new Map([['for_lifetimes', 1]]), receipts);
+    assert.deepEqual(checked.problems, [
+      'last_match_arm: receipt reason unreferenced does not hold in the grammar',
+      'for_lifetimes: exercised by the corpus, so its refusal receipt is stale',
+      'for_lifetimes: receipt reason alias does not hold in the grammar',
+      'for_lifetimes: receipt probe builds the construct',
+      'delimited_token_tree: receipt probe is refused by the native grammar',
+      'no_such_rule: receipt names no grammar rule',
+      'word_characters: receipt reason guess does not hold in the grammar',
+    ]);
+    const honest = checkConstructReceipts(grammar, text, kinds, none, [{ rule: 'last_match_arm', reason: 'alias', probe: 'fn f(v: u8) { match v { _ => {} } }\n' }]);
+    assert.deepEqual(honest, { rows: [['last_match_arm', 'alias', 'every reference renames it to match_arm']], problems: [] });
+    assert.deepEqual(grammarRuleUses(text, 'last_match_arm'), [{ kind: 'alias', from: 'match_block', target: 'match_arm' }]);
+    const corpus = JSON.parse(read('test-corpus/meta-language/construct-corpus.json'));
+    const forged = buildLanguageConstructInventory({ corpus: { ...corpus, receipts: corpus.receipts.filter(item => item.rule !== 'do_try') } });
+    assert.deepEqual(forged.languages.find(language => language.language === 'Lean').unreceipted, ['do_try']);
   });
 
   it('fails on a construct no pattern classifies and on a pattern that matches nothing', () => {

@@ -281,15 +281,26 @@ recursion, proof forms, runtime facilities, standards and extensions.
 generate `language-constructs.json` from the upstream rule/concept API, the
 vendored grammar texts (rule kinds and fingerprints) and native construct trees
 for `test-corpus/meta-language/construct-corpus.json` (the vendored translation
-corpus, the conformance fixtures and 168 construct programs, three of them recorded refusals). `--check` is a
+corpus, the conformance fixtures and 186 construct programs, three of them recorded refusals). `--check` is a
 freshness gate. A construct no pattern classifies, a pattern that classifies
-nothing, a changed corpus acceptance or a stale inventory fails the JS test;
+nothing, a changed corpus acceptance, an observable construct that is neither
+exercised nor covered by a refusal receipt, or a stale inventory fails the JS test;
 `language_construct_inventory_tests.rs` reproduces the fingerprints,
-classification, refusals and exercised set with the Rust crate's grammar API and
-native parser.
+classification, refusals, exercised set and receipts with the Rust crate's
+grammar API and native parser.
 
-Corpus programs exercise 103/109 observable JavaScript, 146/158 Rust, 107/119
-Lean and 191/219 Rocq constructs; the rest are listed as `unexercised`. The
+Corpus programs exercise 103/109 observable JavaScript, 151/158 Rust, 115/119
+Lean and 215/219 Rocq constructs. Each of the remaining 6/7/4/4 constructs has a
+refusal receipt in the corpus (`receipts`): a structural reason checked against
+the grammar text and a probe program the native grammar accepts without building
+the construct. The reasons are `alias` (every reference renames the rule to
+another node kind, e.g. JavaScript `jsx_identifier` to `identifier`, Rust
+`last_match_arm` to `match_arm`), `extra` (comments, dropped from the JavaScript
+trees), `lookahead` (`word_characters`, used only as a keyword-boundary
+`(not …)`) and `unreferenced` (Lean `do_try`/`do_catch`, Rust `comment`, Rocq
+`digit`/`hexadecimal_digit`: no rule reaches them, so the Lean `do` `try … catch`
+form has no dedicated native construct). A receipt is not coverage: it records
+why a native construct tree cannot show the construct. The
 native grammars refuse valid Lean structured `induction ... with` alternatives
 and `where` declarations (and therefore the vendored `project.lean`) and Rocq
 `CoFixpoint`; these are recorded refusals. Exercised means only that the native
