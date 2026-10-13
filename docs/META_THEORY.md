@@ -620,6 +620,16 @@ checking to Lean or Rocq. Native proof-assistant builds may cross-check the
 pinned external artifacts, but they are not an oracle in the RML reasoning
 path and cannot make a linked definition pass.
 
+RML's own semantics for that corpus are separate, re-executable layers.
+[META_THEORY_NATIVE.md](META_THEORY_NATIVE.md) covers three of them:
+
+- native linked definitions for all 229 declarations, with all 90 evaluation
+  commands executed;
+- replayable proof certificates for 14 of the 36 theorems;
+- a stage map of every declaration and command.
+
+The typed layers are described in [FORMAL_PROPOSITIONS.md](FORMAL_PROPOSITIONS.md).
+
 ## Verification and scope
 
 Mirrored tests cover the lambda acceptance example, user-defined programs,
