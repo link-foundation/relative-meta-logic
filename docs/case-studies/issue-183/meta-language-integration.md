@@ -163,6 +163,18 @@ The result is a new checked network with exact source, canonical source and a
 provenance receipt derived from the original digest. The shared
 `rml-binding-rewrites.json` corpus runs unchanged in both runtimes.
 
+For JavaScript, Rust, Lean and Rocq sources the upstream grammar-backed
+`analyzeProgram(...).renameBinding` / `rename_binding` is used unchanged.
+`four-language-binding-rewrites.json` pins, per language, the declaration and
+reference locations as one-based line, code-point column and code-point length
+(CRLF counted once), so the JavaScript UTF-16 and Rust UTF-8 ranges must agree
+after conversion; the exact emitted edit (strings, comments, templates and
+shadowed bindings untouched; astral and non-ASCII identifiers); a re-analysis of
+the emitted text that finds the renamed declaration at the same location with
+the same reference count; capture refusals; and refusal of invalid names and
+forged binding ids. It covers only the cases listed, inside the upstream
+native grammars, not the full languages.
+
 The JavaScript identifier adapter below is separate and unchanged.
 
 `js/src/rml-js-rename.mjs` and `rust/src/js_rename.rs` implement the same
@@ -237,6 +249,11 @@ Shared fixtures:
   free-reference capture, comments, quoting, Unicode/astral names, BOM/CRLF,
   pattern variables, global declarations, ambiguity, invalid names and
   locations
+- `test-corpus/meta-language/four-language-binding-rewrites.json`: upstream
+  JavaScript, Rust, Lean and Rocq binding edits with runtime-independent
+  locations, capture refusals and invalid replacement names
+  (`four-language-binding-rewrites.test.mjs`,
+  `four_language_binding_rewrites_tests.rs`)
 
 Runtime tests are `meta-language-structure.test.mjs`,
 `meta-language-semantics.test.mjs`,

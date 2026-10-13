@@ -15,7 +15,9 @@ fn corpus(text: &str) -> Value {
 
 #[test]
 fn shared_semantic_corpus_carries_checked_identities_and_exact_source_without_a_buffer() {
-    let corpus = corpus(include_str!("../../test-corpus/meta-language/rml-semantics.json"));
+    let corpus = corpus(include_str!(
+        "../../test-corpus/meta-language/rml-semantics.json"
+    ));
     for item in corpus["cases"].as_array().unwrap() {
         let name = item["name"].as_str().unwrap();
         let source = item["source"].as_str().unwrap();
@@ -43,12 +45,18 @@ fn shared_semantic_corpus_carries_checked_identities_and_exact_source_without_a_
         assert_eq!(restored.reconstruct_text(), "", "{name}");
         assert_eq!(emit_rml_exact_source(&restored).unwrap(), source, "{name}");
         assert_eq!(
-            rml_semantic_identities(&restored).unwrap().unwrap().to_json(),
+            rml_semantic_identities(&restored)
+                .unwrap()
+                .unwrap()
+                .to_json(),
             item["semantics"],
             "{name}"
         );
         let restored_stages = rml_representation_stages(&restored);
-        assert_eq!(restored_stages.preservation, "exact-source-structure", "{name}");
+        assert_eq!(
+            restored_stages.preservation, "exact-source-structure",
+            "{name}"
+        );
         assert_eq!(restored_stages.exact_source, "verified", "{name}");
         assert_eq!(restored_stages.resolution, item["resolution"], "{name}");
         assert_eq!(
@@ -100,7 +108,12 @@ fn whole_shared_frontend_corpus_round_trips_byte_exactly_from_layout_links() {
             &serialize_rml_structure(&parse_rml_to_meta_language(&source)).unwrap(),
         )
         .unwrap();
-        assert_eq!(emit_rml_exact_source(&restored).unwrap(), source, "{}", item["name"]);
+        assert_eq!(
+            emit_rml_exact_source(&restored).unwrap(),
+            source,
+            "{}",
+            item["name"]
+        );
         assert_eq!(
             rml_representation_stages(&restored).exact_source,
             "verified",
@@ -134,7 +147,8 @@ fn parsing_resolution_elaboration_execution_and_verification_stay_separate() {
 
 #[test]
 fn identities_are_computed_from_syntax_alone_without_writing_links() {
-    let network = rml_structure_only(&parse_rml_to_meta_language("(lambda (Natural x) x)\n")).unwrap();
+    let network =
+        rml_structure_only(&parse_rml_to_meta_language("(lambda (Natural x) x)\n")).unwrap();
     let before = network.len();
     assert_eq!(
         compute_rml_semantics(&network).unwrap().to_json()["references"],
@@ -166,15 +180,37 @@ fn addresses(snapshot: &Value) -> (BTreeMap<String, u64>, u64) {
                 && record["metadata"]["definition"] == "rml:structure:1:document"
         })
         .unwrap();
-    fn walk(id: u64, address: String, by_id: &BTreeMap<u64, &Value>, out: &mut BTreeMap<String, u64>) {
+    fn walk(
+        id: u64,
+        address: String,
+        by_id: &BTreeMap<u64, &Value>,
+        out: &mut BTreeMap<String, u64>,
+    ) {
         out.insert(address.clone(), id);
-        for (index, child) in by_id[&id]["references"].as_array().unwrap().iter().enumerate() {
-            walk(child.as_u64().unwrap(), format!("{address}.{index}"), by_id, out);
+        for (index, child) in by_id[&id]["references"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .enumerate()
+        {
+            walk(
+                child.as_u64().unwrap(),
+                format!("{address}.{index}"),
+                by_id,
+                out,
+            );
         }
     }
     let mut out = BTreeMap::new();
-    for (index, form) in document["references"].as_array().unwrap().iter().enumerate() {
-        let root = by_id[&form.as_u64().unwrap()]["references"][0].as_u64().unwrap();
+    for (index, form) in document["references"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .enumerate()
+    {
+        let root = by_id[&form.as_u64().unwrap()]["references"][0]
+            .as_u64()
+            .unwrap();
         walk(root, index.to_string(), &by_id, &mut out);
     }
     (out, document["id"].as_u64().unwrap())
@@ -252,7 +288,13 @@ fn mutate_snapshot(snapshot: &mut Value, mutation: &Value) {
         "layout-swap" => {
             let bound: Vec<usize> = record_ids(snapshot, "token")
                 .into_iter()
-                .filter(|index| snapshot["links"][*index]["references"].as_array().unwrap().len() == 2)
+                .filter(|index| {
+                    snapshot["links"][*index]["references"]
+                        .as_array()
+                        .unwrap()
+                        .len()
+                        == 2
+                })
                 .collect();
             let first = snapshot["links"][bound[0]]["references"][1].clone();
             let second = snapshot["links"][bound[1]]["references"][1].clone();
@@ -263,16 +305,22 @@ fn mutate_snapshot(snapshot: &mut Value, mutation: &Value) {
             let links = snapshot["links"].as_array_mut().unwrap();
             links.retain(|record| {
                 !(record["metadata"]["linkType"] == "Trivia"
-                    && ["layout", "trivia", "token", "token-value"].iter().any(|kind| {
-                        record["metadata"]["definition"] == format!("rml:structure:1:{kind}").as_str()
-                    }))
+                    && ["layout", "trivia", "token", "token-value"]
+                        .iter()
+                        .any(|kind| {
+                            record["metadata"]["definition"]
+                                == format!("rml:structure:1:{kind}").as_str()
+                        }))
             });
             links.push(json!({ "id": next_id, "references": [document],
                 "metadata": { "linkType": "Semantic", "language": "RML", "definition": "rml:structure:1:layout-refusal", "term": mutation["reason"] } }));
         }
         "provenance" => {
             let record = record_ids(snapshot, "provenance")[0];
-            let term = snapshot["links"][record]["metadata"]["term"].as_str().unwrap().to_string();
+            let term = snapshot["links"][record]["metadata"]["term"]
+                .as_str()
+                .unwrap()
+                .to_string();
             let digit = &term["source-sha256:".len().."source-sha256:".len() + 1];
             let replaced = format!(
                 "source-sha256:{}{}",
@@ -287,25 +335,36 @@ fn mutate_snapshot(snapshot: &mut Value, mutation: &Value) {
 
 #[test]
 fn forged_dangling_and_wrong_binder_identities_are_rejected_never_trusted() {
-    let corpus = corpus(include_str!("../../test-corpus/meta-language/rml-semantics.json"));
+    let corpus = corpus(include_str!(
+        "../../test-corpus/meta-language/rml-semantics.json"
+    ));
     for mutation in corpus["mutations"].as_array().unwrap() {
         let name = mutation["name"].as_str().unwrap();
         let source = mutation["source"].as_str().unwrap();
-        let mut snapshot: Value =
-            serde_json::from_str(&serialize_rml_structure(&parse_rml_to_meta_language(source)).unwrap())
-                .unwrap();
+        let mut snapshot: Value = serde_json::from_str(
+            &serialize_rml_structure(&parse_rml_to_meta_language(source)).unwrap(),
+        )
+        .unwrap();
         mutate_snapshot(&mut snapshot, mutation);
         let mutated = snapshot.to_string();
         if let Some(state) = mutation["exactSource"].as_str() {
             let network = deserialize_rml_structure(&mutated).unwrap();
-            assert_eq!(rml_representation_stages(&network).exact_source, state, "{name}");
+            assert_eq!(
+                rml_representation_stages(&network).exact_source,
+                state,
+                "{name}"
+            );
             assert_eq!(
                 emit_rml_from_structure(&network).unwrap(),
                 emit_rml_from_structure(&parse_rml_to_meta_language(source)).unwrap(),
                 "{name}"
             );
             if let Some(error) = mutation["error"].as_str() {
-                assert_eq!(emit_rml_exact_source(&network).unwrap_err(), error, "{name}");
+                assert_eq!(
+                    emit_rml_exact_source(&network).unwrap_err(),
+                    error,
+                    "{name}"
+                );
             }
             continue;
         }
@@ -328,13 +387,21 @@ fn capture_checked_rml_binding_rewrites_share_the_javascript_corpus() {
         let site = item["site"].as_str().unwrap();
         let to = item["to"].as_str().unwrap();
         if let Some(code) = item["error"].as_str() {
-            assert_eq!(rename_rml_binding(&network, site, to).unwrap_err().code, code, "{name}");
+            assert_eq!(
+                rename_rml_binding(&network, site, to).unwrap_err().code,
+                code,
+                "{name}"
+            );
             continue;
         }
         let result = rename_rml_binding(&network, site, to).unwrap();
         let expected = item["expected"].as_str().unwrap();
         assert_eq!(result.source.as_deref(), Some(expected), "{name}");
-        assert_eq!(result.canonical, item["canonical"].as_str().unwrap(), "{name}");
+        assert_eq!(
+            result.canonical,
+            item["canonical"].as_str().unwrap(),
+            "{name}"
+        );
         let edits: Vec<Value> = result
             .edits
             .iter()
@@ -346,14 +413,26 @@ fn capture_checked_rml_binding_rewrites_share_the_javascript_corpus() {
         assert_eq!(Value::Array(edits), item["edits"], "{name}");
         let restored =
             deserialize_rml_structure(&serialize_rml_structure(&result.network).unwrap()).unwrap();
-        assert_eq!(emit_rml_exact_source(&restored).unwrap(), expected, "{name}");
-        assert_eq!(rml_representation_stages(&restored).exact_source, "verified", "{name}");
+        assert_eq!(
+            emit_rml_exact_source(&restored).unwrap(),
+            expected,
+            "{name}"
+        );
+        assert_eq!(
+            rml_representation_stages(&restored).exact_source,
+            "verified",
+            "{name}"
+        );
         assert_eq!(
             rml_provenance(&restored).unwrap().unwrap().derived_from,
             Some(rml_provenance(&network).unwrap().unwrap().source_sha256),
             "{name}"
         );
-        assert_eq!(rml_semantic_identities(&restored).unwrap(), Some(result.semantics.clone()), "{name}");
+        assert_eq!(
+            rml_semantic_identities(&restored).unwrap(),
+            Some(result.semantics.clone()),
+            "{name}"
+        );
         assert_eq!(
             rml_semantic_identities(&parse_rml_to_meta_language(expected)).unwrap(),
             Some(result.semantics),

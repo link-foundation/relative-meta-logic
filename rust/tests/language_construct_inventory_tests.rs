@@ -17,7 +17,8 @@ fn sha256(text: &str) -> String {
 }
 
 fn read(path: &str) -> String {
-    std::fs::read_to_string(format!("{ROOT}{path}")).unwrap_or_else(|error| panic!("{path}: {error}"))
+    std::fs::read_to_string(format!("{ROOT}{path}"))
+        .unwrap_or_else(|error| panic!("{path}: {error}"))
 }
 
 fn json(path: &str) -> Value {
@@ -33,7 +34,12 @@ fn programs(corpus: &Value) -> Vec<(String, String, String, Option<bool>)> {
     let mut out = Vec::new();
     for file in corpus["files"].as_array().unwrap() {
         let path = file["path"].as_str().unwrap();
-        out.push((file["language"].as_str().unwrap().to_string(), path.to_string(), read(path), None));
+        out.push((
+            file["language"].as_str().unwrap().to_string(),
+            path.to_string(),
+            read(path),
+            None,
+        ));
     }
     let conformance = json(corpus["conformance"]["path"].as_str().unwrap());
     for section in corpus["conformance"]["sections"].as_array().unwrap() {
@@ -41,7 +47,12 @@ fn programs(corpus: &Value) -> Vec<(String, String, String, Option<bool>)> {
         for (index, item) in conformance[section].as_array().unwrap().iter().enumerate() {
             let language = item["language"].as_str().or_else(|| item["name"].as_str());
             if let (Some(language), Some(source)) = (language, item["source"].as_str()) {
-                out.push((language.to_string(), format!("{section}[{index}]"), source.to_string(), None));
+                out.push((
+                    language.to_string(),
+                    format!("{section}[{index}]"),
+                    source.to_string(),
+                    None,
+                ));
             }
         }
     }
@@ -78,9 +89,19 @@ fn rust_grammar_api_and_parser_reproduce_the_shared_construct_inventory() {
         let rules = native_grammar_rule_concepts(grammar);
         let fingerprint: String = rules
             .iter()
-            .map(|rule| format!("{}\t{}\n", rule.rule, rule.concept.as_deref().unwrap_or_default()))
+            .map(|rule| {
+                format!(
+                    "{}\t{}\n",
+                    rule.rule,
+                    rule.concept.as_deref().unwrap_or_default()
+                )
+            })
             .collect();
-        assert_eq!(sha256(&fingerprint), language["ruleConceptSha256"], "{name}");
+        assert_eq!(
+            sha256(&fingerprint),
+            language["ruleConceptSha256"],
+            "{name}"
+        );
         let text = read(&format!(
             "js/vendor/meta-language/js/src/data/native-grammars/{}.lino",
             grammar.trim_start_matches("native-")
@@ -88,7 +109,12 @@ fn rust_grammar_api_and_parser_reproduce_the_shared_construct_inventory() {
         assert_eq!(sha256(&text), language["grammarTextSha256"], "{name}");
         let kinds: BTreeMap<&str, &str> = kind_pattern
             .captures_iter(&text)
-            .map(|capture| (capture.get(1).unwrap().as_str(), capture.get(2).unwrap().as_str()))
+            .map(|capture| {
+                (
+                    capture.get(1).unwrap().as_str(),
+                    capture.get(2).unwrap().as_str(),
+                )
+            })
             .collect();
         let patterns: Vec<(String, Regex)> = classifier["languages"][name]["patterns"]
             .as_array()
@@ -107,8 +133,18 @@ fn rust_grammar_api_and_parser_reproduce_the_shared_construct_inventory() {
         assert_eq!(rows.len(), rules.len(), "{name}");
         for (rule, row) in rules.iter().zip(rows) {
             assert_eq!(row[0], rule.rule.as_str(), "{name}");
-            assert_eq!(row[1].as_str(), rule.concept.as_deref(), "{name} {}", rule.rule);
-            assert_eq!(row[2].as_str(), kinds.get(rule.rule.as_str()).copied(), "{name} {}", rule.rule);
+            assert_eq!(
+                row[1].as_str(),
+                rule.concept.as_deref(),
+                "{name} {}",
+                rule.rule
+            );
+            assert_eq!(
+                row[2].as_str(),
+                kinds.get(rule.rule.as_str()).copied(),
+                "{name} {}",
+                rule.rule
+            );
             match classify(&patterns, &rule.rule) {
                 Some(index) => {
                     used.insert(index);
@@ -117,8 +153,15 @@ fn rust_grammar_api_and_parser_reproduce_the_shared_construct_inventory() {
                 None => unclassified.push(rule.rule.clone()),
             }
         }
-        assert!(unclassified.is_empty(), "{name}: unclassified {unclassified:?}");
-        assert_eq!(used.len(), patterns.len(), "{name}: a classifier pattern matches nothing");
+        assert!(
+            unclassified.is_empty(),
+            "{name}: unclassified {unclassified:?}"
+        );
+        assert_eq!(
+            used.len(),
+            patterns.len(),
+            "{name}: a classifier pattern matches nothing"
+        );
 
         let mut counts = BTreeMap::new();
         let mut refused = Vec::new();
@@ -128,11 +171,19 @@ fn rust_grammar_api_and_parser_reproduce_the_shared_construct_inventory() {
             }
             match native_construct_tree(grammar, source) {
                 Some(tree) => {
-                    assert_ne!(*accepted, Some(false), "{name}: {program} unexpectedly accepted");
+                    assert_ne!(
+                        *accepted,
+                        Some(false),
+                        "{name}: {program} unexpectedly accepted"
+                    );
                     count(&tree, &mut counts);
                 }
                 None => {
-                    assert_ne!(*accepted, Some(true), "{name}: {program} unexpectedly refused");
+                    assert_ne!(
+                        *accepted,
+                        Some(true),
+                        "{name}: {program} unexpectedly refused"
+                    );
                     refused.push(Value::String(program.clone()));
                 }
             }
@@ -144,7 +195,10 @@ fn rust_grammar_api_and_parser_reproduce_the_shared_construct_inventory() {
             .map(|row| row[0].as_str().unwrap())
             .collect();
         let observed: BTreeSet<&str> = counts.keys().map(String::as_str).collect();
-        assert_eq!(observed, exercised, "{name}: exercised constructs differ between runtimes");
+        assert_eq!(
+            observed, exercised,
+            "{name}: exercised constructs differ between runtimes"
+        );
     }
 }
 

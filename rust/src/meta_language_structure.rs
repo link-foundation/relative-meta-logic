@@ -6,9 +6,8 @@
 //! trusted as authority. Parsing is separate from resolution, elaboration,
 //! execution, and verification.
 use crate::lino_frontend::{
-    escape_reference, format_parsed_link, parse_lino_link_document, prepare_lino_source,
-    LinoForm, LinoParseError, LogicalLine, ParsedLink, PreparedLino, QuoteReference,
-    MAX_LINO_NESTING_DEPTH,
+    escape_reference, format_parsed_link, parse_lino_link_document, prepare_lino_source, LinoForm,
+    LinoParseError, LogicalLine, ParsedLink, PreparedLino, QuoteReference, MAX_LINO_NESTING_DEPTH,
 };
 use meta_language::{LanguageProfile, Link, LinkId, LinkMetadata, LinkNetwork, LinkType};
 use sha2::{Digest, Sha256};
@@ -381,7 +380,13 @@ fn insert_layout(network: &mut LinkNetwork, segments: &[Segment]) -> LinkId {
         .iter()
         .map(|segment| {
             if !segment.token {
-                return insert_as(network, LinkType::Trivia, "trivia", Some(&segment.text), &[]);
+                return insert_as(
+                    network,
+                    LinkType::Trivia,
+                    "trivia",
+                    Some(&segment.text),
+                    &[],
+                );
             }
             let value = insert_as(
                 network,
@@ -394,10 +399,22 @@ fn insert_layout(network: &mut LinkNetwork, segments: &[Segment]) -> LinkId {
                 Some(node) => vec![value, node],
                 None => vec![value],
             };
-            insert_as(network, LinkType::Trivia, "token", Some(&segment.text), &references)
+            insert_as(
+                network,
+                LinkType::Trivia,
+                "token",
+                Some(&segment.text),
+                &references,
+            )
         })
         .collect();
-    insert_as(network, LinkType::Trivia, "layout", Some(RML_STRUCTURE_SCHEMA), &ids)
+    insert_as(
+        network,
+        LinkType::Trivia,
+        "layout",
+        Some(RML_STRUCTURE_SCHEMA),
+        &ids,
+    )
 }
 
 fn attach_layout(network: &mut LinkNetwork, raw: &str, document: LinkId) {
@@ -406,11 +423,23 @@ fn attach_layout(network: &mut LinkNetwork, raw: &str, document: LinkId) {
             insert_layout(network, &segments);
         }
         Err(refusal) => {
-            insert_as(network, LinkType::Semantic, "layout-refusal", Some(&refusal), &[document]);
+            insert_as(
+                network,
+                LinkType::Semantic,
+                "layout-refusal",
+                Some(&refusal),
+                &[document],
+            );
         }
     }
     let provenance = source_provenance(raw, None);
-    insert_as(network, LinkType::Semantic, "provenance", Some(&provenance), &[document]);
+    insert_as(
+        network,
+        LinkType::Semantic,
+        "provenance",
+        Some(&provenance),
+        &[document],
+    );
 }
 
 struct Layout {
@@ -524,7 +553,10 @@ pub struct RmlProvenance {
 }
 
 fn is_digest(value: &str) -> bool {
-    value.len() == 64 && value.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'))
+    value.len() == 64
+        && value
+            .bytes()
+            .all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'))
 }
 
 /// Source fingerprint recorded when the structure was produced.
@@ -539,7 +571,12 @@ pub fn rml_provenance(network: &LinkNetwork) -> Result<Option<RmlProvenance>, St
     if records.len() > 1 {
         return Err(invalid());
     }
-    let parts: Vec<&str> = record.metadata().term().unwrap_or_default().split(' ').collect();
+    let parts: Vec<&str> = record
+        .metadata()
+        .term()
+        .unwrap_or_default()
+        .split(' ')
+        .collect();
     if !(2..=3).contains(&parts.len()) {
         return Err(invalid());
     }
@@ -830,9 +867,7 @@ fn visit_occurrence(
             id.as_u64()
         ));
     }
-    let link = network
-        .link(id)
-        .ok_or("Dangling RML structure reference")?;
+    let link = network.link(id).ok_or("Dangling RML structure reference")?;
     let index = occurrences.nodes.len();
     occurrences.nodes.push(Occurrence {
         id,
@@ -868,7 +903,9 @@ fn syntax_occurrences(network: &LinkNetwork) -> Result<Occurrences, String> {
         forms: Vec::new(),
     };
     for (index, form) in document.references().iter().enumerate() {
-        let form = network.link(*form).ok_or("Dangling RML structure reference")?;
+        let form = network
+            .link(*form)
+            .ok_or("Dangling RML structure reference")?;
         let category = form.metadata().term().unwrap_or_default().to_string();
         let root = visit_occurrence(
             network,
@@ -971,12 +1008,24 @@ pub fn rml_structure_only(network: &LinkNetwork) -> Result<LinkNetwork, LinoPars
         insert_layout(&mut structured, &segments);
     }
     if let Some(refusal) = layout_refusal(network) {
-        insert_as(&mut structured, LinkType::Semantic, "layout-refusal", Some(&refusal), &[document]);
+        insert_as(
+            &mut structured,
+            LinkType::Semantic,
+            "layout-refusal",
+            Some(&refusal),
+            &[document],
+        );
     }
     if let Some(record) = own_links(network, LinkType::Semantic, "provenance").first() {
         rml_provenance(network).map_err(invalid)?;
         let term = record.metadata().term().unwrap_or_default().to_string();
-        insert_as(&mut structured, LinkType::Semantic, "provenance", Some(&term), &[document]);
+        insert_as(
+            &mut structured,
+            LinkType::Semantic,
+            "provenance",
+            Some(&term),
+            &[document],
+        );
     }
     if semantics.is_some() {
         resolve_rml_structure(&mut structured).map_err(invalid)?;
@@ -1182,14 +1231,78 @@ pub fn check_rml_planes(network: &LinkNetwork) -> Result<RmlPlaneCheck, String> 
 // ---------- Semantic identities: declarations, binders, roles, resolutions ----------
 
 const RML_KEYWORDS: &[&str] = &[
-    "lambda", "Pi", "fresh", "in", "subst", "apply", "type", "of", "has", "probability", "with",
-    "proof", "range", "valence", "namespace", "import", "as", "is", "?", "mode", "relation",
-    "total", "coverage", "world", "inductive", "coinductive", "constructor", "define", "case",
-    "measure", "lex", "terminating", "whnf", "nf", "normal-form", "template", "+", "-", "*", "/",
-    "<", "<=", "=", "!=", "and", "or", "not", "both", "neither", "nor", "rule", "premise",
-    "conclusion", "assumption", "proof-assumption", "linked-fact", "axiom", "proof-object",
-    "theorem", "step", "substitution", "substitute", "rebind", "theory", "linked-program",
-    "foundation", "linked-rewrite", "linked-inference", "forall", "exists", "Type", "Prop",
+    "lambda",
+    "Pi",
+    "fresh",
+    "in",
+    "subst",
+    "apply",
+    "type",
+    "of",
+    "has",
+    "probability",
+    "with",
+    "proof",
+    "range",
+    "valence",
+    "namespace",
+    "import",
+    "as",
+    "is",
+    "?",
+    "mode",
+    "relation",
+    "total",
+    "coverage",
+    "world",
+    "inductive",
+    "coinductive",
+    "constructor",
+    "define",
+    "case",
+    "measure",
+    "lex",
+    "terminating",
+    "whnf",
+    "nf",
+    "normal-form",
+    "template",
+    "+",
+    "-",
+    "*",
+    "/",
+    "<",
+    "<=",
+    "=",
+    "!=",
+    "and",
+    "or",
+    "not",
+    "both",
+    "neither",
+    "nor",
+    "rule",
+    "premise",
+    "conclusion",
+    "assumption",
+    "proof-assumption",
+    "linked-fact",
+    "axiom",
+    "proof-object",
+    "theorem",
+    "step",
+    "substitution",
+    "substitute",
+    "rebind",
+    "theory",
+    "linked-program",
+    "foundation",
+    "linked-rewrite",
+    "linked-inference",
+    "forall",
+    "exists",
+    "Type",
+    "Prop",
 ];
 
 fn is_literal(term: &str) -> bool {
@@ -1293,10 +1406,22 @@ impl RmlSemantics {
 
     fn sections(&self) -> Vec<(&'static str, Vec<serde_json::Value>)> {
         vec![
-            ("declarations", self.declarations.iter().map(RmlDeclaration::to_json).collect()),
-            ("binders", self.binders.iter().map(RmlBinder::to_json).collect()),
+            (
+                "declarations",
+                self.declarations
+                    .iter()
+                    .map(RmlDeclaration::to_json)
+                    .collect(),
+            ),
+            (
+                "binders",
+                self.binders.iter().map(RmlBinder::to_json).collect(),
+            ),
             ("roles", self.roles.iter().map(RmlRole::to_json).collect()),
-            ("references", self.references.iter().map(RmlResolution::to_json).collect()),
+            (
+                "references",
+                self.references.iter().map(RmlResolution::to_json).collect(),
+            ),
         ]
     }
 }
@@ -1485,7 +1610,12 @@ impl Resolver<'_> {
         });
     }
 
-    fn visit(&mut self, index: usize, scope: &[(String, String)], mut rule: Option<&mut RuleScope>) {
+    fn visit(
+        &mut self,
+        index: usize,
+        scope: &[(String, String)],
+        mut rule: Option<&mut RuleScope>,
+    ) {
         let occurrences = self.occurrences;
         let node = occurrences.node(index);
         if node.children.is_empty() {
@@ -1647,33 +1777,71 @@ pub fn compute_rml_semantics(network: &LinkNetwork) -> Result<RmlSemantics, Stri
     Ok(resolve_occurrences(&syntax_occurrences(network)?))
 }
 
-fn materialize(network: &mut LinkNetwork, occurrences: &Occurrences, semantics: &RmlSemantics) -> LinkId {
+fn materialize(
+    network: &mut LinkNetwork,
+    occurrences: &Occurrences,
+    semantics: &RmlSemantics,
+) -> LinkId {
     let node = |address: &str| occurrences.id_at(address).expect("resolved address");
     let mut records: BTreeMap<String, LinkId> = BTreeMap::new();
     let mut ids = Vec::new();
     for item in &semantics.declarations {
         let term = format!("{}:{}", item.kind, item.name);
-        let id = insert_as(network, LinkType::Semantic, "declaration", Some(&term), &[node(&item.site), node(&item.form)]);
+        let id = insert_as(
+            network,
+            LinkType::Semantic,
+            "declaration",
+            Some(&term),
+            &[node(&item.site), node(&item.form)],
+        );
         records.insert(item.site.clone(), id);
         ids.push(id);
     }
     for item in &semantics.binders {
         let term = format!("{}:{}", item.kind, item.name);
-        let id = insert_as(network, LinkType::Semantic, "binder", Some(&term), &[node(&item.site), node(&item.scope)]);
+        let id = insert_as(
+            network,
+            LinkType::Semantic,
+            "binder",
+            Some(&term),
+            &[node(&item.site), node(&item.scope)],
+        );
         records.insert(item.site.clone(), id);
         ids.push(id);
     }
     for item in &semantics.roles {
         let mut references = vec![node(&item.owner)];
         references.extend(item.nodes.iter().map(|address| node(address)));
-        ids.push(insert_as(network, LinkType::Semantic, "role", Some(&item.role), &references));
+        ids.push(insert_as(
+            network,
+            LinkType::Semantic,
+            "role",
+            Some(&item.role),
+            &references,
+        ));
     }
     for item in &semantics.references {
         let mut references = vec![node(&item.address)];
-        references.extend(item.targets.iter().filter_map(|site| records.get(site).copied()));
-        ids.push(insert_as(network, LinkType::Semantic, "resolution", Some(&item.status), &references));
+        references.extend(
+            item.targets
+                .iter()
+                .filter_map(|site| records.get(site).copied()),
+        );
+        ids.push(insert_as(
+            network,
+            LinkType::Semantic,
+            "resolution",
+            Some(&item.status),
+            &references,
+        ));
     }
-    insert_as(network, LinkType::Semantic, "semantics", Some(RML_STRUCTURE_SCHEMA), &ids)
+    insert_as(
+        network,
+        LinkType::Semantic,
+        "semantics",
+        Some(RML_STRUCTURE_SCHEMA),
+        &ids,
+    )
 }
 
 /// Resolution stage: write checked declaration, binder, role and resolution identities.
@@ -1736,10 +1904,15 @@ pub fn rml_semantic_identities(network: &LinkNetwork) -> Result<Option<RmlSemant
     for id in &records {
         let link = network.link(*id);
         let references = link.map(Link::references).unwrap_or_default();
-        let term = link.and_then(|link| link.metadata().term()).unwrap_or_default();
+        let term = link
+            .and_then(|link| link.metadata().term())
+            .unwrap_or_default();
         if own(link, LinkType::Semantic, "declaration") || own(link, LinkType::Semantic, "binder") {
             let declaration = own(link, LinkType::Semantic, "declaration");
-            let kind_name = term.find(':').filter(|at| *at >= 1).map(|at| (&term[..at], &term[at + 1..]));
+            let kind_name = term
+                .find(':')
+                .filter(|at| *at >= 1)
+                .map(|at| (&term[..at], &term[at + 1..]));
             let Some((kind, name)) = kind_name.filter(|_| references.len() == 2) else {
                 return Err(format!(
                     "Invalid RML {} identity {}",
@@ -1788,7 +1961,9 @@ pub fn rml_semantic_identities(network: &LinkNetwork) -> Result<Option<RmlSemant
             continue;
         }
         let references = link.map(Link::references).unwrap_or_default();
-        let status = link.and_then(|link| link.metadata().term()).unwrap_or_default();
+        let status = link
+            .and_then(|link| link.metadata().term())
+            .unwrap_or_default();
         let Some(occurrence) = references.first() else {
             return Err(format!("Invalid RML resolution identity {}", id.as_u64()));
         };
@@ -1894,9 +2069,9 @@ pub fn rml_representation_stages(network: &LinkNetwork) -> RmlRepresentationStag
     let mut open_references = 0;
     let mut provenance = None;
     if parsing == "parsed" {
-        match rml_provenance(network)
-            .and_then(|found| exact_source_state(network, found.as_ref()).map(|state| (state, found)))
-        {
+        match rml_provenance(network).and_then(|found| {
+            exact_source_state(network, found.as_ref()).map(|state| (state, found))
+        }) {
             Ok((state, found)) => {
                 exact_source = state;
                 provenance = found;
@@ -1999,7 +2174,11 @@ fn compare_address(left: &str, right: &str) -> std::cmp::Ordering {
     parse(left).cmp(&parse(right))
 }
 
-fn renamed_tree(tree: &ParsedLink, address: &str, renames: &BTreeMap<String, String>) -> ParsedLink {
+fn renamed_tree(
+    tree: &ParsedLink,
+    address: &str,
+    renames: &BTreeMap<String, String>,
+) -> ParsedLink {
     ParsedLink {
         id: renames.get(address).cloned().or_else(|| tree.id.clone()),
         values: tree
@@ -2049,13 +2228,21 @@ pub fn rename_rml_binding(
     };
     let pattern = kind == "pattern";
     let name = replacement.to_string();
-    if name.is_empty() || !is_name(&name) || is_pattern_name(&name) != pattern || name.ends_with(',') {
+    if name.is_empty()
+        || !is_name(&name)
+        || is_pattern_name(&name) != pattern
+        || name.ends_with(',')
+    {
         return Err(rename_error(
             "RML_RENAME_INVALID_NAME",
             format!(
                 "{} cannot name {}",
                 json_string(&name),
-                if pattern { "a rule pattern variable" } else { "an RML binding" }
+                if pattern {
+                    "a rule pattern variable"
+                } else {
+                    "an RML binding"
+                }
             ),
         ));
     }
@@ -2090,7 +2277,12 @@ pub fn rename_rml_binding(
     let renamed: Vec<(LinoForm, ParsedLink)> = forms
         .iter()
         .enumerate()
-        .map(|(index, (form, link))| (form.clone(), renamed_tree(link, &index.to_string(), &renames)))
+        .map(|(index, (form, link))| {
+            (
+                form.clone(),
+                renamed_tree(link, &index.to_string(), &renames),
+            )
+        })
         .collect();
     let mut edited = LinkNetwork::new();
     register_rml_extension(&mut edited);
@@ -2172,9 +2364,17 @@ pub fn rename_rml_binding(
         let exact = emit_rml_exact_source(&edited).map_err(structure)?;
         let term = source_provenance(
             &exact,
-            provenance.as_ref().map(|provenance| provenance.source_sha256.as_str()),
+            provenance
+                .as_ref()
+                .map(|provenance| provenance.source_sha256.as_str()),
         );
-        insert_as(&mut edited, LinkType::Semantic, "provenance", Some(&term), &[document]);
+        insert_as(
+            &mut edited,
+            LinkType::Semantic,
+            "provenance",
+            Some(&term),
+            &[document],
+        );
         source = Some(exact);
     }
     materialize(&mut edited, &after, &resolved);
@@ -2197,7 +2397,8 @@ pub fn rename_rml_binding(
         })
         .collect();
     edits.sort_by(|left, right| compare_address(&left.address, &right.address));
-    let canonical = emit_rml_from_structure(&edited).map_err(|error| structure(error.to_string()))?;
+    let canonical =
+        emit_rml_from_structure(&edited).map_err(|error| structure(error.to_string()))?;
     Ok(RmlRename {
         network: edited,
         source,
