@@ -21,6 +21,7 @@ const PROGRAM: &str = include_str!("../../lib/meta-theory/upstream-0.0.3-native.
 const CONVERSION: &str = include_str!("../../lib/meta-theory/upstream-0.0.3-native-conversion.lino");
 const UNIVERSAL: &str = include_str!("../../lib/meta-theory/universal.lino");
 const VERIFIER: &str = include_str!("../../lib/meta-theory/proof-verifier.lino");
+const NATURAL: &str = include_str!("../../lib/meta-theory/proof-verifier-natural.lino");
 const MAP: &str = include_str!("../../test-corpus/meta-theory-coverage/map.json");
 const CASES: &str = include_str!("../../test-corpus/meta-theory-native/cases.json");
 const COVERAGE: &str = include_str!("../../test-corpus/meta-theory-native/coverage.json");
@@ -165,7 +166,7 @@ pub fn run() -> Result<Value, String> {
     // 4. Re-check a proof certificate and see which upstream admissions it is relative to.
     let certificates = parse(CERTIFICATES)?;
     let certified = find(&certificates["theorems"], "theorem", CERTIFIED_THEOREM)?;
-    let registries = certificate_registries(PRELUDE, PROGRAM, CONVERSION, UNIVERSAL, VERIFIER)?;
+    let registries = certificate_registries(PRELUDE, PROGRAM, CONVERSION, UNIVERSAL, VERIFIER, NATURAL)?;
     let dependencies = theorem_dependencies(&parse(COVERAGE)?, CERTIFIED_THEOREM);
     let checked = check_meta_theory_certificate(&registries, &certified["certificate"], &dependencies)?;
     let mut forged = certified["certificate"].clone();

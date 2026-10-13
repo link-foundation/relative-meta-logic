@@ -21,11 +21,12 @@ const read = path => readFileSync(resolve(root, path), 'utf8');
 export const CERTIFICATES_PATH = 'test-corpus/meta-theory-certificates/certificates.json';
 export const UNIVERSAL_PATH = 'lib/meta-theory/universal.lino';
 export const VERIFIER_PATH = 'lib/meta-theory/proof-verifier.lino';
+export const NATURAL_VERIFIER_PATH = 'lib/meta-theory/proof-verifier-natural.lino';
 
 export function certificateSources() {
   return {
     prelude: read(NATIVE_PRELUDE_PATH), program: read(NATIVE_PROGRAM_PATH), conversion: read(NATIVE_CONVERSION_PATH),
-    universal: read(UNIVERSAL_PATH), verifier: read(VERIFIER_PATH),
+    universal: read(UNIVERSAL_PATH), verifier: read(VERIFIER_PATH), natural: read(NATURAL_VERIFIER_PATH),
   };
 }
 
@@ -98,6 +99,7 @@ export function metaTheoryCertificateArtifacts() {
     programHash: nativeSha256(sources.program),
     conversionHash: nativeSha256(sources.conversion),
     verifierHash: nativeSha256(sources.verifier),
+    naturalVerifierHash: nativeSha256(sources.natural),
     theoremCount: records.length,
     certified: count(record => record.status === 'certified'),
     certifiedClosed: count(record => record.chain?.status === 'closed'),

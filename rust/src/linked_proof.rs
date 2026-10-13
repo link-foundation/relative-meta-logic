@@ -4,10 +4,13 @@
 //! linked rule. This module quotes data, records the execution, and independently
 //! replays it. Callers supply their authoritative context and goal on both paths.
 
-use crate::linked_program::{LinkedProgramRegistry, RewriteTraceStep};
+use crate::linked_program::{GoalNormalization, LinkedProgramRegistry, RewriteTraceStep};
 use crate::Node;
 
 pub const LINKED_PROOF_PROGRAM: &str = "linked-proof-verifier";
+/// The natural-deduction extension (`proof-verifier-natural.lino`): locals,
+/// discharge and congruence side conditions.
+pub const LINKED_PROOF_NATURAL_PROGRAM: &str = "linked-proof-verifier-natural";
 pub const LINKED_PROOF_SCHEMA: &str = "rml-linked-proof-replay/v1";
 
 fn leaf(value: &str) -> Node {
@@ -314,5 +317,161 @@ pub fn replay_linked_proof(
         result: replay.result,
         trace: replay.trace,
         steps: replay.steps,
+    })
+}
+
+// Outcomes: linked-proof results under the shared rml-foundation-outcome/v1
+// contract (`foundation_workspace`). A linked proof check is not a decision
+// procedure: acceptance proves the exact goal relative to the caller's
+// context, a rejection establishes nothing (it is `unknown`, never falsity), a
+// spent bound is `exhausted`, and malformed or stuck input is `unsupported`.
+// No linked-proof path reports `refuted` or `contradictory`.
+
+pub const LINKED_PROOF_OUTCOME_SCHEMA: &str = "rml-foundation-outcome/v1";
+pub const LINKED_PROOF_CHECK_SCHEMA: &str = "rml-linked-proof-check/v1";
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkedProofOutcome {
+    pub schema: &'static str,
+    pub kind: &'static str,
+    pub status: &'static str,
+    pub truth: &'static str,
+    pub establishes: bool,
+    pub assumption_dependent: bool,
+    pub assumptions: Vec<String>,
+    pub coinductive: bool,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkedProofCheck {
+    pub schema: &'static str,
+    /// `None` when a bound or malformed input stopped the verifier before a verdict.
+    pub receipt: Option<LinkedProofReceipt>,
+    pub outcome: LinkedProofOutcome,
+}
+
+fn outcome(
+    kind: &'static str,
+    status: &'static str,
+    reason: &str,
+    assumptions: Vec<String>,
+) -> LinkedProofOutcome {
+    LinkedProofOutcome {
+        schema: LINKED_PROOF_OUTCOME_SCHEMA,
+        kind,
+        status,
+        truth: match kind {
+            "proved" => "true",
+            "assumption-dependent" => "conditional",
+            _ => "undetermined",
+        },
+        establishes: kind == "proved" || kind == "assumption-dependent",
+        assumption_dependent: kind == "assumption-dependent",
+        assumptions,
+        coinductive: false,
+        reason: reason.to_string(),
+    }
+}
+
+/// Classify a receipt. `assumptions` lists the context rule ids the caller
+/// regards as assumptions; an accepted proof whose root dependencies use any
+/// of them is assumption-dependent and lists exactly those it used. The
+/// outcome follows the linked result term, not the receipt's `accepted` flag.
+pub fn linked_proof_outcome(
+    receipt: &LinkedProofReceipt,
+    assumptions: &[&str],
+) -> LinkedProofOutcome {
+    if let Node::List(values) = &receipt.result {
+        match values.as_slice() {
+            [Node::Leaf(tag), _, _, dependencies, _] if tag == "proof-accepted" => {
+                let Ok(Node::List(dependencies)) = decode_linked_proof_data_with_limits(
+                    dependencies,
+                    &LinkedProofLimits::for_receipt(),
+                ) else {
+                    return outcome(
+                        "unsupported",
+                        "unsupported",
+                        "malformed-acceptance",
+                        Vec::new(),
+                    );
+                };
+                let used: Vec<String> = assumptions
+                    .iter()
+                    .filter(|id| dependencies.contains(&leaf(id)))
+                    .map(|id| id.to_string())
+                    .collect();
+                return if used.is_empty() {
+                    outcome("proved", "proved", "goal-derived", Vec::new())
+                } else {
+                    outcome("assumption-dependent", "proved", "goal-derived", used)
+                };
+            }
+            [Node::Leaf(tag), Node::Leaf(reason)] if tag == "proof-rejected" => {
+                return outcome("unknown", "unknown", reason, Vec::new());
+            }
+            _ => {}
+        }
+    }
+    outcome("unsupported", "unsupported", "no-verdict", Vec::new())
+}
+
+/// Verify a candidate and report the result under the outcome contract.
+/// Bounds that stop the verifier are `exhausted`; malformed input and stalled
+/// or cyclic reductions are `unsupported`. Other failures (an unknown program
+/// or invalid limits) remain errors.
+pub fn check_linked_proof(
+    registry: &LinkedProgramRegistry,
+    context: &Node,
+    goal: &Node,
+    candidate: &Node,
+    options: &LinkedProofOptions,
+    assumptions: &[&str],
+) -> Result<LinkedProofCheck, String> {
+    let stopped = |kind: &'static str, reason: &str| LinkedProofCheck {
+        schema: LINKED_PROOF_CHECK_SCHEMA,
+        receipt: None,
+        outcome: outcome(kind, kind, reason, Vec::new()),
+    };
+    let mut budget = Budget::new(&options.input_limits)?;
+    let mut request = vec![leaf("verify-linked-proof")];
+    for value in [context, goal, candidate] {
+        match encode(value, &mut budget, 1) {
+            Ok(value) => request.push(value),
+            Err(message) if message.contains("limit") => {
+                return Ok(stopped("exhausted", "input-limit"))
+            }
+            Err(_) => return Ok(stopped("unsupported", "malformed-input")),
+        }
+    }
+    let request = list(request);
+    let reduced = match registry.reduce_or_stop(&options.program, &request, options.max_steps)? {
+        Ok(reduced) => reduced,
+        Err(stop) => {
+            let reason = stop.normalization.as_str();
+            return Ok(match stop.normalization {
+                GoalNormalization::RewriteLimit | GoalNormalization::ContractionLimit => {
+                    stopped("exhausted", reason)
+                }
+                _ => stopped("unsupported", reason),
+            });
+        }
+    };
+    let accepted = matches!(&reduced.term, Node::List(values)
+        if values.first() == Some(&leaf("proof-accepted")));
+    let receipt = LinkedProofReceipt {
+        schema: LINKED_PROOF_SCHEMA.to_string(),
+        program: options.program.clone(),
+        accepted,
+        request,
+        result: reduced.term,
+        trace: linked_proof_trace(&reduced.trace),
+        steps: reduced.trace.len(),
+    };
+    let outcome = linked_proof_outcome(&receipt, assumptions);
+    Ok(LinkedProofCheck {
+        schema: LINKED_PROOF_CHECK_SCHEMA,
+        receipt: Some(receipt),
+        outcome,
     })
 }

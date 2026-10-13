@@ -3,11 +3,11 @@
   "corpusFingerprint": "f85e7951384dbb639725eb021419982d367f5e1eeef2c5528602a4e35d8af0b9",
   "evidence": {
     "nativeProgram": "5711f39e9eb7d770e0a945412df3e80f69e8b7d66ad6a571ee9227f40ed2aa6e",
-    "nativeCoverage": "e7c02fabf1dee083087c7764d009ca64084b29848f3e89f71df815e8905e5634",
+    "nativeCoverage": "724092752b81da3a336882242a000726b1ad3baba60ed4bfbabb8c838460ecff",
     "nativeCases": "77cd10b157535d4cb2f46c6e0fd17c0954f414ae9cdf4f73beeb87297e054217",
     "propositionsCoverage": "bf01f59e827c5b72c771f6bc3e9727dd40eb2b2d02b486be8c168dc29944695e",
     "propositionsCases": "644bbd23c383960aa609552a1b3839d220869d8217be2003a7c25f77bb1c68d2",
-    "certificates": "e5d17dbaacc561a82223c64c358871a89082a00f703d05a832c7f32e68affa05"
+    "certificates": "e6d5a1c0c8a8d36790f82b202ab8d5b2bdce16f32f6e1760b1ba59a9eb43daf9"
   },
   "counts": {
     "declarations": 229,
@@ -54,9 +54,9 @@
       "statement-normalized": 36
     },
     "proof": {
-      "certified": 14,
+      "certified": 17,
       "not-applicable": 193,
-      "outside-fragment": 22
+      "outside-fragment": 19
     },
     "upstreamAdmission": {
       "admitted": 4,
@@ -524,13 +524,13 @@
         "status": "certified",
         "chain": "relative",
         "relativeTo": [
-          "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending"
+          "rml.formal.lean.SetSequenceEquivalence.insertSorted_preserves_ascending"
         ]
       },
       "admission": {
         "upstream": "verified",
         "typedLayer": "none",
-        "certificateChain": "none"
+        "certificateChain": "relative-to-upstream-admission"
       }
     },
     {
@@ -3082,7 +3082,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic induction followed by further tactics"
+        "reason": "induction is outside the certificate fragment except list induction with nil and cons arms"
       },
       "admission": {
         "upstream": "verified",
@@ -3121,7 +3121,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic simp followed by further tactics"
+        "reason": "tactic congr is outside the certificate fragment"
       },
       "admission": {
         "upstream": "verified",
@@ -3160,7 +3160,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic simp followed by further tactics"
+        "reason": "tactic rw is outside the certificate fragment"
       },
       "admission": {
         "upstream": "verified",
@@ -3199,7 +3199,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic simp is outside the certificate fragment"
+        "reason": "simp does not close the goal by conversion"
       },
       "admission": {
         "upstream": "verified",
@@ -4051,13 +4051,13 @@
         "status": "certified",
         "chain": "relative",
         "relativeTo": [
-          "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending"
+          "rml.formal.lean.SetSequenceEquivalence.insertSorted_preserves_ascending"
         ]
       },
       "admission": {
         "upstream": "verified",
         "typedLayer": "none",
-        "certificateChain": "none"
+        "certificateChain": "relative-to-upstream-admission"
       }
     },
     {
@@ -4457,8 +4457,8 @@
         "status": "certified",
         "chain": "relative",
         "relativeTo": [
-          "rml.formal.lean.SetSequenceEquivalence.strictly_ascending_implies_no_dup",
-          "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending"
+          "rml.formal.lean.SetSequenceEquivalence.insertSorted_preserves_ascending",
+          "rml.formal.lean.SetSequenceEquivalence.strictly_ascending_implies_no_dup"
         ]
       },
       "admission": {
@@ -4500,8 +4500,8 @@
         "status": "certified",
         "chain": "relative",
         "relativeTo": [
-          "rml.formal.lean.SetSequenceEquivalence.mem_toOrderedUnique",
-          "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending"
+          "rml.formal.lean.SetSequenceEquivalence.insertSorted_preserves_ascending",
+          "rml.formal.lean.SetSequenceEquivalence.mem_toOrderedUnique"
         ]
       },
       "admission": {
@@ -4579,13 +4579,16 @@
         "witness": "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending-statement"
       },
       "proof": {
-        "status": "outside-fragment",
-        "reason": "tactic induction followed by further tactics"
+        "status": "certified",
+        "chain": "relative",
+        "relativeTo": [
+          "rml.formal.lean.SetSequenceEquivalence.insertSorted_preserves_ascending"
+        ]
       },
       "admission": {
         "upstream": "verified",
         "typedLayer": "none",
-        "certificateChain": "none"
+        "certificateChain": "relative-to-upstream-admission"
       }
     },
     {
@@ -5038,7 +5041,7 @@
         "status": "certified",
         "chain": "relative",
         "relativeTo": [
-          "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique_is_ascending"
+          "rml.formal.rocq.SetSequenceEquivalence.insertSorted_preserves_ascending"
         ]
       },
       "admission": {
@@ -7635,7 +7638,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic induction is outside the certificate fragment"
+        "reason": "induction is outside the certificate fragment except induction l as [ | h t IH ]"
       },
       "admission": {
         "upstream": "verified",
@@ -7713,7 +7716,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic induction is outside the certificate fragment"
+        "reason": "induction is outside the certificate fragment except induction l as [ | h t IH ]"
       },
       "admission": {
         "upstream": "verified",
@@ -8688,7 +8691,7 @@
         "status": "certified",
         "chain": "relative",
         "relativeTo": [
-          "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique_is_ascending"
+          "rml.formal.rocq.SetSequenceEquivalence.insertSorted_preserves_ascending"
         ]
       },
       "admission": {
@@ -9092,7 +9095,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic induction is outside the certificate fragment"
+        "reason": "goal is not mt-and"
       },
       "admission": {
         "upstream": "verified",
@@ -9131,7 +9134,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic induction is outside the certificate fragment"
+        "reason": "tactic tauto is outside the certificate fragment"
       },
       "admission": {
         "upstream": "verified",
@@ -9172,8 +9175,8 @@
         "status": "certified",
         "chain": "relative",
         "relativeTo": [
-          "rml.formal.rocq.SetSequenceEquivalence.strictly_ascending_implies_no_dup",
-          "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique_is_ascending"
+          "rml.formal.rocq.SetSequenceEquivalence.insertSorted_preserves_ascending",
+          "rml.formal.rocq.SetSequenceEquivalence.strictly_ascending_implies_no_dup"
         ]
       },
       "admission": {
@@ -9215,8 +9218,8 @@
         "status": "certified",
         "chain": "relative",
         "relativeTo": [
-          "rml.formal.rocq.SetSequenceEquivalence.mem_toOrderedUnique",
-          "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique_is_ascending"
+          "rml.formal.rocq.SetSequenceEquivalence.insertSorted_preserves_ascending",
+          "rml.formal.rocq.SetSequenceEquivalence.mem_toOrderedUnique"
         ]
       },
       "admission": {
@@ -9256,7 +9259,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic induction is outside the certificate fragment"
+        "reason": "induction target is not a list-typed eigen-constant"
       },
       "admission": {
         "upstream": "verified",
@@ -9375,7 +9378,7 @@
       },
       "proof": {
         "status": "outside-fragment",
-        "reason": "tactic induction is outside the certificate fragment"
+        "reason": "tactic auto is outside the certificate fragment"
       },
       "admission": {
         "upstream": "verified",
@@ -9413,8 +9416,9 @@
         "witness": "rml.formal.rocq.SetSequenceEquivalence.strictly_ascending_tail-statement"
       },
       "proof": {
-        "status": "outside-fragment",
-        "reason": "destruct is outside the certificate fragment except for conjunction hypotheses"
+        "status": "certified",
+        "chain": "closed",
+        "relativeTo": []
       },
       "admission": {
         "upstream": "verified",
@@ -9452,8 +9456,11 @@
         "witness": "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique_is_ascending-statement"
       },
       "proof": {
-        "status": "outside-fragment",
-        "reason": "tactic induction is outside the certificate fragment"
+        "status": "certified",
+        "chain": "relative",
+        "relativeTo": [
+          "rml.formal.rocq.SetSequenceEquivalence.insertSorted_preserves_ascending"
+        ]
       },
       "admission": {
         "upstream": "verified",
