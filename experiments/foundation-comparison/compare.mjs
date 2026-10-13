@@ -295,7 +295,7 @@ export function comparisonReport() {
           'predicate/arity indexing and conservative head discrimination',
           'lambda-source LiNo parsing and validation, injective binder-name interning, caching of linked binder resolution as root facts',
           'first-order RML input encoding, UTF-8 bit decoding and rule-name splitting',
-          'LiNo parsing and leading-? pattern elaboration of RML programs',
+          'generic LiNo parsing; this workload passes host-elaborated programs, while reduceSource/proveSource take keyword, sigil and validity decisions from horn-rml-elaboration.lino',
           'step/depth bounds, allocation, JavaScript/Rust runtimes, operating system and processor',
         ],
       },
@@ -307,7 +307,7 @@ export function comparisonReport() {
       r149Satisfied: false,
       openReasons: [
         'The S/K foundation still compiles its Link-as-substitution layer with a host bracket-abstraction compiler.',
-        'Both foundations keep host LiNo parsing, ? elaboration and data codecs above the primitive laws.',
+        'Both foundations keep host LiNo parsing and data codecs above the primitive laws; ? elaboration is linked only on the Horn source workflows, and the S/K path and this comparison workload use host elaboration.',
         'Self-generation of the S/K artifact by linked definitions is not established.',
         'Removal minimality is relative to this one workload and these law decompositions, not global.',
       ],
