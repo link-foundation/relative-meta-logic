@@ -1053,9 +1053,14 @@ function rocqMonomorphize(text) {
           sink.put(k, k + 1, `${value}_${context.suffix}`); continue;
         }
         if (patterns[k]) {
-          if (context.discover) { sink.copy(k); continue; }
+          // Rocq requires an explicit parameter in a constructor pattern, written `_`;
+          // the monomorphic copy has no parameters, so those wildcards are dropped.
+          let skip = 0;
+          while (skip < owner.params.length && t.is(k + 1 + skip, '_')) skip += 1;
+          if (skip !== owner.params.length) throw refuse('constructor pattern without its parameters', `${value} needs ${owner.params.length} parameter wildcard(s) in a pattern`, t.span(k));
+          if (context.discover) { for (let r = k; r <= k + skip; r += 1) sink.copy(r); k += skip; continue; }
           const instance = instances.pick(owner, context.local, t.span(k), 'pattern of a generic type with several instantiations');
-          sink.put(k, k + 1, `${value}_${instance.suffix}`, 'rocq-instantiation', instance.key); continue;
+          sink.put(k, k + 1 + skip, `${value}_${instance.suffix}`, 'rocq-instantiation', instance.key); k += skip; continue;
         }
         const applied = args(k, owner, context, j);
         if (!applied) throw refuse('constructor without its parameters', `${value} needs ${owner.params.length} explicit type argument(s)`, t.span(k));

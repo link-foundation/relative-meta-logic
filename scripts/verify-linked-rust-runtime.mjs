@@ -82,7 +82,8 @@ export function verifyLinkedRustRuntime(helper, targetDirectory, root = reposito
     for (const variant of ['parser', 'verifier']) {
       const value = decodeLinkedValues(archive);
       if (variant === 'parser') assert.equal(mutate(value.modules['rust/src/lino_frontend.rs'], node => node.const?.ident === 'MAX_LINO_NESTING_DEPTH', node => { node.const.expr = { lit: { int: '2' } }; }), 1);
-      else assert.equal(mutate(value.modules['rust/src/linked_proof.rs'], node => node.let?.pat?.ident?.ident === 'accepted', node => { node.let.init.expr = { lit: { bool: false } }; }), 1);
+      // Both verifier entry points, the plain and the outcome-classifying one, decide acceptance.
+      else assert.equal(mutate(value.modules['rust/src/linked_proof.rs'], node => node.let?.pat?.ident?.ident === 'accepted', node => { node.let.init.expr = { lit: { bool: false } }; }), 2);
       emitLinkedRustImplementation(encodeLinkedValues(value), scratch, helper);
       cargoTest(['--test', 'r151_authority'], { RML_AUTHORITY_MUTATION: variant });
     }

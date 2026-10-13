@@ -267,6 +267,15 @@ outputs stay outside its cleanup. Equally, a worktree containing this one (the
 primary checkout above `.claude/worktrees/*`) is an ancestor, not an
 overlapping peer.
 
+On Linux and macOS a Node process started from this tree is not treated as its
+builder when it runs a script file installed outside the tree, is not a package
+manager (npm, npx, pnpm, yarn or corepack) and holds no open file inside the
+tree; a long-lived MCP or language server launched from the checkout is the
+usual case. An in-tree script, a scriptless runner such as `node --test` or
+`node -e`, an open file in the tree, or any inventory that cannot be read keeps
+the deferral, and the server's own builder children are still inspected. On
+Windows no open-file inventory is read, so such a process still defers cleanup.
+
 Deferral (an active unleased builder in this tree, an unidentifiable live
 builder, or another build holding the lease) deletes nothing. A direct
 `build-cache.mjs` run reports it and exits 1. The installed pre-commit hook sets

@@ -136,5 +136,9 @@ describe('RML surface lowering refuses what needs inference or changes evaluatio
     assert.equal(refusal(read('refusals/rocq-dependent-record.v'), 'Rocq').construct, 'dependent record field');
     const value = refusal('Inductive box (A : Type) : Type :=\n  | wrap : A -> box A.\n\nDefinition v : box nat := wrap 3.\n', 'Rocq');
     assert.equal(value.construct, 'constructor without its parameters');
+    // Rocq rejects a constructor pattern that omits an explicit parameter, so RML does too.
+    const pattern = 'Inductive box (A : Type) : Type :=\n  | wrap : A -> box A.\n\nDefinition get (b : box nat) : nat := match b with\n  | wrap x => x\n  end.\n';
+    assert.equal(refusal(pattern, 'Rocq').construct, 'constructor pattern without its parameters');
+    assert.doesNotThrow(() => lowerSurface(pattern.replace('| wrap x', '| wrap _ x'), 'Rocq'));
   });
 });

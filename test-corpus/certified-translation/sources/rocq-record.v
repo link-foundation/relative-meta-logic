@@ -1,5 +1,5 @@
 (* Records, record instances, projections and explicitly instantiated parameterised inductives. *)
-From Stdlib Require Import String Arith.
+From Stdlib Require Import String Arith DecimalString.
 Open Scope string_scope.
 
 Record point : Type := mkPoint { px : nat; py : nat }.
@@ -10,8 +10,8 @@ Inductive bag (A : Type) : Type :=
 
 Fixpoint size (A : Type) (b : bag A) : nat :=
   match b with
-  | none => 0
-  | some _ rest => S (size A rest)
+  | none _ => 0
+  | some _ _ rest => S (size A rest)
   end.
 
 Definition norm (p : point) : nat := px p + p.(py).

@@ -8,7 +8,7 @@
   (implementation
     (file "scripts/generate-certified-bulk.mjs" 10438aba03b98509b1f5407ba6cf1cb8dcc3cbfceb384ca219f5c0c24bccb592)
     (file "js/src/rml-certified-translation.mjs" 27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039)
-    (file "js/src/rml-surface-lowering.mjs" 21b061f6395289969b47209376d36e27971d921e69a50e552dfc674accc11185)
+    (file "js/src/rml-surface-lowering.mjs" c5287e08247fd0f2c2ad1f1841d6b0a90c08179b523f27d4e3e58d257527b60b)
     (file "js/src/rml-concept-space.mjs" b6e763b63bb99ae4fb10a146092c86a0d7ef779d912b7637512369d65bc51fb4)
     (file "js/vendor/meta-language-pr201/upstream-files.json" 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7)
     (file "test-corpus/certified-translation/mirrors.json" a13859ab563ca82aec9cb04ff863c79af5795ad10421cb6ce9f5e9a4bffc9fba))
@@ -2376,8 +2376,8 @@
     (input
       (path "js/src/rml-surface-lowering.mjs")
       (language JavaScript)
-      (sha256 21b061f6395289969b47209376d36e27971d921e69a50e552dfc674accc11185)
-      (bytes 70585)
+      (sha256 c5287e08247fd0f2c2ad1f1841d6b0a90c08179b523f27d4e3e58d257527b60b)
+      (bytes 71124)
       (items 43)
       (admitted 0))
     (input
@@ -3280,7 +3280,7 @@
       (sha256 d1fc49cf13b263bdc7143d83a6ab44ab1b60a68def52782514d20f7c48371de5))
     (output
       (path items-javascript.lino)
-      (sha256 946881732d83b94507cfa963bfe1b7481d9896a0fb3c79d41d510a4c7fad6932))
+      (sha256 bf6417501e5c472cafc439f62fbe3cdae8f4e55254fc3193215fbecf3a36234c))
     (output
       (path items-lean.lino)
       (sha256 a19d210ddb5668316b6a4f4ec8e17f6d56e4c10b88857152c270072643b5154f))

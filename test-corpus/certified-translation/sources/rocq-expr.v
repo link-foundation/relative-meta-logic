@@ -1,5 +1,5 @@
 (* An arithmetic expression language, its structural evaluator and a closed theorem. *)
-From Stdlib Require Import String Arith.
+From Stdlib Require Import String Arith DecimalString.
 Open Scope string_scope.
 
 Module Arith.

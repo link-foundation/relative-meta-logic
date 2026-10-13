@@ -1,5 +1,5 @@
 (* An enumeration, a recursive list of naturals, boolean guards and a universal theorem. *)
-From Stdlib Require Import String Arith Lia.
+From Stdlib Require Import String Arith Lia DecimalString.
 Open Scope string_scope.
 
 Inductive priority : Type :=
