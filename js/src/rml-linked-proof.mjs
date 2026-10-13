@@ -2,6 +2,8 @@
 import { cloneTerm } from './rml-linked-program.mjs';
 
 export const LINKED_PROOF_PROGRAM = 'linked-proof-verifier';
+// The natural-deduction extension: locals, discharge and congruence side conditions.
+export const LINKED_PROOF_NATURAL_PROGRAM = 'linked-proof-verifier-natural';
 export const MAX_LINKED_PROOF_DEPTH = 256;
 export const DEFAULT_LINKED_PROOF_INPUT_LIMITS = Object.freeze({
   maxDepth: 128, maxNodes: 10_000, maxTextBytes: 1_048_576,
@@ -182,4 +184,76 @@ export function replayLinkedProof(registry, context, goal, receipt, {
     trace: replay.trace,
     steps: replay.steps,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Outcomes: linked-proof results under the shared rml-foundation-outcome/v1
+// contract (js/src/rml-foundation-workspace.mjs). A linked proof check is not a
+// decision procedure: acceptance proves the exact goal relative to the
+// caller's context, a rejection establishes nothing (it is `unknown`, never
+// falsity), a spent bound is `exhausted`, and malformed or stuck input is
+// `unsupported`. No linked-proof path reports `refuted` or `contradictory`.
+
+export const LINKED_PROOF_OUTCOME_SCHEMA = 'rml-foundation-outcome/v1';
+export const LINKED_PROOF_CHECK_SCHEMA = 'rml-linked-proof-check/v1';
+
+function outcome(kind, status, reason, assumptions = []) {
+  const establishes = kind === 'proved' || kind === 'assumption-dependent';
+  return {
+    schema: LINKED_PROOF_OUTCOME_SCHEMA,
+    kind,
+    status,
+    truth: kind === 'proved' ? 'true' : kind === 'assumption-dependent' ? 'conditional' : 'undetermined',
+    establishes,
+    assumptionDependent: kind === 'assumption-dependent',
+    assumptions,
+    coinductive: false,
+    reason,
+  };
+}
+
+/**
+ * Classify a linked-proof receipt. `assumptions` lists the context rule ids the
+ * caller regards as assumptions; an accepted proof whose root dependencies use
+ * any of them is assumption-dependent and lists exactly those it used.
+ */
+export function linkedProofOutcome(receipt, { assumptions = [] } = {}) {
+  const result = receipt?.result;
+  if (Array.isArray(result) && result[0] === 'proof-accepted' && result.length === 5) {
+    let dependencies;
+    try {
+      dependencies = decodeLinkedProofData(result[3], DEFAULT_LINKED_PROOF_RECEIPT_LIMITS);
+    } catch {
+      return outcome('unsupported', 'unsupported', 'malformed-acceptance');
+    }
+    const used = assumptions.filter(id => dependencies.includes(id));
+    return used.length ? outcome('assumption-dependent', 'proved', 'goal-derived', used) : outcome('proved', 'proved', 'goal-derived');
+  }
+  if (Array.isArray(result) && result[0] === 'proof-rejected' && result.length === 2 && typeof result[1] === 'string') {
+    return outcome('unknown', 'unknown', result[1]);
+  }
+  return outcome('unsupported', 'unsupported', 'no-verdict');
+}
+
+/**
+ * Verify a candidate and report the result under the outcome contract. Bounds
+ * that stop the verifier are `exhausted`; malformed input and stalled or
+ * cyclic reductions are `unsupported`. The receipt is null when no verdict
+ * was reached.
+ */
+export function checkLinkedProof(registry, context, goal, candidate, { assumptions = [], ...options } = {}) {
+  let receipt;
+  try {
+    receipt = verifyLinkedProof(registry, context, goal, candidate, options);
+  } catch (error) {
+    const kind = error?.reductionFailure;
+    if (error instanceof RangeError || kind === 'rewrite-limit' || kind === 'contraction-limit') {
+      return { schema: LINKED_PROOF_CHECK_SCHEMA, receipt: null, outcome: outcome('exhausted', 'exhausted', kind ?? 'input-limit') };
+    }
+    if (error instanceof TypeError || kind === 'rewrite-stalled' || kind === 'rewrite-cycle') {
+      return { schema: LINKED_PROOF_CHECK_SCHEMA, receipt: null, outcome: outcome('unsupported', 'unsupported', kind ?? 'malformed-input') };
+    }
+    throw error;
+  }
+  return { schema: LINKED_PROOF_CHECK_SCHEMA, receipt, outcome: linkedProofOutcome(receipt, { assumptions }) };
 }

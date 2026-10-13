@@ -10,7 +10,8 @@ implemented direct structural runtime.
 This is a concrete proof-verification capability, not a claim that the complete
 formal corpus, every foundation policy, the implementation stack, or semantic
 authority is closed. In particular, it does not elaborate Lean/Rocq proofs, do
-definitional conversion, or validate guarded coinduction. Foundation workspace
+definitional conversion (the meta-theory certificate checker does that before
+the verifier runs), or validate guarded coinduction. Foundation workspace
 proofs involving those features cannot simply be relabeled as these certificates.
 
 ## Public APIs
@@ -34,6 +35,58 @@ The matching Rust functions take `&LinkedProofOptions` after their arguments.
 The selected program defaults to `linked-proof-verifier`; callers may explicitly
 choose another loaded linked program. Resource exhaustion remains a reducer
 error, rather than becoming a rejection or a proof of falsity.
+
+## Outcome under the foundation contract
+
+`checkLinkedProof(registry, context, goal, candidate, { assumptions, ...options })`
+(Rust `check_linked_proof(registry, context, goal, candidate, &options, &assumptions)`)
+runs the verifier and reports a `rml-foundation-outcome/v1` outcome next to the
+receipt. `linkedProofOutcome(receipt, { assumptions })` (Rust
+`linked_proof_outcome(&receipt, &assumptions)`) classifies an existing receipt.
+The outcome is read from the linked result term, not from the receipt's
+`accepted` flag, so a relabelled receipt cannot change it.
+
+| Linked result | Outcome kind | Truth |
+| --- | --- | --- |
+| `(proof-accepted …)` with no caller assumption among the root dependencies | `proved` | `true` |
+| `(proof-accepted …)` using caller assumptions (listed exactly) | `assumption-dependent` | `conditional` |
+| `(proof-rejected REASON)` | `unknown` | `undetermined` |
+| step bound or input bound reached (no receipt) | `exhausted` | `undetermined` |
+| malformed input, stalled or cyclic reduction, or a result without a verdict | `unsupported` | `undetermined` |
+
+A rejected certificate only shows that this candidate does not prove the goal.
+So the verifier never reports `refuted` or `contradictory`. Every kind is one of
+the kinds of `FoundationWorkspace.outcomes()`. The tests are
+`js/tests/linked-proof-outcome.test.mjs` and
+`rust/tests/linked_proof_outcome_tests.rs`.
+
+## Natural-deduction extension
+
+`lib/meta-theory/proof-verifier-natural.lino` defines the linked program
+`linked-proof-verifier-natural` (`LINKED_PROOF_NATURAL_PROGRAM`). It uses
+`linked-proof-verifier` and adds three generic data forms, all checked by linked
+rules:
+
+- `(local ID CONCLUSION)`: an assumption rule that must be discharged;
+- `(discharge ID PATTERN)`: a premise whose subproof may use local `ID`. `ID`
+  is removed from that premise's dependencies;
+- `(rule ID PREMISES CONCLUSION (congruent L R A B))`: a rule instance that is
+  accepted only when `B` is `A` with some occurrences of `L` replaced by `R`.
+
+A derivation is accepted only when no undischarged local remains among the root
+dependencies. Induction and case analysis are ordinary context rules whose step
+premises discharge their hypotheses. Which such rules are valid is decided by
+the context's owner. The meta-theory certificate checker
+([META_THEORY_NATIVE.md](META_THEORY_NATIVE.md)) validates each list-induction
+and case-analysis rule before it enters the context.
+
+Every base fixture keeps its verdict and rejection reason under the extension.
+`test-corpus/linked-proof/natural-cases.json` adds 13 cases: accepted discharge,
+rewriting of one or every occurrence, and induction; and rejected undischarged,
+forged, plain-rule, duplicate or malformed locals, forged rewrites, list-spine
+rewrites, unknown side conditions, and a hypothesis escaping into the base case.
+The tests are `js/tests/linked-proof-natural.test.mjs` and
+`rust/tests/linked_proof_natural_tests.rs`.
 
 ## Certificate data
 
@@ -185,7 +238,7 @@ retains the repository's documented bootstrap and artifact/compiler boundary.
 The receipt comparison uses host structural equality only to compare replay
 artifacts, not to decide a theorem.
 
-This deliverable advances R63 and the execution/replay portion of R143. It does
+This deliverable advances R63, R120 and the execution/replay portion of R143. It does
 not close the whole-corpus R122 requirement, foundation-selection authority,
 minimality, multiple minimal foundations, or whole-product closure. Those need
 separate executable evidence at their declared scope.
