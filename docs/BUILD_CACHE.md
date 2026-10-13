@@ -30,6 +30,12 @@ node scripts/build-cache.mjs --full
 node scripts/build-cache.mjs --recover --full
 ```
 
+Rust is compiled and tested only on hosted CI. Outside CI, `scripts/cargo.mjs`, the
+acceptance gate's native producers and the linked-runtime Rust verifiers refuse to
+start a Rust build (`scripts/local-rust-policy.mjs`), and local verification uses
+the JavaScript implementation; `cargo fmt` and `cargo fetch` stay available.
+Setting `RML_ALLOW_LOCAL_RUST=1` for one invocation is the deliberate override.
+
 `npm ci` in `js/` invokes `prepare`, which installs the repository-local hook
 composition. The runner also bootstraps before a top-level operation. Exported
 source archives and downstream npm installations do not rewrite the consumer's

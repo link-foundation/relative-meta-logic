@@ -9,6 +9,7 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { decodeLinkedValues, encodeLinkedValues } from './linked-runtime-graph.mjs';
+import { assertLocalRustAllowed } from './local-rust-policy.mjs';
 import { emitLinkedImplementation, readLinkedImplementation, repositoryRoot } from './generate-linked-runtime.mjs';
 import { emitLinkedRustImplementation, readLinkedRustImplementation } from './generate-linked-rust-runtime.mjs';
 import { emitImplementationConfiguration, readImplementationConfiguration } from './linked-implementation-configuration.mjs';
@@ -47,6 +48,7 @@ export async function verifyLinkedTarget(helper, target, root = repositoryRoot) 
     const cases = JSON.parse(readFileSync(join(root, 'test-corpus/linked-proof/cases.json')));
     const native = join(resolve(target), 'debug', process.platform === 'win32' ? 'rml-linked-target.exe' : 'rml-linked-target');
     const compile = m => {
+      assertLocalRustAllowed();
       writeFileSync(join(scratch, 'rust/linked-target/src/abi.rs'), generatedRustTools.generateRustTarget(m));
       tool(process.env.CARGO ?? 'cargo', ['build', '--offline', '--locked', '--manifest-path', join(scratch, 'rust/linked-target/Cargo.toml'), '--target-dir', resolve(target)]);
       nativeArtifactHashes.push(sha(readFileSync(native)));

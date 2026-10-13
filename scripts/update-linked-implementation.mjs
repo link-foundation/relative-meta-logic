@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { context, inheritedLease } from './build-cache.mjs';
+import { assertLocalRustAllowed } from './local-rust-policy.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const args = process.argv.slice(2);
@@ -21,6 +22,7 @@ if (!inheritedLease(context(root))) {
 } else {
   const target = process.env.RML_CACHE_OUTPUT_DIR;
   if (!target) throw new Error('Source migration requires private producer output');
+  if (!selectedHelper) assertLocalRustAllowed();
   if (!selectedHelper) run(process.env.CARGO ?? 'cargo', ['build', '--locked', '--manifest-path', 'scripts/linked-runtime-rust/Cargo.toml', '--target-dir', target]);
   const helper = selectedHelper ? resolve(root, selectedHelper) : resolve(root, target, 'debug', `rml-linked-rust-ast${process.platform === 'win32' ? '.exe' : ''}`);
   run(process.execPath, ['scripts/generate-linked-target.mjs', '--generate']);

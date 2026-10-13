@@ -11085,7 +11085,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         }
       ],
       "claimedEvidence": "PR 184 uses `Advances #183` rather than an auto-closing directive, while the versioned report retains `foundationStatus: OPEN` and the ledger keeps R71, R73, and R74 open. The solver tooling appends a `Fixes` line naming PR 184 after each work session, and the R136 guard removes it from the live body.",
@@ -11995,7 +11995,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -12351,7 +12351,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": "scripts/issue-183-requirements.test.mjs",
@@ -13133,7 +13133,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         }
       ],
       "claimedEvidence": "Rows `R11/R18/R21/R47/R49/R51/R52/R55/R56/R62-R64/R66` now state partial or blocked scope; R65 remains complete only for its idealized unbounded model, while R77/R87 describe the corrected live body.",
@@ -13193,7 +13193,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -35923,7 +35923,7 @@
       "implementationClaims": [
         {
           "path": "scripts/issue-183-requirements.mjs",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a",
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396",
           "role": "historical-claim"
         }
       ],
@@ -36212,7 +36212,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         }
       ],
       "claimedEvidence": "`R156-R164` preserve all nine cleanup bullets in `requirements.sources.json` and `requirements.manifest.json`. Implementation/event coverage lives in `scripts/build-cache.mjs`, `run-with-cache.mjs`, `bootstrap.mjs`, `cache-policy.json`, workflow guards and `docs/BUILD_CACHE.md`; executable safety tests and `data/build-cache-measurement.json` provide explicit positive/negative and measured evidence. Open safety/coverage gaps remain separately recorded below.",
@@ -36510,7 +36510,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         },
         {
           "path": "scripts/build-cache.mjs",
@@ -36850,7 +36850,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         }
       ],
       "claimedEvidence": "`scripts/bootstrap.mjs`, package prepare hooks and the command wrapper install composed per-worktree hooks. `build-cache.test.mjs` executes an actual fresh clone, a documentation-only commit, repeated installation, an existing failing hook, cross-worktree configuration and downstream dependency-install isolation. Missing Node or unsafe symlink state fails instead of silently skipping cleanup; `unusual bare/core.worktree configurations require manual setup` and broader OS validation remains in R162.",
@@ -37143,7 +37143,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         },
         {
           "path": "scripts/build-cache.mjs",
@@ -37446,7 +37446,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         },
         {
           "path": "scripts/build-cache.mjs",
@@ -37659,7 +37659,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         },
         {
           "path": "scripts/cargo-unit-sweep.mjs",
@@ -37932,7 +37932,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         }
       ],
       "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. `On Windows such a process still defers cleanup because no open-file inventory is read, and the symlink, ancestor-substitution and process-group safety tests run only on POSIX`.",
@@ -38174,7 +38174,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         }
       ],
       "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results. `Windows skips 19 POSIX-only lifecycle tests (process-group kill, signal interruption, symlink, private Cargo target and native make cases) and macOS skips 1 Linux-only colliding-PID test; no Windows equivalents exist yet`.",
@@ -38508,7 +38508,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         },
         {
           "path": "docs/case-studies/issue-183/data/build-cache-measurement.json",
@@ -41004,7 +41004,7 @@
     {
       "id": "R169",
       "obligation": "Do not compile Rust locally; local verification uses JavaScript and Rust parity is verified by CI.",
-      "status": "Complete as a documented development workflow",
+      "status": "Complete — enforced by the repository's local Rust policy; one earlier local compilation disclosed",
       "originalWording": [
         {
           "sourceId": "comment-6138933223",
@@ -41025,13 +41025,44 @@
           "path": "docs/LINKED_IMPLEMENTATION.md",
           "role": "implementation",
           "sha256": "cf9836adccd81220b75c89cff1c37dc26cbe2fe6ba5f6650637354fe29eb7f9b"
+        },
+        {
+          "path": "scripts/local-rust-policy.mjs",
+          "role": "implementation",
+          "sha256": "a64fbbc0d9fab0a0cf3a73c5ee1f575c54c02328e57787627d42be4fb26d93d7"
+        },
+        {
+          "path": "scripts/cargo.mjs",
+          "role": "implementation",
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
+        },
+        {
+          "path": "scripts/issue-183-requirements.mjs",
+          "role": "implementation",
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+        },
+        {
+          "path": "scripts/verify-linked-target.mjs",
+          "role": "implementation",
+          "sha256": "495d3f41a388562265b7c2e49830c9ea4db3d35597f85f24cc8f047d72649207"
+        },
+        {
+          "path": "scripts/verify-linked-rust-runtime.mjs",
+          "role": "implementation",
+          "sha256": "5008a550273ac9d4f6d79cf314e8841243d33348c02afec5daf40415b69366fd"
+        },
+        {
+          "path": "scripts/update-linked-implementation.mjs",
+          "role": "implementation",
+          "sha256": "12382fe9cc8f9901d615d672737f4960d17535f967bbf09302f88ed3da535c6f"
         }
       ],
-      "claimedEvidence": "Local verification in this PR ran JavaScript suites only, and Rust was compiled and tested only by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml). Source migration, which builds the Rust syntax helper, runs on a hosted runner through `.github/workflows/linked-recapture.yml` for `recapture/**` pushes and yields a reviewable `linked-recapture.patch` without committing; `docs/LINKED_IMPLEMENTATION.md` documents the workflow. `scripts/linked-recapture-policy.test.mjs` requires the hosted migration and patch upload and rejects write permission, commits, pushes and pull-request triggers. `This governs contributor workflow; it cannot prove that no individual contributor compiles Rust on their own machine`.",
+      "claimedEvidence": "`scripts/local-rust-policy.mjs` refuses Rust compilation unless the process runs on hosted CI (`CI` or `GITHUB_ACTIONS`) or `RML_ALLOW_LOCAL_RUST=1` is set for that invocation; the acceptance gate's native producer (`executeCargoCheck`), `scripts/cargo.mjs`, `verify-linked-target.mjs`, `verify-linked-rust-runtime.mjs` and the source migration ask it before starting cargo, while `cargo fmt` and `cargo fetch` stay available. `scripts/local-rust-policy.test.mjs` shows the refusal for a real reviewed native check and for the cargo wrapper, and the permission on CI and with the override. Rust was compiled and tested by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml), and source migration runs on a hosted runner through `.github/workflows/linked-recapture.yml`. `Before this policy existed, one local run of the full completion gate on 2026-10-13 compiled the Rust suites; its rust/target was deleted, and the override remains available to a contributor who deliberately sets it`.",
       "checks": [
-        "linked-recapture-policy"
+        "linked-recapture-policy",
+        "local-rust-policy"
       ],
-      "remainingGap": "Local verification in this PR ran JavaScript suites only, and Rust was compiled and tested only by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml). Source migration, which builds the Rust syntax helper, runs on a hosted runner through `.github/workflows/linked-recapture.yml` for `recapture/**` pushes and yields a reviewable `linked-recapture.patch` without committing; `docs/LINKED_IMPLEMENTATION.md` documents the workflow. `scripts/linked-recapture-policy.test.mjs` requires the hosted migration and patch upload and rejects write permission, commits, pushes and pull-request triggers. `This governs contributor workflow; it cannot prove that no individual contributor compiles Rust on their own machine`.",
+      "remainingGap": "`scripts/local-rust-policy.mjs` refuses Rust compilation unless the process runs on hosted CI (`CI` or `GITHUB_ACTIONS`) or `RML_ALLOW_LOCAL_RUST=1` is set for that invocation; the acceptance gate's native producer (`executeCargoCheck`), `scripts/cargo.mjs`, `verify-linked-target.mjs`, `verify-linked-rust-runtime.mjs` and the source migration ask it before starting cargo, while `cargo fmt` and `cargo fetch` stay available. `scripts/local-rust-policy.test.mjs` shows the refusal for a real reviewed native check and for the cargo wrapper, and the permission on CI and with the override. Rust was compiled and tested by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml), and source migration runs on a hosted runner through `.github/workflows/linked-recapture.yml`. `Before this policy existed, one local run of the full completion gate on 2026-10-13 compiled the Rust suites; its rust/target was deleted, and the override remains available to a contributor who deliberately sets it`.",
       "verificationState": "live-producer-bound-infrastructure-contract",
       "assertionBindings": [
         {
@@ -41044,6 +41075,18 @@
           "checkId": "linked-recapture-policy",
           "file": "scripts/linked-recapture-policy.test.mjs",
           "name": "the hosted recapture workflow cannot commit, push or run on pull requests",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "local-rust-policy",
+          "file": "scripts/local-rust-policy.test.mjs",
+          "name": "Rust compilation is allowed on hosted CI and with the explicit local override",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "local-rust-policy",
+          "file": "scripts/local-rust-policy.test.mjs",
+          "name": "a local run refuses every repository path that would compile Rust",
           "polarity": "negative"
         }
       ],
@@ -41058,6 +41101,18 @@
           "checkId": "linked-recapture-policy",
           "file": "scripts/linked-recapture-policy.test.mjs",
           "name": "the hosted recapture workflow cannot commit, push or run on pull requests",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "local-rust-policy",
+          "file": "scripts/local-rust-policy.test.mjs",
+          "name": "Rust compilation is allowed on hosted CI and with the explicit local override",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "local-rust-policy",
+          "file": "scripts/local-rust-policy.test.mjs",
+          "name": "a local run refuses every repository path that would compile Rust",
           "polarity": "negative"
         }
       ]
@@ -41905,7 +41960,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -42936,7 +42991,7 @@
         {
           "path": "scripts/cargo.mjs",
           "role": "implementation",
-          "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -51503,7 +51558,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -52001,7 +52056,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -53748,7 +53803,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -54276,7 +54331,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -55528,7 +55583,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -58995,7 +59050,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -60114,6 +60169,52 @@
         {
           "file": "scripts/dependency-audit.test.mjs",
           "name": "an audit that disagrees with a manifest, a lock file or a newer release is rejected",
+          "polarity": "negative"
+        }
+      ]
+    },
+    {
+      "id": "local-rust-policy",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/local-rust-policy.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/local-rust-policy.test.mjs",
+          "role": "test",
+          "sha256": "6dd8356650ad3b0f5b3a21af17aa96774eaad772d25c9c13a6c5c5e2f1adcea5"
+        },
+        {
+          "path": "scripts/local-rust-policy.mjs",
+          "role": "implementation",
+          "sha256": "a64fbbc0d9fab0a0cf3a73c5ee1f575c54c02328e57787627d42be4fb26d93d7"
+        },
+        {
+          "path": "scripts/cargo.mjs",
+          "role": "implementation",
+          "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
+        },
+        {
+          "path": "scripts/issue-183-requirements.mjs",
+          "role": "implementation",
+          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "fixture",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/local-rust-policy.test.mjs",
+          "name": "Rust compilation is allowed on hosted CI and with the explicit local override",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/local-rust-policy.test.mjs",
+          "name": "a local run refuses every repository path that would compile Rust",
           "polarity": "negative"
         }
       ]

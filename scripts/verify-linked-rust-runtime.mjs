@@ -10,6 +10,7 @@ import { pathToFileURL } from 'node:url';
 import { decodeLinkedValues, encodeLinkedValues } from './linked-runtime-graph.mjs';
 import { compileLinkedRustImplementation, emitLinkedRustImplementation, readLinkedRustImplementation, repositoryRoot, rustAstTool, rustImplementationModules } from './generate-linked-rust-runtime.mjs';
 import { readImplementationConfiguration, emitImplementationConfiguration } from './linked-implementation-configuration.mjs';
+import { assertLocalRustAllowed } from './local-rust-policy.mjs';
 
 const assertionSource = `
 use rml::{Node, parse_lino_document, MAX_LINO_NESTING_DEPTH};
@@ -50,6 +51,7 @@ function mutate(value, predicate, edit) {
 }
 
 export function verifyLinkedRustRuntime(helper, targetDirectory, root = repositoryRoot) {
+  assertLocalRustAllowed();
   const seedHelperSha256 = sha256(readFileSync(helper));
   const archive = readLinkedRustImplementation(root);
   const configuration = readImplementationConfiguration(root);

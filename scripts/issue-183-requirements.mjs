@@ -3,6 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { localRustRefusal } from './local-rust-policy.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = 'docs/case-studies/issue-183';
@@ -230,6 +231,8 @@ export function parseCargoAssertions(stdout, check) {
 function executeCargoCheck(root, check) {
   const command = ['cargo', 'test', '--locked', '--jobs', '2', '--manifest-path', 'rust/Cargo.toml', '--test', check.testTarget, '--', '--test-threads=1', '--format=pretty', '--color=never'];
   const startedAt = new Date().toISOString();
+  const refusal = localRustRefusal();
+  if (refusal) return { id: check.id, command, cwd: root, startedAt, finishedAt: startedAt, exitCode: null, signal: null, inputPins: check.files, stdout: '', stderr: '', passed: false, assertions: [], error: `${check.id} native execution refused: ${refusal}` };
   const result = spawnSync(command[0], command.slice(1), { cwd: root, encoding: 'utf8', timeout: check.timeoutMs ?? 1200000, maxBuffer: 32 * 1024 * 1024 });
   const evidence = { id: check.id, command, cwd: root, startedAt, finishedAt: new Date().toISOString(), cargo: version('cargo', ['--version'], root), rustc: version('rustc', ['--version'], root), exitCode: result.status, signal: result.signal, inputPins: check.files, stdout: result.stdout ?? '', stderr: result.stderr ?? '', passed: false, assertions: [] };
   try {

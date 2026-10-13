@@ -12,7 +12,7 @@ function fixture(t) {
   // Receipts are relative to the canonical worktree (macOS tmpdir is a /var alias).
   const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'rml nested cache ')));
   fs.mkdirSync(path.join(root, 'scripts'));
-  for (const name of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'cargo.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
+  for (const name of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'cargo.mjs', 'local-rust-policy.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
   fs.mkdirSync(path.join(root, 'js'));
   fs.mkdirSync(path.join(root, 'rust'));
   fs.writeFileSync(path.join(root, 'js/package.json'), '{"name":"fixture"}\n');
@@ -84,7 +84,8 @@ test('cargo entry point nested in an outer operation owns and reuses isolated co
     if(!reused)fs.writeFileSync(output,'compiled dependency fixture');
     fs.writeFileSync('cargo-result.json',JSON.stringify({target,reused,args:process.argv.slice(2)}));
   `, { mode: 0o755 });
-  const env = { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}` };
+  // The cargo here is a mock, so the local Rust policy is overridden explicitly.
+  const env = { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}`, RML_ALLOW_LOCAL_RUST: '1' };
   ok(f.wrap([node, 'scripts/cargo.mjs', 'build'], [], env));
   const first = JSON.parse(f.read('cargo-result.json'));
   assert.equal(first.reused, false);
@@ -310,7 +311,7 @@ test('acceptance Cargo producers inherit one private target for the complete out
     const check={id:'routing',kind:'cargo-test',testTarget:'routing',testFiles:['rust/tests/routing.rs'],files:[pin('rust/Cargo.toml','configuration'),pin('rust/Cargo.lock','configuration'),pin('implementation.rs','implementation'),pin('rust/tests/routing.rs','test-and-fixture')],assertions:[{file:'rust/tests/routing.rs',name:'positive',polarity:'positive'},{file:'rust/tests/routing.rs',name:'negative',polarity:'negative'}]};
     for(let i=0;i<2;i++){const result=executeIssue183Check(process.cwd(),check);assert.equal(result.passed,true,result.error);assert.equal(result.assertions.length,2);}
   `;
-  ok(f.wrap([node, '-e', program], ['--isolate-output', 'rust/target'], { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}` }));
+  ok(f.wrap([node, '-e', program], ['--isolate-output', 'rust/target'], { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}`, RML_ALLOW_LOCAL_RUST: '1' }));
   const calls = f.read('cargo-targets.jsonl').trim().split('\n').map(JSON.parse);
   assert.equal(calls.length, 2);
   assert.equal(calls[0].target, calls[1].target);
