@@ -45,6 +45,7 @@ fn grammar_forms() -> Vec<Node> {
     let text = fs::read_to_string(&path)
         .unwrap_or_else(|e| panic!("could not read {}: {}", path.display(), e));
     parse_lino(&text)
+        .unwrap_or_else(|e| panic!("{} is not valid LiNo: {}", path.display(), e))
         .into_iter()
         .map(|link| {
             parse_one(&tokenize_one(&link))
@@ -183,6 +184,7 @@ fn parse_self_presentation(source: &str, rules: &HashSet<String>) -> Vec<Node> {
 
 fn host_ast(source: &str) -> Vec<Node> {
     parse_lino(source)
+        .unwrap_or_else(|e| panic!("host source is not valid LiNo: {}", e))
         .into_iter()
         .map(|link| {
             parse_one(&tokenize_one(&link))

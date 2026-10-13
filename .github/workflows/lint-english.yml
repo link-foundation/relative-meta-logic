@@ -11,11 +11,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: '20'
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Lint LiNo files for English readability
-        run: node scripts/lint-english.mjs --allowlist scripts/lint-english.allowlist.json examples/*.lino lib/*/*.lino
+        run: node scripts/run-with-cache.mjs -- node scripts/lint-english.mjs --allowlist scripts/lint-english.allowlist.json examples/*.lino lib/*/*.lino
       - name: Run lint unit tests
-        run: node --test scripts/lint-english.test.mjs
+        run: node scripts/run-with-cache.mjs -- node --test scripts/lint-english.test.mjs
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cache-diagnostics-lint-english-lint-english-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

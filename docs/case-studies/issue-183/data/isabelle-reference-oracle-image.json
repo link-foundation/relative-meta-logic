@@ -1,0 +1,15 @@
+{
+  "schema": "rml-reference-oracle-image/v1",
+  "checkedAt": "2026-10-09T06:20:18.799181+00:00",
+  "officialPublisherSource": "https://isabelle.in.tum.de/installation.html",
+  "registrySource": "https://hub.docker.com/v2/repositories/makarius/isabelle/tags/Isabelle2025-2",
+  "image": "makarius/isabelle:Isabelle2025-2@sha256:9bd33b183c399327c5d554fc8cde27c29b5d2b20cdc6fe7a604caa3f951018fc",
+  "architectures": [
+    "amd64"
+  ],
+  "registryPayloadSha256": "d492988b3b93b7bfffa6d485e83f343c5a10dc2827c71f0c21d4f1585acf802e",
+  "generatedCaches": ".rml-cache/compiler/reference-exports/Isabelle",
+  "settingsSource": "https://isabelle.in.tum.de/repos/isabelle/raw-file/Isabelle2025-2/lib/scripts/getsettings",
+  "settingsSha256": "8489c50eb513a46649c3ed35116558d62a6c14c49cea028ff361e14598408bd3",
+  "nativeStatus": "pending exact PR CI job"
+}

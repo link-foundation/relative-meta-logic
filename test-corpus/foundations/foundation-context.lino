@@ -1,0 +1,48 @@
+; A previously unseen signed feedback logic, consumed as data by both runtimes.
+; Version 1 uses finite evidence; version 2 admits only declared guarded cycles.
+(linked-program signed-feedback)
+(linked-inference signed-feedback positive-step
+  (premise (feeds positive ?item ?next))
+  (premise (signed positive ?next))
+  (conclusion (signed positive ?item)))
+(linked-inference signed-feedback negative-step
+  (premise (feeds negative ?item ?next))
+  (premise (signed negative ?next))
+  (conclusion (signed negative ?item)))
+(linked-inference signed-feedback unguarded-alias
+  (premise (alias ?item ?next))
+  (premise (signed ?polarity ?next))
+  (conclusion (signed ?polarity ?item)))
+(linked-program signed-refutation)
+(linked-rewrite signed-refutation positive-opposite
+  (from (refutation-of (signed positive ?item)))
+  (to (signed negative ?item)))
+(linked-rewrite signed-refutation negative-opposite
+  (from (refutation-of (signed negative ?item)))
+  (to (signed positive ?item)))
+(linked-foundation signed-network (version 1)
+  (inference signed-feedback)
+  (proof signed-refutation)
+  (signature (signed ?polarity ?item) (feeds ?polarity ?item ?next) (alias ?item ?next))
+  (cycle-policy inductive))
+(linked-foundation signed-network (version 2)
+  (inference signed-feedback)
+  (proof signed-refutation)
+  (signature (signed ?polarity ?item) (feeds ?polarity ?item ?next) (alias ?item ?next))
+  (cycle-policy guarded-coinductive
+    (guard signed-feedback positive-step)
+    (guard signed-feedback negative-step)))
+(linked-program feedback-circuit)
+(linked-fact feedback-circuit alpha-positive (judgement (feeds positive alpha alpha)))
+(linked-fact feedback-circuit beta-negative (judgement (feeds negative beta beta)))
+(linked-fact feedback-circuit gamma-positive (judgement (feeds positive gamma gamma)))
+(linked-fact feedback-circuit gamma-negative (judgement (feeds negative gamma gamma)))
+(linked-fact feedback-circuit delta-positive (judgement (feeds positive delta delta)))
+(linked-fact feedback-circuit delta-denied (judgement (signed negative delta)))
+(linked-fact feedback-circuit epsilon-accepted (judgement (signed positive epsilon)))
+(linked-fact feedback-circuit epsilon-negative (judgement (feeds negative epsilon epsilon)))
+(linked-fact feedback-circuit alias-loop (judgement (alias loop loop)))
+(linked-instance finite-circuit
+  (theory feedback-circuit) (foundation signed-network (version 1)))
+(linked-instance guarded-circuit
+  (theory feedback-circuit) (foundation signed-network (version 2)))

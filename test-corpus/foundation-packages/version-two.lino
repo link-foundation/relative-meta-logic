@@ -1,0 +1,13 @@
+(linked-program rules)
+(linked-inference rules step
+  (premise (input ?x))
+  (conclusion (rejected ?x)))
+(linked-program proof)
+(linked-rewrite proof contrary
+  (from (refutation-of (accepted ?x)))
+  (to (rejected ?x)))
+(linked-program theory)
+(linked-fact theory seed (judgement (input rules)))
+(linked-foundation sample-logic (version 2)
+  (inference rules) (proof proof) (cycle-policy inductive))
+(linked-instance study (theory theory) (foundation sample-logic (version 2)))

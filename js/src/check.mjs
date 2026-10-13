@@ -11,10 +11,13 @@
 // fails both test suites.
 
 import {
+  LinoParseError,
   parseLino,
   parseOne,
   tokenizeOne,
   keyOf,
+  emitLinoTerm,
+  isDefinitionForm,
   isStructurallySame,
 } from './rml-links.mjs';
 
@@ -48,25 +51,35 @@ function collectAssignments(forms) {
       isNum(f[3])
     ) {
       const inner = f[0];
-      out.add(keyOf(inner));
+      out.add(emitLinoTerm(inner));
       if (Array.isArray(inner) && inner.length === 3 && inner[1] === '=') {
-        out.add(keyOf(['=', inner[0], inner[2]]));
+        out.add(emitLinoTerm(['=', inner[0], inner[2]]));
       }
     }
   }
   return out;
 }
 
-// Parse a `.lino` source into top-level forms via the kernel parser.
-function parseForms(src) {
+// Parse a `.lino` source into top-level forms via the kernel parser. A source
+// that is not LiNo at all is reported against its role (`program` or
+// `proofs`) at the position the front end names. Forms the kernel parser
+// rejects are skipped; the checker reports a count mismatch downstream if
+// this hides a real query.
+function parseForms(src, role, errors) {
+  let links;
+  try {
+    links = parseLino(src);
+  } catch (err) {
+    if (!(err instanceof LinoParseError)) throw err;
+    errors.push({ path: [role], message: `${err.message} at ${err.line}:${err.col}` });
+    return [];
+  }
   const out = [];
-  for (const s of parseLino(src)) {
-    if (s.trimStart().startsWith('(#')) continue;
+  for (const s of links) {
     try {
       out.push(parseOne(tokenizeOne(s)));
     } catch (_) {
-      // Skip unparseable forms. The checker reports a count mismatch
-      // downstream if this hides a real query.
+      // Skip unparseable forms.
     }
   }
   return out;
@@ -110,7 +123,7 @@ function expectedRule(expr, ops, assigned) {
   if (!Array.isArray(expr)) return 'reduce';
 
   const head = expr[0];
-  if (typeof head === 'string' && head.endsWith(':')) return 'definition';
+  if (isDefinitionForm(expr, ops)) return 'definition';
   if (head === 'Type' && expr.length === 2) return 'type-universe';
   if (head === 'Prop' && expr.length === 1) return 'prop';
   if (head === 'Pi' && expr.length === 3) return 'pi-formation';
@@ -155,8 +168,8 @@ function expectedRule(expr, ops, assigned) {
     if (op === '=' || op === '!=') {
       const L = expr[0];
       const R = expr[2];
-      const kP = keyOf(['=', L, R]);
-      const kI = keyOf([L, '=', R]);
+      const kP = emitLinoTerm(['=', L, R]);
+      const kI = emitLinoTerm([L, '=', R]);
       const isAssigned = assigned.has(kP) || assigned.has(kI);
       if (op === '!=') {
         if (isAssigned) return 'assigned-inequality';
@@ -543,12 +556,13 @@ function checkPrefix(expr, rule, subs, ops, assigned, nextPath, path) {
  * `{ ok: [{rule, expr}, ...], errors: [{path, message}, ...] }`.
  */
 export function checkProgram(programSrc, proofsSrc) {
-  const programForms = parseForms(programSrc);
-  const proofForms = parseForms(proofsSrc);
+  const result = { ok: [], errors: [] };
+  const programForms = parseForms(programSrc, 'program', result.errors);
+  const proofForms = parseForms(proofsSrc, 'proofs', result.errors);
+  if (result.errors.length > 0) return result;
   const queries = programForms.map(queryTarget).filter(q => q !== null);
   const ops = collectOperators(programForms);
   const assigned = collectAssignments(programForms);
-  const result = { ok: [], errors: [] };
 
   if (queries.length !== proofForms.length) {
     result.errors.push({

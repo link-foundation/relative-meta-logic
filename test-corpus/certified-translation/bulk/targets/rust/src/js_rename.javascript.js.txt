@@ -1,0 +1,72 @@
+// rml-certified-item rust/src/js_rename.rs#RESERVED@205 target-sha256=784ff1fb834d3833ec3520f71ae6e36ea79dd1eee45cfe36330fb45e2d42a24f
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function RESERVED() {
+  return "break case catch class const continue debugger default delete do else enum export extends false finally for function if implements import in instanceof interface let new null package private protected public return static super switch this throw true try typeof var void while with yield await async";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/js_rename.rs#UNSUPPORTED@531 target-sha256=74a7e48fdd8c92e468d109cb00303f060a561aa3749c7a82aa8544c72380ebab
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function UNSUPPORTED() {
+  return "break case catch class continue debugger default delete do else enum export extends finally for function if implements import in interface package private protected public return static super switch throw try var while with yield await async eval";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/js_rename.rs#SourceLocation@1006 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/js_rename.rs#IdentifierReplacement@1142 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/js_rename.rs#Token@1575 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/js_rename.rs#fail@1901 target-sha256=87fd3805b340f790886e404f1b8fada41de988c6e541f4ba9427391600a1bffd
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function ml_fixed(value, min, max, message) {
+  if (value < min || value > max) throw new RangeError(message);
+  return value;
+}
+
+function fail(code, detail, offset) {
+  ml_fixed(offset, 0n, 18446744073709551615n, "u64 argument offset out of range");
+  return ((((code + ": ") + detail) + " at UTF-16 offset ") + String(offset));
+}
+
+function main() {
+
+}
+
+main();

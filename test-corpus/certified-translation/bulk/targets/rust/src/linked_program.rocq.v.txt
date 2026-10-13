@@ -1,0 +1,963 @@
+(* rml-certified-item rust/src/linked_program.rs#PREVIOUS_METRIC_REVISION@2287 target-sha256=ec5283cd37d9a09b1c727cadf0b6a07254edeb981bf77d59e66d5e37715a3a5b *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition PREVIOUS_METRIC_REVISION : string :=
+  "8b39df510a083e5cbe2a56a72e6595aae7b48146"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#SearchEnd@4435 target-sha256=3d42dfda94d4df5431ce996f7801df3cbb862e50d06bc7c5bdff675e28470ee9 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive SearchEnd : Type :=
+| Found : SearchEnd
+| Saturated : SearchEnd
+| InferenceLimit : SearchEnd
+| FactLimit : SearchEnd.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#GoalNormalization@5136 target-sha256=7a2b418e3c8fc52b2c11664ade41aef014813851fe66b96d176f21c47fbfbbfe *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive GoalNormalization : Type :=
+| Normal : GoalNormalization
+| RewriteLimit : GoalNormalization
+| RewriteCycle : GoalNormalization
+| RewriteStalled : GoalNormalization
+| ContractionLimit : GoalNormalization.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#ReductionStopped@6600 target-sha256=58fe3b4f7e7ff964ffc736e3241b9b9ff00fac476e3f5160c4017e467705a8a6 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive GoalNormalization : Type :=
+| Normal : GoalNormalization
+| RewriteLimit : GoalNormalization
+| RewriteCycle : GoalNormalization
+| RewriteStalled : GoalNormalization
+| ContractionLimit : GoalNormalization.
+
+Inductive ReductionStopped : Type :=
+| ReductionStopped_2 : GoalNormalization -> string -> ReductionStopped.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#ReduceFailure@6988 target-sha256=345ee82d658540df2df94827cdacb8c93d22314b2c06405a3b71495c1cb5e13e *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive ReduceFailure : Type :=
+| Limit : string -> ReduceFailure
+| Cycle : string -> ReduceFailure
+| Stalled : string -> ReduceFailure
+| ContractionLimit : string -> ReduceFailure
+| Other : string -> ReduceFailure.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#AddedFact@8379 target-sha256=48683429632e82d165b4cb7bb7fba32c93de3c6fb72fbd0b036e0a2b03e876c7 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive AddedFact : Type :=
+| Duplicate : AddedFact
+| New : AddedFact
+| OverLimit : AddedFact.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapSemanticSource@9099 target-sha256=5d81f0ae5f75b63418d869dd0c6767e4a7d78e65e5e7ff75b971332784e2c5d7 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapSemanticSource : Type :=
+| BootstrapSemanticSource_2 : string -> string -> string -> string -> N -> N -> N -> string -> bool -> BootstrapSemanticSource.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapSemanticLawProvenance@9486 target-sha256=4b690844ac30831c3d1ee0f3d5442e70cdbd78ab3f4a15dda3b4947f6592c31f *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapSemanticLawProvenance : Type :=
+| BootstrapSemanticLawProvenance_2 : string -> string -> string -> BootstrapSemanticLawProvenance.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapMinimizationExperiment@9662 target-sha256=0c340212162fb4a0aa7e53d5068324bb43bc9831780a61a11410d0fec581c5b1 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapMinimizationExperiment : Type :=
+| BootstrapMinimizationExperiment_2 : string -> string -> string -> string -> BootstrapMinimizationExperiment.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapObservedPathSegment@10224 target-sha256=c93f8ca36e25cbe285b6708b1e95e302da395ab806bf92e3f0a1cb22ae85262a *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapObservedPathSegment : Type :=
+| BootstrapObservedPathSegment_2 : string -> string -> BootstrapObservedPathSegment.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapObservedLinkedCapabilitySegment@10374 target-sha256=1780d3b019265edcdc7f70b004e6e4d0c61bc86dcb015fbd66084e69dfc0bd61 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapObservedLinkedCapabilitySegment : Type :=
+| BootstrapObservedLinkedCapabilitySegment_2 : string -> string -> BootstrapObservedLinkedCapabilitySegment.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapPrimitiveMetric@11295 target-sha256=78013140440fcf9094edd64fff32faa4ad5e35645b6d9f245dc9764c4e81f1d2 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapPrimitiveMetric : Type :=
+| BootstrapPrimitiveMetric_2 : N -> N -> BootstrapPrimitiveMetric.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapRemovalExperiment@13354 target-sha256=6188037b840b389cb65052dc82e30484bf157ab216b844e0bb92ad76ee3d396b *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapRemovalExperiment : Type :=
+| BootstrapRemovalExperiment_2 : string -> string -> bool -> string -> BootstrapRemovalExperiment.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapProvenanceItem@15483 target-sha256=44ae2751b67984d57e81c89b879c1559d1178db081d41de744d4c0a211cec7c3 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapProvenanceItem : Type :=
+| BootstrapProvenanceItem_2 : string -> string -> BootstrapProvenanceItem.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#BootstrapEliminatedSource@15618 target-sha256=dde509629bda3f8ae0886004d81aaef7b86c55dda49c4d9c25a49d100562c346 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive BootstrapEliminatedSource : Type :=
+| BootstrapEliminatedSource_2 : string -> string -> bool -> BootstrapEliminatedSource.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkModelAssumption@16895 target-sha256=2adf6aa8ac78d56bad9d4c4fbbbc38011eaba398db79b52efc68d04a83101878 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkModelAssumption : Type :=
+| LinkModelAssumption_2 : string -> string -> string -> LinkModelAssumption.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#FoundationalOpenQuestion@17050 target-sha256=e863e27561d71bde6320063fbdb69e0b067d2f84f36bba720857e9df1e4ff4d7 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive FoundationalOpenQuestion : Type :=
+| FoundationalOpenQuestion_2 : string -> string -> string -> FoundationalOpenQuestion.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#ImportedPrimitiveCategory@17214 target-sha256=1c7ba7f4286e82bd3eb10492eeee0361ca5c37743e9a574a2c3a105327258736 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive ImportedPrimitiveCategory : Type :=
+| ImportedPrimitiveCategory_2 : string -> string -> string -> ImportedPrimitiveCategory.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyAssumption@17394 target-sha256=6dd21c6a6d5dc6302156b757657a36de27b64b37cf8bb9244d92509a0926bc45 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyAssumption : Type :=
+| LinkOntologyAssumption_2 : string -> string -> string -> LinkOntologyAssumption.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyConditionalAssumption@19379 target-sha256=327130f4e580e0daff13b39cffdfa6bb9d46118c53110a07d03bf14c374974a1 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyConditionalAssumption : Type :=
+| LinkOntologyConditionalAssumption_2 : string -> string -> string -> string -> LinkOntologyConditionalAssumption.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyRefinementEncoding@19595 target-sha256=2673547e15361b449456cae1ad5d677752ca0e42d064956d3d166ebcbbaf48a4 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyRefinementEncoding : Type :=
+| LinkOntologyRefinementEncoding_2 : string -> N -> bool -> LinkOntologyRefinementEncoding.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologySingletonOrbitHistogram@20154 target-sha256=60201092681b85eae2791e3d620e230b00940fd60361e39a66e9c039b36ce8be *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologySingletonOrbitHistogram : Type :=
+| LinkOntologySingletonOrbitHistogram_2 : N -> N -> LinkOntologySingletonOrbitHistogram.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyAsymmetryProvenanceClassification@20304 target-sha256=fabc3efd6f73b887e7a6759ccfdf445b91d5b68f42716c3916d67d92a4f5a3cf *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyAsymmetryProvenanceClassification : Type :=
+| LinkOntologyAsymmetryProvenanceClassification_2 : string -> N -> LinkOntologyAsymmetryProvenanceClassification.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyDerivationEnumeration@21360 target-sha256=659259a0ccd0db88db6d8ff9d55629cd2ca247b7daf9fee720f1c6ffe4eb734c *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyDerivationEnumeration : Type :=
+| LinkOntologyDerivationEnumeration_2 : N -> N -> N -> N -> N -> N -> LinkOntologyDerivationEnumeration.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyLossAudit@23696 target-sha256=c53477fb9bc0af6e52030a225091434513c5505d6c0e307d97cbf9bf286321b0 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyLossAudit : Type :=
+| LinkOntologyLossAudit_2 : string -> string -> string -> LinkOntologyLossAudit.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyAddressableProjectionFibreHistogram@23874 target-sha256=a80d3fb3642d90a43a1d1d0907142a132b8e458d1e7ca1f6b0ee1651e84e9944 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyAddressableProjectionFibreHistogram : Type :=
+| LinkOntologyAddressableProjectionFibreHistogram_2 : N -> N -> LinkOntologyAddressableProjectionFibreHistogram.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyStartingRepresentationJustification@24490 target-sha256=5ec47d18e0252ba79500e239b1329d7cc4e43d46902b8751977aff42d2dcdb50 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyStartingRepresentationJustification : Type :=
+| LinkOntologyStartingRepresentationJustification_2 : string -> string -> string -> LinkOntologyStartingRepresentationJustification.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologySharedCompositionFibreHistogram@27106 target-sha256=961cb323cea716f8f7cc45547c516cf8165774dd7a5d3934a56b108198cc2c7b *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologySharedCompositionFibreHistogram : Type :=
+| LinkOntologySharedCompositionFibreHistogram_2 : N -> N -> LinkOntologySharedCompositionFibreHistogram.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologySharedCompositionClassification@28135 target-sha256=9c80c744fcc6a12c1139575a0202c6715f057f3361f7c38a0d7b6c26a435a1e7 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologySharedCompositionClassification : Type :=
+| LinkOntologySharedCompositionClassification_2 : string -> string -> string -> string -> LinkOntologySharedCompositionClassification.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologySemanticSeparation@29123 target-sha256=6016a0ac2692bb1cacc44e47d1ff8315557a955d775302367e0d39b85a92c73d *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologySemanticSeparation : Type :=
+| LinkOntologySemanticSeparation_2 : string -> string -> string -> string -> LinkOntologySemanticSeparation.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyCompositionCommonFacts@30248 target-sha256=dfcd073c71c7372ecdd443451e18b4e2c671be80dbbeaa96f45e3c23b1a1baa8 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyCompositionCommonFacts : Type :=
+| LinkOntologyCompositionCommonFacts_2 : bool -> bool -> bool -> bool -> bool -> bool -> LinkOntologyCompositionCommonFacts.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyTransitionLawRemoval@32410 target-sha256=eb201dc2ef19389284d25a5f36301251bb0b17b38ccdc5d25e90d8c3f84e8c08 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyTransitionLawRemoval : Type :=
+| LinkOntologyTransitionLawRemoval_2 : string -> string -> string -> string -> string -> LinkOntologyTransitionLawRemoval.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyTransitionStageBoundary@32731 target-sha256=a9de799c970c0db778c2feb6e3918f6956faebee18dfa08fa99dfb6870aadf1d *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyTransitionStageBoundary : Type :=
+| LinkOntologyTransitionStageBoundary_2 : bool -> bool -> bool -> bool -> bool -> LinkOntologyTransitionStageBoundary.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyAdmittedLawCriterion@34377 target-sha256=620fd1232bcaa0519563e1f274aefd6ee7c79b6c57962d4a9f042abde023d485 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyAdmittedLawCriterion : Type :=
+| LinkOntologyAdmittedLawCriterion_2 : string -> N -> N -> LinkOntologyAdmittedLawCriterion.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyConsequenceSlotOrder@35816 target-sha256=2c2f689d9d9658a23fa08f7b392b796cc441c6c98321c4a1d63e23df81c45d22 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyConsequenceSlotOrder : Type :=
+| LinkOntologyConsequenceSlotOrder_2 : N -> N -> bool -> bool -> LinkOntologyConsequenceSlotOrder.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyConsequenceAssumptionRemoval@36088 target-sha256=b270bff7070fd54b81d871a0ceda003a4ab45743b9543c3c97fd30235692edbd *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyConsequenceAssumptionRemoval : Type :=
+| LinkOntologyConsequenceAssumptionRemoval_2 : string -> string -> string -> string -> LinkOntologyConsequenceAssumptionRemoval.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyConsequenceSelfApplication@36363 target-sha256=acede869cf07e5c49ac08a7ceb625e325646d4f6f3b5dc4b2cd976a2b164f7e8 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyConsequenceSelfApplication : Type :=
+| LinkOntologyConsequenceSelfApplication_2 : bool -> bool -> N -> bool -> LinkOntologyConsequenceSelfApplication.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyOrientationTally@37719 target-sha256=078de30f80a8beb33e3ffd859a8c99413904df5997bcb86a8fc652d1ced03e3b *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyOrientationTally : Type :=
+| LinkOntologyOrientationTally_2 : string -> N -> N -> N -> LinkOntologyOrientationTally.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyOrientationTaggedEncoding@39612 target-sha256=10a629b0cd03806546f6b9bbb68e4d0c83542df568c35aebc26d6c078c03a8b5 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyOrientationTaggedEncoding : Type :=
+| LinkOntologyOrientationTaggedEncoding_2 : string -> N -> bool -> bool -> string -> N -> LinkOntologyOrientationTaggedEncoding.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyOrientationAsymmetry@40956 target-sha256=ee23e0a079e782ef02a944ed33b51d6c98b48beefb413d5cbd47cb2c18057741 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyOrientationAsymmetry : Type :=
+| LinkOntologyOrientationAsymmetry_2 : string -> string -> LinkOntologyOrientationAsymmetry.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyOrientationNoGo@41100 target-sha256=b0fc9d150dd270c34d506f3dabb4984e2a51b178d9f6fdee7db2a323e4fd7173 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyOrientationNoGo : Type :=
+| LinkOntologyOrientationNoGo_2 : string -> string -> LinkOntologyOrientationNoGo.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyAuthorityDistinctions@46831 target-sha256=efa48eb4f2470ce543fb4ef909a96d783211891dc9f02b146005fe029393008a *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyAuthorityDistinctions : Type :=
+| LinkOntologyAuthorityDistinctions_2 : string -> string -> string -> string -> string -> string -> LinkOntologyAuthorityDistinctions.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyAdmissibilityAdversarialBoundary@48462 target-sha256=5ba9b785236d32b41779ce0d342722b96d7c12c1f335667d5d4e3475befdfe55 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyAdmissibilityAdversarialBoundary : Type :=
+| LinkOntologyAdmissibilityAdversarialBoundary_2 : bool -> bool -> bool -> bool -> bool -> LinkOntologyAdmissibilityAdversarialBoundary.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyAuthorityRegress@48868 target-sha256=4348bb2aa41a30f4b54aefbd9fd59665e9fdb73e851dbf8aedabed07d2be1c6f *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyAuthorityRegress : Type :=
+| LinkOntologyAuthorityRegress_2 : bool -> bool -> bool -> bool -> bool -> bool -> string -> LinkOntologyAuthorityRegress.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyAdmissibilityDistinctions@49337 target-sha256=bc5ddb946426a74a4813c948f0ecb7b569456d764cb065db6708ac24c94cd640 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyAdmissibilityDistinctions : Type :=
+| LinkOntologyAdmissibilityDistinctions_2 : string -> string -> string -> string -> string -> string -> string -> string -> string -> LinkOntologyAdmissibilityDistinctions.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyVerifierStepRemovalTests@50472 target-sha256=37fd23288ad38e94ae73291a5cd8e8cadd740a70aae3985718ce39fc478d0b8f *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyVerifierStepRemovalTests : Type :=
+| LinkOntologyVerifierStepRemovalTests_2 : string -> string -> string -> bool -> string -> string -> LinkOntologyVerifierStepRemovalTests.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyVerifierStepBoundaries@50868 target-sha256=b59ac38cdc103f567926d4170c050a108dfe45c4675e7c7790b3d819fd8bc7d7 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyVerifierStepBoundaries : Type :=
+| LinkOntologyVerifierStepBoundaries_2 : string -> string -> string -> LinkOntologyVerifierStepBoundaries.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyQuotientEnumeration@51462 target-sha256=b86ac8c5e3391a0cdcb06848eb966ef3b221e5210018713750e071bef6f4d542 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyQuotientEnumeration : Type :=
+| LinkOntologyQuotientEnumeration_2 : N -> N -> N -> N -> LinkOntologyQuotientEnumeration.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyQuotientTransformation@51749 target-sha256=c33a3daddd1939c4a77909e82dae4faeb965734451de44c79567ece187aadeff *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyQuotientTransformation : Type :=
+| LinkOntologyQuotientTransformation_2 : string -> string -> string -> string -> LinkOntologyQuotientTransformation.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#LinkOntologyResult@54835 target-sha256=e10666bcad1482e90842e13ee211d142bef26144e057c4d0be2d35c5e951ddf7 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkOntologyResult : Type :=
+| LinkOntologyResult_2 : string -> string -> string -> LinkOntologyResult.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#OrientationContract@124214 target-sha256=5d68445fda61eb72b50fbd52015c3ae29f6330766f37ad52f30508689e75b8bc *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive OrientationContract : Type :=
+| Named : OrientationContract
+| Anonymous : OrientationContract
+| Unordered : OrientationContract.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_program.rs#orientation_contract_id@124713 target-sha256=202fbbafda5d9b36d16ce0e025e1b66367249776e64a609c76b92d8663d68d4d *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive OrientationContract : Type :=
+| Named : OrientationContract
+| Anonymous : OrientationContract
+| Unordered : OrientationContract.
+
+Definition orientation_contract_id (contract : OrientationContract) : string :=
+  (match contract with | Named => "named-ordered-slots"%string | Anonymous => "anonymous-ordered-slots"%string | Unordered => "unordered-slots"%string end).
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

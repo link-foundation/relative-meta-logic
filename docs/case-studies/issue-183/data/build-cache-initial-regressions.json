@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-07T13:29:56.228Z",
+  "failed": true,
+  "scope": "First isolated full JavaScript cache-cycle snapshot before bug fixes; retained as failure provenance.",
+  "exitCode": 1,
+  "failures": [
+    "Hook bootstrap mistakenly treated inherited npm_lifecycle_event=test as a downstream prepare lifecycle. Fixed by limiting downstream-install check to prepare.",
+    "Confidence-context closed-kernel test expected proved but correctly reported bounded exhaustion. Parallel foundation implementation corrected status-specific assertions."
+  ],
+  "evidence": [
+    "Full command stdout/stderr captured before temporary fixture removal.",
+    "The earlier space-bearing fixture additionally found URL-encoding entry-point guards; fixed all affected CLI guards and added an actual fresh-checkout regression."
+  ]
+}

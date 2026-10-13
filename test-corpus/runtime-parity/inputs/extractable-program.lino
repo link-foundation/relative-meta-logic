@@ -1,0 +1,5 @@
+(Natural: (Type 0) Natural)
+(inc: lambda (Natural x) (x + 1))
+(double: lambda (Natural x) (x * 2))
+(combo: lambda (Natural x) (apply double (apply inc x)))
+(? ((apply combo 3) = 8))

@@ -1,0 +1,12 @@
+{
+  "schema": "rml-vsix-dependency-validation/v1",
+  "files": 490,
+  "bytes": 1301105,
+  "sha256": "1b5414093b2d32e187360803cf097ce853811ec2c4667407ae3fbbec120870b1",
+  "temporaryCacheFilesExcluded": true,
+  "engines": {
+    "vscode": "^1.91.0",
+    "node": ">=22"
+  },
+  "languageclient": "^10.1.2"
+}

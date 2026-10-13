@@ -146,9 +146,14 @@ function tokeniseJs(src) {
       continue;
     }
 
-    if (ID_START.test(c) || isUnicodeIdStart(c)) {
-      let j = i + 1;
-      while (j < src.length && (ID_CONT.test(src[j]) || isUnicodeIdContinue(src[j]))) j++;
+    const identifierStart = String.fromCodePoint(src.codePointAt(i));
+    if (ID_START.test(identifierStart) || isUnicodeIdStart(identifierStart)) {
+      let j = i + identifierStart.length;
+      while (j < src.length) {
+        const character = String.fromCodePoint(src.codePointAt(j));
+        if (!(ID_CONT.test(character) || isUnicodeIdContinue(character))) break;
+        j += character.length;
+      }
       const tok = token(src.substring(i, j), `${JS}.ident`);
       out.push(tok);
       lastSignificant = tok;

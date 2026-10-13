@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T15:50:30.253Z",
+  "platform": "linux/x64",
+  "node": "v22.23.3",
+  "scope": "Actual JSDoc and all Rust test-target builds, full cache cleanup, clean rebuild, full JavaScript/Rust suites and required Rust/Lean portable-fragment oracles in an isolated fixture; excludes Rocq oracles, Docker, global toolchain/dependency caches and full issue-183 acceptance.",
+  "sourceRevision": "d1c987edd485eb74034c8b7499daf6818f140158",
+  "measurementInputTree": "ea679172c07dad13ca0cb49110398e0aadc01f07",
+  "policySha256": "963ffdc0eac46b141a17a92cac09b6e75b4716d7e1bfa9039944b850a511958a",
+  "implementationHashes": {
+    "scripts/build-cache.mjs": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e",
+    "scripts/run-with-cache.mjs": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200",
+    "scripts/bootstrap.mjs": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604",
+    "scripts/build-cache.test.mjs": "2859d7bfe41ae0a8d0fd43f053886a3e41699a44bf01791f056911cb800552f8",
+    "scripts/build-cache-policy.test.mjs": "2aec6463c295920f469d24f69a500d3764bf6c7c58d119d3c725e805b2410428",
+    "scripts/cli-paths.test.mjs": "1cec9e66f1c19351d4fa2272df222ee06069641d6126158235d18b28e43d2910",
+    "scripts/measure-build-cache.mjs": "68cdb2ae2a2192838e83443fb71323832db57f5bd0cc8f2d14a254ea8edeb4d8",
+    "scripts/measurement-source.mjs": "9a64f035271d7434d603a44806a761002d4ba2a4b03a6ada28fdd9180ff1046d",
+    "scripts/measurement-source.test.mjs": "90fa626f33be6b5aabb517d5c9738e8324d784a0980b881b032afa05f4eb70c5"
+  },
+  "requiredNativeOracles": [
+    "Rust",
+    "Lean"
+  ],
+  "byteAccounting": "Logical regular-file sizes across registered cache roots, not a filesystem quota or measurement of physical blocks; diagnostic evidence is excluded.",
+  "firstBuildBytes": 961813632,
+  "fullClean": {
+    "beforeBytes": 961813632,
+    "afterBytes": 0,
+    "reclaimedBytes": 961813632
+  },
+  "rebuiltBytes": 3198480,
+  "finalClean": {
+    "beforeBytes": 961813632,
+    "afterBytes": 0,
+    "reclaimedBytes": 961813632
+  },
+  "provenance": {
+    "repository": "link-foundation/relative-meta-logic",
+    "workflow": ".github/workflows/cache-portability.yml",
+    "job": "Measured native clean-rebuild cycle",
+    "runId": 38417088378,
+    "headSha": "70f91bb5",
+    "mergeRevision": "d1c987edd485eb74034c8b7499daf6818f140158",
+    "artifact": "build-cache-measurement-native-1",
+    "artifactId": 11828243230,
+    "artifactDigest": "sha256:1562fbfcf18201d12b7bb57d6c366b2a80c9a5faa0125d0d57a5077438888f78",
+    "fullReportSha256": "8595efdfc81387ee1303dc0a832ab641c2092369948904b783bbff8da1920d0f",
+    "condensed": "Command stdout/stderr are reduced to test-runner totals and build-cache lines; every other field is copied unchanged."
+  },
+  "results": [
+    {
+      "label": "bootstrap fresh fixture",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "scripts/bootstrap.mjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "first actual JSDoc build",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "<fixture>/scripts/run-with-cache.mjs",
+        "--",
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "<fixture>/scripts/build-docs.mjs",
+        "--destination",
+        "../_site/api/js"
+      ],
+      "exitCode": 0,
+      "cacheLines": [
+        "build-cache: before=0 after=0 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget",
+        "build-cache: before=6396960 after=3198480 reclaimed=3198480 budget=1073741824 bytes; 1 protected paths; within budget"
+      ]
+    },
+    {
+      "label": "first complete Rust test-target compilation",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "<fixture>/scripts/run-with-cache.mjs",
+        "--isolate-output",
+        "rust/target",
+        "--",
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "--all-targets",
+        "--no-run"
+      ],
+      "exitCode": 0,
+      "cacheLines": [
+        "build-cache: before=3198480 after=3198480 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget",
+        "build-cache: before=3331495168 after=961813632 reclaimed=2369681536 budget=1073741824 bytes; 1 protected paths; within budget",
+        "build-cache: superseded Cargo units removed=9 reclaimed=10983827 bytes (referenced=355)"
+      ]
+    },
+    {
+      "label": "before full cleanup",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "scripts/build-cache.mjs",
+        "--report",
+        "--json"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "first full cleanup",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "scripts/build-cache.mjs",
+        "--full"
+      ],
+      "exitCode": 0,
+      "cacheLines": [
+        "build-cache: before=961813632 after=0 reclaimed=961813632 budget=1073741824 bytes; 1 protected paths; within budget"
+      ]
+    },
+    {
+      "label": "clean JSDoc rebuild",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "<fixture>/scripts/run-with-cache.mjs",
+        "--",
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "<fixture>/scripts/build-docs.mjs",
+        "--destination",
+        "../_site/api/js"
+      ],
+      "exitCode": 0,
+      "cacheLines": [
+        "build-cache: before=0 after=0 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget",
+        "build-cache: before=6396960 after=3198480 reclaimed=3198480 budget=1073741824 bytes; 1 protected paths; within budget"
+      ]
+    },
+    {
+      "label": "after clean rebuild",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "scripts/build-cache.mjs",
+        "--report",
+        "--json"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "post-rebuild full JavaScript verification",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "<fixture>/scripts/run-with-cache.mjs",
+        "--",
+        "npm",
+        "--prefix",
+        "js",
+        "test"
+      ],
+      "exitCode": 0,
+      "javascriptTests": {
+        "tests": 2805,
+        "pass": 2804,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 1,
+        "todo": 0
+      },
+      "cacheLines": [
+        "build-cache: before=3198480 after=3198480 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget",
+        "build-cache: before=3478753 after=3198480 reclaimed=280273 budget=1073741824 bytes; 1 protected paths; within budget"
+      ]
+    },
+    {
+      "label": "post-clean full Rust rebuild and verification",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "<fixture>/scripts/run-with-cache.mjs",
+        "--isolate-output",
+        "rust/target",
+        "--",
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "--all-targets"
+      ],
+      "exitCode": 0,
+      "rustTests": {
+        "suites": 110,
+        "passed": 1244,
+        "failed": 0,
+        "ignored": 0
+      },
+      "cacheLines": [
+        "build-cache: before=3198480 after=3198480 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget",
+        "build-cache: before=3331495869 after=961813632 reclaimed=2369682237 budget=1073741824 bytes; 1 protected paths; within budget",
+        "build-cache: superseded Cargo units removed=9 reclaimed=10983827 bytes (referenced=355)"
+      ]
+    },
+    {
+      "label": "post-clean required Rust Lean translation oracles",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "<fixture>/scripts/run-with-cache.mjs",
+        "--",
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "scripts/check-portable-native.mjs",
+        "--require=Rust,Lean"
+      ],
+      "exitCode": 0,
+      "cacheLines": [
+        "build-cache: before=961813632 after=961813632 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget",
+        "build-cache: before=961813632 after=961813632 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget"
+      ],
+      "oracles": {
+        "schema": "rml:portable-native-results:1",
+        "status": "passed-available-oracles",
+        "versions": {
+          "JavaScript": "v22.23.3",
+          "Rust": "rustc 1.99.0 (b940084d7 2026-09-28)",
+          "Lean": "Lean (version 4.34.1, x86_64-unknown-linux-gnu, commit 5045d0056413266e57c625dcd7c365b10e377c52, Release)"
+        },
+        "checks": [
+          {
+            "sourceLanguage": "JavaScript",
+            "targetLanguage": "Rust",
+            "status": "passed",
+            "observations": 8
+          },
+          {
+            "sourceLanguage": "JavaScript",
+            "targetLanguage": "Lean",
+            "status": "passed",
+            "observations": 8
+          },
+          {
+            "sourceLanguage": "Rust",
+            "targetLanguage": "JavaScript",
+            "status": "passed",
+            "observations": 8
+          },
+          {
+            "sourceLanguage": "Rust",
+            "targetLanguage": "Lean",
+            "status": "passed",
+            "observations": 8
+          },
+          {
+            "sourceLanguage": "Lean",
+            "targetLanguage": "JavaScript",
+            "status": "passed",
+            "observations": 8
+          },
+          {
+            "sourceLanguage": "Lean",
+            "targetLanguage": "Rust",
+            "status": "passed",
+            "observations": 8
+          },
+          {
+            "sourceLanguage": "Rocq",
+            "targetLanguage": "JavaScript",
+            "status": "passed",
+            "observations": 8
+          },
+          {
+            "sourceLanguage": "Rocq",
+            "targetLanguage": "Rust",
+            "status": "passed",
+            "observations": 8
+          },
+          {
+            "sourceLanguage": "Rocq",
+            "targetLanguage": "Lean",
+            "status": "passed",
+            "observations": 8
+          }
+        ]
+      }
+    },
+    {
+      "label": "final full cleanup",
+      "command": [
+        "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+        "scripts/build-cache.mjs",
+        "--full"
+      ],
+      "exitCode": 0,
+      "cacheLines": [
+        "build-cache: before=961813632 after=0 reclaimed=961813632 budget=1073741824 bytes; 1 protected paths; within budget"
+      ]
+    }
+  ]
+}

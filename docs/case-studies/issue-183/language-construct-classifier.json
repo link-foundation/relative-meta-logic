@@ -1,0 +1,75 @@
+{
+  "schema": "rml:language-construct-classifier:1",
+  "description": "Every rule of the upstream native JavaScript, Rust, Lean and Rocq grammars is assigned exactly one coverage axis by the first matching pattern. A rule no pattern matches, or a pattern that matches no rule, fails the inventory check in both runtimes. Axis assignment is an audit classification, not a support claim.",
+  "axes": {
+    "grammar": "Lexical constructs: literals, identifiers' character classes, comments, escapes and token helpers.",
+    "structure": "Program roots, statements, expressions, operators, application and blocks.",
+    "scope": "Bindings, declarations that introduce names, parameters, binders and patterns.",
+    "types": "Types, type parameters and bounds, algebraic data, records, classes, instances, universes and casts.",
+    "modules": "Imports, exports, modules, namespaces, sections, paths and visibility.",
+    "recursion": "Recursive definitions, fixpoints, loops, labels and iteration control.",
+    "proofForms": "Theorems, proofs, tactics, proof terminators, obligations, assumptions and goal selection.",
+    "runtime": "Runtime facilities and effects: exceptions, async, generators, monadic do-blocks, evaluation commands and unsafe code.",
+    "standards": "Constructs gated by a language standard, edition or version (for example ES2026 resource management, Rust 2024 let chains, Lean module headers, Rocq attribute syntaxes).",
+    "extensions": "Language extension mechanisms: macros, notations, syntax extensions, attributes, decorators, JSX, hints, extraction and embedded DSLs."
+  },
+  "languages": {
+    "JavaScript": {
+      "grammar": "native-javascript",
+      "patterns": [
+        ["standards", "^(hash_bang_line|using_declaration|import_attribute|private_property_identifier|class_static_block|optional_chain|meta_property)$"],
+        ["extensions", "^(jsx_.*|html_character_reference|nested_identifier|unescaped_(double|single)_jsx_string_fragment|decorator|decorator_.*)$"],
+        ["modules", "^(export_statement|namespace_export|export_clause|export_specifier|module_export_name|import|import_statement|import_clause|from_clause|namespace_import|named_imports|import_specifier)$"],
+        ["runtime", "^(try_statement|catch_clause|finally_clause|throw_statement|await_expression|yield_expression|debugger_statement|with_statement|new_expression|this|super|arguments|generator_function|generator_function_declaration)$"],
+        ["recursion", "^(for_statement|for_in_statement|for_header|while_statement|do_statement|break_statement|continue_statement|labeled_statement)$"],
+        ["scope", "^(declaration|variable_declaration|lexical_declaration|variable_declarator|formal_parameters|formal_parameter|pattern|object_pattern|array_pattern|assignment_pattern|object_assignment_pattern|destructuring_pattern|rest_pattern|pair_pattern|identifier|identifier_choice|reserved_identifier|function_declaration|function_expression|arrow_function|call_signature|initializer|class|class_declaration|class_heritage|class_body|field_definition|method_definition)$"],
+        ["grammar", "^(string|unescaped_(double|single)_string_fragment|escape_sequence|comment|template_string|template_substitution|regular_expression|regular_expression_pattern|regular_expression_flags|number|true|false|null|undefined|semicolon|word_characters|property_name|computed_property_name)$"],
+        ["structure", "^(program|statement|expression_statement|statement_block|else_clause|if_statement|switch_statement|switch_body|switch_case|switch_default|return_statement|empty_statement|parenthesized_expression|expressions|expression|primary_expression|object|array|pair|call_expression|member_expression|subscript_expression|left_hand_side_expression|assignment_expression|augmented_assignment_left_hand_side|augmented_assignment_expression|spread_element|ternary_expression|binary_expression|unary_expression|update_expression|sequence_expression)$"]
+      ]
+    },
+    "Rust": {
+      "grammar": "native-rust",
+      "patterns": [
+        ["standards", "^(let_chain_alias|shebang|raw_string_literal|use_bounds)$"],
+        ["extensions", "^(macro_definition|macro_rule|macro_invocation|token_pattern|token_tree_pattern|token_binding_pattern|token_repetition_pattern|fragment_specifier|tokens|token_tree|token_repetition|non_special_token|metavariable|delimited_token_tree|delimited_tokens|non_delimited_token|attribute_item|inner_attribute_item|attribute|try_block|generator_block|frontmatter)$"],
+        ["modules", "^(module_item|foreign_module_item|declaration_list|extern_crate_declaration|use_declaration|use_clause|scoped_use_list|use_list|use_as_clause|use_wildcard|visibility_modifier|extern_modifier|path|scoped_identifier|scoped_type_identifier_in_expression_position|scoped_type_identifier|crate|self|super)$"],
+        ["recursion", "^(loop_expression|while_expression|for_expression|break_expression|continue_expression|label)$"],
+        ["runtime", "^(unsafe_block|asynchronous_block|await_expression|try_expression|return_expression|yield_expression|static_item|function_modifiers)$"],
+        ["types", "^(type|bracketed_type|qualified_type|lifetime|array_type|for_lifetimes|function_type|tuple_type|unit_type|generic_type|generic_type_with_turbofish|generic_function|bounded_type|type_arguments|type_binding|reference_type|pointer_type|never_type|abstract_type|dynamic_type|mutable_specifier|type_parameters|constant_parameter|type_parameter|lifetime_parameter|where_clause|where_predicate|trait_bounds|higher_ranked_trait_bound|removed_trait_bound|associated_type|type_item|type_cast_expression|type_identifier_alias|trait_item|implementation_item|structure_item|union_item|enumeration_item|enumeration_variant_list|enumeration_variant|field_declaration_list|field_declaration|ordered_field_declaration_list)$"],
+        ["scope", "^(let_declaration|let_condition|parameters|self_parameter|variadic_parameter|parameter|closure_parameters|closure_expression|function_item|function_signature_item|constant_item|pattern|generic_pattern|tuple_pattern|slice_pattern|tuple_structure_pattern|structure_pattern|field_pattern|remaining_field_pattern|mutable_pattern|range_pattern|by_reference_pattern|captured_pattern|reference_pattern|or_pattern|literal_pattern|identifier|field_identifier_alias|reserved_identifier|shorthand_field_initializer)$"],
+        ["grammar", "^(literal|negative_literal|integer_literal|string_literal|character_literal|escape_sequence|boolean_literal|comment|line_comment|line_documentation_comment_marker|inner_line_documentation_comment_marker|outer_line_documentation_comment_marker|block_comment|block_documentation_comment_marker|word_characters)$"],
+        ["structure", "^(source_file|statement|empty_statement|expression_statement|declaration_statement|expression_except_range|expression|expression_ending_with_block|unary_expression|binary_expression|assignment_expression|compound_assignment_expression|reference_expression|call_expression|arguments|array_expression|parenthesized_expression|tuple_expression|unit_expression|structure_expression|field_initializer_list|field_initializer|base_field_initializer|if_expression|condition|else_clause|match_expression|match_block|match_arm|last_match_arm|match_pattern|index_expression|field_expression|block|range_expression|constant_block)$"]
+      ]
+    },
+    "Lean": {
+      "grammar": "native-lean",
+      "patterns": [
+        ["standards", "^(module_header|prelude)$"],
+        ["extensions", "^(syntax|syntax_atom|syntax_group|notation|attribute|attributes|attribute_entry|set_option|initialize|hash_command|syntax_quotation|quoted_name|double_quoted_name)$"],
+        ["modules", "^(import|namespace|section|end|open|export|include|omit|fragment_element|command)$"],
+        ["proofForms", "^(by|tactic_sequence|tactic|tactic_apply|tactic_configuration|tactic_focus|tactic_case|tactic_rewrite|tactic_have|tactic_let|tactic_show|tactic_calculation|calculation_step|have|sorry|example|axiom)$"],
+        ["recursion", "^(for_in|for_binding|do_while|do_break|do_continue)$"],
+        ["runtime", "^(do|do_sequence|do_element|do_let|let_bind|let_mutable|reassign|do_return|do_if|do_then_else|do_if_let|do_match|do_match_arm|do_unless|do_debug_trace|do_try|do_catch|try|return)$"],
+        ["types", "^(universe|structure|structure_field|inductive|class_inductive|constructor|instance_declaration|instance_binder|type_specification|arrow|subtype|structure_instance|structure_body|field_assignment|anonymous_constructor|opaque|constant|quantifier|quantifier_binders|quantifier_tail|explicit|where_declaration)$"],
+        ["scope", "^(variable|binders|bracketed_binder|explicit_binder|implicit_binder|binding_body|let|parameters|definition|declaration|declaration_choice|declaration_body|modifier|identifier|escaped_identifier|name|pattern|tuple_pattern|list_pattern|constructor_pattern|as_pattern|hole|synthetic_hole|named_argument|if_let)$"],
+        ["grammar", "^(number|float|string|string_content|escape_sequence|interpolated_string|interpolation|character|boolean|true|false|comment|word_characters|centered_dot|ellipsis)$"],
+        ["structure", "^(module|expression|atom|application|subscript|projection|binary_expression|unary_expression|parenthesized|tuple|array|list|range|range_specification|if|then_else|match|match_arm|fun)$"]
+      ]
+    },
+    "Rocq": {
+      "grammar": "native-rocq",
+      "patterns": [
+        ["standards", "^(fail_prefix|attributes|modern_attribute_block|attribute|attribute_value|legacy_attribute)$"],
+        ["extensions", "^(notation_command|notation_declaration|notation_scope|reserved_notation_command|infix_command|abbreviation_command|syntax_modifier_list|syntax_modifier|level_modifier|custom_entry_modifier|associativity_modifier|parsing_modifier|printing_modifier|format_modifier|plural_variable_modifier|singular_variable_modifier|explicit_notation_entry|binder_interpretation|level|at_level_number|at_level|custom_operation|custom_notation_block|recursive_notation_term|dsl_token|imp_evaluation_operation|imp_program|imp_token|ltac_quotation|term_quotation|declare_custom_entry_command|declare_scope_command|open_scope_command|close_scope_command|delimit_scope_command|bind_scope_command|scope_key|declaration_notations|extraction_command|extract_command|language|register_command|hint_command|hint_extern|hint_priority|create_hint_database_command|create_rewrite_hint_database_command|discriminated_database|one_pattern)$"],
+        ["modules", "^(require_command|import_command|export_command|negated_selection|import_categories|filtered_import|filtered_import_item|import_wildcard|section_command|module_command|module_binder|module_type_expression|include_command|end_command|qualified_identifier|dotted_qualified_identifier|annotated_qualified_identifier|global_reference|section_variable_expression|context_command)$"],
+        ["proofForms", "^(theorem_command|proof_command|qed_command|admitted_command|save_command|defined_command|abort_command|proof_block|bullet|selector|goal_selector|range_selector|show_proof_command|obligation_tactic_command|obligation_command|assumption_command|assumption|scheme_command|scheme_kind|combined_scheme_command|ltac_definition|ltac_definition_body|ltac_expression|ltac_fun|ltac_evaluation|ltac_let|try_if_tactic|match_ltac_term|match_ltac_case|parenthesized_tactic|tactic_sequence|tactic_branch|for_each_goal|goal_tactics|goal_branch|tactic_invocation|intros_tactic|assert_tactic|one_type|rewrite_tactic|oriented_rewriter|at_clause|atomic_term_with_bindings|first_tactic|tactical|generic_tactic|generic_tactic_body|tactic_clause|tactic_argument|oriented_term|local_definition|tactic_alternative|match_goal|match_goal_case|goal_pattern|goal_pattern_body|match_hypothesis|match_pattern|intro_pattern|intro_pattern_item|bracketed_intro_pattern|parenthesized_intro_pattern|in_clause|hypothesis_occurrence|goal_occurrence|with_clause|as_clause|by_clause|tactic_bindings|equation_clause|using_clause|rewrite_term|metavariable)$"],
+        ["recursion", "^(fixpoint_command|fixpoint_annotation|fix_definition|fix_expression|fix_declaration|function_command)$"],
+        ["runtime", "^(evaluation_command|reduction_expression|set_command|unset_command|add_command|remove_command|test_command|setting_name)$"],
+        ["types", "^(inductive_command|inductive_definition|constructor_block|constructor|constructor_attribute|of_type_instance|of_type|record_command|record_fields_literal|record_field|field_definition|instance_command|existing_command|coercion_command|coercion_class|declare_command|type_classes_command|implicit_types_command|generalizable_command|arguments_command|argument_specification_item|argument_specification|arguments_modifier|type|term_cast|subset_term|arrow_term|quantifier_term)$"],
+        ["scope", "^(definition_command|definition_body|binder|generalized_binder|implicit_binders|open_binders|name|identifier|identifier_declaration|let_expression|let_expression_term|destructuring_let_name_list|destructuring_let_apostrophe|let_expression_name_list|lambda_function|pattern|infix_pattern|ten_level_pattern|pattern_application|one_level_pattern|zero_level_pattern|parenthesized_pattern|list_pattern|destructuring_pattern|pattern_option|wildcard|term_as_clause|term_in_pattern)$"],
+        ["grammar", "^(comment|number|integer|big_integer|natural|big_natural_number|decimal_natural_number|digit|hexadecimal_natural_number|hexadecimal_digit|string|word_characters|double_dot)$"],
+        ["structure", "^(source_file|sentence|vernacular_command|term|hundred_level_term|ninety_nine_level_term|ten_level_term|one_term|one_level_term|zero_level_term|projection_term|parenthesized_term|list_literal|scoped_term|application|argument|match_expression|match_item|match_case|if_expression|term_return_clause|infix_operation|negation_operation|cons_operation|append_operation|multiplicative_operation|additive_operation|comparison_operation|logical_conjunction|logical_disjunction|logical_equivalence|expression_ops|atomic_expression|expression_leaf)$"]
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+-- rml-certified-item rust/src/cst_convert.rs#RoundTripResult@1641 target-sha256=3999c80c94b645aff6e91938aba13350a5f577aeb1c49a0b2bc7e07e63fac949
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive RoundTripResult where
+  | RoundTripResult (field0 : Bool) (field1 : String) (field2 : String) : RoundTripResult
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

@@ -1,0 +1,13 @@
+{
+  "schema": "rml-address-sequence-cases/v1",
+  "layouts": ["balanced", "left", "right"],
+  "values": ["a", "opaque.link", "cycle.direct", "cycle.first", "opaque.link", "rml:address-sequence:1:empty", "雪", "😀"],
+  "links": [
+    {"address":"opaque.link","source":"a","target":"b"},
+    {"address":"cycle.direct","source":"cycle.direct","target":"cycle.direct"},
+    {"address":"cycle.first","source":"a","target":"cycle.second"},
+    {"address":"cycle.second","source":"b","target":"cycle.first"}
+  ],
+  "setInput": ["😀", "", "雪", "a", "😀", "opaque.link", "a"],
+  "setExpected": ["a", "opaque.link", "雪", "", "😀"]
+}

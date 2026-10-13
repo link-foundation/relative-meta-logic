@@ -1,0 +1,474 @@
+# Source specification of the simply typed fragment, as links.
+#
+# Types:   ty-nat, ty-bool, ty-unit, (ty-arrow A B), (ty-product A B).
+# Terms:   (tm-var x), (tm-lam x A body), (tm-app f e), (tm-pair l r),
+#          (tm-fst p), (tm-snd p), tm-zero, (tm-succ n), (tm-iszero n),
+#          tm-true, tm-false, (tm-if c t e), tm-unit.
+# Context: ty-empty or (ty-extend x A context); the newest binding shadows.
+#
+# Operations, all executed by the generic linked reducer:
+#   (ty-is-type A)            ty-yes or ty-no
+#   (ty-context-ok G)         every bound type is a type
+#   (ty-lookup G x)           (ty-ok A) or (ty-error unbound-variable)
+#   (ty-infer G t)            algorithmic typing: (ty-ok A) or (ty-error REASON)
+#   (ty-check G t A)          ty-yes or ty-no
+#   (ty-value-p t)            whether t is a value
+#   (ty-subst x v t)          capture-free substitution of a closed value
+#   (ty-step t)               one call-by-value step: (ty-stepped u), ty-normal or ty-stuck
+#   (ty-eval t)               (ty-value v) or (ty-stuck-at u)
+#
+# The declarative typing judgement (has-type G t A) is given by the proof
+# rules returned by (spec-proof-rules); certificates derive it rule by rule and
+# the natural-deduction linked verifier checks every step. Every intermediate
+# result is wrapped (ty-ok, ty-subst-done, ty-stepped, ...) so that the
+# outermost reducer only consumes finished data.
+
+(linked-program type-specification)
+
+# Booleans of the specification.
+(linked-rewrite type-specification and-yes
+  (from (ty-and ty-yes ?right)) (to ?right))
+(linked-rewrite type-specification and-no
+  (from (ty-and ty-no ?right)) (to ty-no))
+
+# Type formation and contexts.
+(linked-rewrite type-specification type-nat
+  (from (ty-is-type ty-nat)) (to ty-yes))
+(linked-rewrite type-specification type-bool
+  (from (ty-is-type ty-bool)) (to ty-yes))
+(linked-rewrite type-specification type-unit
+  (from (ty-is-type ty-unit)) (to ty-yes))
+(linked-rewrite type-specification type-arrow
+  (from (ty-is-type (ty-arrow ?domain ?codomain)))
+  (to (ty-and (ty-is-type ?domain) (ty-is-type ?codomain))))
+(linked-rewrite type-specification type-product
+  (from (ty-is-type (ty-product ?left ?right)))
+  (to (ty-and (ty-is-type ?left) (ty-is-type ?right))))
+(linked-rewrite type-specification type-other
+  (from (ty-is-type ?other)) (to ty-no))
+
+(linked-rewrite type-specification context-empty
+  (from (ty-context-ok ty-empty)) (to ty-yes))
+(linked-rewrite type-specification context-extend
+  (from (ty-context-ok (ty-extend ?name ?type ?rest)))
+  (to (ty-and (ty-is-type ?type) (ty-context-ok ?rest))))
+(linked-rewrite type-specification context-other
+  (from (ty-context-ok ?other)) (to ty-no))
+
+(linked-rewrite type-specification lookup-head
+  (from (ty-lookup (ty-extend ?name ?type ?rest) ?name)) (to (ty-ok ?type)))
+(linked-rewrite type-specification lookup-tail
+  (from (ty-lookup (ty-extend ?other ?type ?rest) ?name)) (to (ty-lookup ?rest ?name)))
+(linked-rewrite type-specification lookup-missing
+  (from (ty-lookup ty-empty ?name)) (to (ty-error unbound-variable)))
+
+# Algorithmic typing.
+(linked-rewrite type-specification infer-variable
+  (from (ty-infer ?context (tm-var ?name))) (to (ty-lookup ?context ?name)))
+(linked-rewrite type-specification infer-lambda
+  (from (ty-infer ?context (tm-lam ?name ?type ?body)))
+  (to (ty-lam-ready (ty-is-type ?type) ?type (ty-infer (ty-extend ?name ?type ?context) ?body))))
+(linked-rewrite type-specification lambda-ok
+  (from (ty-lam-ready ty-yes ?type (ty-ok ?result))) (to (ty-ok (ty-arrow ?type ?result))))
+(linked-rewrite type-specification lambda-invalid-type
+  (from (ty-lam-ready ty-no ?type ?body)) (to (ty-error invalid-type)))
+(linked-rewrite type-specification lambda-error
+  (from (ty-lam-ready ty-yes ?type (ty-error ?reason))) (to (ty-error ?reason)))
+
+(linked-rewrite type-specification infer-application
+  (from (ty-infer ?context (tm-app ?function ?argument)))
+  (to (ty-app-ready (ty-infer ?context ?function) (ty-infer ?context ?argument))))
+(linked-rewrite type-specification application-function-error
+  (from (ty-app-ready (ty-error ?reason) ?argument)) (to (ty-error ?reason)))
+(linked-rewrite type-specification application-argument-error
+  (from (ty-app-ready (ty-ok ?function) (ty-error ?reason))) (to (ty-error ?reason)))
+(linked-rewrite type-specification application-ok
+  (from (ty-app-ready (ty-ok (ty-arrow ?domain ?codomain)) (ty-ok ?domain))) (to (ty-ok ?codomain)))
+(linked-rewrite type-specification application-mismatch
+  (from (ty-app-ready (ty-ok (ty-arrow ?domain ?codomain)) (ty-ok ?other))) (to (ty-error argument-mismatch)))
+(linked-rewrite type-specification application-not-function
+  (from (ty-app-ready (ty-ok ?type) (ty-ok ?argument))) (to (ty-error not-a-function)))
+
+(linked-rewrite type-specification infer-pair
+  (from (ty-infer ?context (tm-pair ?left ?right)))
+  (to (ty-pair-ready (ty-infer ?context ?left) (ty-infer ?context ?right))))
+(linked-rewrite type-specification pair-left-error
+  (from (ty-pair-ready (ty-error ?reason) ?right)) (to (ty-error ?reason)))
+(linked-rewrite type-specification pair-right-error
+  (from (ty-pair-ready (ty-ok ?left) (ty-error ?reason))) (to (ty-error ?reason)))
+(linked-rewrite type-specification pair-ok
+  (from (ty-pair-ready (ty-ok ?left) (ty-ok ?right))) (to (ty-ok (ty-product ?left ?right))))
+
+(linked-rewrite type-specification infer-first
+  (from (ty-infer ?context (tm-fst ?pair))) (to (ty-fst-ready (ty-infer ?context ?pair))))
+(linked-rewrite type-specification first-ok
+  (from (ty-fst-ready (ty-ok (ty-product ?left ?right)))) (to (ty-ok ?left)))
+(linked-rewrite type-specification first-error
+  (from (ty-fst-ready (ty-error ?reason))) (to (ty-error ?reason)))
+(linked-rewrite type-specification first-not-pair
+  (from (ty-fst-ready (ty-ok ?type))) (to (ty-error not-a-pair)))
+(linked-rewrite type-specification infer-second
+  (from (ty-infer ?context (tm-snd ?pair))) (to (ty-snd-ready (ty-infer ?context ?pair))))
+(linked-rewrite type-specification second-ok
+  (from (ty-snd-ready (ty-ok (ty-product ?left ?right)))) (to (ty-ok ?right)))
+(linked-rewrite type-specification second-error
+  (from (ty-snd-ready (ty-error ?reason))) (to (ty-error ?reason)))
+(linked-rewrite type-specification second-not-pair
+  (from (ty-snd-ready (ty-ok ?type))) (to (ty-error not-a-pair)))
+
+(linked-rewrite type-specification infer-zero
+  (from (ty-infer ?context tm-zero)) (to (ty-ok ty-nat)))
+(linked-rewrite type-specification infer-successor
+  (from (ty-infer ?context (tm-succ ?value))) (to (ty-succ-ready (ty-infer ?context ?value))))
+(linked-rewrite type-specification successor-ok
+  (from (ty-succ-ready (ty-ok ty-nat))) (to (ty-ok ty-nat)))
+(linked-rewrite type-specification successor-error
+  (from (ty-succ-ready (ty-error ?reason))) (to (ty-error ?reason)))
+(linked-rewrite type-specification successor-not-nat
+  (from (ty-succ-ready (ty-ok ?type))) (to (ty-error expected-nat)))
+(linked-rewrite type-specification infer-is-zero
+  (from (ty-infer ?context (tm-iszero ?value))) (to (ty-iszero-ready (ty-infer ?context ?value))))
+(linked-rewrite type-specification is-zero-ok
+  (from (ty-iszero-ready (ty-ok ty-nat))) (to (ty-ok ty-bool)))
+(linked-rewrite type-specification is-zero-error
+  (from (ty-iszero-ready (ty-error ?reason))) (to (ty-error ?reason)))
+(linked-rewrite type-specification is-zero-not-nat
+  (from (ty-iszero-ready (ty-ok ?type))) (to (ty-error expected-nat)))
+(linked-rewrite type-specification infer-true
+  (from (ty-infer ?context tm-true)) (to (ty-ok ty-bool)))
+(linked-rewrite type-specification infer-false
+  (from (ty-infer ?context tm-false)) (to (ty-ok ty-bool)))
+(linked-rewrite type-specification infer-unit
+  (from (ty-infer ?context tm-unit)) (to (ty-ok ty-unit)))
+
+(linked-rewrite type-specification infer-conditional
+  (from (ty-infer ?context (tm-if ?condition ?then ?else)))
+  (to (ty-if-ready (ty-infer ?context ?condition) (ty-infer ?context ?then) (ty-infer ?context ?else))))
+(linked-rewrite type-specification conditional-condition-error
+  (from (ty-if-ready (ty-error ?reason) ?then ?else)) (to (ty-error ?reason)))
+(linked-rewrite type-specification conditional-then-error
+  (from (ty-if-ready (ty-ok ?condition) (ty-error ?reason) ?else)) (to (ty-error ?reason)))
+(linked-rewrite type-specification conditional-else-error
+  (from (ty-if-ready (ty-ok ?condition) (ty-ok ?then) (ty-error ?reason))) (to (ty-error ?reason)))
+(linked-rewrite type-specification conditional-ok
+  (from (ty-if-ready (ty-ok ty-bool) (ty-ok ?type) (ty-ok ?type))) (to (ty-ok ?type)))
+(linked-rewrite type-specification conditional-branch-mismatch
+  (from (ty-if-ready (ty-ok ty-bool) (ty-ok ?then) (ty-ok ?else))) (to (ty-error branch-mismatch)))
+(linked-rewrite type-specification conditional-not-bool
+  (from (ty-if-ready (ty-ok ?condition) (ty-ok ?then) (ty-ok ?else))) (to (ty-error expected-bool)))
+
+(linked-rewrite type-specification infer-unknown
+  (from (ty-infer ?context ?term)) (to (ty-error unknown-term)))
+
+(linked-rewrite type-specification check
+  (from (ty-check ?context ?term ?type)) (to (ty-check-ready (ty-infer ?context ?term) ?type)))
+(linked-rewrite type-specification check-same
+  (from (ty-check-ready (ty-ok ?type) ?type)) (to ty-yes))
+(linked-rewrite type-specification check-different
+  (from (ty-check-ready (ty-ok ?other) ?type)) (to ty-no))
+(linked-rewrite type-specification check-error
+  (from (ty-check-ready (ty-error ?reason) ?type)) (to ty-no))
+
+# Values.
+(linked-rewrite type-specification value-lambda
+  (from (ty-value-p (tm-lam ?name ?type ?body))) (to ty-yes))
+(linked-rewrite type-specification value-zero
+  (from (ty-value-p tm-zero)) (to ty-yes))
+(linked-rewrite type-specification value-successor
+  (from (ty-value-p (tm-succ ?value))) (to (ty-value-p ?value)))
+(linked-rewrite type-specification value-true
+  (from (ty-value-p tm-true)) (to ty-yes))
+(linked-rewrite type-specification value-false
+  (from (ty-value-p tm-false)) (to ty-yes))
+(linked-rewrite type-specification value-unit
+  (from (ty-value-p tm-unit)) (to ty-yes))
+(linked-rewrite type-specification value-pair
+  (from (ty-value-p (tm-pair ?left ?right))) (to (ty-and (ty-value-p ?left) (ty-value-p ?right))))
+(linked-rewrite type-specification value-other
+  (from (ty-value-p ?term)) (to ty-no))
+
+# Substitution of a closed value. A binder of the same name shadows it, and a
+# closed value cannot be captured.
+(linked-rewrite type-specification subst-variable-hit
+  (from (ty-subst ?name ?value (tm-var ?name))) (to (ty-subst-done ?value)))
+(linked-rewrite type-specification subst-variable-miss
+  (from (ty-subst ?name ?value (tm-var ?other))) (to (ty-subst-done (tm-var ?other))))
+(linked-rewrite type-specification subst-lambda-shadow
+  (from (ty-subst ?name ?value (tm-lam ?name ?type ?body))) (to (ty-subst-done (tm-lam ?name ?type ?body))))
+(linked-rewrite type-specification subst-lambda
+  (from (ty-subst ?name ?value (tm-lam ?other ?type ?body)))
+  (to (ty-subst-lam ?other ?type (ty-subst ?name ?value ?body))))
+(linked-rewrite type-specification subst-lambda-done
+  (from (ty-subst-lam ?other ?type (ty-subst-done ?body))) (to (ty-subst-done (tm-lam ?other ?type ?body))))
+(linked-rewrite type-specification subst-application
+  (from (ty-subst ?name ?value (tm-app ?left ?right)))
+  (to (ty-subst-2 tm-app (ty-subst ?name ?value ?left) (ty-subst ?name ?value ?right))))
+(linked-rewrite type-specification subst-pair
+  (from (ty-subst ?name ?value (tm-pair ?left ?right)))
+  (to (ty-subst-2 tm-pair (ty-subst ?name ?value ?left) (ty-subst ?name ?value ?right))))
+(linked-rewrite type-specification subst-first
+  (from (ty-subst ?name ?value (tm-fst ?inner))) (to (ty-subst-1 tm-fst (ty-subst ?name ?value ?inner))))
+(linked-rewrite type-specification subst-second
+  (from (ty-subst ?name ?value (tm-snd ?inner))) (to (ty-subst-1 tm-snd (ty-subst ?name ?value ?inner))))
+(linked-rewrite type-specification subst-successor
+  (from (ty-subst ?name ?value (tm-succ ?inner))) (to (ty-subst-1 tm-succ (ty-subst ?name ?value ?inner))))
+(linked-rewrite type-specification subst-is-zero
+  (from (ty-subst ?name ?value (tm-iszero ?inner))) (to (ty-subst-1 tm-iszero (ty-subst ?name ?value ?inner))))
+(linked-rewrite type-specification subst-conditional
+  (from (ty-subst ?name ?value (tm-if ?condition ?then ?else)))
+  (to (ty-subst-3 tm-if (ty-subst ?name ?value ?condition) (ty-subst ?name ?value ?then) (ty-subst ?name ?value ?else))))
+(linked-rewrite type-specification subst-constant
+  (from (ty-subst ?name ?value ?constant)) (to (ty-subst-done ?constant)))
+(linked-rewrite type-specification subst-rebuild-1
+  (from (ty-subst-1 ?constructor (ty-subst-done ?inner))) (to (ty-subst-done (?constructor ?inner))))
+(linked-rewrite type-specification subst-rebuild-2
+  (from (ty-subst-2 ?constructor (ty-subst-done ?left) (ty-subst-done ?right)))
+  (to (ty-subst-done (?constructor ?left ?right))))
+(linked-rewrite type-specification subst-rebuild-3
+  (from (ty-subst-3 ?constructor (ty-subst-done ?first) (ty-subst-done ?second) (ty-subst-done ?third)))
+  (to (ty-subst-done (?constructor ?first ?second ?third))))
+
+# Call-by-value small steps, left to right.
+(linked-rewrite type-specification step-application
+  (from (ty-step (tm-app ?function ?argument))) (to (ty-step-app (ty-value-p ?function) ?function ?argument)))
+(linked-rewrite type-specification step-application-function
+  (from (ty-step-app ty-no ?function ?argument)) (to (ty-app-left (ty-step ?function) ?argument)))
+(linked-rewrite type-specification step-application-argument
+  (from (ty-step-app ty-yes ?function ?argument)) (to (ty-step-arg (ty-value-p ?argument) ?function ?argument)))
+(linked-rewrite type-specification step-application-argument-inner
+  (from (ty-step-arg ty-no ?function ?argument)) (to (ty-app-right ?function (ty-step ?argument))))
+(linked-rewrite type-specification step-beta
+  (from (ty-step-arg ty-yes (tm-lam ?name ?type ?body) ?value)) (to (ty-beta (ty-subst ?name ?value ?body))))
+(linked-rewrite type-specification step-application-stuck
+  (from (ty-step-arg ty-yes ?function ?value)) (to ty-stuck))
+(linked-rewrite type-specification beta-done
+  (from (ty-beta (ty-subst-done ?term))) (to (ty-stepped ?term)))
+(linked-rewrite type-specification application-left-stepped
+  (from (ty-app-left (ty-stepped ?function) ?argument)) (to (ty-stepped (tm-app ?function ?argument))))
+(linked-rewrite type-specification application-left-stuck
+  (from (ty-app-left ty-stuck ?argument)) (to ty-stuck))
+(linked-rewrite type-specification application-right-stepped
+  (from (ty-app-right ?function (ty-stepped ?argument))) (to (ty-stepped (tm-app ?function ?argument))))
+(linked-rewrite type-specification application-right-stuck
+  (from (ty-app-right ?function ty-stuck)) (to ty-stuck))
+
+(linked-rewrite type-specification step-pair
+  (from (ty-step (tm-pair ?left ?right))) (to (ty-step-pair (ty-value-p ?left) ?left ?right)))
+(linked-rewrite type-specification step-pair-left
+  (from (ty-step-pair ty-no ?left ?right)) (to (ty-pair-left (ty-step ?left) ?right)))
+(linked-rewrite type-specification step-pair-right
+  (from (ty-step-pair ty-yes ?left ?right)) (to (ty-step-pair-right (ty-value-p ?right) ?left ?right)))
+(linked-rewrite type-specification step-pair-value
+  (from (ty-step-pair-right ty-yes ?left ?right)) (to ty-normal))
+(linked-rewrite type-specification step-pair-right-inner
+  (from (ty-step-pair-right ty-no ?left ?right)) (to (ty-pair-right ?left (ty-step ?right))))
+(linked-rewrite type-specification pair-left-stepped
+  (from (ty-pair-left (ty-stepped ?left) ?right)) (to (ty-stepped (tm-pair ?left ?right))))
+(linked-rewrite type-specification pair-left-stuck
+  (from (ty-pair-left ty-stuck ?right)) (to ty-stuck))
+(linked-rewrite type-specification pair-right-stepped
+  (from (ty-pair-right ?left (ty-stepped ?right))) (to (ty-stepped (tm-pair ?left ?right))))
+(linked-rewrite type-specification pair-right-stuck
+  (from (ty-pair-right ?left ty-stuck)) (to ty-stuck))
+
+(linked-rewrite type-specification step-first
+  (from (ty-step (tm-fst ?pair))) (to (ty-step-fst (ty-value-p ?pair) ?pair)))
+(linked-rewrite type-specification step-first-project
+  (from (ty-step-fst ty-yes (tm-pair ?left ?right))) (to (ty-stepped ?left)))
+(linked-rewrite type-specification step-first-stuck
+  (from (ty-step-fst ty-yes ?value)) (to ty-stuck))
+(linked-rewrite type-specification step-first-inner
+  (from (ty-step-fst ty-no ?pair)) (to (ty-wrap-1 tm-fst (ty-step ?pair))))
+(linked-rewrite type-specification step-second
+  (from (ty-step (tm-snd ?pair))) (to (ty-step-snd (ty-value-p ?pair) ?pair)))
+(linked-rewrite type-specification step-second-project
+  (from (ty-step-snd ty-yes (tm-pair ?left ?right))) (to (ty-stepped ?right)))
+(linked-rewrite type-specification step-second-stuck
+  (from (ty-step-snd ty-yes ?value)) (to ty-stuck))
+(linked-rewrite type-specification step-second-inner
+  (from (ty-step-snd ty-no ?pair)) (to (ty-wrap-1 tm-snd (ty-step ?pair))))
+
+(linked-rewrite type-specification step-successor
+  (from (ty-step (tm-succ ?value))) (to (ty-step-succ (ty-value-p ?value) ?value)))
+(linked-rewrite type-specification step-successor-value
+  (from (ty-step-succ ty-yes ?value)) (to ty-normal))
+(linked-rewrite type-specification step-successor-inner
+  (from (ty-step-succ ty-no ?value)) (to (ty-wrap-1 tm-succ (ty-step ?value))))
+(linked-rewrite type-specification step-is-zero
+  (from (ty-step (tm-iszero ?value))) (to (ty-step-iszero (ty-value-p ?value) ?value)))
+(linked-rewrite type-specification step-is-zero-zero
+  (from (ty-step-iszero ty-yes tm-zero)) (to (ty-stepped tm-true)))
+(linked-rewrite type-specification step-is-zero-successor
+  (from (ty-step-iszero ty-yes (tm-succ ?value))) (to (ty-stepped tm-false)))
+(linked-rewrite type-specification step-is-zero-stuck
+  (from (ty-step-iszero ty-yes ?value)) (to ty-stuck))
+(linked-rewrite type-specification step-is-zero-inner
+  (from (ty-step-iszero ty-no ?value)) (to (ty-wrap-1 tm-iszero (ty-step ?value))))
+
+(linked-rewrite type-specification step-if-true
+  (from (ty-step (tm-if tm-true ?then ?else))) (to (ty-stepped ?then)))
+(linked-rewrite type-specification step-if-false
+  (from (ty-step (tm-if tm-false ?then ?else))) (to (ty-stepped ?else)))
+(linked-rewrite type-specification step-if
+  (from (ty-step (tm-if ?condition ?then ?else))) (to (ty-step-if (ty-value-p ?condition) ?condition ?then ?else)))
+(linked-rewrite type-specification step-if-stuck
+  (from (ty-step-if ty-yes ?condition ?then ?else)) (to ty-stuck))
+(linked-rewrite type-specification step-if-inner
+  (from (ty-step-if ty-no ?condition ?then ?else)) (to (ty-if-inner (ty-step ?condition) ?then ?else)))
+(linked-rewrite type-specification if-inner-stepped
+  (from (ty-if-inner (ty-stepped ?condition) ?then ?else)) (to (ty-stepped (tm-if ?condition ?then ?else))))
+(linked-rewrite type-specification if-inner-stuck
+  (from (ty-if-inner ty-stuck ?then ?else)) (to ty-stuck))
+
+(linked-rewrite type-specification wrap-stepped
+  (from (ty-wrap-1 ?constructor (ty-stepped ?inner))) (to (ty-stepped (?constructor ?inner))))
+(linked-rewrite type-specification wrap-stuck
+  (from (ty-wrap-1 ?constructor ty-stuck)) (to ty-stuck))
+(linked-rewrite type-specification wrap-normal
+  (from (ty-wrap-1 ?constructor ty-normal)) (to ty-stuck))
+
+(linked-rewrite type-specification step-other
+  (from (ty-step ?term)) (to (ty-step-value (ty-value-p ?term))))
+(linked-rewrite type-specification step-value
+  (from (ty-step-value ty-yes)) (to ty-normal))
+(linked-rewrite type-specification step-stuck
+  (from (ty-step-value ty-no)) (to ty-stuck))
+
+(linked-rewrite type-specification evaluate
+  (from (ty-eval ?term)) (to (ty-eval-loop (ty-step ?term) ?term)))
+(linked-rewrite type-specification evaluate-step
+  (from (ty-eval-loop (ty-stepped ?next) ?term)) (to (ty-eval ?next)))
+(linked-rewrite type-specification evaluate-value
+  (from (ty-eval-loop ty-normal ?term)) (to (ty-value ?term)))
+(linked-rewrite type-specification evaluate-stuck
+  (from (ty-eval-loop ty-stuck ?term)) (to (ty-stuck-at ?term)))
+
+# Named terms of the theorems below. A named term is wrapped in ty-named so
+# that statements only match once the name has been resolved.
+(linked-rewrite type-specification term-swap
+  (from (ty-term swap))
+  (to (ty-named (tm-app
+        (tm-lam p (ty-product ty-nat ty-bool) (tm-pair (tm-snd (tm-var p)) (tm-fst (tm-var p))))
+        (tm-pair tm-zero tm-true)))))
+(linked-rewrite type-specification term-twice
+  (from (ty-term twice))
+  (to (ty-named (tm-lam f (ty-arrow ty-nat ty-nat) (tm-lam x ty-nat (tm-app (tm-var f) (tm-app (tm-var f) (tm-var x))))))))
+(linked-rewrite type-specification term-twice-successor
+  (from (ty-term twice-successor))
+  (to (ty-named (tm-app
+        (tm-app
+          (tm-lam f (ty-arrow ty-nat ty-nat) (tm-lam x ty-nat (tm-app (tm-var f) (tm-app (tm-var f) (tm-var x)))))
+          (tm-lam n ty-nat (tm-succ (tm-var n))))
+        tm-zero))))
+(linked-rewrite type-specification term-conditional
+  (from (ty-term conditional))
+  (to (ty-named (tm-if (tm-iszero tm-zero) (tm-pair tm-unit tm-zero) (tm-pair tm-unit (tm-succ tm-zero))))))
+
+# Statements are computed from the definitions above: the type comes from
+# ty-infer and the reduct from ty-step or ty-eval, so a changed definition
+# changes the statement a certificate must prove.
+(linked-rewrite type-specification typing-statement
+  (from (ty-typing-statement (ty-named ?term))) (to (ty-typing-ready ?term (ty-infer ty-empty ?term))))
+(linked-rewrite type-specification typing-ready
+  (from (ty-typing-ready ?term (ty-ok ?type))) (to (spec-statement (has-type ty-empty ?term ?type))))
+(linked-rewrite type-specification preservation-statement
+  (from (ty-preservation-statement (ty-named ?term)))
+  (to (ty-preservation-ready ?term (ty-infer ty-empty ?term) (ty-step ?term))))
+(linked-rewrite type-specification preservation-ready
+  (from (ty-preservation-ready ?term (ty-ok ?type) (ty-stepped ?next)))
+  (to (spec-statement (ty-preserved ?term ?next ?type))))
+(linked-rewrite type-specification evaluation-statement
+  (from (ty-evaluation-statement (ty-named ?term)))
+  (to (ty-evaluation-ready ?term (ty-infer ty-empty ?term) (ty-eval ?term))))
+(linked-rewrite type-specification evaluation-ready
+  (from (ty-evaluation-ready ?term (ty-ok ?type) (ty-value ?value)))
+  (to (spec-statement (ty-eval-preserved ?term ?value ?type))))
+(linked-rewrite type-specification progress-statement
+  (from (ty-progress-statement (ty-named ?term))) (to (ty-progress-ready ?term (ty-infer ty-empty ?term))))
+(linked-rewrite type-specification progress-ready
+  (from (ty-progress-ready ?term (ty-ok ?type))) (to (spec-statement (ty-progress ?term ?type))))
+
+(linked-rewrite type-specification theorems
+  (from (spec-theorems))
+  (to (spec-list typing-twice preservation-swap preservation-conditional evaluation-twice-successor progress-swap)))
+(linked-rewrite type-specification theorem-typing-twice
+  (from (spec-theorem typing-twice)) (to (ty-typing-statement (ty-term twice))))
+(linked-rewrite type-specification theorem-preservation-swap
+  (from (spec-theorem preservation-swap)) (to (ty-preservation-statement (ty-term swap))))
+(linked-rewrite type-specification theorem-preservation-conditional
+  (from (spec-theorem preservation-conditional)) (to (ty-preservation-statement (ty-term conditional))))
+(linked-rewrite type-specification theorem-evaluation-twice-successor
+  (from (spec-theorem evaluation-twice-successor)) (to (ty-evaluation-statement (ty-term twice-successor))))
+(linked-rewrite type-specification theorem-progress-swap
+  (from (spec-theorem progress-swap)) (to (ty-progress-statement (ty-term swap))))
+
+# Proof rules for certificates. (evaluates (spec-call F ARGUMENTS...) V)
+# premises are facts the trusted checker re-executes as (F ARGUMENTS...) in
+# this program; spec-call keeps the call inert while the rules are read.
+# Every other premise is derived.
+(linked-rewrite type-specification proof-rules
+  (from (spec-proof-rules))
+  (to (spec-rules
+    (rule t-var
+      ((evaluates (spec-call ty-context-ok (variable g)) ty-yes)
+       (evaluates (spec-call ty-lookup (variable g) (variable x)) (ty-ok (variable a))))
+      (has-type (variable g) (tm-var (variable x)) (variable a)))
+    (rule t-lam
+      ((evaluates (spec-call ty-is-type (variable a)) ty-yes)
+       (has-type (ty-extend (variable x) (variable a) (variable g)) (variable b) (variable c)))
+      (has-type (variable g) (tm-lam (variable x) (variable a) (variable b)) (ty-arrow (variable a) (variable c))))
+    (rule t-app
+      ((has-type (variable g) (variable f) (ty-arrow (variable a) (variable b)))
+       (has-type (variable g) (variable e) (variable a)))
+      (has-type (variable g) (tm-app (variable f) (variable e)) (variable b)))
+    (rule t-pair
+      ((has-type (variable g) (variable l) (variable a))
+       (has-type (variable g) (variable r) (variable b)))
+      (has-type (variable g) (tm-pair (variable l) (variable r)) (ty-product (variable a) (variable b))))
+    (rule t-fst
+      ((has-type (variable g) (variable p) (ty-product (variable a) (variable b))))
+      (has-type (variable g) (tm-fst (variable p)) (variable a)))
+    (rule t-snd
+      ((has-type (variable g) (variable p) (ty-product (variable a) (variable b))))
+      (has-type (variable g) (tm-snd (variable p)) (variable b)))
+    (rule t-zero
+      ((evaluates (spec-call ty-context-ok (variable g)) ty-yes))
+      (has-type (variable g) tm-zero ty-nat))
+    (rule t-succ
+      ((has-type (variable g) (variable n) ty-nat))
+      (has-type (variable g) (tm-succ (variable n)) ty-nat))
+    (rule t-iszero
+      ((has-type (variable g) (variable n) ty-nat))
+      (has-type (variable g) (tm-iszero (variable n)) ty-bool))
+    (rule t-true
+      ((evaluates (spec-call ty-context-ok (variable g)) ty-yes))
+      (has-type (variable g) tm-true ty-bool))
+    (rule t-false
+      ((evaluates (spec-call ty-context-ok (variable g)) ty-yes))
+      (has-type (variable g) tm-false ty-bool))
+    (rule t-unit
+      ((evaluates (spec-call ty-context-ok (variable g)) ty-yes))
+      (has-type (variable g) tm-unit ty-unit))
+    (rule t-if
+      ((has-type (variable g) (variable c) ty-bool)
+       (has-type (variable g) (variable t) (variable a))
+       (has-type (variable g) (variable e) (variable a)))
+      (has-type (variable g) (tm-if (variable c) (variable t) (variable e)) (variable a)))
+    (rule preservation
+      ((has-type ty-empty (variable t) (variable a))
+       (evaluates (spec-call ty-step (variable t)) (ty-stepped (variable u)))
+       (has-type ty-empty (variable u) (variable a)))
+      (ty-preserved (variable t) (variable u) (variable a)))
+    (rule evaluation-preservation
+      ((has-type ty-empty (variable t) (variable a))
+       (evaluates (spec-call ty-eval (variable t)) (ty-value (variable v)))
+       (has-type ty-empty (variable v) (variable a)))
+      (ty-eval-preserved (variable t) (variable v) (variable a)))
+    (rule progress-step
+      ((has-type ty-empty (variable t) (variable a))
+       (evaluates (spec-call ty-step (variable t)) (ty-stepped (variable u))))
+      (ty-progress (variable t) (variable a)))
+    (rule progress-value
+      ((has-type ty-empty (variable t) (variable a))
+       (evaluates (spec-call ty-step (variable t)) ty-normal))
+      (ty-progress (variable t) (variable a))))))

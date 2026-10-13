@@ -1,0 +1,133 @@
+# Additive dependent-function and Nat-indexed vector fragment.
+# Import this program before formal-semantics in an aggregate program. It has
+# no imports of its own, so the base contextual-checking fallback comes last.
+# Types and values are produced only after their typed premises have reduced.
+# A dependent codomain is source syntax plus its lexical local environment;
+# instantiation evaluates that syntax with the actual, independently checked
+# argument. No declaration name selects an implementation.
+
+(linked-program formal-indexed)
+
+# Pi formation checks the codomain under a fresh neutral at the current level.
+# The original codomain syntax is retained, not the result at that neutral.
+(linked-rewrite formal-indexed pi-type
+  (from (fs-infer (fs-pi-type ?domain ?codomain) ?locals ?globals))
+  (to (fs-pi-domain (fs-infer ?domain ?locals ?globals) ?codomain ?locals ?globals)))
+(linked-rewrite formal-indexed pi-domain
+  (from (fs-pi-domain (fs-ok fs-kind ?domain) ?codomain ?locals ?globals))
+  (to (fs-pi-depth ?domain ?codomain ?locals ?globals (fs-depth ?locals))))
+(linked-rewrite formal-indexed pi-depth
+  (from (fs-pi-depth ?domain ?codomain ?locals ?globals (fs-depth-ok ?level)))
+  (to (fs-pi-formed ?domain ?codomain ?locals
+    (fs-infer ?codomain (fs-bind ?domain (fs-neutral ?level) ?locals) ?globals))))
+(linked-rewrite formal-indexed pi-formed
+  (from (fs-pi-formed ?domain ?codomain ?locals (fs-ok fs-kind ?type)))
+  (to (fs-ok fs-kind (fs-t-pi ?domain (fs-type-closure ?codomain ?locals)))))
+
+# Shared codomain instantiation. Both lambda checking and application use it.
+(linked-rewrite formal-indexed instantiate-type
+  (from (fs-instantiate-type (fs-type-closure ?body ?saved) ?domain ?argument ?globals))
+  (to (fs-infer ?body (fs-bind ?domain ?argument ?saved) ?globals)))
+
+# Contextual Pi checking must precede formal-semantics.check-inferred.
+(linked-rewrite formal-indexed check-pi-lambda
+  (from (fs-check (fs-lambda ?annotation ?body) (fs-t-pi ?domain ?codomain) ?locals ?globals))
+  (to (fs-check-pi-annotation (fs-infer ?annotation ?locals ?globals)
+    ?domain ?codomain ?body ?locals ?globals)))
+(linked-rewrite formal-indexed check-pi-lambda-inferred
+  (from (fs-check (fs-lambda-inferred ?body) (fs-t-pi ?domain ?codomain) ?locals ?globals))
+  (to (fs-check-pi-depth ?domain ?codomain ?body ?locals ?globals (fs-depth ?locals))))
+(linked-rewrite formal-indexed check-pi-annotation
+  (from (fs-check-pi-annotation (fs-ok fs-kind ?domain)
+    ?domain ?codomain ?body ?locals ?globals))
+  (to (fs-check-pi-depth ?domain ?codomain ?body ?locals ?globals (fs-depth ?locals))))
+(linked-rewrite formal-indexed check-pi-annotation-mismatch
+  (from (fs-check-pi-annotation (fs-ok fs-kind ?actual)
+    ?domain ?codomain ?body ?locals ?globals))
+  (to (fs-error type-mismatch)))
+(linked-rewrite formal-indexed check-pi-depth
+  (from (fs-check-pi-depth ?domain ?codomain ?body ?locals ?globals (fs-depth-ok ?level)))
+  (to (fs-check-pi-codomain ?domain ?codomain ?body ?locals ?globals (fs-neutral ?level)
+    (fs-instantiate-type ?codomain ?domain (fs-neutral ?level) ?globals))))
+(linked-rewrite formal-indexed check-pi-codomain
+  (from (fs-check-pi-codomain ?domain ?codomain ?body ?locals ?globals ?argument
+    (fs-ok fs-kind ?type)))
+  (to (fs-checked-pi-lambda ?domain ?codomain ?body ?locals ?type
+    (fs-check ?body ?type (fs-bind ?domain ?argument ?locals) ?globals))))
+(linked-rewrite formal-indexed checked-pi-lambda
+  (from (fs-checked-pi-lambda ?domain ?codomain ?body ?locals ?type
+    (fs-ok ?type ?value)))
+  (to (fs-ok (fs-t-pi ?domain ?codomain) (fs-closure ?body ?locals))))
+
+# Apply the existing term syntax to dependent functions. Checking the argument
+# happens before codomain instantiation, which happens before body checking.
+(linked-rewrite formal-indexed application-pi-function
+  (from (fs-application-function (fs-ok (fs-t-pi ?domain ?codomain) ?function)
+    ?argument ?locals ?globals))
+  (to (fs-pi-application-argument ?domain ?codomain ?function
+    (fs-check ?argument ?domain ?locals ?globals) ?globals)))
+(linked-rewrite formal-indexed application-pi-argument
+  (from (fs-pi-application-argument ?domain ?codomain ?function
+    (fs-ok ?domain ?argument) ?globals))
+  (to (fs-pi-application-codomain ?domain ?function ?argument ?globals
+    (fs-instantiate-type ?codomain ?domain ?argument ?globals))))
+(linked-rewrite formal-indexed application-pi-closure
+  (from (fs-pi-application-codomain ?domain (fs-closure ?body ?saved) ?argument ?globals
+    (fs-ok fs-kind ?type)))
+  (to (fs-check ?body ?type (fs-bind ?domain ?argument ?saved) ?globals)))
+(linked-rewrite formal-indexed application-pi-neutral
+  (from (fs-pi-application-codomain ?domain (fs-neutral ?name) ?argument ?globals
+    (fs-ok fs-kind ?type)))
+  (to (fs-ok ?type (fs-neutral (fs-neutral-apply ?name ?argument)))))
+
+# A vector index is a checked Nat value, not an unevaluated source expression.
+(linked-rewrite formal-indexed vector-type
+  (from (fs-infer (fs-vector-type ?element ?length) ?locals ?globals))
+  (to (fs-vector-type-result
+    (fs-infer ?element ?locals ?globals) (fs-check ?length fs-t-nat ?locals ?globals))))
+(linked-rewrite formal-indexed vector-type-result
+  (from (fs-vector-type-result (fs-ok fs-kind ?element) (fs-ok fs-t-nat ?length)))
+  (to (fs-ok fs-kind (fs-t-vector ?element ?length))))
+
+(linked-rewrite formal-indexed vector-repeat
+  (from (fs-infer (fs-vector-repeat ?length ?element) ?locals ?globals))
+  (to (fs-vector-repeat-typed
+    (fs-check ?length fs-t-nat ?locals ?globals) (fs-infer ?element ?locals ?globals))))
+(linked-rewrite formal-indexed vector-repeat-typed
+  (from (fs-vector-repeat-typed (fs-ok fs-t-nat ?length) (fs-ok ?type ?element)))
+  (to (fs-vector-repeat-result ?type ?length (fs-vector-repeat-list ?length ?element))))
+
+# Contextual repetition also supports elements such as an empty list whose
+# type cannot be inferred. The independently checked length must match exactly.
+(linked-rewrite formal-indexed check-vector-repeat
+  (from (fs-check (fs-vector-repeat ?length ?element) (fs-t-vector ?type ?expected)
+    ?locals ?globals))
+  (to (fs-check-vector-repeat-length ?type ?expected ?element ?locals ?globals
+    (fs-check ?length fs-t-nat ?locals ?globals))))
+(linked-rewrite formal-indexed check-vector-repeat-length
+  (from (fs-check-vector-repeat-length ?type ?length ?element ?locals ?globals
+    (fs-ok fs-t-nat ?length)))
+  (to (fs-vector-repeat-typed (fs-ok fs-t-nat ?length)
+    (fs-check ?element ?type ?locals ?globals))))
+(linked-rewrite formal-indexed check-vector-repeat-length-mismatch
+  (from (fs-check-vector-repeat-length ?type ?expected ?element ?locals ?globals
+    (fs-ok fs-t-nat ?actual)))
+  (to (fs-error vector-length-mismatch)))
+
+# Concrete vectors expose the same list constructors as the base list rules.
+# A symbolic length remains a neutral list tail; it is never assumed to be zero.
+(linked-rewrite formal-indexed vector-repeat-zero
+  (from (fs-vector-repeat-list fs-v-zero ?element))
+  (to (fs-vector-list-ok fs-v-nil)))
+(linked-rewrite formal-indexed vector-repeat-successor
+  (from (fs-vector-repeat-list (fs-v-successor ?length) ?element))
+  (to (fs-vector-repeat-cons ?element (fs-vector-repeat-list ?length ?element))))
+(linked-rewrite formal-indexed vector-repeat-neutral
+  (from (fs-vector-repeat-list (fs-neutral ?name) ?element))
+  (to (fs-vector-list-ok (fs-neutral (fs-neutral-vector-repeat ?name ?element)))))
+(linked-rewrite formal-indexed vector-repeat-cons
+  (from (fs-vector-repeat-cons ?element (fs-vector-list-ok ?tail)))
+  (to (fs-vector-list-ok (fs-v-cons ?element ?tail))))
+(linked-rewrite formal-indexed vector-repeat-result
+  (from (fs-vector-repeat-result ?type ?length (fs-vector-list-ok ?value)))
+  (to (fs-ok (fs-t-vector ?type ?length) (fs-v-vector ?value))))

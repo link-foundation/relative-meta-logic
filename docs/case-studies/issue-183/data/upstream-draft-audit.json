@@ -1,0 +1,12 @@
+{
+  "schema": "rml-upstream-draft-audit/v1",
+  "checkedAt": "2026-10-07",
+  "repository": "https://github.com/link-foundation/meta-theory",
+  "pinnedRevision": "087f4515d0652925eecc54bcade724445c3978f1",
+  "latestObservedRevision": "d5923a7d0996ab4abf70bf03e9f212e3d1a8e6cc",
+  "scope": "drafts/0.0.3 including article, Lean and Rocq sources",
+  "changedPaths": [],
+  "result": "identical-draft-content",
+  "semanticExecutionClaim": false,
+  "note": "The main branch advanced, but the latest published draft and its formal sources are identical to the pinned corpus. This source equality does not establish native RML proof verification of all declarations."
+}

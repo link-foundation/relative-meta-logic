@@ -1,7 +1,9 @@
 # RML evaluator encoded as links for the self-bootstrap layer.
 #
-# The rules below are data. They mirror the host evaluator surface so a future
-# self-hosted evaluator can consume `(rule ...)` links directly.
+# The rules below are legacy self-description data. They mirror the broad host
+# evaluator surface for bootstrap parity. Executable object-theory semantics
+# used by TheoryNetwork live in ../meta-theory/universal.lino and are consumed
+# directly by the generic linked rewrite/inference machine.
 
 (namespace self)
 
@@ -11,7 +13,7 @@
 (Aggregator: (Type 0) Aggregator)
 
 (rml-evaluator: Evaluator rml-evaluator)
-(evaluator rml-evaluator matches relative-meta-logic version-0-19-0)
+(evaluator rml-evaluator matches relative-meta-logic version-0-21-0)
 (evaluator rml-evaluator has host-evaluator-presentation rule-links)
 
 # Built-in truth-value environment.
@@ -244,10 +246,9 @@
 (rule (eval (expression of type))
   (type-membership expression type))
 
-# Foundation, proof-substrate, and root-construct forms. These rules are
-# declarative coverage for the self-bootstrap layer: today the host records
-# and checks the data, while a future self-hosted evaluator can consume the
-# same surface directly.
+# Foundation, proof-substrate, and root-construct forms. These rules remain
+# declarative coverage for this legacy bootstrap layer. They are separate from
+# the executable linked-program rules in ../meta-theory/universal.lino.
 
 (rule (eval (root-construct name details))
   (record-root-construct name details))

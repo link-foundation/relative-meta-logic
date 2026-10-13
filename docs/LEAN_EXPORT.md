@@ -13,7 +13,8 @@ node js/src/rml-links.mjs export lean examples/lean-export-basic.lino -o out.lea
 cargo run --manifest-path rust/Cargo.toml -- export lean examples/lean-export-basic.lino -o out.lean
 ```
 
-Both commands produce the same Lean artifact. The fixture
+Both commands produce the same Lean artifact (the Rust one compiles Rust, which
+repository policy reserves for hosted CI; see [BUILD_CACHE.md](./BUILD_CACHE.md)). The fixture
 [`examples/lean-export-basic.lino`](../examples/lean-export-basic.lino) exports
 to [`examples/lean-export-basic.lean`](../examples/lean-export-basic.lean).
 

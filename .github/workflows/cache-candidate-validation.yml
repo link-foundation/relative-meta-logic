@@ -1,0 +1,83 @@
+name: cache-candidate-validation
+
+# Temporary proposed-fix experiment. This never validates the unpatched runtime
+# and does not replace the ordinary cache-portability workflow or acceptance gate.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cache-candidate-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  proposed-cache-repair:
+    name: Proposed cache repair only (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      # Preserve the exact reviewed bytes on Windows without changing Git config.
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
+      RML_CACHE_CANDIDATE_ROOT: ${{ github.workspace }}/.rml-cache/cache-portability-candidate-tree
+    defaults:
+      run:
+        working-directory: .rml-cache/cache-portability-candidate-tree
+    steps:
+      - name: Check out the additive validation package
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check out the exact unpatched baseline separately
+        uses: actions/checkout@v7
+        with:
+          ref: 90fc2853bbf58655f489312ad21b9471fbe4c1c9
+          path: .rml-cache/cache-portability-candidate-tree
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Verify candidate-validator rejection and scope guards
+        working-directory: .
+        run: node --test .github/candidates/cache-portability/validate.test.mjs
+      - name: Apply only the reviewed candidate patch after exact baseline checks
+        id: patch
+        working-directory: .
+        run: node .github/candidates/cache-portability/validate.mjs apply
+      - name: Install repository build lifecycle in the patched candidate
+        run: node scripts/bootstrap.mjs
+      - name: Execute the complete candidate cache lifecycle and policy suite
+        id: lifecycle
+        run: node scripts/run-with-cache.mjs -- node --test --test-concurrency=2 scripts/build-cache.test.mjs scripts/build-cache-policy.test.mjs scripts/build-cache-nested.test.mjs scripts/build-vsix-output.test.mjs
+      - name: Verify the candidate source tree and record the real test outcome
+        if: always() && steps.patch.outcome == 'success'
+        working-directory: .
+        env:
+          RML_CACHE_CANDIDATE_TEST_OUTCOME: ${{ steps.lifecycle.outcome }}
+        run: node .github/candidates/cache-portability/validate.mjs verify
+      - name: Archive candidate patch, source identities and platform evidence before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: proposed-cache-repair-only-${{ matrix.os }}-${{ github.run_attempt }}
+          path: |
+            .github/candidates/cache-portability/**
+            .github/workflows/cache-candidate-validation.yml
+            .rml-cache/cache-portability-candidate-tree/.rml-cache/evidence/**
+            .rml-cache/cache-portability-candidate-tree/.rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - name: Tear down only the candidate checkout's owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

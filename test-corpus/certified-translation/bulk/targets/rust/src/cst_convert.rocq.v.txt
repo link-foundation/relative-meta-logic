@@ -1,0 +1,18 @@
+(* rml-certified-item rust/src/cst_convert.rs#RoundTripResult@1641 target-sha256=feb504d27278cf1096d3fba5232c9b2b172a2979ed1a34c9e108444c2d2dbd68 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive RoundTripResult : Type :=
+| RoundTripResult_2 : bool -> string -> string -> RoundTripResult.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

@@ -1,0 +1,3754 @@
+{
+  "schema": "rml-foundation-candidate-table/v18",
+  "generatedBy": "js/src/rml-foundation-search.mjs",
+  "semanticSource": "lib/meta-theory/alternative-foundations.lino",
+  "foundationStatus": "OPEN",
+  "comparisonScope": "EXECUTION_ARCHITECTURE_ONLY_NOT_ONTOLOGY",
+  "ontologySearch": {
+    "status": "OPEN_INDEPENDENT_INVESTIGATION",
+    "openQuestions": [
+      {
+        "id": "link-ontology",
+        "status": "UNRESOLVED",
+        "question": "What is a link before a host representation assigns categories to it?"
+      },
+      {
+        "id": "primitive-categories",
+        "status": "UNRESOLVED",
+        "question": "Which, if any, primitive categories are forced by the investigated phenomenon?"
+      },
+      {
+        "id": "structure-transformation-relation",
+        "status": "UNRESOLVED",
+        "question": "Is a distinction between structure and transformation derived or imported?"
+      },
+      {
+        "id": "intrinsic-semantic-authority",
+        "status": "UNRESOLVED",
+        "question": "Can semantic authority arise from links without being supplied externally?"
+      },
+      {
+        "id": "comparative-minimality",
+        "status": "UNRESOLVED",
+        "question": "Do independent derivations converge on a comparable minimal foundation?"
+      }
+    ],
+    "provenanceQuestions": [
+      "Was the concept forced by the investigated link phenomenon?",
+      "Was the concept derived from already established properties?",
+      "Was the concept imported from an existing formalism or host representation?"
+    ],
+    "importedPrimitiveCategories": [
+      {
+        "id": "data",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "operation",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "state",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "transition",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "interpreter",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "evaluator",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "rewrite",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "rule",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "function",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      },
+      {
+        "id": "relation",
+        "provenance": "IMPORTED_EXPERIMENTAL_VOCABULARY",
+        "foundationalStatus": "UNESTABLISHED"
+      }
+    ],
+    "existingCandidatesRole": "EXECUTABLE_CONTROLS_ONLY",
+    "existingCandidatesConstrainSearch": false,
+    "targetArchitectureSelected": false,
+    "acceptanceCriterion": "A primitive earns foundational status only through an explicit derivation from independently established properties; successful execution, universality, self-hosting, elegance, and small size are insufficient."
+  },
+  "ontologyExperiment": {
+    "schema": "rml-link-ontology-symmetry-experiment/v15",
+    "question": "Which facts survive the binary reference observation, what do fixed width and single-link isolation erase, how is self-incidence classified per reference slot, do identity, incidence, shared address, and recursion entail application or composition, can an additional link carry selection authority, how far can linked exact-cover evidence, a linked local-match trace, and a one-link continuation witness reduce the external verifier, what, if anything, turns a possible continuation into one that follows, and does any Link structure force which orientation follows?",
+    "startingContract": {
+      "id": "unoriented-binary-reference-observation",
+      "occurrenceCount": 2,
+      "assumptions": [
+        {
+          "id": "two-unlabelled-reference-occurrences",
+          "provenance": "EXPERIMENTAL_OBSERVATION_CONTRACT",
+          "role": "fixes only the arity of the investigated observation"
+        },
+        {
+          "id": "reference-equality",
+          "provenance": "EXPERIMENTAL_OBSERVATION_CONTRACT",
+          "role": "permits observation of whether the two occurrences coincide"
+        }
+      ],
+      "deliberatelyAbsent": [
+        "link identity",
+        "endpoint order",
+        "source/target roles",
+        "passivity",
+        "time",
+        "execution law"
+      ]
+    },
+    "exhaustiveEnumeration": {
+      "carrierSizesExamined": [
+        1,
+        2
+      ],
+      "supportRestriction": "the carrier is exactly the set of observed references; unused references are discarded",
+      "assignmentsExamined": 3,
+      "groupActionsExamined": 6,
+      "actionApplicationsExamined": 10,
+      "canonicalClasses": [
+        {
+          "signature": "same-reference",
+          "representative": [
+            0,
+            0
+          ],
+          "orbit": [
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "signature": "distinct-references",
+          "representative": [
+            0,
+            1
+          ],
+          "orbit": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        }
+      ],
+      "completeInvariant": "equality partition of the two reference occurrences"
+    },
+    "representationAgreement": [
+      {
+        "encoding": "first-occurrence-normal-form",
+        "sameReference": "same-reference",
+        "distinctReferences": "distinct-references",
+        "invariantAcrossAllActions": true,
+        "canonicalOutputs": {
+          "sameReference": [
+            0,
+            0
+          ],
+          "distinctReferences": [
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "encoding": "occurrence-equality-matrix",
+        "sameReference": "same-reference",
+        "distinctReferences": "distinct-references",
+        "invariantAcrossAllActions": true,
+        "canonicalOutputs": {
+          "sameReference": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "distinctReferences": [
+            1,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "encoding": "reference-multiplicity-spectrum",
+        "sameReference": "same-reference",
+        "distinctReferences": "distinct-references",
+        "invariantAcrossAllActions": true,
+        "canonicalOutputs": {
+          "sameReference": [
+            2
+          ],
+          "distinctReferences": [
+            1,
+            1
+          ]
+        }
+      }
+    ],
+    "distinctReferenceSymmetry": {
+      "automorphisms": [
+        {
+          "occurrencePermutation": [
+            0,
+            1
+          ],
+          "referencePermutation": [
+            0,
+            1
+          ]
+        },
+        {
+          "occurrencePermutation": [
+            1,
+            0
+          ],
+          "referencePermutation": [
+            1,
+            0
+          ]
+        }
+      ],
+      "occurrenceOrbits": [
+        [
+          0,
+          1
+        ]
+      ],
+      "unarySelectorsExamined": 4,
+      "invariantUnarySelectors": [
+        [],
+        [
+          0,
+          1
+        ]
+      ],
+      "invariantSingletonSelectorExists": false,
+      "totalSelfMapsExamined": 4,
+      "equivariantSelfMaps": [
+        {
+          "id": "identity",
+          "mapping": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "swap",
+          "mapping": [
+            1,
+            0
+          ]
+        }
+      ],
+      "uniqueEquivariantSelfMap": false
+    },
+    "reificationCountermodels": [
+      {
+        "id": "unreified-occurrence-pair",
+        "hasLinkIdentity": false,
+        "occurrences": [
+          "alpha",
+          "beta"
+        ],
+        "projectedObservation": "distinct-references",
+        "projection": [
+          0,
+          1
+        ]
+      },
+      {
+        "id": "reified-incidence-star",
+        "hasLinkIdentity": true,
+        "linkIdentity": "link-identity",
+        "incidences": [
+          [
+            "link-identity",
+            "alpha"
+          ],
+          [
+            "link-identity",
+            "beta"
+          ]
+        ],
+        "projectedObservation": "distinct-references",
+        "projection": [
+          0,
+          1
+        ]
+      }
+    ],
+    "observationBoundary": {
+      "status": "BINARY_CONTRACT_NOT_EXHAUSTIVE",
+      "unchangedPrimitiveVocabulary": [
+        "unlabelled reference occurrences",
+        "reference equality"
+      ],
+      "arityEnumeration": [
+        {
+          "occurrenceCount": 1,
+          "surjectiveAssignmentsExamined": 1,
+          "referenceRenameClasses": 1,
+          "quotientClasses": 1,
+          "multiplicitySpectra": [
+            [
+              1
+            ]
+          ],
+          "completeInvariantVerified": true
+        },
+        {
+          "occurrenceCount": 2,
+          "surjectiveAssignmentsExamined": 3,
+          "referenceRenameClasses": 2,
+          "quotientClasses": 2,
+          "multiplicitySpectra": [
+            [
+              1,
+              1
+            ],
+            [
+              2
+            ]
+          ],
+          "completeInvariantVerified": true
+        },
+        {
+          "occurrenceCount": 3,
+          "surjectiveAssignmentsExamined": 13,
+          "referenceRenameClasses": 5,
+          "quotientClasses": 3,
+          "multiplicitySpectra": [
+            [
+              1,
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3
+            ]
+          ],
+          "completeInvariantVerified": true
+        },
+        {
+          "occurrenceCount": 4,
+          "surjectiveAssignmentsExamined": 75,
+          "referenceRenameClasses": 15,
+          "quotientClasses": 5,
+          "multiplicitySpectra": [
+            [
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              2,
+              1,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              4
+            ]
+          ],
+          "completeInvariantVerified": true
+        }
+      ],
+      "arityEnumerationComplete": true,
+      "generalizedCompleteInvariant": "reference multiplicity spectrum for each exhaustively tested unlabelled width 1 through 4",
+      "startingRepresentationAudit": {
+        "status": "REFERENCE_ONLY_PROJECTION_NOT_FAITHFUL_FOR_SELF_REFERENCE",
+        "scope": "finite addressable links with one or more unlabelled reference occurrences and direct self-reference in the same address space",
+        "independentJustification": {
+          "requirement": "a link may occur directly among its own references",
+          "provenance": "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT",
+          "consequence": "the link address and reference addresses must participate in the same equality comparison"
+        },
+        "representationChangesUnderAudit": [
+          "global address renaming",
+          "permutation of reference occurrences"
+        ],
+        "finiteEnumeration": [
+          {
+            "occurrenceCount": 1,
+            "referenceOnlyClasses": 1,
+            "addressableLinkClasses": 2,
+            "classesWithNoDirectSelfReference": 1,
+            "classesWithDirectSelfReference": 1,
+            "projectionFibreHistogram": [
+              {
+                "addressableClasses": 2,
+                "referenceOnlyClasses": 1
+              }
+            ],
+            "everyProjectionFibreAmbiguous": true
+          },
+          {
+            "occurrenceCount": 2,
+            "referenceOnlyClasses": 2,
+            "addressableLinkClasses": 4,
+            "classesWithNoDirectSelfReference": 2,
+            "classesWithDirectSelfReference": 2,
+            "projectionFibreHistogram": [
+              {
+                "addressableClasses": 2,
+                "referenceOnlyClasses": 2
+              }
+            ],
+            "everyProjectionFibreAmbiguous": true
+          },
+          {
+            "occurrenceCount": 3,
+            "referenceOnlyClasses": 3,
+            "addressableLinkClasses": 7,
+            "classesWithNoDirectSelfReference": 3,
+            "classesWithDirectSelfReference": 4,
+            "projectionFibreHistogram": [
+              {
+                "addressableClasses": 2,
+                "referenceOnlyClasses": 2
+              },
+              {
+                "addressableClasses": 3,
+                "referenceOnlyClasses": 1
+              }
+            ],
+            "everyProjectionFibreAmbiguous": true
+          },
+          {
+            "occurrenceCount": 4,
+            "referenceOnlyClasses": 5,
+            "addressableLinkClasses": 12,
+            "classesWithNoDirectSelfReference": 5,
+            "classesWithDirectSelfReference": 7,
+            "projectionFibreHistogram": [
+              {
+                "addressableClasses": 2,
+                "referenceOnlyClasses": 3
+              },
+              {
+                "addressableClasses": 3,
+                "referenceOnlyClasses": 2
+              }
+            ],
+            "everyProjectionFibreAmbiguous": true
+          }
+        ],
+        "everyProjectionFibreAmbiguous": true,
+        "referenceOnlyProjectionFaithful": false,
+        "countermodel": {
+          "projectedReferenceMultiplicitySpectrum": [
+            1,
+            1
+          ],
+          "directSelfLink": {
+            "normalizedAddressPattern": [
+              0,
+              0,
+              1
+            ],
+            "directSelfReferenceCount": 1
+          },
+          "freshExternalLink": {
+            "normalizedAddressPattern": [
+              0,
+              1,
+              2
+            ],
+            "directSelfReferenceCount": 0
+          },
+          "sameReferenceOnlyProjection": true,
+          "sameAddressableLinkClass": false
+        },
+        "generalArgument": {
+          "scope": "every nonempty finite reference multiplicity spectrum",
+          "steps": [
+            "give the link a fresh address not used by any reference occurrence",
+            "alternatively identify the link address with a reference class",
+            "forgetting the link address maps both lifts to the same reference-only observation",
+            "global address renaming and occurrence permutation preserve whether a reference equals the link address"
+          ],
+          "exactFibreCardinality": "one fresh-address lift plus one self-identifying lift for each distinct reference multiplicity",
+          "consequence": "REFERENCE_ONLY_PROJECTION_IS_NON_INJECTIVE_AT_EVERY_NONZERO_FINITE_ARITY"
+        },
+        "slotwiseSelfIncidence": {
+          "status": "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT",
+          "provenance": "ISSUE_183_DIRECT_SELF_REFERENCE_REQUIREMENT",
+          "predicate": "selfIncidenceByReferenceSlot[i] = (referenceAddress[i] === linkAddress)",
+          "finiteEnumeration": [
+            {
+              "occurrenceCount": 1,
+              "selfIncidencePatterns": 2,
+              "orderedEqualityClasses": 2,
+              "classesBySelfIncidence": [
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                }
+              ]
+            },
+            {
+              "occurrenceCount": 2,
+              "selfIncidencePatterns": 4,
+              "orderedEqualityClasses": 5,
+              "classesBySelfIncidence": [
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                }
+              ]
+            },
+            {
+              "occurrenceCount": 3,
+              "selfIncidencePatterns": 8,
+              "orderedEqualityClasses": 15,
+              "classesBySelfIncidence": [
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                }
+              ]
+            },
+            {
+              "occurrenceCount": 4,
+              "selfIncidencePatterns": 16,
+              "orderedEqualityClasses": 52,
+              "classesBySelfIncidence": [
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 15
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    false,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    false,
+                    true,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 5
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    false,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    false,
+                    false
+                  ],
+                  "orderedEqualityClasses": 2
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    false,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    true,
+                    false
+                  ],
+                  "orderedEqualityClasses": 1
+                },
+                {
+                  "selfIncidenceByReferenceSlot": [
+                    true,
+                    true,
+                    true,
+                    true
+                  ],
+                  "orderedEqualityClasses": 1
+                }
+              ]
+            }
+          ],
+          "everyBooleanSlotPatternRealized": true,
+          "addressRenamingInvariantVerified": true,
+          "occurrencePermutationEquivariantVerified": true,
+          "occurrencePermutationInvariant": false,
+          "countermodel": {
+            "firstOrderedPattern": [
+              0,
+              0,
+              1
+            ],
+            "secondOrderedPattern": [
+              0,
+              1,
+              0
+            ],
+            "firstSelfIncidenceByReferenceSlot": [
+              true,
+              false
+            ],
+            "secondSelfIncidenceByReferenceSlot": [
+              false,
+              true
+            ],
+            "sameSelfIncidenceMultiplicity": true,
+            "sameSlotwiseSelfIncidence": false,
+            "sameAfterOccurrencePermutation": true
+          },
+          "orderedFaithfulDescriptor": {
+            "status": "COMPLETE_INVARIANT_FOR_ORDERED_ADDRESS_EQUALITY_CONTRACT",
+            "fields": [
+              "referenceEqualityMatrix",
+              "selfIncidenceByReferenceSlot"
+            ],
+            "finiteEnumerationAgreement": true,
+            "generalArgument": "Reference equality classifies the ordered references up to address renaming, while the slotwise self-incidence mask identifies exactly which reference class, if any, is the link address."
+          },
+          "quotientConsequence": "Occurrence permutation preserves the slotwise mask only equivariantly; the unlabelled quotient retains its number of true entries but forgets their ordered positions.",
+          "claimBoundary": "This classifies address/reference equality per ordered slot. It does not establish that reference-slot identity is intrinsic, assign endpoint roles to slots, or supply dynamics or execution semantics."
+        },
+        "sharedAddressComposition": {
+          "status": "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL",
+          "provenance": "ISSUE_183_INDIRECT_SELF_REFERENCE_REQUIREMENT",
+          "removedAssumption": "single addressed link considered in isolation",
+          "retainedAssumptions": [
+            "finite ordered link records",
+            "one ordered reference slot per link",
+            "distinct link addresses in one shared address space",
+            "address equality is the only observation"
+          ],
+          "finiteEnumeration": [
+            {
+              "linkCount": 1,
+              "referenceSlotsPerLink": 1,
+              "sharedAddressClasses": 2,
+              "localDescriptorClasses": 2,
+              "localDescriptorFibreHistogram": [
+                {
+                  "sharedAddressClasses": 1,
+                  "localDescriptorClasses": 2
+                }
+              ],
+              "localDescriptorsFaithful": true,
+              "sharedDescriptorClasses": 2,
+              "sharedDescriptorFaithful": true
+            },
+            {
+              "linkCount": 2,
+              "referenceSlotsPerLink": 1,
+              "sharedAddressClasses": 10,
+              "localDescriptorClasses": 4,
+              "localDescriptorFibreHistogram": [
+                {
+                  "sharedAddressClasses": 1,
+                  "localDescriptorClasses": 1
+                },
+                {
+                  "sharedAddressClasses": 2,
+                  "localDescriptorClasses": 2
+                },
+                {
+                  "sharedAddressClasses": 5,
+                  "localDescriptorClasses": 1
+                }
+              ],
+              "localDescriptorsFaithful": false,
+              "sharedDescriptorClasses": 10,
+              "sharedDescriptorFaithful": true
+            },
+            {
+              "linkCount": 3,
+              "referenceSlotsPerLink": 1,
+              "sharedAddressClasses": 77,
+              "localDescriptorClasses": 8,
+              "localDescriptorFibreHistogram": [
+                {
+                  "sharedAddressClasses": 1,
+                  "localDescriptorClasses": 1
+                },
+                {
+                  "sharedAddressClasses": 3,
+                  "localDescriptorClasses": 3
+                },
+                {
+                  "sharedAddressClasses": 10,
+                  "localDescriptorClasses": 3
+                },
+                {
+                  "sharedAddressClasses": 37,
+                  "localDescriptorClasses": 1
+                }
+              ],
+              "localDescriptorsFaithful": false,
+              "sharedDescriptorClasses": 77,
+              "sharedDescriptorFaithful": true
+            },
+            {
+              "linkCount": 4,
+              "referenceSlotsPerLink": 1,
+              "sharedAddressClasses": 799,
+              "localDescriptorClasses": 16,
+              "localDescriptorFibreHistogram": [
+                {
+                  "sharedAddressClasses": 1,
+                  "localDescriptorClasses": 1
+                },
+                {
+                  "sharedAddressClasses": 4,
+                  "localDescriptorClasses": 4
+                },
+                {
+                  "sharedAddressClasses": 17,
+                  "localDescriptorClasses": 6
+                },
+                {
+                  "sharedAddressClasses": 77,
+                  "localDescriptorClasses": 4
+                },
+                {
+                  "sharedAddressClasses": 372,
+                  "localDescriptorClasses": 1
+                }
+              ],
+              "localDescriptorsFaithful": false,
+              "sharedDescriptorClasses": 799,
+              "sharedDescriptorFaithful": true
+            }
+          ],
+          "localDescriptorsFaithfulAtEveryTestedMultiLinkWidth": false,
+          "countermodel": {
+            "externalReferences": [
+              [
+                0,
+                1
+              ],
+              [
+                2,
+                3
+              ]
+            ],
+            "twoLinkCycle": [
+              [
+                0,
+                2
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            "sameLocalDescriptors": true,
+            "sameSharedAddressClass": false,
+            "externalReferencesCycleLength": 0,
+            "twoLinkCycleLength": 2,
+            "distinguishingObservation": "whether each reference address equals another link address in the same configuration"
+          },
+          "sharedFaithfulDescriptor": {
+            "status": "COMPLETE_INVARIANT_FOR_ORDERED_SHARED_ADDRESS_EQUALITY_CONTRACT",
+            "fields": [
+              "referenceEqualityMatrixAcrossLinks",
+              "referenceToLinkAddressIncidenceMatrix"
+            ],
+            "finiteEnumerationAgreement": true,
+            "generalArgument": "With distinct ordered link addresses, incidence identifies every reference equal to a link address; the reference equality matrix partitions all remaining external references. Equal descriptors therefore induce a global bijection of every used address."
+          },
+          "generalConsequence": "For any finite ordered collection of distinct link addresses with one reference each, the product of local single-link descriptors retains only the diagonal of cross-link incidence and is non-faithful from two links onward.",
+          "assumptionClassification": {
+            "forcedByIssueContract": "indirect self-reference requires comparing references with other link addresses in a shared address space",
+            "survivesRepresentationChange": "the external-reference and two-link-cycle configurations remain distinct under every global address renaming",
+            "introducedByObserver": "link-record order, fixed finite link count, and one reference slot are retained experimental restrictions",
+            "semanticsNotAssigned": "cross-link incidence is only address equality; it is not a source, target, transition, dependency, or execution edge"
+          },
+          "claimBoundary": "This removes single-link isolation and proves a compositional information loss for the declared equality contract. It does not establish that ordered link records or one-slot links are intrinsic, interpret an incidence cycle dynamically, or define a complete link ontology."
+        },
+        "structuralApplicationComposition": {
+          "status": "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION",
+          "premiseVocabulary": [
+            "link identity",
+            "reference-address equality",
+            "self-incidence",
+            "shared-address incidence",
+            "recursive reference to a link address"
+          ],
+          "semanticSeparation": {
+            "logicalImplication": "NOT_IDENTIFIED_WITH_LINK_STRUCTURE",
+            "linkStructure": "ADDRESS_REFERENCE_INCIDENCE_ONLY",
+            "composition": "PROPOSED_LINK_NOT_FORCED",
+            "execution": "NO_TRANSFORMATION_OR_CREATION_LAW_PRESENT"
+          },
+          "candidateEncodings": {
+            "leftAssociated": [
+              [
+                3,
+                0,
+                1
+              ],
+              [
+                4,
+                3,
+                2
+              ]
+            ],
+            "rightAssociated": [
+              [
+                3,
+                1,
+                2
+              ],
+              [
+                4,
+                0,
+                3
+              ]
+            ],
+            "sameUnderAddressRenamingAlone": false,
+            "sameAfterUniformSlotReversalAndAddressRenaming": true,
+            "recursiveAddressReferencesPresent": true,
+            "orderedSlotContractConsequence": "the two association candidates occupy different ordered reference positions",
+            "unorderedSlotContractConsequence": "uniform reference-slot reversal plus address renaming identifies the two candidates"
+          },
+          "roleRecovery": {
+            "investigatedRoles": [
+              "function",
+              "argument",
+              "result",
+              "application"
+            ],
+            "semanticAssignmentsForThreeLeaves": 6,
+            "unorderedStructureAutomorphisms": 2,
+            "unorderedLeafOrbitSizes": [
+              1,
+              2
+            ],
+            "orderedPositionsSelectSemanticRoles": false,
+            "allFourSemanticRolesRecovered": false,
+            "status": "ADDITIONAL_ROLE_ASSIGNMENT_REQUIRED",
+            "evidence": "Ordered slots distinguish three leaf positions but do not name their meaning. Without slot order, the two leaves of the nested link form one orbit, so the raw structure does not even separate all three leaf positions."
+          },
+          "compositionCountermodel": {
+            "withoutProposedResult": [
+              [
+                3,
+                0,
+                1
+              ],
+              [
+                4,
+                1,
+                2
+              ],
+              [
+                5,
+                2,
+                0
+              ],
+              [
+                6,
+                6,
+                3
+              ]
+            ],
+            "withProposedResult": [
+              [
+                3,
+                0,
+                1
+              ],
+              [
+                4,
+                1,
+                2
+              ],
+              [
+                5,
+                2,
+                0
+              ],
+              [
+                6,
+                6,
+                3
+              ],
+              [
+                7,
+                0,
+                2
+              ]
+            ],
+            "premiseP": [
+              3,
+              0,
+              1
+            ],
+            "premiseQ": [
+              4,
+              1,
+              2
+            ],
+            "proposedResult": [
+              7,
+              0,
+              2
+            ],
+            "commonFacts": {
+              "distinctLinkIdentities": true,
+              "premiseLinkIdentitiesDistinctFromReferences": true,
+              "premiseReferenceAddressesPairwiseDistinct": true,
+              "directSelfIncidence": true,
+              "sharedAddressIncidence": true,
+              "recursiveLinkReferences": true
+            },
+            "premisesHoldInBoth": true,
+            "reversePairAlreadyPresent": true,
+            "proposedResultAbsentInFirst": true,
+            "proposedResultPresentInSecond": true
+          },
+          "formationProbe": {
+            "existingAddresses": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "orderedPairsUsingExistingAddresses": 49,
+            "proposedReferencePair": [
+              0,
+              2
+            ],
+            "everyFormationExtensionPreservesPremises": true,
+            "compositionSpecificSelectionFromFormationOnly": false,
+            "consequence": "Binary link formation admits every ordered pair of the seven existing addresses; it does not uniquely select [0,2]."
+          },
+          "conclusion": "The proposed result is structurally formable but is neither unavoidable nor selected. The premise-only structure and its result-bearing conservative extension satisfy the same stated structural conditions.",
+          "claimBoundary": "This countermodel refutes entailment from the tested identity/equality/incidence/recursion structure. It does not refute a future links-derived composition, but such a result needs an additional selection/closure law and an explicit account of its authority; no logical implication, function role, or execution meaning is assigned here."
+        },
+        "conditionalContinuation": {
+          "status": "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
+          "contract": "ordered addressed binary records with equality of addresses",
+          "criterion": "for distinct records P and Q, P.second equals Q.first and an ordinary witness references P.address then Q.address; report [P.first,Q.second]",
+          "criterionProvenance": "OBSERVER_SELECTED_INCIDENCE_JOIN",
+          "premises": [
+            [
+              3,
+              0,
+              1
+            ],
+            [
+              4,
+              1,
+              2
+            ]
+          ],
+          "forwardWitness": [
+            5,
+            3,
+            4
+          ],
+          "reverseWitness": [
+            5,
+            4,
+            3
+          ],
+          "cases": [
+            {
+              "id": "forward-witness",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  3,
+                  4
+                ]
+              ],
+              "continuations": [
+                [
+                  0,
+                  2
+                ]
+              ]
+            },
+            {
+              "id": "reverse-witness",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  4,
+                  3
+                ]
+              ],
+              "continuations": []
+            },
+            {
+              "id": "without-first-premise",
+              "records": [
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  3,
+                  4
+                ]
+              ],
+              "continuations": []
+            },
+            {
+              "id": "without-second-premise",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  5,
+                  3,
+                  4
+                ]
+              ],
+              "continuations": []
+            },
+            {
+              "id": "without-witness",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ]
+              ],
+              "continuations": []
+            },
+            {
+              "id": "unrelated-result-record",
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  3,
+                  4
+                ],
+                [
+                  8,
+                  0,
+                  9
+                ]
+              ],
+              "continuations": [
+                [
+                  0,
+                  2
+                ]
+              ]
+            }
+          ],
+          "addressRenamingEquivariant": true,
+          "recordReorderingInvariant": true,
+          "slotReversalChangesContinuation": true,
+          "resultAbsentWithWitness": true,
+          "resultPresentInExtension": true,
+          "witnessConditionHoldsInBoth": true,
+          "intrinsicCreationOrAuthorityEstablished": false,
+          "transitionLawAudit": {
+            "nestedEncodingPreservesReadout": true,
+            "bothReadoutsAddressRenamingEquivariant": true,
+            "bothReadoutsRecordReorderingInvariant": true,
+            "unorderedWitnessReadout": [
+              [
+                0,
+                2
+              ]
+            ],
+            "reversedWitnessUnderUnorderedReading": [
+              [
+                0,
+                2
+              ]
+            ],
+            "sameFactsCompetingReadouts": {
+              "forwardProjection": [
+                [
+                  0,
+                  2
+                ]
+              ],
+              "reverseProjection": [
+                [
+                  2,
+                  0
+                ]
+              ]
+            },
+            "sameFactsWithRuleRecordCompetingReadouts": {
+              "forwardProjection": [
+                [
+                  0,
+                  2
+                ]
+              ],
+              "reverseProjection": [
+                [
+                  2,
+                  0
+                ]
+              ]
+            },
+            "adjacencyEqualityErasureCountermodel": {
+              "sameRetainedAddressesAndWitness": true,
+              "sharedReferenceReadout": [
+                [
+                  0,
+                  2
+                ]
+              ],
+              "splitReferenceReadout": []
+            },
+            "operationRemoval": {
+              "withoutWitnessOrientation": "SAME_CANDIDATE_FOR_THIS_CHAIN",
+              "withoutOutputProjection": "TWO_CANDIDATE_READOUTS",
+              "withoutIncidenceEquality": "JOIN_UNDETERMINED",
+              "withoutEnumeration": "CANDIDATE_DISCOVERY_UNDETERMINED",
+              "withoutConstruction": "NO_RESULT_RECORD_PRODUCED"
+            },
+            "stageBoundary": {
+              "formable": true,
+              "conditionallyIdentifiable": true,
+              "intrinsicallyAdmissible": false,
+              "followsFromRecordsAlone": false,
+              "producedByRecordsAlone": false
+            },
+            "lawSelfApplicationEstablished": false
+          },
+          "consequenceAudit": {
+            "question": "What structural fact turns a possible continuation into one that follows?",
+            "status": "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION",
+            "modalReading": "a pair is possible when some admissible completion of the recorded pairs contains it, and follows when every admissible completion contains it",
+            "premisePairs": [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "completionCount": 128,
+            "everyPairPossibleInEachClass": true,
+            "positiveFactsAloneForceNothingNew": true,
+            "exclusionClasses": [
+              {
+                "id": "none",
+                "admissibleCompletions": 128,
+                "follows": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ],
+                "leastCompletionAdmissible": true,
+                "forwardFollows": false,
+                "reverseFollows": false,
+                "unorientedConnectionFollows": false
+              },
+              {
+                "id": "transitive",
+                "admissibleCompletions": 13,
+                "follows": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ],
+                "leastCompletionAdmissible": true,
+                "forwardFollows": true,
+                "reverseFollows": false,
+                "unorientedConnectionFollows": true
+              },
+              {
+                "id": "circular",
+                "admissibleCompletions": 2,
+                "follows": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ],
+                "leastCompletionAdmissible": true,
+                "forwardFollows": false,
+                "reverseFollows": true,
+                "unorientedConnectionFollows": true
+              },
+              {
+                "id": "transitive-or-circular",
+                "admissibleCompletions": 14,
+                "follows": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ],
+                "leastCompletionAdmissible": false,
+                "forwardFollows": false,
+                "reverseFollows": false,
+                "unorientedConnectionFollows": true
+              }
+            ],
+            "orientedExclusionsRestateSurvivors": true,
+            "lawSpace": {
+              "positionLaws": 16,
+              "distinctReadouts": 9,
+              "admittedCriteria": [
+                {
+                  "id": "address-renaming",
+                  "passing": 16,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "arbitrary-substitution",
+                  "passing": 16,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "record-reordering",
+                  "passing": 16,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "nested-encoding",
+                  "passing": 16,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "global-slot-reversal",
+                  "passing": 6,
+                  "survivorsWithoutIt": 2
+                },
+                {
+                  "id": "non-degenerate",
+                  "passing": 10,
+                  "survivorsWithoutIt": 6
+                },
+                {
+                  "id": "unordered-novelty",
+                  "passing": 8,
+                  "survivorsWithoutIt": 2
+                }
+              ],
+              "admittedCriteriaCommuteWithOutputSwap": true,
+              "outputSwapFixesNoNonDegenerateLaw": true,
+              "survivors": [
+                {
+                  "slots": [
+                    "P.first",
+                    "Q.second"
+                  ],
+                  "readout": [
+                    0,
+                    2
+                  ]
+                },
+                {
+                  "slots": [
+                    "Q.second",
+                    "P.first"
+                  ],
+                  "readout": [
+                    2,
+                    0
+                  ]
+                }
+              ],
+              "tieBreakers": [
+                {
+                  "id": "slot-position-preservation",
+                  "selects": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "mirror": "slot-exchange",
+                  "mirrorSelects": [
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "provenance": "ALIGNS_UNRECORDED_OUTPUT_SLOTS_WITH_PREMISE_SLOTS"
+                },
+                {
+                  "id": "unit-neutrality",
+                  "selects": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "mirror": "converse-unit-neutrality",
+                  "mirrorSelects": [
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "provenance": "IMPORTS_IDENTITY_LAW_AND_ORIENTED_EQUALITY"
+                },
+                {
+                  "id": "declared-closed-model",
+                  "selects": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "mirror": "declared-closed-cycle",
+                  "mirrorSelects": [
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "provenance": "CONCLUSION_ALREADY_RECORDED"
+                },
+                {
+                  "id": "premise-recoverability",
+                  "selects": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "mirror": "premise-interchangeability",
+                  "mirrorSelects": [
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "provenance": "IMPORTS_IRREVERSIBLE_CONSEQUENCE"
+                }
+              ]
+            },
+            "minimalPair": {
+              "agreeOnRecordedPremises": true,
+              "forwardLeastModel": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0,
+                  2
+                ],
+                [
+                  1,
+                  2
+                ]
+              ],
+              "reverseLeastModel": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  1,
+                  2
+                ],
+                [
+                  2,
+                  0
+                ]
+              ],
+              "forwardLeastModelAutomorphisms": 1,
+              "reverseLeastModelAutomorphisms": 3,
+              "forwardEveryLinkFollowsFromOthers": false,
+              "reverseEveryLinkFollowsFromOthers": true
+            },
+            "slotOrder": {
+              "orderedAutomorphisms": 1,
+              "unorderedAutomorphisms": 2,
+              "witnessChangesAutomorphismCounts": false,
+              "unorderedAutomorphismExchangesCandidates": true
+            },
+            "assumptionRemoval": {
+              "withOrientedExclusion": "ORIENTED_CONTINUATION_FOLLOWS_RELATIVE_TO_THAT_EXCLUSION",
+              "withoutExclusionOrientation": "ONLY_UNORIENTED_CONNECTION_FOLLOWS",
+              "withoutExclusion": "NOTHING_BEYOND_RECORDED_FACTS_FOLLOWS",
+              "withoutSlotOrder": "PREMISE_AUTOMORPHISM_EXCHANGES_CANDIDATES"
+            },
+            "selfApplication": {
+              "eachSurvivorClosedOnOwnLeastModel": true,
+              "anySurvivorClosedOnOtherLeastModel": false,
+              "exclusionsConsistentWithRecords": 4,
+              "exclusionDeterminedByRecords": false
+            },
+            "missingInformation": "Recorded Links supply only positive facts. A continuation follows only under an exclusion over completions, and one orientation bit of that exclusion still separates [K,B] from [B,K]; the records state neither."
+          },
+          "orientationAudit": {
+            "question": "What structural property, if any, breaks the K⟼B / B⟼K symmetry without merely encoding the desired direction?",
+            "status": "CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED",
+            "primitives": "address equality and, per contract, slot order; no completion, exclusion, or position law",
+            "candidates": [
+              [
+                0,
+                2
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            "contracts": [
+              {
+                "id": "named-ordered-slots",
+                "symmetries": 1,
+                "elementOrbits": [
+                  [
+                    0
+                  ],
+                  [
+                    1
+                  ],
+                  [
+                    2
+                  ],
+                  [
+                    3
+                  ],
+                  [
+                    4
+                  ]
+                ],
+                "endsExchanged": false,
+                "candidateRelation": "SEPARATED"
+              },
+              {
+                "id": "anonymous-ordered-slots",
+                "symmetries": 2,
+                "elementOrbits": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ],
+                "endsExchanged": true,
+                "candidateRelation": "SEPARATED"
+              },
+              {
+                "id": "unordered-slots",
+                "symmetries": 2,
+                "elementOrbits": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ],
+                "endsExchanged": true,
+                "candidateRelation": "COINCIDE"
+              }
+            ],
+            "twinFamily": {
+              "extension": "the premises plus up to two ordinary records whose references range over every existing address and fresh addresses",
+              "structures": 4567,
+              "byExtraRecords": [
+                1,
+                50,
+                4516
+              ],
+              "contracts": [
+                {
+                  "id": "named-ordered-slots",
+                  "separated": 4563,
+                  "exchanged": 4,
+                  "symmetriesFixingExactlyOneCandidate": 0
+                },
+                {
+                  "id": "anonymous-ordered-slots",
+                  "separated": 4563,
+                  "exchanged": 4,
+                  "symmetriesFixingExactlyOneCandidate": 0
+                }
+              ],
+              "exchangingExtensions": [
+                [
+                  [
+                    5,
+                    1,
+                    0
+                  ],
+                  [
+                    6,
+                    2,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    5,
+                    2,
+                    1
+                  ],
+                  [
+                    6,
+                    1,
+                    0
+                  ]
+                ],
+                [
+                  [
+                    5,
+                    2,
+                    10
+                  ],
+                  [
+                    6,
+                    10,
+                    0
+                  ]
+                ],
+                [
+                  [
+                    5,
+                    10,
+                    0
+                  ],
+                  [
+                    6,
+                    2,
+                    10
+                  ]
+                ]
+              ],
+              "chiralUnderAnonymousSlots": 4332,
+              "freeCorrespondences": [
+                "identity",
+                "exchange"
+              ]
+            },
+            "sameObservationPairs": {
+              "chirality": {
+                "observation": "readouts of all 16 position laws",
+                "identicalObservations": true,
+                "achiral": {
+                  "records": [
+                    [
+                      3,
+                      0,
+                      1
+                    ],
+                    [
+                      4,
+                      1,
+                      2
+                    ],
+                    [
+                      5,
+                      3,
+                      4
+                    ]
+                  ],
+                  "slotReversingSymmetries": 1,
+                  "endsExchanged": true,
+                  "candidateRelation": "SEPARATED",
+                  "symmetriesFixingExactlyOneCandidate": 0
+                },
+                "chiral": {
+                  "records": [
+                    [
+                      3,
+                      0,
+                      1
+                    ],
+                    [
+                      4,
+                      1,
+                      2
+                    ],
+                    [
+                      5,
+                      3,
+                      4
+                    ],
+                    [
+                      8,
+                      8,
+                      9
+                    ]
+                  ],
+                  "slotReversingSymmetries": 0,
+                  "endsExchanged": false,
+                  "candidateRelation": "SEPARATED",
+                  "symmetriesFixingExactlyOneCandidate": 0
+                }
+              },
+              "slotOrder": {
+                "observation": "records with unordered slots",
+                "identicalObservations": true,
+                "cycle": {
+                  "records": [
+                    [
+                      3,
+                      0,
+                      1
+                    ],
+                    [
+                      4,
+                      1,
+                      2
+                    ],
+                    [
+                      5,
+                      2,
+                      10
+                    ],
+                    [
+                      6,
+                      10,
+                      0
+                    ]
+                  ],
+                  "namedCandidateRelation": "EXCHANGED",
+                  "alignedReadout": [
+                    [
+                      0,
+                      2
+                    ],
+                    [
+                      1,
+                      10
+                    ],
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      10,
+                      1
+                    ]
+                  ],
+                  "reversedReadout": [
+                    [
+                      0,
+                      2
+                    ],
+                    [
+                      1,
+                      10
+                    ],
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      10,
+                      1
+                    ]
+                  ]
+                },
+                "detour": {
+                  "records": [
+                    [
+                      3,
+                      0,
+                      1
+                    ],
+                    [
+                      4,
+                      1,
+                      2
+                    ],
+                    [
+                      5,
+                      2,
+                      10
+                    ],
+                    [
+                      6,
+                      0,
+                      10
+                    ]
+                  ],
+                  "namedCandidateRelation": "SEPARATED",
+                  "alignedReadout": [
+                    [
+                      0,
+                      2
+                    ],
+                    [
+                      1,
+                      10
+                    ]
+                  ],
+                  "reversedReadout": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      10,
+                      1
+                    ]
+                  ]
+                }
+              }
+            },
+            "representations": {
+              "addressRenamings": 120,
+              "renamingFailures": 0,
+              "taggedEncodings": [
+                {
+                  "id": "named-tags",
+                  "symmetries": 1,
+                  "tagsExchanged": false,
+                  "endsExchanged": false,
+                  "candidateRelation": "SEPARATED",
+                  "symmetriesFixingExactlyOneCandidate": 0
+                },
+                {
+                  "id": "anonymous-tags",
+                  "symmetries": 2,
+                  "tagsExchanged": true,
+                  "endsExchanged": true,
+                  "candidateRelation": "SEPARATED",
+                  "symmetriesFixingExactlyOneCandidate": 0
+                }
+              ],
+              "tagSwap": {
+                "isomorphicWithTagsFixed": true,
+                "alignedCandidateDecodesTo": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              }
+            },
+            "recursion": {
+              "carriers": [
+                {
+                  "id": "symmetric-self-loop-carrier",
+                  "carrierRecords": [
+                    [
+                      20,
+                      20,
+                      20
+                    ],
+                    [
+                      21,
+                      21,
+                      21
+                    ]
+                  ],
+                  "carrierSymmetries": 2,
+                  "carrierRecordsHaveEqualSlots": true,
+                  "symmetries": 2,
+                  "tagsExchanged": true,
+                  "endsExchanged": true,
+                  "candidateRelation": "SEPARATED",
+                  "symmetriesFixingExactlyOneCandidate": 0
+                },
+                {
+                  "id": "rigid-self-referential-carrier",
+                  "carrierRecords": [
+                    [
+                      20,
+                      20,
+                      20
+                    ],
+                    [
+                      21,
+                      20,
+                      20
+                    ]
+                  ],
+                  "carrierSymmetries": 1,
+                  "carrierRecordsHaveEqualSlots": true,
+                  "symmetries": 1,
+                  "tagsExchanged": false,
+                  "endsExchanged": false,
+                  "candidateRelation": "SEPARATED",
+                  "symmetriesFixingExactlyOneCandidate": 0
+                }
+              ],
+              "result": "SLOT_IDENTITY_FORCED_BY_SELF_INCIDENCE_CANDIDATES_STILL_UNRANKED"
+            },
+            "asymmetries": [
+              {
+                "id": "join-address",
+                "provenance": "FORCED_BY_INCIDENCE"
+              },
+              {
+                "id": "candidate-separation",
+                "provenance": "FORCED_BY_SLOT_ORDER"
+              },
+              {
+                "id": "end-asymmetry",
+                "provenance": "FORCED_BY_SLOT_NAMES_OR_CHIRAL_CONTEXT"
+              },
+              {
+                "id": "slot-identity",
+                "provenance": "FORCED_ONLY_BY_A_RIGID_SELF_REFERENTIAL_CARRIER"
+              },
+              {
+                "id": "output-correspondence",
+                "provenance": "CHOSEN_NOT_FORCED"
+              }
+            ],
+            "noGo": {
+              "argument": "Every contract symmetry renames addresses and may reverse every record's slots, so it acts on an unrecorded pair as on a record. The output swap commutes with every renaming and acts on pairs as that reversal does, so it commutes with every contract symmetry of every structure. Hence [0,2] and [2,0] have equal stabilizers, the orbit of [2,0] is the swapped orbit of [0,2], and composing any invariant selector with the swap gives an invariant selector that chooses the opposite orientation.",
+              "strongNegative": "EVERY_INTRINSIC_LINK_OBSERVATION_PRESERVED_ORIENTATION_STILL_REVERSIBLE"
+            },
+            "iterationBoundary": {
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  2,
+                  9
+                ]
+              ],
+              "closures": [
+                {
+                  "correspondence": "identity",
+                  "closure": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      0,
+                      2
+                    ],
+                    [
+                      0,
+                      9
+                    ],
+                    [
+                      1,
+                      2
+                    ],
+                    [
+                      1,
+                      9
+                    ],
+                    [
+                      2,
+                      9
+                    ]
+                  ],
+                  "derivedPairs": 3,
+                  "everyPathHasJoinedEnds": true
+                },
+                {
+                  "correspondence": "exchange",
+                  "closure": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ],
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      9
+                    ],
+                    [
+                      9,
+                      1
+                    ]
+                  ],
+                  "derivedPairs": 2,
+                  "everyPathHasJoinedEnds": false
+                }
+              ],
+              "separatingRequirements": [
+                {
+                  "id": "every-path-has-joined-ends",
+                  "selects": [
+                    "identity"
+                  ]
+                },
+                {
+                  "id": "fewest-derived-pairs",
+                  "selects": [
+                    "exchange"
+                  ]
+                }
+              ],
+              "provenance": "REQUIREMENT_ON_HOW_CONSEQUENCE_COMPOSES"
+            },
+            "missingInformation": "Slot order separates [K,B] from [B,K] but never ranks them. What is missing is the correspondence between the premise slot order and the unrecorded conclusion slot order: the identity correspondence is the neutral one, which makes [K,B] the default reading, but requiring consequence to use it is R147's slot-position preservation, which no record states. The records force separation, not orientation."
+          },
+          "claimBoundary": "A third ordinary link makes one continuation structurally identifiable under the declared join. Its witness order is dispensable for this particular chain, but the output projection is not: two generic projections report different pairs from identical records, even with an added ordinary rule-like record. Faithful nested encoding preserves a chosen readout without authorizing it. The witness-only structure and its result-bearing extension satisfy the same join, so no intrinsic admissibility, consequence, creation, execution, or self-applying transition law is established. Read over every completion of the premises, nothing new follows without an exclusion; the transitive and circular exclusions restate the two surviving projections and make opposite orientations follow, and every admitted genericity criterion is blind to that orientation. With address equality and slot order alone, slot order separates the two orientations but never ranks them: the output swap commutes with every contract symmetry, so each invariant selector has an invariant twin, and even a rigid self-referential slot carrier leaves the premise-to-conclusion slot correspondence free."
+        },
+        "linkCarriedSelectionAuthority": {
+          "status": "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",
+          "records": {
+            "interpretation": "each vector is only [address, first reference, second reference]",
+            "recordsTreatedAsUnordered": true,
+            "incidenceReadoutProvenance": "EXPERIMENTAL_EQUAL-REFERENCE_OBSERVATION_NOT_INTRINSIC_AUTHORITY",
+            "premises": [
+              [
+                3,
+                0,
+                1
+              ],
+              [
+                4,
+                1,
+                2
+              ]
+            ],
+            "candidates": [
+              [
+                7,
+                0,
+                2
+              ],
+              [
+                8,
+                0,
+                2
+              ]
+            ],
+            "additionalLink": [
+              9,
+              7,
+              7
+            ]
+          },
+          "equivariantSelectionConstraint": {
+            "criterion": "a selection derived only from the record structure must be invariant under every address automorphism that preserves the candidate domain",
+            "withoutAdditionalLink": {
+              "candidateAutomorphisms": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  1,
+                  0
+                ]
+              ],
+              "candidateOrbitSizes": [
+                2
+              ],
+              "invariantCandidateSubsets": [
+                [],
+                [
+                  7,
+                  8
+                ]
+              ],
+              "invariantSingletonSelections": 0
+            },
+            "withAdditionalLink": {
+              "candidateAutomorphisms": [
+                [
+                  0,
+                  1
+                ]
+              ],
+              "candidateOrbitSizes": [
+                1,
+                1
+              ],
+              "invariantCandidateSubsets": [
+                [],
+                [
+                  7
+                ],
+                [
+                  8
+                ],
+                [
+                  7,
+                  8
+                ]
+              ],
+              "invariantSingletonSelections": 2
+            },
+            "singletonSelectionMadePossible": true,
+            "singletonSelectionForced": false,
+            "generalArgument": [
+              "an equivariant selected subset must be a union of candidate orbits under every automorphism of the containing structure",
+              "before the additional link, swapping candidate addresses 7 and 8 preserves the unordered record collection, so neither singleton is invariant",
+              "the additional link [9,7,7] breaks that swap and splits the candidate orbit into two singleton orbits",
+              "both singleton subsets then become invariant, so symmetry breaking permits but does not force one selection"
+            ]
+          },
+          "oppositeEquivariantReadings": [
+            {
+              "id": "referenced-candidate",
+              "selectedCandidates": [
+                7
+              ],
+              "addressRenamingEquivariant": true
+            },
+            {
+              "id": "unreferenced-candidate",
+              "selectedCandidates": [
+                8
+              ],
+              "addressRenamingEquivariant": true
+            }
+          ],
+          "perturbations": {
+            "removal": {
+              "records": [
+                [
+                  3,
+                  0,
+                  1
+                ],
+                [
+                  4,
+                  1,
+                  2
+                ],
+                [
+                  7,
+                  0,
+                  2
+                ],
+                [
+                  8,
+                  0,
+                  2
+                ]
+              ],
+              "markedCandidates": [],
+              "unique": false
+            },
+            "replacement": {
+              "replacementLink": [
+                9,
+                8,
+                8
+              ],
+              "markedCandidates": [
+                8
+              ],
+              "unique": true,
+              "sameUnderCandidateAddressRenaming": true
+            },
+            "duplication": {
+              "additionalLinks": [
+                [
+                  9,
+                  7,
+                  7
+                ],
+                [
+                  10,
+                  8,
+                  8
+                ]
+              ],
+              "markedCandidates": [
+                7,
+                8
+              ],
+              "unique": false
+            },
+            "forgery": {
+              "originalLink": [
+                9,
+                7,
+                7
+              ],
+              "forgedLink": [
+                9,
+                8,
+                8
+              ],
+              "sameLocalEqualityPattern": true,
+              "wholeStructuresRelatedByCandidateRenaming": true,
+              "structurallyRejected": false
+            },
+            "contextRelocation": {
+              "firstContextRelation": [
+                12,
+                10,
+                9
+              ],
+              "secondContextRelation": [
+                12,
+                11,
+                9
+              ],
+              "authorityLinkExistsInBoth": true,
+              "relationChangesObservedContext": true,
+              "sameUnderContextAddressRenaming": true,
+              "ambientExistenceSelectsActiveContext": false
+            }
+          },
+          "recursiveAuthority": {
+            "finiteOrdinaryLinkChain": [
+              [
+                9,
+                7,
+                7
+              ],
+              [
+                10,
+                9,
+                9
+              ],
+              [
+                11,
+                10,
+                10
+              ]
+            ],
+            "finiteChainCandidateSwapPreservesShape": true,
+            "selfReferentialLink": [
+              9,
+              9,
+              7
+            ],
+            "selfReferenceClosesAddressCycle": true,
+            "selfReferentialCandidateSwapPreservesShape": true,
+            "selectionPolarityStillUnderdetermined": true,
+            "consequence": "finite chains and self-incidence can represent authority-about-authority and close an address cycle, but neither structure chooses how its terminal candidate incidence is to be read"
+          },
+          "distinctions": {
+            "formation": "BOTH_CANDIDATE_LINKS_EXIST",
+            "selection": "NOT_FORCED_TWO_OPPOSITE_EQUIVARIANT_READINGS",
+            "justification": "ISOMORPHIC_FORGERY_NOT_REJECTED",
+            "activation": "NO_LINK_DERIVED_ADMISSION_VALIDATION_OR_ACTIVATION",
+            "applicability": "AMBIENT_EXISTENCE_DOES_NOT_SELECT_APPLICABILITY",
+            "execution": "NO_TRANSITION_CREATION_OR_PUBLICATION_EVENT"
+          },
+          "conclusion": "An ordinary additional link can carry enough incidence to remove a symmetry obstruction and make a singleton candidate structurally expressible. The same extension admits opposite equivariant readings, while removal, replacement, duplication, forgery, context relocation, finite meta-chains, and self-reference supply no structural authenticity or activation criterion.",
+          "claimBoundary": "This refutes both the claim that linked structure cannot carry selection-relevant information and the claim that asymmetric incidence alone supplies authority. It does not prove that external authority is irreducible, rule out richer link-carried justification, interpret the additional link as a rule or witness, or derive execution."
+        },
+        "linkedStructuralAdmissibility": {
+          "status": "LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING",
+          "contract": {
+            "recordEncoding": "each vector is only [address, first reference, second reference]",
+            "description": [
+              [
+                40,
+                30,
+                31
+              ],
+              [
+                41,
+                31,
+                32
+              ],
+              [
+                42,
+                30,
+                32
+              ]
+            ],
+            "verificationOperation": "exactly cover every description address with an injective linked mapping, reconstruct every described record, and require explicit context-to-bundle incidence",
+            "verificationProvenance": "EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY",
+            "roleNamesIntrinsicToRecords": false
+          },
+          "cases": [
+            {
+              "id": "valid-complete-evidence",
+              "admissibleCandidates": [
+                7
+              ],
+              "admissibleCandidateCount": 1,
+              "cardinality": "ONE"
+            },
+            {
+              "id": "missing-evidence",
+              "admissibleCandidates": [],
+              "admissibleCandidateCount": 0,
+              "cardinality": "ZERO"
+            },
+            {
+              "id": "duplicate-evidence",
+              "admissibleCandidates": [],
+              "admissibleCandidateCount": 0,
+              "cardinality": "ZERO"
+            },
+            {
+              "id": "foreign-evidence",
+              "admissibleCandidates": [],
+              "admissibleCandidateCount": 0,
+              "cardinality": "ZERO"
+            },
+            {
+              "id": "wrong-decomposition",
+              "admissibleCandidates": [],
+              "admissibleCandidateCount": 0,
+              "cardinality": "ZERO"
+            },
+            {
+              "id": "two-equally-admissible-candidates",
+              "admissibleCandidates": [
+                7,
+                8
+              ],
+              "admissibleCandidateCount": 2,
+              "cardinality": "MANY"
+            },
+            {
+              "id": "zero-admissible-candidates",
+              "admissibleCandidates": [],
+              "admissibleCandidateCount": 0,
+              "cardinality": "ZERO"
+            },
+            {
+              "id": "same-candidate-other-context",
+              "admissibleCandidates": [],
+              "admissibleCandidateCount": 0,
+              "cardinality": "ZERO"
+            },
+            {
+              "id": "context-relocated-evidence",
+              "admissibleCandidates": [
+                7
+              ],
+              "admissibleCandidateCount": 1,
+              "cardinality": "ONE"
+            },
+            {
+              "id": "replacement-description",
+              "admissibleCandidates": [
+                8
+              ],
+              "admissibleCandidateCount": 1,
+              "cardinality": "ONE"
+            }
+          ],
+          "cardinalityAudit": {
+            "method": "exhaustively enumerate the supplied finite certificate bundles; do not choose a candidate inside the verifier",
+            "observedClassifications": [
+              "ZERO",
+              "ONE",
+              "MANY"
+            ],
+            "classificationDerivedInsideLinkSubstrate": false
+          },
+          "adversarialBoundary": {
+            "completeEvidenceAcceptsReconstructedCandidate": true,
+            "missingDuplicateForeignAndWrongEvidenceRejected": true,
+            "forgedLocallyIsomorphicCandidateRejected": false,
+            "contextIncidenceChangesApplicability": true,
+            "descriptionReplacementChangesAdmissibility": true
+          },
+          "authorityRegress": {
+            "descriptionRepresentedAsLinks": true,
+            "evidenceAndContextRepresentedAsLinks": true,
+            "descriptionAuthenticatedByStructure": false,
+            "observerRoleAssignmentAuthorizedByStructure": false,
+            "verifierRepresentedOrExecutedByTestedRecords": false,
+            "finiteLinkedMetaChainClosesAuthorityRegress": false,
+            "consequence": "ordinary links can carry a checkable finite certificate relative to a declared verifier, but the same records do not establish why that verifier, description, context, or role assignment is authoritative"
+          },
+          "distinctions": {
+            "formation": "ALL_CASE_RECORDS_ARE_STRUCTURALLY_FORMABLE",
+            "matching": "CONDITIONAL_EXACT_COVER_RECONSTRUCTION",
+            "admissibility": "FILTERED_RELATIVE_TO_DECLARED_DESCRIPTION_AND_VERIFIER",
+            "uniqueness": "FINITE_ENUMERATION_OBSERVES_ZERO_ONE_OR_MANY",
+            "justification": "CERTIFICATE_IS_CHECKABLE_BUT_NOT_SELF_AUTHORIZING",
+            "applicability": "EXPLICIT_CONTEXT_INCIDENCE_REQUIRED_BY_DECLARED_VERIFIER",
+            "admission": "NO_LINK_DERIVED_PUBLICATION_OR_ADMISSION",
+            "activation": "NO_LINK_DERIVED_ACTIVATION",
+            "execution": "NO_TRANSITION_CREATION_OR_EXECUTION_EVENT"
+          },
+          "conclusion": "For the declared finite exact-cover verifier, linked descriptions, mappings, and context incidence distinguish complete evidence from missing, duplicated, foreign, and wrong evidence and expose ZERO/ONE/MANY admissible candidates. A second isomorphic candidate remains equally admissible, while replacing or relocating ordinary links changes the conditional result.",
+          "claimBoundary": "The filtering result is conditional on the observer-supplied verifier and role assignment. It does not make the description self-authenticating, derive the verifier from link structure, reject a locally isomorphic forgery, close the authority regress, admit or activate a candidate, or execute a transition."
+        },
+        "linkedVerifierStep": {
+          "status": "LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY",
+          "relation": "a description record and a concrete record commute through three linked correspondence witnesses",
+          "cases": [
+            {
+              "id": "complete-local-match",
+              "cardinality": "ONE",
+              "traceRecords": [
+                [
+                  200,
+                  40,
+                  3
+                ],
+                [
+                  201,
+                  200,
+                  50
+                ],
+                [
+                  202,
+                  200,
+                  51
+                ],
+                [
+                  203,
+                  200,
+                  52
+                ]
+              ]
+            },
+            {
+              "id": "missing-description-record",
+              "cardinality": "ZERO",
+              "traceRecords": []
+            },
+            {
+              "id": "missing-mapping",
+              "cardinality": "ZERO",
+              "traceRecords": []
+            },
+            {
+              "id": "duplicate-mapping",
+              "cardinality": "MANY",
+              "traceRecords": [
+                [
+                  200,
+                  40,
+                  3
+                ],
+                [
+                  201,
+                  200,
+                  50
+                ],
+                [
+                  202,
+                  200,
+                  51
+                ],
+                [
+                  203,
+                  200,
+                  52
+                ],
+                [
+                  210,
+                  40,
+                  3
+                ],
+                [
+                  211,
+                  210,
+                  50
+                ],
+                [
+                  212,
+                  210,
+                  53
+                ],
+                [
+                  213,
+                  210,
+                  52
+                ]
+              ]
+            },
+            {
+              "id": "reversed-concrete-record",
+              "cardinality": "ZERO",
+              "traceRecords": []
+            },
+            {
+              "id": "two-concrete-records",
+              "cardinality": "MANY",
+              "traceRecords": [
+                [
+                  200,
+                  40,
+                  3
+                ],
+                [
+                  201,
+                  200,
+                  50
+                ],
+                [
+                  202,
+                  200,
+                  51
+                ],
+                [
+                  203,
+                  200,
+                  52
+                ],
+                [
+                  210,
+                  40,
+                  7
+                ],
+                [
+                  211,
+                  210,
+                  54
+                ],
+                [
+                  212,
+                  210,
+                  51
+                ],
+                [
+                  213,
+                  210,
+                  52
+                ]
+              ]
+            },
+            {
+              "id": "self-application",
+              "cardinality": "ONE",
+              "traceRecords": [
+                [
+                  200,
+                  40,
+                  40
+                ],
+                [
+                  201,
+                  200,
+                  50
+                ],
+                [
+                  202,
+                  200,
+                  51
+                ],
+                [
+                  203,
+                  200,
+                  52
+                ]
+              ]
+            }
+          ],
+          "traceReplayRecords": [
+            [
+              200,
+              40,
+              3
+            ],
+            [
+              801,
+              200,
+              200
+            ],
+            [
+              802,
+              40,
+              40
+            ],
+            [
+              803,
+              3,
+              3
+            ]
+          ],
+          "removalTests": {
+            "noCardinalityClassification": "TRACE_EXISTS_CLASSIFICATION_UNAVAILABLE",
+            "reversedMappingReading": "ZERO_FOR_SAME_LINKS",
+            "selfApplicationCardinality": "ONE",
+            "traceReplayBySameJoin": true,
+            "alternateDescriptionOnSameLinks": "ZERO_WHILE_SELECTED_DESCRIPTION_IS_ONE",
+            "setOrMapConstructionRemoved": "LOCAL_JOIN_STILL_PRODUCES_TRACE_WITHOUT_SET_OR_MAP"
+          },
+          "boundaries": {
+            "representation": "DESCRIPTION_CORRESPONDENCES_AND_TRACE_ARE_LINK_RECORDS",
+            "execution": "HOST_ITERATION_PROJECTION_EQUALITY_AND_BRANCHING_REMAIN",
+            "semanticAuthority": "ACTIVE_DESCRIPTION_AND_MAPPING_ROLE_NOT_LINK_AUTHORIZED"
+          },
+          "claimBoundary": "The local record comparison is factored into a reusable incidence join and emits ordinary linked trace records. The host still enumerates records, reads positions, tests equality, and classifies multiplicity; self-application supplies no rule for choosing or executing this relation."
+        },
+        "quotientAudit": {
+          "finiteEnumeration": [
+            {
+              "occurrenceCount": 1,
+              "orderedEqualityClassesAfterAddressRenaming": 2,
+              "unlabelledAddressableClasses": 2,
+              "classesCollapsedByOccurrencePermutation": 0
+            },
+            {
+              "occurrenceCount": 2,
+              "orderedEqualityClassesAfterAddressRenaming": 5,
+              "unlabelledAddressableClasses": 4,
+              "classesCollapsedByOccurrencePermutation": 1
+            },
+            {
+              "occurrenceCount": 3,
+              "orderedEqualityClassesAfterAddressRenaming": 15,
+              "unlabelledAddressableClasses": 7,
+              "classesCollapsedByOccurrencePermutation": 8
+            },
+            {
+              "occurrenceCount": 4,
+              "orderedEqualityClassesAfterAddressRenaming": 52,
+              "unlabelledAddressableClasses": 12,
+              "classesCollapsedByOccurrencePermutation": 40
+            }
+          ],
+          "addressRenamingCompleteInvariantVerified": true,
+          "transformations": [
+            {
+              "transformation": "global address renaming",
+              "classification": "DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT",
+              "evidence": "The full equality matrix is invariant under every bijective address renaming and uniquely determines every ordered equality class at widths one through four; generally, equal matrices induce the bijection between used addresses.",
+              "ontologyScope": "CONTRACT_RELATIVE_NOT_ABSOLUTE"
+            },
+            {
+              "transformation": "reference-occurrence permutation",
+              "classification": "UNESTABLISHED_EQUIVALENCE",
+              "evidence": "No link-derived fact in the tested contract identifies reference slots. The quotient collapses 0/1/8/40 ordered equality classes at widths one through four; treating those collapses as intrinsic would require an independent reason that slots have no identity.",
+              "ontologyScope": "OBSERVER_CHOICE_UNTIL_DERIVED"
+            }
+          ],
+          "occurrencePermutationCountermodel": {
+            "firstOrderedPattern": [
+              0,
+              0,
+              1
+            ],
+            "secondOrderedPattern": [
+              0,
+              1,
+              0
+            ],
+            "sameUnderAddressRenamingAlone": false,
+            "sameAfterOccurrencePermutation": true,
+            "interpretation": "DISTINGUISHABLE_ONLY_IF_REFERENCE_SLOTS_HAVE_IDENTITY"
+          },
+          "minimalFaithfulDescriptor": {
+            "status": "COMPLETE_INVARIANT_FOR_DECLARED_UNLABELLED_ADDRESS_EQUALITY_CONTRACT",
+            "fields": [
+              "referenceMultiplicitySpectrum",
+              "directSelfReferenceMultiplicity"
+            ],
+            "finiteEnumerationAgreement": true,
+            "generalArgument": "The reference multiplicity spectrum fixes the unlabelled reference classes; zero denotes a fresh link address, while a positive self-reference multiplicity selects the uniquely sized reference class identified with the link. Equal descriptors therefore differ only by address renaming and occurrence permutation."
+          },
+          "occurrencePermutationIntrinsic": "UNRESOLVED",
+          "claimBoundary": "The canonical descriptor is faithful only after unlabelled occurrences are declared. The audit derives address-renaming equivalence from equality, but it neither derives occurrence permutation from links nor proves that ordered slots are intrinsic."
+        },
+        "claimBoundary": "This proves a loss in the starting representation required to express direct self-reference and audits the remaining quotient assumptions. It does not establish that reference occurrences are intrinsically ordered or unlabelled, make link identity a complete ontology, derive endpoint roles, an evaluator, dynamics, or an execution law."
+      },
+      "conditionalRefinement": {
+        "assumption": {
+          "id": "second-unlabelled-equivalence-observation",
+          "provenance": "CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED",
+          "foundationalStatus": "UNESTABLISHED",
+          "role": "measures information erased by the reference-only projection without interpreting the second equivalence as link identity, grouping, order, or semantics"
+        },
+        "occurrenceCount": 4,
+        "referencePartitionsExamined": 15,
+        "refinementPartitionsExamined": 15,
+        "labelledJointStructuresExamined": 225,
+        "occurrencePermutationsExamined": 24,
+        "jointQuotientClasses": 33,
+        "encodings": [
+          {
+            "id": "canonical-partition-pair",
+            "distinctClasses": 33,
+            "completeForEnumeration": true
+          },
+          {
+            "id": "paired-equality-matrices",
+            "distinctClasses": 33,
+            "completeForEnumeration": true
+          },
+          {
+            "id": "intersection-multiplicity-table",
+            "distinctClasses": 33,
+            "completeForEnumeration": true
+          }
+        ],
+        "encodingAgreement": true,
+        "projectionFibres": [
+          {
+            "referenceMultiplicitySpectrum": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "jointClasses": 5,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ],
+            "classesWithInvariantSingleton": 1,
+            "classesWithoutInvariantSingleton": 4,
+            "singletonPresenceClassification": "REFINEMENT_DEPENDENT"
+          },
+          {
+            "referenceMultiplicitySpectrum": [
+              2,
+              1,
+              1
+            ],
+            "jointClasses": 9,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ],
+            "classesWithInvariantSingleton": 3,
+            "classesWithoutInvariantSingleton": 6,
+            "singletonPresenceClassification": "REFINEMENT_DEPENDENT"
+          },
+          {
+            "referenceMultiplicitySpectrum": [
+              2,
+              2
+            ],
+            "jointClasses": 7,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ],
+            "classesWithInvariantSingleton": 1,
+            "classesWithoutInvariantSingleton": 6,
+            "singletonPresenceClassification": "REFINEMENT_DEPENDENT"
+          },
+          {
+            "referenceMultiplicitySpectrum": [
+              3,
+              1
+            ],
+            "jointClasses": 7,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ],
+            "classesWithInvariantSingleton": 7,
+            "classesWithoutInvariantSingleton": 0,
+            "singletonPresenceClassification": "BASE_FORCED"
+          },
+          {
+            "referenceMultiplicitySpectrum": [
+              4
+            ],
+            "jointClasses": 5,
+            "refinementMultiplicitySpectra": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4
+              ]
+            ],
+            "classesWithInvariantSingleton": 1,
+            "classesWithoutInvariantSingleton": 4,
+            "singletonPresenceClassification": "REFINEMENT_DEPENDENT"
+          }
+        ],
+        "everyProjectionFibreAmbiguous": true,
+        "refinementRecoverableFromBase": false,
+        "classesWithInvariantSingleton": 13,
+        "classesWithoutInvariantSingleton": 20,
+        "conditionalSingletonSelectorExists": true,
+        "universalSingletonSelectorExists": false,
+        "singletonOrbitHistogram": [
+          {
+            "singletonOrbits": 0,
+            "jointClasses": 20
+          },
+          {
+            "singletonOrbits": 1,
+            "jointClasses": 5
+          },
+          {
+            "singletonOrbits": 2,
+            "jointClasses": 7
+          },
+          {
+            "singletonOrbits": 4,
+            "jointClasses": 1
+          }
+        ],
+        "asymmetryProvenance": {
+          "classifications": [
+            {
+              "id": "BASE_FORCED",
+              "jointClasses": 7
+            },
+            {
+              "id": "REFINEMENT_PRESENT_NOT_BASE_FORCED",
+              "jointClasses": 5
+            },
+            {
+              "id": "RELATIONAL_INTERACTION_ONLY",
+              "jointClasses": 1
+            },
+            {
+              "id": "NO_SINGLETON_ORBIT",
+              "jointClasses": 20
+            }
+          ],
+          "baseProjectionFibresWithBothOutcomes": 4,
+          "baseProjectionFibresForcingSingleton": 1,
+          "countermodel": {
+            "normalizedReferencePartition": [
+              0,
+              0,
+              1,
+              2
+            ],
+            "referenceOccurrenceOrbitSizes": [
+              2,
+              2
+            ],
+            "withoutSingletonRefinement": {
+              "normalizedPartition": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "refinementOccurrenceOrbitSizes": [
+                4
+              ],
+              "jointOccurrenceOrbitSizes": [
+                2,
+                2
+              ]
+            },
+            "interactionOnlyRefinement": {
+              "normalizedPartition": [
+                0,
+                1,
+                0,
+                2
+              ],
+              "refinementOccurrenceOrbitSizes": [
+                2,
+                2
+              ],
+              "jointOccurrenceOrbitSizes": [
+                1,
+                1,
+                1,
+                1
+              ]
+            }
+          }
+        },
+        "derivationBoundary": {
+          "derivationCriterion": "a deterministic observation derived from the base alone must commute with every occurrence relabelling",
+          "finiteEnumeration": [
+            {
+              "occurrenceCount": 1,
+              "basePatternsExamined": 1,
+              "candidateObservationsExamined": 1,
+              "baseSymmetryPreservingCandidates": 1,
+              "symmetryBreakingCandidates": 0,
+              "preservingCandidatesChangingOccurrenceOrbits": 0
+            },
+            {
+              "occurrenceCount": 2,
+              "basePatternsExamined": 2,
+              "candidateObservationsExamined": 4,
+              "baseSymmetryPreservingCandidates": 4,
+              "symmetryBreakingCandidates": 0,
+              "preservingCandidatesChangingOccurrenceOrbits": 0
+            },
+            {
+              "occurrenceCount": 3,
+              "basePatternsExamined": 5,
+              "candidateObservationsExamined": 25,
+              "baseSymmetryPreservingCandidates": 13,
+              "symmetryBreakingCandidates": 12,
+              "preservingCandidatesChangingOccurrenceOrbits": 0
+            },
+            {
+              "occurrenceCount": 4,
+              "basePatternsExamined": 15,
+              "candidateObservationsExamined": 225,
+              "baseSymmetryPreservingCandidates": 55,
+              "symmetryBreakingCandidates": 170,
+              "preservingCandidatesChangingOccurrenceOrbits": 0
+            }
+          ],
+          "generalArgument": {
+            "scope": "all finite observations satisfying the stated derivation criterion",
+            "steps": [
+              "take any occurrence relabelling that leaves the base observation unchanged",
+              "commutation makes derivation after relabelling equal relabelling after derivation",
+              "because the relabelled base is unchanged, the derived observation must also be unchanged",
+              "therefore every base-preserving relabelling survives in the base together with its derived observation"
+            ]
+          },
+          "consequence": "BASE_DERIVATION_CANNOT_CREATE_NEW_OCCURRENCE_DISTINCTIONS",
+          "interactionOnlyCounterexample": {
+            "basePattern": [
+              0,
+              0,
+              1,
+              2
+            ],
+            "conditionalPattern": [
+              0,
+              1,
+              0,
+              2
+            ],
+            "basePreservingRelabelling": [
+              1,
+              0,
+              2,
+              3
+            ],
+            "relabelledBasePattern": [
+              0,
+              0,
+              1,
+              2
+            ],
+            "relabelledConditionalPattern": [
+              0,
+              1,
+              1,
+              2
+            ],
+            "basePreserved": true,
+            "conditionalPatternPreserved": false
+          }
+        }
+      },
+      "lossAudit": [
+        {
+          "distinction": "reference names",
+          "classification": "DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT",
+          "evidence": "The full equality matrix is invariant and complete under bijective address renaming; this justification remains relative to the address/equality contract."
+        },
+        {
+          "distinction": "occurrence order",
+          "classification": "UNESTABLISHED_EQUIVALENCE",
+          "evidence": "Occurrence permutation collapses 0/1/8/40 ordered equality classes at widths one through four, but no link-derived premise in the tested contract establishes that reference slots lack identity."
+        },
+        {
+          "distinction": "width beyond two occurrences",
+          "classification": "PROVEN_INFORMATION_LOSS",
+          "evidence": "The unchanged equality vocabulary yields three classes at width three and five at width four, which the fixed binary contract cannot express."
+        },
+        {
+          "distinction": "second equivalence observation",
+          "classification": "PROVEN_NOT_RECOVERABLE",
+          "evidence": "Every reference-only width-four class is the projection of five to nine inequivalent joint classes."
+        },
+        {
+          "distinction": "direct self-reference",
+          "classification": "PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS",
+          "evidence": "At widths one through four, forgetting the link address maps 2/4/7/12 addressable classes to 1/2/3/5 reference-only classes; every coarse fibre contains both fresh-address and self-identifying lifts."
+        },
+        {
+          "distinction": "self-incidence reference slot",
+          "classification": "RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT",
+          "evidence": "All 2/4/8/16 Boolean self-incidence masks occur at widths one through four. Each mask is invariant under address renaming and moves equivariantly, rather than remaining fixed, under reference-slot permutation."
+        },
+        {
+          "distinction": "cross-link address incidence",
+          "classification": "PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION",
+          "evidence": "For two through four ordered one-reference links, products of local descriptors collapse 10/77/799 shared-address classes to 4/8/16 classes. A fresh-external pair and a two-link incidence cycle have identical local descriptors but inequivalent global equality patterns."
+        },
+        {
+          "distinction": "application and composition meaning",
+          "classification": "PROVEN_NOT_ENTAILED_BY_TESTED_LINK_STRUCTURE",
+          "evidence": "A connected countermodel keeps the P/Q link identities distinct from the pairwise-distinct K/A/B addresses and has direct self-incidence, a shared address, and recursive link references while containing [2,0] but not the proposed [0,2]. Adding [0,2] preserves every premise. Formation admits all 49 ordered pairs over the seven existing addresses and selects none."
+        },
+        {
+          "distinction": "selection authority from additional linked incidence",
+          "classification": "ASYMMETRY_PERMITS_BUT_DOES_NOT_FORCE_SELECTION",
+          "evidence": "Two duplicate candidates form one orbit and admit no invariant singleton. Adding ordinary link [9,7,7] splits them into singleton orbits, but both {7} and {8} are invariant. Opposite referenced/unreferenced readings are equivariant, and isomorphic replacement evidence cannot be rejected by the equality/incidence contract."
+        },
+        {
+          "distinction": "admissibility from linked descriptions and evidence",
+          "classification": "STRUCTURAL_CERTIFICATES_FILTER_RELATIVE_TO_EXTERNAL_VERIFIER",
+          "evidence": "A declared finite exact-cover check over ordinary linked descriptions, mappings, and context incidence rejects missing, duplicate, foreign, and wrong evidence and observes ZERO/ONE/MANY candidates. A locally isomorphic second candidate remains admissible, and the records do not authenticate the description, role assignment, or verifier."
+        },
+        {
+          "distinction": "endpoint direction",
+          "classification": "NOT_OBSERVED_NOT_DISPROVED",
+          "evidence": "Neither the base family nor the conditional refinement names or measures endpoint order."
+        },
+        {
+          "distinction": "dynamics and time",
+          "classification": "NOT_OBSERVED_NOT_DISPROVED",
+          "evidence": "Both enumerations are static and contain no transition or temporal observation."
+        }
+      ]
+    },
+    "results": [
+      {
+        "id": "endpoint-direction",
+        "result": "NOT_DERIVABLE",
+        "evidence": "The distinct-reference class has one occurrence orbit and no automorphism-invariant singleton selector; choosing a source is changed by its occurrence-swap automorphism."
+      },
+      {
+        "id": "reified-link-identity",
+        "result": "REPRESENTATION_DEPENDENT",
+        "evidence": "Unreified and reified incidence representations project to the same observation while disagreeing about whether a distinct link identity exists."
+      },
+      {
+        "id": "reference-equality-pattern",
+        "result": "COMPLETE_INVARIANT_FOR_CONTRACT",
+        "evidence": "Exhaustive quotienting produces exactly the same-reference and distinct-references classes, and three independent encodings distinguish exactly those classes."
+      },
+      {
+        "id": "structure-transformation-separation",
+        "result": "NON_ABSOLUTE_FOR_SYMMETRIES",
+        "evidence": "Identity and endpoint swap are derived as automorphisms of the observation itself; they are structural symmetries, not imported execution steps."
+      },
+      {
+        "id": "representation-independent-authority",
+        "result": "NEGATIVE_CONSTRAINT_ONLY",
+        "evidence": "A representation-independent assertion must be constant on each computed orbit, which rejects an intrinsic source/target choice but supplies no positive execution law."
+      },
+      {
+        "id": "intrinsic-dynamics",
+        "result": "NOT_SELECTED",
+        "evidence": "Exactly two self-maps commute with every computed symmetry: identity and swap. The static contract does not select either as a dynamic law."
+      },
+      {
+        "id": "fixed-binary-observation-sufficiency",
+        "result": "INSUFFICIENT_OUTSIDE_FIXED_ARITY",
+        "evidence": "Without adding an observable, widening from two to three and four unlabelled occurrences yields three and five multiplicity classes. The binary quotient cannot express those distinctions."
+      },
+      {
+        "id": "conditional-refinement-recoverability",
+        "result": "NOT_RECOVERABLE_FROM_BASE_PROJECTION",
+        "evidence": "At width four, every reference-only class is the image of five to nine inequivalent structures carrying an uninterpreted second equivalence observation."
+      },
+      {
+        "id": "conditional-structural-asymmetry",
+        "result": "EMERGES_IN_SOME_REFINEMENTS_NOT_UNIVERSAL",
+        "evidence": "The singleton-orbit histogram is 20 classes with zero, 5 with one, 7 with two, and 1 with four. Structural asymmetry can therefore emerge, but only five classes select exactly one occurrence orbit and none assigns semantic endpoint meaning."
+      },
+      {
+        "id": "conditional-asymmetry-provenance",
+        "result": "BASE_FORCED_AND_REFINEMENT_DEPENDENT_COMPONENTS_SEPARATED",
+        "evidence": "Seven classes inherit a singleton forced by the base [3,1] multiplicity, five acquire one from an independently asymmetric refinement, one acquires four only through the interaction of two individually symmetric relations, and 20 retain none. Four base fibres have both outcomes; only [3,1] forces asymmetry across every refinement."
+      },
+      {
+        "id": "conditional-interaction-forcedness",
+        "result": "SYMMETRY_BREAKING_REQUIRES_INFORMATION_NOT_DERIVED_FROM_BASE",
+        "evidence": "All 73 candidate observations at widths one through four that preserve every base symmetry leave the base occurrence orbits unchanged. The interaction-only witness instead changes under a relabelling that leaves its base fixed. Generally, any deterministic derivation commuting with relabelling must preserve every base symmetry."
+      },
+      {
+        "id": "starting-representation-faithfulness",
+        "result": "REFERENCE_ONLY_PROJECTION_NON_FAITHFUL_FOR_SELF_REFERENCE",
+        "evidence": "Direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but cannot be related by address renaming or occurrence permutation. At widths one through four, 2/4/7/12 addressable classes collapse to 1/2/3/5 reference-only classes."
+      },
+      {
+        "id": "slotwise-self-incidence",
+        "result": "CLASSIFIED_PER_ORDERED_REFERENCE_SLOT",
+        "evidence": "The slotwise Boolean mask realizes 2/4/8/16 patterns at widths one through four, is invariant under global address renaming, and is equivariant but not invariant under slot permutation. Together with the ordered reference-equality matrix it completely classifies the tested ordered address/equality patterns."
+      },
+      {
+        "id": "shared-address-composition",
+        "result": "LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL",
+        "evidence": "At two through four ordered one-reference links, 10/77/799 shared-address equality classes collapse to 4/8/16 products of local descriptors. [[0,1],[2,3]] and [[0,2],[2,0]] have identical local descriptors, but only the latter is a two-link incidence cycle."
+      },
+      {
+        "id": "structural-application-composition",
+        "result": "RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION",
+        "evidence": "The premise-only [[3,0,1],[4,1,2],[5,2,0],[6,6,3]] and result-bearing extension with [7,0,2] both keep P/Q distinct from K/A/B and preserve distinct identities, self-incidence, shared address, and recursive reference. The first already contains reverse references [2,0] but no [0,2]. Recursive association candidates coincide after the still-unestablished uniform slot reversal plus address renaming; semantic roles and a creation law require additional authority."
+      },
+      {
+        "id": "link-carried-selection-authority",
+        "result": "LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY",
+        "evidence": "Duplicate candidate links [7,0,2] and [8,0,2] form one automorphism orbit and admit no invariant singleton. Ordinary link [9,7,7] splits the orbit, making both singleton subsets invariant rather than forcing either one. Removal gives zero marked candidates, replacement flips the mark, duplication gives two, an isomorphic forgery is not rejected, context relocation remains a relabelling, and finite or self-referential authority chains do not determine selection polarity or execution."
+      },
+      {
+        "id": "linked-structural-admissibility",
+        "result": "LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING",
+        "evidence": "Under an explicitly external finite relational check, ordinary linked descriptions, exact-cover mappings, and context incidence accept one complete reconstruction; reject missing, duplicate, foreign, and wrong evidence; distinguish ZERO, ONE, and MANY; and change under context or description replacement. A second locally isomorphic candidate still passes, and no tested record authorizes the description, verifier, admission, activation, or execution."
+      },
+      {
+        "id": "linked-verifier-step",
+        "result": "LOCAL_MATCH_HAS_LINKED_TRACE_BUT_RETAINS_HOST_EXECUTION_BOUNDARY",
+        "evidence": "A reusable three-position incidence join replaces specialized record reconstruction and emits four ordinary link records per local match. Missing, duplicate, reversed, two-candidate, self-application, trace-replay, reversed-role, and alternate-description cases expose where host iteration, projection, equality, counting, and selection remain."
+      },
+      {
+        "id": "conditional-continuation",
+        "result": "LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT",
+        "evidence": "An ordinary third link [5,3,4] cites premise addresses [3,0,1] and [4,1,2], so a declared incidence join reports [0,2]. Reversing the witness or removing any of the three records removes that conditional report. The witness-only structure and its [7,0,2] extension satisfy the same condition, so neither creation nor the join authority follows from the records."
+      },
+      {
+        "id": "continuation-consequence",
+        "result": "CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION",
+        "evidence": "Over all 128 completions of the recorded pairs [0,1] and [1,2], positive link facts alone make no new pair follow. A transitive exclusion makes [0,2] follow and a circular exclusion makes [2,0] follow, but each exclusion's meet equals the least model of one surviving projection, so the selecting fact restates the law. Address renaming, arbitrary substitution, record reordering, nested encoding, slot reversal, non-degeneracy, and novelty all commute with the output swap, which fixes no non-degenerate law, so none of them selects an orientation."
+      },
+      {
+        "id": "continuation-orientation",
+        "result": "CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED",
+        "evidence": "Using only address equality and slot order, the premises [3,0,1] and [4,1,2] keep [0,2] and [2,0] in different orbits whenever slots are ordered, while unordered slots make them coincide. The output swap commutes with every renaming and with the global slot reversal, so in all 4567 extensions by up to two ordinary records no symmetry fixes exactly one candidate, and both premise-to-conclusion slot correspondences remain compatible. Chirality, address renaming, tagged encodings, and a rigid self-referential tag carrier change which ends or slots are distinguishable, but never which candidate follows."
+      },
+      {
+        "id": "addressable-quotient-assumptions",
+        "result": "RENAMING_DERIVED_ORDER_QUOTIENT_UNESTABLISHED",
+        "evidence": "Equality matrices completely classify ordered address patterns under bijective renaming, but occurrence permutation additionally collapses 0/1/8/40 classes at widths one through four without a link-derived premise that reference slots lack identity. Multiplicity spectrum plus self-reference multiplicity is complete only for the explicitly unlabelled contract."
+      },
+      {
+        "id": "observation-loss-provenance",
+        "result": "CLASSIFIED_NOT_RESOLVED",
+        "evidence": "The report derives renaming equivalence within the equality contract, marks occurrence permutation unestablished, separates demonstrated width and projection losses, and leaves unobserved distinctions unresolved."
+      }
+    ],
+    "admissibleConclusion": "Exhaustive enumeration shows that binary equality coincidence is complete only at fixed width two. At tested widths one through four, multiplicity spectra classify the unlabelled base observations, but that reference-only projection is non-faithful once the issue requirement that links can reference themselves is admitted: it forgets whether a reference equals the link address. Before occurrence permutation, the Boolean self-incidence mask classifies that equality per ordered reference slot. Removing single-link isolation exposes another loss: local descriptors retain only self-incidence and cannot distinguish external references from cross-link incidence, including a two-link cycle. Across one through four ordered one-reference links, the cross-reference equality matrix plus the reference-to-link-address incidence matrix completely classifies the shared-address contract. A connected identity/self-incidence/shared-address/recursion countermodel proves that a proposed composition link is formable but not entailed; raw structure cannot assign source or target, function roles, logical implication, composition authority, or execution meaning. An additional ordinary link can break a candidate symmetry and make singleton selection structurally expressible, but opposite equivariant readings show that the same asymmetry does not force selection. Relative to a declared finite exact-cover verifier, linked descriptions, evidence mappings, and context incidence reject incomplete or structurally wrong certificates and expose ZERO/ONE/MANY candidates; however, an isomorphic second candidate passes and the records do not authorize their own interpretation, admission, activation, or execution. Factoring one record check into a reusable incidence join yields a linked trace, while host iteration, projection, equality, counting, and role selection remain. Over every completion of two chained premise pairs, a continuation follows only relative to an exclusion the records do not state, and the transitive and circular exclusions make opposite orientations follow. With address equality and slot order alone, slot order separates the two orientations but never ranks them: the output swap commutes with every contract symmetry, so each invariant selector has an invariant twin.",
+    "remainingBoundary": "This experiment proves that the interaction-only asymmetry is not derivable from the tested base, that reference-only and link-local projections lose required self-reference information, that raw address names add no information within the address/equality contract, that self-incidence has an explicit slotwise invariant before the permutation quotient, that the tested raw structure has models both without and with the proposed composition result, that link-carried incidence can remove a symmetry obstruction without supplying a unique reading of that asymmetry, that ordinary links can carry conditionally checkable exact-cover certificates, and that slot order separates the two continuation orientations without ranking them. It does not define a link ontology, establish whether reference occurrences or link records intrinsically have order, interpret an incidence cycle dynamically, claim the addressed representation is complete, derive or authorize the certificate verifier and role assignment, reject locally isomorphic forgery, prove that external authority is irreducible, derive linked admission or activation, derive which exclusion or orientation makes a continuation follow, exhibit a Link structure that forces that orientation, derive execution semantics, or generalize every finite enumeration beyond its stated argument."
+  },
+  "acceptanceWorkload": [
+    "load",
+    "import",
+    "rebind",
+    "match",
+    "substitute",
+    "rewrite",
+    "infer",
+    "verify",
+    "self-interpret"
+  ],
+  "representationBoundary": {
+    "classification": "ORDERED_LINK_REPRESENTATION_UNDERDETERMINES_TESTED_TRANSITIONS",
+    "investigatedObject": "host-representation-of-an-ordered-link",
+    "linkOntologyCovered": false,
+    "representationExhaustivenessEstablished": false,
+    "intrinsicTransitionAuthority": "UNRESOLVED",
+    "structureTransformationSeparation": "ASSUMED_BY_EXPERIMENT",
+    "transitionExternality": "ASSUMED_BY_EXPERIMENT",
+    "modelAssumptions": [
+      {
+        "id": "tagged-ternary-host-value",
+        "status": "ASSUMED_NOT_DERIVED"
+      },
+      {
+        "id": "ordered-endpoint-positions",
+        "status": "ASSUMED_NOT_DERIVED"
+      },
+      {
+        "id": "passive-link-value",
+        "status": "ASSUMED_NOT_DERIVED"
+      },
+      {
+        "id": "external-transition-function",
+        "status": "ASSUMED_NOT_DERIVED"
+      }
+    ],
+    "representationSignature": [
+      "link-identity",
+      "ordered-source-reference",
+      "ordered-target-reference"
+    ],
+    "witnessInterpretations": [
+      "reflexive-observation",
+      "reverse-endpoints"
+    ],
+    "uniqueTransitionSelected": false,
+    "prohibitedConclusions": [
+      "the representation signature exhausts the nature of links",
+      "structure and transformation are intrinsically independent",
+      "transformation must be external to links",
+      "no execution principle can arise from links themselves",
+      "links have no intrinsic transition authority"
+    ]
+  },
+  "comparisonCohort": {
+    "minimumCandidates": 2,
+    "eligibleCandidates": [
+      "candidate-a-closed-s-k"
+    ],
+    "excludedCandidates": [
+      "candidate-b-direct-structural",
+      "candidate-c-horn-relational"
+    ],
+    "sufficient": false,
+    "asymmetricRankingPermitted": false
+  },
+  "candidates": [
+    {
+      "candidate": "candidate-a-closed-s-k",
+      "semanticMechanism": "normal-order contraction of closed binary-link terms",
+      "representation": "addressed-doublet S/K DAG compiled from link source",
+      "externalLaws": [
+        "contract-s-link",
+        "contract-k-link"
+      ],
+      "independentExternalInformation": 2,
+      "hostSemanticOperations": 2,
+      "selfHostingClosure": "9/9",
+      "sourceProvenance": "externally primitive equations over a source represented as addressed links",
+      "transitionMechanism": "contract the leftmost S or K redex",
+      "transitionAuthority": "the two external contraction equations",
+      "hostRuntimeBoundary": "S/K contraction only; linked terms define all acceptance services",
+      "formationAdmissibilityBoundary": "closed generated term plus checked source/artifact parity",
+      "executionControlBoundary": "external contraction and resource bound",
+      "selfDescriptionMechanism": "meta-describe linked rewrite relation",
+      "selfInterpretationMechanism": "links-meta-foundation object matcher/substituter",
+      "selfGenerationMechanism": "meta-generate-and-apply linked rewrite relation",
+      "derivedSemanticInformation": 9,
+      "externalSemanticSourceDescriptions": 0,
+      "hostSelfSemanticDuplication": 0,
+      "comparisonEligible": true,
+      "comparisonExclusionReasons": [],
+      "ontologyRole": "EXECUTABLE_CONTROL",
+      "constrainsOntologySearch": false,
+      "foundationalEligibility": {
+        "eligible": false,
+        "exclusionReasons": [
+          "LINK_ONTOLOGY_UNRESOLVED",
+          "PRIMITIVE_CATEGORY_PROVENANCE_UNESTABLISHED",
+          "STRUCTURE_TRANSFORMATION_RELATION_UNRESOLVED",
+          "INTRINSIC_SEMANTIC_AUTHORITY_UNRESOLVED",
+          "COMPARATIVE_MINIMALITY_UNRESOLVED"
+        ]
+      },
+      "runtimeTrustCoverage": "complete",
+      "objectSpecificHostKnowledge": [],
+      "undocumentedAuthorityPaths": [],
+      "eliminationResult": "both laws fail the complete workload when removed separately",
+      "equivalentTo": null,
+      "accepted": true,
+      "rejectedBecause": null,
+      "evidence": [
+        "lib/meta-theory/fixed-point-source.lino",
+        "lib/meta-theory/alternative-foundations.lino",
+        "scripts/foundation-search.test.mjs"
+      ]
+    },
+    {
+      "candidate": "candidate-b-direct-structural",
+      "semanticMechanism": "ordered structural pattern rewriting plus bounded saturation",
+      "representation": "LiNo pattern, replacement, import, fact, and inference links",
+      "externalLaws": [
+        "compare-link-structure",
+        "bind-pattern-variables",
+        "substitute-bound-structures",
+        "select-and-traverse-rewrite-rules",
+        "resolve-and-rebind-program-imports",
+        "saturate-inference-rules"
+      ],
+      "independentExternalInformation": 6,
+      "hostSemanticOperations": 6,
+      "selfHostingClosure": "9/15",
+      "sourceProvenance": "independent pre-S/K reference mechanism retained as a falsifiable control",
+      "transitionMechanism": "match a rule at the leftmost sublink and instantiate its replacement",
+      "transitionAuthority": "ordered linked rules interpreted by the direct structural transition",
+      "hostRuntimeBoundary": "matching, binding, instantiation, traversal, import resolution, and saturation",
+      "formationAdmissibilityBoundary": "well-bound replacement and conclusion variables; acyclic imports",
+      "executionControlBoundary": "external leftmost order, cycle detection, and resource bounds",
+      "selfDescriptionMechanism": "same meta-describe link rules, executed without combinators",
+      "selfInterpretationMechanism": "same links-meta-foundation object interpreter, executed directly",
+      "selfGenerationMechanism": "same meta-generate-and-apply link rules, executed directly",
+      "derivedSemanticInformation": 9,
+      "externalSemanticSourceDescriptions": 1,
+      "hostSelfSemanticDuplication": 6,
+      "comparisonEligible": false,
+      "comparisonExclusionReasons": [
+        "INCOMPLETE_SELF_HOSTING_CLOSURE",
+        "HOST_SELF_SEMANTIC_DUPLICATION",
+        "EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION"
+      ],
+      "ontologyRole": "EXECUTABLE_CONTROL",
+      "constrainsOntologySearch": false,
+      "foundationalEligibility": {
+        "eligible": false,
+        "exclusionReasons": [
+          "LINK_ONTOLOGY_UNRESOLVED",
+          "PRIMITIVE_CATEGORY_PROVENANCE_UNESTABLISHED",
+          "STRUCTURE_TRANSFORMATION_RELATION_UNRESOLVED",
+          "INTRINSIC_SEMANTIC_AUTHORITY_UNRESOLVED",
+          "COMPARATIVE_MINIMALITY_UNRESOLVED"
+        ]
+      },
+      "runtimeTrustCoverage": "complete",
+      "objectSpecificHostKnowledge": [],
+      "undocumentedAuthorityPaths": [],
+      "eliminationResult": "all six laws fail the complete workload when removed separately",
+      "equivalentTo": null,
+      "accepted": true,
+      "rejectedBecause": null,
+      "evidence": [
+        "lib/meta-theory/alternative-foundations.lino",
+        "js/src/rml-linked-program.mjs",
+        "scripts/foundation-search.test.mjs"
+      ]
+    },
+    {
+      "candidate": "candidate-c-horn-relational",
+      "semanticMechanism": "premise unification and monotone fixed-point fact derivation",
+      "representation": "facts and Horn clauses whose predicates and terms are links",
+      "externalLaws": [
+        "compare-link-structure",
+        "bind-pattern-variables",
+        "substitute-bound-structures",
+        "insert-derived-fact",
+        "schedule-horn-saturation"
+      ],
+      "independentExternalInformation": 5,
+      "hostSemanticOperations": 5,
+      "selfHostingClosure": "9/14",
+      "sourceProvenance": "independently designed relational semantics with no S/K transition or bracket-abstraction machinery",
+      "transitionMechanism": "insert every novel instantiated conclusion whose premises unify",
+      "transitionAuthority": "the clause set and monotone saturation schedule",
+      "hostRuntimeBoundary": "unification, instantiation, novel-fact insertion, and fair finite saturation",
+      "formationAdmissibilityBoundary": "range-restricted Horn conclusions and explicit finite bounds",
+      "executionControlBoundary": "external saturation rounds and fact bound",
+      "selfDescriptionMechanism": "encoded-clause facts describe the active clause shape",
+      "selfInterpretationMechanism": "interpret-encoded-clause derives an encoded conclusion",
+      "selfGenerationMechanism": "clause-schema derives a new encoded clause description",
+      "derivedSemanticInformation": 9,
+      "externalSemanticSourceDescriptions": 1,
+      "hostSelfSemanticDuplication": 5,
+      "comparisonEligible": false,
+      "comparisonExclusionReasons": [
+        "INCOMPLETE_SELF_HOSTING_CLOSURE",
+        "HOST_SELF_SEMANTIC_DUPLICATION",
+        "EXTERNAL_SEMANTIC_SOURCE_DESCRIPTION"
+      ],
+      "ontologyRole": "EXECUTABLE_CONTROL",
+      "constrainsOntologySearch": false,
+      "foundationalEligibility": {
+        "eligible": false,
+        "exclusionReasons": [
+          "LINK_ONTOLOGY_UNRESOLVED",
+          "PRIMITIVE_CATEGORY_PROVENANCE_UNESTABLISHED",
+          "STRUCTURE_TRANSFORMATION_RELATION_UNRESOLVED",
+          "INTRINSIC_SEMANTIC_AUTHORITY_UNRESOLVED",
+          "COMPARATIVE_MINIMALITY_UNRESOLVED"
+        ]
+      },
+      "runtimeTrustCoverage": "complete",
+      "objectSpecificHostKnowledge": [],
+      "undocumentedAuthorityPaths": [],
+      "eliminationResult": "all five laws fail the complete workload when removed separately",
+      "equivalentTo": null,
+      "accepted": true,
+      "rejectedBecause": null,
+      "evidence": [
+        "lib/meta-theory/alternative-foundations.lino",
+        "js/src/rml-foundation-search.mjs",
+        "scripts/foundation-search.test.mjs"
+      ]
+    }
+  ],
+  "claimBoundary": {
+    "foundationStatus": "OPEN",
+    "ontologyQuestionsResolved": false,
+    "existingCandidatesConstrainOntologySearch": false,
+    "globallyMinimal": false,
+    "comparableCohortEstablished": false,
+    "intrinsicTransitionAuthority": "UNRESOLVED",
+    "completeProductionLanguageImplementations": false,
+    "proved": [
+      "the same finite acceptance workload passes under three transition mechanisms",
+      "every measured residual semantic law has an executable removal experiment",
+      "all three mechanisms execute the complete two-counter-machine instruction basis",
+      "the linked JavaScript and Rust counter cores execute and the Lean and Rocq dependent cores check identity proofs",
+      "the tested ordered-link host representation does not select between two witnessed transitions",
+      "no source or target selector is invariant under the distinct-reference observation's automorphisms",
+      "reified and unreified models project to the same observation while disagreeing about link identity",
+      "the observation derives identity and swap as structural automorphisms but selects neither as a unique dynamic law",
+      "only Candidate A currently passes the symmetric execution-comparison eligibility gate",
+      "binary equality coincidence is complete for the exhaustive fixed-width-two observation contract",
+      "the same unlabelled-occurrence and equality vocabulary yields 1, 2, 3, and 5 multiplicity classes at widths one through four",
+      "a conditional second equivalence observation produces 33 joint classes whose reference-only projection has five to nine refinements per fibre",
+      "the width-four singleton-orbit histogram is 20 classes with zero, 5 with one, 7 with two, and 1 with four singleton orbits",
+      "asymmetry provenance separates into 7 base-forced, 5 refinement-present, 1 relational-interaction-only, and 20 symmetric joint classes",
+      "the same [2,1,1] base projection has a symmetric refinement countermodel and an interaction-only four-singleton refinement",
+      "all 73 base-symmetry-preserving candidate observations at widths one through four retain the base occurrence orbits",
+      "the interaction-only refinement changes under a relabelling that leaves its base observation fixed",
+      "any deterministic observation derived from the base and commuting with occurrence relabelling preserves every base symmetry",
+      "the direct-self [0,0,1] and fresh-external [0,1,2] address patterns have the same reference-only [1,1] projection but are not equivalent under address renaming and occurrence permutation",
+      "forgetting the link address collapses 2, 4, 7, and 12 addressable classes to 1, 2, 3, and 5 reference-only classes at widths one through four",
+      "every nonempty finite reference-only class has a fresh-address lift and at least one inequivalent self-identifying lift",
+      "full equality matrices completely classify ordered address patterns under bijective address renaming",
+      "reference-occurrence permutation collapses 0, 1, 8, and 40 additional ordered classes at widths one through four",
+      "reference multiplicity plus direct-self-reference multiplicity classifies the declared unlabelled addressable quotient at widths one through four",
+      "all 2, 4, 8, and 16 slotwise self-incidence masks occur at widths one through four",
+      "slotwise self-incidence is invariant under address renaming and equivariant under reference-slot permutation",
+      "reference equality plus the slotwise self-incidence mask classifies ordered address/equality patterns at widths one through four",
+      "products of local single-link descriptors collapse 10, 77, and 799 shared-address classes to 4, 8, and 16 classes at two through four ordered one-reference links",
+      "the external-reference pair [[0,1],[2,3]] and two-link incidence cycle [[0,2],[2,0]] have identical local descriptors but inequivalent shared-address equality patterns",
+      "cross-reference equality plus reference-to-link-address incidence classifies the ordered one-reference shared-address contract at one through four links",
+      "the recursive association candidates [[3,0,1],[4,3,2]] and [[3,1,2],[4,0,3]] differ with ordered slots but coincide after uniform slot reversal and address renaming",
+      "the unordered recursive candidate has two leaf orbits of sizes one and two, so it cannot structurally distinguish all three investigated leaf positions",
+      "the connected [[3,0,1],[4,1,2],[5,2,0],[6,6,3]] structure keeps P/Q distinct from K/A/B and has identity, self-incidence, shared address, recursive references, and the reverse [2,0] pair but not proposed [0,2]",
+      "adding [7,0,2] preserves every composition premise, while binary formation admits all 49 ordered pairs over the seven existing addresses and selects none",
+      "a declared finite exact-cover verifier over linked descriptions, evidence mappings, and context incidence rejects missing, duplicate, foreign, and structurally wrong certificates",
+      "finite enumeration of linked certificate bundles observes ZERO, ONE, and MANY admissible candidates without selecting among the MANY case",
+      "a reusable local incidence join matches one described record through three linked correspondence witnesses and emits a four-link trace",
+      "the same local join can replay a trace root but reversing the mapping interpretation changes the result on identical links",
+      "one ordinary witness link conditionally selects [0,2] from [3,0,1] and [4,1,2] under a declared incidence join; reversal or removal destroys that conditional report",
+      "the witness-only structure and its [7,0,2] extension satisfy the same join, so the witness does not force creation of the result link",
+      "over all 128 completions of the recorded pairs [0,1] and [1,2], no new pair follows without an exclusion; transitive completions make [0,2] follow and circular completions make [2,0] follow",
+      "all 16 two-premise position laws are invariant under address renaming, arbitrary substitution, record reordering, and nested encoding; the admitted criteria leave the [0,2] and [2,0] readouts and each commutes with an output swap that fixes no non-degenerate law",
+      "with address equality and slot order alone, [3,0,1] and [4,1,2] keep [0,2] and [2,0] in different orbits under named or anonymous ordered slots, while unordered slots make them coincide",
+      "the output swap commutes with every address renaming and with the global slot reversal, so in all 4567 extensions of the premises by up to two ordinary records no symmetry fixes exactly one of [0,2] and [2,0]",
+      "the achiral [[3,0,1],[4,1,2],[5,3,4]] and its chiral extension by [8,8,9] have identical readouts under all 16 position laws, but only the first has a slot-reversing symmetry",
+      "the cycle [[3,0,1],[4,1,2],[5,2,10],[6,10,0]] and detour [[3,0,1],[4,1,2],[5,2,10],[6,0,10]] have the same unordered records, but only the cycle exchanges [0,2] and [2,0] under named slots",
+      "the rigid self-referential tag carrier [[20,20,20],[21,20,20]] forces slot identity, yet no symmetry of the tagged premises fixes exactly one of [0,2] and [2,0]"
+    ],
+    "notProved": [
+      "that S/K is globally minimal",
+      "that the three candidates are equivalent",
+      "that Candidate A is smaller than a comparably reduced self-hosted alternative",
+      "that a sufficient comparative cohort currently exists",
+      "that finite tests enumerate every formal system",
+      "that these semantic cores replace production Lean, Rocq, Rust, or JavaScript toolchains",
+      "that the tested host representation exhausts the ontology of links",
+      "that the two-occurrence observation contract exhausts the ontology of links",
+      "that structure and transformation are intrinsically independent",
+      "that a structural automorphism is an execution step",
+      "that transformation must be external to links",
+      "that links have no intrinsic execution principle",
+      "that the current candidates constrain the independent ontology search",
+      "that the current semantic vocabulary has foundational status",
+      "that fixed width two is sufficient to characterize links",
+      "that the conditional second equivalence observation is fundamental to links",
+      "that a conditional invariant singleton is a source, target, or execution role",
+      "that finite completeness at widths one through four is an unbounded theorem",
+      "that the interaction-only refinement is forced by the tested base observation",
+      "that the tested base observation exhausts the intrinsic structure of links",
+      "that retaining the link address defines a complete link ontology",
+      "that direct self-reference supplies endpoint roles, dynamics, or an execution law",
+      "that reference occurrences intrinsically lack slot identity",
+      "that the declared unlabelled addressable quotient is a complete representation of links",
+      "that reference-slot identity is intrinsic to links",
+      "that a self-incident slot is a source, target, or execution role",
+      "that cross-link incidence is a source, target, dependency, transition, or execution edge",
+      "that ordered link records or one-reference links are intrinsic to links",
+      "that ordered structural positions intrinsically mean function, argument, result, or application",
+      "that shared-address incidence entails creation of a composed link",
+      "that binary link formation supplies a composition-selection or execution law",
+      "that uniform reference-slot reversal is an intrinsic equivalence rather than an observer quotient",
+      "that the exact-cover verifier, description, context, or assigned record roles are authorized by link structure",
+      "that a locally isomorphic second candidate can be structurally rejected under the tested certificate contract",
+      "that conditional admissibility admits, activates, publishes, or executes a candidate",
+      "that the linked local-match trace executes or authorizes its own verifier",
+      "that choosing an active description or correspondence orientation is intrinsic to the tested link records",
+      "that the conditional continuation witness authorizes its join, reading orientation, or creation of a result link",
+      "that the recorded links determine which exclusion or output orientation makes a continuation follow",
+      "that slot order, chirality, tagged slot identity, or a self-referential slot carrier forces which of [0,2] and [2,0] follows",
+      "that the identity correspondence between premise and conclusion slot orders is intrinsic rather than chosen"
+    ]
+  }
+}

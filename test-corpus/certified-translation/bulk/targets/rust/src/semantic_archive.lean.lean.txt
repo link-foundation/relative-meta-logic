@@ -1,0 +1,13 @@
+-- rml-certified-item rust/src/semantic_archive.rs#ArchiveLimits@331 target-sha256=923a3e5cdc678193bcbab22e2b5a80f2be441431abda57721a46648a40ef1fba
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive ArchiveLimits where
+  | ArchiveLimits (field0 : Nat) (field1 : Nat) (field2 : Nat) : ArchiveLimits
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

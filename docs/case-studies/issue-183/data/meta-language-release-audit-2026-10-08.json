@@ -1,0 +1,43 @@
+{
+  "schema": "rml-meta-language-release-audit/v1",
+  "observedAt": "2026-10-08T20:16:44Z",
+  "previousRevision": "679a3b3c3c56177b8df1ad82672690c6e9889aeb",
+  "release": {
+    "url": "https://github.com/link-foundation/meta-language/releases/tag/v1.0.0",
+    "id": 406803388,
+    "tag": "v1.0.0",
+    "publishedAt": "2026-10-08T12:27:43Z",
+    "tagObject": "a831045fa62503b32dca035b396278772b2d9cab",
+    "revision": "a79782093cae3b33606483ac9f3e1d05faf36de0"
+  },
+  "npm": {
+    "url": "https://registry.npmjs.org/meta-language/latest",
+    "latest": "0.46.0",
+    "responseSha256": "266bb68be2fe341922fa61a5f7f952eac91a81ec69cef112baa8cce81cab2a50",
+    "matchingReleasePublished": false
+  },
+  "crates": {
+    "url": "https://crates.io/api/v1/crates/meta-language/1.0.0",
+    "latest": "1.0.0",
+    "publishedAt": "2026-10-08T12:27:34.219097Z",
+    "responseSha256": "903ab1d323719153ecc82d1d44c15a390db395cf59cc2ebbf9a2bb8442548c4e",
+    "download": "https://static.crates.io/crates/meta-language/meta-language-1.0.0.crate",
+    "archiveBytes": 4842956,
+    "archiveSha256": "1efbbc346bbcbc4aff425ce14eb6ed7c6808f756f841503f0f9961f0a54fb57d",
+    "vcs": {
+      "revision": "a79782093cae3b33606483ac9f3e1d05faf36de0",
+      "path": "rust"
+    },
+    "sourceComparison": {
+      "verifiedFiles": 343,
+      "mismatches": [],
+      "excludedCargoGeneratedFiles": [
+        "Cargo.toml",
+        "Cargo.lock",
+        ".cargo_vcs_info.json"
+      ],
+      "manifestComparison": "Cargo.toml.orig equals upstream rust/Cargo.toml"
+    }
+  },
+  "decision": "Consume exact crates.io =1.0.0 and the matching immutable JavaScript release source. npm publication is still incomplete; no full-language semantic closure is claimed."
+}

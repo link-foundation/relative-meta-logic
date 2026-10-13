@@ -1,0 +1,416 @@
+# Architecture-neutral controls for the issue 183 foundation search.
+#
+# This source deliberately contains no S/K transition definition or
+# bracket-abstraction machinery.  Lambda occurs only as opaque data in one
+# language-core check.  The direct structural and Horn candidates consume
+# these links independently of the S/K source compiler.
+
+(namespace alternative-link-foundations)
+
+# Extend the common links-defined meta-interpreter with explicit
+# self-description and self-generation requests.  These are ordinary object
+# rules: neither candidate backend has a host branch for their constructors.
+
+(linked-rewrite links-meta-foundation describe-object-rule
+  (from (meta-describe (rewrite ?pattern ?replacement)))
+  (to
+    (rule-description
+      (pattern ?pattern)
+      (replacement ?replacement))))
+
+(linked-rewrite links-meta-foundation generate-and-apply-object-rule
+  (from
+    (meta-generate-and-apply
+      (rewrite ?pattern ?replacement)
+      ?candidate))
+  (to
+    (meta-apply
+      (rewrite ?pattern ?replacement)
+      ?candidate)))
+
+# A complete load/import/rebind/rewrite/infer/verify control program.  It is
+# used unchanged by the S/K and direct-structural candidates.
+
+(linked-program foundation-search-rewrite)
+
+(linked-rewrite foundation-search-rewrite rewrite-value
+  (from (foundation-input ?value))
+  (to (foundation-output ?value)))
+
+(linked-program foundation-search-import
+  (uses foundation-search-rewrite
+    (rebind foundation-input measured-input)))
+
+(linked-program foundation-search-proof)
+
+(linked-fact foundation-search-proof premise
+  (judgement (foundation-holds alpha)))
+
+(linked-inference foundation-search-proof derive
+  (premise (foundation-holds ?value))
+  (conclusion (foundation-derived ?value)))
+
+# A productive use of a self-referential address.  The repeated address is a
+# structural guard: one finite observation is emitted together with an opaque
+# continuation address.  The rule neither unfolds the cycle eagerly nor treats
+# a circular proof as evidence for itself.
+
+(linked-program guarded-referential-links)
+
+(linked-rewrite guarded-referential-links observe-guarded-self-link
+  (from
+    (observe
+      (guarded-link ?address ?value ?address)))
+  (to
+    (observation ?address ?value (resume ?address))))
+
+# A two-counter link machine.  Program, control point, counters, instruction
+# cursor, and transition trace are all links.  Its four instruction cases are
+# the standard universal Minsky-machine basis.  Rule selection is based only
+# on repeated link references; instruction and state names are opaque data.
+
+(linked-program link-register-machine)
+
+(linked-rewrite link-register-machine start-machine
+  (from (machine-start ?program ?entry ?left ?right))
+  (to (machine-scan ?program ?program ?entry ?left ?right (trace-empty))))
+
+(linked-rewrite link-register-machine select-instruction
+  (from
+    (machine-scan
+      ?program
+      (instructions
+        (instruction ?label ?operation ?next ?alternate)
+        ?remaining)
+      ?label
+      ?left
+      ?right
+      ?trace))
+  (to
+    (machine-execute
+      ?program ?operation ?next ?alternate ?left ?right ?trace)))
+
+(linked-rewrite link-register-machine scan-next-instruction
+  (from
+    (machine-scan
+      ?program
+      (instructions ?instruction ?remaining)
+      ?label
+      ?left
+      ?right
+      ?trace))
+  (to
+    (machine-scan
+      ?program ?remaining ?label ?left ?right ?trace)))
+
+(linked-rewrite link-register-machine execute-increment-left
+  (from
+    (machine-execute
+      ?program increment-left ?next ?alternate ?left ?right ?trace))
+  (to
+    (machine-scan
+      ?program ?program ?next (successor ?left) ?right
+      (trace-step increment-left ?trace))))
+
+(linked-rewrite link-register-machine execute-increment-right
+  (from
+    (machine-execute
+      ?program increment-right ?next ?alternate ?left ?right ?trace))
+  (to
+    (machine-scan
+      ?program ?program ?next ?left (successor ?right)
+      (trace-step increment-right ?trace))))
+
+(linked-rewrite link-register-machine execute-decrement-left-nonzero
+  (from
+    (machine-execute
+      ?program decrement-left ?next ?alternate
+      (successor ?left) ?right ?trace))
+  (to
+    (machine-scan
+      ?program ?program ?next ?left ?right
+      (trace-step decrement-left-nonzero ?trace))))
+
+(linked-rewrite link-register-machine execute-decrement-left-zero
+  (from
+    (machine-execute
+      ?program decrement-left ?next ?alternate zero ?right ?trace))
+  (to
+    (machine-scan
+      ?program ?program ?alternate zero ?right
+      (trace-step decrement-left-zero ?trace))))
+
+(linked-rewrite link-register-machine execute-decrement-right-nonzero
+  (from
+    (machine-execute
+      ?program decrement-right ?next ?alternate
+      ?left (successor ?right) ?trace))
+  (to
+    (machine-scan
+      ?program ?program ?next ?left ?right
+      (trace-step decrement-right-nonzero ?trace))))
+
+(linked-rewrite link-register-machine execute-decrement-right-zero
+  (from
+    (machine-execute
+      ?program decrement-right ?next ?alternate ?left zero ?trace))
+  (to
+    (machine-scan
+      ?program ?program ?alternate ?left zero
+      (trace-step decrement-right-zero ?trace))))
+
+(linked-rewrite link-register-machine halt-machine
+  (from
+    (machine-scan
+      ?program ?cursor halt ?left ?right ?trace))
+  (to (machine-halted ?left ?right ?trace)))
+
+# Executable language cores.  JavaScript and Rust lower their unbounded
+# two-counter control core to the link machine.  Lean and Rocq expose distinct
+# dependent proof-term vocabularies and verify an identity proof through linked
+# inference.  These are semantic cores, not claims that the production tool
+# chains, standard libraries, parsers, or unsafe/runtime subsystems are copied.
+
+(linked-program javascript-core
+  (uses link-register-machine))
+
+(linked-rewrite javascript-core execute-javascript-counter-core
+  (from (javascript-execute (counter-program ?program ?entry)))
+  (to (machine-start ?program ?entry zero zero)))
+
+(linked-program rust-core
+  (uses link-register-machine))
+
+(linked-rewrite rust-core execute-rust-counter-core
+  (from (rust-execute (counter-program ?program ?entry)))
+  (to (machine-start ?program ?entry zero zero)))
+
+(linked-program lean-dependent-core)
+
+(linked-fact lean-dependent-core lean-type-is-sort
+  (judgement (lean-has-type lean-Type lean-Sort)))
+
+(linked-inference lean-dependent-core lean-identity
+  (premise (lean-has-type ?type lean-Sort))
+  (conclusion
+    (lean-has-type
+      (lean-lambda ?type (lean-bound zero))
+      (lean-pi ?type ?type))))
+
+(linked-program rocq-dependent-core)
+
+(linked-fact rocq-dependent-core rocq-type-is-sort
+  (judgement (rocq-has-type rocq-Type rocq-Sort)))
+
+(linked-inference rocq-dependent-core rocq-identity
+  (premise (rocq-has-type ?type rocq-Sort))
+  (conclusion
+    (rocq-has-type
+      (rocq-fun ?type (rocq-rel zero))
+      (rocq-prod ?type ?type))))
+
+# Candidate C: monotone Horn saturation.  Its transition authority is premise
+# unification plus insertion of a fresh instantiated conclusion, not ordered
+# term replacement.  The full acceptance workload and an encoded interpreter
+# rule are facts and clauses in this program.
+
+(linked-program horn-link-foundation)
+
+(linked-fact horn-link-foundation source-loaded
+  (judgement (accepted load)))
+
+(linked-fact horn-link-foundation base-rewrite
+  (judgement
+    (declared-rewrite
+      foundation-base foundation-input foundation-output)))
+
+(linked-fact horn-link-foundation import-declaration
+  (judgement
+    (imports foundation-horn foundation-base)))
+
+(linked-fact horn-link-foundation import-rebinding
+  (judgement
+    (rebinds foundation-horn foundation-input measured-input)))
+
+(linked-fact horn-link-foundation candidate-value
+  (judgement (candidate (measured-input alpha))))
+
+(linked-inference horn-link-foundation resolve-import-and-rebind
+  (premise (imports ?program ?base))
+  (premise (declared-rewrite ?base ?input ?output))
+  (premise (rebinds ?program ?input ?selected-input))
+  (conclusion
+    (effective-rewrite ?program ?selected-input ?output)))
+
+(linked-inference horn-link-foundation match-effective-rule
+  (premise
+    (effective-rewrite ?program measured-input ?output))
+  (premise (candidate (measured-input ?value)))
+  (conclusion (matched ?program ?output ?value)))
+
+(linked-inference horn-link-foundation instantiate-output
+  (premise (matched ?program ?output ?value))
+  (conclusion
+    (substituted ?program (?output ?value))))
+
+(linked-inference horn-link-foundation derive-rewrite-result
+  (premise (substituted ?program ?result))
+  (conclusion (rewritten ?program ?result)))
+
+(linked-fact horn-link-foundation proof-premise
+  (judgement (foundation-holds alpha)))
+
+(linked-fact horn-link-foundation guarded-referential-link
+  (judgement (guarded-link proof-knot pulse proof-knot)))
+
+(linked-inference horn-link-foundation observe-guarded-referential-link
+  (premise (guarded-link ?address ?value ?address))
+  (conclusion
+    (guarded-observation ?address ?value (resume ?address))))
+
+(linked-fact horn-link-foundation javascript-counter-core
+  (judgement (language-core-executes javascript two-counter-machine)))
+
+(linked-fact horn-link-foundation rust-counter-core
+  (judgement (language-core-executes rust two-counter-machine)))
+
+(linked-fact horn-link-foundation lean-type-sort
+  (judgement (dependent-sort lean lean-Type)))
+
+(linked-inference horn-link-foundation lean-dependent-identity
+  (premise (dependent-sort lean ?type))
+  (conclusion
+    (dependent-identity-checks
+      lean
+      (lean-lambda ?type (lean-bound zero))
+      (lean-pi ?type ?type))))
+
+(linked-fact horn-link-foundation rocq-type-sort
+  (judgement (dependent-sort rocq rocq-Type)))
+
+(linked-inference horn-link-foundation rocq-dependent-identity
+  (premise (dependent-sort rocq ?type))
+  (conclusion
+    (dependent-identity-checks
+      rocq
+      (rocq-fun ?type (rocq-rel zero))
+      (rocq-prod ?type ?type))))
+
+(linked-inference horn-link-foundation infer-foundation-result
+  (premise (foundation-holds ?value))
+  (conclusion (foundation-derived ?value)))
+
+(linked-fact horn-link-foundation expected-result
+  (judgement
+    (expected foundation-horn (foundation-output alpha))))
+
+(linked-inference horn-link-foundation verify-foundation-result
+  (premise
+    (rewritten foundation-horn (foundation-output ?value)))
+  (premise
+    (expected foundation-horn (foundation-output ?value)))
+  (conclusion (verified foundation-horn ?value)))
+
+(linked-fact horn-link-foundation encoded-clause-description
+  (judgement
+    (encoded-clause
+      horn-self-rule
+      (premise (encoded-known (meta-variable value)))
+      (conclusion (encoded-derived (meta-variable value))))))
+
+(linked-fact horn-link-foundation encoded-clause-premise
+  (judgement (encoded-known alpha)))
+
+(linked-inference horn-link-foundation interpret-encoded-clause
+  (premise
+    (encoded-clause
+      ?name
+      (premise (encoded-known (meta-variable ?variable)))
+      (conclusion (encoded-derived (meta-variable ?variable)))))
+  (premise (encoded-known ?value))
+  (conclusion
+    (self-interpreted ?name (encoded-derived ?value))))
+
+(linked-fact horn-link-foundation clause-schema
+  (judgement
+    (clause-schema copied-clause encoded-known encoded-copied)))
+
+(linked-inference horn-link-foundation generate-clause-description
+  (premise (clause-schema ?name ?premise ?conclusion))
+  (conclusion
+    (generated-clause
+      ?name
+      (premise (?premise (meta-variable value)))
+      (conclusion (?conclusion (meta-variable value))))))
+
+# A generic two-counter-machine interpreter in Horn clauses.  The program
+# below exercises all four instruction families and reaches halt.  Since the
+# instruction relation is input data, the clauses implement the complete
+# universal two-counter basis rather than one hard-coded computation.
+
+(linked-fact horn-link-foundation counter-state-initial
+  (judgement (counter-state q0 zero zero)))
+
+(linked-fact horn-link-foundation counter-instruction-q0
+  (judgement (counter-instruction q0 decrement-left failed q1)))
+
+(linked-fact horn-link-foundation counter-instruction-q1
+  (judgement (counter-instruction q1 increment-left q2 unused)))
+
+(linked-fact horn-link-foundation counter-instruction-q2
+  (judgement (counter-instruction q2 decrement-left q3 failed)))
+
+(linked-fact horn-link-foundation counter-instruction-q3
+  (judgement (counter-instruction q3 decrement-right failed q4)))
+
+(linked-fact horn-link-foundation counter-instruction-q4
+  (judgement (counter-instruction q4 increment-right q5 unused)))
+
+(linked-fact horn-link-foundation counter-instruction-q5
+  (judgement (counter-instruction q5 decrement-right halt failed)))
+
+(linked-inference horn-link-foundation execute-counter-increment-left
+  (premise (counter-state ?label ?left ?right))
+  (premise
+    (counter-instruction ?label increment-left ?next ?alternate))
+  (conclusion
+    (counter-state ?next (successor ?left) ?right)))
+
+(linked-inference horn-link-foundation execute-counter-increment-right
+  (premise (counter-state ?label ?left ?right))
+  (premise
+    (counter-instruction ?label increment-right ?next ?alternate))
+  (conclusion
+    (counter-state ?next ?left (successor ?right))))
+
+(linked-inference horn-link-foundation execute-counter-decrement-left
+  (premise
+    (counter-state ?label (successor ?left) ?right))
+  (premise
+    (counter-instruction ?label decrement-left ?next ?alternate))
+  (conclusion (counter-state ?next ?left ?right)))
+
+(linked-inference horn-link-foundation execute-counter-decrement-left-zero
+  (premise (counter-state ?label zero ?right))
+  (premise
+    (counter-instruction ?label decrement-left ?next ?alternate))
+  (conclusion (counter-state ?alternate zero ?right)))
+
+(linked-inference horn-link-foundation execute-counter-decrement-right
+  (premise
+    (counter-state ?label ?left (successor ?right)))
+  (premise
+    (counter-instruction ?label decrement-right ?next ?alternate))
+  (conclusion (counter-state ?next ?left ?right)))
+
+(linked-inference horn-link-foundation execute-counter-decrement-right-zero
+  (premise (counter-state ?label ?left zero))
+  (premise
+    (counter-instruction ?label decrement-right ?next ?alternate))
+  (conclusion (counter-state ?alternate ?left zero)))
+
+(linked-inference horn-link-foundation certify-counter-halt
+  (premise (counter-state halt ?left ?right))
+  (conclusion
+    (turing-completeness-witness
+      two-counter-machine ?left ?right)))

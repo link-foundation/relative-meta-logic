@@ -1,0 +1,124 @@
+{
+  "schema": "rml-linked-implementation-validation/v1",
+  "baseRevision": "24ad4965efea139846cc9b01d8d8f57b55faf27f",
+  "scope": "Published 24ad4965 plus the additive source-authority checkpoint; standard bootstrap included before dependency installation",
+  "ordinaryLifecycleIntegration": {
+    "ordinaryJavaScriptTestSuite": "current-checkout guard assertion selected by the existing test glob",
+    "continuousIntegration": "always-selected direct current-tree guard and source-free tests",
+    "localBuildAndPackagingHooks": "reviewable integration patch remains pending pinned-file update"
+  },
+  "tools": {
+    "node": "24.19.0",
+    "rustc": "1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "1.99.0 (5f94df478 2026-08-27)"
+  },
+  "currentTree": {
+    "schema": "rml-current-linked-implementation/v1",
+    "currentTreeConsistent": true,
+    "implementations": [
+      {
+        "manifest": "lib/linked-runtime/manifest.json",
+        "modules": 76,
+        "archiveSha256": "d57dbe1e811afa621b50fec7e0b6320502e62d206db03395d214b2e6e02b48d4"
+      },
+      {
+        "manifest": "lib/linked-runtime/rust-manifest.json",
+        "modules": 34,
+        "archiveSha256": "d289f8f2eb3ed2b180fe12b176bb546630fab8287ae83337a4522e90a4d023e7"
+      }
+    ],
+    "configuration": {
+      "files": 107,
+      "providers": 417,
+      "currentTreeConsistent": true
+    }
+  },
+  "javascriptAndArchiveAssertions": {
+    "passed": 50,
+    "failed": 0,
+    "ignored": 0,
+    "authorityAssertions": 15,
+    "candidateValidatorAssertions": 9,
+    "command": "node --test scripts/build-cache-policy.test.mjs scripts/linked-runtime.test.mjs scripts/linked-rust-runtime.test.mjs scripts/linked-implementation-configuration.test.mjs .github/candidates/cache-portability/validate.test.mjs",
+    "workflowAndCachePolicyAssertions": 26
+  },
+  "native": {
+    "schema": "rml-linked-rust-native-acceptance/v1",
+    "modules": 34,
+    "archiveSha256": "d289f8f2eb3ed2b180fe12b176bb546630fab8287ae83337a4522e90a4d023e7",
+    "seedHelperSha256": "c608386305efa1fc521d20903684d3c21bdccf992b082f4b553dd3ab61f1b4ea",
+    "sourceFreeNativeCompilation": true,
+    "sourceFreeCompanions": [
+      "rust/relational-kernel"
+    ],
+    "parserMutation": true,
+    "verifierMutation": true,
+    "generatorFixedPoint": true,
+    "syntaxRegressions": 3,
+    "fullImplementationClosure": false
+  },
+  "nativeTestAssertions": 43,
+  "nativeSuitePassCounts": [
+    4,
+    11,
+    1,
+    1,
+    0,
+    14,
+    3,
+    2,
+    3,
+    2,
+    0,
+    1,
+    1
+  ],
+  "sharedParserCases": 100,
+  "sharedProofCases": 34,
+  "cleanup": {
+    "budgetBytes": 1073741824,
+    "afterBytes": 1072246815,
+    "reclaimedBytes": 172118701
+  },
+  "remainingR151": [
+    "local build/package hook integration pending existing-file update",
+    "executable linked target/ABI model",
+    "source-to-compiled-target preservation beyond declared observations"
+  ],
+  "fullImplementationClosure": false,
+  "nativeEvidence": {
+    "executionScope": "The previously completed90fc additive native witness",
+    "nativeRuntimeArchiveUnchanged": true,
+    "nativeVerifierUnchanged": true,
+    "identicalNativeBuildInputFiles": 86,
+    "identityWitness": "docs/case-studies/issue-183/data/linked-implementation-native-input-identity.json",
+    "reasonForReuse": "The source-authority workflow gained its standard bootstrap step. All 86 native manifests/locks, libraries and generic syntax inputs, the Rust graph, and the native verifier are byte-identical to the completed 90fc additive native witness. Native execution was not repeated."
+  },
+  "requiredBaseAdditions": [
+    {
+      "path": ".github/workflows/cache-candidate-validation.yml",
+      "sha256": "d02a1dc82211a2da8785bffdd8248189790ec60f6b0bc87136b2676fe192c305"
+    },
+    {
+      "path": ".github/candidates/cache-portability/manifest.json",
+      "sha256": "5fb216ec1e6a7ac64e25d355369c99fbbcb77ca1af0af328fa1f293a61c95565"
+    },
+    {
+      "path": ".github/candidates/cache-portability/repair.patch",
+      "sha256": "de1dcec0cbe96b46e6e75e033c645d62131cd0ba78aba5cfd32a9f3686017e5e"
+    },
+    {
+      "path": ".github/candidates/cache-portability/validate.mjs",
+      "sha256": "e60dae20b5f4969be058c98f0a5c8907cc33b3f60c61a92d87e2c5bdbaf3aadd"
+    },
+    {
+      "path": ".github/candidates/cache-portability/validate.test.mjs",
+      "sha256": "028af1746345a747ad87a9840845175d436d43b5cb24774e8c88ca9b182c1a3b"
+    }
+  ],
+  "publishedBaseIdentity": {
+    "checkedFiles": 677,
+    "differentFiles": 0,
+    "tree": "00c5d233d4e5a5f8b775d62d6a88975824915217"
+  }
+}

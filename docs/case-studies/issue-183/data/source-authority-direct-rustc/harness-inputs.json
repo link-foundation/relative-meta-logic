@@ -1,0 +1,50 @@
+{
+  "schema": "rml-direct-harness-inputs/v1",
+  "files": [
+    {
+      "path": "deadline-relay.py",
+      "sha256": "3a833ba764c7472ae5b05b995ae4ac1db5690ec472207eb96ddce3dd5a0b1a3d",
+      "bytes": 1327
+    },
+    {
+      "path": "direct-rustc-builder.py",
+      "sha256": "f60d232cc8b223fc48f2add8ea02f6e0206ed57d32f13e4b9f4b4124109fbae4",
+      "bytes": 4539
+    },
+    {
+      "path": "generic-inputs.json",
+      "sha256": "857f7e349ad9653a240630b5532a2e8be1ff19161f3d4d33b52b7db53c5a0c48",
+      "bytes": 99028
+    },
+    {
+      "path": "scripts/bootstrap.mjs",
+      "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2",
+      "bytes": 5706
+    },
+    {
+      "path": "scripts/build-cache.mjs",
+      "sha256": "782e2e28806d979a1a831b703fa296b5b1fb4ec05e8fd52e771dbcea31547a96",
+      "bytes": 24931
+    },
+    {
+      "path": "scripts/cache-policy.json",
+      "sha256": "963ffdc0eac46b141a17a92cac09b6e75b4716d7e1bfa9039944b850a511958a",
+      "bytes": 2667
+    },
+    {
+      "path": "scripts/initialize-meta-language.mjs",
+      "sha256": "fe50c34e699656125996e411857309b0bf990299711eec8dfe21b4c62ecfdc2e",
+      "bytes": 3692
+    },
+    {
+      "path": "scripts/run-with-cache.mjs",
+      "sha256": "3a8ee7123b092b4719532ea0089341972e687a6ff4dae76a46c6ed26ec238b74",
+      "bytes": 7518
+    },
+    {
+      "path": "verify-direct-native.mjs",
+      "sha256": "0d83d8c89b1191167f8378a9b58d13a827c0f5ed6dff829c254ecc3c7fe8f7be",
+      "bytes": 8678
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+[submodule "meta-language"]
+	path = js/vendor/meta-language
+	url = https://github.com/link-foundation/meta-language.git

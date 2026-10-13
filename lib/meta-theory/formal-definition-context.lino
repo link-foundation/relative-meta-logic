@@ -1,0 +1,54 @@
+# Closed function formation under checked global type hypotheses. The caller
+# must first independently check every actual imported type/value binding.
+# This is not an execution or conversion-proof environment. Actual global values
+# remain in evaluation requests; the derived context exists only while checking
+# a closed lambda body. Neither type constructors nor dependent Pi constants are
+# abstracted. A successful result must contain the unchanged source body and an
+# empty captured environment, so no temporary neutral value escapes.
+(linked-program formal-definition-context)
+
+(linked-rewrite formal-definition-context closed-function
+  (from (fs-closed-function-definition ?annotation (fs-lambda ?domain ?body) ?globals))
+  (to (fdc-annotation (fs-infer ?annotation fs-empty ?globals) ?domain ?body ?globals)))
+(linked-rewrite formal-definition-context function-annotation
+  (from (fdc-annotation (fs-ok fs-kind (fs-t-arrow ?domain-type ?codomain-type)) ?domain ?body ?globals))
+  (to (fdc-environment (fs-t-arrow ?domain-type ?codomain-type) ?domain ?body (fdc-map ?globals))))
+(linked-rewrite formal-definition-context environment-ready
+  (from (fdc-environment ?type ?domain ?body (fdc-mapped ?globals)))
+  (to (fdc-result ?type ?body (fs-check (fs-lambda ?domain ?body) ?type fs-empty ?globals))))
+(linked-rewrite formal-definition-context exact-closed-result
+  (from (fdc-result ?type ?body (fs-ok ?type (fs-closure ?body fs-empty))))
+  (to (fs-ok ?type (fs-closure ?body fs-empty))))
+
+(linked-rewrite formal-definition-context map-empty
+  (from (fdc-map fs-empty)) (to (fdc-mapped fs-empty)))
+(linked-rewrite formal-definition-context map-entry
+  (from (fdc-map (fs-global-bind ?address ?type ?value ?tail)))
+  (to (fdc-entry ?address ?type ?value (fdc-classify ?type) (fdc-map ?tail))))
+(linked-rewrite formal-definition-context abstract-function
+  (from (fdc-entry ?address ?type ?value fdc-abstract (fdc-mapped ?tail)))
+  (to (fdc-mapped (fs-global-bind ?address ?type (fs-neutral (fdc-global ?address)) ?tail))))
+(linked-rewrite formal-definition-context preserve-value
+  (from (fdc-entry ?address ?type ?value fdc-preserve (fdc-mapped ?tail)))
+  (to (fdc-mapped (fs-global-bind ?address ?type ?value ?tail))))
+
+(linked-rewrite formal-definition-context classify-arrow
+  (from (fdc-classify (fs-t-arrow ?domain ?codomain)))
+  (to (fdc-ordinary-result ?codomain)))
+(linked-rewrite formal-definition-context preserve-other
+  (from (fdc-classify ?other)) (to fdc-preserve))
+(linked-rewrite formal-definition-context ordinary-natural
+  (from (fdc-ordinary-result fs-t-nat)) (to fdc-abstract))
+(linked-rewrite formal-definition-context ordinary-boolean
+  (from (fdc-ordinary-result fs-t-bool)) (to fdc-abstract))
+(linked-rewrite formal-definition-context ordinary-list
+  (from (fdc-ordinary-result (fs-t-list ?element))) (to fdc-abstract))
+(linked-rewrite formal-definition-context ordinary-product
+  (from (fdc-ordinary-result (fs-t-product ?left ?right))) (to fdc-abstract))
+(linked-rewrite formal-definition-context ordinary-vector
+  (from (fdc-ordinary-result (fs-t-vector ?element ?length))) (to fdc-abstract))
+(linked-rewrite formal-definition-context ordinary-arrow
+  (from (fdc-ordinary-result (fs-t-arrow ?domain ?codomain)))
+  (to (fdc-ordinary-result ?codomain)))
+(linked-rewrite formal-definition-context preserve-universe-and-dependent
+  (from (fdc-ordinary-result ?other)) (to fdc-preserve))

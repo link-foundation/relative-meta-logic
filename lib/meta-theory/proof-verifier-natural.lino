@@ -1,0 +1,326 @@
+# Natural-deduction extension of the linked proof verifier, as linked rules.
+# It reuses the quoting, matching, substitution, list and node-index rules of
+# linked-proof-verifier and adds three generic, theory-agnostic mechanisms:
+#
+#   (local ID CONCLUSION)            an assumption rule that must be discharged
+#   (discharge ID PATTERN)           a premise whose subproof may use local ID;
+#                                    ID is removed from that premise's dependencies
+#   (rule ID PREMISES CONCLUSION (congruent L R A B))
+#                                    a rule whose instance is accepted only when B
+#                                    is A with some subterm occurrences of L
+#                                    replaced by R (equational rewriting under
+#                                    congruence), checked here by linked rules
+#
+# A derivation is accepted only when no undischarged local remains among the
+# root dependencies. Induction and case analysis are ordinary context rules
+# whose step premises discharge their hypotheses; which such rules are valid is
+# decided by the context's owner (docs/LINKED_PROOF_VERIFICATION.md).
+
+(linked-program linked-proof-verifier-natural (uses linked-proof-verifier))
+
+(linked-rewrite linked-proof-verifier-natural enter-proof
+  (from (verify-linked-proof (pair (atom proof-context) (pair ?identity (pair ?rules (list-end)))) ?goal (pair (atom proof) (pair (pair (atom proof-context) (pair ?identity (pair ?rules (list-end)))) (pair ?goal (pair ?root (pair ?nodes (pair ?dependencies (list-end)))))))))
+  (to (pn-document (pn-index-rules ?rules (list-end)) (pv-index-nodes ?nodes (list-end)) ?goal ?root ?dependencies (pair (atom proof-context) (pair ?identity (pair ?rules (list-end)))))))
+
+(linked-rewrite linked-proof-verifier-natural remove-empty
+  (from (pn-remove ?item (list-end)))
+  (to (list-end)))
+
+(linked-rewrite linked-proof-verifier-natural remove-head
+  (from (pn-remove ?item (pair ?item ?tail)))
+  (to (pn-remove ?item ?tail)))
+
+(linked-rewrite linked-proof-verifier-natural remove-keep
+  (from (pn-remove ?item (pair ?head ?tail)))
+  (to (pair ?head (pn-remove ?item ?tail))))
+
+(linked-rewrite linked-proof-verifier-natural rules-empty
+  (from (pn-index-rules (list-end) ?seen))
+  (to (pn-rules-ready pn-no-rules)))
+
+(linked-rewrite linked-proof-verifier-natural rules-plain
+  (from (pn-index-rules (pair (pair (atom rule) (pair ?id (pair ?premises (pair ?conclusion (list-end))))) ?tail) ?seen))
+  (to (pn-index-rule-member (pv-member ?id ?seen) ?id ?premises ?conclusion pn-no-side ?tail ?seen)))
+
+(linked-rewrite linked-proof-verifier-natural rules-side
+  (from (pn-index-rules (pair (pair (atom rule) (pair ?id (pair ?premises (pair ?conclusion (pair ?side (list-end)))))) ?tail) ?seen))
+  (to (pn-index-rule-member (pv-member ?id ?seen) ?id ?premises ?conclusion (pn-side ?side) ?tail ?seen)))
+
+(linked-rewrite linked-proof-verifier-natural rules-local
+  (from (pn-index-rules (pair (pair (atom local) (pair ?id (pair ?conclusion (list-end)))) ?tail) ?seen))
+  (to (pn-index-rule-member (pv-member ?id ?seen) ?id (list-end) ?conclusion pn-local ?tail ?seen)))
+
+(linked-rewrite linked-proof-verifier-natural rules-malformed
+  (from (pn-index-rules ?data ?seen))
+  (to (pv-error malformed-rules)))
+
+(linked-rewrite linked-proof-verifier-natural rules-duplicate
+  (from (pn-index-rule-member pv-yes ?id ?premises ?conclusion ?side ?tail ?seen))
+  (to (pv-error duplicate-rule)))
+
+(linked-rewrite linked-proof-verifier-natural rules-unique
+  (from (pn-index-rule-member pv-no ?id ?premises ?conclusion ?side ?tail ?seen))
+  (to (pn-index-rule-finish ?id ?premises ?conclusion ?side (pn-index-rules ?tail (pair ?id ?seen)))))
+
+(linked-rewrite linked-proof-verifier-natural rules-finish
+  (from (pn-index-rule-finish ?id ?premises ?conclusion ?side (pn-rules-ready ?rest)))
+  (to (pn-rules-ready (pn-rule ?id ?premises ?conclusion ?side ?rest))))
+
+(linked-rewrite linked-proof-verifier-natural rules-error
+  (from (pn-index-rule-finish ?id ?premises ?conclusion ?side (pv-error ?reason)))
+  (to (pv-error ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural document-ready
+  (from (pn-document (pn-rules-ready ?rules) (pv-nodes-ready ?nodes ?ids) ?goal ?root ?dependencies ?context))
+  (to (pn-root (pn-check-node ?root ?rules ?nodes (list-end)) ?goal ?dependencies ?ids ?context ?rules)))
+
+(linked-rewrite linked-proof-verifier-natural document-rule-error
+  (from (pn-document (pv-error ?reason) ?nodes ?goal ?root ?dependencies ?context))
+  (to (proof-rejected ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural document-node-error
+  (from (pn-document ?rules (pv-error ?reason) ?goal ?root ?dependencies ?context))
+  (to (proof-rejected ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural lookup-rule-head
+  (from (pn-find-rule ?id (pn-rule ?id ?premises ?conclusion ?side ?rest)))
+  (to (pn-found-rule ?premises ?conclusion ?side)))
+
+(linked-rewrite linked-proof-verifier-natural lookup-rule-tail
+  (from (pn-find-rule ?id (pn-rule ?other ?premises ?conclusion ?side ?rest)))
+  (to (pn-find-rule ?id ?rest)))
+
+(linked-rewrite linked-proof-verifier-natural lookup-rule-missing
+  (from (pn-find-rule ?id pn-no-rules))
+  (to (pv-error missing-rule)))
+
+(linked-rewrite linked-proof-verifier-natural check-node
+  (from (pn-check-node ?id ?rules ?nodes ?ancestors))
+  (to (pn-cycle-check (pv-member ?id ?ancestors) ?id ?rules ?nodes ?ancestors)))
+
+(linked-rewrite linked-proof-verifier-natural reject-cycle
+  (from (pn-cycle-check pv-yes ?id ?rules ?nodes ?ancestors))
+  (to (pv-error circular-proof)))
+
+(linked-rewrite linked-proof-verifier-natural visit-node
+  (from (pn-cycle-check pv-no ?id ?rules ?nodes ?ancestors))
+  (to (pn-node-ready (pv-find-node ?id ?nodes) ?id ?rules ?nodes (pair ?id ?ancestors))))
+
+(linked-rewrite linked-proof-verifier-natural node-missing
+  (from (pn-node-ready (pv-error ?reason) ?id ?rules ?nodes ?ancestors))
+  (to (pv-error ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural node-ready
+  (from (pn-node-ready (pv-found-node ?rule ?conclusion ?bindings ?premises ?dependencies) ?id ?rules ?nodes ?ancestors))
+  (to (pn-rule-ready (pn-find-rule ?rule ?rules) ?id ?rule ?conclusion ?bindings ?premises ?dependencies ?rules ?nodes ?ancestors)))
+
+(linked-rewrite linked-proof-verifier-natural rule-missing
+  (from (pn-rule-ready (pv-error ?reason) ?id ?rule ?conclusion ?bindings ?premises ?dependencies ?rules ?nodes ?ancestors))
+  (to (pv-error ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural rule-ready
+  (from (pn-rule-ready (pn-found-rule ?patterns ?template ?side) ?id ?rule ?conclusion ?bindings ?premises ?dependencies ?rules ?nodes ?ancestors))
+  (to (pn-node-premises (pn-check-premises ?patterns ?premises ?rules ?nodes ?ancestors (no-bindings) (pair ?rule (list-end)) (pair ?id (list-end)) pv-no-evidence) ?template ?side ?id ?rule ?conclusion ?bindings ?dependencies)))
+
+(linked-rewrite linked-proof-verifier-natural premises-empty
+  (from (pn-check-premises (list-end) (list-end) ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pn-premises-ok ?bindings ?dependencies ?visited ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural premises-discharge
+  (from (pn-check-premises (pair (pair (atom discharge) (pair ?local (pair ?pattern (list-end)))) ?patterns) (pair ?id ?ids) ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pn-discharge-local (pn-find-rule ?local ?rules) ?local ?pattern ?patterns ?id ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural premises-step
+  (from (pn-check-premises (pair ?pattern ?patterns) (pair ?id ?ids) ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pn-premise-checked (pn-check-node ?id ?rules ?nodes ?ancestors) ?pattern ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural premises-arity
+  (from (pn-check-premises ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pv-error premise-arity)))
+
+(linked-rewrite linked-proof-verifier-natural discharge-local
+  (from (pn-discharge-local (pn-found-rule (list-end) ?assumption pn-local) ?local ?pattern ?patterns ?id ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pn-discharge-checked (pn-check-node ?id ?rules ?nodes ?ancestors) ?local ?pattern ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural discharge-invalid
+  (from (pn-discharge-local (pn-found-rule ?premises ?conclusion ?side) ?local ?pattern ?patterns ?id ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pv-error invalid-discharge)))
+
+(linked-rewrite linked-proof-verifier-natural discharge-missing
+  (from (pn-discharge-local (pv-error ?reason) ?local ?pattern ?patterns ?id ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pv-error invalid-discharge)))
+
+(linked-rewrite linked-proof-verifier-natural discharge-error
+  (from (pn-discharge-checked (pv-error ?reason) ?local ?pattern ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pv-error ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural discharge-checked
+  (from (pn-discharge-checked (pv-checked ?conclusion ?child-dependencies ?child-visited ?child-evidence) ?local ?pattern ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pn-premise-checked (pv-checked ?conclusion (pn-remove ?local ?child-dependencies) ?child-visited ?child-evidence) ?pattern ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural premise-error
+  (from (pn-premise-checked (pv-error ?reason) ?pattern ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pv-error ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural premise-checked
+  (from (pn-premise-checked (pv-checked ?conclusion ?child-dependencies ?child-visited ?child-evidence) ?pattern ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pn-premise-pattern (pv-pattern ?pattern) ?conclusion ?child-dependencies ?child-visited ?child-evidence ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural premise-pattern
+  (from (pn-premise-pattern (pv-pattern-ok ?pattern) ?conclusion ?child-dependencies ?child-visited ?child-evidence ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited ?evidence))
+  (to (pn-premise-match (meta-match ?pattern ?conclusion ?bindings) ?child-dependencies ?child-visited ?child-evidence ?patterns ?ids ?rules ?nodes ?ancestors ?dependencies ?visited ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural premise-mismatch
+  (from (pn-premise-match match-failed ?child-dependencies ?child-visited ?child-evidence ?patterns ?ids ?rules ?nodes ?ancestors ?dependencies ?visited ?evidence))
+  (to (pv-error premise-mismatch)))
+
+(linked-rewrite linked-proof-verifier-natural premise-match
+  (from (pn-premise-match (match-ok ?bindings) ?child-dependencies ?child-visited ?child-evidence ?patterns ?ids ?rules ?nodes ?ancestors ?dependencies ?visited ?evidence))
+  (to (pn-premise-unions (pv-union ?child-dependencies ?dependencies) (pv-union ?child-visited ?visited) ?bindings ?child-evidence ?patterns ?ids ?rules ?nodes ?ancestors ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural premise-unions
+  (from (pn-premise-unions (pv-list ?dependencies) (pv-list ?visited) ?bindings ?child-evidence ?patterns ?ids ?rules ?nodes ?ancestors ?evidence))
+  (to (pn-check-premises ?patterns ?ids ?rules ?nodes ?ancestors ?bindings ?dependencies ?visited (pv-evidence ?child-evidence ?evidence))))
+
+(linked-rewrite linked-proof-verifier-natural node-premise-error
+  (from (pn-node-premises (pv-error ?reason) ?template ?side ?id ?rule ?conclusion ?bindings ?dependencies))
+  (to (pv-error ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural node-premises
+  (from (pn-node-premises (pn-premises-ok ?computed-bindings ?computed-dependencies ?visited ?evidence) ?template ?side ?id ?rule ?conclusion ?bindings ?dependencies))
+  (to (pn-node-template (pv-pattern ?template) ?computed-bindings ?computed-dependencies ?visited ?evidence ?side ?id ?rule ?conclusion ?bindings ?dependencies)))
+
+(linked-rewrite linked-proof-verifier-natural node-template
+  (from (pn-node-template (pv-pattern-ok ?template) ?computed-bindings ?computed-dependencies ?visited ?evidence ?side ?id ?rule ?conclusion ?bindings ?dependencies))
+  (to (pn-node-exact (pv-read (meta-substitute ?template ?computed-bindings)) (pv-bindings ?bindings) ?computed-bindings ?computed-dependencies ?visited ?evidence ?side ?id ?rule ?conclusion ?dependencies)))
+
+(linked-rewrite linked-proof-verifier-natural node-exact
+  (from (pn-node-exact (pv-value ?conclusion) (pv-bindings-ready ?bindings) ?bindings ?dependencies ?visited ?evidence ?side ?id ?rule ?conclusion ?dependencies))
+  (to (pn-node-side (pn-side-check ?side ?bindings) ?conclusion ?dependencies ?visited (verified-node ?id ?rule ?conclusion ?bindings ?dependencies ?evidence))))
+
+(linked-rewrite linked-proof-verifier-natural node-forged
+  (from (pn-node-exact (pv-value ?actual) (pv-bindings-ready ?claimed-bindings) ?bindings ?dependencies ?visited ?evidence ?side ?id ?rule ?claimed ?claimed-dependencies))
+  (to (pv-error forged-node-details)))
+
+(linked-rewrite linked-proof-verifier-natural side-none
+  (from (pn-side-check pn-no-side ?bindings))
+  (to pv-yes))
+
+(linked-rewrite linked-proof-verifier-natural side-local
+  (from (pn-side-check pn-local ?bindings))
+  (to pv-yes))
+
+(linked-rewrite linked-proof-verifier-natural side-congruent
+  (from (pn-side-check (pn-side (pair (atom congruent) (pair ?left (pair ?right (pair ?before (pair ?after (list-end))))))) ?bindings))
+  (to (pn-congruent (pn-instantiate ?left ?bindings) (pn-instantiate ?right ?bindings) (pn-instantiate ?before ?bindings) (pn-instantiate ?after ?bindings))))
+
+(linked-rewrite linked-proof-verifier-natural side-unknown
+  (from (pn-side-check ?side ?bindings))
+  (to pv-no))
+
+(linked-rewrite linked-proof-verifier-natural instantiate
+  (from (pn-instantiate ?pattern ?bindings))
+  (to (pn-instantiate-pattern (pv-pattern ?pattern) ?bindings)))
+
+(linked-rewrite linked-proof-verifier-natural instantiate-pattern
+  (from (pn-instantiate-pattern (pv-pattern-ok ?pattern) ?bindings))
+  (to (pv-read (meta-substitute ?pattern ?bindings))))
+
+(linked-rewrite linked-proof-verifier-natural congruent
+  (from (pn-congruent (pv-value ?left) (pv-value ?right) (pv-value ?before) (pv-value ?after)))
+  (to (pn-cong ?before ?after ?left ?right)))
+
+# Congruence on quoted terms: identical, one replaced occurrence, or the same
+# list shape with congruent elements. List spines are compared positionally and
+# are never themselves replaced, so only whole subterms are rewritten.
+(linked-rewrite linked-proof-verifier-natural cong-same
+  (from (pn-cong ?term ?term ?left ?right))
+  (to pv-yes))
+
+(linked-rewrite linked-proof-verifier-natural cong-replace
+  (from (pn-cong ?left ?right ?left ?right))
+  (to pv-yes))
+
+(linked-rewrite linked-proof-verifier-natural cong-list
+  (from (pn-cong (pair ?before ?before-rest) (pair ?after ?after-rest) ?left ?right))
+  (to (pn-cong-both (pn-cong ?before ?after ?left ?right) ?before-rest ?after-rest ?left ?right)))
+
+(linked-rewrite linked-proof-verifier-natural cong-differ
+  (from (pn-cong ?before ?after ?left ?right))
+  (to pv-no))
+
+(linked-rewrite linked-proof-verifier-natural cong-both-yes
+  (from (pn-cong-both pv-yes ?before-rest ?after-rest ?left ?right))
+  (to (pn-cong-spine ?before-rest ?after-rest ?left ?right)))
+
+(linked-rewrite linked-proof-verifier-natural cong-both-no
+  (from (pn-cong-both pv-no ?before-rest ?after-rest ?left ?right))
+  (to pv-no))
+
+(linked-rewrite linked-proof-verifier-natural cong-spine-end
+  (from (pn-cong-spine (list-end) (list-end) ?left ?right))
+  (to pv-yes))
+
+(linked-rewrite linked-proof-verifier-natural cong-spine-pair
+  (from (pn-cong-spine (pair ?before ?before-rest) (pair ?after ?after-rest) ?left ?right))
+  (to (pn-cong-both (pn-cong ?before ?after ?left ?right) ?before-rest ?after-rest ?left ?right)))
+
+(linked-rewrite linked-proof-verifier-natural cong-spine-differ
+  (from (pn-cong-spine ?before-rest ?after-rest ?left ?right))
+  (to pv-no))
+
+(linked-rewrite linked-proof-verifier-natural node-side-ok
+  (from (pn-node-side pv-yes ?conclusion ?dependencies ?visited ?evidence))
+  (to (pv-checked ?conclusion ?dependencies ?visited ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural node-side-failed
+  (from (pn-node-side pv-no ?conclusion ?dependencies ?visited ?evidence))
+  (to (pv-error side-condition-failed)))
+
+(linked-rewrite linked-proof-verifier-natural root-error
+  (from (pn-root (pv-error ?reason) ?goal ?dependencies ?ids ?context ?rules))
+  (to (proof-rejected ?reason)))
+
+(linked-rewrite linked-proof-verifier-natural root-exact
+  (from (pn-root (pv-checked ?goal ?dependencies ?visited ?evidence) ?goal ?dependencies ?ids ?context ?rules))
+  (to (pn-root-reachable (pv-subset ?ids ?visited) ?context ?goal ?dependencies ?evidence ?rules)))
+
+(linked-rewrite linked-proof-verifier-natural root-forged
+  (from (pn-root (pv-checked ?actual ?actual-dependencies ?visited ?evidence) ?goal ?dependencies ?ids ?context ?rules))
+  (to (proof-rejected forged-root-details)))
+
+(linked-rewrite linked-proof-verifier-natural root-reachable
+  (from (pn-root-reachable pv-yes ?context ?goal ?dependencies ?evidence ?rules))
+  (to (pn-root-closed (pn-closed ?dependencies ?rules) ?context ?goal ?dependencies ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural root-unreachable
+  (from (pn-root-reachable pv-no ?context ?goal ?dependencies ?evidence ?rules))
+  (to (proof-rejected unreachable-node)))
+
+(linked-rewrite linked-proof-verifier-natural closed-empty
+  (from (pn-closed (list-end) ?rules))
+  (to pv-yes))
+
+(linked-rewrite linked-proof-verifier-natural closed-step
+  (from (pn-closed (pair ?id ?tail) ?rules))
+  (to (pn-closed-rule (pn-find-rule ?id ?rules) ?tail ?rules)))
+
+(linked-rewrite linked-proof-verifier-natural closed-local
+  (from (pn-closed-rule (pn-found-rule ?premises ?conclusion pn-local) ?tail ?rules))
+  (to pv-no))
+
+(linked-rewrite linked-proof-verifier-natural closed-other
+  (from (pn-closed-rule (pn-found-rule ?premises ?conclusion ?side) ?tail ?rules))
+  (to (pn-closed ?tail ?rules)))
+
+(linked-rewrite linked-proof-verifier-natural closed-missing
+  (from (pn-closed-rule (pv-error ?reason) ?tail ?rules))
+  (to pv-no))
+
+(linked-rewrite linked-proof-verifier-natural root-closed
+  (from (pn-root-closed pv-yes ?context ?goal ?dependencies ?evidence))
+  (to (proof-accepted ?context ?goal ?dependencies ?evidence)))
+
+(linked-rewrite linked-proof-verifier-natural root-open
+  (from (pn-root-closed pv-no ?context ?goal ?dependencies ?evidence))
+  (to (proof-rejected undischarged-local)))

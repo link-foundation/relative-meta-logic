@@ -1,0 +1,6 @@
+[
+  { "language": "JavaScript", "source": "function successor(n) { return n + 1; }\n" },
+  { "language": "Rust", "source": "fn successor(n: u64) -> u64 { n + 1 }\n" },
+  { "language": "Lean", "source": "def successor (n : Nat) : Nat := n + 1\n" },
+  { "language": "Rocq", "source": "Definition successor (n : nat) : nat := n + 1.\n" }
+]

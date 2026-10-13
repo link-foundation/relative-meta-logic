@@ -1,0 +1,696 @@
+(translation-producer-receipt
+  (schema "rml:translation-producer-receipt:1")
+  (translator
+    (upstream "https://github.com/link-foundation/meta-language")
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (implementation
+    (file "js/src/rml-certified-translation.mjs" 27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039)
+    (file "js/src/rml-surface-lowering.mjs" c5287e08247fd0f2c2ad1f1841d6b0a90c08179b523f27d4e3e58d257527b60b)
+    (file "js/src/rml-concept-space.mjs" b6e763b63bb99ae4fb10a146092c86a0d7ef779d912b7637512369d65bc51fb4)
+    (file "scripts/generate-certified-translations.mjs" 41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6)
+    (file "js/vendor/meta-language-pr201/upstream-files.json" 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (recipe
+    (regenerate "node scripts/generate-certified-translations.mjs")
+    (freshness "node scripts/generate-certified-translations.mjs --check")
+    (native-oracles "node scripts/check-certified-translation-native.mjs --require=JavaScript,Rust,Lean,Rocq"))
+  (inputs
+    (input
+      (path "sources/javascript-inventory.js")
+      (language JavaScript)
+      (sha256 d421791f60ab1c589a1435ed88336f006b72936f574404d54d835a792c6fb075)
+      (bytes 925))
+    (input
+      (path "sources/javascript-numeric.js")
+      (language JavaScript)
+      (sha256 59f86976b5d162261d5cb5cee2390434dc36671e63358b1cda7e84024d722ff0)
+      (bytes 659))
+    (input
+      (path "sources/lean-list.lean")
+      (language Lean)
+      (sha256 69e6c7b28f702f7cbc435baa2c97ddb24cc0bd90578629ee65123effc105ddff)
+      (bytes 1048))
+    (input
+      (path "sources/lean-structure.lean")
+      (language Lean)
+      (sha256 eed75401be3b36c2465f1b17518d5229e65558155c2d2178f9c59a3860c65b46)
+      (bytes 798))
+    (input
+      (path "sources/lean-tree.lean")
+      (language Lean)
+      (sha256 38b542d23cba8f41f99b55ab8d41635ae537de9fd8b8a5f2859e104e9f9ba5a9)
+      (bytes 764))
+    (input
+      (path "sources/rocq-expr.v")
+      (language Rocq)
+      (sha256 d2498fa0c67a119b982346a3b2aa8386a3f42220757a76ca539ca3da03e319d1)
+      (bytes 1065))
+    (input
+      (path "sources/rocq-queue.v")
+      (language Rocq)
+      (sha256 30cc347786dc6b82c3c4a6a2693115f9969eef11ad043f89fa46dc7392fe157c)
+      (bytes 1229))
+    (input
+      (path "sources/rocq-record.v")
+      (language Rocq)
+      (sha256 ccbdbd42b5863282b86bc4799eb25a41174da11849c6d2d6d74ab7a951db6565)
+      (bytes 805))
+    (input
+      (path "sources/rust-fold.rs")
+      (language Rust)
+      (sha256 e1a3627f19baec1f6c25e9115306eec0e2431291e132ca243be03e7eec10cb96)
+      (bytes 512))
+    (input
+      (path "sources/rust-generic.rs")
+      (language Rust)
+      (sha256 02dadf2609f7a05f08dd5a66b6936d0149ecf1f17cf8974646017b4111a93892)
+      (bytes 1007))
+    (input
+      (path "sources/rust-records.rs")
+      (language Rust)
+      (sha256 2bc06ee07c9d5ea606a94b3093e8040ac9a8567ab12e97f1596e479dee96e42a)
+      (bytes 1249))
+    (input
+      (path "sources/rust-shapes.rs")
+      (language Rust)
+      (sha256 b9a04497d0670b4c7c9f0e15716b2637849a3796b5c38322b6e9ebb655eedd0e)
+      (bytes 1205))
+    (input
+      (path "refusals/javascript-class.js")
+      (language JavaScript)
+      (sha256 b074bf29b12513d4a78e0d5315628b345be712530a987a8d7684ab06a8a9dac9)
+      (bytes 264))
+    (input
+      (path "refusals/javascript-generic-use.js")
+      (language JavaScript)
+      (sha256 7dbe976946c4b4d8aa64cd2329c77476d9cff58cfbae6279c98edc954f211794)
+      (bytes 178))
+    (input
+      (path "refusals/lean-axiom.lean")
+      (language Lean)
+      (sha256 ede89ce192572ae1d73e18c909ed79d8ea09715cdef832d556ad2e4291d68f13)
+      (bytes 175))
+    (input
+      (path "refusals/lean-implicit-polymorphism.lean")
+      (language Lean)
+      (sha256 8ff49961b21694e1ac29b4ed585d72f5bc19ead0f1e5d5496ea410b9081c74d8)
+      (bytes 90))
+    (input
+      (path "refusals/lean-structure-default.lean")
+      (language Lean)
+      (sha256 0386e59fe4742850145ac0913026f46646e6580a07a6adbca2c614911cade8ed)
+      (bytes 228))
+    (input
+      (path "refusals/lean-typeclass.lean")
+      (language Lean)
+      (sha256 c9d6251bb3ca60c9988f3c5d45aa3a9ec4a7cc1a125dec522f6ae3c830b10656)
+      (bytes 237))
+    (input
+      (path "refusals/lean-universe-polymorphism.lean")
+      (language Lean)
+      (sha256 4c95f60ec9084ec73c8c56966f7676541173354ed4ad1e98e6976f17e3d95e7e)
+      (bytes 201))
+    (input
+      (path "refusals/rocq-admitted.v")
+      (language Rocq)
+      (sha256 61ae8ae0e0fc257c7d49dbbcc04cad2a6a2ea4f48f780454ea26f80861828b48)
+      (bytes 283))
+    (input
+      (path "refusals/rocq-dependent-record.v")
+      (language Rocq)
+      (sha256 835385acf9ff249ccc1f749b2e46c8b7d3403a4b3432a1da04fecd5dc86e7b70)
+      (bytes 288))
+    (input
+      (path "refusals/rust-ambiguous-field.rs")
+      (language Rust)
+      (sha256 143065ad253c84a49d86f5c995272e4d738ea50e6fb6b4d606562e97e84a2595)
+      (bytes 389))
+    (input
+      (path "refusals/rust-generic-function.rs")
+      (language Rust)
+      (sha256 fc606031239d192128821a744c78ef33a47650b7ec4b142c9974fa502cf97bce)
+      (bytes 69))
+    (input
+      (path "refusals/rust-macro-rules.rs")
+      (language Rust)
+      (sha256 8cc91d679ba99ebfe590c45c2501682088b44e601379e6395de388aad1cad8a4)
+      (bytes 206))
+    (input
+      (path "refusals/rust-struct-update.rs")
+      (language Rust)
+      (sha256 08db06d3615fb5c97dc2acc773eeefbe61f33fe379b973bd11517fdcb19766e5)
+      (bytes 305))
+    (input
+      (path "refusals/rust-trait-bound.rs")
+      (language Rust)
+      (sha256 d1a438a86c0c7a9b6a37a627d1551846a10c60edc8c60ac165a8f546ccbcb0b0)
+      (bytes 235))
+    (input
+      (path "refusals/rust-trait-impl.rs")
+      (language Rust)
+      (sha256 08773f63de57d9673507fe27b262054fbed1bbd79a3c610beadce2e51df4182b)
+      (bytes 379))
+    (input
+      (path "refusals/rust-u32-structural-recursion.rs")
+      (language Rust)
+      (sha256 6d51727eb771ee4ff61c57233ce548912cab94a928cd9bb9cf775abb6881addc)
+      (bytes 512)))
+  (outputs
+    (output
+      (path "javascript-inventory/rust.rs")
+      (kind target)
+      (sha256 3664bb693916b1d53e91a5259977b61a3fd78ad4ec7cce870db166b38529df91))
+    (output
+      (path "javascript-inventory/rust.certificate.lino")
+      (kind certificate)
+      (sha256 f427b46be8939df59217416492e38f4605fbd1505457c93eb3ccf9924a474f11))
+    (output
+      (path "javascript-inventory/lean.lean")
+      (kind target)
+      (sha256 47e321d7a18a397cf5b16690fa00b092aaa0d498eba9f054738691c7aa78ebe8))
+    (output
+      (path "javascript-inventory/lean.certificate.lino")
+      (kind certificate)
+      (sha256 8f75896b7b341a060faf25c7b8405e50cd5566f14f023e9b33c6e01ba930763d))
+    (output
+      (path "javascript-inventory/rocq.v")
+      (kind target)
+      (sha256 17901a41d48586c823a1be070018b4eb043ed4311b2479c66eeae9d055dd3150))
+    (output
+      (path "javascript-inventory/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 d53c9e4d4e6040df08b4a3125ef95649147a493d0d65fc9836911778d06e5bea))
+    (output
+      (path "javascript-inventory/intermediate.lino")
+      (kind intermediate)
+      (sha256 3a88adfcf0a97baa5d6c1ddc38cbeb903f3a29da3f8cc7ef2b3a639a8109de21))
+    (output
+      (path "javascript-numeric/rust.rs")
+      (kind target)
+      (sha256 3df62865f95250bf5ffd4777cdd215abfa6604b40b7c59254febc575fcad5b01))
+    (output
+      (path "javascript-numeric/rust.certificate.lino")
+      (kind certificate)
+      (sha256 081520d43a353cec0cf18048179e1cf41983387712a12e9b471d0b83ce393d87))
+    (output
+      (path "javascript-numeric/lean.lean")
+      (kind target)
+      (sha256 fe35f20ce78915b184db4b3b6274d9aab51cfb502ce16b67365f33211e102736))
+    (output
+      (path "javascript-numeric/lean.certificate.lino")
+      (kind certificate)
+      (sha256 3488ce86bb59a2c92652e220e357d21666685ac9f50c7a8a56d1a94bb02ba2d8))
+    (output
+      (path "javascript-numeric/rocq.v")
+      (kind target)
+      (sha256 85da120a19ffb8dc0671eb7090ee0aa2f19a149b223b74d00175c809c8f4c5ef))
+    (output
+      (path "javascript-numeric/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 2af2cb6b6cd8c9ba6de95471f58fa361fe14de5458c478f5510ff7f3cce452c5))
+    (output
+      (path "javascript-numeric/intermediate.lino")
+      (kind intermediate)
+      (sha256 0adec92a07ba3542b71e906e810b420177e7740cfa7cfc6740ae9dae5dfd7203))
+    (output
+      (path "lean-list/javascript.js")
+      (kind target)
+      (sha256 c583a3bfdb084bfb4eb7aadab0558037fea5d364872edabaef28d938967ca28c))
+    (output
+      (path "lean-list/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 647cbcc703df205b42268730060ae364f6c787daeea8a4f0623d838c15fe7022))
+    (output
+      (path "lean-list/rust.rs")
+      (kind target)
+      (sha256 fb4c5bb0e483cc434a10e8a00fe1f1e8f8520ad39173bab3e43ddc7b50db1f94))
+    (output
+      (path "lean-list/rust.certificate.lino")
+      (kind certificate)
+      (sha256 e536a01d78b77b6bc22b38a2a1fc943efa4115b84aa9a8f133eb97d6c2eb0eb9))
+    (output
+      (path "lean-list/rocq.v")
+      (kind target)
+      (sha256 5459901e9fe9e217d012debf0d9bc3cceacd345eff18ba0b1bebc5e2a8ec9e2e))
+    (output
+      (path "lean-list/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 ec75ce93e24b18b8839b76792338fefd8763fab9f2b1fae14d00f69fdaeae0f3))
+    (output
+      (path "lean-list/intermediate.lino")
+      (kind intermediate)
+      (sha256 02fd89d30a02612f03994d2f00c57ca2cc557be40a0a77db60ace8c2f10f8631))
+    (output
+      (path "lean-structure/javascript.js")
+      (kind target)
+      (sha256 33099871a08714b71383e1ea68057e8a92773205463b61acbce5fea4c4ad89d6))
+    (output
+      (path "lean-structure/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 93e0408dadc6fbfbbf9b5025bdc1d00d4203d132bf9d892200309cf6eb73b328))
+    (output
+      (path "lean-structure/rust.rs")
+      (kind target)
+      (sha256 8aa5bba3ece50c305eb3fa77997b7a0a78c6c38964ad6deb59e415a05c9f41d8))
+    (output
+      (path "lean-structure/rust.certificate.lino")
+      (kind certificate)
+      (sha256 d1b181b263a7fb0e6ef492c31285436960ca5b0d3793ab3f8d266e44c3c7dc1a))
+    (output
+      (path "lean-structure/rocq.v")
+      (kind target)
+      (sha256 59b19ee40a65a7199813348f765214daff0039f4db6f50cf0bc0fa2b31edf541))
+    (output
+      (path "lean-structure/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 f4909cb8ba35556dd741dc5f4d90aa44a7cc9f9ae600cf6fe506af14aedf62ac))
+    (output
+      (path "lean-structure/intermediate.lino")
+      (kind intermediate)
+      (sha256 7296dc31aaa4db2abfdaebe68faac02b731c8ae6c89acf157fd4d91d3a627a55))
+    (output
+      (path "lean-tree/javascript.js")
+      (kind target)
+      (sha256 f3926a4537246fef0b1758af86e0d62510ad8952afa9ac3e85a0602738452085))
+    (output
+      (path "lean-tree/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 04c4f6e750d1210817680977b6c081e80df1e3063b4ca6a4e459086147c87bb7))
+    (output
+      (path "lean-tree/rust.rs")
+      (kind target)
+      (sha256 471f9aed800390b835c5124898fc2f00ae60adc6f18815b4bd3eda1652a26dbc))
+    (output
+      (path "lean-tree/rust.certificate.lino")
+      (kind certificate)
+      (sha256 fff24fc20123344bb4f666958f2c81b74e33886c64d8980e58a635528ae86937))
+    (output
+      (path "lean-tree/rocq.v")
+      (kind target)
+      (sha256 107624398120444a337e6f917a1f092fac15abfe0f204222d4360b3432159cee))
+    (output
+      (path "lean-tree/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 9d8bfff71d42eedc0992d777a93fa0bab72fbd4acdb3a7dbd879c780ae2dcd26))
+    (output
+      (path "lean-tree/intermediate.lino")
+      (kind intermediate)
+      (sha256 63b718a28e4d6b25e688cb2ea5f544478e3d02a534b8810a9010df1c19cebe8b))
+    (output
+      (path "rocq-expr/javascript.js")
+      (kind target)
+      (sha256 649d2fe992b67d33e0a13b6be2ca028015b10444ef19a0ffbb7e9fb7d339fc3f))
+    (output
+      (path "rocq-expr/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 e2c3c38c5893f0ca3b37e60fc441c4f9d25d2be944a0cb9f2f57397a7315a26f))
+    (output
+      (path "rocq-expr/rust.rs")
+      (kind target)
+      (sha256 64745362059161a1ae1cb61a8a2206bc298f1d9e70157cf90383e93adccb1584))
+    (output
+      (path "rocq-expr/rust.certificate.lino")
+      (kind certificate)
+      (sha256 b8345e9cd7db806863a9d0ad1e00792ab7bf46cd0c319a0f4b8774d70f902f29))
+    (output
+      (path "rocq-expr/lean.lean")
+      (kind target)
+      (sha256 b3ad072f0e3651286e40d8796344e4731c755c60b16a44ba24f972a31627f5cd))
+    (output
+      (path "rocq-expr/lean.certificate.lino")
+      (kind certificate)
+      (sha256 70dcd7199fac967b2f89fe881de011016dab9eea86c10fd7cb00d8a5349a7c58))
+    (output
+      (path "rocq-expr/intermediate.lino")
+      (kind intermediate)
+      (sha256 ec111c26264cbca0b72af3eb3aa60fa8769d607f4211b7f2593bd3f771a7000a))
+    (output
+      (path "rocq-queue/javascript.js")
+      (kind target)
+      (sha256 36769337774527ba53e33747e79356cebe35d4da79dca3c5f47695c6aef3b428))
+    (output
+      (path "rocq-queue/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 2c81b6663bb456bf0cafe9e83c449df432b478f6b12ff98ff6845b033b1b9e34))
+    (output
+      (path "rocq-queue/rust.rs")
+      (kind target)
+      (sha256 3b16fbde304c91d65b98236443538ec8a712a3ef19c90f23f473b148a398a937))
+    (output
+      (path "rocq-queue/rust.certificate.lino")
+      (kind certificate)
+      (sha256 4ff6aa93a62d5c0eaa277885821fb2ec59248c59fb650e0e7d1db5f7ab2e4d8b))
+    (output
+      (path "rocq-queue/lean.lean")
+      (kind target)
+      (sha256 cb716e3c7bce5a7015a6dc6c7e4277c36fc27299bcc60edb644b449a20559a6d))
+    (output
+      (path "rocq-queue/lean.certificate.lino")
+      (kind certificate)
+      (sha256 f9f2af44cb6c6f7a20d8033da0cdba4e73438396973261c9b07c6cbfa40769f3))
+    (output
+      (path "rocq-queue/intermediate.lino")
+      (kind intermediate)
+      (sha256 37922f854df0eb9ed6513a6ea51e8e6ea52a97e2499e4b1bc7934f4a12a19fbb))
+    (output
+      (path "rocq-record/javascript.js")
+      (kind target)
+      (sha256 952ce36ad9c7815a3267f70850bb7f5f8f761c371d7e569cfd36858182a06c69))
+    (output
+      (path "rocq-record/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 c90dbf16321dedeee0866b23f1b6854cf71bcdceeefc00de68c2d31b0b6e51d3))
+    (output
+      (path "rocq-record/rust.rs")
+      (kind target)
+      (sha256 44e62fadbc9ac7d5021e8f1ec1af1b4482fed6ee78b0dec4f2434affd38d8c07))
+    (output
+      (path "rocq-record/rust.certificate.lino")
+      (kind certificate)
+      (sha256 f3c85eaee6b61543640b81a5dcd987d69a67ff5dbdb25ef74ee708b1f0b45ae9))
+    (output
+      (path "rocq-record/lean.lean")
+      (kind target)
+      (sha256 08fd3ed6efef7b3c4754d7f89ab021b221e1cb9589610d03c65929fdfe233466))
+    (output
+      (path "rocq-record/lean.certificate.lino")
+      (kind certificate)
+      (sha256 c1d98314ccc20b4852398438f8e7c15e976bf2c12b4ca9cacd8cc417a4984c5b))
+    (output
+      (path "rocq-record/intermediate.lino")
+      (kind intermediate)
+      (sha256 db7af1b03a10ad1f27f06b7bbd462179463aec947fdda353f34f3e4f2fc9c098))
+    (output
+      (path "rust-fold/javascript.js")
+      (kind target)
+      (sha256 b063ff26ef5371384a15a46f7a7bee44f2f1c932176016b9922a54300d4e6b92))
+    (output
+      (path "rust-fold/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 87c3e7415ad19e3a761719c9d1cc03a6dc2b1420355a613959af40de7bff6401))
+    (output
+      (path "rust-fold/lean.lean")
+      (kind target)
+      (sha256 eede64907cd7efd61887eac64935d9d58abe3f06b0072c1f9dbfe0d43996455b))
+    (output
+      (path "rust-fold/lean.certificate.lino")
+      (kind certificate)
+      (sha256 7cd5294791238252649d9505c5324c1b4ebb32c70ba6a7aed1a5b1fa74b0727c))
+    (output
+      (path "rust-fold/rocq.v")
+      (kind target)
+      (sha256 f7350d0080d5cea3a30d482c7f22bb39930f5011e1bfc3b7a92c57a14b7f6fca))
+    (output
+      (path "rust-fold/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 ceb318e3ce78036bde9eccf08409aa908468c249906764460f3031954a10f7a5))
+    (output
+      (path "rust-fold/intermediate.lino")
+      (kind intermediate)
+      (sha256 a3891ec8912d0bfb4498718ac12d3658e21e39b770fd8074f9ce7918a19d43bf))
+    (output
+      (path "rust-generic/javascript.js")
+      (kind target)
+      (sha256 f02e49b4f4f8a0149f741943a6688e08ef3910dc946037444873eb50fb8a8587))
+    (output
+      (path "rust-generic/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 7400565907a1692a69943fe389bf870ef765a391b8433cee272426ec843a8919))
+    (output
+      (path "rust-generic/lean.lean")
+      (kind target)
+      (sha256 a735e4d9bf76bea8238468096199175c21e0a0e96c4c7fb194cb536d79c294d4))
+    (output
+      (path "rust-generic/lean.certificate.lino")
+      (kind certificate)
+      (sha256 c63bef819afa7e47e2298d3e09ebf81de3a1477d68dbae89bc99e728c6091ecf))
+    (output
+      (path "rust-generic/rocq.v")
+      (kind target)
+      (sha256 8c8823ff247fbfc1ea816691dc846deb39f28041cfd8c17ceac98c27744c0a7e))
+    (output
+      (path "rust-generic/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 cb3f0692fe0610ea6dae9e4019e7d27e1a5ae317861ff3d177fcde0223d0736a))
+    (output
+      (path "rust-generic/intermediate.lino")
+      (kind intermediate)
+      (sha256 6fcac904d7389b9475622a455491157532091df3e2085691bb905dd67caf3c94))
+    (output
+      (path "rust-records/javascript.js")
+      (kind target)
+      (sha256 9f4dea0e10b2a0ec0402d3d2090f2ff7def81a67d2564976cc8bc3150cc52039))
+    (output
+      (path "rust-records/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 3ff05189651e5b8218adf2fb230837c4969fb56029f5e94a6c0e0a96e287b27d))
+    (output
+      (path "rust-records/lean.lean")
+      (kind target)
+      (sha256 99220d6271dc579807e303c909ee72750415d44c6c63e4c3ade95e6591ca2253))
+    (output
+      (path "rust-records/lean.certificate.lino")
+      (kind certificate)
+      (sha256 c5b9d0f9bbdcf344cc5b0741b0edee7a4a633f444f365d39aad2889d8fe6101f))
+    (output
+      (path "rust-records/rocq.v")
+      (kind target)
+      (sha256 8de34e4f88e201e746d870515959759de4bf25e9ac0e10fc4f74de352316b13f))
+    (output
+      (path "rust-records/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 939ee8e1ed7cd27328bf21c221e8c1f39f559fa5735f8ad9c061820e1a2ab05a))
+    (output
+      (path "rust-records/intermediate.lino")
+      (kind intermediate)
+      (sha256 485c6ba501d7bb447e23c00ccf7784f72c10b05ff4e29fead16fd8279e85d7d3))
+    (output
+      (path "rust-shapes/javascript.js")
+      (kind target)
+      (sha256 0094fb4f6b2237522033ce7713e8d2eda8971276bb2c79795b7c79107010d734))
+    (output
+      (path "rust-shapes/javascript.certificate.lino")
+      (kind certificate)
+      (sha256 fad18984e00b1202cd2f5b2b94a0375e73235984e338c6ab256e2cd8722455ea))
+    (output
+      (path "rust-shapes/lean.lean")
+      (kind target)
+      (sha256 bd8d6125927dce17487184bea5c76c68a64bacb3d85c7e62a555132690979459))
+    (output
+      (path "rust-shapes/lean.certificate.lino")
+      (kind certificate)
+      (sha256 979985b17f902a607f70da8a1042580fe782a1b959cea33013b465bc63236400))
+    (output
+      (path "rust-shapes/rocq.v")
+      (kind target)
+      (sha256 14c070cd260056a106ca795a2b121cc983d4c773a74473a17b2bb250450d5174))
+    (output
+      (path "rust-shapes/rocq.certificate.lino")
+      (kind certificate)
+      (sha256 bd7792fe913b572566d9a43eb7fe36e8c933e7e1b4efe357e4c7055ad8a923df))
+    (output
+      (path "rust-shapes/intermediate.lino")
+      (kind intermediate)
+      (sha256 35bcc215ccb1ad3a3507cf08a2af4278c17335a26a9263ce4cbf254de2ebecb0))
+    (output
+      (path "refusals/javascript-class.rust.refusal.lino")
+      (kind refusal)
+      (sha256 589ce79b664ad62069964393634c26a6e688e2c94d519b626a484f327c981a5b))
+    (output
+      (path "refusals/javascript-class.lean.refusal.lino")
+      (kind refusal)
+      (sha256 69251f05bbc9f334667c085ad5753952f899c6847b75aab2f75bc46d52b1920c))
+    (output
+      (path "refusals/javascript-class.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 b89d6b3374c49aff7a5d8b11ce7b870637c03dcde6db671433fd9813da1b9c94))
+    (output
+      (path "refusals/javascript-generic-use.rust.refusal.lino")
+      (kind refusal)
+      (sha256 ae26e5d631c429a80bf440313cd8158ec5175dd576d137ce4aea4b3623952892))
+    (output
+      (path "refusals/javascript-generic-use.lean.refusal.lino")
+      (kind refusal)
+      (sha256 9d59efd3e879c1db9c34b335d120ef21ba8f1e48c972a28542abfefc2d4381fd))
+    (output
+      (path "refusals/javascript-generic-use.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 34c6cad299ac069c0e8113fe826b33dab24a3e98284391aabbb0ffd98f5e050a))
+    (output
+      (path "refusals/lean-axiom.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 611d63d7d0dcd824cc4e684b68146b76ef6cdda21887e7e34626c86146355b01))
+    (output
+      (path "refusals/lean-axiom.rust.refusal.lino")
+      (kind refusal)
+      (sha256 e17ffd962afd2459aa6931843c43d645d922f86ba23abb2c693e804f59b73dc3))
+    (output
+      (path "refusals/lean-axiom.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 0057048db4a2283d88adc3ba94f9dd3f46d97fb5aacc395cf14259c0072087f8))
+    (output
+      (path "refusals/lean-implicit-polymorphism.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 dcd6e603f1e03f2747c72b6b0dbc152498433f2544af7e211b98ccd504d662ca))
+    (output
+      (path "refusals/lean-implicit-polymorphism.rust.refusal.lino")
+      (kind refusal)
+      (sha256 0d518b0a1e64ee42830935ec77d384c228cb3c44449024e3534f6c8c2fa0b79f))
+    (output
+      (path "refusals/lean-implicit-polymorphism.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 c2947e71c6f0f760a6ea4b7bdaa33d3a8140dcc73d9a51130984649372b532a0))
+    (output
+      (path "refusals/lean-structure-default.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 c082bf74184eaa889b4e761d29844f26e700e61e851757e16e6bc3793db1b1c2))
+    (output
+      (path "refusals/lean-structure-default.rust.refusal.lino")
+      (kind refusal)
+      (sha256 ea578a67f3b876671d58d1d9b70e84a785f20f5ba79fa2126d78bf2c0a87d01c))
+    (output
+      (path "refusals/lean-structure-default.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 7825d411bdb9ce8d74cf18ed1bd710b225da1385750a5d2a5a0cdb77fc78d767))
+    (output
+      (path "refusals/lean-typeclass.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 d850a71e2bc5b4eec13aadc2e124618b4dc5c4adfdf4d4101e8d494ee079006d))
+    (output
+      (path "refusals/lean-typeclass.rust.refusal.lino")
+      (kind refusal)
+      (sha256 90d91dc96a05de2aa881ae87a5f4b94d6ee66f8498d5c4f097e3b9bd26ddb540))
+    (output
+      (path "refusals/lean-typeclass.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 a2846f5cb0af62eab57b568b80d9a3d2b6c848966a7416109eed7348f2be9a8a))
+    (output
+      (path "refusals/lean-universe-polymorphism.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 c20eab0ab2afd53411d070dc02a5bb0b12fff643c909f3ecea361d39a2365b0b))
+    (output
+      (path "refusals/lean-universe-polymorphism.rust.refusal.lino")
+      (kind refusal)
+      (sha256 05ecdd3043b08040d0564205960cde6572b031d130c500a3375fcccb87efcc0c))
+    (output
+      (path "refusals/lean-universe-polymorphism.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 bfa1f5b35b4d12d3f9aa100f7e67106ba8148cc186611ea8dbf254d27d32508a))
+    (output
+      (path "refusals/rocq-admitted.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 968583829e7be4e3bb751bd86d894e69e29aeb83b1d32c43815531f5fc22c6e5))
+    (output
+      (path "refusals/rocq-admitted.rust.refusal.lino")
+      (kind refusal)
+      (sha256 e7265c449c9e3a3d9a5613de2cef2fae92ae6b3b8b9d70380a17cf6764821f5a))
+    (output
+      (path "refusals/rocq-admitted.lean.refusal.lino")
+      (kind refusal)
+      (sha256 25ad1da2fd877849edd9e9e30f14ff3eb212675f4a3c655b5dccf4a159eac4dc))
+    (output
+      (path "refusals/rocq-dependent-record.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 e6362d8ee49423fc8cc8b32543798c5328cae31ca11edc7b6f9b51c109b5e9a5))
+    (output
+      (path "refusals/rocq-dependent-record.rust.refusal.lino")
+      (kind refusal)
+      (sha256 9368888ce2ab5ac68e7d2203ed361bb657ffa6d2f0525ba23671bf86f4372f2f))
+    (output
+      (path "refusals/rocq-dependent-record.lean.refusal.lino")
+      (kind refusal)
+      (sha256 c2d1317ec9c69c6a0bcc41bea597024b203086e713d90f471bd79cf47007d288))
+    (output
+      (path "refusals/rust-ambiguous-field.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 bce10ede328d896cf6bc9fda70f4225245237b53be9014147c7aa510297bfb76))
+    (output
+      (path "refusals/rust-ambiguous-field.lean.refusal.lino")
+      (kind refusal)
+      (sha256 fef7ef735e171f2e23a5a39520fcbc4f32457281cc822cac65befa8c1d062999))
+    (output
+      (path "refusals/rust-ambiguous-field.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 8f4ae5deabd944cfb84944477fe1a7bb68d8441218769191fd2886a8df829d1e))
+    (output
+      (path "refusals/rust-generic-function.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 20b64ad0a3a538f6f343adbaa17f64dd2a6b3c3d4a472eb212bea75e01817b32))
+    (output
+      (path "refusals/rust-generic-function.lean.refusal.lino")
+      (kind refusal)
+      (sha256 06c8e803f10f5f658ddca20fd8e61ead40b1afc3536f0c027106383f5e7794e3))
+    (output
+      (path "refusals/rust-generic-function.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 43bb92edd89edfe00bf0578dc1723f7278ebfbbf32f48b6f17ca46e7f726015b))
+    (output
+      (path "refusals/rust-macro-rules.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 bd0de21176d743cce319e49c8f1b7231d2836be8b683ceea61bc3843abdfa2de))
+    (output
+      (path "refusals/rust-macro-rules.lean.refusal.lino")
+      (kind refusal)
+      (sha256 cd21560ec9c819d562333c697e06b73e20b34a2bc5859c72af60b6d6bd740a52))
+    (output
+      (path "refusals/rust-macro-rules.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 d53f01dc8452679b9530e9298385870e0e812b2428f0859d6530d926c16f75de))
+    (output
+      (path "refusals/rust-struct-update.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 dbeac7fec980ad76b9d9cbc984ab8e611b166fd9bfa43f68efafcba251bf73e5))
+    (output
+      (path "refusals/rust-struct-update.lean.refusal.lino")
+      (kind refusal)
+      (sha256 d87e2b893dcbe001642aed455fa34003c4a7619037f3decda227dab0a6aee101))
+    (output
+      (path "refusals/rust-struct-update.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 3d1c52ae192bb297f333f04060b80d659b8edcd7a4df983b2e85fa3ac83260e5))
+    (output
+      (path "refusals/rust-trait-bound.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 aa72ade336279e2208e90fcd001d6d158f0d263aee2ed7c07a8f3ce929af8eee))
+    (output
+      (path "refusals/rust-trait-bound.lean.refusal.lino")
+      (kind refusal)
+      (sha256 423884db3d57f7acfe520aaef77098da533316cb6d90badf495faf0a2f2e9144))
+    (output
+      (path "refusals/rust-trait-bound.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 ac5a3cd2da8c1cae8e074a2934516529ebadc54260d1d40b6725ad3c4a1a388a))
+    (output
+      (path "refusals/rust-trait-impl.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 765382b4e1e0521b51725e53a0163334432c19a0daef7fc1f5dffbd7a55f89e4))
+    (output
+      (path "refusals/rust-trait-impl.lean.refusal.lino")
+      (kind refusal)
+      (sha256 e48061e3661ae8509c231263a1bd6f1ce93a7b2a6c45b2861dd1764a47889960))
+    (output
+      (path "refusals/rust-trait-impl.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 48e8b4d264aec45eb98816bdea2ebd8090b31e58dc064f9579adbda6078a1801))
+    (output
+      (path "refusals/rust-u32-structural-recursion.javascript.refusal.lino")
+      (kind refusal)
+      (sha256 1550a3539e7458f95035b96b59f0bbc51b31b920d754cc691a778629dff50270))
+    (output
+      (path "refusals/rust-u32-structural-recursion.lean.refusal.lino")
+      (kind refusal)
+      (sha256 018bbec3347a361c55df4b32fb179d070d010e3ec6d6b1a13bbdcc2b137a65ad))
+    (output
+      (path "refusals/rust-u32-structural-recursion.rocq.refusal.lino")
+      (kind refusal)
+      (sha256 9715a4947bc583e9b9e5eb9e2f8c7b673639460f589ad0785bbf879585db3e1d))
+    (output
+      (path concept-space.json)
+      (kind concept-space)
+      (sha256 a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0))
+    (output
+      (path concept-space.lino)
+      (kind concept-network)
+      (sha256 5c37019ae7698178d4c41562dd0b2afb42cd064a8215793d7ab3ec7664555fc0)))
+  (totals (translations 36) (refusals 48))
+  (authority (macros none) (traits none) (runtime none) (external-kernels oracle-only)))

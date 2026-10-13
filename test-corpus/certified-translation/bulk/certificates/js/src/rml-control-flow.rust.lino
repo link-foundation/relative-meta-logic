@@ -1,0 +1,482 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 4df77bccad4e876c88f548c1a7079c46fe24c3653d0d0dbd9c2dc09917cb7e14)
+    (bytes 52)
+    (utf16 52))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 211)
+    (links 211)
+    (sha256 e3c1901fbd7c67ec19f45f8da4b0037ecf76bb3e86661b4b70f688169d0def6f))
+  (target
+    (language Rust)
+    (sha256 99b34e9908f1ffc10063d05c7ae5ab96055eadee02c8d119dd54a90df10481c8)
+    (bytes 4573))
+  (correspondence
+    (construct
+      (kind function)
+      (source bindingKey)
+      (target binding_key)
+      (signature "(record) -> string")
+      (span 0 50)
+      (bytes 0 50)
+      (span-sha256 587b20e7ae53fa1000491d927598e78c0777afb8bf67c2eec7da7a5d289a613d)))
+  (concepts
+    (schema "rml:certified-concept-space:1")
+    (sha256 a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0)
+    (count 15)
+    (concept (category construct-kind) (term function) (id function) (origin upstream))
+    (concept (category obligation-kind) (term trust) (id rml.certified.trusted-step) (origin rml))
+    (concept
+      (category discharge)
+      (term native-oracle-ci)
+      (id rml.certified.discharge.native-oracle-ci)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term behavior)
+      (id rml.certified.preservation.behavior)
+      (origin rml))
+    (concept (category preservation) (term effects) (id program.effects) (origin upstream))
+    (concept
+      (category preservation)
+      (term ownership)
+      (id rml.certified.preservation.ownership)
+      (origin rml))
+    (concept (category preservation) (term types) (id rml.certified.preservation.types) (origin rml))
+    (concept
+      (category preservation)
+      (term universes)
+      (id rml.certified.preservation.universes)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term assumptions)
+      (id rml.certified.preservation.assumptions)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term proof-obligations)
+      (id rml.certified.preservation.proof-obligations)
+      (origin rml))
+    (concept (category authority) (term macros) (id program.macros-and-notation) (origin upstream))
+    (concept (category authority) (term traits) (id rml.certified.authority.traits) (origin rml))
+    (concept (category authority) (term runtime) (id rml.certified.authority.runtime) (origin rml))
+    (concept
+      (category authority)
+      (term external-kernels)
+      (id rml.certified.authority.external-kernels)
+      (origin rml))
+    (concept
+      (category authority)
+      (term proof-authority)
+      (id rml.certified.authority.proof-authority)
+      (origin rml)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: record, string; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 2)
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed bindingKey binding_key))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 56152b805a2e476b8fc21d1f4bb4ad12a59294c6bb63fe75d30a88f5db441b39))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 f35d3561d53fd0fc323a7dbf98c39f677478d92bfe70223664f0df6636e0ebf6)
+    (bytes 187)
+    (utf16 187))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 495)
+    (links 495)
+    (sha256 0b2b9e8cd973e1d83116c5f60acdce7802f3379269648d4c7f62cc097f50d4ef))
+  (target
+    (language Rust)
+    (sha256 ce8f6bfa2ab6cde8a3916452938d3ac0aa43cb81f082c01fc3af5fec2b097cdc)
+    (bytes 4649))
+  (correspondence
+    (construct
+      (kind function)
+      (source reads)
+      (target reads)
+      (signature "(array<string>) -> array<string>")
+      (span 0 185)
+      (bytes 0 185)
+      (span-sha256 52372089e8017d77beff63323525c7f43efea8ccb8acd7fdc88c6ea0585cbebe)))
+  (concepts
+    (schema "rml:certified-concept-space:1")
+    (sha256 a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0)
+    (count 15)
+    (concept (category construct-kind) (term function) (id function) (origin upstream))
+    (concept (category obligation-kind) (term trust) (id rml.certified.trusted-step) (origin rml))
+    (concept
+      (category discharge)
+      (term native-oracle-ci)
+      (id rml.certified.discharge.native-oracle-ci)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term behavior)
+      (id rml.certified.preservation.behavior)
+      (origin rml))
+    (concept (category preservation) (term effects) (id program.effects) (origin upstream))
+    (concept
+      (category preservation)
+      (term ownership)
+      (id rml.certified.preservation.ownership)
+      (origin rml))
+    (concept (category preservation) (term types) (id rml.certified.preservation.types) (origin rml))
+    (concept
+      (category preservation)
+      (term universes)
+      (id rml.certified.preservation.universes)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term assumptions)
+      (id rml.certified.preservation.assumptions)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term proof-obligations)
+      (id rml.certified.preservation.proof-obligations)
+      (origin rml))
+    (concept (category authority) (term macros) (id program.macros-and-notation) (origin upstream))
+    (concept (category authority) (term traits) (id rml.certified.authority.traits) (origin rml))
+    (concept (category authority) (term runtime) (id rml.certified.authority.runtime) (origin rml))
+    (concept
+      (category authority)
+      (term external-kernels)
+      (id rml.certified.authority.external-kernels)
+      (origin rml))
+    (concept
+      (category authority)
+      (term proof-authority)
+      (id rml.certified.authority.proof-authority)
+      (origin rml)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: array<string>; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 3)
+    (encoding arrays "a JavaScript array, which the portable core never mutates, is a Rust Vec; a read outside it panics")
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 34fd942a7da52a436aa6be9056435e21b2875a040fb4871e8ff5be1e24165de4))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 3b712c7c193dfdde3d34d3bf059c195ef88691e5c81c8d07f4ab68a517ce5dc0)
+    (bytes 63)
+    (utf16 63))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 197)
+    (links 197)
+    (sha256 48fdc432381cfc2c00a10659574acc4a69f08f3586c74327d8468e576fc5f215))
+  (target
+    (language Rust)
+    (sha256 e244ea0c2da46a37f32d787472cd5007f3d81b52487fd9a9c8e5168291804d69)
+    (bytes 4705))
+  (correspondence
+    (construct
+      (kind function)
+      (source atom)
+      (target atom)
+      (signature "(option<float>) -> string")
+      (span 0 61)
+      (bytes 0 61)
+      (span-sha256 7a3954fd62814dd90f4a8401dfaf9b57013f3a31671377b0e7a669285ea710ef)))
+  (concepts
+    (schema "rml:certified-concept-space:1")
+    (sha256 a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0)
+    (count 15)
+    (concept (category construct-kind) (term function) (id function) (origin upstream))
+    (concept (category obligation-kind) (term trust) (id rml.certified.trusted-step) (origin rml))
+    (concept
+      (category discharge)
+      (term native-oracle-ci)
+      (id rml.certified.discharge.native-oracle-ci)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term behavior)
+      (id rml.certified.preservation.behavior)
+      (origin rml))
+    (concept (category preservation) (term effects) (id program.effects) (origin upstream))
+    (concept
+      (category preservation)
+      (term ownership)
+      (id rml.certified.preservation.ownership)
+      (origin rml))
+    (concept (category preservation) (term types) (id rml.certified.preservation.types) (origin rml))
+    (concept
+      (category preservation)
+      (term universes)
+      (id rml.certified.preservation.universes)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term assumptions)
+      (id rml.certified.preservation.assumptions)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term proof-obligations)
+      (id rml.certified.preservation.proof-obligations)
+      (origin rml))
+    (concept (category authority) (term macros) (id program.macros-and-notation) (origin upstream))
+    (concept (category authority) (term traits) (id rml.certified.authority.traits) (origin rml))
+    (concept (category authority) (term runtime) (id rml.certified.authority.runtime) (origin rml))
+    (concept
+      (category authority)
+      (term external-kernels)
+      (id rml.certified.authority.external-kernels)
+      (origin rml))
+    (concept
+      (category authority)
+      (term proof-authority)
+      (id rml.certified.authority.proof-authority)
+      (origin rml)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: option<float>, string; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 2)
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 ddf8ba30cd76cdf9d3dc1d8d7a46b7af43a62b170527bba0779208e35f2dc4fc))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 f898977cfc453b03c166a646e3f1281c100111c9b701c0d03a590ccad3cb330a)
+    (bytes 46)
+    (utf16 46))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 183)
+    (links 183)
+    (sha256 93aa59bc523a5999b5f7d9c01bb6fa7d9ba23a1e88b5a436e122dfab6426cdcd))
+  (target
+    (language Rust)
+    (sha256 6a227342a007d18d47e4709884d2784fbcf63eb495fba17cff230f32973b49ed)
+    (bytes 5463))
+  (correspondence
+    (construct
+      (kind function)
+      (source form)
+      (target form)
+      (signature "(array<float>) -> string")
+      (span 0 44)
+      (bytes 0 44)
+      (span-sha256 a4d2dd0a16c6daf8baf594d7c09a307e571545f9114bf5afca7e624fd8cc0fd1)))
+  (concepts
+    (schema "rml:certified-concept-space:1")
+    (sha256 a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0)
+    (count 15)
+    (concept (category construct-kind) (term function) (id function) (origin upstream))
+    (concept (category obligation-kind) (term trust) (id rml.certified.trusted-step) (origin rml))
+    (concept
+      (category discharge)
+      (term native-oracle-ci)
+      (id rml.certified.discharge.native-oracle-ci)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term behavior)
+      (id rml.certified.preservation.behavior)
+      (origin rml))
+    (concept (category preservation) (term effects) (id program.effects) (origin upstream))
+    (concept
+      (category preservation)
+      (term ownership)
+      (id rml.certified.preservation.ownership)
+      (origin rml))
+    (concept (category preservation) (term types) (id rml.certified.preservation.types) (origin rml))
+    (concept
+      (category preservation)
+      (term universes)
+      (id rml.certified.preservation.universes)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term assumptions)
+      (id rml.certified.preservation.assumptions)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term proof-obligations)
+      (id rml.certified.preservation.proof-obligations)
+      (origin rml))
+    (concept (category authority) (term macros) (id program.macros-and-notation) (origin upstream))
+    (concept (category authority) (term traits) (id rml.certified.authority.traits) (origin rml))
+    (concept (category authority) (term runtime) (id rml.certified.authority.runtime) (origin rml))
+    (concept
+      (category authority)
+      (term external-kernels)
+      (id rml.certified.authority.external-kernels)
+      (origin rml))
+    (concept
+      (category authority)
+      (term proof-authority)
+      (id rml.certified.authority.proof-authority)
+      (origin rml)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: array<float>, string; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 3)
+    (encoding arrays "a JavaScript array, which the portable core never mutates, is a Rust Vec; a read outside it panics")
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 38330ea48e8e65d753c1d1734e63d31d9da363020fc3f4cc6a73a70c58c6bbe4))

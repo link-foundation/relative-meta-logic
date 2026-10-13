@@ -1,0 +1,64 @@
+-- rml-certified-item rust/src/meta_language_structure.rs#RML_STRUCTURE_SCHEMA@902 target-sha256=a89253fc211a1e2684b4bedcc18d24cd29547e5cb7bfe62fb91451f3d94229ab
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def RML_STRUCTURE_SCHEMA : String :=
+  "rml:structure:1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/meta_language_structure.rs#ExpansionBudget@21853 target-sha256=bd7ad2567743a16f69d2bc71fa3464acffb2d753af51ba2b331bf1fe989161bf
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive ExpansionBudget where
+  | ExpansionBudget (field0 : Nat) (field1 : Nat) : ExpansionBudget
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/meta_language_structure.rs#RmlDeclaration@44386 target-sha256=f9d1cf53196792ae3e233af98000b5ce9c4e308d525391989b774d902383faf6
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive RmlDeclaration where
+  | RmlDeclaration (field0 : String) (field1 : String) (field2 : String) (field3 : String) : RmlDeclaration
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/meta_language_structure.rs#RmlBinder@44544 target-sha256=afb0d74bd31c2578b16969de9fdff1a2355866651e87a1cfc9c7b202c5af10c6
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive RmlBinder where
+  | RmlBinder (field0 : String) (field1 : String) (field2 : String) (field3 : String) : RmlBinder
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/meta_language_structure.rs#RmlRenameError@72151 target-sha256=a7271e66ba5b2da6e4d81a26c4dc011041a696c1b930e510e735ff439d98b0c3
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive RmlRenameError where
+  | RmlRenameError (field0 : String) (field1 : String) : RmlRenameError
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

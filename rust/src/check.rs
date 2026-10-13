@@ -6,7 +6,7 @@
 // shape for its expression: rule name, arity, and that sub-derivations
 // recurse onto matching sub-expressions. Mutating any of those rejects.
 
-use crate::{is_num, is_structurally_same, key_of, parse_lino, parse_one, tokenize_one, Node};
+use crate::{emit_lino_term, is_definition_form, is_num, is_structurally_same, key_of, parse_lino, parse_one, tokenize_one, Node};
 use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -66,11 +66,11 @@ fn collect_assignments(forms: &[Node]) -> HashSet<String> {
                 if let (Node::Leaf(w1), Node::Leaf(w2), Node::Leaf(w3)) = (&c[1], &c[2], &c[3]) {
                     if w1 == "has" && w2 == "probability" && is_num(w3) {
                         if let Node::List(inner) = &c[0] {
-                            out.insert(key_of(&c[0]));
+                            out.insert(emit_lino_term(&c[0]));
                             if inner.len() == 3 {
                                 if let Node::Leaf(op) = &inner[1] {
                                     if op == "=" {
-                                        out.insert(key_of(&Node::List(vec![
+                                        out.insert(emit_lino_term(&Node::List(vec![
                                             Node::Leaf("=".into()),
                                             inner[0].clone(),
                                             inner[2].clone(),
@@ -87,13 +87,25 @@ fn collect_assignments(forms: &[Node]) -> HashSet<String> {
     out
 }
 
-// Parse a `.lino` source into top-level forms via the kernel parser.
-fn parse_forms(src: &str) -> Vec<Node> {
-    parse_lino(src)
-        .into_iter()
-        .filter(|s| !s.trim_start().starts_with("(#"))
-        .filter_map(|s| parse_one(&tokenize_one(&s)).ok())
-        .collect()
+// Parse a `.lino` source into top-level forms via the kernel parser. A source
+// that is not LiNo at all is reported against its role (`program` or
+// `proofs`) at the position the front end names. Forms the kernel parser
+// rejects are skipped; the checker reports a count mismatch downstream if
+// this hides a real query.
+fn parse_forms(src: &str, role: &str, errors: &mut Vec<CheckError>) -> Vec<Node> {
+    match parse_lino(src) {
+        Ok(links) => links
+            .iter()
+            .filter_map(|link| parse_one(&tokenize_one(link)).ok())
+            .collect(),
+        Err(error) => {
+            errors.push(CheckError {
+                path: vec![role.to_string()],
+                message: format!("{error} at {}:{}", error.line, error.col),
+            });
+            Vec::new()
+        }
+    }
 }
 
 // Strip `(? expr)` wrappers and the optional `with proof` keyword pair.
@@ -159,7 +171,7 @@ fn expected_rule(expr: &Node, ops: &HashSet<String>, assigned: &HashSet<String>)
         }
         Node::List(c) => {
             if let Some(Node::Leaf(h)) = c.first() {
-                if h.ends_with(':') {
+                if is_definition_form(expr, |op| ops.contains(op)) {
                     return "definition";
                 }
                 match h.as_str() {
@@ -225,12 +237,12 @@ fn expected_rule(expr: &Node, ops: &HashSet<String>, assigned: &HashSet<String>)
                         "=" | "!=" => {
                             let l = &c[0];
                             let r = &c[2];
-                            let kp = key_of(&Node::List(vec![
+                            let kp = emit_lino_term(&Node::List(vec![
                                 Node::Leaf("=".into()),
                                 l.clone(),
                                 r.clone(),
                             ]));
-                            let ki = key_of(&Node::List(vec![
+                            let ki = emit_lino_term(&Node::List(vec![
                                 l.clone(),
                                 Node::Leaf("=".into()),
                                 r.clone(),
@@ -766,12 +778,15 @@ fn check_prefix(
 /// `CheckResult` with one `CheckOk` per replayed derivation or a list of
 /// `CheckError`s describing the first divergence per query.
 pub fn check_program(program_src: &str, proofs_src: &str) -> CheckResult {
-    let program_forms = parse_forms(program_src);
-    let proof_forms = parse_forms(proofs_src);
+    let mut result = CheckResult::default();
+    let program_forms = parse_forms(program_src, "program", &mut result.errors);
+    let proof_forms = parse_forms(proofs_src, "proofs", &mut result.errors);
+    if !result.errors.is_empty() {
+        return result;
+    }
     let queries: Vec<Node> = program_forms.iter().filter_map(query_target).collect();
     let ops = collect_operators(&program_forms);
     let assigned = collect_assignments(&program_forms);
-    let mut result = CheckResult::default();
     if queries.len() != proof_forms.len() {
         result.errors.push(CheckError {
             path: vec![],

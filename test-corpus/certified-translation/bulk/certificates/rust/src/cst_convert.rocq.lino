@@ -1,0 +1,148 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 b67b12cd7f29603ec2e18be168abdc5813b2836dca9df51fa89ca0b5184229eb)
+    (bytes 118)
+    (utf16 118))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 79)
+    (links 79)
+    (sha256 944f090f787cc64a4de5063a10fc95dbf77550653df1ccde7e3188af747f2519))
+  (lowering
+    (schema "rml:surface-lowering:1")
+    (lowered-sha256 f17ea55034c0b9c41a0e54d3a94ad29c453d0414b843107136836667e745fa07)
+    (count 1)
+    (rewrite
+      (kind rust-struct)
+      (subject RoundTripResult)
+      (span 4 103)
+      (bytes 4 103)
+      (span-sha256 198ec3ca65fda0f82195c731097c87f39ddfc42f8cdf665f9e82a51311a6b850)))
+  (target
+    (language Rocq)
+    (sha256 feb504d27278cf1096d3fba5232c9b2b172a2979ed1a34c9e108444c2d2dbd68)
+    (bytes 636))
+  (correspondence
+    (construct
+      (kind data)
+      (source RoundTripResult)
+      (target RoundTripResult)
+      (signature "RoundTripResult(bool, string, string)")
+      (span 4 105)
+      (bytes 4 105)
+      (span-sha256 2c17484150a32362dd41999e806ae022cbd4045b11a91dba63081063642dd11a))
+    (construct
+      (kind constructor)
+      (source RoundTripResult.RoundTripResult)
+      (target RoundTripResult_2)
+      (signature "bool -> string -> string -> RoundTripResult")
+      (span 4 105)
+      (bytes 4 105)
+      (span-sha256 2c17484150a32362dd41999e806ae022cbd4045b11a91dba63081063642dd11a)))
+  (concepts
+    (schema "rml:certified-concept-space:1")
+    (sha256 a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0)
+    (count 18)
+    (concept (category construct-kind) (term data) (id rml.certified.data-type) (origin rml))
+    (concept
+      (category construct-kind)
+      (term constructor)
+      (id rml.certified.data-constructor)
+      (origin rml))
+    (concept (category obligation-kind) (term trust) (id rml.certified.trusted-step) (origin rml))
+    (concept
+      (category discharge)
+      (term native-oracle-ci)
+      (id rml.certified.discharge.native-oracle-ci)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term behavior)
+      (id rml.certified.preservation.behavior)
+      (origin rml))
+    (concept (category preservation) (term effects) (id program.effects) (origin upstream))
+    (concept
+      (category preservation)
+      (term ownership)
+      (id rml.certified.preservation.ownership)
+      (origin rml))
+    (concept (category preservation) (term types) (id rml.certified.preservation.types) (origin rml))
+    (concept
+      (category preservation)
+      (term universes)
+      (id rml.certified.preservation.universes)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term assumptions)
+      (id rml.certified.preservation.assumptions)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term proof-obligations)
+      (id rml.certified.preservation.proof-obligations)
+      (origin rml))
+    (concept (category authority) (term macros) (id program.macros-and-notation) (origin upstream))
+    (concept (category authority) (term traits) (id rml.certified.authority.traits) (origin rml))
+    (concept (category authority) (term runtime) (id rml.certified.authority.runtime) (origin rml))
+    (concept
+      (category authority)
+      (term external-kernels)
+      (id rml.certified.authority.external-kernels)
+      (origin rml))
+    (concept
+      (category authority)
+      (term proof-authority)
+      (id rml.certified.authority.proof-authority)
+      (origin rml))
+    (concept (category lowering) (term rust-struct) (id rml.lowering.record-type) (origin rml))
+    (concept
+      (category lowering-syntax)
+      (term rust-struct)
+      (id grammar.structure-item)
+      (origin upstream)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: none; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rocq)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed RoundTripResult.RoundTripResult RoundTripResult_2))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 ee712134aa35b927f3143362fcb22660ed26ad4a4a4bee9614cff7d8a952877b))

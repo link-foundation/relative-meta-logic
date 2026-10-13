@@ -1,0 +1,27 @@
+{
+  "schema":"rml:identifier-rewrite-tests:1",
+  "contract":"lexical-blocks-v1; unsupported syntax fails before edits; syntaxValidated is false",
+  "cases":[
+    {"name":"simple binding","source":"const x = call(x);\n","from":"x","to":"y","expected":"const y = call(y);\n","count":2},
+    {"name":"strings and comments","source":"const x = 1; const s = \"x\"; // x\n","from":"x","to":"y","expected":"const y = 1; const s = \"x\"; // x\n","count":1},
+    {"name":"block shadowing","source":"let x = 1; { let x = 2; use(x); } use(x);\n","from":"x","to":"y","expected":"let y = 1; { let x = 2; use(x); } use(y);\n","count":2},
+    {"name":"nested closure-free reference","source":"let x = 1; { use(x); { let z = x; } }\n","from":"x","to":"y","expected":"let y = 1; { use(y); { let z = y; } }\n","count":3},
+    {"name":"temporal dead zone remains bound to inner declaration","source":"let x = 1; { use(x); let x = 2; } use(x);","from":"x","to":"y","expected":"let y = 1; { use(x); let x = 2; } use(y);","count":2},
+    {"name":"property names retained","source":"const x = 1; obj.x = x;\n","from":"x","to":"y","expected":"const y = 1; obj.x = y;\n","count":2},
+    {"name":"Unicode identifiers","source":"const α = α + 1; const literal = \"α\";\n","from":"α","to":"β","expected":"const β = β + 1; const literal = \"α\";\n","count":2},
+    {"name":"astral identifiers and UTF16 location","source":"// 😀\r\nconst 𝒙 = 𝒙;\r\n","from":"𝒙","to":"𝒚","expected":"// 😀\r\nconst 𝒚 = 𝒚;\r\n","count":2,"starts":[{"offset":13,"line":2,"column":7},{"offset":18,"line":2,"column":11}]},
+    {"name":"no op","source":"const x = 1;","from":"x","to":"x","expected":"const x = 1;","count":0},
+    {"name":"collision","source":"const x = 1; const y = 2; use(x);","from":"x","to":"y","error":"RML_RENAME_CAPTURE"},
+    {"name":"inner capture","source":"let x = 1; { let y = 2; use(x); }","from":"x","to":"y","error":"RML_RENAME_CAPTURE"},
+    {"name":"capture free reference","source":"let x = 1; use(y);","from":"x","to":"y","error":"RML_RENAME_CAPTURE"},
+    {"name":"ambiguous bindings","source":"{ let x = 1; } { let x = 2; }","from":"x","to":"y","error":"RML_RENAME_AMBIGUOUS"},
+    {"name":"function scope unsupported","source":"let x = 1; function f(x) { return x; }","from":"x","to":"y","error":"RML_RENAME_UNSUPPORTED"},
+    {"name":"template interpolation unsupported","source":"let x = 1; const s = `value ${x}`;","from":"x","to":"y","error":"RML_RENAME_UNSUPPORTED"},
+    {"name":"escaped identifier unsupported","source":"const \\u0078 = 1; use(x);","from":"x","to":"y","error":"RML_RENAME_UNSUPPORTED"},
+    {"name":"destructuring unsupported","source":"const { x } = obj; use(x);","from":"x","to":"y","error":"RML_RENAME_UNSUPPORTED"},
+    {"name":"object shorthand unsupported","source":"const x = 1; const obj = { x };","from":"x","to":"y","error":"RML_RENAME_UNSUPPORTED"},
+    {"name":"direct eval unsupported","source":"const x = 1; eval(\"x\");","from":"x","to":"y","error":"RML_RENAME_UNSUPPORTED"},
+    {"name":"missing initializer","source":"const x = ;","from":"x","to":"y","error":"RML_RENAME_INVALID"},
+    {"name":"unbalanced delimiter","source":"const x = 1; use(x;","from":"x","to":"y","error":"RML_RENAME_INVALID"}
+  ]
+}

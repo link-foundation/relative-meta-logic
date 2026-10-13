@@ -88,7 +88,7 @@ describe('generated API reference documentation', () => {
 
   it('defines a JavaScript docs script for JSDoc generation', () => {
     const packageJson = JSON.parse(read('js/package.json'));
-    assert.equal(packageJson.scripts.docs, 'jsdoc -c ../docs/api/jsdoc.json');
+    assert.equal(packageJson.scripts.docs, 'node ../scripts/run-with-cache.mjs -- node ../scripts/build-docs.mjs');
   });
 
   it('writes a Pages landing page and copies playground assets', () => {
@@ -297,5 +297,105 @@ describe('progressive tutorial documentation', () => {
         assert.ok(doc.includes(expected), `${docPath} missing ${expected}`);
       }
     }
+  });
+});
+
+// Issue #183: the executable meta-theory and foundation-search guides must
+// describe what the runtimes execute and keep the stated claim boundary.
+describe('executable meta-theory documentation', () => {
+  const metaTheory = () => read('docs/META_THEORY.md');
+  const theoryTable = () => {
+    const doc = metaTheory();
+    const start = doc.indexOf('## Bundled theory programs');
+    const section = doc.slice(start, doc.indexOf('\n## ', start + 1));
+    return section.split('\n')
+      .filter(line => line.startsWith('| ') && !line.startsWith('| Theory |'))
+      .map(line => line.split('|').slice(1, -1).map(cell => cell.trim()));
+  };
+
+  it('presents each bundled theory program beside its familiar form', () => {
+    const universal = read('lib/meta-theory/universal.lino');
+    const programs = {
+      'Links meta-theory': 'links-meta-theory',
+      'Lambda calculus': 'lambda-calculus',
+      'Set theory': 'set-theory',
+      'Dependent types': 'dependent-type-theory',
+      'Graph theory': 'graph-theory',
+      'Relational algebra': 'relational-algebra',
+      'Relative Meta-Logic': 'relative-meta-logic',
+    };
+    const rows = theoryTable();
+    assert.deepStrictEqual(rows.map(([theory]) => theory), Object.keys(programs));
+    for (const [theory, familiar, linked] of rows) {
+      assert.ok(familiar.length > 0 && linked.length > 0, theory);
+      assert.match(universal, new RegExp(`^\\(linked-program ${programs[theory]}\\b`, 'm'), theory);
+    }
+  });
+
+  it('uses links network for the ambient structure and graph for its derived subset', () => {
+    assert.match(read('README.md'), /graph theory as a constrained links-network subset/);
+    assert.match(
+      read('ARCHITECTURE.md'),
+      /The unconstrained substrate is `LinkNetwork`;\n`TypedLinkNetwork` checks endpoint types; `LinkGraph` is a\nvertex-set-constrained subset/,
+    );
+    assert.match(metaTheory(), /Graph theory is a derived subset of a links network, not the ambient model\./);
+  });
+
+  it('never calls the ambient links network a graph', () => {
+    for (const file of [
+      'README.md',
+      'ARCHITECTURE.md',
+      'docs/META_THEORY.md',
+      'docs/case-studies/issue-183/foundation-search.md',
+    ]) {
+      assert.doesNotMatch(read(file), /\blinks? graph\b|\bgraph of links\b|\bambient graph\b/i, file);
+    }
+  });
+
+  it('documents the executed foundation-search report and ontology versions', async () => {
+    const { foundationSearchReport, linkOntologySymmetryExperiment } =
+      await import('../js/src/rml-foundation-search.mjs');
+    const report = foundationSearchReport(
+      read('lib/meta-theory/universal.lino'),
+      read('lib/meta-theory/alternative-foundations.lino'),
+    );
+    const guide = read('docs/case-studies/issue-183/foundation-search.md');
+    assert.ok(guide.includes(`\`${report.schema}\``), report.schema);
+    assert.ok(guide.includes(linkOntologySymmetryExperiment().schema));
+    for (const heading of [
+      '## Common executable workload',
+      '## Removal and comparison protocol',
+      '## Computability argument',
+      '## Reproducibility and claim boundary',
+    ]) {
+      assert.ok(guide.includes(`\n${heading}\n`), heading);
+    }
+    for (const file of [
+      'docs/case-studies/issue-183/README.md',
+      'ARCHITECTURE.md',
+      'docs/META_THEORY.md',
+    ]) {
+      assert.match(read(file), /\[architecture-neutral foundation search\]\([^)]*foundation-search\.md\)/, file);
+    }
+  });
+
+  it('lists global minimality and link ontology among the unestablished results', () => {
+    const guide = read('docs/case-studies/issue-183/foundation-search.md');
+    const boundary = guide.slice(guide.indexOf('## Reproducibility and claim boundary'));
+    const established = boundary.slice(
+      boundary.indexOf('What is established'),
+      boundary.indexOf('What is not established'),
+    );
+    const notEstablished = boundary.slice(boundary.indexOf('What is not established'));
+    assert.ok(established.length > 0 && notEstablished.length > 0);
+    for (const unestablished of [
+      'this contract exhausts the ontology of links',
+      'a comparable alternative cohort',
+      'a winning foundation',
+      'global\nminimality',
+    ]) {
+      assert.ok(notEstablished.includes(unestablished), unestablished);
+    }
+    assert.doesNotMatch(established, /minimal|winning|ontology of links|comparable alternative/i);
   });
 });

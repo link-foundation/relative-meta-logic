@@ -1,0 +1,101 @@
+{
+  "schema": "rml-dependency-refresh-validation/v1",
+  "verifiedAt": "2026-10-08T01:10:34Z",
+  "sourceCommit": "c4071857226bd990d7e0578f2a1426f24c2e446c",
+  "node": "v24.19.0",
+  "rustc": "1.99.0 (b940084d7 2026-09-28)",
+  "sourceGraphs": {
+    "javascriptModules": 86,
+    "rustModules": 37,
+    "additionalAbiRustRoundTrips": 3
+  },
+  "passed": {
+    "controlFlowJavaScriptTests": 107,
+    "controlFlowNativeRustTests": 8,
+    "sourceAuthorityJavaScriptTests": 16,
+    "vscodeTests": 4,
+    "jsdocBuild": true,
+    "vsixPackage": true,
+    "temporaryCacheFilesExcludedFromVsix": true,
+    "syn3GeneratedCodecReproducible": true,
+    "sourceFreeGenericHelperBuild": true,
+    "helperGenerationFixedPointModules": 37,
+    "independentRustSyntaxRoundTrips": 7,
+    "nativeSyntaxAssertions": 5,
+    "reservedFrontmatterRejected": true,
+    "configurationGuardAfterFinalFormattingTests": 4
+  },
+  "wholeJavaScriptSuite": "interrupted; no terminal total",
+  "wholeNativeAuthoritySuite": "interrupted during expensive Horn workload; no terminal receipt",
+  "completedNativeSubsetsBeforeInterruption": [
+    4,
+    11,
+    1,
+    1,
+    8
+  ],
+  "interruption": "exec-server transport disconnected; failed to resume exec-server session: exec-server protocol error: executor key changed during session recovery",
+  "preservedLeaseCheckouts": [
+    "/workspace/shared/rml-dependency-refresh",
+    "/workspace/shared/rml-dependency-verify",
+    "/workspace/shared/rml-dependency-native-verify"
+  ],
+  "remainingValidation": "Run aggregate JavaScript/native authority suites on stable final-union CI. This receipt does not mark interrupted suites passed.",
+  "evidence": [
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-control-flow-syn3-tests.log",
+      "sha256": "5ce1abb4df02a8d56c4c24e302cf8aec821e0edbc545f75f183e851cce945032",
+      "bytes": 7805
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-control-flow-syn3-native.log",
+      "sha256": "e0403161d16229b07b48c4c91605915369aa12b0d8a3fe3191245f9dda0bfc97",
+      "bytes": 1096
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-jsdoc.log",
+      "sha256": "fb12db73f9343e5dcb2f6c3b418848742758aa1e59ec1270b7e3d640167dca29",
+      "bytes": 207
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-linked-javascript-final.log",
+      "sha256": "09e89d935596a7b593290fd609440854408799c3c934b6f29a690a2a65767ef8",
+      "bytes": 1895
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-vscode-final.log",
+      "sha256": "f8c941ecafbfa26fe5d196ae02fcd0c4ccefed83921267a63efe2405edc67db1",
+      "bytes": 1221
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-vsix-clean.log",
+      "sha256": "46cc9f76de72d4f87320f1f07c99abb65fa26b2292700f180e4124aba96e376c",
+      "bytes": 2009
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-syn3-bootstrap-smoke.json",
+      "sha256": "deefbf1dbc8b85de03a2768589b6d7f46a0aef2da46cdeb39449fbceaf2cd311",
+      "bytes": 462
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-vsix-dependency-validation.json",
+      "sha256": "c2314c5f80866dd2ec4806568dfdc7eef6356494ef31384aabc88ed2aa917f80",
+      "bytes": 302
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/dependency-configuration-final.log",
+      "sha256": "3fc972b597635b562c9fcf38885301cf9f2067df1db03f8cbda45919bddae6a6",
+      "bytes": 499
+    }
+  ],
+  "compactWitness": {
+    "path": "/workspace/shared/rml-syn3-bootstrap-smoke.mjs",
+    "sha256": "dc748f1e615266a037e2b98742760a576e937ca03caaf4cd2e2dcf04b5917649"
+  },
+  "publication": {
+    "pushed": false,
+    "released": false,
+    "merged": false
+  },
+  "finalProviderFormatting": "Removed two whitespace-only lines from schema generator; recaptured provider/configuration manifests. JavaScript and Rust AST archive hashes remain unchanged, and final configuration/guard tests pass."
+}

@@ -130,9 +130,11 @@ describe('generated eliminator type-checks', () => {
       '  (constructor (succ (Pi (Natural n) Natural))))',
       { env },
     );
-    const elimTypeKey = keyOf(env.inductives.get('Natural').elimType);
-    const result = evalNode(['?', ['Natural-rec', 'of', elimTypeKey]], env);
+    const typeNode = env.inductives.get('Natural').elimType;
+    const result = evalNode(['?', ['Natural-rec', 'of', typeNode]], env);
     assert.strictEqual(result.value, 1);
+    const collidingAtom = evalNode(['?', ['Natural-rec', 'of', keyOf(typeNode)]], env);
+    assert.strictEqual(collidingAtom.value, 0);
   });
 });
 

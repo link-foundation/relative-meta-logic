@@ -5,16 +5,40 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/bootstrap.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - 'js/**'
+      - 'rust/src/linked_program.rs'
+      - 'rust/tests/linked_program_tests.rs'
+      - 'rust/tests/foundation_search_tests.rs'
+      - 'lib/meta-theory/**'
       - 'lib/self/**'
+      - 'scripts/report-bootstrap-metrics.mjs'
+      - 'scripts/report-foundation-search.mjs'
+      - 'scripts/foundation-search.test.mjs'
       - 'test-corpus/**'
       - 'README.md'
   push:
     branches: [main]
     paths:
       - '.github/workflows/bootstrap.yml'
+      - 'scripts/build-cache*'
+      - 'scripts/cache-policy.json'
+      - 'scripts/run-with-cache.mjs'
+      - 'scripts/bootstrap.mjs'
+      - 'docs/BUILD_CACHE.md'
       - 'js/**'
+      - 'rust/src/linked_program.rs'
+      - 'rust/tests/linked_program_tests.rs'
+      - 'rust/tests/foundation_search_tests.rs'
+      - 'lib/meta-theory/**'
       - 'lib/self/**'
+      - 'scripts/report-bootstrap-metrics.mjs'
+      - 'scripts/report-foundation-search.mjs'
+      - 'scripts/foundation-search.test.mjs'
       - 'test-corpus/**'
       - 'README.md'
   workflow_dispatch:
@@ -24,15 +48,39 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: '20'
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
           cache: npm
           cache-dependency-path: js/package-lock.json
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
       - name: Install JavaScript dependencies
         working-directory: js
-        run: npm ci
+        run: node ../scripts/run-with-cache.mjs -- npm ci
       - name: Replay corpus through encoded RML
         working-directory: js
         run: npm run test:bootstrap
+      - name: Publish measured bootstrap boundary
+        working-directory: js
+        run: npm run report:bootstrap-metrics
+      - name: Compare independent foundation candidates
+        working-directory: js
+        run: npm run report:foundation-search
+      - name: Upload cache diagnostics before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cache-diagnostics-bootstrap-encoded-rml-corpus-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

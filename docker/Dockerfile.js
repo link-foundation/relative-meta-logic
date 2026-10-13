@@ -13,26 +13,20 @@
 #   docker run --rm -v "$PWD/my.lino:/work/my.lino" rml-js \
 #     node src/rml-links.mjs /work/my.lino
 
-FROM node:20-alpine
+FROM node:22-alpine
 
-WORKDIR /repo/js
+# Required for the lifecycle guard to detect unleased build processes.
+RUN apk add --no-cache procps
 
-# Install JS dependencies first so they are cached across source changes.
-COPY js/package.json js/package-lock.json ./
-RUN npm ci --omit=dev
+ENV RML_CACHE_SOURCE_ARCHIVE=1
 
-# Copy the JS sources alongside the cached node_modules.
-COPY js/src ./src
-COPY js/tests ./tests
-
-# Copy the language-agnostic resources the entry points read at runtime.
 WORKDIR /repo
-COPY examples ./examples
-COPY lib ./lib
-COPY test-corpus ./test-corpus
-COPY scripts ./scripts
-
+# The ordinary lifecycle verifies all owned sources, providers and configuration.
+# Supply the complete declared inventory before npm invokes that guard.
+COPY . .
 WORKDIR /repo/js
+RUN node ../scripts/run-with-cache.mjs -- npm ci --omit=dev \
+    && node ../scripts/build-cache.mjs --full
 
 ENTRYPOINT ["node", "src/rml-links.mjs"]
 CMD ["../examples/demo.lino"]

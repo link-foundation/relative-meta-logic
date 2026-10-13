@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Lean)
+    (sha256 8ff49961b21694e1ac29b4ed585d72f5bc19ead0f1e5d5496ea410b9081c74d8)
+    (bytes 90)
+    (utf16 87))
+  (target (language Rocq) (status not-emitted))
+  (stage frontend)
+  (diagnostic
+    (kind unsupported)
+    (message "implicit binder: implicit and instance binders are outside the portable core")
+    (span 10 11)
+    (bytes 10 11)
+    (span-sha256 021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96))
+  (preserved-source
+    (sha256 8ff49961b21694e1ac29b4ed585d72f5bc19ead0f1e5d5496ea410b9081c74d8)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 ebff2a51d89a601f9195b4cd878ad680bf1d20d3680b22d435b66dac538c2c31))

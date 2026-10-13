@@ -1,0 +1,11 @@
+{
+  "schema": "rml-address-sequence/v1",
+  "namespace": "rml:address-sequence:1",
+  "links": [
+    {"address":"nested.element.0","source":"rml:address-sequence:1:element","target":"single.element.0"},
+    {"address":"rml:address-sequence:1:branch","source":"rml:address-sequence:1:branch","target":"rml:address-sequence:1:branch"},
+    {"address":"rml:address-sequence:1:element","source":"rml:address-sequence:1:element","target":"rml:address-sequence:1:element"},
+    {"address":"rml:address-sequence:1:empty","source":"rml:address-sequence:1:empty","target":"rml:address-sequence:1:empty"},
+    {"address":"single.element.0","source":"rml:address-sequence:1:element","target":"a"}
+  ]
+}

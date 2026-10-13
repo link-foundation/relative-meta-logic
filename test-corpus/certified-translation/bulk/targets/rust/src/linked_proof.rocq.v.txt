@@ -1,0 +1,147 @@
+(* rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_PROGRAM@420 target-sha256=c947a538f49624713112e35ae854d8fcf49d883fab006cf4124eed6612dcd5b1 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition LINKED_PROOF_PROGRAM : string :=
+  "linked-proof-verifier"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_NATURAL_PROGRAM@607 target-sha256=a5241c29f2df46df8b186df30d1be439dd6849950c93d7594152bdd8da5f3c29 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition LINKED_PROOF_NATURAL_PROGRAM : string :=
+  "linked-proof-verifier-natural"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_SCHEMA@687 target-sha256=18df2d29b379255aff7e43a43b6d18fb72e3cc5d666b7d63ad75d94d48c69d4f *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition LINKED_PROOF_SCHEMA : string :=
+  "rml-linked-proof-replay/v1"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_proof.rs#MAX_LINKED_PROOF_DEPTH@968 target-sha256=e3e07d98542da0d66780971a1b3b80de58fa95dbbe3ce6a228afc5c4825d34a1 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition MAX_LINKED_PROOF_DEPTH : N :=
+  256%N.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_proof.rs#LinkedProofLimits@1167 target-sha256=68dc2eadc0a0fd8595b22a438a0843aa75a73024b023f22066ae5e11a8de2af3 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkedProofLimits : Type :=
+| LinkedProofLimits_2 : N -> N -> N -> LinkedProofLimits.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_proof.rs#LinkedProofOptions@7480 target-sha256=3faf2186210ce85527572ff4a232c0e361f247fdf1d5f3db02f043c824133fbb *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive LinkedProofLimits : Type :=
+| LinkedProofLimits_2 : N -> N -> N -> LinkedProofLimits.
+
+Inductive LinkedProofOptions : Type :=
+| LinkedProofOptions_2 : string -> N -> LinkedProofLimits -> LinkedProofLimits -> LinkedProofOptions.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_OUTCOME_SCHEMA@11504 target-sha256=0d16f61be138495c01f230ee42957eb73f07074cf6f36367fbd861c38f5add44 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition LINKED_PROOF_OUTCOME_SCHEMA : string :=
+  "rml-foundation-outcome/v1"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_CHECK_SCHEMA@11579 target-sha256=65cc9eb7d2e12fad7d570d41f8a5fcc70cf8adb53dafb76cf13ab5b8f22011fc *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition LINKED_PROOF_CHECK_SCHEMA : string :=
+  "rml-linked-proof-check/v1"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

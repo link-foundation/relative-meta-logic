@@ -1,0 +1,17 @@
+{
+  "schema": "rml-foundation-context-expectations/v1",
+  "signedFeedback": [
+    { "item": "alpha", "inductive": "unknown", "guarded": "proved" },
+    { "item": "beta", "inductive": "unknown", "guarded": "refuted" },
+    { "item": "gamma", "inductive": "unknown", "guarded": "contradictory" },
+    { "item": "delta", "inductive": "refuted", "guarded": "contradictory" },
+    { "item": "epsilon", "inductive": "proved", "guarded": "contradictory" },
+    { "item": "loop", "inductive": "unknown", "guarded": "unknown" }
+  ],
+  "confidenceCombination": {
+    "probability": [1, 4],
+    "minimumConfidence": [4, 8],
+    "independentConfidence": [3, 8],
+    "sources": ["joint", ["source", "meter-a"], ["source", "meter-b"]]
+  }
+}

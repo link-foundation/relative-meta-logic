@@ -1,0 +1,39 @@
+{
+  "localChanges": "Retain Syn 3 structured fields; support multi-field enum variants and non-exhaustive modifier construction; explicit uninhabited frontmatter and C-string adapters; use standard file IO and rustfmt instead of test-helper.",
+  "schema": {
+    "sha256": "6e4f5fbe9b8ef2b35bb1b7a6ef9bb26d177f17462d6e757562a43188084dad4e",
+    "url": "https://raw.githubusercontent.com/dtolnay/syn/3.0.6/syn.json"
+  },
+  "upstream": {
+    "date": "2026-10-01T14:58:54Z",
+    "sha": "af6d3237b3ec8c68c5ef34f251ab94e2b6d323c4",
+    "url": "https://api.github.com/repos/taiki-e/syn-serde/commits/main"
+  },
+  "upstreamGeneratorFiles": [
+    {
+      "path": "ast_enum.rs",
+      "sha256": "9fae5b2c2bfdf4143ef023aff7a1e0e4d4aed408119465687273ce9a937564da",
+      "url": "https://raw.githubusercontent.com/taiki-e/syn-serde/af6d3237b3ec8c68c5ef34f251ab94e2b6d323c4/tools/codegen/src/ast_enum.rs"
+    },
+    {
+      "path": "ast_struct.rs",
+      "sha256": "14667d113641e43844a14879c514bf692bfb66aaff035c7bf71ac153da3f1fc7",
+      "url": "https://raw.githubusercontent.com/taiki-e/syn-serde/af6d3237b3ec8c68c5ef34f251ab94e2b6d323c4/tools/codegen/src/ast_struct.rs"
+    },
+    {
+      "path": "convert.rs",
+      "sha256": "dd3c16b42d2ffa15baa2358a4097fe8ca91f993032bf97e6d5ae1c145b6077cc",
+      "url": "https://raw.githubusercontent.com/taiki-e/syn-serde/af6d3237b3ec8c68c5ef34f251ab94e2b6d323c4/tools/codegen/src/convert.rs"
+    },
+    {
+      "path": "main.rs",
+      "sha256": "bde0b9fa60648582727bc83bd08b7e82bdd96750712e9f8118c92a4fd3f27cf5",
+      "url": "https://raw.githubusercontent.com/taiki-e/syn-serde/af6d3237b3ec8c68c5ef34f251ab94e2b6d323c4/tools/codegen/src/main.rs"
+    },
+    {
+      "path": "traverse.rs",
+      "sha256": "26c213c1424dc5ee654a4d9c2a927dacbe6fddf7a106912cd93fd0708c7deb83",
+      "url": "https://raw.githubusercontent.com/taiki-e/syn-serde/af6d3237b3ec8c68c5ef34f251ab94e2b6d323c4/tools/codegen/src/traverse.rs"
+    }
+  ]
+}

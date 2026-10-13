@@ -1,0 +1,7 @@
+build-cache: before=0 after=0 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> relative-meta-logic@0.39.0 docs
+> node ../scripts/run-with-cache.mjs -- jsdoc -c ../docs/api/jsdoc.json --destination ../_site/api/js
+
+build-cache: before=3724642 after=2495434 reclaimed=1229208 budget=1073741824 bytes; 1 protected paths; within budget
