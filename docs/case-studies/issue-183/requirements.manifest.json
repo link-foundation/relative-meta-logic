@@ -2256,11 +2256,147 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "`LinkedProgramRegistry` supports rebound imports, rewrites, facts, inference, proof traces, cycle checks, and bounds; `not a full language elaborator or arbitrary-foundation environment` remains the explicit gap.",
-      "checks": [],
-      "remainingGap": "`LinkedProgramRegistry` supports rebound imports, rewrites, facts, inference, proof traces, cycle checks, and bounds; `not a full language elaborator or arbitrary-foundation environment` remains the explicit gap.",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "claimedEvidence": "The linked protocol now also hosts user-defined versioned foundations with declared cycle policies and replayable answers through public package and workspace APIs in both runtimes. `It is not a full language elaborator or arbitrary-foundation environment`.",
+      "checks": [
+        "foundation-unseen-logic-js",
+        "foundation-unseen-logic-rust"
+      ],
+      "remainingGap": "The linked protocol now also hosts user-defined versioned foundations with declared cycle policies and replayable answers through public package and workspace APIs in both runtimes. `It is not a full language elaborator or arbitrary-foundation environment`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
+      "assertionBindings": [
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "executes every fixture query in all three foundation versions with distinct outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "separates truth, falsity, contradiction, assumption dependence and non-results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "describes the user foundation, its rule content and its cycle policy as data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "keeps host foundation code free of the unseen logic and of new dispatch keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "changes only the outcome governed by the declared policy or frame condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects undeclared and unknown cycle policies instead of defaulting to induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "replays every established answer and every non-result without searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects forged proof steps, relabelled statuses and policy-violating hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "never lets one version see assumptions, hypotheses or revisions of another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "propagates a rule change through the aliased shared theory but keeps assumptions local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "derives guarded and refuted results and replays them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "executes_every_fixture_query_in_all_three_versions_with_distinct_outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "separates_truth_falsity_contradiction_assumption_dependence_and_non_results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "describes_the_user_foundation_rule_content_and_cycle_policy_as_data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "keeps_host_foundation_code_free_of_the_unseen_logic_and_of_new_dispatch_keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "changes_only_the_outcome_governed_by_the_declared_policy_or_frame_condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_undeclared_and_unknown_cycle_policies_instead_of_defaulting_to_induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "replays_every_established_answer_and_every_non_result_without_searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_forged_proof_steps_relabelled_statuses_and_policy_violating_hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "never_lets_one_version_see_assumptions_hypotheses_or_revisions_of_another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "propagates_a_rule_change_through_the_aliased_shared_theory_but_keeps_assumptions_local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "derives_guarded_and_refuted_results_on_the_default_closed_s_k_runtime_and_replays_them",
+          "polarity": "positive"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -2280,7 +2416,7 @@
       "implementationClaims": [
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "2d8f268ffaa0ee88b1524c8a27cfdbee1dc613492661372ea9614acc833f9d5a",
+          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812",
           "role": "historical-claim"
         }
       ],
@@ -3875,7 +4011,7 @@
     {
       "id": "R47",
       "obligation": "Preserve and semantically account for the complete finite upstream 0.0.3 formal content, not only declaration names.",
-      "status": "Partial — source preservation complete, semantic stages open",
+      "status": "Partial — source preserved; native execution of the full corpus, stage map and a certified proof fragment",
       "originalWording": [
         {
           "sourceId": "comment-5751189191",
@@ -3911,13 +4047,151 @@
           "path": "lib/meta-theory/upstream-0.0.3.lino",
           "sha256": "328c1a790d8636da57b0d765d1d4c9639e613898fcd982ad1465f136ad00091b",
           "role": "historical-claim"
+        },
+        {
+          "path": "js/src/rml-meta-theory-native.mjs",
+          "role": "implementation",
+          "sha256": "f3de127b5a2dc2704ae06866f9b2ff52cf639a0567593dd83d444ed37eee5bb7"
+        },
+        {
+          "path": "rust/src/meta_theory_native.rs",
+          "role": "implementation",
+          "sha256": "43d5d318a5c588523322fa2b3ee30e4b7a897f6aa6061614674c21c5fb9028ac"
+        },
+        {
+          "path": "lib/meta-theory/upstream-0.0.3-native.lino",
+          "role": "implementation",
+          "sha256": "5711f39e9eb7d770e0a945412df3e80f69e8b7d66ad6a571ee9227f40ed2aa6e"
+        },
+        {
+          "path": "docs/META_THEORY_NATIVE.md",
+          "role": "implementation",
+          "sha256": "338e24023e62e07f187ec43f0770406fa8e75adc3127408b66e201707d761ab1"
         }
       ],
-      "claimedEvidence": "`upstream-0.0.3.lino` preserves 229 declarations, 8,815 typed tokens, ranges, recursion flags, and 510 dependency links; `semantic elaboration, native RML execution, and proof replay per declaration are not yet supplied` (R121-R124).",
-      "checks": [],
-      "remainingGap": "`upstream-0.0.3.lino` preserves 229 declarations, 8,815 typed tokens, ranges, recursion flags, and 510 dependency links; `semantic elaboration, native RML execution, and proof replay per declaration are not yet supplied` (R121-R124).",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "claimedEvidence": "`upstream-0.0.3-native.lino` is generated from the preserved tokens; 229/229 declarations and 197/197 commands are elaborated with exact dependency links, all 90 `#eval`/`Compute` commands reach values, 52/52 source-stated expectations match and 84 Lean/Rocq pairs agree (6 `SequenceDefinitions` pairs differ honestly by return type); 183 declarations have ablation witnesses (150 upstream, 33 untyped base-case probes) and 14/36 theorems are certified. `Typed elaboration covers 72/229 declarations (132 unsupported, 21 unresolved) and 22 proofs are outside the certificate fragment`.",
+      "checks": [
+        "meta-theory-native-js",
+        "meta-theory-native-rust"
+      ],
+      "remainingGap": "`upstream-0.0.3-native.lino` is generated from the preserved tokens; 229/229 declarations and 197/197 commands are elaborated with exact dependency links, all 90 `#eval`/`Compute` commands reach values, 52/52 source-stated expectations match and 84 Lean/Rocq pairs agree (6 `SequenceDefinitions` pairs differ honestly by return type); 183 declarations have ablation witnesses (150 upstream, 33 untyped base-case probes) and 14/36 theorems are certified. `Typed elaboration covers 72/229 declarations (132 unsupported, 21 unresolved) and 22 proofs are outside the certificate fragment`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
+      "assertionBindings": [
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "regenerates the program, cases and coverage byte-for-byte from the preserved tokens",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "elaborates every declaration and command with exact dependency links",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "executes all 90 evaluation commands to values that match the source-stated results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "re-executes every recorded case and every ablation witness independently",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "witnesses definitions no upstream case needs by probes on upstream data, checked against the counterpart",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects a corrupted definition body in the executable program",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects corrupted prelude semantics",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects forged, unreachable and relabelled execution witnesses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects a case whose recorded result or step count was edited",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "slices the program to static closures, and an ablation removes exactly one declaration",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "encodes naturals as canonical little-endian binary links",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "reexecutes_every_case_and_ablation_witness",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "witnesses_unneeded_definitions_by_probes_checked_against_the_counterpart",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "renders_values_like_the_shared_fixtures",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_a_corrupted_definition_body",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_corrupted_prelude_semantics",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_forged_unreachable_and_relabelled_witnesses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_edited_results_and_step_counts",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "executes_binary_natural_arithmetic_in_the_prelude",
+          "polarity": "positive"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -3991,11 +4265,147 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`universal.lino` and mirrored unknown-program tests execute double-negation and modus ponens with unseen names; `concurrent versioned foundations, linked rule packages, guarded coinduction, and linked probability policies remain open` (R115-R120).",
-      "checks": [],
-      "remainingGap": "`universal.lino` and mirrored unknown-program tests execute double-negation and modus ponens with unseen names; `concurrent versioned foundations, linked rule packages, guarded coinduction, and linked probability policies remain open` (R115-R120).",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "claimedEvidence": "Users define logics, frame conditions and cycle policies relative to versioned foundations as linked data, and an unseen modal-frames logic executes in all three versions with distinct outcomes in both runtimes without host changes. `This is not a full language elaborator or arbitrary-foundation environment`.",
+      "checks": [
+        "foundation-unseen-logic-js",
+        "foundation-unseen-logic-rust"
+      ],
+      "remainingGap": "Users define logics, frame conditions and cycle policies relative to versioned foundations as linked data, and an unseen modal-frames logic executes in all three versions with distinct outcomes in both runtimes without host changes. `This is not a full language elaborator or arbitrary-foundation environment`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
+      "assertionBindings": [
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "executes every fixture query in all three foundation versions with distinct outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "separates truth, falsity, contradiction, assumption dependence and non-results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "describes the user foundation, its rule content and its cycle policy as data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "keeps host foundation code free of the unseen logic and of new dispatch keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "changes only the outcome governed by the declared policy or frame condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects undeclared and unknown cycle policies instead of defaulting to induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "replays every established answer and every non-result without searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects forged proof steps, relabelled statuses and policy-violating hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "never lets one version see assumptions, hypotheses or revisions of another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "propagates a rule change through the aliased shared theory but keeps assumptions local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "derives guarded and refuted results and replays them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "executes_every_fixture_query_in_all_three_versions_with_distinct_outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "separates_truth_falsity_contradiction_assumption_dependence_and_non_results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "describes_the_user_foundation_rule_content_and_cycle_policy_as_data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "keeps_host_foundation_code_free_of_the_unseen_logic_and_of_new_dispatch_keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "changes_only_the_outcome_governed_by_the_declared_policy_or_frame_condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_undeclared_and_unknown_cycle_policies_instead_of_defaulting_to_induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "replays_every_established_answer_and_every_non_result_without_searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_forged_proof_steps_relabelled_statuses_and_policy_violating_hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "never_lets_one_version_see_assumptions_hypotheses_or_revisions_of_another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "propagates_a_rule_change_through_the_aliased_shared_theory_but_keeps_assumptions_local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "derives_guarded_and_refuted_results_on_the_default_closed_s_k_runtime_and_replays_them",
+          "polarity": "positive"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -4025,7 +4435,7 @@
         },
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "2d8f268ffaa0ee88b1524c8a27cfdbee1dc613492661372ea9614acc833f9d5a",
+          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812",
           "role": "historical-claim"
         }
       ],
@@ -4118,7 +4528,7 @@
         },
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "2d8f268ffaa0ee88b1524c8a27cfdbee1dc613492661372ea9614acc833f9d5a",
+          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812",
           "role": "historical-claim"
         }
       ],
@@ -4530,17 +4940,171 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`fixed-point-source.lino` represents six bootstrap capabilities above two contractions; `terms, typing, foundations, complete language semantics, and all new operations are not recursively closed as links` (R110-R114, R130).",
-      "checks": [],
-      "remainingGap": "`fixed-point-source.lino` represents six bootstrap capabilities above two contractions; `terms, typing, foundations, complete language semantics, and all new operations are not recursively closed as links` (R110-R114, R130).",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "claimedEvidence": "Above the bootstrap, a semantic-closure projection now represents programs, rules, foundations, judgements, proofs, substitutions, values and the ontology as one validated links network in both runtimes. `Traces, bootstrap reports, language sources and the compiled kernel are still outside it`.",
+      "checks": [
+        "semantic-closure-js",
+        "semantic-closure-rust"
+      ],
+      "remainingGap": "Above the bootstrap, a semantic-closure projection now represents programs, rules, foundations, judgements, proofs, substitutions, values and the ontology as one validated links network in both runtimes. `Traces, bootstrap reports, language sources and the compiled kernel are still outside it`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
+      "assertionBindings": [
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "projects actual programs, rules, foundations, judgements, proofs, substitutions, values and the ontology",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "round trips bytes and reconstructs the host records exactly",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "preserves shared identity and named cycles instead of unfolding them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "produces identical bytes from both public execution bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects dangling references, hidden fields and unrepresented nodes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects category spoofing and missing category membership",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects identity splitting, merging and named identity spoofing",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects broken program/rule cycles in either direction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "requires a selected ontology for full closure and never invents one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "checks declared policies relative to each foundation on direct-structural",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "checks declared policies relative to each foundation on s-k",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "keeps the link-cli graph self-link representable without making it a logical judgement",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "changes its verdict when the linked contract changes, not when host code does",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "projects_actual_host_objects_into_one_closed_network_with_shared_expected_bytes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "round_trips_bytes_and_reconstructs_host_records_exactly",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "preserves_shared_identity_and_named_cycles_instead_of_unfolding_them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "produces_identical_bytes_from_both_public_execution_bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_dangling_references_hidden_fields_and_unrepresented_nodes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_category_spoofing_and_missing_category_membership",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_identity_splitting_merging_and_named_identity_spoofing",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_broken_program_rule_cycles_in_either_direction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "requires_a_selected_ontology_for_full_closure_and_never_invents_one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "checks_declared_universe_policies_relative_to_each_foundation_on_both_bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "keeps_the_link_cli_graph_self_link_representable_without_making_it_a_judgement",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "changes_its_verdict_when_the_linked_contract_changes",
+          "polarity": "positive"
+        }
+      ],
       "completionBindings": []
     },
     {
       "id": "R63",
       "obligation": "Reason about linked definitions, axioms/rules, dependent statements, theorem conclusions, and proofs.",
-      "status": "Partial — replayable linked inductive verifier; full corpus semantics open",
+      "status": "Partial — corpus theorems certified by the linked verifier; induction and rewrite proofs open",
       "originalWording": [
         {
           "sourceId": "pull-184",
@@ -4583,15 +5147,27 @@
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
           "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+        },
+        {
+          "path": "js/src/rml-meta-theory-certificates.mjs",
+          "role": "implementation",
+          "sha256": "990b7e4f4aa77c4403eccf11470a43646c79cbd61db549844fa5d02d3b50a16f"
+        },
+        {
+          "path": "rust/src/meta_theory_certificates.rs",
+          "role": "implementation",
+          "sha256": "357991c18891094be019d1a9dcbedb6a288d7c220ec964ca69eaa74d23fb2708"
         }
       ],
-      "claimedEvidence": "`lib/meta-theory/proof-verifier.lino` and public `rml-linked-proof` / `linked_proof` APIs verify user-supplied finite inductive certificates through linked matching/substitution, exact context, rule, premise, binding, conclusion, dependency and reachability checks. A shared 34-case adversarial corpus and independent trace replay cover forged, missing, duplicate, circular and quoted-constructor attacks. `Complete 229-declaration elaboration/replay, conversion, guarded coinduction and full theory coverage remain open` (R121-R123).",
+      "claimedEvidence": "`produceMetaTheoryCertificate` is an untrusted producer elaborating Lean term/`intro`/`exact`/`rfl` and Rocq intro/unfold/simpl/apply/exact/exists/split/reflexivity/`destruct as` proofs; `checkMetaTheoryCertificate` checks its output through `proof-verifier.lino` with lemma, hypothesis, structural, instance, conversion and quantifier rules and eigen-constants; admitted proofs are never certified. `22 of 36 theorems use induction, rewrite, simp, data destruct or tactic sequencing and remain outside the fragment`.",
       "checks": [
         "linked-verifier-js",
-        "linked-verifier-rust"
+        "linked-verifier-rust",
+        "meta-theory-certificates-js",
+        "meta-theory-certificates-rust"
       ],
-      "remainingGap": "`lib/meta-theory/proof-verifier.lino` and public `rml-linked-proof` / `linked_proof` APIs verify user-supplied finite inductive certificates through linked matching/substitution, exact context, rule, premise, binding, conclusion, dependency and reachability checks. A shared 34-case adversarial corpus and independent trace replay cover forged, missing, duplicate, circular and quoted-constructor attacks. `Complete 229-declaration elaboration/replay, conversion, guarded coinduction and full theory coverage remain open` (R121-R123).",
-      "verificationState": "live-producer-bound-partial-product-scope",
+      "remainingGap": "`produceMetaTheoryCertificate` is an untrusted producer elaborating Lean term/`intro`/`exact`/`rfl` and Rocq intro/unfold/simpl/apply/exact/exists/split/reflexivity/`destruct as` proofs; `checkMetaTheoryCertificate` checks its output through `proof-verifier.lino` with lemma, hypothesis, structural, instance, conversion and quantifier rules and eigen-constants; admitted proofs are never certified. `22 of 36 theorems use induction, rewrite, simp, data destruct or tactic sequencing and remain outside the fragment`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
           "checkId": "linked-verifier-js",
@@ -4915,6 +5491,96 @@
           "checkId": "linked-verifier-rust",
           "file": "rust/tests/linked_proof_tests.rs",
           "name": "forged_replay_metadata_is_bounded_before_comparison",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "regenerates every certificate and status byte-for-byte from preserved proofs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "independently re-checks all certified theorems with the linked proof verifier",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "never certifies an admitted proof and states why every other theorem is outside the fragment",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a corrupted definition body used by a conversion",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects binder mutations in eigen-constants and lemma instances",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects removed premises, substituted rules and edited node conclusions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects edited goals, statements and forged conversions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects undeclared dependencies, self-citation and edited dependency lists",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a mutated source proof that cites the wrong lemma",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rechecks_every_certified_theorem_with_the_linked_verifier",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_a_corrupted_definition_body_used_by_a_conversion",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_binder_mutations",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_removed_premises_substituted_rules_and_edited_conclusions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_edited_goals_statements_and_forged_conversions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_undeclared_dependencies_self_citation_and_edited_dependency_lists",
           "polarity": "negative"
         }
       ],
@@ -20789,7 +21455,7 @@
     {
       "id": "R111",
       "obligation": "Recursively close terms, addresses, types, values, rules, substitutions, judgements, proofs, foundations, and the ontology itself, with closure validation and identity/cycle-preserving serialization.",
-      "status": "Partial — closed links-network transport and authoritative type facts; whole-product lowering open",
+      "status": "Partial — host records projected into one validated closed links network; traces, bootstrap and language sources not yet lowered",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -20824,15 +21490,32 @@
           "path": "rust/src/theory_network.rs",
           "role": "implementation",
           "sha256": "79b76cb66b2e8fb0167d125ff902ede4ad847e35f9a2ac7b8e149509509baa0c"
+        },
+        {
+          "path": "js/src/rml-semantic-closure.mjs",
+          "role": "implementation",
+          "sha256": "16f682ed4c547bf13d0e4b2b4ce5c289e459481a6fb99f1d8f00cf17a7d04c8b"
+        },
+        {
+          "path": "rust/src/semantic_closure.rs",
+          "role": "implementation",
+          "sha256": "5dafac7f0f89d2d4f7349363861111fe33c98a21baba79edd0da33ab4642303c"
+        },
+        {
+          "path": "docs/SEMANTIC_ARCHIVE.md",
+          "role": "implementation",
+          "sha256": "6785fb304a9d5a38eb986eae6bca1fdb10300fe1563d51af794d527614147666"
         }
       ],
-      "claimedEvidence": "`TypedSemanticArchive` in `js/src/rml-semantic-archive.mjs` and `rust/src/semantic_archive.rs` round-trips closed addressed links networks with identity, cycles, shared references and the named semantic categories. Shared fixtures produce identical 618-byte framing; malformed UTF-8/lengths, duplicate roles, dangling references and hidden metadata fail. Reconstructed type queries use linked facts rather than a forged cache. `Automatic projection of all existing host rules, proofs, substitutions and workspaces into that links network remains incomplete`.",
+      "claimedEvidence": "`projectSemanticClosure` / `project_semantic_closure` put programs, rules, foundations, judgements, proofs, substitutions, values and the selected ontology into one content-addressed archive with identical bytes in both runtimes; `validateSemanticClosure` rejects dangling references, hidden fields, category spoofing, identity splitting/merging and broken cycles, and preserves shared identity and named cycles. `Rewrite traces, refutation/coinduction sub-results, bootstrap reports, language CST networks and the compiled kernel are not lowered, and the encoders/validators are host code`.",
       "checks": [
         "semantic-archive-js",
-        "semantic-archive-rust"
+        "semantic-archive-rust",
+        "semantic-closure-js",
+        "semantic-closure-rust"
       ],
-      "remainingGap": "`TypedSemanticArchive` in `js/src/rml-semantic-archive.mjs` and `rust/src/semantic_archive.rs` round-trips closed addressed links networks with identity, cycles, shared references and the named semantic categories. Shared fixtures produce identical 618-byte framing; malformed UTF-8/lengths, duplicate roles, dangling references and hidden metadata fail. Reconstructed type queries use linked facts rather than a forged cache. `Automatic projection of all existing host rules, proofs, substitutions and workspaces into that links network remains incomplete`.",
-      "verificationState": "live-producer-bound-partial-product-scope",
+      "remainingGap": "`projectSemanticClosure` / `project_semantic_closure` put programs, rules, foundations, judgements, proofs, substitutions, values and the selected ontology into one content-addressed archive with identical bytes in both runtimes; `validateSemanticClosure` rejects dangling references, hidden fields, category spoofing, identity splitting/merging and broken cycles, and preserves shared identity and named cycles. `Rewrite traces, refutation/coinduction sub-results, bootstrap reports, language CST networks and the compiled kernel are not lowered, and the encoders/validators are host code`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
           "checkId": "semantic-archive-js",
@@ -20904,6 +21587,156 @@
           "checkId": "semantic-archive-rust",
           "file": "rust/tests/semantic_archive_tests.rs",
           "name": "selected_graph_ontology_does_not_impose_foundation_universe_or_soundness_rules",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "projects actual programs, rules, foundations, judgements, proofs, substitutions, values and the ontology",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "round trips bytes and reconstructs the host records exactly",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "preserves shared identity and named cycles instead of unfolding them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "produces identical bytes from both public execution bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects dangling references, hidden fields and unrepresented nodes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects category spoofing and missing category membership",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects identity splitting, merging and named identity spoofing",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects broken program/rule cycles in either direction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "requires a selected ontology for full closure and never invents one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "checks declared policies relative to each foundation on direct-structural",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "checks declared policies relative to each foundation on s-k",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "keeps the link-cli graph self-link representable without making it a logical judgement",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "changes its verdict when the linked contract changes, not when host code does",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "projects_actual_host_objects_into_one_closed_network_with_shared_expected_bytes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "round_trips_bytes_and_reconstructs_host_records_exactly",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "preserves_shared_identity_and_named_cycles_instead_of_unfolding_them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "produces_identical_bytes_from_both_public_execution_bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_dangling_references_hidden_fields_and_unrepresented_nodes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_category_spoofing_and_missing_category_membership",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_identity_splitting_merging_and_named_identity_spoofing",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_broken_program_rule_cycles_in_either_direction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "requires_a_selected_ontology_for_full_closure_and_never_invents_one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "checks_declared_universe_policies_relative_to_each_foundation_on_both_bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "keeps_the_link_cli_graph_self_link_representable_without_making_it_a_judgement",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "changes_its_verdict_when_the_linked_contract_changes",
           "polarity": "positive"
         }
       ],
@@ -21146,13 +21979,15 @@
           "sha256": "79b76cb66b2e8fb0167d125ff902ede4ad847e35f9a2ac7b8e149509509baa0c"
         }
       ],
-      "claimedEvidence": "`semantic-archive` tests hold the links-network Type self-cycle fixed while two linked universe policies produce different logical judgements; removing the explicit self-universe axiom changes `Type : Type` from proved to unknown on both public execution bases. Bare constructors still select no ontology, and neither example proves a soundness certificate. `General foundation-defined universe/soundness contract validation remains open; the example is not a universal well-foundedness checker`.",
+      "claimedEvidence": "`validateUniverseContract` checks foundation-declared universe and soundness contracts on nine instances over both execution bases (accepted, violated with cycle witnesses, not declared, unsupported, incomplete), keeps the link-cli graph self-link representable without making it a judgement, and changes its verdict only when the linked contract changes. `Consistency is always reported as not established; global soundness is out of scope`.",
       "checks": [
         "semantic-archive-js",
-        "semantic-archive-rust"
+        "semantic-archive-rust",
+        "semantic-closure-js",
+        "semantic-closure-rust"
       ],
-      "remainingGap": "`semantic-archive` tests hold the links-network Type self-cycle fixed while two linked universe policies produce different logical judgements; removing the explicit self-universe axiom changes `Type : Type` from proved to unknown on both public execution bases. Bare constructors still select no ontology, and neither example proves a soundness certificate. `General foundation-defined universe/soundness contract validation remains open; the example is not a universal well-foundedness checker`.",
-      "verificationState": "live-producer-bound-partial-product-scope",
+      "remainingGap": "`validateUniverseContract` checks foundation-declared universe and soundness contracts on nine instances over both execution bases (accepted, violated with cycle witnesses, not declared, unsupported, incomplete), keeps the link-cli graph self-link representable without making it a judgement, and changes its verdict only when the linked contract changes. `Consistency is always reported as not established; global soundness is out of scope`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
           "checkId": "semantic-archive-js",
@@ -21225,6 +22060,156 @@
           "file": "rust/tests/semantic_archive_tests.rs",
           "name": "selected_graph_ontology_does_not_impose_foundation_universe_or_soundness_rules",
           "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "projects actual programs, rules, foundations, judgements, proofs, substitutions, values and the ontology",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "round trips bytes and reconstructs the host records exactly",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "preserves shared identity and named cycles instead of unfolding them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "produces identical bytes from both public execution bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects dangling references, hidden fields and unrepresented nodes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects category spoofing and missing category membership",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects identity splitting, merging and named identity spoofing",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects broken program/rule cycles in either direction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "requires a selected ontology for full closure and never invents one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "checks declared policies relative to each foundation on direct-structural",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "checks declared policies relative to each foundation on s-k",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "keeps the link-cli graph self-link representable without making it a logical judgement",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-js",
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "changes its verdict when the linked contract changes, not when host code does",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "projects_actual_host_objects_into_one_closed_network_with_shared_expected_bytes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "round_trips_bytes_and_reconstructs_host_records_exactly",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "preserves_shared_identity_and_named_cycles_instead_of_unfolding_them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "produces_identical_bytes_from_both_public_execution_bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_dangling_references_hidden_fields_and_unrepresented_nodes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_category_spoofing_and_missing_category_membership",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_identity_splitting_merging_and_named_identity_spoofing",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_broken_program_rule_cycles_in_either_direction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "requires_a_selected_ontology_for_full_closure_and_never_invents_one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "checks_declared_universe_policies_relative_to_each_foundation_on_both_bases",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "keeps_the_link_cli_graph_self_link_representable_without_making_it_a_judgement",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "semantic-closure-rust",
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "changes_its_verdict_when_the_linked_contract_changes",
+          "polarity": "positive"
         }
       ],
       "nativeValidationRequired": true,
@@ -21252,7 +22237,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-linked-program.mjs",
@@ -21272,7 +22257,7 @@
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -21292,12 +22277,12 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         }
       ],
       "claimedEvidence": "`FoundationPackages` in `js/src/rml-foundation-packages.mjs` and `rust/src/foundation_packages.rs` gives independent versions private program/rule/instance identities while preserving object-language terms; explicit versioned imports and aliases allow deliberate comparison. Mirrored `foundation-packages` tests load the same local names in two versions, prove different consequences, validate origin/context tables and isolate assumption/rule revisions; missing, mismatched, duplicate, colliding and foreign contexts fail. `foundation-context` tests retain selected foundation/theory/assumptions/bounds on every workspace query and execution outcome. Native and JavaScript package tests pass; `universal foundation soundness and full Link-driven host closure remain separate open requirements` (R116/R118/R149).",
@@ -21654,7 +22639,7 @@
     {
       "id": "R116",
       "obligation": "Execute user-defined foundations as inspectable data through public APIs without adding host enum or switch cases.",
-      "status": "Partial — generic finite rules exist",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -21665,13 +22650,202 @@
           "bodySha256": "5361a046c55e0b0ef94eb026e7a6be53001f2c7aa4bc7dcad61bf3cb44cecad9"
         }
       ],
-      "implementationClaims": [],
-      "claimedEvidence": "`LinkedProgramRegistry` executes previously unseen rewrite/inference names, but public theory verification still relies on fixed contract shapes and does not cover the full `foundation package` surface.",
-      "checks": [],
-      "remainingGap": "`LinkedProgramRegistry` executes previously unseen rewrite/inference names, but public theory verification still relies on fixed contract shapes and does not cover the full `foundation package` surface.",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
-      "completionBindings": []
+      "implementationClaims": [
+        {
+          "path": "js/src/rml-foundation-packages.mjs",
+          "role": "implementation",
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
+        },
+        {
+          "path": "rust/src/foundation_packages.rs",
+          "role": "implementation",
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
+        },
+        {
+          "path": "test-corpus/foundation-packages/host-vocabulary.json",
+          "role": "implementation",
+          "sha256": "de0036780fd474e39dc6e1ef9e5b285334cc698421f70b59f498486c792f7e15"
+        }
+      ],
+      "claimedEvidence": "An unseen three-version modal-frames logic loads through the public `FoundationPackages` API in both runtimes purely as linked data; `describe` returns its rule forms and cycle policy, `replay` checks its proofs, and a source guard finds none of its 48 names in `js/src` or `rust/src` while every host literal must be listed in `host-vocabulary.json` (a planted branch makes the guard fire).",
+      "checks": [
+        "foundation-unseen-logic-js",
+        "foundation-unseen-logic-rust"
+      ],
+      "remainingGap": "An unseen three-version modal-frames logic loads through the public `FoundationPackages` API in both runtimes purely as linked data; `describe` returns its rule forms and cycle policy, `replay` checks its proofs, and a source guard finds none of its 48 names in `js/src` or `rust/src` while every host literal must be listed in `host-vocabulary.json` (a planted branch makes the guard fire).",
+      "verificationState": "live-producer-bound-versioned-package-contract",
+      "assertionBindings": [
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "executes every fixture query in all three foundation versions with distinct outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "separates truth, falsity, contradiction, assumption dependence and non-results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "describes the user foundation, its rule content and its cycle policy as data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "keeps host foundation code free of the unseen logic and of new dispatch keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "changes only the outcome governed by the declared policy or frame condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects undeclared and unknown cycle policies instead of defaulting to induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "replays every established answer and every non-result without searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects forged proof steps, relabelled statuses and policy-violating hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "never lets one version see assumptions, hypotheses or revisions of another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "propagates a rule change through the aliased shared theory but keeps assumptions local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "derives guarded and refuted results and replays them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "executes_every_fixture_query_in_all_three_versions_with_distinct_outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "separates_truth_falsity_contradiction_assumption_dependence_and_non_results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "describes_the_user_foundation_rule_content_and_cycle_policy_as_data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "keeps_host_foundation_code_free_of_the_unseen_logic_and_of_new_dispatch_keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "changes_only_the_outcome_governed_by_the_declared_policy_or_frame_condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_undeclared_and_unknown_cycle_policies_instead_of_defaulting_to_induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "replays_every_established_answer_and_every_non_result_without_searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_forged_proof_steps_relabelled_statuses_and_policy_violating_hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "never_lets_one_version_see_assumptions_hypotheses_or_revisions_of_another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "propagates_a_rule_change_through_the_aliased_shared_theory_but_keeps_assumptions_local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "derives_guarded_and_refuted_results_on_the_default_closed_s_k_runtime_and_replays_them",
+          "polarity": "positive"
+        }
+      ],
+      "completionBindings": [
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "executes every fixture query in all three foundation versions with distinct outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "describes the user foundation, its rule content and its cycle policy as data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "keeps host foundation code free of the unseen logic and of new dispatch keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "executes_every_fixture_query_in_all_three_versions_with_distinct_outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "describes_the_user_foundation_rule_content_and_cycle_policy_as_data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "keeps_host_foundation_code_free_of_the_unseen_logic_and_of_new_dispatch_keys",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R117",
@@ -21691,12 +22865,12 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "lib/foundations/packages.lino",
@@ -22008,7 +23182,7 @@
     {
       "id": "R118",
       "obligation": "Isolate assumptions between foundations and make inductive-cycle versus guarded-coinductive policy foundation-defined.",
-      "status": "Partial — scoped guarded policy and isolation delivered",
+      "status": "Complete for the foundation workspace and package APIs",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -22025,11 +23199,6 @@
       ],
       "implementationClaims": [
         {
-          "path": "js/src/rml-foundation-workspace.mjs",
-          "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
-        },
-        {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
           "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
@@ -22045,11 +23214,6 @@
           "sha256": "cd7777d75b83fe2de98d1abae04fedc8d9a1b2e4152e9251525bcf7c5707ba89"
         },
         {
-          "path": "rust/src/foundation_workspace.rs",
-          "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
-        },
-        {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
           "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
@@ -22063,15 +23227,27 @@
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
           "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
+        },
+        {
+          "path": "js/src/rml-foundation-workspace.mjs",
+          "role": "implementation",
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
+        },
+        {
+          "path": "rust/src/foundation_workspace.rs",
+          "role": "implementation",
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         }
       ],
-      "claimedEvidence": "`foundation-context` tests exercise independent positive/negative guarded searches, contradiction/refutation outcomes, local hypotheses, cross-version assumption isolation, and dependency invalidation through the public runtime. Guarded search remains a bounded single-hypothesis final-guard construction; `general foundation-defined coinductive proof policy and replay remain open`.",
+      "claimedEvidence": "Cycle policy comes from the linked foundation declaration (versions 1/2/3 yield unknown/unknown/proved for the same query); undeclared or unknown policies are rejected rather than defaulting to induction; guarded replay is restricted to the declared policy; assumptions, hypotheses and revisions never cross versions while rule changes propagate through an aliased shared theory. The selectable policies are still the two host mechanisms (inductive and guarded-coinductive) chosen by the foundation.",
       "checks": [
         "foundation-context-js",
-        "foundation-context-rust"
+        "foundation-context-rust",
+        "foundation-unseen-logic-js",
+        "foundation-unseen-logic-rust"
       ],
-      "remainingGap": "`foundation-context` tests exercise independent positive/negative guarded searches, contradiction/refutation outcomes, local hypotheses, cross-version assumption isolation, and dependency invalidation through the public runtime. Guarded search remains a bounded single-hypothesis final-guard construction; `general foundation-defined coinductive proof policy and replay remain open`.",
-      "verificationState": "live-producer-bound-partial-product-scope",
+      "remainingGap": "Cycle policy comes from the linked foundation declaration (versions 1/2/3 yield unknown/unknown/proved for the same query); undeclared or unknown policies are rejected rather than defaulting to induction; guarded replay is restricted to the declared policy; assumptions, hypotheses and revisions never cross versions while rule changes propagate through an aliased shared theory. The selectable policies are still the two host mechanisms (inductive and guarded-coinductive) chosen by the foundation.",
+      "verificationState": "live-producer-bound-scoped-historical-contract",
       "assertionBindings": [
         {
           "checkId": "foundation-context-js",
@@ -22168,10 +23344,191 @@
           "file": "rust/tests/foundation_context_tests.rs",
           "name": "reports_exhaustion_of_either_guarded_search_preserving_independent_evidence",
           "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "executes every fixture query in all three foundation versions with distinct outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "separates truth, falsity, contradiction, assumption dependence and non-results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "describes the user foundation, its rule content and its cycle policy as data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "keeps host foundation code free of the unseen logic and of new dispatch keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "changes only the outcome governed by the declared policy or frame condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects undeclared and unknown cycle policies instead of defaulting to induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "replays every established answer and every non-result without searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects forged proof steps, relabelled statuses and policy-violating hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "never lets one version see assumptions, hypotheses or revisions of another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "propagates a rule change through the aliased shared theory but keeps assumptions local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "derives guarded and refuted results and replays them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "executes_every_fixture_query_in_all_three_versions_with_distinct_outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "separates_truth_falsity_contradiction_assumption_dependence_and_non_results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "describes_the_user_foundation_rule_content_and_cycle_policy_as_data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "keeps_host_foundation_code_free_of_the_unseen_logic_and_of_new_dispatch_keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "changes_only_the_outcome_governed_by_the_declared_policy_or_frame_condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_undeclared_and_unknown_cycle_policies_instead_of_defaulting_to_induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "replays_every_established_answer_and_every_non_result_without_searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_forged_proof_steps_relabelled_statuses_and_policy_violating_hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "never_lets_one_version_see_assumptions_hypotheses_or_revisions_of_another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "propagates_a_rule_change_through_the_aliased_shared_theory_but_keeps_assumptions_local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "derives_guarded_and_refuted_results_on_the_default_closed_s_k_runtime_and_replays_them",
+          "polarity": "positive"
         }
       ],
       "nativeValidationRequired": true,
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "changes only the outcome governed by the declared policy or frame condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects undeclared and unknown cycle policies instead of defaulting to induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "never lets one version see assumptions, hypotheses or revisions of another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "propagates a rule change through the aliased shared theory but keeps assumptions local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "changes_only_the_outcome_governed_by_the_declared_policy_or_frame_condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_undeclared_and_unknown_cycle_policies_instead_of_defaulting_to_induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "never_lets_one_version_see_assumptions_hypotheses_or_revisions_of_another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "propagates_a_rule_change_through_the_aliased_shared_theory_but_keeps_assumptions_local",
+          "polarity": "positive"
+        }
+      ]
     },
     {
       "id": "R119",
@@ -22195,7 +23552,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-linked-program.mjs",
@@ -22215,7 +23572,7 @@
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -22407,7 +23764,7 @@
     {
       "id": "R120",
       "obligation": "Report unknown, bounded exhaustion, unsupported, assumptions, and falsity distinctly without promising a universal decision procedure.",
-      "status": "Partial — explicit workspace outcomes delivered; full-language outcome scope open",
+      "status": "Partial — one outcome contract for foundation ask/execute/revise/replay; linked-proof results lack it",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -22426,7 +23783,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-linked-program.mjs",
@@ -22446,7 +23803,7 @@
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -22464,13 +23821,15 @@
           "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         }
       ],
-      "claimedEvidence": "`foundation-context` tests distinguish proved, refuted, contradictory, unknown, exhausted and unsupported and preserve established evidence when the opposite search exhausts. Results carry foundation, theory, assumptions and bounds. `The unified result contract across complete language import/elaboration/translation/proof workflows remains open`.",
+      "claimedEvidence": "`rml-foundation-outcome/v1` distinguishes proved, refuted, contradictory, assumption-dependent, unknown, exhausted, unsupported and computed results in both runtimes, replays every answer and non-result without searching, and rejects forged steps and relabelled statuses. `The public rml-linked-proof result has no outcome field yet`.",
       "checks": [
         "foundation-context-js",
-        "foundation-context-rust"
+        "foundation-context-rust",
+        "foundation-unseen-logic-js",
+        "foundation-unseen-logic-rust"
       ],
-      "remainingGap": "`foundation-context` tests distinguish proved, refuted, contradictory, unknown, exhausted and unsupported and preserve established evidence when the opposite search exhausts. Results carry foundation, theory, assumptions and bounds. `The unified result contract across complete language import/elaboration/translation/proof workflows remains open`.",
-      "verificationState": "live-producer-bound-partial-product-scope",
+      "remainingGap": "`rml-foundation-outcome/v1` distinguishes proved, refuted, contradictory, assumption-dependent, unknown, exhausted, unsupported and computed results in both runtimes, replays every answer and non-result without searching, and rejects forged steps and relabelled statuses. `The public rml-linked-proof result has no outcome field yet`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
           "checkId": "foundation-context-js",
@@ -22567,6 +23926,138 @@
           "file": "rust/tests/foundation_context_tests.rs",
           "name": "reports_exhaustion_of_either_guarded_search_preserving_independent_evidence",
           "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "executes every fixture query in all three foundation versions with distinct outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "separates truth, falsity, contradiction, assumption dependence and non-results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "describes the user foundation, its rule content and its cycle policy as data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "keeps host foundation code free of the unseen logic and of new dispatch keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "changes only the outcome governed by the declared policy or frame condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects undeclared and unknown cycle policies instead of defaulting to induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "replays every established answer and every non-result without searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects forged proof steps, relabelled statuses and policy-violating hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "never lets one version see assumptions, hypotheses or revisions of another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "propagates a rule change through the aliased shared theory but keeps assumptions local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "derives guarded and refuted results and replays them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "executes_every_fixture_query_in_all_three_versions_with_distinct_outcomes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "separates_truth_falsity_contradiction_assumption_dependence_and_non_results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "describes_the_user_foundation_rule_content_and_cycle_policy_as_data",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "keeps_host_foundation_code_free_of_the_unseen_logic_and_of_new_dispatch_keys",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "changes_only_the_outcome_governed_by_the_declared_policy_or_frame_condition",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_undeclared_and_unknown_cycle_policies_instead_of_defaulting_to_induction",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "replays_every_established_answer_and_every_non_result_without_searching",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_forged_proof_steps_relabelled_statuses_and_policy_violating_hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "never_lets_one_version_see_assumptions_hypotheses_or_revisions_of_another",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "propagates_a_rule_change_through_the_aliased_shared_theory_but_keeps_assumptions_local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "derives_guarded_and_refuted_results_on_the_default_closed_s_k_runtime_and_replays_them",
+          "polarity": "positive"
         }
       ],
       "nativeValidationRequired": true,
@@ -22575,7 +24066,7 @@
     {
       "id": "R121",
       "obligation": "Map all 229 upstream declarations and non-declaration commands across preservation, elaboration, native RML execution/checking, dependencies, and admission status.",
-      "status": "Partial — preservation column only",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -22591,19 +24082,166 @@
           "path": "lib/meta-theory/upstream-0.0.3.lino",
           "sha256": "328c1a790d8636da57b0d765d1d4c9639e613898fcd982ad1465f136ad00091b",
           "role": "historical-claim"
+        },
+        {
+          "path": "scripts/generate-meta-theory-map.mjs",
+          "role": "implementation",
+          "sha256": "98f9a18d3211804205c7ab7686557bdacfac0d2a29c7588c5df6cc2741a73a34"
+        },
+        {
+          "path": "test-corpus/meta-theory-coverage/map.json",
+          "role": "implementation",
+          "sha256": "a2404f8fc448500f77149063d4edaf291abd9b026abdadddd816758ae2d98b72"
         }
       ],
-      "claimedEvidence": "`FormalCorpus` and `upstream-0.0.3.lino` preserve 229 declarations at `087f451`; per-declaration `elaboration/execution/checking` and command coverage remain open.",
-      "checks": [],
-      "remainingGap": "`FormalCorpus` and `upstream-0.0.3.lino` preserve 229 declarations at `087f451`; per-declaration `elaboration/execution/checking` and command coverage remain open.",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
-      "completionBindings": []
+      "claimedEvidence": "`test-corpus/meta-theory-coverage/map.json` maps all 229 declarations and 197 commands (by kind) across preservation, typed elaboration, native elaboration, dependency check, native execution, proof and admission; `validateMetaTheoryMap` re-executes every claimed witness and rejects unmapped or duplicated items, partition gaps, stale counts and forged evidence in both runtimes. The map records the unmet stages honestly (for example 132 unsupported typed elaborations), which R47 and R122 track.",
+      "checks": [
+        "meta-theory-map-js",
+        "meta-theory-map-rust"
+      ],
+      "remainingGap": "`test-corpus/meta-theory-coverage/map.json` maps all 229 declarations and 197 commands (by kind) across preservation, typed elaboration, native elaboration, dependency check, native execution, proof and admission; `validateMetaTheoryMap` re-executes every claimed witness and rejects unmapped or duplicated items, partition gaps, stale counts and forged evidence in both runtimes. The map records the unmet stages honestly (for example 132 unsupported typed elaborations), which R47 and R122 track.",
+      "verificationState": "live-producer-bound-scoped-source-obligation",
+      "assertionBindings": [
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "regenerates the map byte-for-byte and re-executes every claimed stage",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "maps all 229 declarations and 197 commands with their stage counts",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects unmapped, unknown and duplicated declarations and commands",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects partition gaps, overlaps and changed preservation fingerprints",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects stale counts",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects claimed stages without witnesses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects forged evidence once the claimed witness is re-executed",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-rust",
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "validates_all_declarations_commands_partitions_and_counts",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-map-rust",
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_unmapped_unknown_and_duplicated_items",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-rust",
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_partition_gaps_overlaps_and_fingerprints",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-rust",
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_stale_counts_and_claims_without_witnesses",
+          "polarity": "negative"
+        }
+      ],
+      "completionBindings": [
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "regenerates the map byte-for-byte and re-executes every claimed stage",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "maps all 229 declarations and 197 commands with their stage counts",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects unmapped, unknown and duplicated declarations and commands",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects partition gaps, overlaps and changed preservation fingerprints",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects stale counts",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects claimed stages without witnesses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-js",
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects forged evidence once the claimed witness is re-executed",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-rust",
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "validates_all_declarations_commands_partitions_and_counts",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-map-rust",
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_unmapped_unknown_and_duplicated_items",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-rust",
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_partition_gaps_overlaps_and_fingerprints",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-map-rust",
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_stale_counts_and_claims_without_witnesses",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R122",
       "obligation": "Provide independently replayable RML definitions/proofs and reject body, binder, premise, proof, conclusion, and dependency mutations for the required meta-theory.",
-      "status": "Open",
+      "status": "Partial — replayable definitions and certificates reject all six mutation classes; 22 theorems outside the fragment",
       "originalWording": [
         {
           "sourceId": "comment-5786000580",
@@ -22622,12 +24260,233 @@
           "bodySha256": "884aba190dcb7a313db7937ddc94212128b99901373d3dcd76891e15653ce3bb"
         }
       ],
-      "implementationClaims": [],
-      "claimedEvidence": "Current corpus mutation checks cover source contracts; `native RML proof replay for the complete corpus` is absent.",
-      "checks": [],
-      "remainingGap": "Current corpus mutation checks cover source contracts; `native RML proof replay for the complete corpus` is absent.",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "implementationClaims": [
+        {
+          "path": "js/src/rml-meta-theory-certificates.mjs",
+          "role": "implementation",
+          "sha256": "990b7e4f4aa77c4403eccf11470a43646c79cbd61db549844fa5d02d3b50a16f"
+        },
+        {
+          "path": "js/src/rml-meta-theory-native.mjs",
+          "role": "implementation",
+          "sha256": "f3de127b5a2dc2704ae06866f9b2ff52cf639a0567593dd83d444ed37eee5bb7"
+        }
+      ],
+      "claimedEvidence": "Body, binder, premise, proof, conclusion and dependency mutations are rejected by the certificate checker and the native program checker in both runtimes (corrupted definitions and prelude semantics, forged or relabelled witnesses, edited results and step counts, wrong-lemma proofs). `Replay covers the 14 certified theorems and the executable definitions; 22 theorems remain outside the certificate fragment`.",
+      "checks": [
+        "meta-theory-certificates-js",
+        "meta-theory-certificates-rust",
+        "meta-theory-native-js",
+        "meta-theory-native-rust"
+      ],
+      "remainingGap": "Body, binder, premise, proof, conclusion and dependency mutations are rejected by the certificate checker and the native program checker in both runtimes (corrupted definitions and prelude semantics, forged or relabelled witnesses, edited results and step counts, wrong-lemma proofs). `Replay covers the 14 certified theorems and the executable definitions; 22 theorems remain outside the certificate fragment`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
+      "assertionBindings": [
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "regenerates every certificate and status byte-for-byte from preserved proofs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "independently re-checks all certified theorems with the linked proof verifier",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "never certifies an admitted proof and states why every other theorem is outside the fragment",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a corrupted definition body used by a conversion",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects binder mutations in eigen-constants and lemma instances",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects removed premises, substituted rules and edited node conclusions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects edited goals, statements and forged conversions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects undeclared dependencies, self-citation and edited dependency lists",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a mutated source proof that cites the wrong lemma",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rechecks_every_certified_theorem_with_the_linked_verifier",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_a_corrupted_definition_body_used_by_a_conversion",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_binder_mutations",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_removed_premises_substituted_rules_and_edited_conclusions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_edited_goals_statements_and_forged_conversions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_undeclared_dependencies_self_citation_and_edited_dependency_lists",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "regenerates the program, cases and coverage byte-for-byte from the preserved tokens",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "elaborates every declaration and command with exact dependency links",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "executes all 90 evaluation commands to values that match the source-stated results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "re-executes every recorded case and every ablation witness independently",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "witnesses definitions no upstream case needs by probes on upstream data, checked against the counterpart",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects a corrupted definition body in the executable program",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects corrupted prelude semantics",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects forged, unreachable and relabelled execution witnesses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects a case whose recorded result or step count was edited",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "slices the program to static closures, and an ablation removes exactly one declaration",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-js",
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "encodes naturals as canonical little-endian binary links",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "reexecutes_every_case_and_ablation_witness",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "witnesses_unneeded_definitions_by_probes_checked_against_the_counterpart",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "renders_values_like_the_shared_fixtures",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_a_corrupted_definition_body",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_corrupted_prelude_semantics",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_forged_unreachable_and_relabelled_witnesses",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_edited_results_and_step_counts",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-native-rust",
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "executes_binary_natural_arithmetic_in_the_prelude",
+          "polarity": "positive"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -22659,11 +24518,51 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`universal.lino` exercises representative operations, but `complete named-theory content and proofs` are not encoded.",
-      "checks": [],
-      "remainingGap": "`universal.lino` exercises representative operations, but `complete named-theory content and proofs` are not encoded.",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "claimedEvidence": "Native linked execution and certificates now cover the upstream set, sequence, network and Links corpus, and the researcher recipe runs upstream definitions on new data where a changed body changes the result. `Complete type, graph and relational-algebra specifications are not yet encoded`.",
+      "checks": [
+        "meta-theory-workflow-js",
+        "meta-theory-workflow-rust"
+      ],
+      "remainingGap": "Native linked execution and certificates now cover the upstream set, sequence, network and Links corpus, and the researcher recipe runs upstream definitions on new data where a changed body changes the result. `Complete type, graph and relational-algebra specifications are not yet encoded`.",
+      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
+      "assertionBindings": [
+        {
+          "checkId": "meta-theory-workflow-js",
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "meta-theory research recipe reproduces the shared report through public APIs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-workflow-js",
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "upstream definitions run on new data and a changed definition body changes the result",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-workflow-js",
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "a recorded case request round-trips through compaction",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-workflow-js",
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "the recipe certificate is rejected after its cited lemma is removed from the dependencies",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-workflow-rust",
+          "file": "rust/tests/meta_theory_workflow_tests.rs",
+          "name": "meta_theory_recipe_reproduces_the_shared_report",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-workflow-rust",
+          "file": "rust/tests/meta_theory_workflow_tests.rs",
+          "name": "upstream_definitions_run_on_new_data_and_a_changed_body_changes_the_result",
+          "polarity": "positive"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -23521,7 +25420,7 @@
       "implementationClaims": [
         {
           "path": "docs/case-studies/issue-183/recursive-type-ontology.md",
-          "sha256": "cea835bf5713866bbb2b2e914a2cca6215ad7cd3f4222d08e2e54cfea9a2003e",
+          "sha256": "597abe0642c2c1d17e2590e129a8592ee3bcba8dabcc81a3368e1b00ac07128a",
           "role": "historical-claim"
         }
       ],
@@ -30479,7 +32378,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-linked-program.mjs",
@@ -30585,7 +32484,7 @@
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -31032,7 +32931,7 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "js/src/rml-foundation-search.mjs",
@@ -31042,7 +32941,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-horn-resolution.mjs",
@@ -31443,12 +33342,12 @@
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/js_rename.rs",
@@ -31468,7 +33367,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
+          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
         },
         {
           "path": "rust/src/linked_program/dispatch_tests.rs",
@@ -31863,7 +33762,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
+          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
         },
         {
           "path": "rust/Cargo.toml",
@@ -32379,7 +34278,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-linked-program.mjs",
@@ -32480,7 +34379,7 @@
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -32573,7 +34472,7 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "test-corpus/foundation-packages/version-one.lino",
@@ -32654,7 +34553,7 @@
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         },
         {
           "path": "test-corpus/foundation-packages/version-one.lino",
@@ -35284,7 +37183,7 @@
         {
           "path": "docs/case-studies/issue-183/researcher-workflow.md",
           "role": "specification",
-          "sha256": "e83e0b7af340a89e1e140559f543e0058d60afb9dc25f794606ba7e97910dcb3"
+          "sha256": "393c05274451d36b08d1009690e411dd675ed6d410439b41622584b5e0ebe6fb"
         },
         {
           "path": "examples/researcher-workflow.mjs",
@@ -35424,7 +37323,7 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "js/src/rml-foundation-search.mjs",
@@ -35434,7 +37333,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-horn-resolution.mjs",
@@ -35906,7 +37805,7 @@
         {
           "path": "docs/case-studies/issue-183/researcher-workflow.md",
           "role": "specification",
-          "sha256": "e83e0b7af340a89e1e140559f543e0058d60afb9dc25f794606ba7e97910dcb3"
+          "sha256": "393c05274451d36b08d1009690e411dd675ed6d410439b41622584b5e0ebe6fb"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -36211,12 +38110,12 @@
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/js_rename.rs",
@@ -36236,7 +38135,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
+          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -36534,7 +38433,7 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "js/src/rml-foundation-search.mjs",
@@ -36544,7 +38443,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-horn-resolution.mjs",
@@ -37296,12 +39195,12 @@
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/js_rename.rs",
@@ -37321,7 +39220,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
+          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -37519,7 +39418,7 @@
         {
           "path": "docs/META_THEORY.md",
           "role": "specification",
-          "sha256": "2d8f268ffaa0ee88b1524c8a27cfdbee1dc613492661372ea9614acc833f9d5a"
+          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812"
         },
         {
           "path": "js/package-lock.json",
@@ -37654,7 +39553,7 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "js/src/rml-foundation-search.mjs",
@@ -37664,7 +39563,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-horn-resolution.mjs",
@@ -38111,7 +40010,7 @@
         {
           "path": "docs/META_THEORY.md",
           "role": "specification",
-          "sha256": "2d8f268ffaa0ee88b1524c8a27cfdbee1dc613492661372ea9614acc833f9d5a"
+          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -38411,12 +40310,12 @@
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/js_rename.rs",
@@ -38436,7 +40335,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
+          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -38759,7 +40658,7 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "js/src/rml-foundation-search.mjs",
@@ -38769,7 +40668,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-horn-resolution.mjs",
@@ -39436,12 +41335,12 @@
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/js_rename.rs",
@@ -39461,7 +41360,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
+          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -39714,7 +41613,7 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "js/src/rml-foundation-search.mjs",
@@ -39724,7 +41623,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-horn-resolution.mjs",
@@ -41632,12 +43531,12 @@
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/js_rename.rs",
@@ -41657,7 +43556,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
+          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -41959,7 +43858,7 @@
         {
           "path": "js/src/rml-foundation-packages.mjs",
           "role": "implementation",
-          "sha256": "13c3d87023cbd379c173b2bc4eaa7df69e3d62d290cd57e04f7c338e1b2b47b4"
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
         },
         {
           "path": "js/src/rml-foundation-search.mjs",
@@ -41969,7 +43868,7 @@
         {
           "path": "js/src/rml-foundation-workspace.mjs",
           "role": "implementation",
-          "sha256": "6ab8845650c7b868866a7a6dcdd7db3f7ce529a2ff633b371f8c2813d3e7f5d1"
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
         },
         {
           "path": "js/src/rml-horn-resolution.mjs",
@@ -43907,12 +45806,12 @@
         {
           "path": "rust/src/foundation_packages.rs",
           "role": "implementation",
-          "sha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad"
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
           "role": "implementation",
-          "sha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd"
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         },
         {
           "path": "rust/src/js_rename.rs",
@@ -43932,7 +45831,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
+          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -45380,6 +47279,971 @@
           "polarity": "negative"
         }
       ]
+    },
+    {
+      "id": "meta-theory-native-js",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/meta-theory-native.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/meta-theory-native.test.mjs",
+          "role": "test",
+          "sha256": "1cac6460484d8d4f39a33ec2744a83f49148d5aa534d632821219b7720d5db6a"
+        },
+        {
+          "path": "js/src/rml-meta-theory-native.mjs",
+          "role": "implementation",
+          "sha256": "f3de127b5a2dc2704ae06866f9b2ff52cf639a0567593dd83d444ed37eee5bb7"
+        },
+        {
+          "path": "lib/meta-theory/meta-theory-native-prelude.lino",
+          "role": "implementation",
+          "sha256": "31a7492c180268241398b06f00d37ed2c7c4e621ee734bb55794d2f47852ed0f"
+        },
+        {
+          "path": "lib/meta-theory/upstream-0.0.3-native.lino",
+          "role": "fixture",
+          "sha256": "5711f39e9eb7d770e0a945412df3e80f69e8b7d66ad6a571ee9227f40ed2aa6e"
+        },
+        {
+          "path": "test-corpus/meta-theory-native/cases.json",
+          "role": "fixture",
+          "sha256": "77cd10b157535d4cb2f46c6e0fd17c0954f414ae9cdf4f73beeb87297e054217"
+        },
+        {
+          "path": "test-corpus/meta-theory-native/coverage.json",
+          "role": "fixture",
+          "sha256": "e7c02fabf1dee083087c7764d009ca64084b29848f3e89f71df815e8905e5634"
+        },
+        {
+          "path": "scripts/generate-meta-theory-native.mjs",
+          "role": "implementation",
+          "sha256": "b979b018eef88f6c4e88710a93b6c69016c62125de129e3c3a841f14f6541bd5"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "regenerates the program, cases and coverage byte-for-byte from the preserved tokens",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "elaborates every declaration and command with exact dependency links",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "executes all 90 evaluation commands to values that match the source-stated results",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "re-executes every recorded case and every ablation witness independently",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "witnesses definitions no upstream case needs by probes on upstream data, checked against the counterpart",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects a corrupted definition body in the executable program",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects corrupted prelude semantics",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects forged, unreachable and relabelled execution witnesses",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "rejects a case whose recorded result or step count was edited",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "slices the program to static closures, and an ablation removes exactly one declaration",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-native.test.mjs",
+          "name": "encodes naturals as canonical little-endian binary links",
+          "polarity": "positive"
+        }
+      ],
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "meta-theory-native-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/meta_theory_native_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/meta_theory_native_tests.rs",
+          "role": "test",
+          "sha256": "1b91a291f48adbd56ded581d4296a1de1554335c4815f2574a12a75a053fa450"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/meta_theory_native.rs",
+          "role": "implementation",
+          "sha256": "43d5d318a5c588523322fa2b3ee30e4b7a897f6aa6061614674c21c5fb9028ac"
+        },
+        {
+          "path": "lib/meta-theory/meta-theory-native-prelude.lino",
+          "role": "implementation",
+          "sha256": "31a7492c180268241398b06f00d37ed2c7c4e621ee734bb55794d2f47852ed0f"
+        },
+        {
+          "path": "lib/meta-theory/upstream-0.0.3-native.lino",
+          "role": "fixture",
+          "sha256": "5711f39e9eb7d770e0a945412df3e80f69e8b7d66ad6a571ee9227f40ed2aa6e"
+        },
+        {
+          "path": "test-corpus/meta-theory-native/cases.json",
+          "role": "fixture",
+          "sha256": "77cd10b157535d4cb2f46c6e0fd17c0954f414ae9cdf4f73beeb87297e054217"
+        },
+        {
+          "path": "test-corpus/meta-theory-native/coverage.json",
+          "role": "fixture",
+          "sha256": "e7c02fabf1dee083087c7764d009ca64084b29848f3e89f71df815e8905e5634"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "reexecutes_every_case_and_ablation_witness",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "witnesses_unneeded_definitions_by_probes_checked_against_the_counterpart",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "renders_values_like_the_shared_fixtures",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_a_corrupted_definition_body",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_corrupted_prelude_semantics",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_forged_unreachable_and_relabelled_witnesses",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "rejects_edited_results_and_step_counts",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_native_tests.rs",
+          "name": "executes_binary_natural_arithmetic_in_the_prelude",
+          "polarity": "positive"
+        }
+      ],
+      "testTarget": "meta_theory_native_tests",
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "meta-theory-certificates-js",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/meta-theory-certificates.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/meta-theory-certificates.test.mjs",
+          "role": "test",
+          "sha256": "1796860a9152a40d32f0e9a61a58dc7c26d58511d1c47fd3d95845cd8b992faf"
+        },
+        {
+          "path": "js/src/rml-meta-theory-certificates.mjs",
+          "role": "implementation",
+          "sha256": "990b7e4f4aa77c4403eccf11470a43646c79cbd61db549844fa5d02d3b50a16f"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier.lino",
+          "role": "implementation",
+          "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+        },
+        {
+          "path": "test-corpus/meta-theory-certificates/certificates.json",
+          "role": "fixture",
+          "sha256": "e5d17dbaacc561a82223c64c358871a89082a00f703d05a832c7f32e68affa05"
+        },
+        {
+          "path": "scripts/generate-meta-theory-certificates.mjs",
+          "role": "implementation",
+          "sha256": "7bc9f4da003c502683ffc8f7f2c7ab155cd58b0728e7ecd555a0b5a1d14d3754"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "regenerates every certificate and status byte-for-byte from preserved proofs",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "independently re-checks all certified theorems with the linked proof verifier",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "never certifies an admitted proof and states why every other theorem is outside the fragment",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a corrupted definition body used by a conversion",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects binder mutations in eigen-constants and lemma instances",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects removed premises, substituted rules and edited node conclusions",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects edited goals, statements and forged conversions",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects undeclared dependencies, self-citation and edited dependency lists",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a mutated source proof that cites the wrong lemma",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "meta-theory-certificates-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/meta_theory_certificates_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/meta_theory_certificates_tests.rs",
+          "role": "test",
+          "sha256": "a77a2cb69f2f3038ba84732ae6f87fdb834bc4e67a738af19a7e829d389520b4"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/meta_theory_certificates.rs",
+          "role": "implementation",
+          "sha256": "357991c18891094be019d1a9dcbedb6a288d7c220ec964ca69eaa74d23fb2708"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier.lino",
+          "role": "implementation",
+          "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+        },
+        {
+          "path": "test-corpus/meta-theory-certificates/certificates.json",
+          "role": "fixture",
+          "sha256": "e5d17dbaacc561a82223c64c358871a89082a00f703d05a832c7f32e68affa05"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rechecks_every_certified_theorem_with_the_linked_verifier",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_a_corrupted_definition_body_used_by_a_conversion",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_binder_mutations",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_removed_premises_substituted_rules_and_edited_conclusions",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_edited_goals_statements_and_forged_conversions",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_undeclared_dependencies_self_citation_and_edited_dependency_lists",
+          "polarity": "negative"
+        }
+      ],
+      "testTarget": "meta_theory_certificates_tests",
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "meta-theory-map-js",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/meta-theory-map.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/meta-theory-map.test.mjs",
+          "role": "test",
+          "sha256": "310b8274e3fa9f8f0ea12f86e298526fd6709a1cd16b077759bc9333068b9bff"
+        },
+        {
+          "path": "scripts/generate-meta-theory-map.mjs",
+          "role": "implementation",
+          "sha256": "98f9a18d3211804205c7ab7686557bdacfac0d2a29c7588c5df6cc2741a73a34"
+        },
+        {
+          "path": "test-corpus/meta-theory-coverage/map.json",
+          "role": "fixture",
+          "sha256": "a2404f8fc448500f77149063d4edaf291abd9b026abdadddd816758ae2d98b72"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "regenerates the map byte-for-byte and re-executes every claimed stage",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "maps all 229 declarations and 197 commands with their stage counts",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects unmapped, unknown and duplicated declarations and commands",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects partition gaps, overlaps and changed preservation fingerprints",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects stale counts",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects claimed stages without witnesses",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-map.test.mjs",
+          "name": "rejects forged evidence once the claimed witness is re-executed",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "meta-theory-map-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/meta_theory_map_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/meta_theory_map_tests.rs",
+          "role": "test",
+          "sha256": "5d98372a8c254b026e832932198e2b6e1bf682d74e4e01645803efcea9356486"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/meta_theory_native.rs",
+          "role": "implementation",
+          "sha256": "43d5d318a5c588523322fa2b3ee30e4b7a897f6aa6061614674c21c5fb9028ac"
+        },
+        {
+          "path": "test-corpus/meta-theory-coverage/map.json",
+          "role": "fixture",
+          "sha256": "a2404f8fc448500f77149063d4edaf291abd9b026abdadddd816758ae2d98b72"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "validates_all_declarations_commands_partitions_and_counts",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_unmapped_unknown_and_duplicated_items",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_partition_gaps_overlaps_and_fingerprints",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_map_tests.rs",
+          "name": "rejects_stale_counts_and_claims_without_witnesses",
+          "polarity": "negative"
+        }
+      ],
+      "testTarget": "meta_theory_map_tests",
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "meta-theory-workflow-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/meta-theory-workflow.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/meta-theory-workflow.test.mjs",
+          "role": "test",
+          "sha256": "36d5319c88da68317ba240fe411860be571a5c44475e539520341cb90aef1bdb"
+        },
+        {
+          "path": "examples/meta-theory-workflow.mjs",
+          "role": "implementation",
+          "sha256": "79fca09b9efe10d3fbfbc3277b0881774e82f30f4307ac660008dfd4a4b8ee66"
+        },
+        {
+          "path": "test-corpus/researcher-workflow/meta-theory-expected.json",
+          "role": "fixture",
+          "sha256": "e51f2be316f7407aa5f6c0d7f373cf3c5e8a39bd5fbc717bc5647b9b0448e36c"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "meta-theory research recipe reproduces the shared report through public APIs",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "upstream definitions run on new data and a changed definition body changes the result",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "a recorded case request round-trips through compaction",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "the recipe certificate is rejected after its cited lemma is removed from the dependencies",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "meta-theory-workflow-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/meta_theory_workflow_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/meta_theory_workflow_tests.rs",
+          "role": "test",
+          "sha256": "68e6034676e40fd9bfb01ede7aafca8798807976bce563853c4658bb16eae3fc"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/examples/meta_theory_workflow.rs",
+          "role": "implementation",
+          "sha256": "af6455c928afea0cfc4e53d1556dee7fd9b0c82204d446a4e7a06a5e77ce4a97"
+        },
+        {
+          "path": "test-corpus/researcher-workflow/meta-theory-expected.json",
+          "role": "fixture",
+          "sha256": "e51f2be316f7407aa5f6c0d7f373cf3c5e8a39bd5fbc717bc5647b9b0448e36c"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/meta_theory_workflow_tests.rs",
+          "name": "meta_theory_recipe_reproduces_the_shared_report",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_workflow_tests.rs",
+          "name": "upstream_definitions_run_on_new_data_and_a_changed_body_changes_the_result",
+          "polarity": "positive"
+        }
+      ],
+      "testTarget": "meta_theory_workflow_tests",
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "foundation-unseen-logic-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/foundation-unseen-logic.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/foundation-unseen-logic.test.mjs",
+          "role": "test",
+          "sha256": "92779afb76446e01a17e8150fa0235afcbc4ea860f8eecfc81589486ad93d40a"
+        },
+        {
+          "path": "js/src/rml-foundation-workspace.mjs",
+          "role": "implementation",
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
+        },
+        {
+          "path": "js/src/rml-foundation-packages.mjs",
+          "role": "implementation",
+          "sha256": "070a17a0ec546d28e993524b78f9b74ab5ec458f8c7dd87c37384cf51cbba21c"
+        },
+        {
+          "path": "test-corpus/foundation-packages/unseen-modal-frames.json",
+          "role": "fixture",
+          "sha256": "317ecd41ffa4388f29ebe41850754646cfc05606011acfe957ddcd98223e17cb"
+        },
+        {
+          "path": "test-corpus/foundation-packages/host-vocabulary.json",
+          "role": "fixture",
+          "sha256": "de0036780fd474e39dc6e1ef9e5b285334cc698421f70b59f498486c792f7e15"
+        },
+        {
+          "path": "js/tests/foundation-source-guard.mjs",
+          "role": "test",
+          "sha256": "63ecc21b19294837c830559a9ec73fdd749a3a896efceb99e458abbba8c2d45e"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "executes every fixture query in all three foundation versions with distinct outcomes",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "separates truth, falsity, contradiction, assumption dependence and non-results",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "describes the user foundation, its rule content and its cycle policy as data",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "keeps host foundation code free of the unseen logic and of new dispatch keys",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "changes only the outcome governed by the declared policy or frame condition",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects undeclared and unknown cycle policies instead of defaulting to induction",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "replays every established answer and every non-result without searching",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "rejects forged proof steps, relabelled statuses and policy-violating hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "never lets one version see assumptions, hypotheses or revisions of another",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "propagates a rule change through the aliased shared theory but keeps assumptions local",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "derives guarded and refuted results and replays them",
+          "polarity": "positive"
+        }
+      ],
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "foundation-unseen-logic-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/foundation_unseen_logic_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/foundation_unseen_logic_tests.rs",
+          "role": "test",
+          "sha256": "369205a8393c64b7f0a693cf0a699ec197083d1f78a41340ee303084cb6b522d"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/foundation_workspace.rs",
+          "role": "implementation",
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
+        },
+        {
+          "path": "rust/src/foundation_packages.rs",
+          "role": "implementation",
+          "sha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410"
+        },
+        {
+          "path": "test-corpus/foundation-packages/unseen-modal-frames.json",
+          "role": "fixture",
+          "sha256": "317ecd41ffa4388f29ebe41850754646cfc05606011acfe957ddcd98223e17cb"
+        },
+        {
+          "path": "test-corpus/foundation-packages/host-vocabulary.json",
+          "role": "fixture",
+          "sha256": "de0036780fd474e39dc6e1ef9e5b285334cc698421f70b59f498486c792f7e15"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "executes_every_fixture_query_in_all_three_versions_with_distinct_outcomes",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "separates_truth_falsity_contradiction_assumption_dependence_and_non_results",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "describes_the_user_foundation_rule_content_and_cycle_policy_as_data",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "keeps_host_foundation_code_free_of_the_unseen_logic_and_of_new_dispatch_keys",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "changes_only_the_outcome_governed_by_the_declared_policy_or_frame_condition",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_undeclared_and_unknown_cycle_policies_instead_of_defaulting_to_induction",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "replays_every_established_answer_and_every_non_result_without_searching",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "rejects_forged_proof_steps_relabelled_statuses_and_policy_violating_hypotheses",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "never_lets_one_version_see_assumptions_hypotheses_or_revisions_of_another",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "propagates_a_rule_change_through_the_aliased_shared_theory_but_keeps_assumptions_local",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "derives_guarded_and_refuted_results_on_the_default_closed_s_k_runtime_and_replays_them",
+          "polarity": "positive"
+        }
+      ],
+      "testTarget": "foundation_unseen_logic_tests",
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "semantic-closure-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/semantic-closure.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/semantic-closure.test.mjs",
+          "role": "test",
+          "sha256": "f4a3f8232b6348d814bcb64de3049eda79c7c4413a92690e9c57511b77417353"
+        },
+        {
+          "path": "js/src/rml-semantic-closure.mjs",
+          "role": "implementation",
+          "sha256": "16f682ed4c547bf13d0e4b2b4ce5c289e459481a6fb99f1d8f00cf17a7d04c8b"
+        },
+        {
+          "path": "test-corpus/semantic-archive/closure-expected.json",
+          "role": "fixture",
+          "sha256": "8f7aee99070b400bf772fab48808507a17656414bbbac9ce93ad915ff92724bf"
+        },
+        {
+          "path": "test-corpus/semantic-archive/universe-soundness-contracts.lino",
+          "role": "fixture",
+          "sha256": "5a780965a9e910d740653e3f3bddddd484e85f7e20e1cc29dcc40f96e3a4594f"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "projects actual programs, rules, foundations, judgements, proofs, substitutions, values and the ontology",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "round trips bytes and reconstructs the host records exactly",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "preserves shared identity and named cycles instead of unfolding them",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "produces identical bytes from both public execution bases",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects dangling references, hidden fields and unrepresented nodes",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects category spoofing and missing category membership",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects identity splitting, merging and named identity spoofing",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "rejects broken program/rule cycles in either direction",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "requires a selected ontology for full closure and never invents one",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "checks declared policies relative to each foundation on direct-structural",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "checks declared policies relative to each foundation on s-k",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "keeps the link-cli graph self-link representable without making it a logical judgement",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/semantic-closure.test.mjs",
+          "name": "changes its verdict when the linked contract changes, not when host code does",
+          "polarity": "positive"
+        }
+      ],
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "semantic-closure-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/semantic_closure_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/semantic_closure_tests.rs",
+          "role": "test",
+          "sha256": "e5893fe7dcb713fa7ebf63bb4c526a8f3f96d586d273458c8a5c24cde39bec4c"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/semantic_closure.rs",
+          "role": "implementation",
+          "sha256": "5dafac7f0f89d2d4f7349363861111fe33c98a21baba79edd0da33ab4642303c"
+        },
+        {
+          "path": "test-corpus/semantic-archive/closure-expected.json",
+          "role": "fixture",
+          "sha256": "8f7aee99070b400bf772fab48808507a17656414bbbac9ce93ad915ff92724bf"
+        },
+        {
+          "path": "test-corpus/semantic-archive/universe-soundness-contracts.lino",
+          "role": "fixture",
+          "sha256": "5a780965a9e910d740653e3f3bddddd484e85f7e20e1cc29dcc40f96e3a4594f"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "projects_actual_host_objects_into_one_closed_network_with_shared_expected_bytes",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "round_trips_bytes_and_reconstructs_host_records_exactly",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "preserves_shared_identity_and_named_cycles_instead_of_unfolding_them",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "produces_identical_bytes_from_both_public_execution_bases",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_dangling_references_hidden_fields_and_unrepresented_nodes",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_category_spoofing_and_missing_category_membership",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_identity_splitting_merging_and_named_identity_spoofing",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "rejects_broken_program_rule_cycles_in_either_direction",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "requires_a_selected_ontology_for_full_closure_and_never_invents_one",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "checks_declared_universe_policies_relative_to_each_foundation_on_both_bases",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "keeps_the_link_cli_graph_self_link_representable_without_making_it_a_judgement",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/semantic_closure_tests.rs",
+          "name": "changes_its_verdict_when_the_linked_contract_changes",
+          "polarity": "positive"
+        }
+      ],
+      "testTarget": "semantic_closure_tests",
+      "timeoutMs": 1800000
     }
   ]
 }
