@@ -52852,7 +52852,7 @@
         {
           "path": "scripts/build-output-publication.test.mjs",
           "role": "test-and-fixture",
-          "sha256": "cc68bc11603c1c01cee581b02f824f2b113c0505993e4c9a2db315b5b245b98e"
+          "sha256": "b5138e2cfa59f2cc6c6e015c153bdbec63bc9ccd27055ba011d233d15962bb7a"
         },
         {
           "path": "vscode/scripts/copy-server.mjs",

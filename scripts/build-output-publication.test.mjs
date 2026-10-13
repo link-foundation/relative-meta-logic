@@ -15,7 +15,10 @@ function fixture(t) {
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, 'scripts'));
   for (const file of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs', 'publish-cache-output.mjs', 'build-docs.mjs']) fs.copyFileSync(path.join(source, file), path.join(root, 'scripts', file));
-  const run = (args, cwd = root) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8', env: { ...process.env, RML_CACHE_SOURCE_ARCHIVE: '1', RML_CACHE_MIN_FREE_BYTES: '0' } });
+  // Each fixture is its own production session, even when this test runs under an outer wrapper.
+  const inherited = Object.fromEntries(Object.entries(process.env).filter(([name]) =>
+    !name.startsWith('RML_CACHE_') && !['CARGO_TARGET_DIR', 'NODE_TEST_CONTEXT', 'NODE_UNIQUE_ID'].includes(name)));
+  const run = (args, cwd = root) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8', env: { ...inherited, RML_CACHE_SOURCE_ARCHIVE: '1', RML_CACHE_MIN_FREE_BYTES: '0' } });
   return { root, run };
 }
 function ok(result) { assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`); }
