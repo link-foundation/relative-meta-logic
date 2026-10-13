@@ -1,0 +1,327 @@
+{
+  "repository": "https://github.com/link-foundation/meta-language",
+  "pullRequest": 201,
+  "branch": "issue-199-58f3573d6122",
+  "commit": "7c4bf8f1e3f88806b09d5210643cc6611d30d1f9",
+  "license": "Unlicense",
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 1211,
+      "sha256": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e",
+      "shim": false
+    },
+    {
+      "path": "js/src/data/reference-operations.lino",
+      "bytes": 5285,
+      "sha256": "3e0caf4040bae336ed5de5a279c3047112c95a574dc21192c5468811415443dc",
+      "shim": false
+    },
+    {
+      "path": "js/src/data/typed-program-links-schema.lino",
+      "bytes": 90779,
+      "sha256": "612c80f4c8dc319207cacde5d8ec398bcf0a3efdb3e3c8840716aa2d47f9798b",
+      "shim": false
+    },
+    {
+      "path": "js/src/lino-serialization-write.js",
+      "bytes": 5013,
+      "sha256": "01c104d510d963b008ac6ca1114c5b3efe3e088f68d1e2263afeaed5b4e9a5a5",
+      "shim": false
+    },
+    {
+      "path": "js/src/lino-serialization.js",
+      "bytes": 5416,
+      "sha256": "8d7efb30c59963c5f465c005023005514150c4d9610e7b614bf01f89fa94f928",
+      "shim": false
+    },
+    {
+      "path": "js/src/primitives.js",
+      "bytes": 6421,
+      "sha256": "46f8d0850d5e0a1fc13e9651fca8c7cc3efbd1d4c40fcee2f87608dc2d172247",
+      "shim": true
+    },
+    {
+      "path": "js/src/project-data-files.js",
+      "bytes": 3617,
+      "sha256": "1ad503a86df9014dddca06105a40dbc49d856bfddbb6097d6939d576dd5461ac",
+      "shim": false
+    },
+    {
+      "path": "js/src/project-data-loader.js",
+      "bytes": 235,
+      "sha256": "3710e5b79793d3f74e90f5de9a624df093a22086dc678f525040470b95602887",
+      "shim": false
+    },
+    {
+      "path": "js/src/structured-data-encode.js",
+      "bytes": 4916,
+      "sha256": "6938e3b3351114a6b07f13d9464778be0eddb3d9138163a5c9f7f2d56b998eb7",
+      "shim": false
+    },
+    {
+      "path": "js/src/structured-data-graph.js",
+      "bytes": 6624,
+      "sha256": "5fbdd1193df985aadf14c05d8a59c0d571a9558e0cd279248e5904110dcf2f5e",
+      "shim": false
+    },
+    {
+      "path": "js/src/structured-data-link-rules.js",
+      "bytes": 1964,
+      "sha256": "28555ccc9c4eacd3756b1fb71bd28cf39cb84a40e92d99bc86864b9cc884fa1e",
+      "shim": false
+    },
+    {
+      "path": "js/src/structured-data-links.js",
+      "bytes": 3088,
+      "sha256": "2028e45e133798e3b1929ad51eba3354b945a544c43a6797c3b87a4be9c0c058",
+      "shim": false
+    },
+    {
+      "path": "js/src/structured-data-model.js",
+      "bytes": 1607,
+      "sha256": "ea8d4f8c6a5073a36efb5b869ea3f3376b8a95b567b25ec1de6e29d854c6bf23",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/aborts.js",
+      "bytes": 1856,
+      "sha256": "27d6594367c1197b31de2d40479f4238dc31372e31ba50f0c7cdb8c8de84ec04",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/check.js",
+      "bytes": 111419,
+      "sha256": "506386a13d2f5a0b330a3350241975ad5e875036104d71aff99d5fe01e71265a",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/diagnostics.js",
+      "bytes": 907,
+      "sha256": "a5d8ddf02252f016b8568373248b67165b37ce747442a21a7bef3c63e2a385ab",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/emit-common.js",
+      "bytes": 16618,
+      "sha256": "5245839304e69dd94c84ed8f2dd6a5aa3fe861f8a9dd1a86b499821dab5dded5",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/emit-javascript.js",
+      "bytes": 28941,
+      "sha256": "1707f0cbfe4fd1933c7921340d24ead4fbe975f9c785bf47d8d3377923191b71",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/emit-lean.js",
+      "bytes": 48251,
+      "sha256": "0ffac8ccc81caf33bed908f9c0cdebe61e2da169901eac140a34b4b615b4fd30",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/emit-rocq.js",
+      "bytes": 65661,
+      "sha256": "16f58d5f42ebb0343da9a3e9685e6114dcc96da4361d3cdf663f8116bfa1cdaf",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/emit-rust.js",
+      "bytes": 78312,
+      "sha256": "18afe36035ed420ac01e770fbfe0b8d218188095dcde50901d622e7c1891fb4d",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/frontend-rules.js",
+      "bytes": 25138,
+      "sha256": "026c6d5bfb0b090394b1db22e273aeb6a81a5704a54940b211a02ce33037b12a",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/ir.js",
+      "bytes": 8405,
+      "sha256": "2cbd16425285910e6b8f0667c6ec486eeb8c724a424698d90629dec8a4894b6b",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/javascript-bindings.js",
+      "bytes": 9172,
+      "sha256": "f4cb0ebc6cc987e8dce29b34b91d486655626b4c73b7ae7d30c5d4ae31b8d834",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/javascript-cells.js",
+      "bytes": 2199,
+      "sha256": "78dbbed5237fa9c00aebc204b35a4d30c5b734ab179ff104b549f5f52c3a90da",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/javascript-infer.js",
+      "bytes": 54774,
+      "sha256": "9d964508e2140a41bc7faa484d88bc2057a59dbca523eaaf3b4ae3a702444d80",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/javascript-lower.js",
+      "bytes": 30173,
+      "sha256": "fdca9669202d396d5249974faaa862196d41806e0e8008dfa0a28016c3f3f92c",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/javascript-products.js",
+      "bytes": 10551,
+      "sha256": "090690db21804eaa4e6ffa7273aadcd9798af202c6bf7bb1aa07ae3014c1735b",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/javascript.js",
+      "bytes": 109694,
+      "sha256": "23986e25e2f39aae927ce626e1a7f67e91a3400c11a4091ef08b45176f2adb8c",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/lean-root-names.js",
+      "bytes": 35646,
+      "sha256": "3ee4a2b5242dc22cc3f3301d3c59092104986e22f46a5ccdcdf937f98e548a05",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/lean.js",
+      "bytes": 31315,
+      "sha256": "194c5b36ff9e12fc71bdf56be1dee7c8e26dfc7386cdf6d87ff869ceb38f7730",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/lexer.js",
+      "bytes": 17779,
+      "sha256": "77d91d5d866496ac4feef7c594819f3e5fef96757f4dfe518641db97d8c9b758",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/output.js",
+      "bytes": 21336,
+      "sha256": "6d9e6b49a58f9ab575a194c31ed4c640964177546bf465a9696d61804b7ac53e",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/primitive-value-rules.js",
+      "bytes": 3820,
+      "sha256": "bdfbb01b72d06ee58f36f6109bfbf87770282c14c437607b3564d606a7a1c64a",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/product-emission-rules.js",
+      "bytes": 1740,
+      "sha256": "35dd3cd351299a19c18c397cc5b200eb69d2b680cf63331aa8415e77da1dc503",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/product-source-rules.js",
+      "bytes": 1242,
+      "sha256": "24313de5f3b0509f85783da0c583bbf22d75f45c91e2276916a56accf4f38b26",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/proof.js",
+      "bytes": 7861,
+      "sha256": "db7e1d966a7aab8eba534135071aab8c73f2d6cf829a8f1a61a1d473571f1eae",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/reference-analysis.js",
+      "bytes": 5256,
+      "sha256": "14490e98696240c8441f3dfc447e7654deedbc25427fad4d69a7224465692ac4",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/reference-model.js",
+      "bytes": 21767,
+      "sha256": "0c7739228b0be57b82fb9499002e58abcaeedd66742e7efc2433b3add51386b3",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/rocq.js",
+      "bytes": 46244,
+      "sha256": "72afe2a7f81606d88a6c7bae9888219573a8cf20f3567e34b5d93c501576dd2f",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/rust-indirection-rules.js",
+      "bytes": 2513,
+      "sha256": "c4bc587ffe58e8b29b90e65d9daf732db752ac5c33f6a0cbb4eb1e04252c2540",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/rust-product-rules.js",
+      "bytes": 826,
+      "sha256": "b0e62d25196f550188ff49b113d6ad697885578f5448b8e36e81f185f50aedd3",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/rust-source-origins.js",
+      "bytes": 17484,
+      "sha256": "6584114c08b7639a605e76d6a4e734ce29862b079cfc240cb84eb80e9c9db550",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/rust.js",
+      "bytes": 49957,
+      "sha256": "de15f99b6f5bea5cb9a06243526bf6d2c57f4abaf6b09b427c42073e28f2ad9f",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/string-runtime.js",
+      "bytes": 11066,
+      "sha256": "6f7274739b7360faa6903593b0925188571f64d102801675c65fc754942cf383",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/structured-type-rules.js",
+      "bytes": 3611,
+      "sha256": "213932a9d8d44e10597e146824d7c9b7a3ed74762cea250d8784b147dcdb1c3a",
+      "shim": false
+    },
+    {
+      "path": "js/src/translation/types.js",
+      "bytes": 5574,
+      "sha256": "39efabc561263c6388107174694ea138daa36f582584e885c6645019d8d88fba",
+      "shim": false
+    },
+    {
+      "path": "js/src/typed-program-checked-projection.js",
+      "bytes": 7303,
+      "sha256": "60a857614c0ff74eac141e60f4d99c0f4d3fde365ae5546c5024b4215b11052b",
+      "shim": false
+    },
+    {
+      "path": "js/src/typed-program-expression-projection.js",
+      "bytes": 3931,
+      "sha256": "0dd3e372cabf8d09a6173fe1ebcdc7be86601449302df8812ce9c30c5b285801",
+      "shim": false
+    },
+    {
+      "path": "js/src/typed-program-link-rules.js",
+      "bytes": 13500,
+      "sha256": "c5fedae863a74790a8036dfe3c5c303cb89761c7f2be8a64538784ac9e0c80ea",
+      "shim": false
+    },
+    {
+      "path": "js/src/typed-program-links-validation.js",
+      "bytes": 26210,
+      "sha256": "0492d83aae6330737be0c60fb86b75ceb5703288965018bba11cc9b00428dd50",
+      "shim": false
+    },
+    {
+      "path": "js/src/typed-program-links.js",
+      "bytes": 18391,
+      "sha256": "0eb4af1712f1483238c2e04a9c13f3ea1f338be24880806093dcf84823927e54",
+      "shim": false
+    },
+    {
+      "path": "js/src/typed-program-pattern-bindings.js",
+      "bytes": 2267,
+      "sha256": "a7c4a24b65d40ceafb0efe28725c1a9261820a637be72ef26a790c52cb25c904",
+      "shim": false
+    }
+  ]
+}
