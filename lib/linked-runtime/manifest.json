@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
   "moduleCount": 192,
-  "linkCount": 371435,
+  "linkCount": 371503,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -44,7 +44,7 @@
         "target": "vscode/src/extension.js"
       }
     ],
-    "staticImportEdges": 675,
+    "staticImportEdges": 676,
     "dynamicImportSites": [
       {
         "from": "experiments/issue-181-meta-language-js-smoke.mjs",
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "da18c85aad52ba21812dc7598f4d200a659acf409371ce81934aaa00801d42a2",
-  "archiveBytes": 2194986,
+  "archiveSha256": "ff44419f451525abc5ef6b38ad9a65822329a0f8f3f611cb9af840e844589353",
+  "archiveBytes": 2195390,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -1210,9 +1210,9 @@
     },
     {
       "path": "scripts/run-with-cache.mjs",
-      "sourceSha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200",
-      "astSha256": "97cebebdb1e29ac80ad3037a218859a7d029ceab5482d7c816150d837caf3894",
-      "generatedSha256": "c14f5175f44969ea4e22279b0436d9c9a93779c4182825ddab6f2daa8edf770c"
+      "sourceSha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80",
+      "astSha256": "e897b0ba28ea28e10b3322216b95ddb116822776e570ba3acc5cef23e4c2ba0e",
+      "generatedSha256": "1c155b2742c8b579435e7af133374641b5ea66b5c6d081b021f25ac238873ea3"
     },
     {
       "path": "scripts/runtime-parity.mjs",

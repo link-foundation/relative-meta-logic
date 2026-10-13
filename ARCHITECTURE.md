@@ -85,7 +85,9 @@ Both runtimes read source through the same front end, `js/src/rml-lino-frontend.
    names and lines (link-foundation/links-notation#313). The Rust parser also does not see a
    last line that holds only spaces and tabs, which the Rust `links-notation` parser reads as the
    indentation of a line that never comes and the JavaScript one as trailing space
-   (link-foundation/links-notation#312).
+   (link-foundation/links-notation#312). Both issues were closed upstream on 2026-09-25, and the
+   JavaScript parser of `links-notation` 0.26.0 now nests these lines itself; the repairs stay
+   until the Rust crate's behavior is confirmed on CI.
 
 `links-notation` 0.20 backtracks without memoizing and looks for the end of a quoted reference one
 character at a time. On its own it takes time that grows exponentially with how deeply groups nest
