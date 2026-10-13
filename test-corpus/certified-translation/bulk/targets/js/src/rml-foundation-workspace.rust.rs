@@ -1,4 +1,4 @@
-// rml-certified-item js/src/rml-foundation-workspace.mjs#isVariable@4439 target-sha256=7e4957f9c2b8447d482ad605d445faaa3ba9f38a7e16b5b7673d2a446c2dca02
+// rml-certified-item js/src/rml-foundation-workspace.mjs#isVariable@9186 target-sha256=7e4957f9c2b8447d482ad605d445faaa3ba9f38a7e16b5b7673d2a446c2dca02
 // Translated from JavaScript by meta-language: portable core, Rust target.
 #![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
 
@@ -21,7 +21,7 @@ fn main() {
         std::process::exit(101);
     }
 }
-// rml-certified-item js/src/rml-foundation-workspace.mjs#ruleKey@5392 target-sha256=e42d61bc45898953a2ede0546e7c224c07f58f8cdb69d447fb1e3e9fc99d543e
+// rml-certified-item js/src/rml-foundation-workspace.mjs#ruleKey@10139 target-sha256=e42d61bc45898953a2ede0546e7c224c07f58f8cdb69d447fb1e3e9fc99d543e
 // Translated from JavaScript by meta-language: portable core, Rust target.
 #![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
 

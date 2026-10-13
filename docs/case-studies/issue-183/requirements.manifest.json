@@ -5695,12 +5695,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -5720,7 +5720,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
         }
       ],
       "claimedEvidence": "`rml-certified-translation.mjs` and the vendored meta-language#201 core translate eight nontrivial programs (inductives, lists/trees, pattern matching, structural/general recursion, modules, checked integers, closed and universal theorems) along all 12 directed paths through the registered RML structure network, with RML-checked certificates and no kernel authority; `certified-translation.md`. `Polymorphism, records, traits, macros, effects, ownership and proof terms are refused with receipts; full production languages remain open`.",
@@ -15798,12 +15798,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -15823,7 +15823,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
         }
       ],
       "claimedEvidence": "`exportCertifiedIntermediate` / `importCertifiedIntermediate` / `decodeCertifiedIntermediate` regenerate every target from committed `intermediate.lino` archives without source; a Links-network substitution changes the RML observation and the emitted code. Earlier portable-natural paths remain. `Full-language translation and target re-import (emitter preludes) remain open`.",
@@ -17758,12 +17758,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -17783,7 +17783,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
         }
       ],
       "claimedEvidence": "Each `rml:translation-certificate:1` records behavior, effects, ownership, types, universes, assumptions and proof obligations; `checkTranslationCertificate` re-derives them and rejects weakened contracts. `Contracts cover the admitted checked core only`.",
@@ -19743,12 +19743,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -19768,7 +19768,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
         }
       ],
       "claimedEvidence": "Eleven refusal sources × three targets produce receipts that retain the unchanged source, stage, first diagnostic with spans/hash and whole-program loss; `checkTranslationRefusal` re-derives them and detects tampering and staleness; universal theorems stay open obligations. `Coverage is limited to the classes exercised`.",
@@ -20628,12 +20628,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -20653,7 +20653,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
         }
       ],
       "claimedEvidence": "Source → network → target is checked by RML-native evaluation against independent hand-written expectations; JavaScript targets and sources execute natively; forged, stale, mismatched, dropped, relabelled and authority-granting certificates are rejected. `translation-native.yml` runs rustc, Lean 4.34.1 and Rocq 9.3 oracles that must also reject false statements. `Native results await CI observation; universal equivalence remains open`.",
@@ -30328,7 +30328,7 @@
     {
       "id": "R165",
       "obligation": "Apply the practices of link-assistant/router#761 (exact original-source spans/hashes, checked meta-language intermediate, explicit refusal receipts, producer receipts with input fingerprints, freshness and forward/reverse regeneration gates, no implicit authority grants) and use automated translation for bulk work.",
-      "status": "Partial — router#761 practices applied to the certified translation corpus",
+      "status": "Partial — router#761 practices applied to the certified corpus and to repository-scale bulk translation",
       "originalWording": [
         {
           "sourceId": "comment-6138933223",
@@ -30339,12 +30339,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -30364,15 +30364,26 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
+        },
+        {
+          "path": "scripts/generate-certified-bulk.mjs",
+          "role": "implementation",
+          "sha256": "eef0606442caccbc525e0d4b449008e930b0c6862e8d7fc004fe2811408fee2b"
+        },
+        {
+          "path": "test-corpus/certified-translation/bulk/receipt.lino",
+          "role": "implementation",
+          "sha256": "b7ec9384f4e581e1f81c1cd0202b98e420f9504c71ed7e20d53b10775c3634a0"
         }
       ],
-      "claimedEvidence": "Byte-exact source pins with sha256 and UTF-16/UTF-8 spans, a checked intermediate re-serialized before emission, first-refusal receipts, a producer receipt fingerprinting every input/output with a reconstruction recipe, a `--check` freshness gate, JavaScript-first local gates and explicit `none` authority for macros/traits/runtime. `Bulk automated translation of repository-scale code is not yet performed`.",
+      "claimedEvidence": "Byte-exact source pins with sha256 and UTF-16/UTF-8 spans, a checked intermediate re-serialized before emission, first-refusal receipts, producer receipts fingerprinting every input/output with a reconstruction recipe, `--check` freshness gates, JavaScript-first local gates and explicit `none` authority for macros/traits/runtime. `scripts/generate-certified-bulk.mjs` translates every top-level item of `js/src` and `rust/src` (closed over same-file dependencies) plus the `lib/` Lean and Rocq modules: 101 files and 2583 items, of which 148 are admitted, 101 lowered into `main` and 2334 refused with exact first-refusal records, giving 416 certified translations; the committed `test-corpus/certified-translation/bulk/receipt.lino` aggregates counts per language and path and refusal causes by site. Fourteen admitted translations match their hand-written mirrors on 50 documented calls; two are recorded as signature-differing. `About 90% of repository items are refused by the current core, and native rustc/Lean/Rocq runs of the bulk targets are not yet performed`.",
       "checks": [
         "certified-translation-js",
-        "certified-translation-rust"
+        "certified-translation-rust",
+        "certified-bulk-js"
       ],
-      "remainingGap": "Byte-exact source pins with sha256 and UTF-16/UTF-8 spans, a checked intermediate re-serialized before emission, first-refusal receipts, a producer receipt fingerprinting every input/output with a reconstruction recipe, a `--check` freshness gate, JavaScript-first local gates and explicit `none` authority for macros/traits/runtime. `Bulk automated translation of repository-scale code is not yet performed`.",
+      "remainingGap": "Byte-exact source pins with sha256 and UTF-16/UTF-8 spans, a checked intermediate re-serialized before emission, first-refusal receipts, producer receipts fingerprinting every input/output with a reconstruction recipe, `--check` freshness gates, JavaScript-first local gates and explicit `none` authority for macros/traits/runtime. `scripts/generate-certified-bulk.mjs` translates every top-level item of `js/src` and `rust/src` (closed over same-file dependencies) plus the `lib/` Lean and Rocq modules: 101 files and 2583 items, of which 148 are admitted, 101 lowered into `main` and 2334 refused with exact first-refusal records, giving 416 certified translations; the committed `test-corpus/certified-translation/bulk/receipt.lino` aggregates counts per language and path and refusal causes by site. Fourteen admitted translations match their hand-written mirrors on 50 documented calls; two are recorded as signature-differing. `About 90% of repository items are refused by the current core, and native rustc/Lean/Rocq runs of the bulk targets are not yet performed`.",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -30812,6 +30823,54 @@
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-bulk-js",
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "regenerates the committed bulk receipt byte for byte (--check freshness gate)",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-bulk-js",
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "rejects stale, missing and unexpected bulk outputs",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-bulk-js",
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "fingerprints every in-scope repository file with the reconstruction recipe",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-bulk-js",
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "preserves every original item and refusal site at its exact span and hash",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-bulk-js",
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "aggregates totals, per-language and per-path counts and refusal causes exactly from the item records",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-bulk-js",
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "re-derives the first-refusal receipt of one item per cause exactly",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-bulk-js",
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "validates every committed certificate and target against its re-assembled source program",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-bulk-js",
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "matches the hand-written mirrors on their documented behaviour without compiling them",
+          "polarity": "positive"
         }
       ],
       "completionBindings": []
@@ -30830,12 +30889,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -30855,7 +30914,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
         }
       ],
       "claimedEvidence": "Certificates are Links binding source/intermediate/target identities, per-construct correspondence, preservation contract, RML observation and discharged/open obligations; only closed goals are discharged and only by RML evaluation; external kernels are oracles. The checker rejects forged, stale, mismatched, dropped and relabelled certificates; the Rust mirror checks integrity. `Universal theorems, emitter faithfulness and full-language coverage remain open obligations`.",
@@ -31321,12 +31380,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -31346,7 +31405,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
         }
       ],
       "claimedEvidence": "Typed program archives are stored as LiNo and re-imported without source; binding/constructor identities are preserved; checked immutable products are pinned by the producer receipt. `The shared global concept space of meta-language#201 is not yet consumed`.",
@@ -31812,12 +31871,12 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -31837,7 +31896,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "72ae9921ec8d4052b9fbc4a787401f111e3766be32f232595a31f80dcd8ecef6"
+          "sha256": "fd57d01d7b43973f565651f404bf6f9dba5299a776e9ccfecb6269fc0128bdd0"
         },
         {
           "path": "js/vendor/meta-language-pr201/VENDORED.md",
@@ -31852,7 +31911,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-upstream-requests.md",
           "role": "implementation",
-          "sha256": "0cbf85b0774a51b916aaf91d648b438761687d9293901edc85ea781310cfea1b"
+          "sha256": "25a5bfcfb619553d18f651ddd11eb60c0f95d1950d96b3a58942e7e7603acf63"
         }
       ],
       "claimedEvidence": "`js/vendor/meta-language-pr201/` copies 52 files byte-for-byte from meta-language commit `7c4bf8f1`, locked by `upstream-files.json` (path, bytes, sha256) with license, `VENDORED.md` removal criteria and two documented shims; `meta-language-upstream-requests.md` drafts 18 upstream requests to file later. `The copy must be removed once a meta-language release provides these capabilities`.",
@@ -46033,7 +46092,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -46048,7 +46107,7 @@
         {
           "path": "test-corpus/certified-translation/generated/receipt.lino",
           "role": "fixture",
-          "sha256": "061f13c5b9e9eab833e128026d70cdc595caa169709502e160bc930c9b57dcfd"
+          "sha256": "786e885ddc034c92da9494b30dc190c7546942ce777894438ca8b9acf5845196"
         },
         {
           "path": "js/vendor/meta-language-pr201/upstream-files.json",
@@ -46420,7 +46479,7 @@
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459"
+          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
         },
         {
           "path": "test-corpus/certified-translation/cases.json",
@@ -46430,7 +46489,7 @@
         {
           "path": "test-corpus/certified-translation/generated/receipt.lino",
           "role": "fixture",
-          "sha256": "061f13c5b9e9eab833e128026d70cdc595caa169709502e160bc930c9b57dcfd"
+          "sha256": "786e885ddc034c92da9494b30dc190c7546942ce777894438ca8b9acf5845196"
         },
         {
           "path": "rust/Cargo.toml",
@@ -48244,6 +48303,83 @@
       ],
       "testTarget": "semantic_closure_tests",
       "timeoutMs": 1800000
+    },
+    {
+      "id": "certified-bulk-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/certified-bulk.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/certified-bulk.test.mjs",
+          "role": "test",
+          "sha256": "b8cc42f5b176b5a9f0ff0b8d5d32d22a2373fd26aca32f54930caa30e6254f47"
+        },
+        {
+          "path": "scripts/generate-certified-bulk.mjs",
+          "role": "implementation",
+          "sha256": "eef0606442caccbc525e0d4b449008e930b0c6862e8d7fc004fe2811408fee2b"
+        },
+        {
+          "path": "js/src/rml-certified-translation.mjs",
+          "role": "implementation",
+          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+        },
+        {
+          "path": "test-corpus/certified-translation/bulk/receipt.lino",
+          "role": "fixture",
+          "sha256": "b7ec9384f4e581e1f81c1cd0202b98e420f9504c71ed7e20d53b10775c3634a0"
+        },
+        {
+          "path": "test-corpus/certified-translation/mirrors.json",
+          "role": "fixture",
+          "sha256": "a13859ab563ca82aec9cb04ff863c79af5795ad10421cb6ce9f5e9a4bffc9fba"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "regenerates the committed bulk receipt byte for byte (--check freshness gate)",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "rejects stale, missing and unexpected bulk outputs",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "fingerprints every in-scope repository file with the reconstruction recipe",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "preserves every original item and refusal site at its exact span and hash",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "aggregates totals, per-language and per-path counts and refusal causes exactly from the item records",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "re-derives the first-refusal receipt of one item per cause exactly",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "validates every committed certificate and target against its re-assembled source program",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-bulk.test.mjs",
+          "name": "matches the hand-written mirrors on their documented behaviour without compiling them",
+          "polarity": "positive"
+        }
+      ],
+      "timeoutMs": 1200000
     }
   ]
 }

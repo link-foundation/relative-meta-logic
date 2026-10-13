@@ -1,4 +1,4 @@
--- rml-certified-item js/src/rml-foundation-workspace.mjs#isVariable@4439 target-sha256=b64bb2fb84f958eb3002b2f8b77bf205feb8cfb65c788655520067a5a419b105
+-- rml-certified-item js/src/rml-foundation-workspace.mjs#isVariable@9186 target-sha256=b64bb2fb84f958eb3002b2f8b77bf205feb8cfb65c788655520067a5a419b105
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false
@@ -10,7 +10,7 @@ def isVariable (term : String) : Bool :=
 
 def main : IO Unit := do
   pure ()
--- rml-certified-item js/src/rml-foundation-workspace.mjs#ruleKey@5392 target-sha256=7877462678c248b3341c5535b9851b434e676569b7577c8a55841a080b74775c
+-- rml-certified-item js/src/rml-foundation-workspace.mjs#ruleKey@10139 target-sha256=7877462678c248b3341c5535b9851b434e676569b7577c8a55841a080b74775c
 -- Translated from JavaScript by meta-language: portable core, Lean target.
 -- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
 set_option linter.unusedVariables false

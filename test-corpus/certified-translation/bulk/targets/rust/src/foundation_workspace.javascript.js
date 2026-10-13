@@ -37,7 +37,46 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#REFUTATION_HEAD@3087 target-sha256=27d49b4ebbf85d5b7f8d2d423891ad305de263952f9f6167f4ff04e2cbbeb68c
+// rml-certified-item rust/src/foundation_workspace.rs#OUTCOME_SCHEMA@2309 target-sha256=eb1b013f9a895f0c76cad53c3beb7e9a80689722543bcde3ffadb324315ca7da
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function OUTCOME_SCHEMA() {
+  return "rml-foundation-outcome/v1";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#REPLAY_SCHEMA@2371 target-sha256=6bf577da355f377743022afff05269fbc9acc5e0e0e0e7d23bbb7c609096218f
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function REPLAY_SCHEMA() {
+  return "rml-foundation-replay/v1";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#MAX_REPLAY_NODES@2512 target-sha256=976bf2e6f7a7f215c0a22c70f0ed1cfbc2e16de0b190a180ef571a483c8c6bfd
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function MAX_REPLAY_NODES() {
+  return 100000n;
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/foundation_workspace.rs#REFUTATION_HEAD@3331 target-sha256=27d49b4ebbf85d5b7f8d2d423891ad305de263952f9f6167f4ff04e2cbbeb68c
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -50,7 +89,7 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#ADMITTED@3134 target-sha256=9a0ef0cca1d9ad221e8bb6d14c21ae609e9463fbdf347d4fa886fad67d118147
+// rml-certified-item rust/src/foundation_workspace.rs#ADMITTED@3378 target-sha256=9a0ef0cca1d9ad221e8bb6d14c21ae609e9463fbdf347d4fa886fad67d118147
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -63,7 +102,7 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#INDUCTIVE@3169 target-sha256=7b56e0d50afa737d8f1611e10a5ca620ab2ee395da59f6127b253a8adc7c7f4f
+// rml-certified-item rust/src/foundation_workspace.rs#INDUCTIVE@3413 target-sha256=7b56e0d50afa737d8f1611e10a5ca620ab2ee395da59f6127b253a8adc7c7f4f
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -76,7 +115,7 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#GUARDED_COINDUCTIVE@3206 target-sha256=6748000288cfb8fc73782d58d4e09e8c09eb101958a7b1fecd478e4542775bd5
+// rml-certified-item rust/src/foundation_workspace.rs#GUARDED_COINDUCTIVE@3450 target-sha256=6748000288cfb8fc73782d58d4e09e8c09eb101958a7b1fecd478e4542775bd5
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -89,7 +128,7 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#THEORY_ROLE@3263 target-sha256=fa5c5a6a88d71e8aabf7be4993af852f27c72384bc71e29f61ee3e6034c7f22c
+// rml-certified-item rust/src/foundation_workspace.rs#THEORY_ROLE@3507 target-sha256=fa5c5a6a88d71e8aabf7be4993af852f27c72384bc71e29f61ee3e6034c7f22c
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -102,7 +141,7 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#INPUT_PROGRAM@3299 target-sha256=b7fb01c77b389df2bdfca79d5d8357d5df33f054b5a68effd6ab4fae6ee79dcb
+// rml-certified-item rust/src/foundation_workspace.rs#INPUT_PROGRAM@3543 target-sha256=b7fb01c77b389df2bdfca79d5d8357d5df33f054b5a68effd6ab4fae6ee79dcb
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -115,7 +154,7 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#ASSUMPTION_PROGRAM@3338 target-sha256=c4d4cf4376882aa29e6e86ccd523225b6fa91b55fb6ee642bf066fffa4f0c943
+// rml-certified-item rust/src/foundation_workspace.rs#ASSUMPTION_PROGRAM@3582 target-sha256=c4d4cf4376882aa29e6e86ccd523225b6fa91b55fb6ee642bf066fffa4f0c943
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -128,7 +167,7 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#HYPOTHESIS_PROGRAM@3387 target-sha256=35ef6e1366e273b3b79909a0ace74328b532f0be179014571e1196d5287737ee
+// rml-certified-item rust/src/foundation_workspace.rs#HYPOTHESIS_PROGRAM@3631 target-sha256=35ef6e1366e273b3b79909a0ace74328b532f0be179014571e1196d5287737ee
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 
@@ -141,7 +180,7 @@ function main() {
 }
 
 main();
-// rml-certified-item rust/src/foundation_workspace.rs#rule_key@18216 target-sha256=045664ea20181907cb39f72fd6b9d8dcc4a2216158749d5489a2c0347cafa374
+// rml-certified-item rust/src/foundation_workspace.rs#rule_key@27610 target-sha256=045664ea20181907cb39f72fd6b9d8dcc4a2216158749d5489a2c0347cafa374
 // Translated from Rust by meta-language: portable core, JavaScript target.
 'use strict';
 

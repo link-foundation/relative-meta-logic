@@ -1,0 +1,123 @@
+-- rml-certified-item rust/src/semantic_closure.rs#SEMANTIC_CLOSURE_SCHEMA@1963 target-sha256=29ce75578fd2c3eea8756f14817525b130c6730a6741cda227a221792e11d8da
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def SEMANTIC_CLOSURE_SCHEMA : String :=
+  "rml-semantic-closure/v1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#UNIVERSE_CONTRACT_SCHEMA@2032 target-sha256=555cfadde7f6877ca8d4ec696770843a40c8a4a763897b3be2e914f80510822c
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def UNIVERSE_CONTRACT_SCHEMA : String :=
+  "rml-universe-contract/v1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#ROOT@2323 target-sha256=c81ab6b5cb038467626756c313affa04ab5071551b5f7f6c003dc95637a15466
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def ROOT : String :=
+  "rml.closure"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#NIL@2357 target-sha256=a357704ed307b147582e9d2eb2a5a590f828ac257830d929a545395aeff46a21
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def NIL : String :=
+  "rml.nil"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#ONTOLOGY@2386 target-sha256=b18f299b890f1bf023ffb25ff0e5f084667ffc51ff979af921de89525733ba86
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def ONTOLOGY : String :=
+  "rml.ontology"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#CATEGORY_ROOT@2425 target-sha256=4e9934992cb4de54a5823e2ea84afa86b9fc857f78c2883df874135edd272b76
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def CATEGORY_ROOT : String :=
+  "rml.category"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#labelled_role@2548 target-sha256=9144365f1cc171153a5492816681ae94743004c912fca26ea7cc71cb4c7c6c42
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def labelled_role (role : String) : Bool :=
+  ((role == "assumption") || (role == "hypothesis"))
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#atom_address@3041 target-sha256=26a466a611574227be9a3c192e7afac315569e7d13c8265b8246353b3015b563
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def atom_address (text : String) : String :=
+  ("rml.atom/" ++ text)
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#tag_address@3114 target-sha256=13ee6e806def7141940baef99f6ff868ca80c0316b407998be1c16035e1327f1
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def atom_address (text : String) : String :=
+  ("rml.atom/" ++ text)
+
+def tag_address (kind : String) : String :=
+  (atom_address ("rml." ++ kind))
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/semantic_closure.rs#program_address@3280 target-sha256=1c5757a5e01e7f9fbee85f65eeb83eddba539a2991005f80663c9d31dc318bba
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def program_address (name : String) : String :=
+  ("rml.program/" ++ name)
+
+def main : IO Unit := do
+  pure ()
