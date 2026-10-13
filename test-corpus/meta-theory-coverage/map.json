@@ -3,8 +3,8 @@
   "corpusFingerprint": "f85e7951384dbb639725eb021419982d367f5e1eeef2c5528602a4e35d8af0b9",
   "evidence": {
     "nativeProgram": "5711f39e9eb7d770e0a945412df3e80f69e8b7d66ad6a571ee9227f40ed2aa6e",
-    "nativeCoverage": "63a0fef02f7099e9f997c9be870279ec1f18acb8c70f1077d9704bb0e246642b",
-    "nativeCases": "797c34cf3525e74a09de471901e2695d5921197a6b5f4c3f99c6fc35f1b8cfe8",
+    "nativeCoverage": "e7c02fabf1dee083087c7764d009ca64084b29848f3e89f71df815e8905e5634",
+    "nativeCases": "77cd10b157535d4cb2f46c6e0fd17c0954f414ae9cdf4f73beeb87297e054217",
     "propositionsCoverage": "bf01f59e827c5b72c771f6bc3e9727dd40eb2b2d02b486be8c168dc29944695e",
     "propositionsCases": "644bbd23c383960aa609552a1b3839d220869d8217be2003a7c25f77bb1c68d2",
     "certificates": "e5d17dbaacc561a82223c64c358871a89082a00f703d05a832c7f32e68affa05"
@@ -49,8 +49,8 @@
       "exact": 229
     },
     "nativeExecution": {
-      "ablation-witnessed": 150,
-      "not-witnessed": 43,
+      "ablation-witnessed": 183,
+      "not-witnessed": 10,
       "statement-normalized": 36
     },
     "proof": {
@@ -641,7 +641,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -678,7 +682,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkConversions.DupletListBehead-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -1496,7 +1504,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkDefinitions.Link-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -1786,7 +1798,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkDefinitions.NetworkTupleFunction-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -1824,7 +1840,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkDefinitions.NetworkTupleList-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -1946,7 +1966,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkDefinitions.TupleOfReferences-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -1984,7 +2008,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkDefinitions.AnyNetwork.isWellFormed-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -2022,7 +2050,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkDefinitions.AnyNetwork.size-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -2144,7 +2176,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -2346,7 +2382,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkEquivalence.DupletListEquivalence-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -2422,7 +2462,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.NetworkEquivalence.TupleListEquivalence-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -3436,7 +3480,11 @@
         "recorded": 4
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.SequenceDefinitions.ReadSequence_-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -3473,7 +3521,11 @@
         "recorded": 4
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.SequenceDefinitions.ReadSequence-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -3674,7 +3726,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.SequenceDefinitions.listGetD-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -4072,7 +4128,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.SetSequenceEquivalence.IsOrderedUniqueSequence-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -4109,7 +4169,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.SetSequenceEquivalence.NoDuplicates-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -4146,7 +4210,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -5579,7 +5647,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -5616,7 +5688,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkConversions.DupletListBehead-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -5984,7 +6060,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkDefinitions.Link-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -6274,7 +6354,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkDefinitions.NetworkTupleFunction-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -6312,7 +6396,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkDefinitions.NetworkTupleList-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -6476,7 +6564,11 @@
         "recorded": 2
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -6514,7 +6606,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkDefinitions.TupleOfReferences-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -6552,7 +6648,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkDefinitions.anyNetworkIsWellFormed-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -6590,7 +6690,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkDefinitions.anyNetworkSize-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -6792,7 +6896,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkEquivalence.DupletListEquivalence-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -6868,7 +6976,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.NetworkEquivalence.TupleListEquivalence-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -7800,7 +7912,11 @@
         "recorded": 4
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.SequenceDefinitions.ReadSequence-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -8206,7 +8322,11 @@
         "recorded": 3
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.SequenceDefinitions.ReadSequence_-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -8645,7 +8765,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.SetSequenceEquivalence.IsOrderedUniqueSequence-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -8682,7 +8806,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"
@@ -8719,7 +8847,11 @@
         "recorded": 1
       },
       "nativeExecution": {
-        "status": "not-witnessed"
+        "status": "ablation-witnessed",
+        "witness": {
+          "case": "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending-probe",
+          "ablation": "stuck"
+        }
       },
       "proof": {
         "status": "not-applicable"

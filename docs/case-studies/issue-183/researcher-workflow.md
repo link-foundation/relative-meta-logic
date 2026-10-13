@@ -130,8 +130,9 @@ from public APIs. The recipe has five steps:
    [SEMANTIC_ARCHIVE.md](../../SEMANTIC_ARCHIVE.md)).
 
 These steps add executable meta-theory semantics, not completion. Typed
-elaboration covers 72 declarations, 150 declarations have execution
-witnesses, and 14 of the 36 theorems are certified. Inductive and rewriting
+elaboration covers 72 declarations. 183 declarations have execution
+witnesses: 150 from upstream cases and 33 from untyped probes on upstream
+data. 14 of the 36 theorems are certified. Inductive and rewriting
 proofs remain outside the certificate fragment.
 
 ## Public entry points and trust boundaries

@@ -297,7 +297,9 @@ fn validates_all_declarations_commands_partitions_and_counts() {
     assert_eq!(map["counts"]["commands"], 197);
     assert_eq!(map["counts"]["nativeElaboration"]["elaborated"], 229);
     assert_eq!(map["counts"]["dependencyCheck"]["exact"], 229);
-    assert_eq!(map["counts"]["nativeExecution"]["ablation-witnessed"], 150);
+    assert_eq!(map["counts"]["nativeExecution"]["ablation-witnessed"], 183);
+    assert_eq!(map["counts"]["nativeExecution"]["not-witnessed"], 10);
+    assert_eq!(map["counts"]["nativeExecution"]["statement-normalized"], 36);
     assert_eq!(map["counts"]["proof"]["certified"], 14);
     assert_eq!(map["counts"]["commandExecution"]["value"], 90);
     assert_eq!(evidence.corpus.declarations().len(), 229);

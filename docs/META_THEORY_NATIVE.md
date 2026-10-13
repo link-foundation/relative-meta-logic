@@ -13,7 +13,7 @@ does not ask Lean or Rocq for anything.
 | Native elaboration | 229 of 229 declarations; all 197 commands | `test-corpus/meta-theory-native/coverage.json` |
 | Dependency check | 229 exact: elaborated references equal recorded links | same |
 | Evaluation commands | 90 of 90 reach values; 52 of 52 source comments agree; 84 Lean/Rocq pairs agree | `test-corpus/meta-theory-native/cases.json` |
-| Execution witnesses | 150 declarations are needed by an executed case (ablation) | same |
+| Execution witnesses | 183 declarations: 150 needed by an upstream case, 33 by a probe on upstream data (ablation) | same |
 | Proof certificates | 14 of 36 theorems certified; 4 with closed chains; 22 outside the fragment | `test-corpus/meta-theory-certificates/certificates.json` |
 | Stage map | every declaration and command, all stages | `test-corpus/meta-theory-coverage/map.json` |
 
@@ -65,17 +65,35 @@ A declaration counts as *executed* only with an **ablation witness**:
   rules are removed from the slice.
 
 A definition that sits in a closure but is never needed, such as a branch that
-is not taken, gets no witness. Of the 79 declarations without one, 36 are
-theorems, whose statements are normalized and whose proofs are certified
-separately. The other 43 are definitions that no executed upstream case needs:
-they are never called, or are reached only through untaken branches. The
-researcher recipe below runs two of them, `IsOrderedUniqueSequence` and its
-callee `StrictlyAscending`, on new data.
+is not taken, gets no witness from upstream cases. 150 declarations have one.
+
+For the definitions that no upstream case needs, the generator runs **probes**.
+A probe applies the definition to data values that upstream cases of the same
+language produced, or to their parts. It tries argument tuples in size order
+and keeps the first that reaches a value. Decision trees get stuck on data of
+the wrong shape, so a value means every match succeeded. Probes are untyped:
+the smallest reaching tuple is often the empty list, so a probe usually
+exercises only base-case rules. A type-level definition such as `Link` can
+also accept an argument its source type would reject. A probe case is
+validated like any other case, and its ablation witness is checked the same
+way. The counterpart definition in the other language runs on the same data
+with the addresses translated. 33 definitions gain a probe witness, and all 28
+probes with a counterpart of the same arity agree with it.
+
+That leaves 46 declarations without a witness. 36 are theorems, whose
+statements are normalized and whose proofs are certified separately. The other
+10 are `DupletFunctionEquivalence`, `TupleFunctionEquivalence`, `InSetTree`,
+`IsSubsetTree` and `IsValidSetTree` in both languages. No argument tuple
+within the probe bounds reaches a value for them. The two equivalences take
+functions, which the probe pool does not contain. The researcher recipe below runs
+`IsOrderedUniqueSequence` and its callee `StrictlyAscending` on new, non-empty
+data.
 
 `scripts/generate-meta-theory-native.mjs` exports `validateNativeEvidence`. It
 re-executes every case on the whole program and on its slice, and every
 witness by ablation. Corrupted bodies, a corrupted prelude, edited results or
-step counts, and forged, unreachable or relabelled witnesses are rejected
+step counts, forged, unreachable or relabelled witnesses, and a probe
+rewritten to data of the wrong shape are rejected
 (`scripts/meta-theory-native.test.mjs`). In Rust, `rml::meta_theory_native`
 mirrors loading, binary naturals, compaction, slicing, execution and ablation.
 `rust/tests/meta_theory_native_tests.rs` re-runs every case and witness, plus

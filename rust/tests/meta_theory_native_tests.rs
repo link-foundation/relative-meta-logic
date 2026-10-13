@@ -195,14 +195,14 @@ fn reexecutes_every_case_and_ablation_witness() {
         assert_eq!(coverage["exactDependencies"], 229);
         assert_eq!(coverage["commandCount"], 197);
         assert_eq!(coverage["evaluationsExecuted"], 90);
-        assert_eq!(coverage["executionWitnessed"], 150);
+        assert_eq!(coverage["executionWitnessed"], 183);
         let witnessed = coverage["declarations"]
             .as_array()
             .unwrap()
             .iter()
             .filter(|entry| !entry["executionWitness"].is_null())
             .count();
-        assert_eq!(witnessed, 150);
+        assert_eq!(witnessed, 183);
         let executions = cases["cases"]
             .as_array()
             .unwrap()
@@ -213,6 +213,94 @@ fn reexecutes_every_case_and_ablation_witness() {
         assert!(executions.iter().all(|item| item["value"] == true));
         let scope = Scope { reexecute_cases: true, addresses: None };
         assert_eq!(validate(PRELUDE, PROGRAM, &cases, &coverage, &scope), Vec::<String>::new());
+    });
+}
+
+/// Replace a language prefix in every leaf of a term.
+fn rename_language(term: &Node, from: &str, to: &str) -> Node {
+    match term {
+        Node::Leaf(text) => Node::Leaf(match text.strip_prefix(from) {
+            Some(rest) => format!("{to}{rest}"),
+            None => text.clone(),
+        }),
+        Node::List(items) => Node::List(items.iter().map(|item| rename_language(item, from, to)).collect()),
+    }
+}
+
+/// Lean and Rocq addresses compared without their language.
+fn language_neutral(term: &Node) -> Node {
+    let neutral = rename_language(term, "rml.formal.rocq.", "rml.formal.*.");
+    rename_language(&neutral, "rml.formal.lean.", "rml.formal.*.")
+}
+
+#[test]
+fn witnesses_unneeded_definitions_by_probes_checked_against_the_counterpart() {
+    on_large_stack(|| {
+        let (cases, coverage) = fixtures();
+        let probes = cases["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|item| item["kind"] == "probe-execution")
+            .collect::<Vec<_>>();
+        assert_eq!(probes.len(), 33);
+        assert_eq!(coverage["upstreamCaseWitnessed"], 150);
+        assert_eq!(coverage["probeWitnessed"], 33);
+        let declarations = coverage["declarations"].as_array().unwrap();
+        for item in &probes {
+            assert_eq!(item["value"], true, "{}", item["id"]);
+            assert_eq!(item["request"][0], item["address"], "{}", item["id"]);
+            let entry = declarations.iter().find(|entry| entry["address"] == item["address"]).unwrap();
+            assert_eq!(entry["executionWitness"]["case"], item["id"]);
+        }
+        let registry = native_registry(PRELUDE, PROGRAM).unwrap();
+        let mut paired = 0;
+        let mut agreeing = 0;
+        for item in &probes {
+            let Some(counterpart) = item["counterpart"].as_str() else { continue };
+            paired += 1;
+            let language = item["language"].as_str().unwrap();
+            let other = if language == "lean" { "rocq" } else { "lean" };
+            let from = format!("rml.formal.{language}.");
+            let to = format!("rml.formal.{other}.");
+            let Node::List(request) = expand_native(&node(&item["request"])) else { panic!("probe request is a call") };
+            let mut call = vec![leaf(counterpart)];
+            call.extend(request[1..].iter().map(|argument| rename_language(argument, &from, &to)));
+            let outcome = execute_native(&registry, &Node::List(call));
+            let expected = language_neutral(&node(&item["expected"]));
+            let agrees = outcome.value()
+                && outcome
+                    .term
+                    .as_ref()
+                    .is_some_and(|term| language_neutral(&compact_native(term)) == expected);
+            assert_eq!(agrees, item["counterpartAgrees"] == true, "{}", item["id"]);
+            if agrees {
+                agreeing += 1;
+            }
+        }
+        assert_eq!(paired, 28);
+        assert_eq!(agreeing, 28);
+        assert_eq!(coverage["probeCounterpartsAgreeing"], 28);
+        assert_eq!(coverage["probeCounterpartsDiffering"], serde_json::json!([]));
+        // Negative: data of the wrong shape gets stuck, so a forged probe is no witness.
+        let address = "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending";
+        let wrong = Node::List(vec![
+            leaf(address),
+            Node::List(vec![leaf("mt-v"), Node::List(vec![leaf("mt-pair"), leaf("mt-zero"), leaf("mt-zero")])]),
+        ]);
+        assert!(!execute_native(&registry, &wrong).value());
+        let mut forged = cases.clone();
+        for item in forged["cases"].as_array_mut().unwrap() {
+            if item["id"] == format!("{address}-probe") {
+                item["request"] = serde_json::json!([address, ["mt-v", ["mt-pair", "mt-zero", "mt-zero"]]]);
+            }
+        }
+        let scope = Scope { reexecute_cases: false, addresses: Some(vec![address.to_string()]) };
+        let problems = validate(PRELUDE, PROGRAM, &forged, &coverage, &scope);
+        assert!(
+            problems.iter().any(|problem| problem.contains("does not reach its value on its static closure")),
+            "{problems:?}"
+        );
     });
 }
 

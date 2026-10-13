@@ -27,7 +27,7 @@ describe('per-declaration and per-command meta-theory stage map', () => {
     assert.equal(map.commands.length, 197);
     assert.deepEqual(map.counts.nativeElaboration, { elaborated: 229 });
     assert.deepEqual(map.counts.dependencyCheck, { exact: 229 });
-    assert.deepEqual(map.counts.nativeExecution, { 'ablation-witnessed': 150, 'not-witnessed': 43, 'statement-normalized': 36 });
+    assert.deepEqual(map.counts.nativeExecution, { 'ablation-witnessed': 183, 'not-witnessed': 10, 'statement-normalized': 36 });
     assert.deepEqual(map.counts.proof, { certified: 14, 'not-applicable': 193, 'outside-fragment': 22 });
     assert.deepEqual(map.counts.typedElaboration, {
       'conversion-proof-replayed': 2, 'definition-checked': 70, unresolved: 21, unsupported: 132, 'upstream-admitted': 4,

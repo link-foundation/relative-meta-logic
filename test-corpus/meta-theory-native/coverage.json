@@ -8,7 +8,9 @@
   "declarationCount": 229,
   "elaborated": 229,
   "exactDependencies": 229,
-  "executionWitnessed": 150,
+  "executionWitnessed": 183,
+  "upstreamCaseWitnessed": 150,
+  "probeWitnessed": 33,
   "commandCount": 197,
   "commandsElaborated": 197,
   "evaluationsExecuted": 90,
@@ -23,6 +25,8 @@
     "rml.formal.rocq.SequenceDefinitions#command-11-execution",
     "rml.formal.rocq.SequenceDefinitions#command-12-execution"
   ],
+  "probeCounterpartsAgreeing": 28,
+  "probeCounterpartsDiffering": [],
   "declarations": [
     {
       "address": "rml.formal.lean.MetaDefinitions.MakeMetaReferenceSpace",
@@ -295,7 +299,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkConversions.DupletListBehead-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList",
@@ -312,7 +319,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkConversions.DupletListOffsetReferenceList",
@@ -731,7 +741,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkDefinitions.AnyNetwork.isWellFormed-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkDefinitions.AnyNetwork.size",
@@ -747,7 +760,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkDefinitions.AnyNetwork.size-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkDefinitions.Duplet",
@@ -803,7 +819,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkDefinitions.Link-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkDefinitions.NetworkDupletFunction",
@@ -937,7 +956,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkDefinitions.NetworkTupleFunction-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkDefinitions.NetworkTupleList",
@@ -953,7 +975,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkDefinitions.NetworkTupleList-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkDefinitions.Reference",
@@ -1024,7 +1049,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkDefinitions.TupleOfReferences-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault",
@@ -1041,7 +1069,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkDefinitions.emptyNetwork",
@@ -1111,7 +1142,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkEquivalence.DupletListEquivalence-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkEquivalence.TupleFunctionEquivalence",
@@ -1143,7 +1177,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.NetworkEquivalence.TupleListEquivalence-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.NetworkExamples.complexExampleNetwork",
@@ -1658,7 +1695,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.SequenceDefinitions.ReadSequence-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.SequenceDefinitions.ReadSequence_",
@@ -1677,7 +1717,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.SequenceDefinitions.ReadSequence_-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.SequenceDefinitions.TreeToDupletList",
@@ -1776,7 +1819,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.SequenceDefinitions.listGetD-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.SetDefinitions.InSetTree",
@@ -1946,7 +1992,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.SetSequenceEquivalence.IsOrderedUniqueSequence-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.SetSequenceEquivalence.NoDuplicates",
@@ -1962,7 +2011,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.SetSequenceEquivalence.NoDuplicates-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending",
@@ -1978,7 +2030,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.lean.SetSequenceEquivalence.insertSorted",
@@ -2412,7 +2467,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkConversions.DupletListBehead-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList",
@@ -2429,7 +2487,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkConversions.DupletListOffsetReferenceList",
@@ -2887,7 +2948,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkDefinitions.Link-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkDefinitions.NetworkDupletFunction",
@@ -3021,7 +3085,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkDefinitions.NetworkTupleFunction-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkDefinitions.NetworkTupleList",
@@ -3037,7 +3104,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkDefinitions.NetworkTupleList-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkDefinitions.Reference",
@@ -3108,7 +3178,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkDefinitions.TupleOfReferences-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault",
@@ -3125,7 +3198,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkDefinitions.anyNetworkIsWellFormed",
@@ -3141,7 +3217,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkDefinitions.anyNetworkIsWellFormed-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkDefinitions.anyNetworkSize",
@@ -3157,7 +3236,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkDefinitions.anyNetworkSize-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkDefinitions.emptyNetwork",
@@ -3227,7 +3309,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkEquivalence.DupletListEquivalence-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkEquivalence.TupleFunctionEquivalence",
@@ -3259,7 +3344,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.NetworkEquivalence.TupleListEquivalence-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.NetworkExamples.complexExampleNetwork",
@@ -3793,7 +3881,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.SequenceDefinitions.ReadSequence-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.SequenceDefinitions.ReadSequence_",
@@ -3811,7 +3902,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.SequenceDefinitions.ReadSequence_-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.SequenceDefinitions.TreeToDupletList",
@@ -4124,7 +4218,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.SetSequenceEquivalence.IsOrderedUniqueSequence-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates",
@@ -4140,7 +4237,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending",
@@ -4156,7 +4256,10 @@
         "unrecorded": [],
         "unused": []
       },
-      "executionWitness": null
+      "executionWitness": {
+        "case": "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending-probe",
+        "ablation": "stuck"
+      }
     },
     {
       "address": "rml.formal.rocq.SetSequenceEquivalence.insertSorted",

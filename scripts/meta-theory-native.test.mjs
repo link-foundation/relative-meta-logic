@@ -59,8 +59,50 @@ describe('native linked execution of the pinned meta-theory corpus', () => {
 
   it('re-executes every recorded case and every ablation witness independently', () => {
     assert.deepEqual(validateNativeEvidence({ prelude, program, cases, coverage }), []);
-    assert.equal(coverage.executionWitnessed, 150);
-    assert.equal(coverage.declarations.filter(entry => entry.executionWitness).length, 150);
+    assert.equal(coverage.executionWitnessed, 183);
+    assert.equal(coverage.declarations.filter(entry => entry.executionWitness).length, 183);
+  });
+
+  it('witnesses definitions no upstream case needs by probes on upstream data, checked against the counterpart', () => {
+    const probes = cases.cases.filter(item => item.kind === 'probe-execution');
+    assert.equal(probes.length, 33);
+    assert.equal(coverage.upstreamCaseWitnessed, 150);
+    assert.equal(coverage.probeWitnessed, 33);
+    for (const item of probes) {
+      assert.equal(item.value, true, item.id);
+      assert.equal(item.request[0], item.address, item.id);
+      const entry = coverage.declarations.find(candidate => candidate.address === item.address);
+      assert.equal(entry.executionWitness.case, item.id);
+    }
+    // Independent re-execution of the counterpart definition on the same data.
+    const registry = nativeRegistry(prelude, program);
+    const neutral = term => typeof term === 'string'
+      ? term.replace(/^rml\.formal\.(lean|rocq)\./, 'rml.formal.*.') : term.map(neutral);
+    const paired = probes.filter(item => item.counterpart);
+    let agreeing = 0;
+    for (const item of paired) {
+      const [, other] = item.counterpart.match(/^rml\.formal\.(lean|rocq)\./);
+      const translate = term => typeof term === 'string'
+        ? term.replace(`rml.formal.${item.language}.`, `rml.formal.${other}.`) : term.map(translate);
+      const request = expandRequest(item.request);
+      const outcome = executeNative(registry, [item.counterpart, ...request.slice(1).map(translate)]);
+      const agrees = outcome.value && JSON.stringify(neutral(compactNative(outcome.term))) === JSON.stringify(neutral(item.expected));
+      assert.equal(agrees, item.counterpartAgrees, item.id);
+      if (agrees) agreeing += 1;
+    }
+    assert.equal(paired.length, 28);
+    assert.equal(agreeing, 28);
+    assert.equal(coverage.probeCounterpartsAgreeing, 28);
+    assert.deepEqual(coverage.probeCounterpartsDiffering, []);
+    // Negative: a probe on data of the wrong shape gets stuck and is no witness.
+    const ascending = probes.find(item => item.id === 'rml.formal.lean.SetSequenceEquivalence.StrictlyAscending-probe');
+    const wrongShape = executeNative(registry, [ascending.address, ['mt-v', ['mt-pair', 'mt-zero', 'mt-zero']]]);
+    assert.equal(wrongShape.value, false);
+    const forged = clone(cases);
+    forged.cases.find(item => item.id === ascending.id).request = [ascending.address, ['mt-v', ['mt-pair', 'mt-zero', 'mt-zero']]];
+    const problems = validateNativeEvidence({ prelude, program, cases: forged, coverage },
+      { reexecuteCases: false, addresses: [ascending.address] });
+    assert.ok(problems.some(problem => problem.includes('does not reach its value on its static closure')), problems.join('\n'));
   });
 
   it('rejects a corrupted definition body in the executable program', () => {

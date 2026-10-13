@@ -65,6 +65,68 @@ export function ablationOutcome(expected, outcome) {
   return JSON.stringify(compactNative(outcome.term)) === JSON.stringify(expected) ? 'unchanged' : 'different-value';
 }
 
+const PROBE_STEPS = 20_000;
+const PROBE_ATTEMPTS = 4_000;
+const PROBE_POOL = [64, 24, 12];
+const NON_DATA = /^mt-(fn|arrow|v)$|-type$/;
+
+/** Whether a raw value is plain data (no closures, types or nested tags). */
+function plainData(raw) {
+  if (typeof raw === 'string') return !NON_DATA.test(raw);
+  return raw.every(plainData);
+}
+
+/**
+ * Data values produced by upstream value cases of one language, with their
+ * immediate parts: list cells, elements, pair sides, option contents and
+ * constructor or record fields. Ordered by size, then text.
+ */
+export function probePool(cases, language) {
+  const seen = new Map();
+  const add = raw => {
+    if (!plainData(raw)) return;
+    const key = JSON.stringify(raw);
+    if (seen.has(key)) return;
+    seen.set(key, raw);
+    if (!Array.isArray(raw)) return;
+    if (['mt-cons', 'mt-pair', 'mt-some'].includes(raw[0])) raw.slice(1).forEach(add);
+    if (['mt-con', 'mt-record'].includes(raw[0])) raw.slice(raw[0] === 'mt-con' ? 3 : 2).forEach(add);
+  };
+  for (const item of cases) {
+    if (!item.value || item.language !== language || !['command-execution', 'closed-normalization'].includes(item.kind)) continue;
+    add(expandRequest(item.expected)[1]);
+  }
+  return [...seen.entries()].sort(([left], [right]) => left.length - right.length || (left < right ? -1 : left > right ? 1 : 0))
+    .map(([, raw]) => raw);
+}
+
+/** The first argument tuple (in size order) on which a definition reaches a value. */
+function probeArguments(registry, entry, pool) {
+  const width = Math.min(pool.length, PROBE_POOL[Math.min(entry.arity, PROBE_POOL.length) - 1]);
+  if (!width) return undefined;
+  const indices = new Array(entry.arity).fill(0);
+  for (let attempt = 0; attempt < PROBE_ATTEMPTS; attempt += 1) {
+    const args = indices.map(index => pool[index]);
+    try {
+      const reduced = registry.reduceResult(META_THEORY_NATIVE_PROGRAM, [entry.address, ...args.map(raw => ['mt-v', raw])],
+        { maxSteps: PROBE_STEPS });
+      if (isNativeValue(reduced.term)) return args;
+    } catch {
+      // A probe that exceeds its bound is simply not a witness.
+    }
+    let position = 0;
+    while (position < indices.length && ++indices[position] === width) indices[position++] = 0;
+    if (position === indices.length) return undefined;
+  }
+  return undefined;
+}
+
+/** Move corpus addresses inside a value to the other language's declarations. */
+function translateAddresses(raw, from, to) {
+  if (typeof raw === 'string') return raw.replace(`rml.formal.${from}.`, `rml.formal.${to}.`);
+  return raw.map(item => translateAddresses(item, from, to));
+}
+
 export function metaTheoryNativeArtifacts() {
   const source = read('lib/meta-theory/upstream-0.0.3.lino');
   const foundation = read('lib/meta-theory/upstream-0.0.3-foundation.lino');
@@ -166,24 +228,56 @@ export function metaTheoryNativeArtifacts() {
   }
 
   // Ablation witnesses: the smallest value case whose result depends on the declaration's rules.
-  const valueCases = cases.filter(item => item.value)
-    .sort((left, right) => left.closure.length - right.closure.length || (left.id < right.id ? -1 : left.id > right.id ? 1 : 0));
   const witnesses = new Map();
-  for (const entry of listing) {
-    if (entry.status !== 'elaborated') continue;
-    for (const item of valueCases) {
-      if (!item.closure.includes(entry.address)) continue;
-      const without = item.closure.filter(address => address !== entry.address);
-      const outcome = executeNative(nativeRegistry(prelude, sliceNativeProgram(program, without)), expandRequest(item.request));
-      const ablation = ablationOutcome(item.expected, outcome);
-      if (ablation !== 'unchanged') {
-        witnesses.set(entry.address, { case: item.id, ablation });
-        break;
+  const findWitnesses = candidates => {
+    const valueCases = candidates.filter(item => item.value)
+      .sort((left, right) => left.closure.length - right.closure.length || (left.id < right.id ? -1 : left.id > right.id ? 1 : 0));
+    for (const entry of listing) {
+      if (entry.status !== 'elaborated' || witnesses.has(entry.address)) continue;
+      for (const item of valueCases) {
+        if (!item.closure.includes(entry.address)) continue;
+        const without = item.closure.filter(address => address !== entry.address);
+        const outcome = executeNative(nativeRegistry(prelude, sliceNativeProgram(program, without)), expandRequest(item.request));
+        const ablation = ablationOutcome(item.expected, outcome);
+        if (ablation !== 'unchanged') {
+          witnesses.set(entry.address, { case: item.id, ablation });
+          break;
+        }
       }
     }
+  };
+  findWitnesses(cases);
+
+  // Probe executions: a definition that no upstream case needs is applied to
+  // data values that upstream cases of the same language produced. A probe
+  // is recorded only when it reaches a value; the decision trees get stuck
+  // on data of the wrong shape, so a value means every match succeeded.
+  // The counterpart definition in the other language runs on the same data.
+  const probes = [];
+  for (const entry of listing) {
+    const declaration = corpus.declarationAt(entry.address);
+    const { arity } = native.entries.get(entry.address);
+    if (entry.status !== 'elaborated' || witnesses.has(entry.address) || declaration.kind === 'theorem' || !arity) continue;
+    const args = probeArguments(registry, { address: entry.address, arity }, probePool(cases, declaration.language));
+    if (!args) continue;
+    const term = [entry.address, ...args.map(raw => ['mt-v', raw])];
+    const item = execute(`${entry.address}-probe`, 'probe-execution', term, [entry.address],
+      { address: entry.address, language: declaration.language });
+    const other = corpus.counterpart(declaration);
+    const otherEntry = other && native.entries.get(other.address);
+    if (otherEntry?.status === 'elaborated' && otherEntry.arity === arity) {
+      const translated = [other.address, ...args.map(raw => ['mt-v', translateAddresses(raw, declaration.language, other.language)])];
+      const outcome = executeNative(registry, translated);
+      item.counterpart = other.address;
+      item.counterpartAgrees = outcome.value &&
+        JSON.stringify(languageNeutral(compactNative(outcome.term))) === JSON.stringify(languageNeutral(item.expected));
+    }
+    probes.push(item);
   }
+  findWitnesses(probes);
 
   const declarations = listing.map(entry => ({ ...entry, executionWitness: witnesses.get(entry.address) ?? null }));
+  const commandCases = cases.filter(item => item.kind === 'command-execution');
   const programHash = nativeSha256(program);
   const preludeHash = nativeSha256(prelude);
   const count = predicate => declarations.filter(predicate).length;
@@ -198,14 +292,18 @@ export function metaTheoryNativeArtifacts() {
     elaborated: count(entry => entry.status === 'elaborated'),
     exactDependencies: count(entry => entry.dependencyCheck.status === 'exact'),
     executionWitnessed: count(entry => entry.executionWitness !== null),
+    upstreamCaseWitnessed: count(entry => entry.executionWitness !== null && !probes.some(item => item.id === entry.executionWitness.case)),
+    probeWitnessed: count(entry => probes.some(item => item.id === entry.executionWitness?.case)),
     commandCount: commandRecords.length,
     commandsElaborated: commandRecords.filter(record => record.status === 'elaborated').length,
     evaluationsExecuted: commandRecords.filter(record => record.nativeExecution === 'value' &&
       ['eval', 'compute'].includes(record.kind)).length,
     sourceExpectationsMatched: cases.filter(item => item.sourceExpectationNumbersMatch === true).length,
     sourceExpectationsDiffering: cases.filter(item => item.sourceExpectationNumbersMatch === false).map(item => item.id),
-    counterpartsAgreeing: cases.filter(item => item.counterpartAgrees === true).length,
-    counterpartsDiffering: cases.filter(item => item.counterpartAgrees === false).map(item => item.id),
+    counterpartsAgreeing: commandCases.filter(item => item.counterpartAgrees === true).length,
+    counterpartsDiffering: commandCases.filter(item => item.counterpartAgrees === false).map(item => item.id),
+    probeCounterpartsAgreeing: probes.filter(item => item.counterpartAgrees === true).length,
+    probeCounterpartsDiffering: probes.filter(item => item.counterpartAgrees === false).map(item => item.id),
     declarations,
     commands: commandRecords,
   };

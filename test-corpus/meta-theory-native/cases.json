@@ -15519,6 +15519,1043 @@
         "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique",
         "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique_is_ascending"
       ]
+    },
+    {
+      "id": "rml.formal.lean.NetworkConversions.DupletListBehead-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkConversions.DupletListBehead",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkConversions.DupletListBehead",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-zero"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 5,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkConversions.DupletListBehead",
+        "rml.formal.lean.NetworkDefinitions.Duplet",
+        "rml.formal.lean.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "rendered": "[]",
+      "counterpart": "rml.formal.rocq.NetworkConversions.DupletListBehead",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList",
+        "rml.formal.lean.NetworkDefinitions.Duplet",
+        "rml.formal.lean.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "rendered": "[]",
+      "counterpart": "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.NetworkDefinitions.AnyNetwork.isWellFormed-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkDefinitions.AnyNetwork.isWellFormed",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkDefinitions.AnyNetwork.isWellFormed",
+        [
+          "mt-v",
+          [
+            "mt-record",
+            "rml.formal.lean.NetworkDefinitions.AnyNetwork",
+            "mt-zero",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 5,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.AnyNetwork",
+        "rml.formal.lean.NetworkDefinitions.AnyNetwork.isWellFormed",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.ReferenceList"
+      ],
+      "rendered": "true"
+    },
+    {
+      "id": "rml.formal.lean.NetworkDefinitions.AnyNetwork.size-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkDefinitions.AnyNetwork.size",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkDefinitions.AnyNetwork.size",
+        [
+          "mt-v",
+          [
+            "mt-record",
+            "rml.formal.lean.NetworkDefinitions.AnyNetwork",
+            "mt-zero",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-zero"
+      ],
+      "steps": 4,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.AnyNetwork",
+        "rml.formal.lean.NetworkDefinitions.AnyNetwork.size",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.ReferenceList"
+      ],
+      "rendered": "0"
+    },
+    {
+      "id": "rml.formal.lean.NetworkDefinitions.Link-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkDefinitions.Link",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkDefinitions.Link",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-product-type",
+          "mt-nat-type",
+          [
+            "mt-vector-type",
+            "mt-nat-type",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "steps": 6,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.Link",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferences"
+      ],
+      "rendered": "(mt-product-type mt-nat-type (mt-vector-type mt-nat-type mt-nil))",
+      "counterpart": "rml.formal.rocq.NetworkDefinitions.Link",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.NetworkDefinitions.NetworkTupleFunction-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkTupleFunction",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkDefinitions.NetworkTupleFunction",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-arrow",
+          "mt-nat-type",
+          [
+            "mt-vector-type",
+            "mt-nat-type",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "steps": 6,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.NetworkTupleFunction",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferences"
+      ],
+      "rendered": "(mt-arrow mt-nat-type (mt-vector-type mt-nat-type mt-nil))",
+      "counterpart": "rml.formal.rocq.NetworkDefinitions.NetworkTupleFunction",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.NetworkDefinitions.NetworkTupleList-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkTupleList",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkDefinitions.NetworkTupleList",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-list-type",
+          [
+            "mt-vector-type",
+            "mt-nat-type",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "steps": 5,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.NetworkTupleList",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferences"
+      ],
+      "rendered": "(mt-list-type (mt-vector-type mt-nat-type mt-nil))",
+      "counterpart": "rml.formal.rocq.NetworkDefinitions.NetworkTupleList",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.NetworkDefinitions.TupleOfReferences-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkDefinitions.TupleOfReferences",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferences",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-vector-type",
+          "mt-nat-type",
+          "mt-nil"
+        ]
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferences"
+      ],
+      "rendered": "(mt-vector-type mt-nat-type mt-nil)",
+      "counterpart": "rml.formal.rocq.NetworkDefinitions.TupleOfReferences",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault",
+        [
+          "mt-v",
+          "mt-zero"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 4,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.ReferenceDefault",
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferences",
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault"
+      ],
+      "rendered": "[]",
+      "counterpart": "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.NetworkEquivalence.DupletListEquivalence-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkEquivalence.DupletListEquivalence",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkEquivalence.DupletListEquivalence",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.Duplet",
+        "rml.formal.lean.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkEquivalence.DupletListEquivalence"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.rocq.NetworkEquivalence.DupletListEquivalence",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.NetworkEquivalence.TupleListEquivalence-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.NetworkEquivalence.TupleListEquivalence",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.NetworkEquivalence.TupleListEquivalence",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.NetworkTupleList",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.TupleOfReferences",
+        "rml.formal.lean.NetworkEquivalence.TupleListEquivalence"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.rocq.NetworkEquivalence.TupleListEquivalence",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.SequenceDefinitions.ReadSequence-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.SequenceDefinitions.ReadSequence",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.SequenceDefinitions.ReadSequence",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-zero"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-cons",
+          "mt-zero",
+          "mt-nil"
+        ]
+      ],
+      "steps": 20,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.Duplet",
+        "rml.formal.lean.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.SequenceDefinitions.LinkSequence",
+        "rml.formal.lean.SequenceDefinitions.ReadSequence",
+        "rml.formal.lean.SequenceDefinitions.ReadSequence_",
+        "rml.formal.lean.SequenceDefinitions.listGetD"
+      ],
+      "rendered": "[0]",
+      "counterpart": "rml.formal.rocq.SequenceDefinitions.ReadSequence",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.SequenceDefinitions.ReadSequence_-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.SequenceDefinitions.ReadSequence_",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.SequenceDefinitions.ReadSequence_",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-zero"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 5,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.NetworkDefinitions.Duplet",
+        "rml.formal.lean.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.SequenceDefinitions.ReadSequence_",
+        "rml.formal.lean.SequenceDefinitions.listGetD"
+      ],
+      "rendered": "[]",
+      "counterpart": "rml.formal.rocq.SequenceDefinitions.ReadSequence_",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.SequenceDefinitions.listGetD-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.SequenceDefinitions.listGetD",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.SequenceDefinitions.listGetD",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.SequenceDefinitions.listGetD"
+      ],
+      "rendered": "[]"
+    },
+    {
+      "id": "rml.formal.lean.SetSequenceEquivalence.IsOrderedUniqueSequence-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.SetSequenceEquivalence.IsOrderedUniqueSequence",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.SetSequenceEquivalence.IsOrderedUniqueSequence",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 4,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.SetSequenceEquivalence.IsOrderedUniqueSequence",
+        "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.rocq.SetSequenceEquivalence.IsOrderedUniqueSequence",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.SetSequenceEquivalence.NoDuplicates-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.SetSequenceEquivalence.NoDuplicates",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.SetSequenceEquivalence.NoDuplicates",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.SetSequenceEquivalence.NoDuplicates"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending",
+      "language": "lean",
+      "request": [
+        "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkConversions.DupletListBehead-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkConversions.DupletListBehead",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkConversions.DupletListBehead",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-zero"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 5,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkConversions.DupletListBehead",
+        "rml.formal.rocq.NetworkDefinitions.Duplet",
+        "rml.formal.rocq.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "rendered": "[]",
+      "counterpart": "rml.formal.lean.NetworkConversions.DupletListBehead",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList",
+        "rml.formal.rocq.NetworkDefinitions.Duplet",
+        "rml.formal.rocq.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "rendered": "[]",
+      "counterpart": "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkDefinitions.Link-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkDefinitions.Link",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkDefinitions.Link",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-product-type",
+          "mt-nat-type",
+          [
+            "mt-vector-type",
+            "mt-nat-type",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "steps": 6,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.Link",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+      ],
+      "rendered": "(mt-product-type mt-nat-type (mt-vector-type mt-nat-type mt-nil))",
+      "counterpart": "rml.formal.lean.NetworkDefinitions.Link",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkDefinitions.NetworkTupleFunction-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkTupleFunction",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkDefinitions.NetworkTupleFunction",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-arrow",
+          "mt-nat-type",
+          [
+            "mt-vector-type",
+            "mt-nat-type",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "steps": 6,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.NetworkTupleFunction",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+      ],
+      "rendered": "(mt-arrow mt-nat-type (mt-vector-type mt-nat-type mt-nil))",
+      "counterpart": "rml.formal.lean.NetworkDefinitions.NetworkTupleFunction",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkDefinitions.NetworkTupleList-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkTupleList",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkDefinitions.NetworkTupleList",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-list-type",
+          [
+            "mt-vector-type",
+            "mt-nat-type",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "steps": 5,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.NetworkTupleList",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+      ],
+      "rendered": "(mt-list-type (mt-vector-type mt-nat-type mt-nil))",
+      "counterpart": "rml.formal.lean.NetworkDefinitions.NetworkTupleList",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkDefinitions.TupleOfReferences-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkDefinitions.TupleOfReferences",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferences",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-vector-type",
+          "mt-nat-type",
+          "mt-nil"
+        ]
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+      ],
+      "rendered": "(mt-vector-type mt-nat-type mt-nil)",
+      "counterpart": "rml.formal.lean.NetworkDefinitions.TupleOfReferences",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault",
+        [
+          "mt-v",
+          "mt-zero"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 4,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.ReferenceDefault",
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferences",
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault"
+      ],
+      "rendered": "[]",
+      "counterpart": "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkDefinitions.anyNetworkIsWellFormed-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkDefinitions.anyNetworkIsWellFormed",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkDefinitions.anyNetworkIsWellFormed",
+        [
+          "mt-v",
+          [
+            "mt-record",
+            "rml.formal.rocq.NetworkDefinitions.AnyNetwork",
+            "mt-zero",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 5,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.AnyNetwork",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.ReferenceList",
+        "rml.formal.rocq.NetworkDefinitions.anyNetworkIsWellFormed"
+      ],
+      "rendered": "true"
+    },
+    {
+      "id": "rml.formal.rocq.NetworkDefinitions.anyNetworkSize-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkDefinitions.anyNetworkSize",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkDefinitions.anyNetworkSize",
+        [
+          "mt-v",
+          [
+            "mt-record",
+            "rml.formal.rocq.NetworkDefinitions.AnyNetwork",
+            "mt-zero",
+            "mt-nil"
+          ]
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-zero"
+      ],
+      "steps": 4,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.AnyNetwork",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.ReferenceList",
+        "rml.formal.rocq.NetworkDefinitions.anyNetworkSize"
+      ],
+      "rendered": "0"
+    },
+    {
+      "id": "rml.formal.rocq.NetworkEquivalence.DupletListEquivalence-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkEquivalence.DupletListEquivalence",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkEquivalence.DupletListEquivalence",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.Duplet",
+        "rml.formal.rocq.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkEquivalence.DupletListEquivalence"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.lean.NetworkEquivalence.DupletListEquivalence",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.NetworkEquivalence.TupleListEquivalence-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.NetworkEquivalence.TupleListEquivalence",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.NetworkEquivalence.TupleListEquivalence",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.NetworkTupleList",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.TupleOfReferences",
+        "rml.formal.rocq.NetworkEquivalence.TupleListEquivalence"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.lean.NetworkEquivalence.TupleListEquivalence",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.SequenceDefinitions.ReadSequence-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.SequenceDefinitions.ReadSequence",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.SequenceDefinitions.ReadSequence",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-zero"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        [
+          "mt-cons",
+          "mt-zero",
+          "mt-nil"
+        ]
+      ],
+      "steps": 20,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.Duplet",
+        "rml.formal.rocq.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.SequenceDefinitions.LinkSequence",
+        "rml.formal.rocq.SequenceDefinitions.ReadSequence",
+        "rml.formal.rocq.SequenceDefinitions.ReadSequence_"
+      ],
+      "rendered": "[0]",
+      "counterpart": "rml.formal.lean.SequenceDefinitions.ReadSequence",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.SequenceDefinitions.ReadSequence_-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.SequenceDefinitions.ReadSequence_",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.SequenceDefinitions.ReadSequence_",
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-nil"
+        ],
+        [
+          "mt-v",
+          "mt-zero"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-nil"
+      ],
+      "steps": 5,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.NetworkDefinitions.Duplet",
+        "rml.formal.rocq.NetworkDefinitions.NetworkDupletList",
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.SequenceDefinitions.ReadSequence_"
+      ],
+      "rendered": "[]",
+      "counterpart": "rml.formal.lean.SequenceDefinitions.ReadSequence_",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.SetSequenceEquivalence.IsOrderedUniqueSequence-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.SetSequenceEquivalence.IsOrderedUniqueSequence",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.SetSequenceEquivalence.IsOrderedUniqueSequence",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 4,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.SetSequenceEquivalence.IsOrderedUniqueSequence",
+        "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.lean.SetSequenceEquivalence.IsOrderedUniqueSequence",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.lean.SetSequenceEquivalence.NoDuplicates",
+      "counterpartAgrees": true
+    },
+    {
+      "id": "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending-probe",
+      "kind": "probe-execution",
+      "address": "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending",
+      "language": "rocq",
+      "request": [
+        "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending",
+        [
+          "mt-v",
+          "mt-nil"
+        ]
+      ],
+      "expected": [
+        "mt-v",
+        "mt-true"
+      ],
+      "steps": 3,
+      "value": true,
+      "closure": [
+        "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending"
+      ],
+      "rendered": "true",
+      "counterpart": "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending",
+      "counterpartAgrees": true
     }
   ]
 }
