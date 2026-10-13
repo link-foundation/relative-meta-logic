@@ -39,7 +39,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -205,7 +205,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -371,7 +371,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -719,7 +719,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -1079,7 +1079,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -1217,7 +1217,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -1577,7 +1577,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "5d0be598b8e6aa01d5ccbdeb68b9380d3bb82fadee4d3bff88730b12d256a646"
+          "sha256": "78c96fc6644afcd50a5889806a790d983c25665fccec4188599a91a5f6325d9d"
         }
       ],
       "claimedEvidence": "`rml:structure:1` now carries layout/trivia/token links bound to syntax occurrences and a SHA-256 provenance receipt; `emitRmlExactSource` / `emit_rml_exact_source` rebuild every file of the shared frontend corpus byte-for-byte after the buffer is discarded, and `rmlStageReport` / `rml_stage_report` separate preservation, exact source, parsing, resolution, elaboration, execution and verification. Swapped layout, refusal receipts and tampered provenance are rejected. `No RML elaborator or proof checker runs in this representation; elaboration/verification report not-run`.",
@@ -2011,7 +2011,7 @@
     {
       "id": "R12",
       "obligation": "Keep JS and Rust behavior aligned.",
-      "status": "Partial — JS/Rust alignment is executable only where both runtimes read shared fixtures; no repository-wide parity check exists",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "issue-183",
@@ -2081,14 +2081,36 @@
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
           "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
+        },
+        {
+          "path": "scripts/runtime-parity.mjs",
+          "role": "implementation",
+          "sha256": "4b229018fb8e712da50a0ae76e58f7a4d1f6402026bd8926ed021b0caa13bfc9"
+        },
+        {
+          "path": "js/src/rml-links.mjs",
+          "role": "implementation",
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
+        },
+        {
+          "path": "rust/src/lib.rs",
+          "role": "implementation",
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+        },
+        {
+          "path": "rust/src/rocq.rs",
+          "role": "implementation",
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
         }
       ],
-      "claimedEvidence": "Both runtimes read LiNo through one front end (`js/src/rml-lino-frontend.mjs`, `rust/src/lino_frontend.rs`) and check the same cases in `test-corpus/lino-frontend/cases.json`; `lino-frontend-js` and `lino-frontend-rust` execute that shared corpus, and the `linked-program`, `theory-network` and `foundation-search` checks run mirrored JS and Rust suites over the same `lib/meta-theory/*.lino` sources. Gap: no executed check compares the two runtimes across the repository, and several mirrored suites assert far less in Rust than in JS (for example `certified-translation-js` binds 69 assertions and `certified-translation-rust` 4; `rml-semantics-js` 45 and `rml-semantics-rust` 6; `portable-natural-js` 33 and `portable-natural-rust` 4), so alignment outside the shared fixtures is not established.",
+      "claimedEvidence": "Partial. `scripts/runtime-parity.mjs` records what the JavaScript CLI prints (exit status, stdout, stderr) for all 125 repository RML sources in five modes (run, `--trace`, `extract js`, `extract rust`, `export rocq`) in `test-corpus/runtime-parity/observations.json` (625 observations, 29 targeted inputs covering E001–E067 diagnostics, equality layers, numeric formatting and extraction); `scripts/runtime-parity.test.mjs` checks the JavaScript CLI against it and rejects drift in status, output, coverage, sources and a live drifting second runtime, and `rust/tests/runtime_parity_tests.rs` runs the Rust `rml` binary over the same record. The comparison found and fixed divergences on both sides: `js/src/rml-links.mjs` (exponent-notation rounding NaN, eval-nat trace terms, Rocq export stack traces, E007/E009/E061 messages) and `rust/src/lib.rs`/`rust/src/rocq.rs` (named-lambda definitional equality, E003 operator definitions, declaration-error prefixes, Rocq inductive errors). Gap: `the Rust fixes and runtime_parity_tests.rs are compiled only by CI; other mirrored suites (for example portable-natural, rml-semantics) still assert less in Rust than in JavaScript, and parity is observed at the CLI, not proved`",
       "checks": [
         "lino-frontend-js",
-        "lino-frontend-rust"
+        "lino-frontend-rust",
+        "runtime-parity-js",
+        "runtime-parity-rust"
       ],
-      "remainingGap": "Both runtimes read LiNo through one front end (`js/src/rml-lino-frontend.mjs`, `rust/src/lino_frontend.rs`) and check the same cases in `test-corpus/lino-frontend/cases.json`; `lino-frontend-js` and `lino-frontend-rust` execute that shared corpus, and the `linked-program`, `theory-network` and `foundation-search` checks run mirrored JS and Rust suites over the same `lib/meta-theory/*.lino` sources. Gap: no executed check compares the two runtimes across the repository, and several mirrored suites assert far less in Rust than in JS (for example `certified-translation-js` binds 69 assertions and `certified-translation-rust` 4; `rml-semantics-js` 45 and `rml-semantics-rust` 6; `portable-natural-js` 33 and `portable-natural-rust` 4), so alignment outside the shared fixtures is not established.",
+      "remainingGap": "Partial. `scripts/runtime-parity.mjs` records what the JavaScript CLI prints (exit status, stdout, stderr) for all 125 repository RML sources in five modes (run, `--trace`, `extract js`, `extract rust`, `export rocq`) in `test-corpus/runtime-parity/observations.json` (625 observations, 29 targeted inputs covering E001–E067 diagnostics, equality layers, numeric formatting and extraction); `scripts/runtime-parity.test.mjs` checks the JavaScript CLI against it and rejects drift in status, output, coverage, sources and a live drifting second runtime, and `rust/tests/runtime_parity_tests.rs` runs the Rust `rml` binary over the same record. The comparison found and fixed divergences on both sides: `js/src/rml-links.mjs` (exponent-notation rounding NaN, eval-nat trace terms, Rocq export stack traces, E007/E009/E061 messages) and `rust/src/lib.rs`/`rust/src/rocq.rs` (named-lambda definitional equality, E003 operator definitions, declaration-error prefixes, Rocq inductive errors). Gap: `the Rust fixes and runtime_parity_tests.rs are compiled only by CI; other mirrored suites (for example portable-natural, rml-semantics) still assert less in Rust than in JavaScript, and parity is observed at the CLI, not proved`",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -2113,6 +2135,60 @@
           "checkId": "lino-frontend-rust",
           "file": "rust/tests/lino_frontend_tests.rs",
           "name": "refuses_indented_ids_nested_one_level_more_than_the_limit",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-parity-js",
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "records every repository RML source in every command-line mode",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-parity-js",
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "the JavaScript command line prints exactly the recorded observations",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-parity-js",
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "pins the behaviour both runtimes now share on the divergences the comparison found",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-parity-js",
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "rejects drift in exit status, output, coverage, sources and the record itself",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-parity-js",
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "reports a live second runtime that drifts from the record",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-parity-rust",
+          "file": "rust/tests/runtime_parity_tests.rs",
+          "name": "parity_record_covers_every_repository_source_in_every_mode",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-parity-rust",
+          "file": "rust/tests/runtime_parity_tests.rs",
+          "name": "rust_command_line_prints_the_recorded_javascript_observations",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-parity-rust",
+          "file": "rust/tests/runtime_parity_tests.rs",
+          "name": "rust_runtime_reports_the_divergences_the_comparison_found_as_javascript_does",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-parity-rust",
+          "file": "rust/tests/runtime_parity_tests.rs",
+          "name": "parity_comparison_rejects_drifted_rust_output",
           "polarity": "negative"
         }
       ],
@@ -3366,7 +3442,7 @@
     {
       "id": "R22",
       "obligation": "Use current dependency releases and prepare the next release.",
-      "status": "Partial — all direct dependencies current on 2026-10-13; npm meta-language 1.0.0 absent",
+      "status": "Partial — direct dependencies current and lock-consistent as of 2026-10-13; npm meta-language 1.0.0 and release preparation absent",
       "originalWording": [
         {
           "sourceId": "pull-184",
@@ -3403,11 +3479,26 @@
           "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         }
       ],
-      "claimedEvidence": "The dated registry audit now verifies current direct npm and Rust dependencies, including `web-tree-sitter 0.27.1`, `links-notation 0.25.1`, and exact Rust `meta-language 1.0.0`. JavaScript consumes matching official release commit `a79782093cae3b33606483ac9f3e1d05faf36de0`; npm still publishes `meta-language 0.46.0`. Earlier transitive constraints remain separately recorded; matching npm publication and final release preparation are not claimed. The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current. `npm still publishes meta-language 0.46.0 while crates.io has 1.0.0; the repository has no release-notes convention, so release preparation remains open`.",
-      "checks": [],
-      "remainingGap": "The dated registry audit now verifies current direct npm and Rust dependencies, including `web-tree-sitter 0.27.1`, `links-notation 0.25.1`, and exact Rust `meta-language 1.0.0`. JavaScript consumes matching official release commit `a79782093cae3b33606483ac9f3e1d05faf36de0`; npm still publishes `meta-language 0.46.0`. Earlier transitive constraints remain separately recorded; matching npm publication and final release preparation are not claimed. The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current. `npm still publishes meta-language 0.46.0 while crates.io has 1.0.0; the repository has no release-notes convention, so release preparation remains open`.",
+      "claimedEvidence": "The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current; JavaScript consumes the official meta-language release commit `a79782093cae3b33606483ac9f3e1d05faf36de0` while npm still publishes `meta-language 0.46.0`. `scripts/dependency-audit.test.mjs` checks on every run that each audited selection is what `js/package.json`, `vscode/package.json` and `rust/Cargo.toml` declare, what every package lock and the four Cargo locks resolve (with the audited archive checksums), that no selection is behind its audited latest release, and that every declared Rust dependency is audited; it rejects drifted manifests, unlocked selections, changed checksums, stale selections and unaudited crates. `Currency is established only as of the audit date; npm has no meta-language 1.0.0, and the repository has no release-notes convention, so release preparation remains open`.",
+      "checks": [
+        "dependency-audit"
+      ],
+      "remainingGap": "The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current; JavaScript consumes the official meta-language release commit `a79782093cae3b33606483ac9f3e1d05faf36de0` while npm still publishes `meta-language 0.46.0`. `scripts/dependency-audit.test.mjs` checks on every run that each audited selection is what `js/package.json`, `vscode/package.json` and `rust/Cargo.toml` declare, what every package lock and the four Cargo locks resolve (with the audited archive checksums), that no selection is behind its audited latest release, and that every declared Rust dependency is audited; it rejects drifted manifests, unlocked selections, changed checksums, stale selections and unaudited crates. `Currency is established only as of the audit date; npm has no meta-language 1.0.0, and the repository has no release-notes convention, so release preparation remains open`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "dependency-audit",
+          "file": "scripts/dependency-audit.test.mjs",
+          "name": "the dated dependency audit matches every declared and locked direct dependency and none is behind its audited latest release",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "dependency-audit",
+          "file": "scripts/dependency-audit.test.mjs",
+          "name": "an audit that disagrees with a manifest, a lock file or a newer release is rejected",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -6045,7 +6136,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -6453,7 +6544,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -7153,7 +7244,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         }
       ],
       "claimedEvidence": "Repository guidance in `README.md`, `ARCHITECTURE.md`, and `docs/META_THEORY.md` uses the distinction; `TheoryNetwork` is ambient and the linked graph program plus `LinkGraph` require vertices and typed endpoints in mirrored tests.",
@@ -9339,7 +9430,7 @@
     {
       "id": "R66",
       "obligation": "Implement full JavaScript, Rust, Rocq, and Lean representations and translations through RML without delegating authority.",
-      "status": "Partial — certified checked-core translation for all 12 paths; full languages open",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "pull-184",
@@ -9368,24 +9459,19 @@
       ],
       "implementationClaims": [
         {
-          "path": "js/src/rml-certified-translation.mjs",
-          "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
-        },
-        {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -9395,15 +9481,25 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+        },
+        {
+          "path": "js/src/rml-surface-lowering.mjs",
+          "role": "implementation",
+          "sha256": "21b061f6395289969b47209376d36e27971d921e69a50e552dfc674accc11185"
+        },
+        {
+          "path": "js/src/rml-certified-translation.mjs",
+          "role": "implementation",
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         }
       ],
-      "claimedEvidence": "`rml-certified-translation.mjs` and the vendored meta-language#201 core translate eight nontrivial programs (inductives, lists/trees, pattern matching, structural/general recursion, modules, checked integers, closed and universal theorems) along all 12 directed paths through the registered RML structure network, with RML-checked certificates and no kernel authority; `certified-translation.md`. `Polymorphism, records, traits, macros, effects, ownership and proof terms are refused with receipts; full production languages remain open`.",
+      "claimedEvidence": "Partial. Certified checked-core translation for all 12 paths (`js/src/rml-certified-translation.mjs`), widened by RML surface lowering (`js/src/rml-surface-lowering.mjs`) to Rust structs and struct variants, Lean structures, Rocq records and explicitly instantiated generics with recorded, span-mapped rewrites; 12 positive programs (36 translations) and 16 refusal sources. Gap: `inferred polymorphism, traits, macros, effects, ownership and proof terms are refused with receipts; full production languages remain open`",
       "checks": [
         "certified-translation-js",
         "certified-translation-rust"
       ],
-      "remainingGap": "`rml-certified-translation.mjs` and the vendored meta-language#201 core translate eight nontrivial programs (inductives, lists/trees, pattern matching, structural/general recursion, modules, checked integers, closed and universal theorems) along all 12 directed paths through the registered RML structure network, with RML-checked certificates and no kernel authority; `certified-translation.md`. `Polymorphism, records, traits, macros, effects, ownership and proof terms are refused with receipts; full production languages remain open`.",
+      "remainingGap": "Partial. Certified checked-core translation for all 12 paths (`js/src/rml-certified-translation.mjs`), widened by RML surface lowering (`js/src/rml-surface-lowering.mjs`) to Rust structs and struct variants, Lean structures, Rocq records and explicitly instantiated generics with recorded, span-mapped rewrites; 12 positive programs (36 translations) and 16 refusal sources. Gap: `inferred polymorphism, traits, macros, effects, ownership and proof terms are refused with receipts; full production languages remain open`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -9843,6 +9939,84 @@
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every lowered certificate lists its rewrites with exact original spans; others carry no lowering section",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a forged, hidden or dropped lowering section",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "a refusal inside lowered code points at the original source",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "structural recursion is discharged by RML; general and mutual recursion stay open",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a termination obligation promoted to a structural discharge RML did not derive",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every certificate pins the concept space and binds exactly the terms it uses",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
         }
       ],
       "completionBindings": []
@@ -13082,7 +13256,7 @@
     {
       "id": "R101",
       "obligation": "Inventory full JavaScript, Rust, Rocq, and Lean coverage by grammar, structure, scope, types, modules, recursion, proof forms, runtime facilities, standards, and extensions.",
-      "status": "Partial — every upstream native-grammar construct classified on ten axes with a freshness gate; production languages open",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -13097,7 +13271,7 @@
         {
           "path": "docs/case-studies/issue-183/language-coverage.json",
           "role": "coverage-inventory-artifact",
-          "sha256": "a734beb321ab34bf6337ea60d725bb03897ce5f7db4c70d4db0a27ab287ae25d"
+          "sha256": "7e09566b3bc9cae42c5a16a8e13976aeab942bcab8fc6a1f3eeb2e291f5b4e78"
         },
         {
           "path": "js/src/rml-upstream-language.mjs",
@@ -14300,16 +14474,6 @@
           "sha256": "225f0171974241fc507826bd284ac295fc734a55797904246feb0ba7be251149"
         },
         {
-          "path": "js/src/rml-language-inventory.mjs",
-          "role": "implementation",
-          "sha256": "0c5e3aa228259e311d998fc19447c57b9cff1f8cdf2bace46e700297d9e735f4"
-        },
-        {
-          "path": "scripts/language-construct-inventory.mjs",
-          "role": "implementation",
-          "sha256": "143c656d36b309b291076d7ae35243a8286aa0fb4f6f2c30f209a37f8003eeeb"
-        },
-        {
           "path": "docs/case-studies/issue-183/language-construct-classifier.json",
           "role": "implementation",
           "sha256": "b28ccacb0adbf6cbac94221d2274769bc42163bdcf5eca9b36a0e04202b3d0f9"
@@ -14317,17 +14481,27 @@
         {
           "path": "docs/case-studies/issue-183/language-constructs.json",
           "role": "implementation",
-          "sha256": "0ca23484b88d79575292627e08205ef1bac965f5fba706f275e91cd11f3157e6"
+          "sha256": "1d4aeba28de4232d30ad77690242faec0c923f00de1512c26a6b23ec2d7d93f8"
+        },
+        {
+          "path": "js/src/rml-language-inventory.mjs",
+          "role": "implementation",
+          "sha256": "c5a9fee33163ae0125bf35781e67245ec3e11976f139cc08be9208008cddbac0"
+        },
+        {
+          "path": "scripts/language-construct-inventory.mjs",
+          "role": "implementation",
+          "sha256": "1884956a7cd80e405aa93ffbfdb739be60f4d047c52f2b53c47f94758d6de18b"
         }
       ],
-      "claimedEvidence": "`language-construct-classifier.json` assigns every JavaScript (143), Rust (184), Lean (147) and Rocq (265) native-grammar rule to exactly one of ten axes; `language-constructs.json` is regenerated by `scripts/language-construct-inventory.mjs --check`, which fails on stale output, unclassified constructs or dead patterns, and records corpus exercise and native-grammar refusals. `Native grammars are not the production languages; 6/12/12/28 constructs remain unexercised`.",
+      "claimedEvidence": "Partial. Every upstream native-grammar construct is classified on ten axes (`docs/case-studies/issue-183/language-constructs.json`, freshness-gated by `scripts/language-construct-inventory.mjs`). `test-corpus/meta-language/construct-corpus.json` now exercises 103/109 JavaScript, 151/158 Rust, 115/119 Lean and 215/219 Rocq observable constructs; each of the remaining 6/7/4/4 has a refusal receipt whose structural reason (alias, extra, keyword-boundary lookahead, unreferenced rule) is checked against the grammar text with an accepted probe program in `js/src/rml-language-inventory.mjs` and mirrored by `rust/tests/language_construct_inventory_tests.rs`; an unexercised construct without a receipt fails the gate. Gap: `native grammars are not the production languages (Lean where-after-body, structured induction and Rocq CoFixpoint stay refused); receipts explain unobservable rules but do not cover them (upstream request 42)`",
       "checks": [
         "upstream-language-js",
         "upstream-language-rust",
         "construct-inventory-js",
         "construct-inventory-rust"
       ],
-      "remainingGap": "`language-construct-classifier.json` assigns every JavaScript (143), Rust (184), Lean (147) and Rocq (265) native-grammar rule to exactly one of ten axes; `language-constructs.json` is regenerated by `scripts/language-construct-inventory.mjs --check`, which fails on stale output, unclassified constructs or dead patterns, and records corpus exercise and native-grammar refusals. `Native grammars are not the production languages; 6/12/12/28 constructs remain unexercised`.",
+      "remainingGap": "Partial. Every upstream native-grammar construct is classified on ten axes (`docs/case-studies/issue-183/language-constructs.json`, freshness-gated by `scripts/language-construct-inventory.mjs`). `test-corpus/meta-language/construct-corpus.json` now exercises 103/109 JavaScript, 151/158 Rust, 115/119 Lean and 215/219 Rocq observable constructs; each of the remaining 6/7/4/4 has a refusal receipt whose structural reason (alias, extra, keyword-boundary lookahead, unreferenced rule) is checked against the grammar text with an accepted probe program in `js/src/rml-language-inventory.mjs` and mirrored by `rust/tests/language_construct_inventory_tests.rs`; an unexercised construct without a receipt fails the gate. Gap: `native grammars are not the production languages (Lean where-after-body, structured induction and Rocq CoFixpoint stay refused); receipts explain unobservable rules but do not cover them (upstream request 42)`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -14460,6 +14634,30 @@
           "checkId": "construct-inventory-rust",
           "file": "rust/tests/language_construct_inventory_tests.rs",
           "name": "an_unclassified_construct_or_a_dead_pattern_is_detected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "construct-inventory-js",
+          "file": "js/tests/language-construct-inventory.test.mjs",
+          "name": "exercises every observable construct or holds a checked refusal receipt for it",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "construct-inventory-js",
+          "file": "js/tests/language-construct-inventory.test.mjs",
+          "name": "rejects a refusal receipt whose reason, staleness or probe does not hold",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "construct-inventory-rust",
+          "file": "rust/tests/language_construct_inventory_tests.rs",
+          "name": "rust_parser_and_grammar_text_confirm_every_construct_refusal_receipt",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "construct-inventory-rust",
+          "file": "rust/tests/language_construct_inventory_tests.rs",
+          "name": "a_receipt_whose_structural_reason_fails_is_rejected",
           "polarity": "negative"
         }
       ],
@@ -16170,7 +16368,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "5d0be598b8e6aa01d5ccbdeb68b9380d3bb82fadee4d3bff88730b12d256a646"
+          "sha256": "78c96fc6644afcd50a5889806a790d983c25665fccec4188599a91a5f6325d9d"
         }
       ],
       "claimedEvidence": "Declaration, binder, role and resolution records (bound/global/ambiguous/free) keyed by occurrence address are recomputed and compared on every read by `rmlSemanticIdentities` / `rml_semantic_identities`, so stored identities are never trusted; 11 corpus cases pass and 9 mutations (retargeted binder, forged occurrence, dangling target, contradicted status, unaccounted record, layout/provenance tampering) are rejected. `Resolution covers RML/LiNo binders, not type-checked elaboration of rules, proofs and substitutions`.",
@@ -17852,7 +18050,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "5d0be598b8e6aa01d5ccbdeb68b9380d3bb82fadee4d3bff88730b12d256a646"
+          "sha256": "78c96fc6644afcd50a5889806a790d983c25665fccec4188599a91a5f6325d9d"
         }
       ],
       "claimedEvidence": "`rmlStructureOnly` and typed-link serialization with `checkRmlPlanes` require every link to be accounted for and reachable; exact source is emitted from links alone and stage outcomes are reported separately. `Elaboration and verification stages, and Rust execution evidence pending CI, remain open; full networks parse about 3x slower`.",
@@ -19608,7 +19806,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "5d0be598b8e6aa01d5ccbdeb68b9380d3bb82fadee4d3bff88730b12d256a646"
+          "sha256": "78c96fc6644afcd50a5889806a790d983c25665fccec4188599a91a5f6325d9d"
         },
         {
           "path": "test-corpus/meta-language/four-language-binding-rewrites.json",
@@ -20267,7 +20465,7 @@
     {
       "id": "R106",
       "obligation": "Implement all 12 directed JavaScript/Rust/Rocq/Lean translation paths plus structured RML import/export through the shared network.",
-      "status": "Partial — 24 certified translations cover all 12 directed paths plus source-free RML import/export; full languages open",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -21500,22 +21698,22 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -21525,10 +21723,15 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+        },
+        {
+          "path": "js/src/rml-surface-lowering.mjs",
+          "role": "implementation",
+          "sha256": "21b061f6395289969b47209376d36e27971d921e69a50e552dfc674accc11185"
         }
       ],
-      "claimedEvidence": "`exportCertifiedIntermediate` / `importCertifiedIntermediate` / `decodeCertifiedIntermediate` regenerate every target from committed `intermediate.lino` archives without source; a Links-network substitution changes the RML observation and the emitted code. Earlier portable-natural paths remain. `Full-language translation and target re-import (emitter preludes) remain open`.",
+      "claimedEvidence": "Partial. 36 certified translations of 12 positive programs cover all 12 directed paths plus source-free RML import/export (`js/src/rml-certified-translation.mjs`, `test-corpus/certified-translation/cases.json`), now including lowered records and explicit generics (`js/src/rml-surface-lowering.mjs`). Gap: `full-language paths remain open; lowering is RML-side and trusted`",
       "checks": [
         "portable-natural-js",
         "portable-natural-rust",
@@ -21537,7 +21740,7 @@
         "certified-translation-js",
         "certified-translation-rust"
       ],
-      "remainingGap": "`exportCertifiedIntermediate` / `importCertifiedIntermediate` / `decodeCertifiedIntermediate` regenerate every target from committed `intermediate.lino` archives without source; a Links-network substitution changes the RML observation and the emitted code. Earlier portable-natural paths remain. `Full-language translation and target re-import (emitter preludes) remain open`.",
+      "remainingGap": "Partial. 36 certified translations of 12 positive programs cover all 12 directed paths plus source-free RML import/export (`js/src/rml-certified-translation.mjs`, `test-corpus/certified-translation/cases.json`), now including lowered records and explicit generics (`js/src/rml-surface-lowering.mjs`). Gap: `full-language paths remain open; lowering is RML-side and trusted`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -22223,6 +22426,84 @@
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every lowered certificate lists its rewrites with exact original spans; others carry no lowering section",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a forged, hidden or dropped lowering section",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "a refusal inside lowered code points at the original source",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "structural recursion is discharged by RML; general and mutual recursion stay open",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a termination obligation promoted to a structural discharge RML did not derive",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every certificate pins the concept space and binds exactly the terms it uses",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
         }
       ],
       "nativeValidationRequired": true,
@@ -22231,7 +22512,7 @@
     {
       "id": "R107",
       "obligation": "Declare what each translation preserves across behavior, effects, ownership, types, universes, assumptions, and proof obligations.",
-      "status": "Partial — every certificate declares and the checker re-derives a seven-dimension preservation contract for the admitted core",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -23464,22 +23745,22 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -23489,19 +23770,20 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
         }
       ],
-      "claimedEvidence": "Each `rml:translation-certificate:1` records behavior, effects, ownership, types, universes, assumptions and proof obligations; `checkTranslationCertificate` re-derives them and rejects weakened contracts. `Contracts cover the admitted checked core only`.",
+      "claimedEvidence": "Partial. Every certificate declares a seven-dimension preservation contract that `js/src/rml-certified-translation.mjs` re-derives; lowered programs add a `lowering` section and every term is bound to the shared concept space (`js/src/rml-concept-space.mjs`). Gap: `preservation is certified for the admitted core and observed main only`",
       "checks": [
         "portable-natural-js",
         "portable-natural-rust",
         "upstream-language-js",
         "upstream-language-rust",
         "certified-translation-js",
-        "certified-translation-rust"
+        "certified-translation-rust",
+        "certified-concept-space-js"
       ],
-      "remainingGap": "Each `rml:translation-certificate:1` records behavior, effects, ownership, types, universes, assumptions and proof obligations; `checkTranslationCertificate` re-derives them and rejects weakened contracts. `Contracts cover the admitted checked core only`.",
+      "remainingGap": "Partial. Every certificate declares a seven-dimension preservation contract that `js/src/rml-certified-translation.mjs` re-derives; lowered programs add a `lowering` section and every term is bound to the shared concept space (`js/src/rml-concept-space.mjs`). Gap: `preservation is certified for the admitted core and observed main only`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -24186,6 +24468,108 @@
           "checkId": "certified-translation-rust",
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every lowered certificate lists its rewrites with exact original spans; others carry no lowering section",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a forged, hidden or dropped lowering section",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "a refusal inside lowered code points at the original source",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "structural recursion is discharged by RML; general and mutual recursion stay open",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a termination obligation promoted to a structural discharge RML did not derive",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every certificate pins the concept space and binds exactly the terms it uses",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "binds every certificate term to exactly one concept and passes the exact-match discipline",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "the committed concept space and its link network are fresh and round-trip through meta-language",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "decides correspondence between lowering kinds through meta-language conceptCorrespondence",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "rejects inexact, altered, ambiguous, unbound, duplicated, foreign and mismatched concept spaces",
           "polarity": "negative"
         }
       ],
@@ -24195,7 +24579,7 @@
     {
       "id": "R108",
       "obligation": "Preserve unsupported constructs or return precise unsupported/unproved obligations without erasure, invented proofs, or relabelled source.",
-      "status": "Partial — re-derivable first-refusal receipts for 11 refusal classes; open theorems never relabelled",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -25453,22 +25837,22 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -25478,10 +25862,10 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
         }
       ],
-      "claimedEvidence": "Eleven refusal sources × three targets produce receipts that retain the unchanged source, stage, first diagnostic with spans/hash and whole-program loss; `checkTranslationRefusal` re-derives them and detects tampering and staleness; universal theorems stay open obligations. `Coverage is limited to the classes exercised`.",
+      "claimedEvidence": "Partial. Re-derivable first-refusal receipts for 16 refusal sources, including seven at the new `rml-lowering` stage whose spans map to the original bytes (`js/src/rml-surface-lowering.mjs`, `rust/src/certified_translation.rs`); termination of general or mutual recursion stays an open obligation. Gap: `universal theorems and general-recursion termination stay open obligations`",
       "checks": [
         "rml-structure-js",
         "rml-structure-rust",
@@ -25492,7 +25876,7 @@
         "certified-translation-js",
         "certified-translation-rust"
       ],
-      "remainingGap": "Eleven refusal sources × three targets produce receipts that retain the unchanged source, stage, first diagnostic with spans/hash and whole-program loss; `checkTranslationRefusal` re-derives them and detects tampering and staleness; universal theorems stay open obligations. `Coverage is limited to the classes exercised`.",
+      "remainingGap": "Partial. Re-derivable first-refusal receipts for 16 refusal sources, including seven at the new `rml-lowering` stage whose spans map to the original bytes (`js/src/rml-surface-lowering.mjs`, `rust/src/certified_translation.rs`); termination of general or mutual recursion stays an open obligation. Gap: `universal theorems and general-recursion termination stay open obligations`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -26286,6 +26670,84 @@
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every lowered certificate lists its rewrites with exact original spans; others carry no lowering section",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a forged, hidden or dropped lowering section",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "a refusal inside lowered code points at the original source",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "structural recursion is discharged by RML; general and mutual recursion stay open",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a termination obligation promoted to a structural discharge RML did not derive",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every certificate pins the concept space and binds exactly the terms it uses",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
         }
       ],
       "nativeValidationRequired": true,
@@ -26294,7 +26756,7 @@
     {
       "id": "R109",
       "obligation": "Test source-network-target-network preservation, native validity, and behavioral/proof equivalence on nontrivial positive and negative examples.",
-      "status": "Partial — RML observation checks 24 paths against hand-written expectations; native rustc/Lean/Rocq oracles wired into CI",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -26342,22 +26804,22 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -26367,17 +26829,17 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
         }
       ],
-      "claimedEvidence": "Source → network → target is checked by RML-native evaluation against independent hand-written expectations; JavaScript targets and sources execute natively; forged, stale, mismatched, dropped, relabelled and authority-granting certificates are rejected. `translation-native.yml` runs rustc, Lean 4.34.1 and Rocq 9.3 oracles that must also reject false statements. `Native results await CI observation; universal equivalence remains open`.",
+      "claimedEvidence": "Partial. RML observation checks 36 translations against hand-written expectations, including lowered records and generics (`test-corpus/certified-translation/cases.json`); `scripts/check-certified-translation-native.mjs` runs each source and target natively in CI. Gap: `native Lean/Rocq/rustc oracle runs are CI-only and behavioral equivalence covers observed main only`",
       "checks": [
         "portable-natural-js",
         "portable-natural-rust",
         "certified-translation-js",
         "certified-translation-rust"
       ],
-      "remainingGap": "Source → network → target is checked by RML-native evaluation against independent hand-written expectations; JavaScript targets and sources execute natively; forged, stale, mismatched, dropped, relabelled and authority-granting certificates are rejected. `translation-native.yml` runs rustc, Lean 4.34.1 and Rocq 9.3 oracles that must also reject false statements. `Native results await CI observation; universal equivalence remains open`.",
+      "remainingGap": "Partial. RML observation checks 36 translations against hand-written expectations, including lowered records and generics (`test-corpus/certified-translation/cases.json`); `scripts/check-certified-translation-native.mjs` runs each source and target natively in CI. Gap: `native Lean/Rocq/rustc oracle runs are CI-only and behavioral equivalence covers observed main only`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -27039,6 +27501,84 @@
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every lowered certificate lists its rewrites with exact original spans; others carry no lowering section",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a forged, hidden or dropped lowering section",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "a refusal inside lowered code points at the original source",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "structural recursion is discharged by RML; general and mutual recursion stay open",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a termination obligation promoted to a structural discharge RML did not derive",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every certificate pins the concept space and binds exactly the terms it uses",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
         }
       ],
       "nativeValidationRequired": true,
@@ -35387,12 +35927,12 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts, and reject missing, skipped, TODO, filtered, stale, deleted and merely declared evidence. All Complete rows now carry positive and negative full-scope completion bindings that the gate executes, and `issue-183-producer-mutations.test.mjs` shows that a hand-promoted Partial row is rejected for missing them. Ledger, documentation, live-source and acceptance-workflow rows are bound to executed checks. `R22, R51, R71, R73, R74, R135 and R137 still have no executed check, because their obligations are an unpublished release, open research or the final handoff`.",
+      "claimedEvidence": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts, and reject missing, skipped, TODO, filtered, stale, deleted and merely declared evidence. All Complete rows now carry positive and negative full-scope completion bindings that the gate executes, and `issue-183-producer-mutations.test.mjs` shows that a hand-promoted Partial row is rejected for missing them. Ledger, documentation, live-source and acceptance-workflow rows are bound to executed checks. `R51, R71, R73, R74, R135 and R137 still have no executed check, because their obligations are an upstream publication, open research, the final-commit matrix or the final handoff`.",
       "checks": [
         "producer-gate-mutations",
         "acceptance-status-contract"
       ],
-      "remainingGap": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts, and reject missing, skipped, TODO, filtered, stale, deleted and merely declared evidence. All Complete rows now carry positive and negative full-scope completion bindings that the gate executes, and `issue-183-producer-mutations.test.mjs` shows that a hand-promoted Partial row is rejected for missing them. Ledger, documentation, live-source and acceptance-workflow rows are bound to executed checks. `R22, R51, R71, R73, R74, R135 and R137 still have no executed check, because their obligations are an unpublished release, open research or the final handoff`.",
+      "remainingGap": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts, and reject missing, skipped, TODO, filtered, stale, deleted and merely declared evidence. All Complete rows now carry positive and negative full-scope completion bindings that the gate executes, and `issue-183-producer-mutations.test.mjs` shows that a hand-promoted Partial row is rejected for missing them. Ledger, documentation, live-source and acceptance-workflow rows are bound to executed checks. `R51, R71, R73, R74, R135 and R137 still have no executed check, because their obligations are an upstream publication, open research, the final-commit matrix or the final handoff`.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -35657,7 +36197,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -35975,7 +36515,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/docker-cache-budget.mjs",
@@ -36295,7 +36835,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -36608,7 +37148,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -36911,7 +37451,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         }
       ],
       "claimedEvidence": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space and documents every override in `docs/BUILD_CACHE.md`. Cleanup sweeps stale and disposable outputs across classes, reports before/after/reclaimed bytes for both the logical size and the allocated filesystem blocks (hard links counted once), and enforces the budget on either metric (`RML_CACHE_BUDGET_METRIC` is `logical` or `allocated`; any other value fails before deleting anything). Local and Docker usage are combined in one measured budget report; full clean removes all registered caches and is idempotent. `scripts/build-cache.test.mjs` exercises cross-class budgets, allocated accounting, protected over-budget data and full-clean idempotence. Windows reports logical sizes as its allocation fallback, which the report labels.",
@@ -37129,7 +37669,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         }
       ],
       "claimedEvidence": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. After a successful private Cargo build/check/test/bench, `scripts/cargo-unit-sweep.mjs` removes only superseded units of the same artifact stem; failed queries delete nothing and never change exit status; `RML_CACHE_CARGO_SWEEP=0` is the documented debug override. `docs/case-studies/issue-183/data/build-cache-measurement-native.json` records the native CI measurement (run 38417088378): the sweep removed 9 superseded units (10,983,827 bytes) in both Rust steps, the postflight budget bounded the compiled tree, and the full Rust suite still passed 1244 tests in 110 suites with the full JavaScript suite passing.",
@@ -37358,7 +37898,7 @@
     {
       "id": "R162",
       "obligation": "Make cleanup repository-scoped, idempotent, concurrency-safe and portable; validate ownership and custom paths, reject traversal/symlink escape, and preserve source, vendored grammars, fixtures, corpus/proofs, uncommitted work, active builds/worktrees and acceptance evidence without purging global caches or unrelated containers/volumes.",
-      "status": "Partial — ownership/path/worktree safety tested; remaining concurrency/OS limits",
+      "status": "Partial — ownership/path/worktree safety tested; Windows attribution and symlink limits open",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -37377,7 +37917,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -37395,11 +37935,11 @@
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
         }
       ],
-      "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. `Process attribution is heuristic: any long-lived process whose working directory is the tree, such as an editor or MCP server, still defers cleanup; remaining OS limits are open`.",
+      "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. `On Windows such a process still defers cleanup because no open-file inventory is read, and the symlink, ancestor-substitution and process-group safety tests run only on POSIX`.",
       "checks": [
         "build-cache-lifecycle"
       ],
-      "remainingGap": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. `Process attribution is heuristic: any long-lived process whose working directory is the tree, such as an editor or MCP server, still defers cleanup; remaining OS limits are open`.",
+      "remainingGap": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. `On Windows such a process still defers cleanup because no open-file inventory is read, and the symlink, ancestor-substitution and process-group safety tests run only on POSIX`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -37545,6 +38085,54 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "a symlinked alias of the worktree root maps custom targets without resolving in-tree links",
           "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a successful private Cargo operation sweeps superseded units and records the result without changing status",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "pre-commit continues past a deferral; another worktree's live build does not defer it at all",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a hard-killed build lease is recovered only by --recover once nothing of it still runs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a killed build whose process group still runs, or an interrupted recovery, keeps its lease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "cleanup reports allocated filesystem bytes and can enforce the budget on them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "an unknown budget metric fails closed without deleting anything",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a Node server started from the tree but running an outside script with no open tree file is not a builder",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a Node process with an in-tree script, a package manager, no script or an open tree file still defers cleanup",
+          "polarity": "negative"
         }
       ],
       "completionBindings": []
@@ -37571,7 +38159,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -37905,7 +38493,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -38131,22 +38719,22 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -38156,17 +38744,17 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
         },
         {
           "path": "scripts/generate-certified-bulk.mjs",
           "role": "implementation",
-          "sha256": "58ce64a8a0e745bb58ef5299e15327d39cf0b3ceda25590fa5c8d75f1589e7b6"
+          "sha256": "10438aba03b98509b1f5407ba6cf1cb8dcc3cbfceb384ca219f5c0c24bccb592"
         },
         {
           "path": "test-corpus/certified-translation/bulk/receipt.lino",
           "role": "implementation",
-          "sha256": "e208b7298bd0db3da0f3bf46e4c040885fc94c7c456b9b3cbfb344ef26ef256e"
+          "sha256": "431034b8469d064e813ffe0803ddbf4e366264d3aa61862c73a5ded86aecee30"
         }
       ],
       "claimedEvidence": "Byte-exact source pins with sha256 and UTF-16/UTF-8 spans, a checked intermediate re-serialized before emission, first-refusal receipts, producer receipts fingerprinting every input/output with a reconstruction recipe, `--check` freshness gates, JavaScript-first local gates and explicit `none` authority for macros/traits/runtime. `scripts/generate-certified-bulk.mjs` translates every top-level item of `js/src` and `rust/src` (closed over same-file dependencies) plus the `lib/` Lean and Rocq modules: 101 files and 2583 items, of which 148 are admitted, 101 lowered into `main` and 2334 refused with exact first-refusal records, giving 416 certified translations; the committed `test-corpus/certified-translation/bulk/receipt.lino` aggregates counts per language and path and refusal causes by site. Fourteen admitted translations match their hand-written mirrors on 50 documented calls; two are recorded as signature-differing. `About 90% of repository items are refused by the current core, and native rustc/Lean/Rocq runs of the bulk targets are not yet performed`.",
@@ -38670,7 +39258,7 @@
     {
       "id": "R166",
       "obligation": "Design RML to fully support automatic translation between programming languages and make every translation provable through RML-checked linked translation certificates that bind source/target identities, construct correspondence, preservation contract and discharged/open obligations, rejecting forged, stale or mismatched certificates.",
-      "status": "Partial — provable certificates for the admitted core; full-language provable translation open",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "comment-6138933223",
@@ -38685,22 +39273,22 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -38710,15 +39298,21 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+        },
+        {
+          "path": "js/src/rml-concept-space.mjs",
+          "role": "implementation",
+          "sha256": "b6e763b63bb99ae4fb10a146092c86a0d7ef779d912b7637512369d65bc51fb4"
         }
       ],
-      "claimedEvidence": "Certificates are Links binding source/intermediate/target identities, per-construct correspondence, preservation contract, RML observation and discharged/open obligations; only closed goals are discharged and only by RML evaluation; external kernels are oracles. The checker rejects forged, stale, mismatched, dropped and relabelled certificates; the Rust mirror checks integrity. `Universal theorems, emitter faithfulness and full-language coverage remain open obligations`.",
+      "claimedEvidence": "Partial. Provable certificates for the admitted core (`js/src/rml-certified-translation.mjs`) now also bind lowering rewrites, termination obligations (discharged only by RML structural decrease) and the concept of every certificate term (`js/src/rml-concept-space.mjs`), rejecting forged, stale or relabelled sections in both runtimes. Gap: `universal theorems, general-recursion termination, emitter faithfulness and full-language coverage remain open obligations`",
       "checks": [
         "certified-translation-js",
-        "certified-translation-rust"
+        "certified-translation-rust",
+        "certified-concept-space-js"
       ],
-      "remainingGap": "Certificates are Links binding source/intermediate/target identities, per-construct correspondence, preservation contract, RML observation and discharged/open obligations; only closed goals are discharged and only by RML evaluation; external kernels are oracles. The checker rejects forged, stale, mismatched, dropped and relabelled certificates; the Rust mirror checks integrity. `Universal theorems, emitter faithfulness and full-language coverage remain open obligations`.",
+      "remainingGap": "Partial. Provable certificates for the admitted core (`js/src/rml-certified-translation.mjs`) now also bind lowering rewrites, termination obligations (discharged only by RML structural decrease) and the concept of every certificate term (`js/src/rml-concept-space.mjs`), rejecting forged, stale or relabelled sections in both runtimes. Gap: `universal theorems, general-recursion termination, emitter faithfulness and full-language coverage remain open obligations`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -39157,6 +39751,108 @@
           "checkId": "certified-translation-rust",
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every lowered certificate lists its rewrites with exact original spans; others carry no lowering section",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a forged, hidden or dropped lowering section",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "a refusal inside lowered code points at the original source",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "structural recursion is discharged by RML; general and mutual recursion stay open",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a termination obligation promoted to a structural discharge RML did not derive",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every certificate pins the concept space and binds exactly the terms it uses",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "binds every certificate term to exactly one concept and passes the exact-match discipline",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "the committed concept space and its link network are fresh and round-trip through meta-language",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "decides correspondence between lowering kinds through meta-language conceptCorrespondence",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "rejects inexact, altered, ambiguous, unbound, duplicated, foreign and mismatched concept spaces",
           "polarity": "negative"
         }
       ],
@@ -39165,7 +39861,7 @@
     {
       "id": "R167",
       "obligation": "Apply the practices of link-foundation/meta-language#201: shared link-based concept space, source-free typed program archives, LiNo fixtures, checked immutable products and Rust↔meta-language↔JavaScript translation.",
-      "status": "Partial — source-free typed program archives, LiNo fixtures and the Rust↔links↔JavaScript path adopted and widened to Lean/Rocq",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "comment-6138933223",
@@ -39180,22 +39876,22 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -39205,15 +39901,21 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+        },
+        {
+          "path": "js/src/rml-concept-space.mjs",
+          "role": "implementation",
+          "sha256": "b6e763b63bb99ae4fb10a146092c86a0d7ef779d912b7637512369d65bc51fb4"
         }
       ],
-      "claimedEvidence": "Typed program archives are stored as LiNo and re-imported without source; binding/constructor identities are preserved; checked immutable products are pinned by the producer receipt. `The shared global concept space of meta-language#201 is not yet consumed`.",
+      "claimedEvidence": "Partial. `js/src/rml-concept-space.mjs` consumes the vendored meta-language concept records (the same `concept-records.json` the crate embeds): 20 upstream records reused on exact identity, 32 RML-local `rml.` records, correspondence through upstream `conceptCorrespondence`; `test-corpus/certified-translation/generated/concept-space.lino` is the link network upstream `insertConceptRecord` builds, and `rust/tests/certified_translation_tests.rs` rebuilds it byte for byte. Gap: `32 certificate concepts have no upstream record yet (upstream request 41); the meta-language#201 global space is consumed only through the vendored records`",
       "checks": [
         "certified-translation-js",
-        "certified-translation-rust"
+        "certified-translation-rust",
+        "certified-concept-space-js"
       ],
-      "remainingGap": "Typed program archives are stored as LiNo and re-imported without source; binding/constructor identities are preserved; checked immutable products are pinned by the producer receipt. `The shared global concept space of meta-language#201 is not yet consumed`.",
+      "remainingGap": "Partial. `js/src/rml-concept-space.mjs` consumes the vendored meta-language concept records (the same `concept-records.json` the crate embeds): 20 upstream records reused on exact identity, 32 RML-local `rml.` records, correspondence through upstream `conceptCorrespondence`; `test-corpus/certified-translation/generated/concept-space.lino` is the link network upstream `insertConceptRecord` builds, and `rust/tests/certified_translation_tests.rs` rebuilds it byte for byte. Gap: `32 certificate concepts have no upstream record yet (upstream request 41); the meta-language#201 global space is consumed only through the vendored records`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -39653,6 +40355,60 @@
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "binds every certificate term to exactly one concept and passes the exact-match discipline",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "the committed concept space and its link network are fresh and round-trip through meta-language",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "decides correspondence between lowering kinds through meta-language conceptCorrespondence",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-concept-space-js",
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "rejects inexact, altered, ambiguous, unbound, duplicated, foreign and mismatched concept spaces",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
         }
       ],
       "completionBindings": []
@@ -39660,7 +40416,7 @@
     {
       "id": "R168",
       "obligation": "Temporarily vendor the required meta-language#201 code with exact provenance, make it work locally, record the upstream feature requests needed for a future meta-language release to fully support RML, and remove the copy once such a release exists.",
-      "status": "Partial — vendored with exact provenance and working locally; removal awaits an upstream release",
+      "status": "Partial",
       "originalWording": [
         {
           "sourceId": "comment-6138933223",
@@ -39675,22 +40431,22 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "rust/src/certified_translation.rs",
           "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "scripts/check-certified-translation-native.mjs",
           "role": "implementation",
-          "sha256": "ce0b1f6723a7e85719515920511a54799661d05798b5470e8edf961f3916ab1b"
+          "sha256": "3bcb48d64272d1fcee414169ca6094f52260852b3367cdca9a93f7a3e86377bf"
         },
         {
           "path": ".github/workflows/translation-native.yml",
@@ -39700,7 +40456,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "a346494a10d18dfa7b9487012a8ff00304e685ff7f9e37fab950bbf7be75e6f4"
+          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
         },
         {
           "path": "js/vendor/meta-language-pr201/VENDORED.md",
@@ -39715,15 +40471,15 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-upstream-requests.md",
           "role": "implementation",
-          "sha256": "25a5bfcfb619553d18f651ddd11eb60c0f95d1950d96b3a58942e7e7603acf63"
+          "sha256": "1305433d4df4b236abeb60fe8e468e41c4d462a4618d7d81ed2bcb35aae13737"
         }
       ],
-      "claimedEvidence": "`js/vendor/meta-language-pr201/` copies 52 files byte-for-byte from meta-language commit `7c4bf8f1`, locked by `upstream-files.json` (path, bytes, sha256) with license, `VENDORED.md` removal criteria and two documented shims; `meta-language-upstream-requests.md` drafts 18 upstream requests to file later. `The copy must be removed once a meta-language release provides these capabilities`.",
+      "claimedEvidence": "Partial. meta-language#201 code stays vendored with exact provenance and working locally; `docs/case-studies/issue-183/meta-language-upstream-requests.md` now drafts 42 upstream requests, adding records and field access (38), checked generics (39), termination evidence (40), certificate concepts (41) and observable aliased/extra rules (42). Gap: `removal awaits an upstream release; requests are drafted, not filed`",
       "checks": [
         "certified-translation-js",
         "certified-translation-rust"
       ],
-      "remainingGap": "`js/vendor/meta-language-pr201/` copies 52 files byte-for-byte from meta-language commit `7c4bf8f1`, locked by `upstream-files.json` (path, bytes, sha256) with license, `VENDORED.md` removal criteria and two documented shims; `meta-language-upstream-requests.md` drafts 18 upstream requests to file later. `The copy must be removed once a meta-language release provides these capabilities`.",
+      "remainingGap": "Partial. meta-language#201 code stays vendored with exact provenance and working locally; `docs/case-studies/issue-183/meta-language-upstream-requests.md` now drafts 42 upstream requests, adding records and field access (38), checked generics (39), termination evidence (40), certificate concepts (41) and observable aliased/extra rules (42). Gap: `removal awaits an upstream release; requests are drafted, not filed`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -40163,6 +40919,84 @@
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every lowered certificate lists its rewrites with exact original spans; others carry no lowering section",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a forged, hidden or dropped lowering section",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "a refusal inside lowered code points at the original source",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "structural recursion is discharged by RML; general and mutual recursion stay open",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a termination obligation promoted to a structural discharge RML did not derive",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every certificate pins the concept space and binds exactly the terms it uses",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-rust",
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
         }
       ],
       "completionBindings": []
@@ -40570,7 +41404,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         }
       ],
       "assertions": [
@@ -40758,7 +41592,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/linked_program/dispatch_tests.rs",
@@ -40798,7 +41632,7 @@
         {
           "path": "rust/src/rocq.rs",
           "role": "implementation",
-          "sha256": "7b8cb8f6b235d3b22f6b59ef2ff30b521a17435e2a95451c0b6081f1762c2902"
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
         },
         {
           "path": "rust/src/semantic_archive.rs",
@@ -41147,7 +41981,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/package.json",
@@ -41233,7 +42067,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/Cargo.toml",
@@ -42112,12 +42946,12 @@
         {
           "path": "scripts/build-cache.test.mjs",
           "role": "test",
-          "sha256": "e216e5b2e310af225080ab068b3ec995594fb23dfa4cc6c21f6b67298b45fe54"
+          "sha256": "66d6b7858caf73e426297560738001cf738eb6f4ebff5318e88ec8990d86c793"
         },
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         }
       ],
       "assertions": [
@@ -42269,6 +43103,16 @@
         {
           "file": "scripts/build-cache.test.mjs",
           "name": "an unknown budget metric fails closed without deleting anything",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a Node server started from the tree but running an outside script with no open tree file is not a builder",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a Node process with an in-tree script, a package manager, no script or an open tree file still defers cleanup",
           "polarity": "negative"
         }
       ],
@@ -44864,7 +45708,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -45626,7 +46470,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -45686,7 +46530,7 @@
         {
           "path": "rust/src/rocq.rs",
           "role": "implementation",
-          "sha256": "7b8cb8f6b235d3b22f6b59ef2ff30b521a17435e2a95451c0b6081f1762c2902"
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
         },
         {
           "path": "rust/src/semantic_archive.rs",
@@ -45974,7 +46818,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -46711,7 +47555,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -46771,7 +47615,7 @@
         {
           "path": "rust/src/rocq.rs",
           "role": "implementation",
-          "sha256": "7b8cb8f6b235d3b22f6b59ef2ff30b521a17435e2a95451c0b6081f1762c2902"
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
         },
         {
           "path": "rust/src/semantic_archive.rs",
@@ -47094,7 +47938,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -47826,7 +48670,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -47886,7 +48730,7 @@
         {
           "path": "rust/src/rocq.rs",
           "role": "implementation",
-          "sha256": "7b8cb8f6b235d3b22f6b59ef2ff30b521a17435e2a95451c0b6081f1762c2902"
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
         },
         {
           "path": "rust/src/semantic_archive.rs",
@@ -48199,7 +49043,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -48851,7 +49695,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -48911,7 +49755,7 @@
         {
           "path": "rust/src/rocq.rs",
           "role": "implementation",
-          "sha256": "7b8cb8f6b235d3b22f6b59ef2ff30b521a17435e2a95451c0b6081f1762c2902"
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
         },
         {
           "path": "rust/src/semantic_archive.rs",
@@ -49154,7 +49998,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -50639,7 +51483,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -51047,7 +51891,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -51107,7 +51951,7 @@
         {
           "path": "rust/src/rocq.rs",
           "role": "implementation",
-          "sha256": "7b8cb8f6b235d3b22f6b59ef2ff30b521a17435e2a95451c0b6081f1762c2902"
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
         },
         {
           "path": "rust/src/semantic_archive.rs",
@@ -51137,7 +51981,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -51399,7 +52243,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -52884,7 +53728,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -53322,7 +54166,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -53382,7 +54226,7 @@
         {
           "path": "rust/src/rocq.rs",
           "role": "implementation",
-          "sha256": "7b8cb8f6b235d3b22f6b59ef2ff30b521a17435e2a95451c0b6081f1762c2902"
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
         },
         {
           "path": "rust/src/semantic_archive.rs",
@@ -53412,7 +54256,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -53517,34 +54361,49 @@
       ],
       "files": [
         {
+          "path": "js/vendor/meta-language-pr201/upstream-files.json",
+          "role": "fixture",
+          "sha256": "9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7"
+        },
+        {
           "path": "js/tests/certified-translation.test.mjs",
           "role": "test",
-          "sha256": "ef70adb4d163cb24430fcaafdd88b22473fab838d237b58073cd0d04c5e8769e"
+          "sha256": "568f0b0e34fb749f5c55346ecd4c333128dc829395f9b658c1c7a733edf5d5e4"
         },
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
+        },
+        {
+          "path": "js/src/rml-surface-lowering.mjs",
+          "role": "implementation",
+          "sha256": "21b061f6395289969b47209376d36e27971d921e69a50e552dfc674accc11185"
+        },
+        {
+          "path": "js/src/rml-concept-space.mjs",
+          "role": "implementation",
+          "sha256": "b6e763b63bb99ae4fb10a146092c86a0d7ef779d912b7637512369d65bc51fb4"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
           "role": "implementation",
-          "sha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13"
+          "sha256": "41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6"
         },
         {
           "path": "test-corpus/certified-translation/cases.json",
           "role": "fixture",
-          "sha256": "32c531a71a7a06f032edd22d9acb5c643f26f4fbfd97e82861346682dd2dd54f"
+          "sha256": "a222b33a5df71b2f46eaa8638ead49bb225a9f49f961ed617c5f2842bd0bf63c"
         },
         {
           "path": "test-corpus/certified-translation/generated/receipt.lino",
           "role": "fixture",
-          "sha256": "786e885ddc034c92da9494b30dc190c7546942ce777894438ca8b9acf5845196"
+          "sha256": "f95f4f6d3fb19894f5a99159917f84173c5aa99648f4df7d41b9a286a45a7f99"
         },
         {
-          "path": "js/vendor/meta-language-pr201/upstream-files.json",
+          "path": "test-corpus/certified-translation/generated/concept-space.json",
           "role": "fixture",
-          "sha256": "9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7"
+          "sha256": "a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0"
         }
       ],
       "assertions": [
@@ -53892,6 +54751,46 @@
           "file": "js/tests/certified-translation.test.mjs",
           "name": "the producer receipt fingerprints every input and output",
           "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every lowered certificate lists its rewrites with exact original spans; others carry no lowering section",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a forged, hidden or dropped lowering section",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "the certified observation of a lowered program is the hand-written native output, and its correspondence spans are original",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "a refusal inside lowered code points at the original source",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "structural recursion is discharged by RML; general and mutual recursion stay open",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a termination obligation promoted to a structural discharge RML did not derive",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "every certificate pins the concept space and binds exactly the terms it uses",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
+          "polarity": "negative"
         }
       ],
       "timeoutMs": 600000
@@ -53904,26 +54803,6 @@
       ],
       "files": [
         {
-          "path": "rust/tests/certified_translation_tests.rs",
-          "role": "test",
-          "sha256": "ada26cfdbe33c38e92b50781d280e1642c0b41baf5fda45263bfb5781407394a"
-        },
-        {
-          "path": "rust/src/certified_translation.rs",
-          "role": "implementation",
-          "sha256": "ca969f43144485975346b92ac8decd7d3802845c64f12e2243f9930aa480821e"
-        },
-        {
-          "path": "test-corpus/certified-translation/cases.json",
-          "role": "fixture",
-          "sha256": "32c531a71a7a06f032edd22d9acb5c643f26f4fbfd97e82861346682dd2dd54f"
-        },
-        {
-          "path": "test-corpus/certified-translation/generated/receipt.lino",
-          "role": "fixture",
-          "sha256": "786e885ddc034c92da9494b30dc190c7546942ce777894438ca8b9acf5845196"
-        },
-        {
           "path": "rust/Cargo.toml",
           "role": "dependency",
           "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
@@ -53932,6 +54811,31 @@
           "path": "rust/Cargo.lock",
           "role": "dependency",
           "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/tests/certified_translation_tests.rs",
+          "role": "test",
+          "sha256": "5da09e6d140ec1d58cb112267b2ba204c7de682a207608c696d07d9983affa90"
+        },
+        {
+          "path": "rust/src/certified_translation.rs",
+          "role": "implementation",
+          "sha256": "fd771533df5425c310042a24c8d6a0c89eb7fdd0fe4e3669d6f9663c543429f9"
+        },
+        {
+          "path": "test-corpus/certified-translation/cases.json",
+          "role": "fixture",
+          "sha256": "a222b33a5df71b2f46eaa8638ead49bb225a9f49f961ed617c5f2842bd0bf63c"
+        },
+        {
+          "path": "test-corpus/certified-translation/generated/receipt.lino",
+          "role": "fixture",
+          "sha256": "f95f4f6d3fb19894f5a99159917f84173c5aa99648f4df7d41b9a286a45a7f99"
+        },
+        {
+          "path": "test-corpus/certified-translation/generated/concept-space.json",
+          "role": "fixture",
+          "sha256": "a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0"
         }
       ],
       "assertions": [
@@ -53954,6 +54858,31 @@
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "refusal_receipts_retain_the_source_and_reject_tampering",
           "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "lowered_certificates_record_every_rewrite_with_an_exact_span",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "termination_obligations_discharge_only_by_structural_decrease",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "refusal_receipts_name_a_known_pipeline_stage",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "certificate_concepts_bind_every_term_to_the_shared_concept_space",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/certified_translation_tests.rs",
+          "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
         }
       ],
       "testTarget": "certified_translation_tests",
@@ -54302,34 +55231,34 @@
       ],
       "files": [
         {
-          "path": "js/tests/language-construct-inventory.test.mjs",
-          "role": "test",
-          "sha256": "ceb88e861a7d3197427ea45721b7a757c91e315be7946a4e6a7644d03a6ea141"
-        },
-        {
-          "path": "js/src/rml-language-inventory.mjs",
-          "role": "implementation",
-          "sha256": "0c5e3aa228259e311d998fc19447c57b9cff1f8cdf2bace46e700297d9e735f4"
-        },
-        {
-          "path": "scripts/language-construct-inventory.mjs",
-          "role": "implementation",
-          "sha256": "143c656d36b309b291076d7ae35243a8286aa0fb4f6f2c30f209a37f8003eeeb"
-        },
-        {
           "path": "docs/case-studies/issue-183/language-construct-classifier.json",
           "role": "fixture",
           "sha256": "b28ccacb0adbf6cbac94221d2274769bc42163bdcf5eca9b36a0e04202b3d0f9"
         },
         {
+          "path": "js/tests/language-construct-inventory.test.mjs",
+          "role": "test",
+          "sha256": "4d9a01fafa2e3816a98a241d804b8d23c9120a69034a78de0e6d948dbaf82a22"
+        },
+        {
+          "path": "js/src/rml-language-inventory.mjs",
+          "role": "implementation",
+          "sha256": "c5a9fee33163ae0125bf35781e67245ec3e11976f139cc08be9208008cddbac0"
+        },
+        {
+          "path": "scripts/language-construct-inventory.mjs",
+          "role": "implementation",
+          "sha256": "1884956a7cd80e405aa93ffbfdb739be60f4d047c52f2b53c47f94758d6de18b"
+        },
+        {
           "path": "docs/case-studies/issue-183/language-constructs.json",
           "role": "fixture",
-          "sha256": "0ca23484b88d79575292627e08205ef1bac965f5fba706f275e91cd11f3157e6"
+          "sha256": "1d4aeba28de4232d30ad77690242faec0c923f00de1512c26a6b23ec2d7d93f8"
         },
         {
           "path": "test-corpus/meta-language/construct-corpus.json",
           "role": "fixture",
-          "sha256": "2fc772b2bc35a233866fa3a75f6e586bbb8553f6bcb1a00e57188bb208323f88"
+          "sha256": "a7b7347b65ecaf9f4d2b9b3fc9225a3c096df184e1b4fd42b46308ea271b060f"
         }
       ],
       "assertions": [
@@ -54352,6 +55281,16 @@
           "file": "js/tests/language-construct-inventory.test.mjs",
           "name": "fails on a construct no pattern classifies and on a pattern that matches nothing",
           "polarity": "negative"
+        },
+        {
+          "file": "js/tests/language-construct-inventory.test.mjs",
+          "name": "exercises every observable construct or holds a checked refusal receipt for it",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/language-construct-inventory.test.mjs",
+          "name": "rejects a refusal receipt whose reason, staleness or probe does not hold",
+          "polarity": "negative"
         }
       ],
       "timeoutMs": 600000
@@ -54364,16 +55303,6 @@
       ],
       "files": [
         {
-          "path": "rust/tests/language_construct_inventory_tests.rs",
-          "role": "test",
-          "sha256": "2b311b76e15cef2b713caaa614e3da2eb3753d316a080298dff1bf0513f24be9"
-        },
-        {
-          "path": "docs/case-studies/issue-183/language-constructs.json",
-          "role": "fixture",
-          "sha256": "0ca23484b88d79575292627e08205ef1bac965f5fba706f275e91cd11f3157e6"
-        },
-        {
           "path": "rust/Cargo.toml",
           "role": "dependency",
           "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
@@ -54384,9 +55313,24 @@
           "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
+          "path": "rust/tests/language_construct_inventory_tests.rs",
+          "role": "test",
+          "sha256": "46095d5cc832909198b7047d8da484ec8373c606291d99d1385df76612ae4d62"
+        },
+        {
+          "path": "docs/case-studies/issue-183/language-constructs.json",
+          "role": "fixture",
+          "sha256": "1d4aeba28de4232d30ad77690242faec0c923f00de1512c26a6b23ec2d7d93f8"
+        },
+        {
+          "path": "test-corpus/meta-language/construct-corpus.json",
+          "role": "fixture",
+          "sha256": "a7b7347b65ecaf9f4d2b9b3fc9225a3c096df184e1b4fd42b46308ea271b060f"
+        },
+        {
           "path": "scripts/language-construct-inventory.mjs",
           "role": "implementation",
-          "sha256": "143c656d36b309b291076d7ae35243a8286aa0fb4f6f2c30f209a37f8003eeeb"
+          "sha256": "1884956a7cd80e405aa93ffbfdb739be60f4d047c52f2b53c47f94758d6de18b"
         }
       ],
       "assertions": [
@@ -54398,6 +55342,16 @@
         {
           "file": "rust/tests/language_construct_inventory_tests.rs",
           "name": "an_unclassified_construct_or_a_dead_pattern_is_detected",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/language_construct_inventory_tests.rs",
+          "name": "rust_parser_and_grammar_text_confirm_every_construct_refusal_receipt",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/language_construct_inventory_tests.rs",
+          "name": "a_receipt_whose_structural_reason_fails_is_rejected",
           "polarity": "negative"
         }
       ],
@@ -55876,17 +56830,17 @@
         {
           "path": "scripts/generate-certified-bulk.mjs",
           "role": "implementation",
-          "sha256": "58ce64a8a0e745bb58ef5299e15327d39cf0b3ceda25590fa5c8d75f1589e7b6"
+          "sha256": "10438aba03b98509b1f5407ba6cf1cb8dcc3cbfceb384ca219f5c0c24bccb592"
         },
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585"
+          "sha256": "27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039"
         },
         {
           "path": "test-corpus/certified-translation/bulk/receipt.lino",
           "role": "fixture",
-          "sha256": "e208b7298bd0db3da0f3bf46e4c040885fc94c7c456b9b3cbfb344ef26ef256e"
+          "sha256": "431034b8469d064e813ffe0803ddbf4e366264d3aa61862c73a5ded86aecee30"
         },
         {
           "path": "test-corpus/certified-translation/mirrors.json",
@@ -56548,7 +57502,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -56700,7 +57654,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -56858,7 +57812,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -57385,7 +58339,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -57492,7 +58446,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -57679,7 +58633,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -58118,7 +59072,7 @@
         {
           "path": "js/src/rml-links.mjs",
           "role": "implementation",
-          "sha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d"
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -58185,7 +59139,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387"
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
         },
         {
           "path": "test-corpus/lino-frontend/cases.json",
@@ -58238,7 +59192,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+          "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
         },
         {
           "path": "docker/ci-build.sh",
@@ -58900,6 +59854,269 @@
       ],
       "testTarget": "runtime_trust_coverage_tests",
       "timeoutMs": 1200000
+    },
+    {
+      "id": "runtime-parity-js",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/runtime-parity.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/runtime-parity.test.mjs",
+          "role": "test",
+          "sha256": "62804552f4e68c2887c42c270c7c3b1cee7b41cc230d74b6860f29968ef13f82"
+        },
+        {
+          "path": "scripts/runtime-parity.mjs",
+          "role": "implementation",
+          "sha256": "4b229018fb8e712da50a0ae76e58f7a4d1f6402026bd8926ed021b0caa13bfc9"
+        },
+        {
+          "path": "js/src/rml-links.mjs",
+          "role": "implementation",
+          "sha256": "c85717fbed325a7d12fe104c8363b6361a167dd6747dc03c2ed922069291a244"
+        },
+        {
+          "path": "test-corpus/runtime-parity/observations.json",
+          "role": "fixture",
+          "sha256": "983fe0bd4e9b8ca7a99abcce78acd0c4e8c523aec1e00491f251dff011a11282"
+        },
+        {
+          "path": "test-corpus/runtime-parity/inputs/equality-layers.lino",
+          "role": "fixture",
+          "sha256": "de2b1e4109ba13f45e56e036ac503a35789a26b5a74ef6421e9f37cdc691c5bf"
+        },
+        {
+          "path": "test-corpus/runtime-parity/inputs/numeric-exponent.lino",
+          "role": "fixture",
+          "sha256": "c9efdb0850ebb2e476a071b150d3377a079fc2dcfbad06fca7f0d5b987e7977d"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "records every repository RML source in every command-line mode",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "the JavaScript command line prints exactly the recorded observations",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "pins the behaviour both runtimes now share on the divergences the comparison found",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "rejects drift in exit status, output, coverage, sources and the record itself",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/runtime-parity.test.mjs",
+          "name": "reports a live second runtime that drifts from the record",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 900000
+    },
+    {
+      "id": "runtime-parity-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/runtime_parity_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/runtime_parity_tests.rs",
+          "role": "test",
+          "sha256": "ef86b609fbbd596df7d1e715d7dce5a32b0b0ef171e0cb79053d146da8bd250c"
+        },
+        {
+          "path": "rust/src/lib.rs",
+          "role": "implementation",
+          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+        },
+        {
+          "path": "rust/src/rocq.rs",
+          "role": "implementation",
+          "sha256": "88d58470d1fd94da749baecfb4b17f3a865694f986f56e6a7327ab10acfc9ae9"
+        },
+        {
+          "path": "test-corpus/runtime-parity/observations.json",
+          "role": "fixture",
+          "sha256": "983fe0bd4e9b8ca7a99abcce78acd0c4e8c523aec1e00491f251dff011a11282"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/runtime_parity_tests.rs",
+          "name": "parity_record_covers_every_repository_source_in_every_mode",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/runtime_parity_tests.rs",
+          "name": "rust_command_line_prints_the_recorded_javascript_observations",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/runtime_parity_tests.rs",
+          "name": "rust_runtime_reports_the_divergences_the_comparison_found_as_javascript_does",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/runtime_parity_tests.rs",
+          "name": "parity_comparison_rejects_drifted_rust_output",
+          "polarity": "negative"
+        }
+      ],
+      "testTarget": "runtime_parity_tests",
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "certified-concept-space-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/rml-concept-space.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/rml-concept-space.test.mjs",
+          "role": "test",
+          "sha256": "1e76fc3c192a80f8a17ed11aec11398cab48576b4c8c8fb3c770857841f3cc64"
+        },
+        {
+          "path": "js/src/rml-concept-space.mjs",
+          "role": "implementation",
+          "sha256": "b6e763b63bb99ae4fb10a146092c86a0d7ef779d912b7637512369d65bc51fb4"
+        },
+        {
+          "path": "test-corpus/certified-translation/generated/concept-space.json",
+          "role": "fixture",
+          "sha256": "a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0"
+        },
+        {
+          "path": "test-corpus/certified-translation/generated/concept-space.lino",
+          "role": "fixture",
+          "sha256": "5c37019ae7698178d4c41562dd0b2afb42cd064a8215793d7ab3ec7664555fc0"
+        },
+        {
+          "path": "js/vendor/meta-language/js/src/data/concept-records.json",
+          "role": "dependency",
+          "sha256": "d67b888c74c67a2b53b89f1e8e1aa1eec28f628a8d512284d1c36dd22b10b89b"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "binds every certificate term to exactly one concept and passes the exact-match discipline",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "the committed concept space and its link network are fresh and round-trip through meta-language",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "decides correspondence between lowering kinds through meta-language conceptCorrespondence",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/rml-concept-space.test.mjs",
+          "name": "rejects inexact, altered, ambiguous, unbound, duplicated, foreign and mismatched concept spaces",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 600000
+    },
+    {
+      "id": "dependency-audit",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/dependency-audit.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/dependency-audit.test.mjs",
+          "role": "test",
+          "sha256": "a799bd56ef155c7bd7335a4cfc09998f242d0ffd7ea95a3ed636df34a09ae5e8"
+        },
+        {
+          "path": "js/package.json",
+          "role": "implementation",
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
+        },
+        {
+          "path": "vscode/package.json",
+          "role": "implementation",
+          "sha256": "e2618ed832d5711c3966cda7e7bca76a49834c3b7378078b6fbc270cfd8606b5"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "implementation",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "js/package-lock.json",
+          "role": "fixture",
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+        },
+        {
+          "path": "vscode/package-lock.json",
+          "role": "fixture",
+          "sha256": "0c10895fe31dc8cd57c9f7b041a319ea3998c97ec542668a63a9b2ba5e255136"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "fixture",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/relational-kernel/Cargo.lock",
+          "role": "fixture",
+          "sha256": "5ff0e8b39a62c50cef78a47fcf52a983b922f1a9bfa048f796f638f09636c3ae"
+        },
+        {
+          "path": "rust/control-flow/Cargo.lock",
+          "role": "fixture",
+          "sha256": "7123f0cbd0a0d7489c7701339d8bbe04547b00992021d366d8f9ee7f1bfe8a59"
+        },
+        {
+          "path": "rust/linked-target/Cargo.lock",
+          "role": "fixture",
+          "sha256": "e10f909df0f69852b698bd4e8228b71f9e92b005cc6c8f46d6bf75896bdd3324"
+        },
+        {
+          "path": "docs/case-studies/issue-183/data/dependency-audit-2026-10-13.json",
+          "role": "fixture",
+          "sha256": "6551ea47a6453208fcf7a6530a59dc61c84f71ba01cde3ecd0438e5169306e01"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/dependency-audit.test.mjs",
+          "name": "the dated dependency audit matches every declared and locked direct dependency and none is behind its audited latest release",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/dependency-audit.test.mjs",
+          "name": "an audit that disagrees with a manifest, a lock file or a newer release is rejected",
+          "polarity": "negative"
+        }
+      ]
     }
   ]
 }
