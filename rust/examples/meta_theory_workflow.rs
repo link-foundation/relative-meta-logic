@@ -1,4 +1,5 @@
-//! Researcher recipe for the pinned upstream meta-theory corpus and an unseen
+//! Researcher recipe for the pinned upstream meta-theory corpus, the source
+//! specifications of types, graphs and relational algebra, and an unseen
 //! user-defined logic, through public Rust APIs only. Mirrors
 //! examples/meta-theory-workflow.mjs and produces the same report
 //! (test-corpus/researcher-workflow/meta-theory-expected.json).
@@ -11,6 +12,7 @@ use rml::meta_theory_native::{
     binary_natural, compact_native, expand_native, is_native_value, native_registry, render_native_value,
     META_THEORY_NATIVE_PROGRAM, NATIVE_MAX_STEPS,
 };
+use rml::spec_certificates::{check_spec_certificate, spec_evaluate, spec_registries, spec_term, spec_theorems};
 use rml::Node;
 use serde_json::{json, Value};
 
@@ -26,6 +28,11 @@ const MAP: &str = include_str!("../../test-corpus/meta-theory-coverage/map.json"
 const CASES: &str = include_str!("../../test-corpus/meta-theory-native/cases.json");
 const COVERAGE: &str = include_str!("../../test-corpus/meta-theory-native/coverage.json");
 const CERTIFICATES: &str = include_str!("../../test-corpus/meta-theory-certificates/certificates.json");
+const TYPE_SPECIFICATION: &str = include_str!("../../lib/meta-theory/type-specification.lino");
+const GRAPH_SPECIFICATION: &str = include_str!("../../lib/meta-theory/graph-specification.lino");
+const ALGEBRA_SPECIFICATION: &str = include_str!("../../lib/meta-theory/relational-algebra-specification.lino");
+const SPEC_CASES: &str = include_str!("../../test-corpus/meta-theory-specifications/cases.json");
+const SPEC_CERTIFICATES: &str = include_str!("../../test-corpus/meta-theory-specifications/certificates.json");
 const UNSEEN: &str = include_str!("../../test-corpus/foundation-packages/unseen-modal-frames.json");
 const UNSEEN_SOURCES: [&str; 3] = [
     include_str!("../../test-corpus/foundation-packages/unseen-modal-frames-1.lino"),
@@ -37,6 +44,12 @@ pub const MAPPED_DECLARATION: &str = "rml.formal.lean.SetSequenceEquivalence.toO
 pub const UPSTREAM_COMMAND: &str = "rml.formal.lean.NetworkExamples#command-17";
 pub const CERTIFIED_THEOREM: &str = "rml.formal.lean.SetSequenceEquivalence.set_sequence_equivalence";
 pub const UNSEEN_QUERY: &str = "home-reaches-dry";
+/// The theorem of each source specification whose statement the report shows.
+pub const SPEC_SAMPLES: [(&str, &str); 3] = [
+    ("type-specification", "preservation-swap"),
+    ("graph-specification", "reach-transitive-cycle"),
+    ("relational-algebra-specification", "join-associative"),
+];
 
 fn parse(text: &str) -> Result<Value, String> {
     serde_json::from_str(text).map_err(|error| error.to_string())
@@ -101,6 +114,67 @@ fn find<'a>(items: &'a Value, field: &str, value: &str) -> Result<&'a Value, Str
         .as_array()
         .and_then(|entries| entries.iter().find(|entry| entry[field] == value))
         .ok_or_else(|| format!("missing {field} {value}"))
+}
+
+/// The specification sources in program order; `overrides` replaces a program's source.
+pub fn specification_sources(overrides: &[(&str, &str)]) -> Vec<(&'static str, String)> {
+    [
+        ("type-specification", TYPE_SPECIFICATION),
+        ("graph-specification", GRAPH_SPECIFICATION),
+        ("relational-algebra-specification", ALGEBRA_SPECIFICATION),
+    ]
+    .into_iter()
+    .map(|(program, source)| {
+        let replaced = overrides.iter().find(|(name, _)| *name == program).map(|(_, text)| text.to_string());
+        (program, replaced.unwrap_or_else(|| source.to_string()))
+    })
+    .collect()
+}
+
+/// Execute every recorded specification case natively and re-check every
+/// specification certificate, then show that a mutated certificate fails.
+pub fn run_specifications(sources: &[(&'static str, String)]) -> Result<Value, String> {
+    let specs: Vec<(&str, &str)> = sources.iter().map(|(program, source)| (*program, source.as_str())).collect();
+    let registries = spec_registries(&specs, UNIVERSAL, VERIFIER, NATURAL)?;
+    let cases = parse(SPEC_CASES)?;
+    let certificates = parse(SPEC_CERTIFICATES)?;
+    let cases = cases["cases"].as_array().cloned().unwrap_or_default();
+    let certificates = certificates["certificates"].as_array().cloned().unwrap_or_default();
+    let mut report = Vec::new();
+    for (program, sample_theorem) in SPEC_SAMPLES {
+        let own: Vec<&Value> = cases.iter().filter(|item| item["program"] == program).collect();
+        let mut reproduced = 0;
+        for item in &own {
+            let reduced = spec_evaluate(&registries, program, &spec_term(&item["request"])?)?;
+            if reduced.term == spec_term(&item["expected"])? && reduced.steps as u64 == item["steps"].as_u64().unwrap_or(u64::MAX) {
+                reproduced += 1;
+            }
+        }
+        let mut certified = Vec::new();
+        for item in certificates.iter().filter(|item| item["program"] == program) {
+            if check_spec_certificate(&registries, &item["certificate"])?.accepted {
+                certified.push(item["theorem"].clone());
+            }
+        }
+        let sample = &certificates
+            .iter()
+            .find(|item| item["program"] == program && item["theorem"] == sample_theorem)
+            .ok_or_else(|| format!("missing certificate {program}.{sample_theorem}"))?["certificate"];
+        let mut mutated = sample.clone();
+        let last = mutated["facts"].as_array().map(Vec::len).unwrap_or(0).saturating_sub(1);
+        mutated["facts"][last]["value"] = json!("mutated");
+        report.push(json!({
+            "program": program,
+            "cases": own.len(),
+            "negativeCases": own.iter().filter(|item| item["polarity"] == "negative").count(),
+            "casesReproduced": reproduced,
+            "theorems": spec_theorems(&registries, program)?,
+            "certified": certified,
+            "sample": { "theorem": sample_theorem, "statement": spec_term(&sample["goal"])?.to_string() },
+            "mutatedCertificateAccepted": check_spec_certificate(&registries, &mutated)?.accepted,
+        }));
+    }
+    Ok(Value::Array(report))
 }
 
 fn unseen_packages(fixture: &Value) -> Result<FoundationPackages, String> {
@@ -203,6 +277,9 @@ pub fn run() -> Result<Value, String> {
         }));
     }
 
+    // 6. Execute the type, graph and relational-algebra specifications natively and re-check their certificates.
+    let specifications = run_specifications(&specification_sources(&[]))?;
+
     Ok(json!({
         "schema": "rml-meta-theory-workflow/v1",
         "corpus": { "declarations": corpus.declarations().len(), "fingerprint": corpus.fingerprint() },
@@ -236,6 +313,7 @@ pub fn run() -> Result<Value, String> {
             "forgedConclusionAccepted": forged_check.accepted,
         },
         "unseenLogic": { "query": UNSEEN_QUERY, "answers": answers },
+        "specifications": specifications,
     }))
 }
 

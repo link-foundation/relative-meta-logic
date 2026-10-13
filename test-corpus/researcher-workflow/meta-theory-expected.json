@@ -118,5 +118,108 @@
         "replayAccepted": true
       }
     ]
-  }
+  },
+  "specifications": [
+    {
+      "program": "type-specification",
+      "cases": 25,
+      "negativeCases": 12,
+      "casesReproduced": 25,
+      "theorems": [
+        "typing-twice",
+        "preservation-swap",
+        "preservation-conditional",
+        "evaluation-twice-successor",
+        "progress-swap"
+      ],
+      "certified": [
+        "typing-twice",
+        "preservation-swap",
+        "preservation-conditional",
+        "evaluation-twice-successor",
+        "progress-swap"
+      ],
+      "sample": {
+        "theorem": "preservation-swap",
+        "statement": "(ty-preserved (tm-app (tm-lam p (ty-product ty-nat ty-bool) (tm-pair (tm-snd (tm-var p)) (tm-fst (tm-var p)))) (tm-pair tm-zero tm-true)) (tm-pair (tm-snd (tm-pair tm-zero tm-true)) (tm-fst (tm-pair tm-zero tm-true))) (ty-product ty-bool ty-nat))"
+      },
+      "mutatedCertificateAccepted": false
+    },
+    {
+      "program": "graph-specification",
+      "cases": 25,
+      "negativeCases": 9,
+      "casesReproduced": 25,
+      "theorems": [
+        "reach-transitive-dag",
+        "reach-transitive-cycle",
+        "closure-fixed-point",
+        "closure-least",
+        "path-reaches",
+        "reach-agrees-with-closure",
+        "dag-acyclic"
+      ],
+      "certified": [
+        "reach-transitive-dag",
+        "reach-transitive-cycle",
+        "closure-fixed-point",
+        "closure-least",
+        "path-reaches",
+        "reach-agrees-with-closure",
+        "dag-acyclic"
+      ],
+      "sample": {
+        "theorem": "reach-transitive-cycle",
+        "statement": "(gr-transitive-at (gr-graph (gr-cons a (gr-cons b (gr-cons c (gr-cons d gr-nil)))) (gr-cons (gr-edge a b) (gr-cons (gr-edge b c) (gr-cons (gr-edge c a) (gr-cons (gr-edge c d) gr-nil))))) b a d)"
+      },
+      "mutatedCertificateAccepted": false
+    },
+    {
+      "program": "relational-algebra-specification",
+      "cases": 23,
+      "negativeCases": 11,
+      "casesReproduced": 23,
+      "theorems": [
+        "union-commutative",
+        "union-associative",
+        "union-idempotent",
+        "join-commutative",
+        "join-associative",
+        "join-idempotent",
+        "select-distributes-over-union",
+        "select-distributes-over-difference",
+        "select-cascade",
+        "select-commutes",
+        "select-pushdown-join",
+        "project-distributes-over-union",
+        "project-cascade",
+        "difference-self",
+        "rename-inverse",
+        "join-distributes-over-union"
+      ],
+      "certified": [
+        "union-commutative",
+        "union-associative",
+        "union-idempotent",
+        "join-commutative",
+        "join-associative",
+        "join-idempotent",
+        "select-distributes-over-union",
+        "select-distributes-over-difference",
+        "select-cascade",
+        "select-commutes",
+        "select-pushdown-join",
+        "project-distributes-over-union",
+        "project-cascade",
+        "difference-self",
+        "rename-inverse",
+        "join-distributes-over-union"
+      ],
+      "sample": {
+        "theorem": "join-associative",
+        "statement": "(ra-equal-relations (ra-join (ra-join (ra-named employees) (ra-named departments)) (ra-named cities)) (ra-join (ra-named employees) (ra-join (ra-named departments) (ra-named cities))))"
+      },
+      "mutatedCertificateAccepted": false
+    }
+  ]
 }

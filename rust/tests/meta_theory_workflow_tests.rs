@@ -61,3 +61,35 @@ fn a_changed_definition_body_does_not_reproduce_the_original_result() {
         assert_ne!(result.term, ordered);
     });
 }
+
+#[test]
+fn a_changed_specification_definition_changes_the_recipe_result() {
+    on_large_stack(|| {
+        let program = "relational-algebra-specification";
+        let sources = workflow::specification_sources(&[]);
+        let source = &sources.iter().find(|(name, _)| *name == program).unwrap().1;
+        // The natural join keeps every right-only field; dropping them changes every join.
+        let original = "(to (ra-merge-fields ?left-schema ?rest (ra-cons (ra-field ?attribute ?value) ?accumulator))))";
+        assert!(source.contains(original));
+        let altered = source.replace(original, "(to (ra-merge-fields ?left-schema ?rest ?accumulator)))");
+        let report = workflow::run_specifications(&workflow::specification_sources(&[(program, altered.as_str())])).unwrap();
+        let expected: Value = serde_json::from_str(include_str!(
+            "../../test-corpus/researcher-workflow/meta-theory-expected.json"
+        ))
+        .unwrap();
+        let rows = report.as_array().unwrap();
+        let recorded_rows = expected["specifications"].as_array().unwrap();
+        let row = rows.iter().find(|item| item["program"] == program).unwrap();
+        let recorded = recorded_rows.iter().find(|item| item["program"] == program).unwrap();
+        assert_ne!(row, recorded);
+        assert!(row["casesReproduced"].as_u64().unwrap() < recorded["casesReproduced"].as_u64().unwrap());
+        for theorem in ["join-associative", "join-commutative", "select-pushdown-join", "join-distributes-over-union"] {
+            assert!(recorded["certified"].as_array().unwrap().iter().any(|item| item == theorem), "{theorem}");
+            assert!(!row["certified"].as_array().unwrap().iter().any(|item| item == theorem), "{theorem}");
+        }
+        for other in rows.iter().filter(|item| item["program"] != program) {
+            let recorded_other = recorded_rows.iter().find(|item| item["program"] == other["program"]).unwrap();
+            assert_eq!(other, recorded_other);
+        }
+    });
+}

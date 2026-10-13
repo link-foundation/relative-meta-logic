@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
-  CERTIFIED_THEOREM, expandNative, nativeCall, nativeList, runMetaTheoryWorkflow, theoremDependencies,
+  CERTIFIED_THEOREM, expandNative, nativeCall, nativeList, runMetaTheoryWorkflow, runSpecifications, specificationSources,
+  theoremDependencies,
 } from '../../examples/meta-theory-workflow.mjs';
 import { META_THEORY_NATIVE_PROGRAM, compactNative, nativeRegistry, renderNativeValue } from '../src/rml-meta-theory-native.mjs';
 import { checkMetaTheoryCertificate, metaTheoryCertificateRegistries } from '../src/rml-meta-theory-certificates.mjs';
@@ -50,4 +51,25 @@ test('the recipe certificate is rejected after its cited lemma is removed from t
   assert.equal(checkMetaTheoryCertificate(registries, certificate, { theoremDependencies: dependencies }).accepted, true);
   const reduced = dependencies.filter(item => !item.endsWith('toOrderedUnique_is_ascending'));
   assert.equal(checkMetaTheoryCertificate(registries, certificate, { theoremDependencies: reduced }).accepted, false);
+});
+
+test('a changed specification definition changes the recipe result and rejects the old certificates', { timeout: 600_000 }, () => {
+  const program = 'relational-algebra-specification';
+  const source = specificationSources().specs[program];
+  // The natural join keeps every right-only field; dropping them changes every join.
+  const original = '(to (ra-merge-fields ?left-schema ?rest (ra-cons (ra-field ?attribute ?value) ?accumulator))))';
+  assert.ok(source.includes(original));
+  const altered = source.replace(original, '(to (ra-merge-fields ?left-schema ?rest ?accumulator)))');
+  const report = runSpecifications(specificationSources({ [program]: altered }));
+  const row = report.find(item => item.program === program);
+  const recorded = expected.specifications.find(item => item.program === program);
+  assert.notDeepEqual(row, recorded);
+  assert.ok(row.casesReproduced < recorded.casesReproduced);
+  for (const theorem of ['join-associative', 'join-commutative', 'select-pushdown-join', 'join-distributes-over-union']) {
+    assert.ok(recorded.certified.includes(theorem), theorem);
+    assert.ok(!row.certified.includes(theorem), theorem);
+  }
+  for (const other of report.filter(item => item.program !== program)) {
+    assert.deepEqual(other, expected.specifications.find(item => item.program === other.program));
+  }
 });

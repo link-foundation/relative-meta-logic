@@ -14166,6 +14166,7 @@ pub mod semantic_archive;
 pub mod semantic_closure;
 pub mod meta_theory_native;
 pub mod meta_theory_certificates;
+pub mod spec_certificates;
 pub mod rocq;
 
 // Universal CST converters (issue #138).

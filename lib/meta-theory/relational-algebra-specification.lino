@@ -1,0 +1,624 @@
+# Source specification of relational algebra, as links.
+#
+# A relation is (ra-relation SCHEMA TUPLES). SCHEMA is a list of attribute
+# links, TUPLES a list of tuples, and a tuple is a list of (ra-field ATTRIBUTE
+# VALUE) links with exactly the schema's attributes. Lists are built from
+# (ra-cons HEAD TAIL) and ra-nil and read as finite sets: schemas compare as
+# attribute sets, tuples as field sets, relations as tuple sets.
+#
+# Expressions, evaluated by (ra-eval E) to (ra-ok RELATION) or (ra-error REASON):
+#   (ra-relation S T)          a literal, checked for well-formedness
+#   (ra-named N)               a relation defined below
+#   (ra-select P E)            selection σ_P
+#   (ra-project ATTRIBUTES E)  projection π, with duplicate elimination
+#   (ra-join E F)              natural join ⋈ on the shared attributes
+#   (ra-union E F)             union ∪, schemas must agree
+#   (ra-difference E F)        difference −, schemas must agree
+#   (ra-rename OLD NEW E)      rename ρ_{OLD→NEW}
+# Predicates: ra-p-true, ra-p-false, (ra-p-eq A V), (ra-p-same A B),
+# (ra-p-not P), (ra-p-and P Q), (ra-p-or P Q). Errors: malformed-relation,
+# unknown-relation, unknown-attribute, attribute-clash, schema-mismatch,
+# unknown-expression.
+#
+# (ra-same-relation R S) decides set equality of two relations. The algebraic
+# laws are data: (ra-law NAME) gives (ra-law-sides LEFT RIGHT) over (ra-param X)
+# placeholders, and (ra-inst TERM ENVIRONMENT) instantiates them. Every
+# intermediate list is built in an accumulator and handed on as (ra-list L),
+# so the outermost reducer only consumes finished data.
+
+(linked-program relational-algebra-specification)
+
+(linked-rewrite relational-algebra-specification and-yes
+  (from (ra-and ra-yes ?right)) (to ?right))
+(linked-rewrite relational-algebra-specification and-no
+  (from (ra-and ra-no ?right)) (to ra-no))
+(linked-rewrite relational-algebra-specification or-yes
+  (from (ra-or ra-yes ?right)) (to ra-yes))
+(linked-rewrite relational-algebra-specification or-no
+  (from (ra-or ra-no ?right)) (to ?right))
+(linked-rewrite relational-algebra-specification not-yes
+  (from (ra-not ra-yes)) (to ra-no))
+(linked-rewrite relational-algebra-specification not-no
+  (from (ra-not ra-no)) (to ra-yes))
+
+# Finite sets as lists of finished links.
+(linked-rewrite relational-algebra-specification member-head
+  (from (ra-member ?item (ra-cons ?item ?rest))) (to ra-yes))
+(linked-rewrite relational-algebra-specification member-tail
+  (from (ra-member ?item (ra-cons ?other ?rest))) (to (ra-member ?item ?rest)))
+(linked-rewrite relational-algebra-specification member-empty
+  (from (ra-member ?item ra-nil)) (to ra-no))
+(linked-rewrite relational-algebra-specification subset-empty
+  (from (ra-subset ra-nil ?right)) (to ra-yes))
+(linked-rewrite relational-algebra-specification subset-cons
+  (from (ra-subset (ra-cons ?head ?tail) ?right)) (to (ra-and (ra-member ?head ?right) (ra-subset ?tail ?right))))
+(linked-rewrite relational-algebra-specification distinct-empty
+  (from (ra-distinct ra-nil)) (to ra-yes))
+(linked-rewrite relational-algebra-specification distinct-cons
+  (from (ra-distinct (ra-cons ?head ?tail))) (to (ra-and (ra-not (ra-member ?head ?tail)) (ra-distinct ?tail))))
+(linked-rewrite relational-algebra-specification same-schema
+  (from (ra-same-schema ?left ?right)) (to (ra-and (ra-subset ?left ?right) (ra-subset ?right ?left))))
+(linked-rewrite relational-algebra-specification concat-empty
+  (from (ra-concat ra-nil ?right)) (to (ra-list ?right)))
+(linked-rewrite relational-algebra-specification concat-cons
+  (from (ra-concat (ra-cons ?head ?tail) ?right)) (to (ra-concat-cons ?head (ra-concat ?tail ?right))))
+(linked-rewrite relational-algebra-specification concat-rebuild
+  (from (ra-concat-cons ?head (ra-list ?tail))) (to (ra-list (ra-cons ?head ?tail))))
+
+# Tuples.
+(linked-rewrite relational-algebra-specification lookup-head
+  (from (ra-lookup ?attribute (ra-cons (ra-field ?attribute ?value) ?rest))) (to (ra-found ?value)))
+(linked-rewrite relational-algebra-specification lookup-tail
+  (from (ra-lookup ?attribute (ra-cons ?other ?rest))) (to (ra-lookup ?attribute ?rest)))
+(linked-rewrite relational-algebra-specification lookup-missing
+  (from (ra-lookup ?attribute ra-nil)) (to ra-missing))
+(linked-rewrite relational-algebra-specification same-value
+  (from (ra-same-value (ra-found ?value) (ra-found ?value))) (to ra-yes))
+(linked-rewrite relational-algebra-specification different-value
+  (from (ra-same-value (ra-found ?left) (ra-found ?right))) (to ra-no))
+(linked-rewrite relational-algebra-specification missing-value-left
+  (from (ra-same-value ra-missing ?right)) (to ra-no))
+(linked-rewrite relational-algebra-specification missing-value-right
+  (from (ra-same-value (ra-found ?left) ra-missing)) (to ra-no))
+(linked-rewrite relational-algebra-specification tuple-equal
+  (from (ra-tuple-equal ?left ?right)) (to (ra-and (ra-subset ?left ?right) (ra-subset ?right ?left))))
+(linked-rewrite relational-algebra-specification tuple-in-empty
+  (from (ra-tuple-in ?tuple ra-nil)) (to ra-no))
+(linked-rewrite relational-algebra-specification tuple-in-cons
+  (from (ra-tuple-in ?tuple (ra-cons ?other ?rest))) (to (ra-or (ra-tuple-equal ?tuple ?other) (ra-tuple-in ?tuple ?rest))))
+(linked-rewrite relational-algebra-specification tuples-within-empty
+  (from (ra-tuples-within ra-nil ?right)) (to ra-yes))
+(linked-rewrite relational-algebra-specification tuples-within-cons
+  (from (ra-tuples-within (ra-cons ?tuple ?rest) ?right))
+  (to (ra-and (ra-tuple-in ?tuple ?right) (ra-tuples-within ?rest ?right))))
+(linked-rewrite relational-algebra-specification attributes-empty
+  (from (ra-attributes-of ra-nil ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification attributes-field
+  (from (ra-attributes-of (ra-cons (ra-field ?attribute ?value) ?rest) ?accumulator))
+  (to (ra-attributes-of ?rest (ra-cons ?attribute ?accumulator))))
+(linked-rewrite relational-algebra-specification attributes-malformed
+  (from (ra-attributes-of (ra-cons ?other ?rest) ?accumulator)) (to ra-malformed))
+
+# Relation equality and well-formedness.
+(linked-rewrite relational-algebra-specification same-relation
+  (from (ra-same-relation (ra-relation ?left-schema ?left) (ra-relation ?right-schema ?right)))
+  (to (ra-and (ra-same-schema ?left-schema ?right-schema)
+        (ra-and (ra-tuples-within ?left ?right) (ra-tuples-within ?right ?left)))))
+(linked-rewrite relational-algebra-specification valid
+  (from (ra-valid ?schema ?tuples)) (to (ra-and (ra-distinct ?schema) (ra-tuples-fit ?schema ?tuples))))
+(linked-rewrite relational-algebra-specification fit-empty
+  (from (ra-tuples-fit ?schema ra-nil)) (to ra-yes))
+(linked-rewrite relational-algebra-specification fit-cons
+  (from (ra-tuples-fit ?schema (ra-cons ?tuple ?rest)))
+  (to (ra-and (ra-fit-check ?schema (ra-attributes-of ?tuple ra-nil)) (ra-tuples-fit ?schema ?rest))))
+(linked-rewrite relational-algebra-specification fit-check
+  (from (ra-fit-check ?schema (ra-list ?attributes)))
+  (to (ra-and (ra-distinct ?attributes) (ra-same-schema ?attributes ?schema))))
+(linked-rewrite relational-algebra-specification fit-malformed
+  (from (ra-fit-check ?schema ra-malformed)) (to ra-no))
+(linked-rewrite relational-algebra-specification fit-tuples-malformed
+  (from (ra-tuples-fit ?schema ?other)) (to ra-no))
+
+# Predicates.
+(linked-rewrite relational-algebra-specification holds-true
+  (from (ra-holds ra-p-true ?tuple)) (to ra-yes))
+(linked-rewrite relational-algebra-specification holds-false
+  (from (ra-holds ra-p-false ?tuple)) (to ra-no))
+(linked-rewrite relational-algebra-specification holds-equal-constant
+  (from (ra-holds (ra-p-eq ?attribute ?value) ?tuple)) (to (ra-same-value (ra-lookup ?attribute ?tuple) (ra-found ?value))))
+(linked-rewrite relational-algebra-specification holds-same-attributes
+  (from (ra-holds (ra-p-same ?left ?right) ?tuple)) (to (ra-same-value (ra-lookup ?left ?tuple) (ra-lookup ?right ?tuple))))
+(linked-rewrite relational-algebra-specification holds-not
+  (from (ra-holds (ra-p-not ?predicate) ?tuple)) (to (ra-not (ra-holds ?predicate ?tuple))))
+(linked-rewrite relational-algebra-specification holds-and
+  (from (ra-holds (ra-p-and ?left ?right) ?tuple)) (to (ra-and (ra-holds ?left ?tuple) (ra-holds ?right ?tuple))))
+(linked-rewrite relational-algebra-specification holds-or
+  (from (ra-holds (ra-p-or ?left ?right) ?tuple)) (to (ra-or (ra-holds ?left ?tuple) (ra-holds ?right ?tuple))))
+(linked-rewrite relational-algebra-specification within-true
+  (from (ra-predicate-within ra-p-true ?schema)) (to ra-yes))
+(linked-rewrite relational-algebra-specification within-false
+  (from (ra-predicate-within ra-p-false ?schema)) (to ra-yes))
+(linked-rewrite relational-algebra-specification within-equal-constant
+  (from (ra-predicate-within (ra-p-eq ?attribute ?value) ?schema)) (to (ra-member ?attribute ?schema)))
+(linked-rewrite relational-algebra-specification within-same-attributes
+  (from (ra-predicate-within (ra-p-same ?left ?right) ?schema)) (to (ra-and (ra-member ?left ?schema) (ra-member ?right ?schema))))
+(linked-rewrite relational-algebra-specification within-not
+  (from (ra-predicate-within (ra-p-not ?predicate) ?schema)) (to (ra-predicate-within ?predicate ?schema)))
+(linked-rewrite relational-algebra-specification within-and
+  (from (ra-predicate-within (ra-p-and ?left ?right) ?schema))
+  (to (ra-and (ra-predicate-within ?left ?schema) (ra-predicate-within ?right ?schema))))
+(linked-rewrite relational-algebra-specification within-or
+  (from (ra-predicate-within (ra-p-or ?left ?right) ?schema))
+  (to (ra-and (ra-predicate-within ?left ?schema) (ra-predicate-within ?right ?schema))))
+(linked-rewrite relational-algebra-specification within-unknown
+  (from (ra-predicate-within ?predicate ?schema)) (to ra-no))
+
+# Evaluation. Errors propagate from the leftmost failing operand.
+(linked-rewrite relational-algebra-specification eval-literal
+  (from (ra-eval (ra-relation ?schema ?tuples))) (to (ra-literal-ready (ra-valid ?schema ?tuples) ?schema ?tuples)))
+(linked-rewrite relational-algebra-specification literal-valid
+  (from (ra-literal-ready ra-yes ?schema ?tuples)) (to (ra-ok (ra-relation ?schema ?tuples))))
+(linked-rewrite relational-algebra-specification literal-invalid
+  (from (ra-literal-ready ra-no ?schema ?tuples)) (to (ra-error malformed-relation)))
+(linked-rewrite relational-algebra-specification eval-named
+  (from (ra-eval (ra-named ?name))) (to (ra-named-ready (ra-instance ?name))))
+(linked-rewrite relational-algebra-specification named-found
+  (from (ra-named-ready (ra-relation ?schema ?tuples))) (to (ra-eval (ra-relation ?schema ?tuples))))
+(linked-rewrite relational-algebra-specification named-missing
+  (from (ra-named-ready ra-unknown-instance)) (to (ra-error unknown-relation)))
+
+(linked-rewrite relational-algebra-specification eval-select
+  (from (ra-eval (ra-select ?predicate ?expression))) (to (ra-select-ready ?predicate (ra-eval ?expression))))
+(linked-rewrite relational-algebra-specification select-error
+  (from (ra-select-ready ?predicate (ra-error ?reason))) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification select-ready
+  (from (ra-select-ready ?predicate (ra-ok (ra-relation ?schema ?tuples))))
+  (to (ra-select-check (ra-predicate-within ?predicate ?schema) ?predicate ?schema ?tuples)))
+(linked-rewrite relational-algebra-specification select-unknown-attribute
+  (from (ra-select-check ra-no ?predicate ?schema ?tuples)) (to (ra-error unknown-attribute)))
+(linked-rewrite relational-algebra-specification select-run
+  (from (ra-select-check ra-yes ?predicate ?schema ?tuples))
+  (to (ra-result ?schema (ra-filter ?predicate ?tuples ra-nil))))
+(linked-rewrite relational-algebra-specification filter-empty
+  (from (ra-filter ?predicate ra-nil ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification filter-cons
+  (from (ra-filter ?predicate (ra-cons ?tuple ?rest) ?accumulator))
+  (to (ra-filter-if (ra-holds ?predicate ?tuple) ?predicate ?tuple ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification filter-keep
+  (from (ra-filter-if ra-yes ?predicate ?tuple ?rest ?accumulator))
+  (to (ra-filter ?predicate ?rest (ra-cons ?tuple ?accumulator))))
+(linked-rewrite relational-algebra-specification filter-drop
+  (from (ra-filter-if ra-no ?predicate ?tuple ?rest ?accumulator)) (to (ra-filter ?predicate ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification result
+  (from (ra-result ?schema (ra-list ?tuples))) (to (ra-ok (ra-relation ?schema ?tuples))))
+
+(linked-rewrite relational-algebra-specification eval-project
+  (from (ra-eval (ra-project ?attributes ?expression))) (to (ra-project-ready ?attributes (ra-eval ?expression))))
+(linked-rewrite relational-algebra-specification project-error
+  (from (ra-project-ready ?attributes (ra-error ?reason))) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification project-ready
+  (from (ra-project-ready ?attributes (ra-ok (ra-relation ?schema ?tuples))))
+  (to (ra-project-check (ra-and (ra-distinct ?attributes) (ra-subset ?attributes ?schema)) ?attributes ?tuples)))
+(linked-rewrite relational-algebra-specification project-unknown-attribute
+  (from (ra-project-check ra-no ?attributes ?tuples)) (to (ra-error unknown-attribute)))
+(linked-rewrite relational-algebra-specification project-run
+  (from (ra-project-check ra-yes ?attributes ?tuples))
+  (to (ra-result ?attributes (ra-project-tuples ?attributes ?tuples ra-nil))))
+(linked-rewrite relational-algebra-specification project-tuples-empty
+  (from (ra-project-tuples ?attributes ra-nil ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification project-tuples-cons
+  (from (ra-project-tuples ?attributes (ra-cons ?tuple ?rest) ?accumulator))
+  (to (ra-project-next (ra-restrict ?attributes ?tuple) ?attributes ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification project-next
+  (from (ra-project-next (ra-t ?tuple) ?attributes ?rest ?accumulator))
+  (to (ra-add-then (ra-tuple-in ?tuple ?accumulator) ?tuple (ra-project-tuples ?attributes ?rest) ?accumulator)))
+(linked-rewrite relational-algebra-specification restrict-empty
+  (from (ra-restrict ra-nil ?tuple)) (to (ra-t ra-nil)))
+(linked-rewrite relational-algebra-specification restrict-cons
+  (from (ra-restrict (ra-cons ?attribute ?rest) ?tuple))
+  (to (ra-restrict-field (ra-lookup ?attribute ?tuple) ?attribute (ra-restrict ?rest ?tuple))))
+(linked-rewrite relational-algebra-specification restrict-field
+  (from (ra-restrict-field (ra-found ?value) ?attribute (ra-t ?fields)))
+  (to (ra-t (ra-cons (ra-field ?attribute ?value) ?fields))))
+# (ra-add-then FOUND TUPLE (CONTINUATION ...) ACCUMULATOR) adds a tuple that is
+# not yet present and resumes the continuation with the new accumulator.
+(linked-rewrite relational-algebra-specification add-present
+  (from (ra-add-then ra-yes ?tuple (ra-project-tuples ?attributes ?rest) ?accumulator))
+  (to (ra-project-tuples ?attributes ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification add-absent
+  (from (ra-add-then ra-no ?tuple (ra-project-tuples ?attributes ?rest) ?accumulator))
+  (to (ra-project-tuples ?attributes ?rest (ra-cons ?tuple ?accumulator))))
+
+(linked-rewrite relational-algebra-specification eval-join
+  (from (ra-eval (ra-join ?left ?right))) (to (ra-join-ready (ra-eval ?left) (ra-eval ?right))))
+(linked-rewrite relational-algebra-specification join-left-error
+  (from (ra-join-ready (ra-error ?reason) ?right)) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification join-right-error
+  (from (ra-join-ready (ra-ok ?left) (ra-error ?reason))) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification join-ready
+  (from (ra-join-ready (ra-ok (ra-relation ?left-schema ?left)) (ra-ok (ra-relation ?right-schema ?right))))
+  (to (ra-join-plan (ra-attributes-minus ?right-schema ?left-schema ra-nil) (ra-attributes-common ?right-schema ?left-schema ra-nil)
+        ?left-schema ?left ?right)))
+(linked-rewrite relational-algebra-specification join-plan
+  (from (ra-join-plan (ra-list ?extra) (ra-list ?common) ?left-schema ?left ?right))
+  (to (ra-join-finish (ra-concat ?left-schema ?extra) (ra-join-outer ?common ?left-schema ?left ?right ra-nil))))
+(linked-rewrite relational-algebra-specification join-finish
+  (from (ra-join-finish (ra-list ?schema) (ra-list ?tuples))) (to (ra-ok (ra-relation ?schema ?tuples))))
+(linked-rewrite relational-algebra-specification minus-empty
+  (from (ra-attributes-minus ra-nil ?other ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification minus-cons
+  (from (ra-attributes-minus (ra-cons ?attribute ?rest) ?other ?accumulator))
+  (to (ra-minus-if (ra-member ?attribute ?other) ?attribute ?rest ?other ?accumulator)))
+(linked-rewrite relational-algebra-specification minus-drop
+  (from (ra-minus-if ra-yes ?attribute ?rest ?other ?accumulator)) (to (ra-attributes-minus ?rest ?other ?accumulator)))
+(linked-rewrite relational-algebra-specification minus-keep
+  (from (ra-minus-if ra-no ?attribute ?rest ?other ?accumulator))
+  (to (ra-attributes-minus ?rest ?other (ra-cons ?attribute ?accumulator))))
+(linked-rewrite relational-algebra-specification common-empty
+  (from (ra-attributes-common ra-nil ?other ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification common-cons
+  (from (ra-attributes-common (ra-cons ?attribute ?rest) ?other ?accumulator))
+  (to (ra-common-if (ra-member ?attribute ?other) ?attribute ?rest ?other ?accumulator)))
+(linked-rewrite relational-algebra-specification common-keep
+  (from (ra-common-if ra-yes ?attribute ?rest ?other ?accumulator))
+  (to (ra-attributes-common ?rest ?other (ra-cons ?attribute ?accumulator))))
+(linked-rewrite relational-algebra-specification common-drop
+  (from (ra-common-if ra-no ?attribute ?rest ?other ?accumulator)) (to (ra-attributes-common ?rest ?other ?accumulator)))
+(linked-rewrite relational-algebra-specification join-outer-empty
+  (from (ra-join-outer ?common ?left-schema ra-nil ?right ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification join-outer-cons
+  (from (ra-join-outer ?common ?left-schema (ra-cons ?tuple ?rest) ?right ?accumulator))
+  (to (ra-join-inner ?common ?left-schema ?tuple ?right ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification join-inner-empty
+  (from (ra-join-inner ?common ?left-schema ?tuple ra-nil ?rest ?right ?accumulator))
+  (to (ra-join-outer ?common ?left-schema ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification join-inner-cons
+  (from (ra-join-inner ?common ?left-schema ?tuple (ra-cons ?other ?others) ?rest ?right ?accumulator))
+  (to (ra-join-match (ra-agree ?common ?tuple ?other) ?common ?left-schema ?tuple ?other ?others ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification join-no-match
+  (from (ra-join-match ra-no ?common ?left-schema ?tuple ?other ?others ?rest ?right ?accumulator))
+  (to (ra-join-inner ?common ?left-schema ?tuple ?others ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification join-match
+  (from (ra-join-match ra-yes ?common ?left-schema ?tuple ?other ?others ?rest ?right ?accumulator))
+  (to (ra-join-merged (ra-merge-fields ?left-schema ?other ?tuple) ?common ?left-schema ?tuple ?others ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification join-merged
+  (from (ra-join-merged (ra-t ?merged) ?common ?left-schema ?tuple ?others ?rest ?right ?accumulator))
+  (to (ra-join-add (ra-tuple-in ?merged ?accumulator) ?merged ?common ?left-schema ?tuple ?others ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification join-add-present
+  (from (ra-join-add ra-yes ?merged ?common ?left-schema ?tuple ?others ?rest ?right ?accumulator))
+  (to (ra-join-inner ?common ?left-schema ?tuple ?others ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification join-add-absent
+  (from (ra-join-add ra-no ?merged ?common ?left-schema ?tuple ?others ?rest ?right ?accumulator))
+  (to (ra-join-inner ?common ?left-schema ?tuple ?others ?rest ?right (ra-cons ?merged ?accumulator))))
+(linked-rewrite relational-algebra-specification agree-empty
+  (from (ra-agree ra-nil ?left ?right)) (to ra-yes))
+(linked-rewrite relational-algebra-specification agree-cons
+  (from (ra-agree (ra-cons ?attribute ?rest) ?left ?right))
+  (to (ra-and (ra-same-value (ra-lookup ?attribute ?left) (ra-lookup ?attribute ?right)) (ra-agree ?rest ?left ?right))))
+# The merged tuple keeps every left field and adds the right fields whose
+# attribute the left schema lacks.
+(linked-rewrite relational-algebra-specification merge-empty
+  (from (ra-merge-fields ?left-schema ra-nil ?accumulator)) (to (ra-t ?accumulator)))
+(linked-rewrite relational-algebra-specification merge-cons
+  (from (ra-merge-fields ?left-schema (ra-cons (ra-field ?attribute ?value) ?rest) ?accumulator))
+  (to (ra-merge-if (ra-member ?attribute ?left-schema) ?attribute ?value ?left-schema ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification merge-shared
+  (from (ra-merge-if ra-yes ?attribute ?value ?left-schema ?rest ?accumulator))
+  (to (ra-merge-fields ?left-schema ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification merge-new
+  (from (ra-merge-if ra-no ?attribute ?value ?left-schema ?rest ?accumulator))
+  (to (ra-merge-fields ?left-schema ?rest (ra-cons (ra-field ?attribute ?value) ?accumulator))))
+
+(linked-rewrite relational-algebra-specification eval-union
+  (from (ra-eval (ra-union ?left ?right))) (to (ra-union-ready (ra-eval ?left) (ra-eval ?right))))
+(linked-rewrite relational-algebra-specification union-left-error
+  (from (ra-union-ready (ra-error ?reason) ?right)) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification union-right-error
+  (from (ra-union-ready (ra-ok ?left) (ra-error ?reason))) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification union-ready
+  (from (ra-union-ready (ra-ok (ra-relation ?left-schema ?left)) (ra-ok (ra-relation ?right-schema ?right))))
+  (to (ra-union-check (ra-same-schema ?left-schema ?right-schema) ?left-schema ?left ?right)))
+(linked-rewrite relational-algebra-specification union-mismatch
+  (from (ra-union-check ra-no ?schema ?left ?right)) (to (ra-error schema-mismatch)))
+(linked-rewrite relational-algebra-specification union-run
+  (from (ra-union-check ra-yes ?schema ?left ?right)) (to (ra-result ?schema (ra-add-all ?left ?right))))
+(linked-rewrite relational-algebra-specification add-all-empty
+  (from (ra-add-all ra-nil ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification add-all-cons
+  (from (ra-add-all (ra-cons ?tuple ?rest) ?accumulator))
+  (to (ra-add-all-if (ra-tuple-in ?tuple ?accumulator) ?tuple ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification add-all-present
+  (from (ra-add-all-if ra-yes ?tuple ?rest ?accumulator)) (to (ra-add-all ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification add-all-absent
+  (from (ra-add-all-if ra-no ?tuple ?rest ?accumulator)) (to (ra-add-all ?rest (ra-cons ?tuple ?accumulator))))
+
+(linked-rewrite relational-algebra-specification eval-difference
+  (from (ra-eval (ra-difference ?left ?right))) (to (ra-difference-ready (ra-eval ?left) (ra-eval ?right))))
+(linked-rewrite relational-algebra-specification difference-left-error
+  (from (ra-difference-ready (ra-error ?reason) ?right)) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification difference-right-error
+  (from (ra-difference-ready (ra-ok ?left) (ra-error ?reason))) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification difference-ready
+  (from (ra-difference-ready (ra-ok (ra-relation ?left-schema ?left)) (ra-ok (ra-relation ?right-schema ?right))))
+  (to (ra-difference-check (ra-same-schema ?left-schema ?right-schema) ?left-schema ?left ?right)))
+(linked-rewrite relational-algebra-specification difference-mismatch
+  (from (ra-difference-check ra-no ?schema ?left ?right)) (to (ra-error schema-mismatch)))
+(linked-rewrite relational-algebra-specification difference-run
+  (from (ra-difference-check ra-yes ?schema ?left ?right)) (to (ra-result ?schema (ra-minus ?left ?right ra-nil))))
+(linked-rewrite relational-algebra-specification minus-tuples-empty
+  (from (ra-minus ra-nil ?right ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification minus-tuples-cons
+  (from (ra-minus (ra-cons ?tuple ?rest) ?right ?accumulator))
+  (to (ra-minus-tuple-if (ra-tuple-in ?tuple ?right) ?tuple ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification minus-tuples-drop
+  (from (ra-minus-tuple-if ra-yes ?tuple ?rest ?right ?accumulator)) (to (ra-minus ?rest ?right ?accumulator)))
+(linked-rewrite relational-algebra-specification minus-tuples-keep
+  (from (ra-minus-tuple-if ra-no ?tuple ?rest ?right ?accumulator))
+  (to (ra-minus ?rest ?right (ra-cons ?tuple ?accumulator))))
+
+(linked-rewrite relational-algebra-specification eval-rename
+  (from (ra-eval (ra-rename ?old ?new ?expression))) (to (ra-rename-ready ?old ?new (ra-eval ?expression))))
+(linked-rewrite relational-algebra-specification rename-error
+  (from (ra-rename-ready ?old ?new (ra-error ?reason))) (to (ra-error ?reason)))
+(linked-rewrite relational-algebra-specification rename-ready
+  (from (ra-rename-ready ?old ?new (ra-ok (ra-relation ?schema ?tuples))))
+  (to (ra-rename-check (ra-member ?old ?schema) (ra-member ?new ?schema) ?old ?new ?schema ?tuples)))
+(linked-rewrite relational-algebra-specification rename-unknown-attribute
+  (from (ra-rename-check ra-no ?clash ?old ?new ?schema ?tuples)) (to (ra-error unknown-attribute)))
+(linked-rewrite relational-algebra-specification rename-clash
+  (from (ra-rename-check ra-yes ra-yes ?old ?new ?schema ?tuples)) (to (ra-error attribute-clash)))
+(linked-rewrite relational-algebra-specification rename-run
+  (from (ra-rename-check ra-yes ra-no ?old ?new ?schema ?tuples))
+  (to (ra-rename-finish (ra-rename-attributes ?old ?new ?schema ra-nil) (ra-rename-tuples ?old ?new ?tuples ra-nil))))
+(linked-rewrite relational-algebra-specification rename-finish
+  (from (ra-rename-finish (ra-list ?schema) (ra-list ?tuples))) (to (ra-ok (ra-relation ?schema ?tuples))))
+(linked-rewrite relational-algebra-specification rename-attributes-empty
+  (from (ra-rename-attributes ?old ?new ra-nil ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification rename-attributes-hit
+  (from (ra-rename-attributes ?old ?new (ra-cons ?old ?rest) ?accumulator))
+  (to (ra-rename-attributes ?old ?new ?rest (ra-cons ?new ?accumulator))))
+(linked-rewrite relational-algebra-specification rename-attributes-other
+  (from (ra-rename-attributes ?old ?new (ra-cons ?attribute ?rest) ?accumulator))
+  (to (ra-rename-attributes ?old ?new ?rest (ra-cons ?attribute ?accumulator))))
+(linked-rewrite relational-algebra-specification rename-tuples-empty
+  (from (ra-rename-tuples ?old ?new ra-nil ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification rename-tuples-cons
+  (from (ra-rename-tuples ?old ?new (ra-cons ?tuple ?rest) ?accumulator))
+  (to (ra-rename-tuple-next (ra-rename-fields ?old ?new ?tuple ra-nil) ?old ?new ?rest ?accumulator)))
+(linked-rewrite relational-algebra-specification rename-tuple-next
+  (from (ra-rename-tuple-next (ra-list ?tuple) ?old ?new ?rest ?accumulator))
+  (to (ra-rename-tuples ?old ?new ?rest (ra-cons ?tuple ?accumulator))))
+(linked-rewrite relational-algebra-specification rename-fields-empty
+  (from (ra-rename-fields ?old ?new ra-nil ?accumulator)) (to (ra-list ?accumulator)))
+(linked-rewrite relational-algebra-specification rename-fields-hit
+  (from (ra-rename-fields ?old ?new (ra-cons (ra-field ?old ?value) ?rest) ?accumulator))
+  (to (ra-rename-fields ?old ?new ?rest (ra-cons (ra-field ?new ?value) ?accumulator))))
+(linked-rewrite relational-algebra-specification rename-fields-other
+  (from (ra-rename-fields ?old ?new (ra-cons ?field ?rest) ?accumulator))
+  (to (ra-rename-fields ?old ?new ?rest (ra-cons ?field ?accumulator))))
+
+(linked-rewrite relational-algebra-specification eval-unknown
+  (from (ra-eval ?expression)) (to (ra-error unknown-expression)))
+
+# Named relations.
+(linked-rewrite relational-algebra-specification employees
+  (from (ra-instance employees))
+  (to (ra-relation (ra-cons name (ra-cons dept ra-nil))
+        (ra-cons (ra-cons (ra-field name alice) (ra-cons (ra-field dept d1) ra-nil))
+        (ra-cons (ra-cons (ra-field name bob) (ra-cons (ra-field dept d2) ra-nil))
+        (ra-cons (ra-cons (ra-field name carol) (ra-cons (ra-field dept d1) ra-nil))
+        (ra-cons (ra-cons (ra-field name dave) (ra-cons (ra-field dept d3) ra-nil)) ra-nil)))))))
+(linked-rewrite relational-algebra-specification managers
+  (from (ra-instance managers))
+  (to (ra-relation (ra-cons dept (ra-cons name ra-nil))
+        (ra-cons (ra-cons (ra-field dept d1) (ra-cons (ra-field name alice) ra-nil))
+        (ra-cons (ra-cons (ra-field dept d2) (ra-cons (ra-field name erin) ra-nil)) ra-nil)))))
+(linked-rewrite relational-algebra-specification contractors
+  (from (ra-instance contractors))
+  (to (ra-relation (ra-cons name (ra-cons dept ra-nil))
+        (ra-cons (ra-cons (ra-field name frank) (ra-cons (ra-field dept d3) ra-nil))
+        (ra-cons (ra-cons (ra-field name carol) (ra-cons (ra-field dept d1) ra-nil)) ra-nil)))))
+(linked-rewrite relational-algebra-specification departments
+  (from (ra-instance departments))
+  (to (ra-relation (ra-cons dept (ra-cons city ra-nil))
+        (ra-cons (ra-cons (ra-field dept d1) (ra-cons (ra-field city berlin) ra-nil))
+        (ra-cons (ra-cons (ra-field dept d2) (ra-cons (ra-field city paris) ra-nil))
+        (ra-cons (ra-cons (ra-field dept d3) (ra-cons (ra-field city berlin) ra-nil))
+        (ra-cons (ra-cons (ra-field dept d4) (ra-cons (ra-field city rome) ra-nil)) ra-nil)))))))
+(linked-rewrite relational-algebra-specification cities
+  (from (ra-instance cities))
+  (to (ra-relation (ra-cons city (ra-cons country ra-nil))
+        (ra-cons (ra-cons (ra-field city berlin) (ra-cons (ra-field country de) ra-nil))
+        (ra-cons (ra-cons (ra-field city paris) (ra-cons (ra-field country fr) ra-nil))
+        (ra-cons (ra-cons (ra-field city rome) (ra-cons (ra-field country it) ra-nil)) ra-nil))))))
+(linked-rewrite relational-algebra-specification unknown-instance
+  (from (ra-instance ?name)) (to ra-unknown-instance))
+
+# The law set. Parameters r, s, t are relations, p and q predicates, a and b
+# attributes and l, k attribute lists.
+(linked-rewrite relational-algebra-specification laws
+  (from (ra-laws))
+  (to (spec-list union-commutative union-associative union-idempotent join-commutative join-associative
+        join-idempotent select-distributes-over-union select-distributes-over-difference select-cascade
+        select-commutes select-pushdown-join project-distributes-over-union project-cascade difference-self
+        rename-inverse join-distributes-over-union)))
+(linked-rewrite relational-algebra-specification law-union-commutative
+  (from (ra-law union-commutative))
+  (to (ra-law-sides (ra-union (ra-param r) (ra-param s)) (ra-union (ra-param s) (ra-param r)))))
+(linked-rewrite relational-algebra-specification law-union-associative
+  (from (ra-law union-associative))
+  (to (ra-law-sides (ra-union (ra-union (ra-param r) (ra-param s)) (ra-param t))
+        (ra-union (ra-param r) (ra-union (ra-param s) (ra-param t))))))
+(linked-rewrite relational-algebra-specification law-union-idempotent
+  (from (ra-law union-idempotent))
+  (to (ra-law-sides (ra-union (ra-param r) (ra-param r)) (ra-param r))))
+(linked-rewrite relational-algebra-specification law-join-commutative
+  (from (ra-law join-commutative))
+  (to (ra-law-sides (ra-join (ra-param r) (ra-param s)) (ra-join (ra-param s) (ra-param r)))))
+(linked-rewrite relational-algebra-specification law-join-associative
+  (from (ra-law join-associative))
+  (to (ra-law-sides (ra-join (ra-join (ra-param r) (ra-param s)) (ra-param t))
+        (ra-join (ra-param r) (ra-join (ra-param s) (ra-param t))))))
+(linked-rewrite relational-algebra-specification law-join-idempotent
+  (from (ra-law join-idempotent))
+  (to (ra-law-sides (ra-join (ra-param r) (ra-param r)) (ra-param r))))
+(linked-rewrite relational-algebra-specification law-select-distributes-over-union
+  (from (ra-law select-distributes-over-union))
+  (to (ra-law-sides (ra-select (ra-param p) (ra-union (ra-param r) (ra-param s)))
+        (ra-union (ra-select (ra-param p) (ra-param r)) (ra-select (ra-param p) (ra-param s))))))
+(linked-rewrite relational-algebra-specification law-select-distributes-over-difference
+  (from (ra-law select-distributes-over-difference))
+  (to (ra-law-sides (ra-select (ra-param p) (ra-difference (ra-param r) (ra-param s)))
+        (ra-difference (ra-select (ra-param p) (ra-param r)) (ra-select (ra-param p) (ra-param s))))))
+(linked-rewrite relational-algebra-specification law-select-cascade
+  (from (ra-law select-cascade))
+  (to (ra-law-sides (ra-select (ra-param p) (ra-select (ra-param q) (ra-param r)))
+        (ra-select (ra-p-and (ra-param p) (ra-param q)) (ra-param r)))))
+(linked-rewrite relational-algebra-specification law-select-commutes
+  (from (ra-law select-commutes))
+  (to (ra-law-sides (ra-select (ra-param p) (ra-select (ra-param q) (ra-param r)))
+        (ra-select (ra-param q) (ra-select (ra-param p) (ra-param r))))))
+(linked-rewrite relational-algebra-specification law-select-pushdown-join
+  (from (ra-law select-pushdown-join))
+  (to (ra-law-sides (ra-select (ra-param p) (ra-join (ra-param r) (ra-param s)))
+        (ra-join (ra-select (ra-param p) (ra-param r)) (ra-param s)))))
+(linked-rewrite relational-algebra-specification law-project-distributes-over-union
+  (from (ra-law project-distributes-over-union))
+  (to (ra-law-sides (ra-project (ra-param l) (ra-union (ra-param r) (ra-param s)))
+        (ra-union (ra-project (ra-param l) (ra-param r)) (ra-project (ra-param l) (ra-param s))))))
+(linked-rewrite relational-algebra-specification law-project-cascade
+  (from (ra-law project-cascade))
+  (to (ra-law-sides (ra-project (ra-param l) (ra-project (ra-param k) (ra-param r)))
+        (ra-project (ra-param l) (ra-param r)))))
+(linked-rewrite relational-algebra-specification law-difference-self
+  (from (ra-law difference-self))
+  (to (ra-law-sides (ra-difference (ra-param r) (ra-param r)) (ra-select ra-p-false (ra-param r)))))
+(linked-rewrite relational-algebra-specification law-rename-inverse
+  (from (ra-law rename-inverse))
+  (to (ra-law-sides (ra-rename (ra-param b) (ra-param a) (ra-rename (ra-param a) (ra-param b) (ra-param r)))
+        (ra-param r))))
+(linked-rewrite relational-algebra-specification law-join-distributes-over-union
+  (from (ra-law join-distributes-over-union))
+  (to (ra-law-sides (ra-join (ra-param r) (ra-union (ra-param s) (ra-param t)))
+        (ra-union (ra-join (ra-param r) (ra-param s)) (ra-join (ra-param r) (ra-param t))))))
+# Side conditions of the conditional laws, decided on an instance:
+# select-pushdown-join needs attrs(p) ⊆ schema(r); project-cascade needs l ⊆ k.
+
+# Instantiation of law sides.
+(linked-rewrite relational-algebra-specification inst-param
+  (from (ra-inst (ra-param ?name) ?environment)) (to (ra-inst-lookup ?name ?environment)))
+(linked-rewrite relational-algebra-specification inst-lookup-head
+  (from (ra-inst-lookup ?name (ra-bind ?name ?value ?rest))) (to (ra-done ?value)))
+(linked-rewrite relational-algebra-specification inst-lookup-tail
+  (from (ra-inst-lookup ?name (ra-bind ?other ?value ?rest))) (to (ra-inst-lookup ?name ?rest)))
+(linked-rewrite relational-algebra-specification inst-select
+  (from (ra-inst (ra-select ?predicate ?expression) ?environment))
+  (to (ra-inst-2 ra-select (ra-inst ?predicate ?environment) (ra-inst ?expression ?environment))))
+(linked-rewrite relational-algebra-specification inst-project
+  (from (ra-inst (ra-project ?attributes ?expression) ?environment))
+  (to (ra-inst-2 ra-project (ra-inst ?attributes ?environment) (ra-inst ?expression ?environment))))
+(linked-rewrite relational-algebra-specification inst-join
+  (from (ra-inst (ra-join ?left ?right) ?environment))
+  (to (ra-inst-2 ra-join (ra-inst ?left ?environment) (ra-inst ?right ?environment))))
+(linked-rewrite relational-algebra-specification inst-union
+  (from (ra-inst (ra-union ?left ?right) ?environment))
+  (to (ra-inst-2 ra-union (ra-inst ?left ?environment) (ra-inst ?right ?environment))))
+(linked-rewrite relational-algebra-specification inst-difference
+  (from (ra-inst (ra-difference ?left ?right) ?environment))
+  (to (ra-inst-2 ra-difference (ra-inst ?left ?environment) (ra-inst ?right ?environment))))
+(linked-rewrite relational-algebra-specification inst-rename
+  (from (ra-inst (ra-rename ?old ?new ?expression) ?environment))
+  (to (ra-inst-3 ra-rename (ra-inst ?old ?environment) (ra-inst ?new ?environment) (ra-inst ?expression ?environment))))
+(linked-rewrite relational-algebra-specification inst-predicate-and
+  (from (ra-inst (ra-p-and ?left ?right) ?environment))
+  (to (ra-inst-2 ra-p-and (ra-inst ?left ?environment) (ra-inst ?right ?environment))))
+(linked-rewrite relational-algebra-specification inst-other
+  (from (ra-inst ?term ?environment)) (to (ra-done ?term)))
+(linked-rewrite relational-algebra-specification inst-rebuild-2
+  (from (ra-inst-2 ?constructor (ra-done ?left) (ra-done ?right))) (to (ra-done (?constructor ?left ?right))))
+(linked-rewrite relational-algebra-specification inst-rebuild-3
+  (from (ra-inst-3 ?constructor (ra-done ?first) (ra-done ?second) (ra-done ?third)))
+  (to (ra-done (?constructor ?first ?second ?third))))
+(linked-rewrite relational-algebra-specification law-instance
+  (from (ra-law-instance ?law ?environment)) (to (ra-law-instance-ready (ra-law ?law) ?environment)))
+(linked-rewrite relational-algebra-specification law-instance-ready
+  (from (ra-law-instance-ready (ra-law-sides ?left ?right) ?environment))
+  (to (ra-law-instance-done (ra-inst ?left ?environment) (ra-inst ?right ?environment))))
+(linked-rewrite relational-algebra-specification law-instance-done
+  (from (ra-law-instance-done (ra-done ?left) (ra-done ?right))) (to (spec-statement (ra-equal-relations ?left ?right))))
+
+# Theorems: every law instantiated on the named relations.
+(linked-rewrite relational-algebra-specification theorems
+  (from (spec-theorems)) (to (ra-laws)))
+(linked-rewrite relational-algebra-specification theorem-union-commutative
+  (from (spec-theorem union-commutative))
+  (to (ra-law-instance union-commutative (ra-bind r (ra-named employees) (ra-bind s (ra-named managers) ra-unbound)))))
+(linked-rewrite relational-algebra-specification theorem-union-associative
+  (from (spec-theorem union-associative))
+  (to (ra-law-instance union-associative
+        (ra-bind r (ra-named employees) (ra-bind s (ra-named managers) (ra-bind t (ra-named contractors) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-union-idempotent
+  (from (spec-theorem union-idempotent))
+  (to (ra-law-instance union-idempotent (ra-bind r (ra-named employees) ra-unbound))))
+(linked-rewrite relational-algebra-specification theorem-join-commutative
+  (from (spec-theorem join-commutative))
+  (to (ra-law-instance join-commutative (ra-bind r (ra-named employees) (ra-bind s (ra-named departments) ra-unbound)))))
+(linked-rewrite relational-algebra-specification theorem-join-associative
+  (from (spec-theorem join-associative))
+  (to (ra-law-instance join-associative
+        (ra-bind r (ra-named employees) (ra-bind s (ra-named departments) (ra-bind t (ra-named cities) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-join-idempotent
+  (from (spec-theorem join-idempotent))
+  (to (ra-law-instance join-idempotent (ra-bind r (ra-named departments) ra-unbound))))
+(linked-rewrite relational-algebra-specification theorem-select-distributes-over-union
+  (from (spec-theorem select-distributes-over-union))
+  (to (ra-law-instance select-distributes-over-union
+        (ra-bind p (ra-p-eq dept d1) (ra-bind r (ra-named employees) (ra-bind s (ra-named contractors) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-select-distributes-over-difference
+  (from (spec-theorem select-distributes-over-difference))
+  (to (ra-law-instance select-distributes-over-difference
+        (ra-bind p (ra-p-not (ra-p-eq dept d2)) (ra-bind r (ra-named employees) (ra-bind s (ra-named managers) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-select-cascade
+  (from (spec-theorem select-cascade))
+  (to (ra-law-instance select-cascade
+        (ra-bind p (ra-p-eq dept d1) (ra-bind q (ra-p-not (ra-p-eq name alice)) (ra-bind r (ra-named employees) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-select-commutes
+  (from (spec-theorem select-commutes))
+  (to (ra-law-instance select-commutes
+        (ra-bind p (ra-p-or (ra-p-eq dept d1) (ra-p-eq dept d3)) (ra-bind q (ra-p-not (ra-p-eq name dave))
+          (ra-bind r (ra-named employees) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-select-pushdown-join
+  (from (spec-theorem select-pushdown-join))
+  (to (ra-law-instance select-pushdown-join
+        (ra-bind p (ra-p-eq name carol) (ra-bind r (ra-named employees) (ra-bind s (ra-named departments) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-project-distributes-over-union
+  (from (spec-theorem project-distributes-over-union))
+  (to (ra-law-instance project-distributes-over-union
+        (ra-bind l (ra-cons dept ra-nil) (ra-bind r (ra-named employees) (ra-bind s (ra-named contractors) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-project-cascade
+  (from (spec-theorem project-cascade))
+  (to (ra-law-instance project-cascade
+        (ra-bind l (ra-cons city ra-nil) (ra-bind k (ra-cons city (ra-cons name ra-nil))
+          (ra-bind r (ra-join (ra-named employees) (ra-named departments)) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-difference-self
+  (from (spec-theorem difference-self))
+  (to (ra-law-instance difference-self (ra-bind r (ra-named departments) ra-unbound))))
+(linked-rewrite relational-algebra-specification theorem-rename-inverse
+  (from (spec-theorem rename-inverse))
+  (to (ra-law-instance rename-inverse (ra-bind a dept (ra-bind b division (ra-bind r (ra-named employees) ra-unbound))))))
+(linked-rewrite relational-algebra-specification theorem-join-distributes-over-union
+  (from (spec-theorem join-distributes-over-union))
+  (to (ra-law-instance join-distributes-over-union
+        (ra-bind r (ra-named departments) (ra-bind s (ra-named employees) (ra-bind t (ra-named contractors) ra-unbound))))))
+
+# Proof rules for certificates. Both sides are evaluated by re-executed facts
+# (spec-call F ARGUMENTS...), which the checker runs as (F ARGUMENTS...), and
+# their values are compared by ra-same-relation.
+(linked-rewrite relational-algebra-specification proof-rules
+  (from (spec-proof-rules))
+  (to (spec-rules
+    (rule extensional
+      ((evaluates (spec-call ra-eval (variable l)) (ra-ok (variable x)))
+       (evaluates (spec-call ra-eval (variable r)) (ra-ok (variable y)))
+       (evaluates (spec-call ra-same-relation (variable x) (variable y)) ra-yes))
+      (ra-equal-relations (variable l) (variable r))))))
