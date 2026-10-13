@@ -1,0 +1,211 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 fa4f71482941c7c81adea3dadbb86881cc673917beb2746add9b28311662554a)
+    (bytes 94)
+    (utf16 94))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 336)
+    (links 336)
+    (sha256 ab89b53127cce000d3cafb3285838d39bef088018a03d675caad716f9e83664e))
+  (target
+    (language Rust)
+    (sha256 20fde4ea758db834c293fa4f024e62219c8dc41474e572c089f8941c54cf378c)
+    (bytes 4323))
+  (correspondence
+    (construct
+      (kind function)
+      (source rangeWithin)
+      (target range_within)
+      (signature "(array<float>, array<float>) -> bool")
+      (span 0 8)
+      (bytes 0 8)
+      (span-sha256 78f9ac018e554365069108352dacabb7fbd15246edf19400677e3b54fe24e126)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: array<float>, bool; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 3)
+    (encoding arrays "a JavaScript array, which the portable core never mutates, is a Rust Vec; a read outside it panics")
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed rangeWithin range_within))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 e3502b423752d1009c425e3545303d5b4b21927f2a2e44cd6ea50f4c7d62d94d))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 743e8f6346aeb2b41d8ebf105dc1824b258779a4926c40135a6b10d696de6349)
+    (bytes 512)
+    (utf16 512))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 861)
+    (links 861)
+    (sha256 c8d85c92b6556e9f6a4a52235d8c712b61f2b2cf7d57122a7f61d025f4e0c053))
+  (target
+    (language Rust)
+    (sha256 5ff554c34f2a71f12654366dca1b4a6a27362063941b60bdbdef2eb05478c9dd)
+    (bytes 8793))
+  (correspondence
+    (construct
+      (kind function)
+      (source canonicalDeclaration)
+      (target canonical_declaration)
+      (signature "(record) -> string")
+      (span 0 8)
+      (bytes 0 8)
+      (span-sha256 78f9ac018e554365069108352dacabb7fbd15246edf19400677e3b54fe24e126)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: record, string; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 3)
+    (encoding arrays "a JavaScript array, which the portable core never mutates, is a Rust Vec; a read outside it panics")
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed canonicalDeclaration canonical_declaration))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 bc1eb9a1fe2ba4ced7c19275ce895daac1ab0c62b633efaf876402f6d6fa9974))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 f170b9c714aa3521151246be43496438c25b8b4526ebe2091b7c79b41395ea45)
+    (bytes 95)
+    (utf16 95))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 234)
+    (links 234)
+    (sha256 f3cb124016fc6264da368c667063ed5a13168278e392dc39a3384ade25119d5e))
+  (target
+    (language Rust)
+    (sha256 0ec946be1dc98129b5b5a04f84f523fa1df32685e0b097aa370f4702a037a36e)
+    (bytes 807))
+  (correspondence
+    (construct
+      (kind function)
+      (source compareCodePoints)
+      (target compare_code_points)
+      (signature "(float, float) -> float")
+      (span 0 8)
+      (bytes 0 8)
+      (span-sha256 78f9ac018e554365069108352dacabb7fbd15246edf19400677e3b54fe24e126)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: float; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 2)
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed compareCodePoints compare_code_points))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 54b89fa3472b8263d08a6c5943874bb0e903ab16ca77fd9954f3da5c0ce2dd37))

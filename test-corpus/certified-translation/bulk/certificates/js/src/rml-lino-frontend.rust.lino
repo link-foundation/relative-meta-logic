@@ -1,0 +1,70 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 91475a57792db585b64528d835065e087f33e299dee5102b23dca00bda047940)
+    (bytes 134)
+    (utf16 134))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 391)
+    (links 391)
+    (sha256 f0d65235d2b50cefc224aa72b45abce10cbf0763ffa6b194026354b490a97967))
+  (target
+    (language Rust)
+    (sha256 7f941136b30cf85a8721606edb1a7210b7a09168c5632c01033cfb6cc55e1234)
+    (bytes 1366))
+  (correspondence
+    (construct
+      (kind function)
+      (source isIndentedIdItem)
+      (target is_indented_id_item)
+      (signature "(record) -> bool")
+      (span 0 8)
+      (bytes 0 8)
+      (span-sha256 78f9ac018e554365069108352dacabb7fbd15246edf19400677e3b54fe24e126)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: bool, record; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 3)
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding arrays "a JavaScript array, which the portable core never mutates, is a Rust Vec; a read outside it panics")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed isIndentedIdItem is_indented_id_item))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 3549102089d8d2fcbc9cda04d3da644c823753976d07ba415c5e3ca9e6a273c5))

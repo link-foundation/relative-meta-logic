@@ -1,0 +1,67 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 f7eb544de606ba2d47feb221e2eed8109c0790366ab0ede79d6d16801fb82cb7)
+    (bytes 88)
+    (utf16 88))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 188)
+    (links 188)
+    (sha256 44407c79f5de32601e104f8e9188c3214a2a39d4dc3a549e200bc7e792d6ab4a))
+  (target
+    (language Rocq)
+    (sha256 791fd0f7e319553d264d10a9e878528bc25aa035c40fbe52abb4d70ee8494ae4)
+    (bytes 918))
+  (correspondence
+    (construct
+      (kind function)
+      (source isProfileLink)
+      (target isProfileLink)
+      (signature "(record) -> bool")
+      (span 0 86)
+      (bytes 0 86)
+      (span-sha256 f93cf8f6aff826bb569664f6c550d8f1e786648c12f73f4f73f39762239cbbc7)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership not-applicable "no ownership discipline in either language")
+    (types checked-intermediate "declaration types are the checked intermediate types: bool, record; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rocq)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 92a238e4a8129a9e6a837b77d0af904ade1b446d34cec16bf0b04d9f46415962))

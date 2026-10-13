@@ -1,0 +1,26 @@
+// rml-certified-item rust/src/meta_language_support.rs#RML_META_LANGUAGE@323 target-sha256=7e0646584c98e6e8a1141e0e25ac4c6c0c73c1c18d04a8987b4ee84b5ffea3fb
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function RML_META_LANGUAGE() {
+  return "RML";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/meta_language_support.rs#JAVA_SCRIPT_LANGUAGE@366 target-sha256=7967dc04e800adfe47c5e203a62bd2f36170766ea56a466ee6a3e3e2ad6bcf75
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function JAVA_SCRIPT_LANGUAGE() {
+  return "JavaScript";
+}
+
+function main() {
+
+}
+
+main();

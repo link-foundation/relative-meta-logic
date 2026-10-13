@@ -1,0 +1,342 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 95ad4d7329d1176e0e073ebdf024f543cf756948ac3f1f7ce157fff2fb10c281)
+    (bytes 62)
+    (utf16 62))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 81)
+    (links 81)
+    (sha256 be01fbb143eca60d784d9e0b84e3eb6b9eaa75a3fb9db39590379b8dd507253b))
+  (target
+    (language Lean)
+    (sha256 a8a2d2ac4536a0a79b8d1269dd2bcc15ca997a89d282e3ce0c44fd36b6a2ef80)
+    (bytes 413))
+  (correspondence
+    (construct
+      (kind function)
+      (source SCHEMA)
+      (target SCHEMA)
+      (signature "() -> string")
+      (span 0 49)
+      (bytes 0 49)
+      (span-sha256 99e779b5c53cd4cc828ace363107e932dd02c9a2e4fff6d2c4a008d32e8cbfa5)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: string; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main prints the lines the source program prints, in order, with IO.println"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Lean)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 536aed7a26e70dda6516cd82817be179683b18b432a726d0dd780e43cc0da090))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 c6442c1327147d33064420f2c958b7370358a7c0779c1ee5db2d7fc5e2159137)
+    (bytes 72)
+    (utf16 72))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 81)
+    (links 81)
+    (sha256 91c8cbe4daea1fcbf83a2e2bf839ebcd889e6e366b492fa68aa7c2e69baaf2d3))
+  (target
+    (language Lean)
+    (sha256 b2fd77db0602540971fbd8183ea4e762d0ee67b6681bf445eac8bb159231840d)
+    (bytes 423))
+  (correspondence
+    (construct
+      (kind function)
+      (source DEFAULT_NAMESPACE)
+      (target DEFAULT_NAMESPACE)
+      (signature "() -> string")
+      (span 0 59)
+      (bytes 0 59)
+      (span-sha256 3c65abd9b3090c6c39f4aea4a5890a8930b91a64fa1f88542549b5f418aa83c2)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: string; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main prints the lines the source program prints, in order, with IO.println"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Lean)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 591ffeab13b18559b75a50c8a16a641296b58b338b094ba1130fd95017f9446c))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 3868227fb081cda7c9ff7a3cca41a736196fb3243bc69d4a21ab7c8e37016519)
+    (bytes 50)
+    (utf16 50))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 87)
+    (links 87)
+    (sha256 df94415d80c726a387a6b0a796f44979940d69e75f67e4503ee70cb50bb0c106))
+  (target
+    (language Lean)
+    (sha256 3d69bdebb64f5c6604b09a8e4e1b06f6143f79d6314fcb2124b9f566bd922356)
+    (bytes 404))
+  (correspondence
+    (construct
+      (kind function)
+      (source MAX_ELEMENTS)
+      (target MAX_ELEMENTS)
+      (signature "() -> u64")
+      (span 0 37)
+      (bytes 0 37)
+      (span-sha256 5b4ca367e2ee953f03bd27f46c6aebb9fdc99e2c7c7f9db22c2fe308a92b10b4)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: u64; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 2)
+    (encoding "machine-integer:u64" "u64 values are Nat values; every u64 operation tests where Rust panics, overflow or a zero divisor, and aborts there with Rust's panic message, and otherwise computes the in-range result exactly")
+    (encoding program-output "main prints the lines the source program prints, in order, with IO.println"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Lean)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 075330cb5b0bff7c700097803fbe05ce49520b995c3e318b2f4515f64efa822e))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 137b5e7d5b3031bed30a172ca0f00e7321a2673a6a2fa93fa47e1e66e9569c26)
+    (bytes 48)
+    (utf16 48))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 87)
+    (links 87)
+    (sha256 c65973de9fc404032b75fc7f5b10c510de3a6b55d5bd51e347015010048c2a42))
+  (target
+    (language Lean)
+    (sha256 8656cad35bb468eb59753d6443ea6cf24420f00a06c896da43e7cedd7ac2b991)
+    (bytes 402))
+  (correspondence
+    (construct
+      (kind function)
+      (source MAX_LINKS)
+      (target MAX_LINKS)
+      (signature "() -> u64")
+      (span 0 35)
+      (bytes 0 35)
+      (span-sha256 a2b5f76223a0f3d3e6db6915c827431843f6a49d441bfebe79f4c19429b896a8)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: u64; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 2)
+    (encoding "machine-integer:u64" "u64 values are Nat values; every u64 operation tests where Rust panics, overflow or a zero divisor, and aborts there with Rust's panic message, and otherwise computes the in-range result exactly")
+    (encoding program-output "main prints the lines the source program prints, in order, with IO.println"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Lean)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 518df9a491e5f87abe77f59d9ec9718327295375b9da78966aaefed45d0ff15f))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 f2521c726ab72e77fdde0c3409d80d5249b5bd40919c2fd0c6541f108f02a0b6)
+    (bytes 49)
+    (utf16 49))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 87)
+    (links 87)
+    (sha256 56a1a68200d4750ffc3f62a5b6ac50c9e318440aabbb1510d63ae477e9f9ff2c))
+  (target
+    (language Lean)
+    (sha256 0df283e58244cc63f5078a1de09ce4d67cfc6af193d70dc46883eea5ecd4aa77)
+    (bytes 402))
+  (correspondence
+    (construct
+      (kind function)
+      (source MAX_TEXT)
+      (target MAX_TEXT)
+      (signature "() -> u64")
+      (span 0 36)
+      (bytes 0 36)
+      (span-sha256 60e0b497c4c88e78ea56cd9d20e76f3f14b0acc6b06e644f16aae0e5f290d7e0)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: u64; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 2)
+    (encoding "machine-integer:u64" "u64 values are Nat values; every u64 operation tests where Rust panics, overflow or a zero divisor, and aborts there with Rust's panic message, and otherwise computes the in-range result exactly")
+    (encoding program-output "main prints the lines the source program prints, in order, with IO.println"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Lean)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 7b5cc1c384a5ea35248c5ba950c3380a5c812b56f5987d8061f82a70c81a4a62))

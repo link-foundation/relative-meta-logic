@@ -1,0 +1,70 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 94bfd5ed1c8591e2e5fc2eda772c18d509d0436f30d12cc2ab82db6bdbb2c052)
+    (bytes 82)
+    (utf16 82))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 148)
+    (links 148)
+    (sha256 eac17fb0a4c7d0e3b5012a2d3078d7781c045dcddefd3457308b973c905fcfa9))
+  (target
+    (language Rust)
+    (sha256 99cd6cdd3232237ad86accabde0fb778fa6eb7a93309a2ee516cb67e3dfc7b90)
+    (bytes 13213))
+  (correspondence
+    (construct
+      (kind function)
+      (source sanitizeComment)
+      (target sanitize_comment)
+      (signature "(float) -> string")
+      (span 0 8)
+      (bytes 0 8)
+      (span-sha256 78f9ac018e554365069108352dacabb7fbd15246edf19400677e3b54fe24e126)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: float, string; target representations are listed under encodings")
+    (universes not-applicable "no universe hierarchy in either language")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 3)
+    (encoding utf16-strings "strings are sequences of UTF-16 code units, retaining isolated surrogates and JavaScript offsets; output replaces isolated surrogates as Node writes UTF-8")
+    (encoding floats "a JavaScript Number is an f64 with the same IEEE-754 arithmetic; % on f64 is the same truncated remainder, and ml_number::js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with println!"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rust)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans")
+    (renamed sanitizeComment sanitize_comment))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 82dc59a65eecb9edb9f59f78392652e00d48b9577a7a9b014e11276602d14e39))

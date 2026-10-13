@@ -1,0 +1,137 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 9bea07db7d96b0d5d9fe06330ac8743112d26e311153f69d6ce6ccbcfd3f4746)
+    (bytes 300)
+    (utf16 300))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 533)
+    (links 533)
+    (sha256 2f3e1df080864727f6a7a9ec4a843c522f287f42eee2cfcb6cc96bb7c8f3e990))
+  (target
+    (language Lean)
+    (sha256 70a242f0451bd3185e6d9d445bf0c1a3714e2fb3ab88d4b26acf4aaa9c29a3f6)
+    (bytes 761))
+  (correspondence
+    (construct
+      (kind function)
+      (source prefixMarker)
+      (target prefixMarker)
+      (signature "(string) -> string")
+      (span 0 8)
+      (bytes 0 8)
+      (span-sha256 78f9ac018e554365069108352dacabb7fbd15246edf19400677e3b54fe24e126)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership not-applicable "no ownership discipline in either language")
+    (types checked-intermediate "declaration types are the checked intermediate types: string; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main prints the lines the source program prints, in order, with IO.println"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Lean)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 381ff154eb53afd3c7ab42f85f878d50ea04da7011ad49dc6469477fdf9a577f))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 08ef9324852f98ef6472851c341e630ab9860ffd3c129fa8a0136b5e3fc58b64)
+    (bytes 63)
+    (utf16 63))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 173)
+    (links 173)
+    (sha256 9ec511b59919e46680c5052586f27557fc834eaeb7eb409d6e47d6caeac3ab7e))
+  (target
+    (language Lean)
+    (sha256 14a1b17bef29c1cfb51dcf7fa250ecf250b8aebec2e216a25f98f5ef21c6f5a5)
+    (bytes 459))
+  (correspondence
+    (construct
+      (kind function)
+      (source isOk)
+      (target isOk)
+      (signature "(record) -> bool")
+      (span 0 8)
+      (bytes 0 8)
+      (span-sha256 78f9ac018e554365069108352dacabb7fbd15246edf19400677e3b54fe24e126)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership not-applicable "no ownership discipline in either language")
+    (types checked-intermediate "declaration types are the checked intermediate types: bool, record; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 3)
+    (encoding arrays "a JavaScript array, which the portable core never mutates, is a Lean Array; a read outside it panics")
+    (encoding floats "a JavaScript Number is a Lean Float, the same IEEE-754 binary64 with the same arithmetic; % is ml_float_rem, the exact truncated remainder, and ml_js_number prints a value as JavaScript does")
+    (encoding program-output "main prints the lines the source program prints, in order, with IO.println"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Lean)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 3be8ca523a891fc1e3b81fa84a314d3b2e25133e851aa87b3f7861b7d80a5f71))

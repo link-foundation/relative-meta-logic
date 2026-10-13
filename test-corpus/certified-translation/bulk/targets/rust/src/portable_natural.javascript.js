@@ -1,0 +1,26 @@
+// rml-certified-item rust/src/portable_natural.rs#PORTABLE_NATURAL_MAX@399 target-sha256=8e605e315c812ac7935234a09989353f52bb8866216706c8ce9899e02bce1a41
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function PORTABLE_NATURAL_MAX() {
+  return 9007199254740991n;
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/portable_natural.rs#RESERVED@528 target-sha256=42e2e1f1ff99c87e5672883b41f9de0fa474c1f109888f47d6afe3e6de8f4c7d
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function RESERVED() {
+  return "if then else fn function return let const var true false null undefined match end fix cofix fun forall as in with where for def theorem axiom by namespace section type self crate super move ref mod pub use impl trait extern unsafe dyn async await loop while break continue switch case default throw try catch finally class new import export nat arguments eval typeof void delete debugger instanceof extends implements interface package private protected public static yield abstract become box do final gen macro override priv unsized virtual union example opaque abbrev constant variable universe mutual structure inductive instance open prelude set_option syntax attribute noncomputable partial deriving termination_by decreasing_by have show from calc sorry rfl";
+}
+
+function main() {
+
+}
+
+main();

@@ -1,0 +1,36 @@
+(* rml-certified-item rust/src/portable_natural.rs#PORTABLE_NATURAL_MAX@399 target-sha256=015ff8335dabd6651de26f52cff9314390d2d6911db59c16af0bdefebaba5b4c *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition PORTABLE_NATURAL_MAX : N :=
+  9007199254740991%N.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/portable_natural.rs#RESERVED@528 target-sha256=88e3f8a3fee702f5fe4e56a34ec63a7b98b448090966037482173333ae42dba6 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition RESERVED : string :=
+  "if then else fn function return let const var true false null undefined match end fix cofix fun forall as in with where for def theorem axiom by namespace section type self crate super move ref mod pub use impl trait extern unsafe dyn async await loop while break continue switch case default throw try catch finally class new import export nat arguments eval typeof void delete debugger instanceof extends implements interface package private protected public static yield abstract become box do final gen macro override priv unsized virtual union example opaque abbrev constant variable universe mutual structure inductive instance open prelude set_option syntax attribute noncomputable partial deriving termination_by decreasing_by have show from calc sorry rfl"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

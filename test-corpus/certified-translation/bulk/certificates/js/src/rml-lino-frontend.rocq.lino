@@ -1,0 +1,69 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 91475a57792db585b64528d835065e087f33e299dee5102b23dca00bda047940)
+    (bytes 134)
+    (utf16 134))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language JavaScript)
+    (root 391)
+    (links 391)
+    (sha256 f0d65235d2b50cefc224aa72b45abce10cbf0763ffa6b194026354b490a97967))
+  (target
+    (language Rocq)
+    (sha256 0d8c256617e429f23ce568f98eb9023a92515495d066ef398ff074f1f5d6604a)
+    (bytes 1163))
+  (correspondence
+    (construct
+      (kind function)
+      (source isIndentedIdItem)
+      (target isIndentedIdItem)
+      (signature "(record) -> bool")
+      (span 0 8)
+      (bytes 0 8)
+      (span-sha256 78f9ac018e554365069108352dacabb7fbd15246edf19400677e3b54fe24e126)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership not-applicable "no ownership discipline in either language")
+    (types checked-intermediate "declaration types are the checked intermediate types: bool, record; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 3)
+    (encoding floats "a JavaScript Number is a Rocq primitive float, the same IEEE-754 binary64 with the same arithmetic, which the kernel computes with; % is ml_float_rem, the exact truncated remainder, and ml_js_number prints a value as JavaScript does")
+    (encoding arrays "a JavaScript array, which the portable core never mutates, is a Rocq list; a read walks it to the index")
+    (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rocq)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 d9341b9e9f669f542a24c88a181cc29142168d4487c797c2a6f4f5b3380b94c7))

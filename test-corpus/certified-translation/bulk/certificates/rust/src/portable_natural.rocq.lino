@@ -1,0 +1,136 @@
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 f7c3b5a8a40a66e38aadbd29f007c5c3a91eaa9e9bee8598c88f605a37797695)
+    (bytes 75)
+    (utf16 75))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 87)
+    (links 87)
+    (sha256 7055019e30aa06019022d04a4962f27593f16960cd92b82b86df86ba10be008c))
+  (target
+    (language Rocq)
+    (sha256 015ff8335dabd6651de26f52cff9314390d2d6911db59c16af0bdefebaba5b4c)
+    (bytes 594))
+  (correspondence
+    (construct
+      (kind function)
+      (source PORTABLE_NATURAL_MAX)
+      (target PORTABLE_NATURAL_MAX)
+      (signature "() -> u64")
+      (span 4 62)
+      (bytes 4 62)
+      (span-sha256 03308dc40ee7d302020bf105d3f0d23c3b7459d44f4d55a3f130373a832638e4)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: u64; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 2)
+    (encoding "machine-integer:u64" "u64 values are N values; every u64 operation tests where Rust panics, overflow or a zero divisor, and aborts there with Rust's panic message, and otherwise computes the in-range result exactly")
+    (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rocq)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 f2d5eb9516e9203cdab8607186798615be43119b525f90ddb0da5188f144873f))
+
+(translation-certificate
+  (schema "rml:translation-certificate:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 b5866372345484414bc27cd4674d8913a2f890ce30a8eebbf7c6656bb9b3fae6)
+    (bytes 805)
+    (utf16 805))
+  (intermediate
+    (schema "meta-language typed program")
+    (schema-version 1)
+    (source-language Rust)
+    (root 81)
+    (links 81)
+    (sha256 64b269894a131583337bce104d816d50f3ac1d50350aaf7bfaa3d8a031f7fc0a))
+  (target
+    (language Rocq)
+    (sha256 88e3f8a3fee702f5fe4e56a34ec63a7b98b448090966037482173333ae42dba6)
+    (bytes 1342))
+  (correspondence
+    (construct
+      (kind function)
+      (source RESERVED)
+      (target RESERVED)
+      (signature "() -> string")
+      (span 0 792)
+      (bytes 0 792)
+      (span-sha256 43d0a13504d177ea029bdd1d10ec18b36fa494db2cf932372fcb48f6c649a7ba)))
+  (preservation
+    (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
+    (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
+    (ownership value-model "immutable owned values; Box marks recursive occurrences; borrows, lifetimes, interior mutability and drop effects are refused")
+    (types checked-intermediate "declaration types are the checked intermediate types: string; target representations are listed under encodings")
+    (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
+    (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
+    (proof-obligations none "0 theorem(s) and assertion(s): 0 discharged by RML evaluation, 0 open, 0 refuted"))
+  (assumptions (count 0))
+  (encodings
+    (count 1)
+    (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program"))
+  (observation
+    (status completed)
+    (lines-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855))
+  (obligations
+    (obligation
+      (id emitter-faithfulness)
+      (kind trust)
+      (source intermediate)
+      (target Rocq)
+      (closed false)
+      (status open)
+      (by native-oracle-ci)))
+  (verdict (discharged 0) (open 1) (assumed 0) (refuted 0))
+  (losses
+    (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 f6d0f78e27f6369d5fd2ddfdf054f8e8fe1aa5ef12274503f53710cf3b4f257e))
