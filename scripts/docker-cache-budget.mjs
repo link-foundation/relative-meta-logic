@@ -17,8 +17,27 @@ export function byteCount(value, description) {
   return bytes;
 }
 const add = (a, b) => byteCount(a + b, 'Aggregate Docker size');
+/**
+ * RML_DOCKER_CLI optionally names the Docker CLI as a JSON argv prefix, for
+ * example ["node","/abs/docker-double.cjs"]. Windows process creation resolves
+ * only .exe/.com from PATH, so an extensionless test double cannot shadow the
+ * real docker.exe; it must be named explicitly. Malformed values fail closed.
+ */
+export function dockerCli(value = process.env.RML_DOCKER_CLI) {
+  if (value === undefined || value === '') return ['docker'];
+  let argv;
+  try { argv = JSON.parse(value); } catch { throw new Error('RML_DOCKER_CLI must be a JSON array of program arguments'); }
+  if (!Array.isArray(argv) || !argv.length || argv.some(part => typeof part !== 'string' || !part || part.includes('\0'))) throw new Error('RML_DOCKER_CLI must be a non-empty JSON array of non-empty strings');
+  return argv;
+}
 function command(run, args) {
-  return run('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 15000, maxBuffer: 32 * 1024 * 1024 }).trim();
+  const [program, ...prefix] = dockerCli();
+  try { return run(program, [...prefix, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 15000, maxBuffer: 32 * 1024 * 1024 }).trim(); }
+  catch (error) {
+    // An absent CLI is an unavailable tool, never evidence that a resource is gone.
+    if (error?.code === 'ENOENT') throw Object.assign(new Error(`Docker CLI unavailable: ${program}`), { stderr: `Docker CLI unavailable: ${program}` });
+    throw error;
+  }
 }
 function inspect(run, args, { missing = false } = {}) {
   let source;

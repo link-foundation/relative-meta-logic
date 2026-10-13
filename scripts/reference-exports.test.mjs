@@ -37,6 +37,11 @@ test('CI runs all proof oracles with owned caches and archives before teardown',
     assert.ok(workflow.includes(`--archive "{output}/reference-exports/${language}/report"`));
   }
   assert.match(workflow, /makarius\/isabelle:Isabelle2025-2@sha256:9bd33b183c399327c5d554fc8cde27c29b5d2b20cdc6fe7a604caa3f951018fc/);
+  // The pinned image's isabelle account is 1001:1001 (1000 is Ubuntu's default
+  // user); output ownership and the container identity must name the same uid.
+  const isabelle = workflow.slice(workflow.indexOf('Validate positive and negative reference artifacts with official Isabelle'));
+  assert.match(isabelle, /sudo chown -R 1001:1001 "\$oracle_output"[\s\S]*--user 1001:1001[\s\S]*makarius\/isabelle/);
+  assert.doesNotMatch(isabelle.slice(0, isabelle.indexOf('makarius/isabelle')), /1000:1000/);
   assert.match(workflow, /bash docker\/run-owned\.sh --init/);
   assert.match(workflow, /leanprover\/lean4:v4\.34\.1/);
   assert.match(workflow, /rocq\/rocq-prover:9\.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782/);

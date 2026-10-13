@@ -14,7 +14,8 @@ owner_label=org.link-foundation.rml.owner
 run_label=org.link-foundation.rml.run
 mkdir -p .rml-cache/evidence .rml-cache/containers
 lease=".rml-cache/evidence/external-lease-$name.json"
-scratch_root=$(node -e 'const path = require("node:path"); const relative = path.relative(process.cwd(), process.env.RML_CACHE_OUTPUT_DIR); if (!relative || relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative)) throw new Error("Docker output must be inside this worktree"); console.log(relative.split(path.sep).join("/"));')
+# Canonical paths: macOS /var is a symlink, and a symlinked output may not escape.
+scratch_root=$(node -e 'const fs = require("node:fs"), path = require("node:path"); const relative = path.relative(fs.realpathSync(process.cwd()), fs.realpathSync(process.env.RML_CACHE_OUTPUT_DIR)); if (!relative || relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative)) throw new Error("Docker output must be inside this worktree"); console.log(relative.split(path.sep).join("/"));')
 scratch=$(mktemp -d "$scratch_root/docker-$name-XXXXXX")
 cidfile="$scratch/container.cid"
 budget() { node scripts/docker-cache-budget.mjs "$1" "$lease" "${@:2}"; }

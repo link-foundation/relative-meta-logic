@@ -9,7 +9,8 @@ import { fileURLToPath } from 'node:url';
 const source = path.dirname(fileURLToPath(import.meta.url));
 const node = process.execPath;
 function fixture(t) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml nested cache '));
+  // Receipts are relative to the canonical worktree (macOS tmpdir is a /var alias).
+  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'rml nested cache ')));
   fs.mkdirSync(path.join(root, 'scripts'));
   for (const name of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'cargo.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
   fs.mkdirSync(path.join(root, 'js'));

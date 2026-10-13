@@ -65,6 +65,28 @@ test('real JSDoc builds, repeats, and fully cleans only registered generated out
 });
 
 
+test('a generated runtime copy inside the leased scratch stages its server; a forged lease naming it fails closed', t => {
+  const f = fixture(t);
+  // The outer lease is bound to RML_CACHE_ROOT. The emitted runtime below is a
+  // different tree (CI: .rml-cache/scratch/.../runtime-1), so it must stage
+  // with exclusive creation instead of resolving the outer worktree lease.
+  const program = `const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process');
+    const runtime=path.join(process.env.TMPDIR,'runtime-1');
+    fs.mkdirSync(path.join(runtime,'vscode/scripts'),{recursive:true});fs.mkdirSync(path.join(runtime,'js/src'),{recursive:true});
+    fs.copyFileSync('vscode/scripts/copy-server.mjs',path.join(runtime,'vscode/scripts/copy-server.mjs'));
+    fs.cpSync('scripts',path.join(runtime,'scripts'),{recursive:true});
+    fs.writeFileSync(path.join(runtime,'js/src/rml-lsp.mjs'),'export const generated = true;');
+    const staged=spawnSync(process.execPath,['vscode/scripts/copy-server.mjs'],{cwd:runtime,encoding:'utf8'});
+    if(staged.status!==0){console.error(staged.stderr);process.exit(3);}
+    if(fs.readFileSync(path.join(runtime,'vscode/server/rml-lsp.mjs'),'utf8')!=='export const generated = true;')process.exit(4);
+    const forged=spawnSync(process.execPath,['vscode/scripts/copy-server.mjs'],{cwd:runtime,encoding:'utf8',env:{...process.env,RML_CACHE_ROOT:runtime,RML_CACHE_LEASE:'00000000-0000-4000-8000-000000000000',RML_CACHE_PRODUCTION:'00000000-0000-4000-8000-000000000000'}});
+    if(forged.status===0)process.exit(5);`;
+  fs.mkdirSync(path.join(f.root, 'vscode/scripts'), { recursive: true });
+  fs.copyFileSync(path.join(repository, 'vscode/scripts/copy-server.mjs'), path.join(f.root, 'vscode/scripts/copy-server.mjs'));
+  ok(f.run(['scripts/run-with-cache.mjs', '--', process.execPath, '-e', program]));
+  ok(f.run(['scripts/build-cache.mjs', '--full']));
+});
+
 test('VS Code staging never deletes an unowned server module', t => {
   const f = fixture(t);
   fs.mkdirSync(path.join(f.root, 'vscode/scripts'), { recursive: true });

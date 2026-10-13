@@ -23,8 +23,10 @@ images=()
 mkdir -p .rml-cache/containers .rml-cache/reports .rml-cache/evidence
 lease=".rml-cache/evidence/external-lease-$builder.json"
 # Git Bash receives native Windows paths from Node; use a checked relative POSIX
-# path so mktemp works on Windows as well as the macOS/Linux shells.
-scratch_root=$(node -e 'const path = require("node:path"); const relative = path.relative(process.cwd(), process.env.RML_CACHE_OUTPUT_DIR); if (!relative || relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative)) throw new Error("Docker output must be inside this worktree"); console.log(relative.split(path.sep).join("/"));')
+# path so mktemp works on Windows as well as the macOS/Linux shells. Compare
+# canonical paths: macOS /var is a symlink to /private/var, and a symlinked
+# output directory must not be able to point outside the worktree.
+scratch_root=$(node -e 'const fs = require("node:fs"), path = require("node:path"); const relative = path.relative(fs.realpathSync(process.cwd()), fs.realpathSync(process.env.RML_CACHE_OUTPUT_DIR)); if (!relative || relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative)) throw new Error("Docker output must be inside this worktree"); console.log(relative.split(path.sep).join("/"));')
 scratch=$(mktemp -d "$scratch_root/docker-$builder-XXXXXX")
 budget_config="$scratch/buildkitd.toml"
 budget() { node scripts/docker-cache-budget.mjs "$1" "$lease" "${@:2}"; }

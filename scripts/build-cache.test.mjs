@@ -52,7 +52,8 @@ test('a queued lease reloads preceding ownership and preserves preexisting zero-
   const queuedLease = lock(queuedContext);
   beginProduction(firstContext, firstLease);
   const output = isolatedOutput(firstContext, 'target', 'rust');
-  const relative = path.relative(f.root, output).split(path.sep).join('/');
+  // The context root is canonical; the fixture spelling may be a /var alias.
+  const relative = path.relative(firstContext.root, output).split(path.sep).join('/');
   fs.writeFileSync(path.join(output, 'generated'), 'compiler output');
   fs.writeFileSync(path.join(output, 'generated-empty'), '');
   capture(firstContext, baseline);
@@ -175,6 +176,26 @@ test('custom target paths with spaces are owned; external/traversal/source paths
   assert.notEqual(f.wrap('process.exit(0)', [], { CARGO_TARGET_DIR: os.tmpdir() }).status, 0);
 });
 
+test('a symlinked alias of the worktree root maps custom targets without resolving in-tree links', { skip: process.platform === 'win32' }, t => {
+  const f = fixture(t);
+  const aliases = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-root-alias-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-alias-outside-'));
+  t.after(() => { fs.rmSync(aliases, { recursive: true, force: true }); fs.rmSync(outside, { recursive: true, force: true }); });
+  // Like macOS /var -> /private/var: the target names the same worktree.
+  const alias = path.join(aliases, 'checkout alias');
+  fs.symlinkSync(f.root, alias, 'dir');
+  ok(f.wrap(writeProgram('aliased target/debug/a'), [], { CARGO_TARGET_DIR: path.join(alias, 'aliased target') }));
+  assert.equal(read(f, 'aliased target/debug/a'), 'cache');
+  ok(f.clean('--full'));
+  assert.equal(exists(f, 'aliased target/debug/a'), false);
+  // A link below the root is not an alias of the root and stays rejected.
+  fs.writeFileSync(path.join(outside, 'keep'), 'outside');
+  fs.symlinkSync(outside, path.join(f.root, 'linked target'), 'dir');
+  assert.notEqual(f.wrap('process.exit(0)', [], { CARGO_TARGET_DIR: path.join(alias, 'linked target', 'debug') }).status, 0);
+  ok(f.clean('--full'));
+  assert.equal(fs.readFileSync(path.join(outside, 'keep'), 'utf8'), 'outside');
+});
+
 test('aggregate byte budget enforced without optional cargo-sweep/du/docker tools', t => {
   const f = fixture(t);
   ok(f.wrap(writeProgram('target/a', 'a'.repeat(100)) + writeProgram('js/.cache/b', 'b'.repeat(100)).replace('const fs=', 'var fs='), [], { RML_CACHE_BUDGET_BYTES: '50' }));
@@ -241,6 +262,29 @@ test('symlink escapes and other worktree artifacts cannot be registered or remov
   assert.equal(fs.readFileSync(path.join(external, 'secret'), 'utf8'), 'external');
   f.git('worktree', 'add', '--detach', path.join(f.root, 'other-worktree'));
   assert.notEqual(f.wrap('process.exit(0)', ['--cache', 'other-worktree', '--class', 'rust']).status, 0);
+});
+
+test('a worktree nested under the primary checkout owns its caches but cannot claim a worktree nested inside it', t => {
+  const f = fixture(t);
+  // Agent and editor tooling commonly places linked worktrees below the
+  // primary checkout (for example `.claude/worktrees/*`). The containing
+  // primary worktree is an ancestor, not an overlapping peer.
+  const child = path.join(f.root, '.worktrees', 'child worktree');
+  f.git('worktree', 'add', '-q', '--detach', child);
+  const inChild = args => spawnSync(node, args, { cwd: child, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0', RML_CACHE_LOCK_TIMEOUT_MS: '1000' }), encoding: 'utf8' });
+  ok(inChild(['scripts/run-with-cache.mjs', '--cache', 'target', '--class', 'rust', '--', node, '-e', writeProgram('target/debug/out')]));
+  assert.equal(fs.readFileSync(path.join(child, 'target/debug/out'), 'utf8'), 'cache');
+  ok(inChild(['scripts/build-cache.mjs', '--full']));
+  assert.equal(fs.existsSync(path.join(child, 'target/debug/out')), false);
+  assert.equal(fs.readFileSync(path.join(child, 'README.md'), 'utf8'), 'source\n');
+  execFileSync('git', ['-C', child, 'worktree', 'add', '-q', '--detach', path.join(child, 'grandchild')]);
+  const claimed = inChild(['scripts/run-with-cache.mjs', '--cache', 'grandchild', '--class', 'rust', '--', node, '-e', 'process.exit(0)']);
+  assert.notEqual(claimed.status, 0);
+  assert.match(claimed.stderr, /overlaps another worktree/);
+  // The primary checkout still refuses to treat the nested worktree as cache.
+  const parent = f.wrap('process.exit(0)', ['--cache', '.worktrees', '--class', 'rust']);
+  assert.notEqual(parent.status, 0);
+  assert.match(parent.stderr, /overlaps another worktree/);
 });
 
 async function waitFor(predicate, timeout = 10000) {

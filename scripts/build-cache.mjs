@@ -41,7 +41,7 @@ export function context(root = repository) {
   const registry = fs.existsSync(registryFile) ? JSON.parse(fs.readFileSync(registryFile, 'utf8')) : { version: 1, root, roots: [], files: {} };
   if (registry.root !== root || registry.version !== 1) throw new Error('Cache registry belongs to a different worktree or version');
   const tracked = new Set(gitless ? [] : git(root, ['ls-files', '-z']).split('\0').filter(Boolean));
-  const worktrees = (gitless ? '' : git(root, ['worktree', 'list', '--porcelain'])).split('\n').filter(s => s.startsWith('worktree ')).map(s => path.resolve(s.slice(9))).filter(p => p !== root);
+  const worktrees = (gitless ? '' : git(root, ['worktree', 'list', '--porcelain'])).split('\n').filter(s => s.startsWith('worktree ')).map(s => path.resolve(s.slice(9))).map(p => { try { return fs.realpathSync(p); } catch { return p; } }).filter(p => p !== root);
   return { root, state, registryFile, registry, tracked, worktrees, gitless };
 }
 export function writeState(c) {
@@ -154,11 +154,29 @@ export function inheritedLease(c, { identity } = {}) {
     return owner.token === process.env.RML_CACHE_LEASE && sameProcessRealm(owner, identity ?? processIdentity()) && alive(owner.pid);
   } catch { return false; }
 }
+/**
+ * Worktree-relative spelling of an absolute or base-relative target. Only an
+ * alias of the worktree root itself (macOS /var -> /private/var, a symlinked
+ * home or checkout directory) is canonicalized; every component below the root
+ * stays literal so validatePath still rejects in-tree symlinks and escapes.
+ */
+export function rootRelative(c, target, base = process.cwd()) {
+  const full = path.resolve(base, target);
+  for (let ancestor = full; ; ancestor = path.dirname(ancestor)) {
+    let real = null;
+    try { real = fs.realpathSync(ancestor); } catch { /* Not created yet. */ }
+    if (real === c.root) return slash(path.relative(ancestor, full));
+    if (path.dirname(ancestor) === ancestor) return slash(path.relative(c.root, full));
+  }
+}
 export function validatePath(c, relative, { registration = false } = {}) {
   if (typeof relative !== 'string' || !relative || path.isAbsolute(relative) || relative.includes('\\') || relative.split('/').some(x => !x || x === '.' || x === '..')) throw new Error(`Unsafe cache path: ${relative}`);
   if (relative === '.git' || relative.startsWith('.git/') || relative === '.rml-cache' || ['.rml-cache/evidence', '.rml-cache/reports', '.rml-cache/state'].some(p => relative === p || relative.startsWith(`${p}/`))) throw new Error(`Protected cache path: ${relative}`);
   const full = path.join(c.root, relative);
-  if (c.worktrees.some(w => full === w || full.startsWith(`${w}${path.sep}`) || w.startsWith(`${full}${path.sep}`))) throw new Error(`Cache overlaps another worktree: ${relative}`);
+  // A worktree that contains this root (for example `.claude/worktrees/*` or
+  // `.worktrees/*` under the primary checkout) is an ancestor, not an overlap:
+  // every path below this root is already this worktree's own namespace.
+  if (c.worktrees.some(w => !c.root.startsWith(`${w}${path.sep}`) && (full === w || full.startsWith(`${w}${path.sep}`) || w.startsWith(`${full}${path.sep}`)))) throw new Error(`Cache overlaps another worktree: ${relative}`);
   let walk = c.root;
   for (const bit of relative.split('/')) {
     walk = path.join(walk, bit);

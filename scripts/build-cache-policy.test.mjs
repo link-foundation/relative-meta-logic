@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { join, dirname, delimiter } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -229,10 +229,14 @@ exit "$status"
     const state = join(fixture, 'docker.json');
     const result = spawnSync('bash', ['docker/ci-build.sh'], {
       cwd: fixture,
-      env: { ...process.env, RML_CACHE_SOURCE_ARCHIVE: '1', RML_CACHE_OUTPUT_DIR: privateOutput, PATH: `${join(fixture, 'bin')}:${process.env.PATH}`, MOCK_DOCKER_PROGRAM: join(fixture, 'bin/fake-docker.cjs'), MOCK_DOCKER_STATE: state, ...env },
+      // Bash resolves the extensionless shim from PATH; Node accounting must be
+      // given the same double explicitly because Windows process creation
+      // resolves only .exe/.com and would otherwise reach the runner's docker.exe.
+      env: { ...process.env, RML_CACHE_SOURCE_ARCHIVE: '1', RML_CACHE_OUTPUT_DIR: privateOutput, PATH: `${join(fixture, 'bin')}${delimiter}${process.env.PATH}`, RML_DOCKER_CLI: JSON.stringify([process.execPath, join(fixture, 'bin/fake-docker.cjs')]), MOCK_DOCKER_PROGRAM: join(fixture, 'bin/fake-docker.cjs'), MOCK_DOCKER_STATE: state, ...env },
       encoding: 'utf8', timeout: 60000,
     });
     assert.ifError(result.error);
+    assert.ok(existsSync(state), `Docker double was never invoked (status ${result.status}):\n${result.stdout}\n${result.stderr}`);
     return { ...result, state: JSON.parse(readFileSync(state, 'utf8')), externalLeases: readdirSync(join(fixture, '.rml-cache/evidence')).filter(p => p.startsWith('external-lease-')), budgetReports: readdirSync(join(fixture, '.rml-cache/reports')).filter(p => p.startsWith('docker-budget-')).map(p => JSON.parse(readFileSync(join(fixture, '.rml-cache/reports', p), 'utf8'))) };
   } finally { rmSync(fixture, { recursive: true, force: true }); }
 }
@@ -301,6 +305,19 @@ test('failed Docker container stop preserves the external lease instead of freei
   assert.equal(result.status, 1);
   assert.equal(result.state.calls.filter(a => a[0] === 'container' && a[1] === 'rm').length, 0);
   assert.ok(result.externalLeases.length > 0);
+});
+
+test('an absent Docker CLI for accounting is reported unavailable and never becomes a passing build', () => {
+  const result = exerciseDocker({ RML_DOCKER_CLI: JSON.stringify([join(tmpdir(), 'rml-absent-docker-cli', 'docker')]) });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Docker CLI unavailable/);
+  assert.equal(result.state.calls.filter(a => a[0] === 'buildx' && a[1] === 'build').length, 0);
+  assert.equal(result.state.calls.filter(a => a[0] === 'run').length, 0);
+  // Unverifiable builder identity is preserved under its external lease for a
+  // later verified cleanup; no reclaimed bytes are claimed.
+  assert.ok(result.state.builder);
+  assert.equal(result.externalLeases.length, 1);
+  assert.ok(result.budgetReports.every(report => report.reclaimedBytes === null && report.afterBytes === null));
 });
 
 for (const [name, env] of [

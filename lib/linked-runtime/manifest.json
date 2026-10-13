@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
   "moduleCount": 165,
-  "linkCount": 276607,
+  "linkCount": 276932,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd",
-  "archiveBytes": 1688384,
+  "archiveSha256": "8a69f789b20cb91ed5c79750dd5b599a3082f697a4d3a753b16de89798ac5b33",
+  "archiveBytes": 1690247,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -766,9 +766,9 @@
     },
     {
       "path": "scripts/build-cache.mjs",
-      "sourceSha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c",
-      "astSha256": "15e2c447125314749a1fe5b3c9f773a9225c67c990e210694d59c209974fac9a",
-      "generatedSha256": "92a93de1684396f6ed78446ac1f40bde04038c00935b845820a58ef0aa5cb81b"
+      "sourceSha256": "076791b3d10fa8a957ad88fb7f9ee8657a7ae58bbd181a3bb4b02687e82424ab",
+      "astSha256": "d4489770c017974abbd588a14e3c47cf8bfdb848ae39421b1db4475af95a462f",
+      "generatedSha256": "4e70396dce02d41a7be5ac4f440f2ae0660be1f34e9145fd9fe9a40cf700a2e4"
     },
     {
       "path": "scripts/build-docs.mjs",
@@ -862,9 +862,9 @@
     },
     {
       "path": "scripts/docker-cache-budget.mjs",
-      "sourceSha256": "477d75161bed21ce4bce37435b7059555bd96d1d655188539fd32d2673617a2d",
-      "astSha256": "24dc8e1e197623a1f73bbee5ee70537868e9ac4db449e3373905e059235a8b4c",
-      "generatedSha256": "ebd520ba4cee61ada40594a780b936f34345b17f2ec7fc527ab4526eac4f63be"
+      "sourceSha256": "aa83b83efdcda1906048967f10d2ca1aa0ba8dea00b80d6688eebac6249d1550",
+      "astSha256": "b76251ebd9ba1e4e83f56cad60ab7a56b38bc91db58ada441281b53bb787e462",
+      "generatedSha256": "363e5cabea1fa056cded1ed1cff3f68dddf9cd50d417385eff60611139b50c3b"
     },
     {
       "path": "scripts/formal-collections-cases.mjs",
@@ -1054,9 +1054,9 @@
     },
     {
       "path": "scripts/run-with-cache.mjs",
-      "sourceSha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555",
-      "astSha256": "f8c2a8ec158815c8543cf26928501f4f33a76d7d215ace281673ce5769dd72b9",
-      "generatedSha256": "4938fca788348a1783bc3e3c2cd44fd9eead1a2679992701f5bc2dedea031712"
+      "sourceSha256": "95aee45c093df41eacf101deb27dcd633b288b9d6748abcb3cd9818a350d60bc",
+      "astSha256": "012f93ec1eda3d0254ea2740045e9ff444f718ada6418d3debec7c1147f907fb",
+      "generatedSha256": "14acb2a3a4207803a2ffdf4d5643413bdfb5fb68acd35ba3705bcc3090c8ac3b"
     },
     {
       "path": "scripts/update-foundation-candidates.mjs",
@@ -1102,9 +1102,9 @@
     },
     {
       "path": "vscode/scripts/copy-server.mjs",
-      "sourceSha256": "1f9b9e6aa7581391156410264a0dcbeabf4f913cd4c063bdef6117287d699eb5",
-      "astSha256": "4e10b6fe858bb7e1503c6438aaafa68a60888ed1c487ed6dbd97045d464991be",
-      "generatedSha256": "b774a7706c1df4faf2d6601c9a7de9439aeb18b1c86ba084d9c5ff2d87552e20"
+      "sourceSha256": "125f7164e146c3fe86992e8c490b44452d425c2e19e8104537eed884c8188540",
+      "astSha256": "18de488387a48b8c0420ca9d49318c625b445f5963d2c39fa1cd3d642755c083",
+      "generatedSha256": "fc2b6846f59adf61e83e758dacb5ca54d8eaae5c6e0762f2916621128bb076f5"
     },
     {
       "path": "vscode/scripts/package-vsix.mjs",
