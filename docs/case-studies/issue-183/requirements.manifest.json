@@ -37898,7 +37898,7 @@
     {
       "id": "R162",
       "obligation": "Make cleanup repository-scoped, idempotent, concurrency-safe and portable; validate ownership and custom paths, reject traversal/symlink escape, and preserve source, vendored grammars, fixtures, corpus/proofs, uncommitted work, active builds/worktrees and acceptance evidence without purging global caches or unrelated containers/volumes.",
-      "status": "Partial — ownership/path/worktree safety tested; Windows attribution and symlink limits open",
+      "status": "Partial — ownership/path/worktree safety tested; Windows open-file attribution open and Windows junction safety runs await a hosted run",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -37935,11 +37935,11 @@
           "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         }
       ],
-      "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. `On Windows such a process still defers cleanup because no open-file inventory is read, and the symlink, ancestor-substitution and process-group safety tests run only on POSIX`.",
+      "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. The symlink-escape, root-alias, hook/report-link and ancestor-substitution tests now run on Windows with junctions (`build-cache.test.mjs`, `cargo-unit-sweep.test.mjs`), and a descendant that outlives a killed build in the tree keeps its lease on every OS even outside the build's process group. `On Windows such a Node process still defers cleanup because no open-file inventory is read; the junction-based Windows runs await a hosted cache-portability run, and the process-group lease test stays POSIX-only because Windows has no POSIX process groups`.",
       "checks": [
         "build-cache-lifecycle"
       ],
-      "remainingGap": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. `On Windows such a process still defers cleanup because no open-file inventory is read, and the symlink, ancestor-substitution and process-group safety tests run only on POSIX`.",
+      "remainingGap": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. The symlink-escape, root-alias, hook/report-link and ancestor-substitution tests now run on Windows with junctions (`build-cache.test.mjs`, `cargo-unit-sweep.test.mjs`), and a descendant that outlives a killed build in the tree keeps its lease on every OS even outside the build's process group. `On Windows such a Node process still defers cleanup because no open-file inventory is read; the junction-based Windows runs await a hosted cache-portability run, and the process-group lease test stays POSIX-only because Windows has no POSIX process groups`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -38133,6 +38133,18 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "a Node process with an in-tree script, a package manager, no script or an open tree file still defers cleanup",
           "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a surviving in-tree descendant of a killed build keeps its lease even outside its process group",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "concurrent writes to the prior private target survive hard kill of the next producer",
+          "polarity": "negative"
         }
       ],
       "completionBindings": []
@@ -38140,7 +38152,7 @@
     {
       "id": "R163",
       "obligation": "Execute temporary-fixture tests for installed fresh-clone hooks, non-code commits, every cache class, repeat runs, success/failure/interruption, absent tools, spaced/custom paths, parallel builds/worktrees, budgets and preservation; CI must detect disabled wrappers/hooks and omitted classes.",
-      "status": "Partial — lifecycle matrix passes on Linux, macOS and Windows CI; Windows POSIX-only tests open",
+      "status": "Partial — lifecycle matrix passes on Linux, macOS and Windows CI; Windows equivalents of 14 POSIX-only tests await a hosted run",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -38177,13 +38189,13 @@
           "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         }
       ],
-      "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results. `Windows skips 19 POSIX-only lifecycle tests (process-group kill, signal interruption, symlink, private Cargo target and native make cases) and macOS skips 1 Linux-only colliding-PID test; no Windows equivalents exist yet`.",
+      "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results; the bare skips that run 38429794746 recorded for tests that now run are accepted for that run only. The source now runs 14 of those 19 Windows tests and the macOS colliding-PID test: junctions replace directory symlinks, a copy of node.exe named cargo/rustc with a NODE_OPTIONS preload replaces the shebang Cargo doubles (`scripts/build-cache-nested.test.mjs`, `scripts/build-cache.test.mjs`), Git for Windows' sh runs the missing-Node hook, the colliding-PID lease uses the host's real process identity, and the grandchild-pipe test relies on the Node command's kill-on-close job (`scripts/build-resource-monitor.test.mjs`); 'hard kill' outcomes and a surviving-descendant lease test cover termination on every OS. `These Windows equivalents await a hosted cache-portability run (predicted bare skips [0, 0, 5] over 215 tests per OS); Windows still skips signal interruption, its two interrupt outcomes, the process-group lease test and the POSIX make/cc test, each with its reason in the source`.",
       "checks": [
         "build-cache-lifecycle",
         "cache-tool-availability",
         "build-cache-ci-evidence"
       ],
-      "remainingGap": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results. `Windows skips 19 POSIX-only lifecycle tests (process-group kill, signal interruption, symlink, private Cargo target and native make cases) and macOS skips 1 Linux-only colliding-PID test; no Windows equivalents exist yet`.",
+      "remainingGap": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results; the bare skips that run 38429794746 recorded for tests that now run are accepted for that run only. The source now runs 14 of those 19 Windows tests and the macOS colliding-PID test: junctions replace directory symlinks, a copy of node.exe named cargo/rustc with a NODE_OPTIONS preload replaces the shebang Cargo doubles (`scripts/build-cache-nested.test.mjs`, `scripts/build-cache.test.mjs`), Git for Windows' sh runs the missing-Node hook, the colliding-PID lease uses the host's real process identity, and the grandchild-pipe test relies on the Node command's kill-on-close job (`scripts/build-resource-monitor.test.mjs`); 'hard kill' outcomes and a surviving-descendant lease test cover termination on every OS. `These Windows equivalents await a hosted cache-portability run (predicted bare skips [0, 0, 5] over 215 tests per OS); Windows still skips signal interruption, its two interrupt outcomes, the process-group lease test and the POSIX make/cc test, each with its reason in the source`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -38466,6 +38478,24 @@
           "checkId": "build-cache-ci-evidence",
           "file": "scripts/build-cache-ci-evidence.test.mjs",
           "name": "a portability run with a failing, missing, skipped-away or unsuccessful platform is rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "concurrent user files and edits survive hard kill with explicit producer receipts",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "concurrent writes to the prior private target survive hard kill of the next producer",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a surviving in-tree descendant of a killed build keeps its lease even outside its process group",
           "polarity": "negative"
         }
       ],
@@ -42999,14 +43029,14 @@
           "sha256": "963ffdc0eac46b141a17a92cac09b6e75b4716d7e1bfa9039944b850a511958a"
         },
         {
-          "path": "scripts/build-cache.test.mjs",
-          "role": "test",
-          "sha256": "66d6b7858caf73e426297560738001cf738eb6f4ebff5318e88ec8990d86c793"
-        },
-        {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
           "sha256": "c94c036b901e14d40890d2cfa43b5e5145cb426be80d1d4baf0f0104a1b6ed79"
+        },
+        {
+          "path": "scripts/build-cache.test.mjs",
+          "role": "test",
+          "sha256": "98855a5a2028c319535e6351a2867add09323bdd4687de7a82332042ac1e958d"
         }
       ],
       "assertions": [
@@ -43169,9 +43199,24 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "a Node process with an in-tree script, a package manager, no script or an open tree file still defers cleanup",
           "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "concurrent user files and edits survive hard kill with explicit producer receipts",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "concurrent writes to the prior private target survive hard kill of the next producer",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a surviving in-tree descendant of a killed build keeps its lease even outside its process group",
+          "polarity": "negative"
         }
       ],
-      "timeoutMs": 120000
+      "timeoutMs": 900000
     },
     {
       "id": "portable-natural-js",
@@ -55638,14 +55683,14 @@
       ],
       "files": [
         {
-          "path": "scripts/cargo-unit-sweep.test.mjs",
-          "role": "test-and-fixture",
-          "sha256": "61d8c849e9a2316d4840598ef910ca72d79e1753eed9068e0b4c4f43c6c08bfc"
-        },
-        {
           "path": "scripts/cargo-unit-sweep.mjs",
           "role": "implementation",
           "sha256": "202bc18d12960817af4bd71027e4ce97c2fdefb23fb979eab72b1a732f0bb69b"
+        },
+        {
+          "path": "scripts/cargo-unit-sweep.test.mjs",
+          "role": "test-and-fixture",
+          "sha256": "7ca8dbd7b4e2bbfe2c8c79d3530f4f731535d4755b7dcaa3a779f40e8977858b"
         }
       ],
       "assertions": [
@@ -59235,11 +59280,6 @@
       ],
       "files": [
         {
-          "path": "scripts/build-cache-ci-evidence.test.mjs",
-          "role": "test",
-          "sha256": "254900fe86319df270e763401c804c2edf80a64fb240afab512724449873a7e7"
-        },
-        {
           "path": "scripts/measure-build-cache.mjs",
           "role": "implementation",
           "sha256": "68cdb2ae2a2192838e83443fb71323832db57f5bd0cc8f2d14a254ea8edeb4d8"
@@ -59268,6 +59308,11 @@
           "path": "docs/case-studies/issue-183/data/cache-portability-ci.json",
           "role": "fixture",
           "sha256": "4c43fbaddee95f645bcea456900c36fec1568ccd169d90b389f9663691996db5"
+        },
+        {
+          "path": "scripts/build-cache-ci-evidence.test.mjs",
+          "role": "test",
+          "sha256": "cbb8b88294a169d65d84f44ab951ccce14ef32ab62f2fd015f0126a2d7827757"
         }
       ],
       "assertions": [
