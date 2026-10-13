@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311",
-  "archiveBytes": 775699,
+  "archiveSha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33",
+  "archiveBytes": 775715,
   "linkCount": 14591,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
@@ -52,8 +52,8 @@
     },
     {
       "path": ".github/workflows/cache-portability.yml",
-      "sourceSha256": "77689b60b43f68780ade48e4a18f9ec2cf573b2e7e93a79f4fcf8277b641a7a6",
-      "generatedSha256": "77689b60b43f68780ade48e4a18f9ec2cf573b2e7e93a79f4fcf8277b641a7a6"
+      "sourceSha256": "796e6e532982fa2241dbccb5ada96f65957edb82f9283bf17b38d4468a6b8cd3",
+      "generatedSha256": "796e6e532982fa2241dbccb5ada96f65957edb82f9283bf17b38d4468a6b8cd3"
     },
     {
       "path": ".github/workflows/docker.yml",

@@ -3263,10 +3263,104 @@
       ],
       "implementationClaims": [],
       "claimedEvidence": "`requirements.md` registers every requirement-bearing source through comment `6138933223` (2026-10-13), including the maintainer instructions recorded as R165–R169, and the 2026-10-13 iteration documents certified translation, the bulk receipt, the meta-language upstream requests, native meta-theory execution, the foundation comparison, cache lifecycle changes and the hosted recapture workflow. `Repository-wide behavior documentation and final evidence remain incomplete until R111, R132 and R135 are delivered`.",
-      "checks": [],
+      "checks": [
+        "docs-issue-183",
+        "issue-183-pr-metadata"
+      ],
       "remainingGap": "`requirements.md` registers every requirement-bearing source through comment `6138933223` (2026-10-13), including the maintainer instructions recorded as R165–R169, and the 2026-10-13 iteration documents certified translation, the bulk receipt, the meta-language upstream requests, native meta-theory execution, the foundation comparison, cache lifecycle changes and the hosted recapture workflow. `Repository-wide behavior documentation and final evidence remain incomplete until R111, R132 and R135 are delivered`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "presents each bundled theory program beside its familiar form",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "uses links network for the ambient structure and graph for its derived subset",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "documents the executed foundation-search report and ontology versions",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "never calls the ambient links network a graph",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "lists global minimality and link ontology among the unestablished results",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "registers every requirement-bearing issue and PR source",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "states the claim boundary without hiding the external semantic laws",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "repairs the live PR body rather than a stale event snapshot",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "only reads a live body that no longer needs repair",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "runs the PR 184 metadata repair on every pull-request event type",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "tracks a contiguous atomic requirement set with truthful status and evidence",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "keeps traceability validation separate from the deliberately failing final gate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "rejects issue-closing metadata while foundational requirements remain open",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "refuses to rewrite a closing directive inside other text",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "ignores every other pull request",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -7141,10 +7235,43 @@
         }
       ],
       "claimedEvidence": "`README.md`, `ARCHITECTURE.md`, `docs/FOUNDATIONS.md`, and `docs/META_THEORY.md` align on the current `external laws -> linked source -> K1 -> F -> T` boundary; `full-language, recursive ontology, workflow, and open-gap documentation is not yet repository-wide` (R132).",
-      "checks": [],
+      "checks": [
+        "docs-issue-183"
+      ],
       "remainingGap": "`README.md`, `ARCHITECTURE.md`, `docs/FOUNDATIONS.md`, and `docs/META_THEORY.md` align on the current `external laws -> linked source -> K1 -> F -> T` boundary; `full-language, recursive ontology, workflow, and open-gap documentation is not yet repository-wide` (R132).",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "presents each bundled theory program beside its familiar form",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "uses links network for the ambient structure and graph for its derived subset",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "documents the executed foundation-search report and ontology versions",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "never calls the ambient links network a graph",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "lists global minimality and link ontology among the unestablished results",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -7558,10 +7685,43 @@
         }
       ],
       "claimedEvidence": "The original-text snapshot covers all 205 conversation comments through `6138933223`, with issue and PR bodies, review submissions, inline comments and thread state pinned in `requirements.live-sources.json`; the paginated live scan was repeated on 2026-10-13 after the PR description update, and the acceptance gate rejects any new, edited or deleted source until it is reviewed. `Every later comment still requires a new reviewed snapshot`.",
-      "checks": [],
+      "checks": [
+        "requirements-live-sources"
+      ],
       "remainingGap": "The original-text snapshot covers all 205 conversation comments through `6138933223`, with issue and PR bodies, review submissions, inline comments and thread state pinned in `requirements.live-sources.json`; the paginated live scan was repeated on 2026-10-13 after the PR description update, and the acceptance gate rejects any new, edited or deleted source until it is reviewed. `Every later comment still requires a new reviewed snapshot`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "scans all six source channels and accepts identical reviewed content",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "paginates both review threads and their nested comment connections",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "rejects new edited deleted sources, changed bodies and changed thread resolution",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "requires actual live access; a missing token is never a passing offline certificate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "does not bless new source digests without preserving and reviewing the actual source text",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -12393,10 +12553,43 @@
       ],
       "implementationClaims": [],
       "claimedEvidence": "`requirements.sources.json` preserves all 205 conversation comments and both PR-description snapshots, and R165–R169 register the 2026-10-13 maintainer instructions verbatim from comment `6138933223`; the paginated live-source inventory was refreshed on 2026-10-13 at the iteration head. `A rescan is still required at the final commit of the PR`.",
-      "checks": [],
+      "checks": [
+        "requirements-live-sources"
+      ],
       "remainingGap": "`requirements.sources.json` preserves all 205 conversation comments and both PR-description snapshots, and R165–R169 register the 2026-10-13 maintainer instructions verbatim from comment `6138933223`; the paginated live-source inventory was refreshed on 2026-10-13 at the iteration head. `A rescan is still required at the final commit of the PR`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "scans all six source channels and accepts identical reviewed content",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "paginates both review threads and their nested comment connections",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "rejects new edited deleted sources, changed bodies and changed thread resolution",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "requires actual live access; a missing token is never a passing offline certificate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "does not bless new source digests without preserving and reviewing the actual source text",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -12423,10 +12616,73 @@
       ],
       "implementationClaims": [],
       "claimedEvidence": "`requirements.sources.json` preserves original wording with body digests and permalinks; `requirements.manifest.json` separately stores normalized obligations, source mappings, implementation claims, positive/negative assertion bindings, statuses and gaps. Historical claims still need execution-backed per-row evidence; this infrastructure does not fill missing product behavior.",
-      "checks": [],
+      "checks": [
+        "issue-183-pr-metadata"
+      ],
       "remainingGap": "`requirements.sources.json` preserves original wording with body digests and permalinks; `requirements.manifest.json` separately stores normalized obligations, source mappings, implementation claims, positive/negative assertion bindings, statuses and gaps. Historical claims still need execution-backed per-row evidence; this infrastructure does not fill missing product behavior.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "registers every requirement-bearing issue and PR source",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "states the claim boundary without hiding the external semantic laws",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "repairs the live PR body rather than a stale event snapshot",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "only reads a live body that no longer needs repair",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "runs the PR 184 metadata repair on every pull-request event type",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "tracks a contiguous atomic requirement set with truthful status and evidence",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "keeps traceability validation separate from the deliberately failing final gate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "rejects issue-closing metadata while foundational requirements remain open",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "refuses to rewrite a closing directive inside other text",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "ignores every other pull request",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -32626,10 +32882,43 @@
       ],
       "implementationClaims": [],
       "claimedEvidence": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. `The complete repository-wide guides/examples/capability/release-note reconciliation remains unestablished`, including final release publication and full-language claims.",
-      "checks": [],
+      "checks": [
+        "docs-issue-183"
+      ],
       "remainingGap": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. `The complete repository-wide guides/examples/capability/release-note reconciliation remains unestablished`, including final release publication and full-language claims.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "presents each bundled theory program beside its familiar form",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "uses links network for the ambient structure and graph for its derived subset",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "documents the executed foundation-search report and ontology versions",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "never calls the ambient links network a graph",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "docs-issue-183",
+          "file": "scripts/docs.test.mjs",
+          "name": "lists global minimality and link ontology among the unestablished results",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -34507,10 +34796,55 @@
       ],
       "implementationClaims": [],
       "claimedEvidence": "`.github/workflows/issue-183-acceptance.yml` invokes the real gate. Branch-protection required-check configuration is external and unverified; all open product requirements still block acceptance. `issue-183-acceptance.yml` runs on every PR revision with no path filter or continue-on-error; `gh api` on 2026-10-13 shows `main` has no branch protection or rulesets. `Making the check required is a maintainer repository setting that code cannot establish, and full delivery remains unmet`.",
-      "checks": [],
+      "checks": [
+        "acceptance-status-contract"
+      ],
       "remainingGap": "`.github/workflows/issue-183-acceptance.yml` invokes the real gate. Branch-protection required-check configuration is external and unverified; all open product requirements still block acceptance. `issue-183-acceptance.yml` runs on every PR revision with no path filter or continue-on-error; `gh api` on 2026-10-13 shows `main` has no branch protection or rulesets. `Making the check required is a maintainer repository setting that code cannot establish, and full delivery remains unmet`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "executes positive and negative behavioral assertions and records the actual command/version",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "preserves every incomplete status and fails completion without erasing its evidence",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects a hand-edited status cell and matching labels without execution evidence",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "selects the real completion job for non-code changes without masking failure",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects skipped and TODO assertions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "does not promote a passing partial witness by changing only its completion status",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects omitted per-requirement positive or negative assertion edges",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -34538,11 +34872,12 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts. Historical prose evidence is not a passing execution receipt; full per-row semantic/native bindings remain incomplete. `issue-183-producer-mutations.test.mjs` drives the real reviewed proof-substrate and foundation-context producers through the real reporter and gate; a consistent hand-promotion of Partial R118 to Complete is rejected for missing full-scope bindings although its check passes. `Historical Complete rows still need full-scope completion bindings`.",
+      "claimedEvidence": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts, and reject missing, skipped, TODO, filtered, stale, deleted and merely declared evidence. All Complete rows now carry positive and negative full-scope completion bindings that the gate executes, and `issue-183-producer-mutations.test.mjs` shows that a hand-promoted Partial row is rejected for missing them. Ledger, documentation, live-source and acceptance-workflow rows are bound to executed checks. `R22, R51, R71, R73, R74, R135 and R137 still have no executed check, because their obligations are an unpublished release, open research or the final handoff`.",
       "checks": [
-        "producer-gate-mutations"
+        "producer-gate-mutations",
+        "acceptance-status-contract"
       ],
-      "remainingGap": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts. Historical prose evidence is not a passing execution receipt; full per-row semantic/native bindings remain incomplete. `issue-183-producer-mutations.test.mjs` drives the real reviewed proof-substrate and foundation-context producers through the real reporter and gate; a consistent hand-promotion of Partial R118 to Complete is rejected for missing full-scope bindings although its check passes. `Historical Complete rows still need full-scope completion bindings`.",
+      "remainingGap": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts, and reject missing, skipped, TODO, filtered, stale, deleted and merely declared evidence. All Complete rows now carry positive and negative full-scope completion bindings that the gate executes, and `issue-183-producer-mutations.test.mjs` shows that a hand-promoted Partial row is rejected for missing them. Ledger, documentation, live-source and acceptance-workflow rows are bound to executed checks. `R22, R51, R71, R73, R74, R135 and R137 still have no executed check, because their obligations are an unpublished release, open research or the final handoff`.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -34555,6 +34890,48 @@
           "checkId": "producer-gate-mutations",
           "file": "scripts/issue-183-producer-mutations.test.mjs",
           "name": "a falsified Complete status on a real partial row is rejected although its executed check passes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "executes positive and negative behavioral assertions and records the actual command/version",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "preserves every incomplete status and fails completion without erasing its evidence",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects a hand-edited status cell and matching labels without execution evidence",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "selects the real completion job for non-code changes without masking failure",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects skipped and TODO assertions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "does not promote a passing partial witness by changing only its completion status",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "acceptance-status-contract",
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects omitted per-requirement positive or negative assertion edges",
           "polarity": "negative"
         }
       ],
@@ -34643,10 +35020,104 @@
       ],
       "implementationClaims": [],
       "claimedEvidence": "`requirements.sources.json` preserves the original issue, current PR body and all 204 conversation comments through `5856764556`. `requirements.manifest.json` indexes all rows and sources; full repository reconciliation and independently executed evidence remain open.",
-      "checks": [],
+      "checks": [
+        "issue-183-pr-metadata",
+        "requirements-live-sources"
+      ],
       "remainingGap": "`requirements.sources.json` preserves the original issue, current PR body and all 204 conversation comments through `5856764556`. `requirements.manifest.json` indexes all rows and sources; full repository reconciliation and independently executed evidence remain open.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "registers every requirement-bearing issue and PR source",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "states the claim boundary without hiding the external semantic laws",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "repairs the live PR body rather than a stale event snapshot",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "only reads a live body that no longer needs repair",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "runs the PR 184 metadata repair on every pull-request event type",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "tracks a contiguous atomic requirement set with truthful status and evidence",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "keeps traceability validation separate from the deliberately failing final gate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "rejects issue-closing metadata while foundational requirements remain open",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "refuses to rewrite a closing directive inside other text",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "ignores every other pull request",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "scans all six source channels and accepts identical reviewed content",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "paginates both review threads and their nested comment connections",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "rejects new edited deleted sources, changed bodies and changed thread resolution",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "requires actual live access; a missing token is never a passing offline certificate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "does not bless new source digests without preserving and reviewing the actual source text",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -39962,6 +40433,11 @@
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
           "sha256": "7a694d09363515c88572de29bcc9360187054cb79048f58623d788560f4b7e35"
+        },
+        {
+          "path": ".github/workflows/issue-183-acceptance.yml",
+          "role": "fixture",
+          "sha256": "10c1e2cef23a986bff6236fb94cf63319aacdf5a18b652b0c49552fdc2093159"
         }
       ],
       "assertions": [
@@ -39978,6 +40454,26 @@
         {
           "file": "scripts/issue-183-requirements-gate.test.mjs",
           "name": "rejects a hand-edited status cell and matching labels without execution evidence",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "selects the real completion job for non-code changes without masking failure",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects skipped and TODO assertions",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "does not promote a passing partial witness by changing only its completion status",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects omitted per-requirement positive or negative assertion edges",
           "polarity": "negative"
         }
       ]
@@ -43824,22 +44320,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -44186,22 +44682,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -44934,22 +45430,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -45276,22 +45772,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -46049,22 +46545,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -46391,22 +46887,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -47154,22 +47650,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -47416,22 +47912,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -49289,22 +49785,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -49612,22 +50108,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -51534,22 +52030,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -51887,22 +52383,22 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "70eadbb3e42c59032654ef457f38e732695bc0d9ef6f730180179e92a84595c6"
+          "sha256": "fedee3807f33078d99028811722642cc12d17e6bcb9032e9a7fa4aee92aba3bd"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311"
+          "sha256": "4196e85047cb3256b50e51816a3081427e7d9f22bfcfd4ba49ee92ee8e02eb33"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8"
+          "sha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "89da8f5a58af7ff713a7ccd7b13ff9ad77479fe8609a1ddf3a082d956bebeac6"
+          "sha256": "6570c3f32d0adae9e97feb9b2224fc252701b2f8039c06806569fae56a620773"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -57126,6 +57622,57 @@
         {
           "file": "scripts/orientation-independence.test.mjs",
           "name": "an absent requested compiler fails instead of skipping native checking",
+          "polarity": "negative"
+        }
+      ]
+    },
+    {
+      "id": "requirements-live-sources",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/issue-183-requirements-live-sources.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "role": "test",
+          "sha256": "4bdf23e9fc6d37b671dee7216086c15c1b65944c21488794f6f189ab0261c993"
+        },
+        {
+          "path": "scripts/issue-183-requirements-live-sources.mjs",
+          "role": "implementation",
+          "sha256": "5023978e18e8266c9db5626f87b2bade1d8f79be008e47bc2595fe67ecb1259a"
+        },
+        {
+          "path": "docs/case-studies/issue-183/requirements.live-sources.json",
+          "role": "fixture",
+          "sha256": "cb3cd86a2292fbf33c1ba7105f5c641ad9fdb61ca762ee6cb291e16e965356b2"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "scans all six source channels and accepts identical reviewed content",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "paginates both review threads and their nested comment connections",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "rejects new edited deleted sources, changed bodies and changed thread resolution",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "requires actual live access; a missing token is never a passing offline certificate",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "does not bless new source digests without preserving and reviewing the actual source text",
           "polarity": "negative"
         }
       ]

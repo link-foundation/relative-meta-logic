@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
-  "moduleCount": 185,
-  "linkCount": 341550,
+  "moduleCount": 186,
+  "linkCount": 344053,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -44,7 +44,7 @@
         "target": "vscode/src/extension.js"
       }
     ],
-    "staticImportEdges": 646,
+    "staticImportEdges": 647,
     "dynamicImportSites": [
       {
         "from": "experiments/issue-181-meta-language-js-smoke.mjs",
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "bb5c1c6b4c4c2ba9e2f02d3b7334ab7fefe4fe4fe5e00b4329f31635ff94fac8",
-  "archiveBytes": 2033236,
+  "archiveSha256": "61c02173c1ccbdfef784a88de47044ea16f3d5800a5f36ff674b331f694fe56f",
+  "archiveBytes": 2048148,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -195,10 +195,16 @@
       "generatedSha256": "e582b89ebea205e5890e3849a18c83087702b5551baba359b2c6b1de7787ecf5"
     },
     {
+      "path": "experiments/assumption-removal/finiteness.mjs",
+      "sourceSha256": "63552929951cf70caa629c60963dd18a10d99dbc119b4664c92b787afb6f376b",
+      "astSha256": "7fb11b047fc07237abe6e32da27cf049565ebde2849f5eda0f0143efccb84272",
+      "generatedSha256": "6a9f03e07a557ad1642b0a52244f8eda50054375d00a91ef58f55a117f4d6c50"
+    },
+    {
       "path": "experiments/assumption-removal/matrix.mjs",
-      "sourceSha256": "5ee7a291a2a43f0240ac0b1ac90e905873a2d26a52786e2b035b9ab3d837a6e5",
-      "astSha256": "e50fc0758fab181c05914ba178aad9bba1b7140a92e615136f7f3908b06836fa",
-      "generatedSha256": "e217c71e34c2fddad486dbf9173f35ebdd63992b49017b9dbb71792d143cc816"
+      "sourceSha256": "572bf3d0cc0cfcda34d94cd86e0c55fd76f7e11b2fa450ca964d80dd624a3665",
+      "astSha256": "3bde4ffe584419db79904507d9a9126c99b8457e160e9fd8ab7936288a011acb",
+      "generatedSha256": "1b1a82ed67a62961240f47f86bb404198dc3c751882d0d3f6e6bcc8746c0204e"
     },
     {
       "path": "experiments/combinator-bootstrap.mjs",
@@ -838,9 +844,9 @@
     },
     {
       "path": "scripts/build-cache.mjs",
-      "sourceSha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e",
-      "astSha256": "7c6eb9ddef8a6eab63db89feb542bf0b4fdbfa7e39be672548daa9d1b4d81ab4",
-      "generatedSha256": "cc06e987869ceec5bd73b3a2c97dca6fd34f85f74923624bc86dddf0317d6c1f"
+      "sourceSha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb",
+      "astSha256": "5480d7d9bd0fc51272a2eb30c666511bbf1410b7e939c2e5969dca0819a2fe14",
+      "generatedSha256": "e23275390ab69fef3bff914c3b2d15480891ebdf1e03a9af2486c7e9b71da20e"
     },
     {
       "path": "scripts/build-docs.mjs",
@@ -946,9 +952,9 @@
     },
     {
       "path": "scripts/docker-cache-budget.mjs",
-      "sourceSha256": "24b0b6e86345ebf1ba1e68b2605320ec5d0416a0c4171d4437ff4bee0f04b8a0",
-      "astSha256": "154e5ad1d0bffc2ff2e3da69e0253578218d819945543a90bcbada54352d100a",
-      "generatedSha256": "9931e31cd190a6e7abbcaa58ce618469a19460aab6398d8c353fd7e254899d4f"
+      "sourceSha256": "4d7af95535532e1411da18945104cb581231393655dd01a0dba42fb7f1711733",
+      "astSha256": "a7950b519037de60f2c01c596b948b104ef0582f4a7d3081a3d5b279cb8d9d09",
+      "generatedSha256": "f3239f4db3e35d5a268d0f0f7d29d70b73951f63eb55937591b54155e73ae1b3"
     },
     {
       "path": "scripts/formal-collections-cases.mjs",
