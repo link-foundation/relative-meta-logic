@@ -419,6 +419,16 @@ function localizeTargetNames(targetLanguage, emitted) {
 
 function authorityForm() { return ['authority', ...CERTIFIED_AUTHORITY.map(([key, value]) => [key, value])]; }
 
+/**
+ * Render the certified intermediate of an imported program as JavaScript, decoding it solely from
+ * the RML structure network. This lets JavaScript observe the very program a certificate pins by
+ * hash when the RML evaluator does not cover a construct; it is an observation aid, not a target.
+ */
+export function renderCertifiedJavaScript(imported) {
+  if (imported?.status !== 'imported') throw new Error('Only an imported certified program can be rendered');
+  return EMITTERS.JavaScript(decodeCertifiedIntermediate(imported.rmlNetwork, imported.root)).text;
+}
+
 /** Translate and certify; refusals return a first-refusal receipt instead of a target. */
 export function translateCertified(source, sourceLanguage, targetLanguage, { imported } = {}) {
   requireLanguage(sourceLanguage, 'source'); requireLanguage(targetLanguage, 'target');
@@ -490,7 +500,8 @@ export function translateCertified(source, sourceLanguage, targetLanguage, { imp
     authorityForm()];
   const certificate = serializeLinks(withDigest(body));
   return { status: 'translated', sourceLanguage, targetLanguage, preservedSource: result.sourceText, targetSource: emitted.text,
-    certificate, observation, obligations, intermediate: exportCertifiedIntermediate(result.rmlNetwork), root: result.root };
+    certificate, observation, obligations, intermediate: exportCertifiedIntermediate(result.rmlNetwork), root: result.root,
+    constructs: emitted.mappings.map(mapping => ({ kind: mapping.kind, source: mapping.source, target: mapping.target })) };
 }
 
 function refusal(result, targetLanguage, identity) {
@@ -516,7 +527,8 @@ function atom(value) {
   if (/^[A-Za-z0-9_.\-]+$/u.test(text)) return text;
   if (!text.includes('"') && !/[\r\n]/u.test(text)) return `"${text}"`;
   if (!text.includes("'") && !/[\r\n]/u.test(text)) return `'${text}'`;
-  return `(percent-encoded ${encodeURIComponent(text)})`;
+  // encodeURIComponent keeps parentheses, which would unbalance the Links form.
+  return `(percent-encoded ${encodeURIComponent(text).replace(/\(/gu, '%28').replace(/\)/gu, '%29')})`;
 }
 
 function decodeAtom(value) {
