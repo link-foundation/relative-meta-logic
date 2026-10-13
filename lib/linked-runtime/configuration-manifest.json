@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e",
-  "archiveBytes": 782134,
-  "linkCount": 14596,
+  "archiveSha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6",
+  "archiveBytes": 801047,
+  "linkCount": 14611,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -281,6 +281,11 @@
       "generatedSha256": "5a013dfee749a5d826e008cce778dd4e9274b26462202af9d480ca7b07db61ae"
     },
     {
+      "path": "lib/meta-theory/graph-specification.lino",
+      "sourceSha256": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762",
+      "generatedSha256": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762"
+    },
+    {
       "path": "lib/meta-theory/horn-link-substitution.lino",
       "sourceSha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1",
       "generatedSha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1"
@@ -311,9 +316,19 @@
       "generatedSha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
     },
     {
+      "path": "lib/meta-theory/relational-algebra-specification.lino",
+      "sourceSha256": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349",
+      "generatedSha256": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349"
+    },
+    {
       "path": "lib/meta-theory/relational-kernel.lino",
       "sourceSha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1",
       "generatedSha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1"
+    },
+    {
+      "path": "lib/meta-theory/type-specification.lino",
+      "sourceSha256": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93",
+      "generatedSha256": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93"
     },
     {
       "path": "lib/meta-theory/universal.lino",

@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-rust-implementation-manifest/v1",
-  "moduleCount": 53,
-  "linkCount": 352893,
+  "moduleCount": 54,
+  "linkCount": 356261,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -56,10 +56,10 @@
     },
     {
       "path": "rust/examples/meta_theory_workflow.rs",
-      "sourceSha256": "1551e28e366656b3dc40a660e135e980b8edc2dfe9aaa4e8d856da7003cb74a8",
-      "astSha256": "4f92b813034a78123aa4e2ad0029f95abb5b0b12157d256b2598e56caea40700",
-      "generatedSha256": "1fdeb1c5bbc9dee6412ca1e6c5c873a9de29962ac3ffc42f1d29f72dc338297a",
-      "macroInvocations": 36,
+      "sourceSha256": "7ae7397452432df290637f26948f4944aca23d5484c68fe54690febd03e2ba49",
+      "astSha256": "075b1bca3707732f6fd6b432bd038b10fe94d2f94fb10206247d05d4cc1ceab9",
+      "generatedSha256": "41662c8d6a4fc8aaac43b8aa78bf0ebbd140b04cb936809ca798dd28606b8a3e",
+      "macroInvocations": 44,
       "verbatimNodes": 0
     },
     {
@@ -272,9 +272,9 @@
     },
     {
       "path": "rust/src/lib.rs",
-      "sourceSha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b",
-      "astSha256": "d2b184079254210387b4d8712a06dc8937b34621ee89ce6c3928c8a9765ad694",
-      "generatedSha256": "0e84d0c50a965739027fd2dd906741937bd01aefc60c349dd434e99d0a7af447",
+      "sourceSha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d",
+      "astSha256": "12661b5e554e2ec2ce1a071a5d002560b5e94ca88ad6a203202a8ebb6c4305ee",
+      "generatedSha256": "fe489a206e3b11ee4cb0f0a75c38b7284ff28f484b5baf89514a03a226ecbf33",
       "macroInvocations": 566,
       "verbatimNodes": 0
     },
@@ -407,6 +407,14 @@
       "verbatimNodes": 0
     },
     {
+      "path": "rust/src/spec_certificates.rs",
+      "sourceSha256": "fad993d1cdfb6f68509e3a713c45d94d135a68010d1b6b017a2e1284ca7efd25",
+      "astSha256": "fb64ff81752e8709a36c5351dfd68a694f257fc3f09668a26cf02b5ebebce001",
+      "generatedSha256": "d0e843318dd670c86ecae334454575f023577d81149a86fe1c0b7aaecdf404d7",
+      "macroInvocations": 31,
+      "verbatimNodes": 0
+    },
+    {
       "path": "rust/src/theory_network.rs",
       "sourceSha256": "79b76cb66b2e8fb0167d125ff902ede4ad847e35f9a2ac7b8e149509509baa0c",
       "astSha256": "290ba3d8455be632fdf77055b5a9174cd10b63976679bce201cfa0b041f46484",
@@ -442,8 +450,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveBytes": 1610247,
-  "archiveSha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a",
+  "archiveBytes": 1626643,
+  "archiveSha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd",
   "toolLockSha256": "acfd9616c8b3e7740701bd61a4981f4029cfbedfdacb884af7900526182df829",
   "toolSources": [
     {

@@ -46083,32 +46083,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -46445,32 +46445,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -47193,32 +47193,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -47535,32 +47535,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -48308,32 +48308,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -48650,32 +48650,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -49413,32 +49413,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -49675,32 +49675,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -51548,32 +51548,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "fixture",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -51871,32 +51871,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "fixture",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -53793,32 +53793,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "fixture",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -54146,32 +54146,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "4f8b11a41a0215eb75fb727e04553586ec311d7a1b0129fc0cc634b37878f08b"
+          "sha256": "6d8421f458489ccc6ef171b629ae0ec77147a42bd45a833223d9c3351cc22fef"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "c92bdcc742a8f16fb27e5b410476fe50639f32e1d46214e331dc5bc0ce84b80e"
+          "sha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f"
+          "sha256": "77c8c3486cc8702a84cad9f5c605bd2519ebbf34bff766aad12807dc9ee3f42f"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "b88a679eff934f0a783d7b5686b30e10ddadfc4809866fabca5dc1564234eab0"
+          "sha256": "7c449e828a990d2e589f284a02493b903710a772c4d10fc3cc1607b37e439686"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "fa534d4052f5b470cee6b99895469b4013f1070282eaafa4ad213f5244eddc4a"
+          "sha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "fixture",
-          "sha256": "95aea0d565a0082f63ff83cc1e2aaa126da2c0ae2518a7819a981b37164c6119"
+          "sha256": "18b17d58532340cbe0532ff1d36e41d0a27bd4610407153485dc17db52229a28"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
