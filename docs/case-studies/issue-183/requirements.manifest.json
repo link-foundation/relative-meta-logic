@@ -37552,7 +37552,7 @@
     {
       "id": "R163",
       "obligation": "Execute temporary-fixture tests for installed fresh-clone hooks, non-code commits, every cache class, repeat runs, success/failure/interruption, absent tools, spaced/custom paths, parallel builds/worktrees, budgets and preservation; CI must detect disabled wrappers/hooks and omitted classes.",
-      "status": "Partial — executable Linux safety/lifecycle matrix; wider runtime validation open",
+      "status": "Partial — lifecycle matrix passes on Linux, macOS and Windows CI; Windows POSIX-only tests open",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -37589,12 +37589,13 @@
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
         }
       ],
-      "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. The measured full JavaScript snapshot passed 1717 tests. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes without skip patterns. `Real Windows and macOS CI passes of these changes are pending`.",
+      "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results. `Windows skips 19 POSIX-only lifecycle tests (process-group kill, signal interruption, symlink, private Cargo target and native make cases) and macOS skips 1 Linux-only colliding-PID test; no Windows equivalents exist yet`.",
       "checks": [
         "build-cache-lifecycle",
-        "cache-tool-availability"
+        "cache-tool-availability",
+        "build-cache-ci-evidence"
       ],
-      "remainingGap": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. The measured full JavaScript snapshot passed 1717 tests. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes without skip patterns. `Real Windows and macOS CI passes of these changes are pending`.",
+      "remainingGap": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results. `Windows skips 19 POSIX-only lifecycle tests (process-group kill, signal interruption, symlink, private Cargo target and native make cases) and macOS skips 1 Linux-only colliding-PID test; no Windows equivalents exist yet`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -37739,6 +37740,144 @@
           "checkId": "cache-tool-availability",
           "file": "scripts/build-cache-policy.test.mjs",
           "name": "an absent Docker CLI for accounting is reported unavailable and never becomes a passing build",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a successful private Cargo operation sweeps superseded units and records the result without changing status",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a symlinked alias of the worktree root maps custom targets without resolving in-tree links",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a worktree nested under the primary checkout owns its caches but cannot claim a worktree nested inside it",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a builder inside a nested worktree or repository is attributed to it unless it overlaps this tree's caches",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "pre-commit continues past a deferral; another worktree's live build does not defer it at all",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a hard-killed build lease is recovered only by --recover once nothing of it still runs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a killed build whose process group still runs, or an interrupted recovery, keeps its lease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "cleanup reports allocated filesystem bytes and can enforce the budget on them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "an unknown budget metric fails closed without deleting anything",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "full cleanup reclaims an orphaned owned builder exactly and then removes its lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an orphaned builder interrupted before creation removes only its labelled state volume",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "orphan reclaim refuses relabelled, replaced or unverifiable resources and keeps their lease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an orphaned container is resolved by its exact name and labels, never by a foreign one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "docker.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "tests.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle measured a full clean, a byte-identical clean rebuild and fully passing suites",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle shows the superseded-unit sweep and the budget bounding Rust output",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a forged, failing or incomplete native measurement is rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed Docker teardown removed every owned resource and left nothing behind",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a Docker teardown that kept resources, failed or left bytes is rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed cache-portability run passed every lifecycle suite on Linux, macOS and Windows",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a portability run with a failing, missing, skipped-away or unsuccessful platform is rejected",
           "polarity": "negative"
         }
       ],
@@ -58089,7 +58228,7 @@
         {
           "path": "scripts/build-cache-ci-evidence.test.mjs",
           "role": "test",
-          "sha256": "a44180c8318c43049d1671dcd30e06af6ca4d34c87cc068d19ae4b2c1f05bc80"
+          "sha256": "254900fe86319df270e763401c804c2edf80a64fb240afab512724449873a7e7"
         },
         {
           "path": "scripts/measure-build-cache.mjs",
@@ -58115,6 +58254,11 @@
           "path": "docs/case-studies/issue-183/data/docker-teardown-ci.json",
           "role": "fixture",
           "sha256": "a3abc2140b0b45f2d8945f81ca6f1cb55c05c066e5f9c11b72a72083bf1342b4"
+        },
+        {
+          "path": "docs/case-studies/issue-183/data/cache-portability-ci.json",
+          "role": "fixture",
+          "sha256": "4c43fbaddee95f645bcea456900c36fec1568ccd169d90b389f9663691996db5"
         }
       ],
       "assertions": [
@@ -58141,6 +58285,16 @@
         {
           "file": "scripts/build-cache-ci-evidence.test.mjs",
           "name": "a Docker teardown that kept resources, failed or left bytes is rejected",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed cache-portability run passed every lifecycle suite on Linux, macOS and Windows",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a portability run with a failing, missing, skipped-away or unsuccessful platform is rejected",
           "polarity": "negative"
         }
       ]

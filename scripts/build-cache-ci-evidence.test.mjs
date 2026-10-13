@@ -133,3 +133,93 @@ test('a Docker teardown that kept resources, failed or left bytes is rejected', 
     assert.notDeepEqual(dockerTeardownErrors(evidence), [], name);
   }
 });
+
+const portableOs = ['ubuntu-latest', 'macos-latest', 'windows-latest'];
+const lifecycleSuite = /^scripts\/(?:build-cache.*|docker-cache-budget|cargo-unit-sweep|build-output-publication|build-vsix-output|build-resource-monitor|ci-source-context)\.test\.mjs$/;
+// Only optional development tools may be absent on a runner; every other skip hides a platform gap.
+const allowedSkip = /^(?:JSDoc|VSCE) development dependency is not installed$/;
+const platformOf = { 'ubuntu-latest': 'linux', 'macos-latest': 'darwin', 'windows-latest': 'win32' };
+
+/**
+ * The tests a suite declares as platform-scoped: a title pattern (template parts match anything) and the
+ * platforms that skip it. A bare skip is explained only by such a declaration in the committed source.
+ */
+export function declaredPlatformSkips(suites) {
+  const declared = [];
+  for (const suite of suites) {
+    const source = fs.readFileSync(path.join(root, suite), 'utf8');
+    for (const match of source.matchAll(/\btest\((['`])(.*?)\1, \{ skip: ([^}]*process\.platform[^}]*)\}/g)) {
+      const title = new RegExp(`^${match[2].split(/\$\{[^}]*\}/).map(part => part.replace(/[.*+?^$()|[\]\\{}]/g, '\\$&')).join('.*')}$`);
+      const condition = match[3];
+      const platforms = /process\.platform !== 'linux'/.test(condition) ? ['darwin', 'win32']
+        : /process\.platform === 'win32'/.test(condition) ? ['win32'] : null;
+      if (platforms) declared.push({ suite, title, platforms });
+    }
+  }
+  return declared;
+}
+
+/** Every reason a cache-portability run does not prove the lifecycle suites on all three OSes. */
+export function portabilityErrors(evidence) {
+  const errors = [];
+  const p = evidence.provenance ?? {};
+  if (!Number.isInteger(p.runId) || !/^[0-9a-f]{40}$/.test(p.headSha ?? '') || p.conclusion !== 'success') errors.push('missing or unsuccessful run provenance');
+  const suites = fs.readdirSync(path.join(root, 'scripts')).filter(name => lifecycleSuite.test(`scripts/${name}`)).map(name => `scripts/${name}`);
+  const declared = declaredPlatformSkips(suites);
+  for (const os of portableOs) {
+    const platform = evidence.platforms?.find(item => item.os === os);
+    if (!platform) { errors.push(`${os}: no evidence`); continue; }
+    if (!Number.isInteger(platform.artifactId) || !/^sha256:[0-9a-f]{64}$/.test(platform.artifactDigest ?? '')) errors.push(`${os}: missing artifact provenance`);
+    if (platform.jobConclusion !== 'success' || platform.teardownConclusion !== 'success') errors.push(`${os}: job or teardown did not succeed`);
+    if (platform.exitCode !== 0) errors.push(`${os}: lifecycle command failed`);
+    if (!(platform.pass > 0) || platform.fail !== 0 || platform.cancelled !== 0 || platform.failed?.length) errors.push(`${os}: lifecycle tests failed`);
+    if (platform.pass + platform.skipped + platform.todo !== platform.tests || platform.skips?.length !== platform.skipped) errors.push(`${os}: uncounted tests`);
+    for (const skip of platform.skips ?? []) {
+      const scoped = !skip.reason && declared.some(item => item.platforms.includes(platformOf[os]) && item.title.test(skip.name));
+      if (!scoped && !allowedSkip.test(skip.reason)) errors.push(`${os}: unexplained skip ${skip.name}`);
+    }
+    for (const suite of suites) if (!platform.command?.includes(suite)) errors.push(`${os}: omitted ${suite}`);
+    if (platform.lastCleanup?.budgetSatisfied !== true) errors.push(`${os}: cleanup exceeded its budget`);
+  }
+  return errors;
+}
+
+test('the committed cache-portability run passed every lifecycle suite on Linux, macOS and Windows', () => {
+  const evidence = load('cache-portability-ci.json');
+  assert.deepEqual(portabilityErrors(evidence), []);
+  assert.deepEqual(evidence.platforms.map(item => item.os), portableOs);
+  // The same suites ran everywhere; only the platform-specific skip set may differ.
+  const counts = evidence.platforms.map(item => item.tests);
+  assert.ok(Math.min(...counts) > 150, `too few tests: ${counts}`);
+  // The recorded platform scope: Linux runs every lifecycle test; macOS skips one Linux-only PID test and
+  // Windows skips the POSIX process-group, signal-interruption and symlink tests.
+  const bare = evidence.platforms.map(item => item.skips.filter(skip => !skip.reason).length);
+  assert.deepEqual(bare, [0, 1, 19]);
+});
+
+test('a portability run with a failing, missing, skipped-away or unsuccessful platform is rejected', () => {
+  const original = load('cache-portability-ci.json');
+  const windows = evidence => evidence.platforms.find(item => item.os === 'windows-latest');
+  const mutations = {
+    'missing macOS': e => { e.platforms = e.platforms.filter(item => item.os !== 'macos-latest'); },
+    'failed Windows test': e => { windows(e).fail = 1; windows(e).pass -= 1; },
+    'failed job': e => { windows(e).jobConclusion = 'failure'; },
+    'failed teardown': e => { windows(e).teardownConclusion = 'failure'; },
+    'nonzero command': e => { windows(e).exitCode = 1; },
+    'skipped platform test': e => { windows(e).skips.push({ name: 'Windows process inspection', reason: 'not supported here' }); windows(e).skipped += 1; windows(e).pass -= 1; },
+    'undeclared bare skip': e => { windows(e).skips.push({ name: 'Windows process inspection', reason: '' }); windows(e).skipped += 1; windows(e).pass -= 1; },
+    'Linux skip of a Windows-only exemption': e => {
+      const linux = e.platforms.find(item => item.os === 'ubuntu-latest');
+      linux.skips.push({ name: 'a symlinked profile or deps directory is never followed', reason: '' }); linux.skipped += 1; linux.pass -= 1;
+    },
+    'uncounted tests': e => { windows(e).tests += 3; },
+    'omitted suite': e => { windows(e).command = windows(e).command.filter(item => item !== 'scripts/build-cache.test.mjs'); },
+    'unsuccessful run': e => { e.provenance.conclusion = 'failure'; },
+    'over budget': e => { windows(e).lastCleanup.budgetSatisfied = false; },
+  };
+  for (const [name, mutate] of Object.entries(mutations)) {
+    const evidence = clone(original);
+    mutate(evidence);
+    assert.notDeepEqual(portabilityErrors(evidence), [], name);
+  }
+});
