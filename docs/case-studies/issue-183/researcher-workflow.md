@@ -97,7 +97,7 @@ node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --test meta_theory_w
 ```
 
 Both runtimes produce `test-corpus/researcher-workflow/meta-theory-expected.json`
-from public APIs. The recipe has five steps:
+from public APIs. The recipe has six steps:
 
 1. **Locate a declaration in every stage.** Read the row for
    `toOrderedUnique` from the [stage map](../../META_THEORY_NATIVE.md#stage-map).
@@ -128,6 +128,13 @@ from public APIs. The recipe has five steps:
    semantic closure of programs, foundations, judgements and values is
    exercised separately (see
    [SEMANTIC_ARCHIVE.md](../../SEMANTIC_ARCHIVE.md)).
+6. **Run the source specifications.** The type, graph and relational-algebra
+   specifications run every recorded case natively, and each of their 28
+   theorem certificates is re-checked by the linked proof verifier. A
+   certificate with one mutated fact is rejected. If the natural join is
+   changed, the relational-algebra row changes and the join theorems lose
+   their certificates (see
+   [meta-theory-specifications.md](meta-theory-specifications.md)).
 
 These steps add executable meta-theory semantics, not completion. Typed
 elaboration covers 72 declarations. 183 declarations have execution
