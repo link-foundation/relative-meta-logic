@@ -571,7 +571,15 @@ fn keeps_the_link_cli_graph_self_link_representable_without_making_it_a_judgemen
     let promoted: Vec<Node> = ontology
         .type_facts()
         .into_iter()
-        .map(|(_, subject, kind)| node(&format!("(has-type {subject} {kind})")))
+        // Build the judgement as structure, as the JavaScript mirror does; ontology
+        // link names need not be valid unquoted LiNo references.
+        .map(|(_, subject, kind)| {
+            Node::List(vec![
+                Node::Leaf("has-type".to_string()),
+                Node::Leaf(subject.to_string()),
+                Node::Leaf(kind.to_string()),
+            ])
+        })
         .collect();
     let report = check("stratified-study", &promoted);
     assert_eq!(report.status, "violated");
@@ -582,7 +590,9 @@ fn keeps_the_link_cli_graph_self_link_representable_without_making_it_a_judgemen
         .unwrap();
     let witness = self_typing.witness.as_ref().unwrap();
     assert_eq!(witness.judgement, Some(node("(has-type Type Type)")));
-    assert_eq!(witness.cycle, vec![node("Type"), node("Type")]);
+    // Cycle members are bare references; `node` only parses parenthesized forms.
+    let type_leaf = Node::Leaf("Type".to_string());
+    assert_eq!(witness.cycle, vec![type_leaf.clone(), type_leaf]);
     let opted = check("type-in-type-study", &promoted);
     assert_eq!(opted.status, "accepted");
     assert_eq!(opted.reason, "accepted-relative-to-declared-type-in-type");

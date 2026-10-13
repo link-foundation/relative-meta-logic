@@ -40239,7 +40239,7 @@
         {
           "path": "scripts/build-cache.test.mjs",
           "role": "test",
-          "sha256": "3da7ca00f622d9b3469dfe43755c12813a1ad7b805da6d1ada8078d306c08f7f"
+          "sha256": "88e72accf1d5e9f12b0de80f58f2207324e703c7092ad7e947f838601543dc4b"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -52696,7 +52696,7 @@
         {
           "path": "scripts/issue-183-producer-mutations.test.mjs",
           "role": "test",
-          "sha256": "86d94933ec372ead8cbd595e3277cacfd477d311730d5f9e05c74ead7cd9c9cb"
+          "sha256": "0ec5c868e3319d047bfed312919764f2add2730b692ae6f37b4561e2e4a86286"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
@@ -53770,7 +53770,7 @@
         {
           "path": "rust/tests/semantic_closure_tests.rs",
           "role": "test",
-          "sha256": "e5893fe7dcb713fa7ebf63bb4c526a8f3f96d586d273458c8a5c24cde39bec4c"
+          "sha256": "8c89b859fbacb7e7386e4d6009258f3ac947f9b81b62f0bb191ddb6b9e6d33a4"
         },
         {
           "path": "rust/Cargo.toml",

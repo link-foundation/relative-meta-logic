@@ -100,10 +100,10 @@ describe('real issue 183 producer-to-gate mutations', () => {
   });
 
   it('a falsified Complete status on a real partial row is rejected although its executed check passes', context => {
-    // Project real R118 through the real gate: its reviewed obligation,
+    // Project real R120 through the real gate: its reviewed obligation,
     // original sources, implementation pins, JavaScript producer and progress
     // bindings, with a consistent hand edit of both status cells to Complete.
-    const record = structuredClone(manifest.requirements.find(row => row.id === 'R118'));
+    const record = structuredClone(manifest.requirements.find(row => row.id === 'R120'));
     assert.match(record.status, /^Partial/);
     assert.equal(record.completionBindings.length, 0);
     const check = realCheck('foundation-context-js');

@@ -324,7 +324,8 @@ test('a worktree nested under the primary checkout owns its caches but cannot cl
   assert.equal(fs.readFileSync(path.join(child, 'target/debug/out'), 'utf8'), 'cache');
   ok(inChild(['scripts/build-cache.mjs', '--full']));
   assert.equal(fs.existsSync(path.join(child, 'target/debug/out')), false);
-  assert.equal(fs.readFileSync(path.join(child, 'README.md'), 'utf8'), 'source\n');
+  // A Windows checkout may convert line endings; the source must survive, not its EOL style.
+  assert.equal(fs.readFileSync(path.join(child, 'README.md'), 'utf8').replace(/\r\n/g, '\n'), 'source\n');
   execFileSync('git', ['-C', child, 'worktree', 'add', '-q', '--detach', path.join(child, 'grandchild')]);
   const claimed = inChild(['scripts/run-with-cache.mjs', '--cache', 'grandchild', '--class', 'rust', '--', node, '-e', 'process.exit(0)']);
   assert.notEqual(claimed.status, 0);
@@ -345,9 +346,16 @@ test('active parallel wrapper holds lease; interruption stops child then cleans 
   const f = fixture(t);
   const program = writeProgram('.rml-cache/scratch/active') + 'console.log("started");setInterval(()=>{},1000)';
   const child = spawn(node, ['scripts/run-with-cache.mjs', '--', node, '-e', program], { cwd: f.root, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), stdio: 'pipe' });
+  let stderr = '';
+  child.stderr.on('data', chunk => { stderr += chunk; });
+  child.stdout.resume();
   const done = finished(child);
   t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); });
-  await waitFor(() => exists(f, '.rml-cache/scratch/active'));
+  // A wrapper that exits before its child starts must fail with its own diagnostics.
+  await waitFor(() => {
+    if (child.exitCode !== null || child.signalCode !== null) throw new Error(`wrapper exited before the fixture started: ${stderr}`);
+    return exists(f, '.rml-cache/scratch/active');
+  }, 30000);
   const concurrent = f.clean('--full');
   assert.notEqual(concurrent.status, 0);
   assert.match(concurrent.stderr, /lease/);

@@ -44,10 +44,11 @@ test('failure to record child ownership stops that child before returning', asyn
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-owner-record-'));
   try {
     const marker = path.join(root, 'escaped');
+    // The escape delay must exceed a synchronous Windows taskkill spawn on a loaded runner.
     await assert.rejects(execute([process.execPath, '-e',
-      'setTimeout(() => require("node:fs").writeFileSync(process.argv[1], "escaped"), 100); setInterval(() => {}, 1000)', marker],
+      'setTimeout(() => require("node:fs").writeFileSync(process.argv[1], "escaped"), 2000); setInterval(() => {}, 1000)', marker],
     process.env, undefined, () => { throw new Error('cannot record owner'); }), /cannot record owner/);
-    await delay(150);
+    await delay(2500);
     assert.equal(fs.existsSync(marker), false);
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
