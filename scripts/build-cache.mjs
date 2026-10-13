@@ -783,7 +783,7 @@ if (process.argv[1] && (() => { try { return fs.realpathSync(process.argv[1]); }
 });
 
 /** Conservative backstop for raw cargo/node/lake/rocq runs outside the wrapper. */
-export function assertNoUnleasedBuilders(c, { platform = process.platform, run = execFileSync, readLink = fs.readlinkSync, realPath = fs.realpathSync.native, isAlive = alive, exists = fs.existsSync, allowExternalLeases = false } = {}) {
+export function assertNoUnleasedBuilders(c, { platform = process.platform, run = execFileSync, readLink = fs.readlinkSync, realPath = fs.realpathSync.native, isAlive = alive, exists = fs.existsSync, readFile = fs.readFileSync, readDir = fs.readdirSync, isFile = file => fs.statSync(file).isFile(), allowExternalLeases = false } = {}) {
   const evidence = path.join(c.root, '.rml-cache', 'evidence');
   if (!allowExternalLeases && fs.existsSync(evidence) && fs.readdirSync(evidence).some(name => name.startsWith('external-lease-') && name.endsWith('.json'))) throw new Error('Active or unresolved external-resource lease; stop and verify owned Docker resources before cleanup');
   const queryOptions = { encoding: 'utf8', timeout: 20000, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] };
@@ -851,10 +851,41 @@ export function assertNoUnleasedBuilders(c, { platform = process.platform, run =
     const separator = platform === 'win32' ? path.win32.sep : path.sep;
     if (cwd === root || cwd.startsWith(`${root}${separator}`)) {
       if (foreignNestedRepository(c, cwd, root, separator, platform, exists)) continue;
+      if (hostedOutsideTree(p, executable, cwd, root, separator, { platform, run, readLink, realPath, readFile, readDir, isFile, queryOptions })) continue;
       throw deferral(`Active unleased build process ${p.pid}; cleanup deferred`);
     }
   }
 }
+const packageManager = /(?:^|[\\/])(?:npm|npx|pnpm|pnpx|yarn|yarnpkg|corepack)(?:-cli)?(?:\.[cm]?js)?$|[\\/]node_modules[\\/](?:npm|pnpm|yarn|corepack)[\\/]/i;
+
+/**
+ * A Node process started from the tree is not this tree's producer when it runs
+ * a script file installed outside the tree, is not a package manager, and holds
+ * no open file inside the tree, for example a long-lived MCP or language server.
+ * Its own builder children are still inspected separately. Anything that cannot
+ * be established keeps the deferral; Windows exposes no open-file inventory
+ * here, so it always defers.
+ */
+function hostedOutsideTree(p, executable, cwd, root, separator, { platform, run, readLink, realPath, readFile, readDir, isFile, queryOptions }) {
+  if (!/^node$/.test(executable.split(/[\\/]/).at(-1)) || (platform !== 'linux' && platform !== 'darwin')) return false;
+  const inside = file => file === root || file.startsWith(`${root}${separator}`);
+  try {
+    // ps joins arguments with spaces, so a split script path fails the file check below and defers.
+    const args = platform === 'linux'
+      ? readFile(`/proc/${p.pid}/cmdline`, 'utf8').split('\0').filter(Boolean)
+      : run('ps', ['-p', String(p.pid), '-o', 'args='], queryOptions).trim().split(/\s+/);
+    const script = args[1];
+    if (!script || script.startsWith('-') || packageManager.test(script)) return false;
+    const resolved = realPath(path.resolve(cwd, script));
+    if (inside(resolved) || packageManager.test(resolved) || !isFile(resolved)) return false;
+    const open = platform === 'linux'
+      ? readDir(`/proc/${p.pid}/fd`).map(fd => readLink(`/proc/${p.pid}/fd/${fd}`))
+      : run('lsof', ['-a', '-p', String(p.pid), '-d', '^cwd', '-Fn'], queryOptions).split('\n').filter(line => line.startsWith('n')).map(line => line.slice(1));
+    // Pipes, sockets and anonymous inodes are not paths; every absolute path must lie outside the tree.
+    return open.length > 0 && !open.some(file => file.startsWith('/') && inside(file));
+  } catch { return false; }
+}
+
 /**
  * A builder whose working directory is inside a nested Git worktree or clone
  * (a directory below this root with its own `.git` file or directory, or a

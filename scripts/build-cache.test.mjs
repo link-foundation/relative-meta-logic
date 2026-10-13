@@ -523,6 +523,58 @@ test('macOS process inspection distinguishes exited and zombie builders from ina
   assert.doesNotThrow(() => inspect({ cwd: os.tmpdir() }));
 });
 
+function hostedNode(root, outside, platform, { args, open, realPath = value => value } = {}) {
+  const pid = 2147483000;
+  return import('./build-cache.mjs').then(({ assertNoUnleasedBuilders }) => () => assertNoUnleasedBuilders({ root }, {
+    platform, isAlive: () => true, realPath, isFile: file => file.startsWith(outside) || file.startsWith(root),
+    readLink(link) {
+      if (link.endsWith('/exe')) return '/usr/bin/node';
+      if (link.endsWith('/cwd')) return root;
+      return open[Number(link.split('/').at(-1))];
+    },
+    readFile: () => `${args.join('\0')}\0`,
+    readDir: () => open.map((_, index) => String(index)),
+    run(command, list) {
+      if (command === 'ps' && list[0] === '-axo') return `${pid} 1 S /usr/local/bin/node\n`;
+      if (command === 'ps') return `${args.join(' ')}\n`;
+      if (list.includes('^cwd')) return [`p${pid}`, ...open.map(file => `n${file}`)].join('\n');
+      return `p${pid}\nn${root}\n`;
+    },
+  }));
+}
+
+test('a Node server started from the tree but running an outside script with no open tree file is not a builder', async t => {
+  const root = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), 'rml-hosted-node-')));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const outside = '/opt/npx/playwright-mcp/bin';
+  for (const platform of ['darwin', 'linux']) {
+    const inspect = await hostedNode(root, outside, platform, { args: ['node', `${outside}/server.js`], open: ['/dev/null', 'pipe:[42]', `${outside}/lib.js`, 'socket:[7]'] });
+    assert.doesNotThrow(inspect, platform);
+  }
+});
+
+test('a Node process with an in-tree script, a package manager, no script or an open tree file still defers cleanup', async t => {
+  const root = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), 'rml-hosted-node-')));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const outside = '/opt/tools/bin';
+  const cases = {
+    'in-tree script': { args: ['node', 'scripts/build.mjs'], open: ['/dev/null'] },
+    'package manager': { args: ['node', `${outside}/npm-cli.js`, 'run', 'build'], open: ['/dev/null'] },
+    'installed npm': { args: ['node', '/usr/lib/node_modules/npm/bin/npx-cli.js'], open: ['/dev/null'] },
+    'test runner without a script': { args: ['node', '--test'], open: ['/dev/null'] },
+    'open tree file': { args: ['node', `${outside}/server.js`], open: ['/dev/null', `${root}/.rml-cache/scratch/out`] },
+    'no open-file inventory': { args: ['node', `${outside}/server.js`], open: [] },
+    'unresolvable script': { args: ['node', `${outside}/server.js`], open: ['/dev/null'], realPath: value => { if (value.endsWith('server.js')) throw new Error('ENOENT'); return value; } },
+    'script path split by spaces': { args: ['node', '/opt/My', 'Tools/server.js'], open: ['/dev/null'] },
+  };
+  for (const platform of ['darwin', 'linux']) {
+    for (const [name, options] of Object.entries(cases)) {
+      const inspect = await hostedNode(root, outside, platform, options);
+      assert.throws(inspect, /Active unleased build process/, `${platform}: ${name}`);
+    }
+  }
+});
+
 test('Windows process inspection uses executable identity and real cwd, preserving unknown live builders', async () => {
   const { assertNoUnleasedBuilders } = await import('./build-cache.mjs');
   const root = 'C:\\cache worktree';
