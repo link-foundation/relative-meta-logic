@@ -12,6 +12,28 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 
 pub const SOURCE: &str = include_str!("../../../lib/meta-theory/horn-link-substitution.lino");
+/// RML elaboration (keywords, sigil, validation, source workflows) as Horn clauses.
+pub const ELABORATION_SOURCE: &str = include_str!("../../../lib/meta-theory/horn-rml-elaboration.lino");
+/// RML decisions that the source workflows take from `horn-rml-elaboration.lino`.
+pub const LINKED_DECISIONS: [&str; 7] = [
+    "keyword spellings of program, import, rebind, rewrite, fact and inference forms",
+    "pattern-variable sigil and the variable/atom split of pattern atoms",
+    "form shapes, including from/to clause order and premise/conclusion clauses",
+    "program declaration order and per-program collection of rewrites, facts and inferences in source order",
+    "rejection of unknown owners, duplicate programs and items, unbound variables, variable facts, missing premises",
+    "rejection of unknown, repeated or cyclic imports, repeated rebind sources and rebound variables",
+    "hand-off of the elaborated programs to the linked reduce and prove workflows",
+];
+/// Every host law still used by the source workflows, in order of use.
+pub const RESIDUAL_HOST_LAWS: [&str; 7] = [
+    "generic LiNo tokenization and parsing to nested string lists, with leading-whitespace normalization",
+    "UTF-8 encoding of every atom as a bit chain and of nested lists as cons chains (no sigil or keyword test)",
+    "encoding of the requested program name, input or goal terms and unary fuel as query arguments",
+    "lambda-source parsing and validation, binder-name interning and caching of the linked binder resolution",
+    "the Horn resolver laws reported as externalFoundationLaws",
+    "decoding of answers: UTF-8 bits, program/rule-name splitting, proof records and rejection reasons",
+    "step and depth bounds, allocation, the language runtime and the processor",
+];
 pub const DEFAULT_MAX_STEPS: usize = 400_000_000;
 pub const DEFAULT_MAX_DEPTH: usize = 1_000_000_000;
 
@@ -199,6 +221,61 @@ pub fn transcribe_lambda_source(source: &str) -> Result<Transcription, String> {
     })
 }
 
+/// Generic LiNo forms of a document with every atom as UTF-8 bits. No RML
+/// decision is taken here: keywords, variables and validity are decided by
+/// the linked elaboration clauses.
+pub fn encode_generic_forms(text: &str) -> Result<Node, String> {
+    let normalized = text
+        .lines()
+        .map(|line| line.trim_start_matches([' ', '\t']))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let mut forms = Vec::new();
+    for link in parse_lino(&normalized).map_err(|error| error.to_string())? {
+        let parsed = parse_one(&tokenize_one(&link))?;
+        forms.push(encode_node(&parsed, false));
+    }
+    Ok(encode_list(forms))
+}
+
+/// A linked elaboration rejection: the reason atom and its decoded detail.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Rejection {
+    pub reason: String,
+    pub detail: String,
+}
+/// The linked elaboration of one document.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Elaboration {
+    pub programs: Option<Node>,
+    pub rejection: Option<Rejection>,
+    pub steps: usize,
+}
+fn rejection(value: &Node) -> Result<Option<Rejection>, String> {
+    match value {
+        Node::List(parts) if parts.first() == Some(&atom("rejected")) => {
+            let parts = tag(value, "rejected", 3)?;
+            let Node::Leaf(reason) = &parts[1] else {
+                return Err("invalid linked rejection reason".into());
+            };
+            Ok(Some(Rejection {
+                reason: reason.clone(),
+                detail: decode_bits(&parts[2])?,
+            }))
+        }
+        _ => Ok(None),
+    }
+}
+fn refuse_rejected(value: &Node) -> Result<(), String> {
+    match rejection(value)? {
+        Some(rejected) => Err(format!(
+            "linked elaboration rejected the document: {} {}",
+            rejected.reason, rejected.detail
+        )),
+        None => Ok(()),
+    }
+}
+
 fn split_origin(bits: &Node) -> Result<(String, String), String> {
     let text = decode_bits(bits)?;
     let (program, name) = text
@@ -226,6 +303,46 @@ fn optional_proof(value: &Node) -> Result<Option<LinkedProof>, String> {
     Ok(Some(decode_proof(&tag(value, "some", 2)?[1])?))
 }
 
+fn reduce_result(value: &Node, steps: usize, name: &str) -> Result<Reduction, String> {
+    refuse_rejected(value)?;
+    if value == &atom("missing-program") {
+        return Err(format!("linked-program {name} is missing"));
+    }
+    if value == &atom("bound-exceeded") {
+        return Err("Horn link-substitution reduction fuel exhausted".into());
+    }
+    let parts = tag(value, "reduced", 3)?;
+    Ok(Reduction {
+        term: decode_node(&parts[1])?,
+        trace: decode_list(&parts[2])?
+            .iter()
+            .map(split_origin)
+            .collect::<Result<_, _>>()?,
+        steps,
+    })
+}
+fn prove_result(value: &Node, steps: usize, name: &str) -> Result<Proved, String> {
+    refuse_rejected(value)?;
+    if value == &atom("missing-program") {
+        return Err(format!("linked-program {name} is missing"));
+    }
+    let parts = tag(value, "proved", 5)?;
+    let derivations = decode_list(&parts[2])?
+        .iter()
+        .map(|item| {
+            let derived = tag(item, "derived", 3)?;
+            Ok((decode_node(&derived[1])?, decode_proof(&derived[2])?))
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    Ok(Proved {
+        known: count_unary(&parts[1])? + derivations.len(),
+        derivations,
+        proof: optional_proof(&parts[3])?,
+        absent_proof: optional_proof(&parts[4])?,
+        steps,
+    })
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Reduction {
     pub term: Node,
@@ -246,6 +363,7 @@ pub struct HornLinkSubstitution {
     transcription: Transcription,
     lambda_source_sha256: String,
     horn_source_sha256: String,
+    elaboration_source_sha256: String,
 }
 
 /// Bounds large enough for the shared workload; callers may lower them.
@@ -263,8 +381,17 @@ impl HornLinkSubstitution {
         Self::from_sources(lambda_source, SOURCE)
     }
     pub fn from_sources(lambda_source: &str, horn_source: &str) -> Result<Self, String> {
+        Self::from_all_sources(lambda_source, horn_source, ELABORATION_SOURCE)
+    }
+    /// Mirrors the JavaScript `elaborationSource` option: a replaced linked
+    /// elaboration changes the language with no host change.
+    pub fn from_all_sources(
+        lambda_source: &str,
+        horn_source: &str,
+        elaboration_source: &str,
+    ) -> Result<Self, String> {
         let transcription = transcribe_lambda_source(lambda_source)?;
-        let base = HornResolution::from_source(horn_source)?;
+        let base = HornResolution::from_source(&format!("{horn_source}\n{elaboration_source}"))?;
         let conversion = base.query(
             &Node::List(vec![
                 atom("convert-roots"),
@@ -296,6 +423,7 @@ impl HornLinkSubstitution {
             transcription,
             lambda_source_sha256: hex(lambda_source),
             horn_source_sha256: hex(horn_source),
+            elaboration_source_sha256: hex(elaboration_source),
         })
     }
     pub fn resolver(&self) -> &HornResolution {
@@ -352,21 +480,74 @@ impl HornLinkSubstitution {
             ]),
             options,
         )?;
-        if value == atom("missing-program") {
-            return Err(format!("linked-program {name} is missing"));
+        reduce_result(&value, steps, name)
+    }
+    /// Elaborate a document by the linked clauses alone: the encoded programs
+    /// (the exact `rml-reduce`/`rml-prove` input), or a linked rejection
+    /// reason. A document with no linked elaboration is refused by `run`.
+    pub fn elaborate(&self, text: &str, options: &Options) -> Result<Elaboration, String> {
+        let (value, steps) = self.run(
+            Node::List(vec![atom("elaborate"), encode_generic_forms(text)?, atom("?result")]),
+            options,
+        )?;
+        if let Some(rejected) = rejection(&value)? {
+            return Ok(Elaboration {
+                programs: None,
+                rejection: Some(rejected),
+                steps,
+            });
         }
-        if value == atom("bound-exceeded") {
-            return Err("Horn link-substitution reduction fuel exhausted".into());
-        }
-        let parts = tag(&value, "reduced", 3)?;
-        Ok(Reduction {
-            term: decode_node(&parts[1])?,
-            trace: decode_list(&parts[2])?
-                .iter()
-                .map(split_origin)
-                .collect::<Result<_, _>>()?,
+        Ok(Elaboration {
+            programs: Some(tag(&value, "elaborated", 2)?[1].clone()),
+            rejection: None,
             steps,
         })
+    }
+    /// Linked elaboration followed by linked reduction; the host parses only generic LiNo.
+    pub fn reduce_source(
+        &self,
+        text: &str,
+        name: &str,
+        input: &Node,
+        fuel: usize,
+        options: &Options,
+    ) -> Result<Reduction, String> {
+        let (value, steps) = self.run(
+            Node::List(vec![
+                atom("rml-reduce-source"),
+                encode_generic_forms(text)?,
+                encode_bits(name),
+                encode_node(input, false),
+                unary(fuel)?,
+                atom("?result"),
+            ]),
+            options,
+        )?;
+        reduce_result(&value, steps, name)
+    }
+    /// Linked elaboration followed by linked saturation and proof lookup.
+    pub fn prove_source(
+        &self,
+        text: &str,
+        name: &str,
+        goal: &Node,
+        absent: &Node,
+        fuel: usize,
+        options: &Options,
+    ) -> Result<Proved, String> {
+        let (value, steps) = self.run(
+            Node::List(vec![
+                atom("rml-prove-source"),
+                encode_generic_forms(text)?,
+                encode_bits(name),
+                encode_node(goal, false),
+                encode_node(absent, false),
+                unary(fuel)?,
+                atom("?result"),
+            ]),
+            options,
+        )?;
+        prove_result(&value, steps, name)
     }
     /// Saturate inference and look up an exact proof and an absent judgement.
     pub fn prove(
@@ -390,24 +571,7 @@ impl HornLinkSubstitution {
             ]),
             options,
         )?;
-        if value == atom("missing-program") {
-            return Err(format!("linked-program {name} is missing"));
-        }
-        let parts = tag(&value, "proved", 5)?;
-        let derivations = decode_list(&parts[2])?
-            .iter()
-            .map(|item| {
-                let derived = tag(item, "derived", 3)?;
-                Ok((decode_node(&derived[1])?, decode_proof(&derived[2])?))
-            })
-            .collect::<Result<Vec<_>, String>>()?;
-        Ok(Proved {
-            known: count_unary(&parts[1])? + derivations.len(),
-            derivations,
-            proof: optional_proof(&parts[3])?,
-            absent_proof: optional_proof(&parts[4])?,
-            steps,
-        })
+        prove_result(&value, steps, name)
     }
     pub fn trust_report(&self) -> serde_json::Value {
         serde_json::json!({
@@ -432,6 +596,13 @@ impl HornLinkSubstitution {
                 "first-order RML input encoding, UTF-8 bit decoding and program/rule-name splitting",
                 "step/depth bounds, allocation, Rust runtime and processor"
             ],
+            "sourceElaboration": {
+                "elaborationSourceSha256": self.elaboration_source_sha256,
+                "workflows": ["elaborate", "rml-reduce-source", "rml-prove-source"],
+                "linkedDecisions": LINKED_DECISIONS,
+                "residualHostLaws": RESIDUAL_HOST_LAWS,
+                "hostRegistryElaborationOnThisPath": false
+            },
             "roots": self.transcription.root_count,
             "sourceNodes": self.transcription.node_count,
             "internedNames": self.transcription.names,

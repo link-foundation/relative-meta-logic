@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { HornResolution } from './rml-horn-resolution.mjs';
 import { parseLambdaSource } from './rml-lambda-kernel.mjs';
+import { parseLino, parseOne, tokenizeOne } from './rml-links.mjs';
 import {
   decodeRelationalBits,
   decodeRelationalList,
@@ -24,6 +25,31 @@ export const HORN_LINK_SUBSTITUTION_SOURCE = readFileSync(
   new URL('../../lib/meta-theory/horn-link-substitution.lino', import.meta.url),
   'utf8',
 );
+/** RML elaboration (keywords, sigil, validation, source workflows) as Horn clauses. */
+export const HORN_RML_ELABORATION_SOURCE = readFileSync(
+  new URL('../../lib/meta-theory/horn-rml-elaboration.lino', import.meta.url),
+  'utf8',
+);
+/** RML decisions that the source workflows take from horn-rml-elaboration.lino. */
+export const RML_ELABORATION_LINKED_DECISIONS = Object.freeze([
+  'keyword spellings of program, import, rebind, rewrite, fact and inference forms',
+  'pattern-variable sigil and the variable/atom split of pattern atoms',
+  'form shapes, including from/to clause order and premise/conclusion clauses',
+  'program declaration order and per-program collection of rewrites, facts and inferences in source order',
+  'rejection of unknown owners, duplicate programs and items, unbound variables, variable facts, missing premises',
+  'rejection of unknown, repeated or cyclic imports, repeated rebind sources and rebound variables',
+  'hand-off of the elaborated programs to the linked reduce and prove workflows',
+]);
+/** Every host law still used by the source workflows, in order of use. */
+export const RML_ELABORATION_RESIDUAL_HOST_LAWS = Object.freeze([
+  'generic LiNo tokenization and parsing to nested string lists, with leading-whitespace normalization',
+  'UTF-8 encoding of every atom as a bit chain and of nested lists as cons chains (no sigil or keyword test)',
+  'encoding of the requested program name, input or goal terms and unary fuel as query arguments',
+  'lambda-source parsing and validation, binder-name interning and caching of the linked binder resolution',
+  'the Horn resolver laws reported as externalFoundationLaws',
+  'decoding of answers: UTF-8 bits, program/rule-name splitting, proof records and rejection reasons',
+  'step and depth bounds, allocation, the language runtime and the processor',
+]);
 const DEFAULT_STEPS = 400_000_000;
 const DEFAULT_DEPTH = 1_000_000_000;
 
@@ -84,6 +110,17 @@ export function transcribeLambdaSource(source) {
   return { roots, nodeCount: parsed.nodeCount, rootCount: parsed.rootCount, names: names() };
 }
 
+/**
+ * Generic LiNo forms of a document with every atom as UTF-8 bits. No RML
+ * decision is taken here: keywords, variables and validity are decided by
+ * the linked elaboration clauses.
+ */
+export function encodeGenericForms(text) {
+  const normalized = String(text).replace(/^[ \t]+/gm, '');
+  return encodeRelationalList(parseLino(normalized)
+    .map(link => encodeRelationalNode(parseOne(tokenizeOne(link)), false)));
+}
+
 function splitOrigin(bits) {
   const text = decodeRelationalBits(bits);
   const separator = text.indexOf('\0');
@@ -103,9 +140,10 @@ function optionalProof(value) {
 
 export function createHornLinkSubstitutionKernel(lambdaSource, {
   hornSource = HORN_LINK_SUBSTITUTION_SOURCE,
+  elaborationSource = HORN_RML_ELABORATION_SOURCE,
 } = {}) {
   const transcription = transcribeLambdaSource(lambdaSource);
-  const base = HornResolution.fromSource(hornSource);
+  const base = HornResolution.fromSource(`${hornSource}\n${elaborationSource}`);
   const conversion = base.query(['convert-roots', transcription.roots, '?table'],
     { captureProof: false, maxSteps: DEFAULT_STEPS, maxDepth: DEFAULT_DEPTH });
   if (conversion.answers.length !== 1) throw new Error('linked binder resolution rejected the lambda source');
@@ -116,6 +154,7 @@ export function createHornLinkSubstitutionKernel(lambdaSource, {
   const resolver = new HornResolution([...base.clauses(), ...rootFacts]);
   const sourceHash = createHash('sha256').update(lambdaSource).digest('hex');
   const hornHash = createHash('sha256').update(hornSource).digest('hex');
+  const elaborationHash = createHash('sha256').update(elaborationSource).digest('hex');
   const run = (goal, options) => {
     const result = resolver.query(goal, {
       captureProof: false, maxSteps: DEFAULT_STEPS, maxDepth: DEFAULT_DEPTH, ...options,
@@ -124,21 +163,28 @@ export function createHornLinkSubstitutionKernel(lambdaSource, {
     return { value: result.answers[0].goal.at(-1), steps: result.steps, observedOperations: result.observedOperations };
   };
 
-  /** Reduce to normal form with the linked one-step rewrite root; fuel bounds the loop. */
-  function reduce(programs, name, input, { fuel = 16, ...options } = {}) {
-    const execution = run(['rml-reduce', encodeRelationalPrograms(programs), encodeRelationalBits(name),
-      encodeRelationalNode(input), unary(fuel), '?result'], options);
+  const rejection = value => {
+    if (!Array.isArray(value) || value[0] !== 'rejected') return null;
+    const [, reason, detail] = parts(value, 'rejected', 3);
+    return { reason, detail: decodeRelationalBits(detail) };
+  };
+  const refuseRejected = value => {
+    const rejected = rejection(value);
+    if (rejected === null) return;
+    const error = new Error(`linked elaboration rejected the document: ${rejected.reason} ${rejected.detail}`);
+    error.rejection = rejected;
+    throw error;
+  };
+  const reduceResult = (execution, name) => {
+    refuseRejected(execution.value);
     if (execution.value === 'missing-program') throw new Error(`linked-program ${name} is missing`);
     if (execution.value === 'bound-exceeded') throw new Error('Horn link-substitution reduction fuel exhausted');
     const [, term, trace] = parts(execution.value, 'reduced', 3);
     return { term: decodeRelationalNode(term), trace: decodeRelationalList(trace).map(splitOrigin),
       steps: execution.steps, observedOperations: execution.observedOperations };
-  }
-
-  /** Saturate inference and look up an exact proof and an absent judgement. */
-  function prove(programs, name, goal, absentGoal, { fuel = 8, ...options } = {}) {
-    const execution = run(['rml-prove', encodeRelationalPrograms(programs), encodeRelationalBits(name),
-      encodeRelationalNode(goal), encodeRelationalNode(absentGoal), unary(fuel), '?result'], options);
+  };
+  const proveResult = (execution, name) => {
+    refuseRejected(execution.value);
     if (execution.value === 'missing-program') throw new Error(`linked-program ${name} is missing`);
     const [, count, derivations, proof, absent] = parts(execution.value, 'proved', 5);
     const derived = decodeRelationalList(derivations).map(item => {
@@ -148,6 +194,42 @@ export function createHornLinkSubstitutionKernel(lambdaSource, {
     return { derivations: derived, proof: optionalProof(proof), absentProof: optionalProof(absent),
       known: countUnary(count) + derived.length, fixedPoint: true,
       steps: execution.steps, observedOperations: execution.observedOperations };
+  };
+
+  /** Reduce to normal form with the linked one-step rewrite root; fuel bounds the loop. */
+  function reduce(programs, name, input, { fuel = 16, ...options } = {}) {
+    return reduceResult(run(['rml-reduce', encodeRelationalPrograms(programs), encodeRelationalBits(name),
+      encodeRelationalNode(input), unary(fuel), '?result'], options), name);
+  }
+
+  /** Saturate inference and look up an exact proof and an absent judgement. */
+  function prove(programs, name, goal, absentGoal, { fuel = 8, ...options } = {}) {
+    return proveResult(run(['rml-prove', encodeRelationalPrograms(programs), encodeRelationalBits(name),
+      encodeRelationalNode(goal), encodeRelationalNode(absentGoal), unary(fuel), '?result'], options), name);
+  }
+
+  /**
+   * Elaborate a document by the linked clauses alone: the encoded programs
+   * (the exact `rml-reduce`/`rml-prove` input), or a linked rejection reason.
+   * A document with no linked elaboration is refused by `run`.
+   */
+  function elaborate(text, options = {}) {
+    const execution = run(['elaborate', encodeGenericForms(text), '?result'], options);
+    const rejected = rejection(execution.value);
+    if (rejected !== null) return { programs: null, rejection: rejected, steps: execution.steps };
+    return { programs: parts(execution.value, 'elaborated', 2)[1], rejection: null, steps: execution.steps };
+  }
+
+  /** Linked elaboration followed by linked reduction; the host parses only generic LiNo. */
+  function reduceSource(text, name, input, { fuel = 16, ...options } = {}) {
+    return reduceResult(run(['rml-reduce-source', encodeGenericForms(text), encodeRelationalBits(name),
+      encodeRelationalNode(input), unary(fuel), '?result'], options), name);
+  }
+
+  /** Linked elaboration followed by linked saturation and proof lookup. */
+  function proveSource(text, name, goal, absentGoal, { fuel = 8, ...options } = {}) {
+    return proveResult(run(['rml-prove-source', encodeGenericForms(text), encodeRelationalBits(name),
+      encodeRelationalNode(goal), encodeRelationalNode(absentGoal), unary(fuel), '?result'], options), name);
   }
 
   /** Evaluate a closed probe term (strings are opaque markers) to weak head form. */
@@ -182,6 +264,13 @@ export function createHornLinkSubstitutionKernel(lambdaSource, {
         'first-order RML input encoding, UTF-8 bit decoding and program/rule-name splitting',
         'step/depth bounds, allocation, JavaScript runtime and processor',
       ],
+      sourceElaboration: {
+        elaborationSourceSha256: elaborationHash,
+        workflows: ['elaborate', 'rml-reduce-source', 'rml-prove-source'],
+        linkedDecisions: RML_ELABORATION_LINKED_DECISIONS,
+        residualHostLaws: RML_ELABORATION_RESIDUAL_HOST_LAWS,
+        hostRegistryElaborationOnThisPath: false,
+      },
       roots: transcription.rootCount,
       sourceNodes: transcription.nodeCount,
       internedNames: transcription.names,
@@ -191,5 +280,5 @@ export function createHornLinkSubstitutionKernel(lambdaSource, {
       fullImplementationClosure: false,
     };
   }
-  return Object.freeze({ evaluate, reduce, prove, trustReport, resolver });
+  return Object.freeze({ evaluate, reduce, prove, elaborate, reduceSource, proveSource, trustReport, resolver });
 }

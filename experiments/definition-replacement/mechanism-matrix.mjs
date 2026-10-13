@@ -10,7 +10,7 @@ import { runWorkload } from '../lambda-kernel/compare.mjs';
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 export const source = read('../../lib/meta-theory/fixed-point-source.lino');
 export const matrix = JSON.parse(read('../../test-corpus/kernel-replacement/mechanism-replacements.json'));
-const workload = read('../../test-corpus/lambda-kernel/workload.lino');
+export const workload = read('../../test-corpus/lambda-kernel/workload.lino');
 const cases = JSON.parse(read('../../test-corpus/lambda-kernel/cases.json'));
 
 /** Apply one declared D to D' edit to the authoritative linked source text. */
@@ -54,6 +54,35 @@ export function hornObservations(text, options = {}) {
     return { reductions, derivations: proved.derivations, proof: proved.proof,
       absentProof: proved.absentProof, known: proved.known, fixedPoint: proved.fixedPoint };
   });
+}
+
+/**
+ * The same observations through the linked source workflows: the document is
+ * elaborated by horn-rml-elaboration.lino, not by the host registry.
+ */
+export function hornSourceObservations(text, { document = workload, ...options } = {}) {
+  return observe(() => {
+    const kernel = createHornLinkSubstitutionKernel(text, options);
+    const reductions = cases.reductions.map(item => {
+      const result = kernel.reduceSource(document, item.program, item.input);
+      return { name: item.name, term: result.term, trace: result.trace };
+    });
+    const proved = kernel.proveSource(document, cases.program, cases.goal, cases.absentGoal);
+    return { reductions, derivations: proved.derivations, proof: proved.proof,
+      absentProof: proved.absentProof, known: proved.known, fixedPoint: proved.fixedPoint };
+  });
+}
+
+/** Apply one declared D to D' edit of the linked elaboration source, and its document spelling. */
+export function applyElaborationReplacement(elaborationSource, document, replacement) {
+  let changed = elaborationSource;
+  for (const [before, after] of replacement.replace) {
+    if (changed.split(before).length !== 2) throw new Error(`elaboration replacement ${replacement.id} no longer matches`);
+    changed = changed.replace(before, after);
+  }
+  let spelled = document;
+  for (const [before, after] of replacement.workloadEdit) spelled = spelled.split(before).join(after);
+  return { elaborationSource: changed, document: spelled };
 }
 
 /** Changed observation paths, so a test can show exactly what each D' changed. */
