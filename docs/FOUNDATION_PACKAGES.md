@@ -82,14 +82,51 @@ that implicitly mixes two versions of the same named foundation. Explicit
 program aliases support deliberate comparison of different versions without
 that ambiguity.
 
+## An unseen logic as data
+
+`test-corpus/foundation-packages/unseen-modal-frames-{1,2,3}.lino` define a
+modal accessibility logic in three package versions; the shared expectations
+are in `unseen-modal-frames.json`. Version 1 reads accessibility as given and
+is inductive. Version 2 adds a transitive frame condition in its own program.
+Version 3 keeps version 1's rules but declares `path-step` as a guard of a
+guarded-coinductive policy. Versions 2 and 3 import version 1's rule programs
+and the unchanged `lab-frame` theory by explicit aliases, so the same theory
+object runs under all three foundations.
+
+Through the public package API the same theory yields `unknown`/`proved`/
+`unknown` for a two-step diamond (only the transitive frame derives it) and
+`unknown`/`unknown`/`proved` for an infinite dry path (only the declared guard
+closes the cycle). Queries also reach `refuted`, `contradictory`,
+`assumption-dependent`, `exhausted` and `unsupported`; executions reach
+`computed`, `unsupported` (a rewrite cycle) and `exhausted`. `describe` returns
+the roles, signature, cycle policy and every rule, and now also `ruleForms`
+(Rust `rule_forms`): the declared linked form of each rule, so a caller can
+inspect the logic's content, not only its rule names. `replay(answer)` replays
+an answer's visible evidence; answers from another package workspace are
+refused. Undeclared and unknown cycle policies, and guards outside an
+inference/typing role, are rejected at load time rather than defaulting to
+induction.
+
+No constructor, rule, program, world or alias name of that logic occurs in
+`js/src` or `rust/src`. The JavaScript and Rust guard tests scan every source
+file for those names and check that each identifier-like string literal of the
+four foundation modules is listed in the reviewed
+`test-corpus/foundation-packages/host-vocabulary.json` (schema words, statuses,
+reasons and roles). A new literal dispatch key therefore fails both suites
+until it is reviewed, and the vocabulary must not contain a fixture name. The
+JavaScript foundation modules must not contain `switch` or string `case` arms.
+This guards against host branches for this logic; it does not prove that the
+host schema itself (roles, two cycle-policy mechanisms, signature and
+refutation conventions) is free of semantic choices.
+
 ## Verification
 
 Both test suites load the same two independent source fixtures in
 `test-corpus/foundation-packages/`:
 
 ```sh
-node --test js/tests/foundation-packages.test.mjs
-cargo test --manifest-path rust/Cargo.toml --test foundation_packages_tests
+node --test js/tests/foundation-packages.test.mjs js/tests/foundation-unseen-logic.test.mjs
+cargo test --manifest-path rust/Cargo.toml --test foundation_packages_tests --test foundation_unseen_logic_tests
 ```
 
 Positive tests cover concurrent same-name/version-separated behavior, explicitly

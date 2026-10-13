@@ -45,6 +45,10 @@ use std::rc::Rc;
 pub const PACKAGE_SCHEMA: &str = "rml-foundation-package/v1";
 pub const RESULT_SCHEMA: &str = "rml-foundation-result/v1";
 pub const EXECUTION_SCHEMA: &str = "rml-foundation-execution/v1";
+pub const OUTCOME_SCHEMA: &str = "rml-foundation-outcome/v1";
+pub const REPLAY_SCHEMA: &str = "rml-foundation-replay/v1";
+/// Replay walks a caller-supplied proof tree; bound it independently of search.
+const MAX_REPLAY_NODES: usize = 100_000;
 
 /// Each role admits one rule kind, so a declared role is a checked
 /// classification of a program rather than a label.
@@ -122,6 +126,277 @@ const RESULT_STATUSES: &[ResultStatus] = &[
         proves_refutation: false,
     },
 ];
+
+/// One outcome kind of the shared result contract and what it establishes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct OutcomeKind {
+    pub kind: &'static str,
+    pub truth: &'static str,
+    pub establishes: bool,
+    pub meaning: &'static str,
+}
+
+/// One outcome contract for every public result path. A status says what
+/// the search found; an outcome additionally says whether the established
+/// evidence rests on caller assumptions. `assumption-dependent` takes
+/// precedence over proved, refuted, and contradictory, and its `truth` field
+/// keeps which side was established. A normal form is a computation, not a
+/// truth value. The same table is `OUTCOMES` in
+/// `js/src/rml-foundation-workspace.mjs`.
+const OUTCOMES: &[OutcomeKind] = &[
+    OutcomeKind {
+        kind: "proved",
+        truth: "true",
+        establishes: true,
+        meaning: "The query was derived and its evidence uses no caller assumption.",
+    },
+    OutcomeKind {
+        kind: "refuted",
+        truth: "false",
+        establishes: true,
+        meaning: "The foundation-defined refutation was derived without caller assumptions and the query was not. Falsity is relative to the foundation proof role.",
+    },
+    OutcomeKind {
+        kind: "contradictory",
+        truth: "both",
+        establishes: true,
+        meaning: "Both the query and its refutation were derived without caller assumptions.",
+    },
+    OutcomeKind {
+        kind: "assumption-dependent",
+        truth: "conditional",
+        establishes: true,
+        meaning: "Established evidence uses at least one caller assumption; it holds only relative to the listed assumptions. The truth field tells which side was derived.",
+    },
+    OutcomeKind {
+        kind: "unknown",
+        truth: "undetermined",
+        establishes: false,
+        meaning: "Saturation reached a fixed point without evidence for either side. This is not falsity.",
+    },
+    OutcomeKind {
+        kind: "exhausted",
+        truth: "undetermined",
+        establishes: false,
+        meaning: "A declared bound stopped the work before evidence was found. Nothing is established.",
+    },
+    OutcomeKind {
+        kind: "unsupported",
+        truth: "undetermined",
+        establishes: false,
+        meaning: "The input is outside the foundation signature or the supported mechanisms. Nothing is established.",
+    },
+    OutcomeKind {
+        kind: "computed",
+        truth: "not-applicable",
+        establishes: false,
+        meaning: "An execution reached a normal form. A computed value is not a proof of any judgement.",
+    },
+];
+
+/// The outcome of one `ask` or `execute` result. `assumptions` lists, in
+/// the caller's order, the assumptions the established evidence uses.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResultOutcome {
+    pub schema: &'static str,
+    pub kind: &'static str,
+    pub status: &'static str,
+    pub truth: &'static str,
+    pub establishes: bool,
+    pub assumption_dependent: bool,
+    pub assumptions: Vec<Node>,
+    pub coinductive: bool,
+}
+
+/// The replay of one side of a result's evidence.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReplayCheck {
+    pub side: String,
+    pub accepted: bool,
+    pub reason: &'static str,
+    pub nodes: usize,
+}
+
+/// The result of [`FoundationWorkspace::replay`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct FoundationReplay {
+    pub schema: &'static str,
+    pub accepted: bool,
+    pub reason: &'static str,
+    pub instance: String,
+    pub foundation: FoundationRef,
+    pub cycle_policy: CyclePolicy,
+    pub outcome: Option<ResultOutcome>,
+    pub checks: Vec<ReplayCheck>,
+}
+
+fn status_truth(status: &str) -> &'static str {
+    match status {
+        "proved" => "true",
+        "refuted" => "false",
+        "contradictory" => "both",
+        _ => "undetermined",
+    }
+}
+
+fn visit_proof(proof: &FoundationProof, visit: &mut dyn FnMut(&FoundationProof)) {
+    let mut stack = vec![proof];
+    while let Some(node) = stack.pop() {
+        visit(node);
+        stack.extend(node.premises.iter());
+    }
+}
+
+/// Classify an `ask` result into the shared outcome contract. Only the
+/// established side's evidence decides whether it depends on assumptions.
+pub fn classify_result(result: &FoundationResult) -> ResultOutcome {
+    let truth = status_truth(result.status);
+    let mut established: Vec<&FoundationProof> = Vec::new();
+    if truth == "true" || truth == "both" {
+        established.extend(result.proof.iter());
+        established.extend(result.answers.iter().flatten().map(|answer| &answer.proof));
+    }
+    if truth == "false" || truth == "both" {
+        established.extend(
+            result
+                .refutation
+                .iter()
+                .filter_map(|refutation| refutation.proof.as_ref()),
+        );
+    }
+    let mut used = BTreeSet::new();
+    let mut coinductive = false;
+    for proof in established {
+        visit_proof(proof, &mut |node| {
+            if node.program == ASSUMPTION_PROGRAM {
+                if let Some(index) = node
+                    .rule
+                    .strip_prefix("assumption-")
+                    .and_then(|number| number.parse::<usize>().ok())
+                    .and_then(|number| number.checked_sub(1))
+                {
+                    used.insert(index);
+                }
+            } else if node.program == HYPOTHESIS_PROGRAM {
+                coinductive = true;
+            }
+        });
+    }
+    let assumptions: Vec<Node> = used
+        .iter()
+        .filter_map(|&index| result.assumptions.get(index).cloned())
+        .collect();
+    let establishes = truth != "undetermined";
+    let dependent = establishes && !assumptions.is_empty();
+    ResultOutcome {
+        schema: OUTCOME_SCHEMA,
+        kind: if dependent {
+            "assumption-dependent"
+        } else {
+            result.status
+        },
+        status: result.status,
+        truth,
+        establishes,
+        assumption_dependent: dependent,
+        assumptions,
+        coinductive,
+    }
+}
+
+/// Classify an `execute` result: a normal form is `computed`; a stopped
+/// reduction keeps its `exhausted` or `unsupported` status.
+pub fn classify_execution(execution: &FoundationExecution) -> ResultOutcome {
+    let computed = execution.status == "normal";
+    ResultOutcome {
+        schema: OUTCOME_SCHEMA,
+        kind: if computed {
+            "computed"
+        } else {
+            execution.status
+        },
+        status: execution.status,
+        truth: if computed {
+            "not-applicable"
+        } else {
+            "undetermined"
+        },
+        establishes: false,
+        assumption_dependent: false,
+        assumptions: Vec::new(),
+        coinductive: false,
+    }
+}
+
+/// Match a pattern with `?variables` against a term, extending `bindings`.
+fn match_pattern(pattern: &Node, term: &Node, bindings: &mut BTreeMap<String, Node>) -> bool {
+    if is_variable(pattern) {
+        let Node::Leaf(name) = pattern else {
+            return false;
+        };
+        if let Some(previous) = bindings.get(name) {
+            return previous == term;
+        }
+        bindings.insert(name.clone(), term.clone());
+        return true;
+    }
+    match (pattern, term) {
+        (Node::List(left), Node::List(right)) => {
+            left.len() == right.len()
+                && left
+                    .iter()
+                    .zip(right)
+                    .all(|(pattern, term)| match_pattern(pattern, term, bindings))
+        }
+        _ => pattern == term,
+    }
+}
+
+/// Instantiate a pattern; `None` when a variable is unbound.
+fn instantiate(term: &Node, bindings: &BTreeMap<String, Node>) -> Option<Node> {
+    if is_variable(term) {
+        let Node::Leaf(name) = term else {
+            return None;
+        };
+        return bindings.get(name).cloned();
+    }
+    match term {
+        Node::List(children) => children
+            .iter()
+            .map(|child| instantiate(child, bindings))
+            .collect::<Option<Vec<Node>>>()
+            .map(Node::List),
+        leaf => Some(leaf.clone()),
+    }
+}
+
+fn rebind_leaves(term: &Node, bindings: &BTreeMap<String, String>) -> Node {
+    match term {
+        Node::Leaf(value) => Node::Leaf(
+            bindings
+                .get(value)
+                .cloned()
+                .unwrap_or_else(|| value.clone()),
+        ),
+        Node::List(children) => Node::List(
+            children
+                .iter()
+                .map(|child| rebind_leaves(child, bindings))
+                .collect(),
+        ),
+    }
+}
+
+/// A fact or inference reachable from an instance program, after the import
+/// rebindings on its path.
+#[derive(Debug, Clone)]
+enum EffectiveRule {
+    Fact(Node),
+    Inference {
+        premises: Vec<Node>,
+        conclusion: Node,
+    },
+}
 
 /// A role a foundation may declare and the rule kind it admits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -212,6 +487,9 @@ pub struct FoundationPackage {
     pub signature: Vec<Node>,
     pub cycle_policy: CyclePolicy,
     pub rules: Vec<RuleDescription>,
+    /// The declared content of every rule in `rules`, in the same order, as
+    /// the linked forms that define it.
+    pub rule_forms: Vec<Node>,
     pub bootstrap: BootstrapDescription,
 }
 
@@ -322,6 +600,8 @@ pub struct FoundationResult {
     pub search: Option<SearchSummary>,
     pub bounds: FoundationBounds,
     pub host_operations: Vec<String>,
+    /// The shared outcome classification; see [`classify_result`].
+    pub outcome: ResultOutcome,
 }
 
 /// One rewrite step of an execution with the role of its program.
@@ -360,6 +640,8 @@ pub struct FoundationExecution {
     pub steps: Option<usize>,
     pub trace: Option<Vec<ExecutionStep>>,
     pub host_operations: Vec<String>,
+    /// The shared outcome classification; see [`classify_execution`].
+    pub outcome: ResultOutcome,
 }
 
 /// A change of one assumption or one linked rule.
@@ -1613,6 +1895,21 @@ impl FoundationWorkspace {
         RESULT_STATUSES.to_vec()
     }
 
+    /// Describe every outcome kind of the shared result contract.
+    pub fn outcomes() -> Vec<OutcomeKind> {
+        OUTCOMES.to_vec()
+    }
+
+    /// Classify an `ask` result; the same value is its `outcome` field.
+    pub fn classify_result(result: &FoundationResult) -> ResultOutcome {
+        classify_result(result)
+    }
+
+    /// Classify an `execute` result; the same value is its `outcome` field.
+    pub fn classify_execution(execution: &FoundationExecution) -> ResultOutcome {
+        classify_execution(execution)
+    }
+
     /// List the roles a foundation may declare and the rule kind each admits.
     pub fn roles() -> Vec<FoundationRole> {
         ROLE_KINDS
@@ -1715,6 +2012,7 @@ impl FoundationWorkspace {
                 .collect(),
             signature: foundation.signature.clone(),
             cycle_policy: foundation.cycle_policy.clone(),
+            rule_forms: rules.iter().map(|rule| self.rule_form(rule)).collect(),
             rules,
             bootstrap: BootstrapDescription {
                 kernel: kernel.name,
@@ -1829,6 +2127,16 @@ impl FoundationWorkspace {
             steps: None,
             trace: None,
             host_operations: Vec::new(),
+            outcome: ResultOutcome {
+                schema: OUTCOME_SCHEMA,
+                kind: "computed",
+                status: "normal",
+                truth: "not-applicable",
+                establishes: false,
+                assumption_dependent: false,
+                assumptions: Vec::new(),
+                coinductive: false,
+            },
         };
         let execution = match reduced {
             Err(stopped) => FoundationExecution {
@@ -1856,8 +2164,12 @@ impl FoundationWorkspace {
                 ..execution
             },
         };
-        Ok(FoundationExecution {
+        let execution = FoundationExecution {
             host_operations: session.host_operations(),
+            ..execution
+        };
+        Ok(FoundationExecution {
+            outcome: classify_execution(&execution),
             ..execution
         })
     }
@@ -1939,6 +2251,254 @@ impl FoundationWorkspace {
             workspace,
             revisions,
         })
+    }
+
+    /// Independently replay the evidence of an `ask` result against this
+    /// workspace's loaded rules and the foundation's declared cycle policy,
+    /// without searching. Every proof step must instantiate its named rule
+    /// from the instance closure after import rebinding: premises match the
+    /// normalized premise judgements and the instantiated conclusion
+    /// normalizes to the step's judgement. Assumption leaves must name the
+    /// result's own assumptions. A coinductive hypothesis leaf is accepted
+    /// only under a guarded-coinductive policy, only on the side that
+    /// recorded that hypothesis, and only when the root of that proof is a
+    /// declared guard. The status must agree with which sides carry
+    /// evidence. The replay is a host check of foundation-level proof
+    /// objects; it does not grant the foundation's rules intrinsic authority.
+    pub fn replay(&self, result: &FoundationResult) -> Result<FoundationReplay, String> {
+        if result.schema != RESULT_SCHEMA {
+            return Err("replay requires a foundation result returned by ask".to_string());
+        }
+        let instance = self.instance(&result.instance)?;
+        let data = self.data(instance);
+        let foundation = &self.plan.foundations[instance.foundation];
+        let policy = &foundation.cycle_policy;
+        let mut checks = Vec::new();
+        let finish = |reason: &'static str, checks: Vec<ReplayCheck>| FoundationReplay {
+            schema: REPLAY_SCHEMA,
+            accepted: reason == "replayed",
+            reason,
+            instance: instance.name.clone(),
+            foundation: self.foundation_ref(instance),
+            cycle_policy: policy.clone(),
+            outcome: (reason == "replayed").then(|| classify_result(result)),
+            checks,
+        };
+        if result.foundation != self.foundation_ref(instance) {
+            return Ok(finish("foundation-mismatch", checks));
+        }
+        if result.cycle_policy != *policy {
+            return Ok(finish("cycle-policy-mismatch", checks));
+        }
+        let max_steps = result.bounds.max_steps;
+        if max_steps == 0 {
+            return Ok(finish("malformed-bounds", checks));
+        }
+        let session = Session::new(self);
+        let registry = session.registry(&self.instance_forms(instance, false))?;
+        let reduce = |term: &Node| -> Result<Option<Node>, String> {
+            if assert_term(term, "replayed judgement").is_err() {
+                return Ok(None);
+            }
+            Ok(registry
+                .reduce_or_stop(&instance.name, term, max_steps)?
+                .ok()
+                .map(|reduced| reduced.term))
+        };
+        let rules = self.effective_rules(instance);
+        let closure: BTreeSet<&str> = data.closure.iter().map(String::as_str).collect();
+        let is_guard = |proof: &FoundationProof| {
+            policy
+                .guards
+                .iter()
+                .any(|guard| guard.program == proof.program && guard.rule == proof.rule)
+        };
+
+        let replay_side = |side: String,
+                           proof: Option<&FoundationProof>,
+                           goal: Option<&Node>,
+                           hypothesis: Option<&Node>|
+         -> Result<ReplayCheck, String> {
+            let mut nodes = 0;
+            let fail = |reason: &'static str, nodes: usize| ReplayCheck {
+                side: side.clone(),
+                accepted: false,
+                reason,
+                nodes,
+            };
+            let Some(proof) = proof else {
+                return Ok(fail("missing-proof", nodes));
+            };
+            let goal = match goal {
+                Some(goal) => reduce(goal)?,
+                None => None,
+            };
+            if goal.is_none() || reduce(&proof.judgement)? != goal {
+                return Ok(fail("goal-mismatch", nodes));
+            }
+            let root_is_guard = is_guard(proof);
+            let mut stack = vec![proof];
+            while let Some(node) = stack.pop() {
+                nodes += 1;
+                if nodes > MAX_REPLAY_NODES {
+                    return Ok(fail("replay-node-limit", nodes));
+                }
+                let Some(own) = reduce(&node.judgement)? else {
+                    return Ok(fail("unnormalizable-judgement", nodes));
+                };
+                if node.program == ASSUMPTION_PROGRAM {
+                    let index = node
+                        .rule
+                        .strip_prefix("assumption-")
+                        .filter(|number| !number.starts_with('0'))
+                        .and_then(|number| number.parse::<usize>().ok())
+                        .and_then(|number| number.checked_sub(1));
+                    let matches = match index.and_then(|index| result.assumptions.get(index)) {
+                        Some(assumption) => reduce(assumption)?.as_ref() == Some(&own),
+                        None => false,
+                    };
+                    if !node.premises.is_empty() || node.role != "assumption" || !matches {
+                        return Ok(fail("forged-assumption", nodes));
+                    }
+                    continue;
+                }
+                if node.program == HYPOTHESIS_PROGRAM {
+                    if policy.kind != GUARDED_COINDUCTIVE {
+                        return Ok(fail("hypothesis-under-inductive-policy", nodes));
+                    }
+                    let matches = match hypothesis {
+                        Some(hypothesis) => reduce(hypothesis)?.as_ref() == Some(&own),
+                        None => false,
+                    };
+                    if !matches
+                        || node.rule != "coinductive-hypothesis"
+                        || node.role != "hypothesis"
+                        || !node.premises.is_empty()
+                    {
+                        return Ok(fail("forged-hypothesis", nodes));
+                    }
+                    if !root_is_guard {
+                        return Ok(fail("hypothesis-without-final-guard", nodes));
+                    }
+                    continue;
+                }
+                if !closure.contains(node.program.as_str()) {
+                    return Ok(fail("rule-outside-instance", nodes));
+                }
+                if node.role != data.role_of(&node.program) {
+                    return Ok(fail("role-mismatch", nodes));
+                }
+                let mut premise_terms = Vec::with_capacity(node.premises.len());
+                for premise in &node.premises {
+                    let Some(term) = reduce(&premise.judgement)? else {
+                        return Ok(fail("unnormalizable-judgement", nodes));
+                    };
+                    premise_terms.push(term);
+                }
+                let variants = rules
+                    .get(&(node.program.clone(), node.rule.clone()))
+                    .map(Vec::as_slice)
+                    .unwrap_or_default();
+                let mut instantiates = false;
+                for variant in variants {
+                    let fits = match variant {
+                        EffectiveRule::Fact(judgement) => {
+                            node.premises.is_empty() && reduce(judgement)?.as_ref() == Some(&own)
+                        }
+                        EffectiveRule::Inference {
+                            premises,
+                            conclusion,
+                        } => {
+                            let mut bindings = BTreeMap::new();
+                            let matched = premises.len() == premise_terms.len()
+                                && premises.iter().zip(&premise_terms).all(|(pattern, term)| {
+                                    match_pattern(pattern, term, &mut bindings)
+                                });
+                            match instantiate(conclusion, &bindings) {
+                                Some(instantiated) if matched => {
+                                    reduce(&instantiated)?.as_ref() == Some(&own)
+                                }
+                                _ => false,
+                            }
+                        }
+                    };
+                    if fits {
+                        instantiates = true;
+                        break;
+                    }
+                }
+                if !instantiates {
+                    return Ok(fail("step-does-not-instantiate-rule", nodes));
+                }
+                stack.extend(node.premises.iter());
+            }
+            Ok(ReplayCheck {
+                side,
+                accepted: true,
+                reason: "replayed",
+                nodes,
+            })
+        };
+
+        let truth = status_truth(result.status);
+        let ground = result.answers.is_none();
+        let has_query = match &result.answers {
+            None => result.proof.is_some(),
+            Some(answers) => !answers.is_empty(),
+        };
+        let refutation_proof = result
+            .refutation
+            .as_ref()
+            .and_then(|refutation| refutation.proof.as_ref());
+        let wants_query = truth == "true" || truth == "both";
+        let wants_refutation = truth == "false" || truth == "both";
+        if has_query != wants_query || refutation_proof.is_some() != wants_refutation {
+            return Ok(finish("evidence-status-mismatch", checks));
+        }
+        if has_query && ground {
+            checks.push(replay_side(
+                "query".to_string(),
+                result.proof.as_ref(),
+                result.normalized.as_ref(),
+                result
+                    .coinduction
+                    .as_ref()
+                    .map(|coinduction| &coinduction.hypothesis),
+            )?);
+        } else if has_query {
+            for (index, answer) in result.answers.iter().flatten().enumerate() {
+                let side = format!("answer-{}", index + 1);
+                let fits = result.normalized.as_ref().is_some_and(|pattern| {
+                    match_pattern(pattern, &answer.judgement, &mut BTreeMap::new())
+                });
+                checks.push(if fits {
+                    replay_side(side, Some(&answer.proof), Some(&answer.judgement), None)?
+                } else {
+                    ReplayCheck {
+                        side,
+                        accepted: false,
+                        reason: "answer-outside-pattern",
+                        nodes: 0,
+                    }
+                });
+            }
+        }
+        if let Some(proof) = refutation_proof {
+            let refutation = result.refutation.as_ref();
+            checks.push(replay_side(
+                "refutation".to_string(),
+                Some(proof),
+                refutation.and_then(|refutation| refutation.judgement.as_ref()),
+                refutation
+                    .and_then(|refutation| refutation.coinduction.as_ref())
+                    .map(|coinduction| &coinduction.hypothesis),
+            )?);
+        }
+        let reason = checks
+            .iter()
+            .find(|check| !check.accepted)
+            .map_or("replayed", |check| check.reason);
+        Ok(finish(reason, checks))
     }
 
     fn ask_ground(
@@ -2464,7 +3024,7 @@ impl FoundationWorkspace {
             question.assumptions.to_vec()
         };
         let instance = question.instance;
-        FoundationResult {
+        let mut result = FoundationResult {
             schema: RESULT_SCHEMA,
             instance: instance.name.clone(),
             theory: instance.theory.clone(),
@@ -2503,7 +3063,19 @@ impl FoundationWorkspace {
             search: outcome.search,
             bounds: question.bounds,
             host_operations: session.host_operations(),
-        }
+            outcome: ResultOutcome {
+                schema: OUTCOME_SCHEMA,
+                kind: "unknown",
+                status: "unknown",
+                truth: "undetermined",
+                establishes: false,
+                assumption_dependent: false,
+                assumptions: Vec::new(),
+                coinductive: false,
+            },
+        };
+        result.outcome = classify_result(&result);
+        result
     }
 
     // Check the query and assumptions against the signature in a registry
@@ -2619,6 +3191,131 @@ impl FoundationWorkspace {
             }
         }
         role_of
+    }
+
+    // Every fact and inference reachable from the instance program, with the
+    // import rebindings on its path applied, keyed by program and rule.
+    fn effective_rules(
+        &self,
+        instance: &Instance,
+    ) -> BTreeMap<(String, String), Vec<EffectiveRule>> {
+        fn visit(
+            registry: &LinkedProgramRegistry,
+            name: &str,
+            rebindings: &[BTreeMap<String, String>],
+            seen: &mut BTreeSet<(String, Vec<Vec<(String, String)>>)>,
+            rules: &mut BTreeMap<(String, String), Vec<EffectiveRule>>,
+        ) {
+            let context: (String, Vec<Vec<(String, String)>>) = (
+                name.to_string(),
+                rebindings
+                    .iter()
+                    .map(|bindings| {
+                        bindings
+                            .iter()
+                            .map(|(from, to)| (from.clone(), to.clone()))
+                            .collect()
+                    })
+                    .collect(),
+            );
+            if !seen.insert(context) {
+                return;
+            }
+            let Some(program) = registry.program(name) else {
+                return;
+            };
+            let rebind = |term: &Node| {
+                rebindings.iter().fold(term.clone(), |current, bindings| {
+                    rebind_leaves(&current, bindings)
+                })
+            };
+            for fact in &program.facts {
+                rules
+                    .entry((name.to_string(), fact.name.clone()))
+                    .or_default()
+                    .push(EffectiveRule::Fact(rebind(&fact.judgement)));
+            }
+            for rule in &program.inferences {
+                rules
+                    .entry((name.to_string(), rule.name.clone()))
+                    .or_default()
+                    .push(EffectiveRule::Inference {
+                        premises: rule.premises.iter().map(&rebind).collect(),
+                        conclusion: rebind(&rule.conclusion),
+                    });
+            }
+            for dependency in &program.uses {
+                if dependency.rebindings.is_empty() {
+                    visit(registry, &dependency.program, rebindings, seen, rules);
+                } else {
+                    let mut nested = vec![dependency.rebindings.clone()];
+                    nested.extend(rebindings.iter().cloned());
+                    visit(registry, &dependency.program, &nested, seen, rules);
+                }
+            }
+        }
+        let mut rules = BTreeMap::new();
+        visit(
+            &self.registry,
+            &instance.name,
+            &[],
+            &mut BTreeSet::new(),
+            &mut rules,
+        );
+        rules
+    }
+
+    // The declared linked form of one described rule.
+    fn rule_form(&self, rule: &RuleDescription) -> Node {
+        let leaf = |text: &str| Node::Leaf(text.to_string());
+        let clause = |head: &str, value: &Node| Node::List(vec![leaf(head), value.clone()]);
+        let mut form = Vec::new();
+        if let Some(program) = self.registry.program(&rule.program) {
+            match rule.kind {
+                "rewrite" => {
+                    if let Some(item) = program.rewrites.iter().find(|item| item.name == rule.rule)
+                    {
+                        form = vec![
+                            leaf("linked-rewrite"),
+                            leaf(&rule.program),
+                            leaf(&rule.rule),
+                            clause("from", &item.pattern),
+                            clause("to", &item.replacement),
+                        ];
+                    }
+                }
+                "fact" => {
+                    if let Some(item) = program.facts.iter().find(|item| item.name == rule.rule) {
+                        form = vec![
+                            leaf("linked-fact"),
+                            leaf(&rule.program),
+                            leaf(&rule.rule),
+                            clause("judgement", &item.judgement),
+                        ];
+                    }
+                }
+                _ => {
+                    if let Some(item) = program
+                        .inferences
+                        .iter()
+                        .find(|item| item.name == rule.rule)
+                    {
+                        form = vec![
+                            leaf("linked-inference"),
+                            leaf(&rule.program),
+                            leaf(&rule.rule),
+                        ];
+                        form.extend(
+                            item.premises
+                                .iter()
+                                .map(|premise| clause("premise", premise)),
+                        );
+                        form.push(clause("conclusion", &item.conclusion));
+                    }
+                }
+            }
+        }
+        Node::List(form)
     }
 
     fn program_rules(&self, program_name: &str, role: &'static str) -> Vec<RuleDescription> {
