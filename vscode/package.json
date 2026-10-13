@@ -83,7 +83,7 @@
     "package:raw": "npm run copy-server && node scripts/package-vsix.mjs"
   },
   "dependencies": {
-    "links-notation": "0.25.1",
+    "links-notation": "0.26.0",
     "vscode-languageclient": "^10.1.2"
   },
   "devDependencies": {

@@ -104,3 +104,29 @@ The 0.25.1 crate declares Rust 1.87, below RML's declared 1.90 minimum. Its sour
 The frontend delegates exact UTF-8 literal decoding and canonical spelling to the released provider. Decoded labels are included when excluding private-use placeholders. Versioned literals, empty/control references, Unicode, quoted labels and malformed bytes have shared JavaScript/Rust fixture coverage. Public display rendering remains a separate API from semantic identity and lossless transport.
 
 This change was rebuilt after the executor filesystem was replaced. Earlier unpushed patch bytes and their test logs were lost; only fresh checks of the rebuilt source certify this revision. Native proof-assistant validity requires the corresponding compiler checks.
+
+## Registry refresh, 2026-10-13
+
+The dated [registry audit](case-studies/issue-183/data/dependency-audit-2026-10-13.json)
+finds links-notation 0.26.0 on both npm and crates.io. Both published packages
+were downloaded and compared with 0.25.1: the JavaScript `src/` and `dist/`
+trees and the Rust `src/` tree are byte-identical; 0.26.0 adds a shared
+text-parity test, and its companion links-notation-macro 0.1.2 has identical
+sources with a Syn 3.0.7 floor. RML now selects 0.26.0 in `js/`, `vscode/` and
+`rust/`, and the compatible Rust locks also take sha2 0.11.1, serde_json 1.0.154
+(which adds foldhash 0.2.0) and Syn 3.0.9. The four Rust lockfiles were
+re-resolved with `cargo update`; no Rust code was compiled for this refresh,
+so the native jobs are the compile-and-test check of the new locks. The linked
+AST-capture helper keeps its reviewed exact Syn/serde_json pins.
+
+Every other direct npm and crates.io dependency is already at its latest
+release. meta-language remains at crates.io 1.0.0 (consumed exactly) and npm
+0.46.0. Upstream issue 195 is closed and PR 196 merged on 2026-10-06; the
+v1.0.0 release followed on 2026-10-08. Ten later commits on meta-language
+`main` are unreleased, and npm still has no release matching 1.0.0, so neither
+is consumed here; follow-up issue 199 tracks the remaining scope and release.
+
+Release preparation: the repository has no changeset or release-notes
+convention, and this refresh does not change the 0.39.0 package versions. The
+next release would carry the dependency selections above and the build-cache
+lifecycle changes documented in [BUILD_CACHE.md](BUILD_CACHE.md).
