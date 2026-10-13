@@ -16,6 +16,7 @@ import {
 } from '../src/rml-certified-translation.mjs';
 import { buildCertifiedCorpus, checkCertifiedCorpus, CORPUS_DIRECTORY, GENERATED_DIRECTORY, readCertifiedCorpus } from '../../scripts/generate-certified-translations.mjs';
 import { emitJavaScript } from '#meta-language-pr201/translation/emit-javascript.js';
+import { conceptOf, conceptSpaceSha256 } from '../src/rml-concept-space.mjs';
 
 const corpus = readCertifiedCorpus();
 const read = path => readFileSync(join(CORPUS_DIRECTORY, path), 'utf8');
@@ -369,11 +370,53 @@ describe('surface lowering and termination evidence are certified', () => {
   });
 });
 
+describe('certificates bind their vocabulary to the shared concept space', () => {
+  it('every certificate pins the concept space and binds exactly the terms it uses', () => {
+    let upstream = 0;
+    for (const item of corpus.translations) for (const target of targets(item.language)) {
+      const [form] = readLinksDocument(generated(`${stem(item.name, target)}.certificate.lino`));
+      const concepts = sectionOf(form, 'concepts');
+      assert.equal(sectionOf(concepts, 'sha256')[1], conceptSpaceSha256(), item.name);
+      assert.equal(sectionOf(concepts, 'sha256')[1], sha256(generated('concept-space.json')));
+      const entries = concepts.filter(entry => Array.isArray(entry) && entry[0] === 'concept');
+      assert.equal(sectionOf(concepts, 'count')[1], String(entries.length));
+      const kinds = sectionOf(form, 'correspondence').filter(entry => Array.isArray(entry)).map(entry => sectionOf(entry, 'kind')[1]);
+      const terms = category => entries.filter(entry => sectionOf(entry, 'category')[1] === category).map(entry => sectionOf(entry, 'term')[1]);
+      assert.deepEqual(terms('construct-kind'), [...new Set(kinds)], `${item.name} ${target}`);
+      assert.deepEqual(terms('preservation'), [...PRESERVATION_DIMENSIONS]);
+      for (const entry of entries) {
+        const bound = conceptOf(sectionOf(entry, 'category')[1], sectionOf(entry, 'term')[1]);
+        assert.deepEqual([sectionOf(entry, 'id')[1], sectionOf(entry, 'origin')[1]], [bound.concept, bound.origin]);
+        if (bound.origin === 'upstream') upstream += 1;
+      }
+    }
+    assert.ok(upstream > 0, 'certificates reuse meta-language concepts');
+  });
+  it('rejects a near-miss, relabelled, dropped or missing concept binding', () => {
+    const source = read('sources/rust-records.rs');
+    const certificate = generated('rust-records/lean.certificate.lino');
+    const entry = (form, category, term) => sectionOf(form, 'concepts')
+      .find(item => Array.isArray(item) && item[0] === 'concept' && sectionOf(item, 'category')[1] === category && sectionOf(item, 'term')[1] === term);
+    const nearMiss = editCertificate(certificate, form => { sectionOf(entry(form, 'construct-kind', 'function'), 'id')[1] = 'Function'; });
+    assert.ok(codes(checkTranslationCertificate(nearMiss, { source })).includes('RML_CERT_CONCEPTS'));
+    const relabelled = editCertificate(certificate, form => { sectionOf(entry(form, 'construct-kind', 'data'), 'origin')[1] = 'upstream'; });
+    assert.ok(codes(checkTranslationCertificate(relabelled, { source })).includes('RML_CERT_CONCEPTS'));
+    const dropped = editCertificate(certificate, form => {
+      const concepts = sectionOf(form, 'concepts');
+      concepts.splice(concepts.indexOf(entry(form, 'lowering', 'rust-struct')), 1);
+    });
+    assert.ok(codes(checkTranslationCertificate(dropped, { source })).includes('RML_CERT_CONCEPTS'));
+    const missing = editCertificate(certificate, form => { form.splice(form.indexOf(sectionOf(form, 'concepts')), 1); });
+    assert.ok(codes(checkTranslationCertificate(missing, { source })).includes('RML_CERT_CONCEPTS'));
+    assert.deepEqual(codes(checkTranslationCertificate(certificate, { source })), []);
+  });
+});
+
 describe('bulk freshness gate', () => {
   it('the committed generated corpus is fresh', () => {
     const report = checkCertifiedCorpus();
     assert.deepEqual({ stale: report.stale, missing: report.missing, unexpected: report.unexpected }, { stale: [], missing: [], unexpected: [] });
-    assert.equal(report.files, 12 * 3 * 2 + 12 + 16 * 3 + 1);
+    assert.equal(report.files, 12 * 3 * 2 + 12 + 16 * 3 + 2 + 1);
   });
   it('detects stale and missing outputs', () => {
     const files = buildCertifiedCorpus();

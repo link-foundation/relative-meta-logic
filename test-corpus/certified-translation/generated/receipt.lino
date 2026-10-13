@@ -5,9 +5,10 @@
     (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
     (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
   (implementation
-    (file "js/src/rml-certified-translation.mjs" eeb6bd0efc2428e801fcb6d640980c37038b4764077202b9f3e7f2d61c1e9377)
+    (file "js/src/rml-certified-translation.mjs" 27b6e231e68ca73c57e7a70e4d79c44909f9f01f5b091bc5f9bfc194e8db2039)
     (file "js/src/rml-surface-lowering.mjs" 21b061f6395289969b47209376d36e27971d921e69a50e552dfc674accc11185)
-    (file "scripts/generate-certified-translations.mjs" d33f62d3539fc28dc03e47ae9187006bbdfc0ab5f22fb97b9d96793862fde1eb)
+    (file "js/src/rml-concept-space.mjs" b6e763b63bb99ae4fb10a146092c86a0d7ef779d912b7637512369d65bc51fb4)
+    (file "scripts/generate-certified-translations.mjs" 41d03c6c0a11a7024c08c5021b1b8d6213847792b6001b70b678b46ccb2d66c6)
     (file "js/vendor/meta-language-pr201/upstream-files.json" 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
   (recipe
     (regenerate "node scripts/generate-certified-translations.mjs")
@@ -162,7 +163,7 @@
     (output
       (path "javascript-inventory/rust.certificate.lino")
       (kind certificate)
-      (sha256 3a7f4a2879f8b1b56d51911663daa724612205e7a2292a2e3770c9159f16fefa))
+      (sha256 f427b46be8939df59217416492e38f4605fbd1505457c93eb3ccf9924a474f11))
     (output
       (path "javascript-inventory/lean.lean")
       (kind target)
@@ -170,7 +171,7 @@
     (output
       (path "javascript-inventory/lean.certificate.lino")
       (kind certificate)
-      (sha256 29947084be0f77897eae90c263bb93223f1fe0e45504fb2eb669b5e345e6b33a))
+      (sha256 8f75896b7b341a060faf25c7b8405e50cd5566f14f023e9b33c6e01ba930763d))
     (output
       (path "javascript-inventory/rocq.v")
       (kind target)
@@ -178,7 +179,7 @@
     (output
       (path "javascript-inventory/rocq.certificate.lino")
       (kind certificate)
-      (sha256 415cb37bea5ad7d272f844a5c008513519e8d36c043e048735ca38bd533ad8ed))
+      (sha256 d53c9e4d4e6040df08b4a3125ef95649147a493d0d65fc9836911778d06e5bea))
     (output
       (path "javascript-inventory/intermediate.lino")
       (kind intermediate)
@@ -190,7 +191,7 @@
     (output
       (path "javascript-numeric/rust.certificate.lino")
       (kind certificate)
-      (sha256 817c13e5c282f656bd0718f8ba67ee9ffd9981f447ff986b5e6c2bdbdcc8f355))
+      (sha256 081520d43a353cec0cf18048179e1cf41983387712a12e9b471d0b83ce393d87))
     (output
       (path "javascript-numeric/lean.lean")
       (kind target)
@@ -198,7 +199,7 @@
     (output
       (path "javascript-numeric/lean.certificate.lino")
       (kind certificate)
-      (sha256 41cabdcb7fb0d2c869398c50950f92fda2db8a86a313f65122b8adfab6e79c38))
+      (sha256 3488ce86bb59a2c92652e220e357d21666685ac9f50c7a8a56d1a94bb02ba2d8))
     (output
       (path "javascript-numeric/rocq.v")
       (kind target)
@@ -206,7 +207,7 @@
     (output
       (path "javascript-numeric/rocq.certificate.lino")
       (kind certificate)
-      (sha256 bc83efff2bc084ee4f75d30ebef8847af87367eba7e4b3dd6eb2c7aa5eaf2e34))
+      (sha256 2af2cb6b6cd8c9ba6de95471f58fa361fe14de5458c478f5510ff7f3cce452c5))
     (output
       (path "javascript-numeric/intermediate.lino")
       (kind intermediate)
@@ -218,7 +219,7 @@
     (output
       (path "lean-list/javascript.certificate.lino")
       (kind certificate)
-      (sha256 e3386a8ab5ffb1ae008fa313a8c589542d2ef582bc8176fdfd0f1252769f63d2))
+      (sha256 647cbcc703df205b42268730060ae364f6c787daeea8a4f0623d838c15fe7022))
     (output
       (path "lean-list/rust.rs")
       (kind target)
@@ -226,7 +227,7 @@
     (output
       (path "lean-list/rust.certificate.lino")
       (kind certificate)
-      (sha256 057c15b8a296646121351215279b562edcaaf5a5fd2eaa782e3642062043f83f))
+      (sha256 e536a01d78b77b6bc22b38a2a1fc943efa4115b84aa9a8f133eb97d6c2eb0eb9))
     (output
       (path "lean-list/rocq.v")
       (kind target)
@@ -234,7 +235,7 @@
     (output
       (path "lean-list/rocq.certificate.lino")
       (kind certificate)
-      (sha256 38284ff8e9592fae3e0994f86f6eba1f9d17a97dd0669d7b4f14f599ae568e21))
+      (sha256 ec75ce93e24b18b8839b76792338fefd8763fab9f2b1fae14d00f69fdaeae0f3))
     (output
       (path "lean-list/intermediate.lino")
       (kind intermediate)
@@ -246,7 +247,7 @@
     (output
       (path "lean-structure/javascript.certificate.lino")
       (kind certificate)
-      (sha256 79e32c7c9eb233be45e62d7aee20ec0a64146358c2c458326a7b9c36210a5f48))
+      (sha256 93e0408dadc6fbfbbf9b5025bdc1d00d4203d132bf9d892200309cf6eb73b328))
     (output
       (path "lean-structure/rust.rs")
       (kind target)
@@ -254,7 +255,7 @@
     (output
       (path "lean-structure/rust.certificate.lino")
       (kind certificate)
-      (sha256 1d2ec409eca3b62666f944f90909fcbbc59f215dd518d4b508ba5102d7131154))
+      (sha256 d1b181b263a7fb0e6ef492c31285436960ca5b0d3793ab3f8d266e44c3c7dc1a))
     (output
       (path "lean-structure/rocq.v")
       (kind target)
@@ -262,7 +263,7 @@
     (output
       (path "lean-structure/rocq.certificate.lino")
       (kind certificate)
-      (sha256 247395eeb854993ccd5f8987d9719133c7e3d0c3d0cddf633f466bf86a1502a9))
+      (sha256 f4909cb8ba35556dd741dc5f4d90aa44a7cc9f9ae600cf6fe506af14aedf62ac))
     (output
       (path "lean-structure/intermediate.lino")
       (kind intermediate)
@@ -274,7 +275,7 @@
     (output
       (path "lean-tree/javascript.certificate.lino")
       (kind certificate)
-      (sha256 5ba896a060822c714b26d612b8d9b5f2cfa42e2efbb6bf64b0f49e054e955706))
+      (sha256 04c4f6e750d1210817680977b6c081e80df1e3063b4ca6a4e459086147c87bb7))
     (output
       (path "lean-tree/rust.rs")
       (kind target)
@@ -282,7 +283,7 @@
     (output
       (path "lean-tree/rust.certificate.lino")
       (kind certificate)
-      (sha256 9788b5fa348d2cb0fe5fb7a2e2f0dd9631599102b174e4206f7174c3b589cee2))
+      (sha256 fff24fc20123344bb4f666958f2c81b74e33886c64d8980e58a635528ae86937))
     (output
       (path "lean-tree/rocq.v")
       (kind target)
@@ -290,7 +291,7 @@
     (output
       (path "lean-tree/rocq.certificate.lino")
       (kind certificate)
-      (sha256 f1bd3430125f63ddc885884f04013d2d69b7fc4a13160e39238e976c6a97582f))
+      (sha256 9d8bfff71d42eedc0992d777a93fa0bab72fbd4acdb3a7dbd879c780ae2dcd26))
     (output
       (path "lean-tree/intermediate.lino")
       (kind intermediate)
@@ -302,7 +303,7 @@
     (output
       (path "rocq-expr/javascript.certificate.lino")
       (kind certificate)
-      (sha256 71de21f8889ddc23e06cf7ff29d959e1ec2193f9cc7a4dea393c1decb01d573f))
+      (sha256 18a61bf4b1f429279ebd807c4fb20cfde76dc39398fc426fb0e7e22801e623bf))
     (output
       (path "rocq-expr/rust.rs")
       (kind target)
@@ -310,7 +311,7 @@
     (output
       (path "rocq-expr/rust.certificate.lino")
       (kind certificate)
-      (sha256 23906f0397a2119979b376fb0276327dee20b19ef05a7e96886b388582316953))
+      (sha256 4f83f1f6d5ebaedfb1993d4a09fe5d766662b3d6d35813a69bc61fe5b403279d))
     (output
       (path "rocq-expr/lean.lean")
       (kind target)
@@ -318,7 +319,7 @@
     (output
       (path "rocq-expr/lean.certificate.lino")
       (kind certificate)
-      (sha256 e7baca9743ae1872317507ced4ab2d5e8f517d50254e427104cb8af4bd46caf3))
+      (sha256 15da4e56d3afdb13bc46f85ffe64060530a6813faec761bd07eae44ae5cd028b))
     (output
       (path "rocq-expr/intermediate.lino")
       (kind intermediate)
@@ -330,7 +331,7 @@
     (output
       (path "rocq-queue/javascript.certificate.lino")
       (kind certificate)
-      (sha256 82f16aa4a06745398c22e1b62fb928cb571987fe568cf786ad917b1540cb5065))
+      (sha256 45085b3a51a79bccaaeed73c34b9c1b4374e3438ee99fd93b6fe5855b79a2df2))
     (output
       (path "rocq-queue/rust.rs")
       (kind target)
@@ -338,7 +339,7 @@
     (output
       (path "rocq-queue/rust.certificate.lino")
       (kind certificate)
-      (sha256 c3d76099f2c90dffd9ae3e9ff83107ecfd0d1a82062df867d35393af9a926df1))
+      (sha256 bffe3ae2ad25a505bf18d30f8be468ab00cf1335edf8c22001e56a3d211f54a5))
     (output
       (path "rocq-queue/lean.lean")
       (kind target)
@@ -346,7 +347,7 @@
     (output
       (path "rocq-queue/lean.certificate.lino")
       (kind certificate)
-      (sha256 6cc2734e2d17f77f4078155d3bebb5909d3f4403c114abf0d7ceaabbdace286f))
+      (sha256 a75fa14b4bd0777cff014a8e75bebf9524d8d7b0259ff422eb86bd750a1e46e6))
     (output
       (path "rocq-queue/intermediate.lino")
       (kind intermediate)
@@ -358,7 +359,7 @@
     (output
       (path "rocq-record/javascript.certificate.lino")
       (kind certificate)
-      (sha256 3331c6cfec04459bdaf21d98ab585418d6be099deaec140c77ed4f838394236f))
+      (sha256 91ee50e625d6bbb9d0ff4efb38efb9324955773db4a9581ae1bfa2ab3de7f5ca))
     (output
       (path "rocq-record/rust.rs")
       (kind target)
@@ -366,7 +367,7 @@
     (output
       (path "rocq-record/rust.certificate.lino")
       (kind certificate)
-      (sha256 2c949aa8aaf507203cd06c12ec785dc001172b468d339a595b29deb1cb009020))
+      (sha256 d2fbace4bf5b1037f2337ad4ca0279d3d66c59695a770a3759aef5662c19545d))
     (output
       (path "rocq-record/lean.lean")
       (kind target)
@@ -374,7 +375,7 @@
     (output
       (path "rocq-record/lean.certificate.lino")
       (kind certificate)
-      (sha256 412abd21c92b653d1c9f3c0574f10223a2140feacc6885a735961544dda0e287))
+      (sha256 eb42f2ef4341fa8bc8d06e0f6ef008115457ea8e852bab2273aec0206a476005))
     (output
       (path "rocq-record/intermediate.lino")
       (kind intermediate)
@@ -386,7 +387,7 @@
     (output
       (path "rust-fold/javascript.certificate.lino")
       (kind certificate)
-      (sha256 74d6e900874301e1d007208f4033dd7cc06a094719704da5e6cc0703abefa33a))
+      (sha256 87c3e7415ad19e3a761719c9d1cc03a6dc2b1420355a613959af40de7bff6401))
     (output
       (path "rust-fold/lean.lean")
       (kind target)
@@ -394,7 +395,7 @@
     (output
       (path "rust-fold/lean.certificate.lino")
       (kind certificate)
-      (sha256 26d69ecbede790df6497639f008f58b200b80dab737f34e2c7a93c779241b86f))
+      (sha256 7cd5294791238252649d9505c5324c1b4ebb32c70ba6a7aed1a5b1fa74b0727c))
     (output
       (path "rust-fold/rocq.v")
       (kind target)
@@ -402,7 +403,7 @@
     (output
       (path "rust-fold/rocq.certificate.lino")
       (kind certificate)
-      (sha256 c3985b12e0291f587a7424744d9713bbbf49ca29186b9f181182fbd3bfc91302))
+      (sha256 ceb318e3ce78036bde9eccf08409aa908468c249906764460f3031954a10f7a5))
     (output
       (path "rust-fold/intermediate.lino")
       (kind intermediate)
@@ -414,7 +415,7 @@
     (output
       (path "rust-generic/javascript.certificate.lino")
       (kind certificate)
-      (sha256 4505e384f8afb970d8a86a2bff19c5a2d659823a417566c79a18029f75e22c39))
+      (sha256 7400565907a1692a69943fe389bf870ef765a391b8433cee272426ec843a8919))
     (output
       (path "rust-generic/lean.lean")
       (kind target)
@@ -422,7 +423,7 @@
     (output
       (path "rust-generic/lean.certificate.lino")
       (kind certificate)
-      (sha256 4c7d768b2ea0ba079b8de526add942981ec9f6779b9ed1b8500f2eb08658ad7c))
+      (sha256 c63bef819afa7e47e2298d3e09ebf81de3a1477d68dbae89bc99e728c6091ecf))
     (output
       (path "rust-generic/rocq.v")
       (kind target)
@@ -430,7 +431,7 @@
     (output
       (path "rust-generic/rocq.certificate.lino")
       (kind certificate)
-      (sha256 44d543c6e8ed8c364ef370f0ea19e03b4f31f3d0c23d9f4a23cccaa5a1fd0762))
+      (sha256 cb3f0692fe0610ea6dae9e4019e7d27e1a5ae317861ff3d177fcde0223d0736a))
     (output
       (path "rust-generic/intermediate.lino")
       (kind intermediate)
@@ -442,7 +443,7 @@
     (output
       (path "rust-records/javascript.certificate.lino")
       (kind certificate)
-      (sha256 86fa972d7382ae7266a75d10ad496d9e296eb4b85fcf489f7dfd3bf73d64a33d))
+      (sha256 3ff05189651e5b8218adf2fb230837c4969fb56029f5e94a6c0e0a96e287b27d))
     (output
       (path "rust-records/lean.lean")
       (kind target)
@@ -450,7 +451,7 @@
     (output
       (path "rust-records/lean.certificate.lino")
       (kind certificate)
-      (sha256 43f1bd5e9c96c3661487dd8a978719f14605aa9483e4d90d0a88005cd52df67a))
+      (sha256 c5b9d0f9bbdcf344cc5b0741b0edee7a4a633f444f365d39aad2889d8fe6101f))
     (output
       (path "rust-records/rocq.v")
       (kind target)
@@ -458,7 +459,7 @@
     (output
       (path "rust-records/rocq.certificate.lino")
       (kind certificate)
-      (sha256 7023b0e5eae56934ddf8952f6122312870ef8052ff9af55154314d5004eb6b4b))
+      (sha256 939ee8e1ed7cd27328bf21c221e8c1f39f559fa5735f8ad9c061820e1a2ab05a))
     (output
       (path "rust-records/intermediate.lino")
       (kind intermediate)
@@ -470,7 +471,7 @@
     (output
       (path "rust-shapes/javascript.certificate.lino")
       (kind certificate)
-      (sha256 e473fa9b478c970989528bb59307d33e859736976c685c8f2918d103ae5a3a92))
+      (sha256 fad18984e00b1202cd2f5b2b94a0375e73235984e338c6ab256e2cd8722455ea))
     (output
       (path "rust-shapes/lean.lean")
       (kind target)
@@ -478,7 +479,7 @@
     (output
       (path "rust-shapes/lean.certificate.lino")
       (kind certificate)
-      (sha256 3fb157cfc439d19229ca8052c55c2cfd3a40866135ac408f80043b1272cc3645))
+      (sha256 979985b17f902a607f70da8a1042580fe782a1b959cea33013b465bc63236400))
     (output
       (path "rust-shapes/rocq.v")
       (kind target)
@@ -486,7 +487,7 @@
     (output
       (path "rust-shapes/rocq.certificate.lino")
       (kind certificate)
-      (sha256 6366936d7a073db74d704dc14a81f8247ac2cebf7dfb50bdd7d651b1c32f05be))
+      (sha256 bd7792fe913b572566d9a43eb7fe36e8c933e7e1b4efe357e4c7055ad8a923df))
     (output
       (path "rust-shapes/intermediate.lino")
       (kind intermediate)
@@ -682,6 +683,14 @@
     (output
       (path "refusals/rust-u32-structural-recursion.rocq.refusal.lino")
       (kind refusal)
-      (sha256 9715a4947bc583e9b9e5eb9e2f8c7b673639460f589ad0785bbf879585db3e1d)))
+      (sha256 9715a4947bc583e9b9e5eb9e2f8c7b673639460f589ad0785bbf879585db3e1d))
+    (output
+      (path concept-space.json)
+      (kind concept-space)
+      (sha256 a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0))
+    (output
+      (path concept-space.lino)
+      (kind concept-network)
+      (sha256 5c37019ae7698178d4c41562dd0b2afb42cd064a8215793d7ab3ec7664555fc0)))
   (totals (translations 36) (refusals 48))
   (authority (macros none) (traits none) (runtime none) (external-kernels oracle-only)))

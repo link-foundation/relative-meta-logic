@@ -1,9 +1,14 @@
 //! Shared-corpus tests for the Rust mirror of the certificate integrity checker.
 //! The certificates are produced by the JavaScript pipeline; Rust must parse,
 //! re-serialize and integrity-check exactly the same Links documents.
+use meta_language::{
+    concept_correspondence_in, concept_record, concept_records, foundation_register, ConceptRecord,
+    CorrespondenceRelation, LinkNetwork, SourceAlias,
+};
 use rml::certified_translation::{
-    check_certificate_integrity, check_refusal_integrity, read_links_document, serialize_links,
-    sha256_hex, CertificateInputs, LinksNode, CERTIFIED_LANGUAGES, LOWERING_KINDS, REFUSAL_STAGES,
+    certificate_terms, check_certificate_integrity, check_refusal_integrity, read_links_document,
+    serialize_links, sha256_hex, CertificateInputs, LinksNode, CERTIFIED_LANGUAGES,
+    CONCEPT_SPACE_SCHEMA, LOWERING_KINDS, REFUSAL_STAGES, RML_CONCEPT_NAMESPACE,
     SURFACE_LOWERING_SCHEMA,
 };
 use serde_json::Value;
@@ -357,4 +362,135 @@ fn refusal_receipts_name_a_known_pipeline_stage() {
         .errors
         .iter()
         .any(|error| error.message.contains("unknown pipeline stage")));
+}
+
+fn concept_entry_mut<'a>(form: &'a mut LinksNode, category: &str, term: &str) -> &'a mut LinksNode {
+    items_mut(section_mut(form, "concepts"))
+        .iter_mut()
+        .find(|item| item.head() == Some("concept") && item.field("category") == Some(category) && item.field("term") == Some(term))
+        .unwrap_or_else(|| panic!("missing concept {category} {term}"))
+}
+
+fn concept_space() -> Value {
+    serde_json::from_str(&generated("concept-space.json")).unwrap()
+}
+
+fn alias(source: &str, name: &str) -> SourceAlias {
+    SourceAlias {
+        source: source.to_string(),
+        name: name.to_string(),
+    }
+}
+
+#[test]
+fn certificate_concepts_bind_every_term_to_the_shared_concept_space() {
+    let translator = translator();
+    let space = concept_space();
+    let space_sha256 = sha256_hex(generated("concept-space.json").as_bytes());
+    let bindings: Vec<(String, String, String, String)> = space["bindings"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|binding| {
+            (
+                binding["category"].as_str().unwrap().to_string(),
+                binding["term"].as_str().unwrap().to_string(),
+                binding["concept"].as_str().unwrap().to_string(),
+                binding["origin"].as_str().unwrap().to_string(),
+            )
+        })
+        .collect();
+    let mut upstream_entries = 0;
+    for case in translations() {
+        for target in CERTIFIED_LANGUAGES.iter().filter(|target| **target != case.language) {
+            let (certificate, _, _) = certificate_files(&case, target);
+            let form = read_links_document(&certificate).unwrap().remove(0);
+            let concepts = form.section("concepts").unwrap_or_else(|| panic!("{} {target} has no concepts section", case.name));
+            assert_eq!(concepts.field("schema"), Some(CONCEPT_SPACE_SCHEMA));
+            assert_eq!(concepts.field("sha256"), Some(space_sha256.as_str()), "{} {target} pins the committed concept space", case.name);
+            let listed: Vec<(String, String)> = concepts
+                .sections("concept")
+                .map(|entry| (entry.field("category").unwrap().to_string(), entry.field("term").unwrap().to_string()))
+                .collect();
+            let used: Vec<(String, String)> = certificate_terms(&form)
+                .into_iter()
+                .map(|(category, term)| (category.to_string(), term))
+                .collect();
+            assert_eq!(listed, used, "{} {target}", case.name);
+            for entry in concepts.sections("concept") {
+                let key = (entry.field("category").unwrap(), entry.field("term").unwrap());
+                let binding = bindings
+                    .iter()
+                    .find(|binding| binding.0 == key.0 && binding.1 == key.1)
+                    .unwrap_or_else(|| panic!("{key:?} is not in the concept space"));
+                assert_eq!(entry.field("id"), Some(binding.2.as_str()));
+                assert_eq!(entry.field("origin"), Some(binding.3.as_str()));
+                if binding.3 == "upstream" {
+                    upstream_entries += 1;
+                }
+            }
+        }
+    }
+    assert!(upstream_entries > 0, "certificates reuse meta-language concepts");
+    let cases = translations();
+    let case = cases.iter().find(|case| case.name == "rust-records").unwrap();
+    let (certificate, _, _) = certificate_files(case, "Lean");
+    let near_miss = forge(&certificate, |form| set_field(concept_entry_mut(form, "construct-kind", "function"), "id", "Function"));
+    assert!(check(&near_miss, case, None, None, &translator).contains(&"RML_CERT_CONCEPTS"));
+    let relabelled = forge(&certificate, |form| {
+        set_field(concept_entry_mut(form, "construct-kind", "data"), "origin", "upstream")
+    });
+    assert!(check(&relabelled, case, None, None, &translator).contains(&"RML_CERT_CONCEPTS"));
+    let dropped = forge(&certificate, |form| {
+        items_mut(section_mut(form, "concepts")).retain(|item| item.field("term") != Some("rust-struct"));
+    });
+    assert!(check(&dropped, case, None, None, &translator).contains(&"RML_CERT_CONCEPTS"));
+    let missing = forge(&certificate, |form| items_mut(form).retain(|item| item.head() != Some("concepts")));
+    assert!(check(&missing, case, None, None, &translator).contains(&"RML_CERT_CONCEPTS"));
+}
+
+#[test]
+fn concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte() {
+    let space = concept_space();
+    assert_eq!(space["schema"].as_str(), Some(CONCEPT_SPACE_SCHEMA));
+    assert_eq!(space["upstream"]["records"].as_u64(), Some(concept_records().len() as u64));
+    let records: Vec<ConceptRecord> = serde_json::from_value(space["records"].clone()).unwrap();
+    for record in &records {
+        if record.id.starts_with(RML_CONCEPT_NAMESPACE) {
+            assert!(concept_record(&record.id).is_none(), "{} shadows a meta-language concept", record.id);
+        } else {
+            let upstream = concept_record(&record.id).unwrap_or_else(|| panic!("{} is not a meta-language concept", record.id));
+            assert_eq!(upstream.id, record.id);
+            assert_eq!(upstream.definition, record.definition);
+            let own: Vec<&SourceAlias> = record.source_aliases.iter().filter(|alias| !alias.source.starts_with("rml:")).collect();
+            assert_eq!(own, upstream.source_aliases.iter().collect::<Vec<_>>(), "{} keeps its meta-language aliases", record.id);
+        }
+        assert!(record.source_aliases.iter().any(|alias| alias.source.starts_with("rml:")), "{} binds a certificate term", record.id);
+    }
+    // The committed network is exactly what meta-language's own record insertion builds in Rust.
+    let mut network = LinkNetwork::new();
+    for record in &records {
+        network.insert_concept_record(record);
+    }
+    assert_eq!(network.to_lino(), generated("concept-space.lino"));
+    // Correspondence is decided by meta-language over the space: shared only on an exact binding.
+    let register = foundation_register();
+    let relation = |first: SourceAlias, second: SourceAlias| concept_correspondence_in(&records, register, &first, &second, None);
+    let shared = relation(alias("rml:lowering", "rust-struct"), alias("rml:lowering", "lean-structure"));
+    assert_eq!(shared.relation, CorrespondenceRelation::Shared);
+    assert_eq!(shared.shared.as_deref(), Some("rml.lowering.record-type"));
+    let syntax = relation(alias("rml:lowering-syntax", "lean-instantiation"), alias("rml:lowering-syntax", "rocq-instantiation"));
+    assert_eq!(syntax.shared.as_deref(), Some("grammar.function-application"));
+    assert_eq!(
+        relation(alias("rml:lowering", "rust-struct"), alias("rml:lowering", "rust-field-read")).relation,
+        CorrespondenceRelation::Distinct
+    );
+    assert_eq!(
+        relation(alias("rml:lowering", "Rust-struct"), alias("rml:lowering", "lean-structure")).relation,
+        CorrespondenceRelation::Unknown
+    );
+    assert_eq!(
+        relation(alias("rml:construct-kind", "function"), alias("Rust", "fn")).shared.as_deref(),
+        Some("function")
+    );
 }

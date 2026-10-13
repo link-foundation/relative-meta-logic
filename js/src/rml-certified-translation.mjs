@@ -19,6 +19,7 @@ import { readFileSync } from 'node:fs';
 import { LinkId, LinkNetwork } from '#meta-language';
 import { attachRmlStructure, emitRmlFromStructure, rmlStructuredDocument } from './rml-meta-structure.mjs';
 import { lowerSurface } from './rml-surface-lowering.mjs';
+import { certificateConceptsForm } from './rml-concept-space.mjs';
 import { TranslationError } from '#meta-language-pr201/translation/diagnostics.js';
 import { checkProgram } from '#meta-language-pr201/translation/check.js';
 import { parseJavaScript } from '#meta-language-pr201/translation/javascript.js';
@@ -583,6 +584,12 @@ export function translateCertified(source, sourceLanguage, targetLanguage, { imp
     ...loweringForm(result),
     ['target', ['language', target.language], ['sha256', target.sha256], ['bytes', String(target.bytes)]],
     ['correspondence', ...correspondence],
+    // Every vocabulary term the certificate uses, bound to its concept in the shared meta-language concept space.
+    certificateConceptsForm({ 'construct-kind': emitted.mappings.map(mapping => mapping.kind),
+      'obligation-kind': obligations.map(item => item.kind), discharge: obligations.map(item => item.by),
+      preservation: PRESERVATION_DIMENSIONS, authority: CERTIFIED_AUTHORITY.map(([grant]) => grant),
+      lowering: result.lowering?.rewrites.map(rewrite => rewrite.kind) ?? [],
+      'lowering-syntax': result.lowering?.rewrites.map(rewrite => rewrite.kind) ?? [] }),
     ['preservation', ...preservation(sourceLanguage, targetLanguage, observation, obligations, emitted.assumptions, program)],
     ['assumptions', ['count', String(emitted.assumptions.length)], ...emitted.assumptions.map(item => ['assumption', item.id, item.statement])],
     ['encodings', ['count', String(emitted.encodings.length)], ...emitted.encodings.map(item => ['encoding', item.id, item.statement])],
@@ -711,7 +718,7 @@ export function checkTranslationCertificate(certificateText, { source, target })
   const sectionCodes = { source: 'RML_CERT_SOURCE_HASH', intermediate: 'RML_CERT_INTERMEDIATE', target: 'RML_CERT_TARGET_HASH',
     correspondence: 'RML_CERT_CORRESPONDENCE', preservation: 'RML_CERT_PRESERVATION', assumptions: 'RML_CERT_ASSUMPTIONS',
     encodings: 'RML_CERT_ENCODINGS', observation: 'RML_CERT_OBSERVATION', verdict: 'RML_CERT_VERDICT', losses: 'RML_CERT_LOSSES',
-    lowering: 'RML_CERT_LOWERING' };
+    lowering: 'RML_CERT_LOWERING', concepts: 'RML_CERT_CONCEPTS' };
   for (const [name, code] of Object.entries(sectionCodes)) {
     if (!same(section(form, name), section(reference, name)) && !errors.some(error => error.code === code)) fail(code, `${name} section differs from the RML re-derivation`);
   }
