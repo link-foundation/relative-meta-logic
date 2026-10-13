@@ -84,6 +84,57 @@ The cache wrappers print lifecycle messages around the JSON report.
    obligation and `not-proved` verification status. An async/effectful program
    is rejected by this fragment translator, with the source retained.
 
+## Continue with the upstream meta-theory and an unseen logic
+
+A second recipe applies the same loop to the pinned upstream corpus and to a
+user-defined logic that no host source names:
+
+```sh
+node examples/meta-theory-workflow.mjs
+node scripts/cargo.mjs run --manifest-path rust/Cargo.toml --example meta_theory_workflow
+node --test js/tests/meta-theory-workflow.test.mjs
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --test meta_theory_workflow_tests
+```
+
+Both runtimes produce `test-corpus/researcher-workflow/meta-theory-expected.json`
+from public APIs. The recipe has five steps:
+
+1. **Locate a declaration in every stage.** Read the row for
+   `toOrderedUnique` from the [stage map](../../META_THEORY_NATIVE.md#stage-map).
+   It has preservation, typed elaboration (`unsupported` there), native
+   elaboration, exact dependencies, an ablation execution witness and its
+   proof status. Regenerate the map after any upstream or semantic change; its
+   validator rejects stale counts and unwitnessed claims.
+2. **Execute an upstream command natively.** `NetworkExamples#command-17` runs
+   on the generated linked program and yields `[(121, 1), (21, 2), (1343, 2)]`.
+   This is the same normal form and step count as the recorded case, the
+   value stated in the source comment, and the result of the Rocq counterpart.
+3. **Run upstream definitions on your own data.** Call `toOrderedUnique` on
+   `[3, 1, 2, 3]` and `IsOrderedUniqueSequence` on `[1, 2, 3]` and `[2, 1]`,
+   in Lean and in Rocq. These inputs appear nowhere in the corpus. Editing the
+   linked definition, for example dropping `insertSorted`, changes the
+   computed value. No host callback computes it.
+4. **Re-check a proof certificate.** The certificate for Lean
+   `set_sequence_equivalence` is re-checked by the trusted checker and the
+   linked proof verifier. Its chain is reported relative to the admitted
+   `mem_toOrderedUnique` and the uncertified `toOrderedUnique_is_ascending`.
+   A forged node conclusion is rejected, and so is the certificate once a
+   cited lemma is removed from the recorded dependencies.
+5. **Compare foundation versions of an unseen logic.** The modal-frames fixture
+   asks `home-reaches-dry` under versions 1–3. The answers are `unknown`,
+   `proved` and `unknown`, each with its shared outcome classification. Each
+   answer is replayed by its own package workspace without searching (see
+   [FOUNDATION_PACKAGES.md](../../FOUNDATION_PACKAGES.md)). The recursive
+   semantic closure of programs, foundations, judgements and values is
+   exercised separately (see
+   [SEMANTIC_ARCHIVE.md](../../SEMANTIC_ARCHIVE.md)).
+
+These steps add executable meta-theory semantics, not completion. Typed
+elaboration covers 72 declarations. 183 declarations have execution
+witnesses: 150 from upstream cases and 33 from untyped probes on upstream
+data. 14 of the 36 theorems are certified. Inductive and rewriting
+proofs remain outside the certificate fragment.
+
 ## Public entry points and trust boundaries
 
 JavaScript callers can import `runResearcherWorkflow`, `researcherPackages` and

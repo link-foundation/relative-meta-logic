@@ -1,0 +1,122 @@
+{
+  "schema": "rml-meta-theory-workflow/v1",
+  "corpus": {
+    "declarations": 229,
+    "fingerprint": "f85e7951384dbb639725eb021419982d367f5e1eeef2c5528602a4e35d8af0b9"
+  },
+  "map": {
+    "declarations": 229,
+    "commands": 197,
+    "row": {
+      "address": "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique",
+      "typedElaboration": "unsupported",
+      "nativeElaboration": "elaborated",
+      "dependencyCheck": "exact",
+      "nativeExecution": "ablation-witnessed",
+      "proof": "not-applicable"
+    }
+  },
+  "upstreamCommand": {
+    "id": "rml.formal.lean.NetworkExamples#command-17",
+    "value": "[(121, 1), (21, 2), (1343, 2)]",
+    "matchesRecordedCase": true,
+    "counterpart": "rml.formal.rocq.NetworkExamples#command-26",
+    "counterpartValue": "[(121, 1); (21, 2); (1343, 2)]",
+    "counterpartAgrees": true
+  },
+  "newData": [
+    {
+      "language": "lean",
+      "definition": "toOrderedUnique",
+      "input": [
+        3,
+        1,
+        2,
+        3
+      ],
+      "value": "[1, 2, 3]"
+    },
+    {
+      "language": "lean",
+      "definition": "IsOrderedUniqueSequence",
+      "input": [
+        1,
+        2,
+        3
+      ],
+      "value": "true"
+    },
+    {
+      "language": "lean",
+      "definition": "IsOrderedUniqueSequence",
+      "input": [
+        2,
+        1
+      ],
+      "value": "false"
+    },
+    {
+      "language": "rocq",
+      "definition": "toOrderedUnique",
+      "input": [
+        3,
+        1,
+        2,
+        3
+      ],
+      "value": "[1; 2; 3]"
+    },
+    {
+      "language": "rocq",
+      "definition": "IsOrderedUniqueSequence",
+      "input": [
+        1,
+        2,
+        3
+      ],
+      "value": "true"
+    },
+    {
+      "language": "rocq",
+      "definition": "IsOrderedUniqueSequence",
+      "input": [
+        2,
+        1
+      ],
+      "value": "false"
+    }
+  ],
+  "certificate": {
+    "theorem": "rml.formal.lean.SetSequenceEquivalence.set_sequence_equivalence",
+    "accepted": true,
+    "chain": "relative",
+    "relativeTo": [
+      "rml.formal.lean.SetSequenceEquivalence.mem_toOrderedUnique (admitted)",
+      "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending (verified)"
+    ],
+    "forgedConclusionAccepted": false
+  },
+  "unseenLogic": {
+    "query": "home-reaches-dry",
+    "answers": [
+      {
+        "version": "1",
+        "status": "unknown",
+        "outcome": "unknown",
+        "replayAccepted": true
+      },
+      {
+        "version": "2",
+        "status": "proved",
+        "outcome": "proved",
+        "replayAccepted": true
+      },
+      {
+        "version": "3",
+        "status": "unknown",
+        "outcome": "unknown",
+        "replayAccepted": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,397 @@
+# Shared value semantics for the native execution of the pinned meta-theory.
+# The generated upstream-0.0.3-native.lino program uses this one; both runtimes
+# execute it through the unchanged generic rewrite machine. Nothing here names a
+# corpus declaration.
+#
+# Evaluation is call-by-value. A finished value is tagged (mt-v RAW); RAW is a
+# constructor tree whose children are again finished raw values:
+#   naturals mt-zero/(mt-b0 n)/(mt-b1 n) (canonical little-endian binary, no
+#   (mt-b0 mt-zero)), mt-nil/(mt-cons h t), (mt-pair a b), mt-none/(mt-some v),
+#   mt-true/mt-false, (mt-con TYPE NAME args...), (mt-record TYPE fields...),
+#   closures (mt-fn FUNCTION captured...) and type links.
+# Builders such as (mt-cons (mt-v h) (mt-v t)) fire only once their arguments
+# are tagged values, so the ordered leftmost-outermost reducer evaluates every
+# argument first and a duplicated variable never duplicates unfinished work.
+# Only the branches of mt-if and the right operand of mt-and/mt-or are lazy.
+# Source patterns 0 and n+1 inspect a natural through mt-nat-view.
+# Prop-valued source definitions over finite data run as boolean decision
+# procedures; an unbounded quantifier has no rule and stays stuck.
+
+(linked-program meta-theory-native-prelude)
+
+# Constructor builders.
+(linked-rewrite meta-theory-native-prelude build-successor
+  (from (mt-succ (mt-v ?n))) (to (mt-succ-raw ?n)))
+(linked-rewrite meta-theory-native-prelude build-cons
+  (from (mt-cons (mt-v ?head) (mt-v ?tail))) (to (mt-v (mt-cons ?head ?tail))))
+(linked-rewrite meta-theory-native-prelude build-pair
+  (from (mt-pair (mt-v ?first) (mt-v ?second))) (to (mt-v (mt-pair ?first ?second))))
+(linked-rewrite meta-theory-native-prelude build-some
+  (from (mt-some (mt-v ?value))) (to (mt-v (mt-some ?value))))
+(linked-rewrite meta-theory-native-prelude build-constructor-1
+  (from (mt-con ?type ?name (mt-v ?a))) (to (mt-v (mt-con ?type ?name ?a))))
+(linked-rewrite meta-theory-native-prelude build-constructor-2
+  (from (mt-con ?type ?name (mt-v ?a) (mt-v ?b))) (to (mt-v (mt-con ?type ?name ?a ?b))))
+(linked-rewrite meta-theory-native-prelude build-constructor-3
+  (from (mt-con ?type ?name (mt-v ?a) (mt-v ?b) (mt-v ?c))) (to (mt-v (mt-con ?type ?name ?a ?b ?c))))
+(linked-rewrite meta-theory-native-prelude build-record-1
+  (from (mt-record ?type (mt-v ?a))) (to (mt-v (mt-record ?type ?a))))
+(linked-rewrite meta-theory-native-prelude build-record-2
+  (from (mt-record ?type (mt-v ?a) (mt-v ?b))) (to (mt-v (mt-record ?type ?a ?b))))
+(linked-rewrite meta-theory-native-prelude build-record-3
+  (from (mt-record ?type (mt-v ?a) (mt-v ?b) (mt-v ?c))) (to (mt-v (mt-record ?type ?a ?b ?c))))
+(linked-rewrite meta-theory-native-prelude build-closure-1
+  (from (mt-fn ?function (mt-v ?a))) (to (mt-v (mt-fn ?function ?a))))
+(linked-rewrite meta-theory-native-prelude build-closure-2
+  (from (mt-fn ?function (mt-v ?a) (mt-v ?b))) (to (mt-v (mt-fn ?function ?a ?b))))
+(linked-rewrite meta-theory-native-prelude build-closure-3
+  (from (mt-fn ?function (mt-v ?a) (mt-v ?b) (mt-v ?c))) (to (mt-v (mt-fn ?function ?a ?b ?c))))
+(linked-rewrite meta-theory-native-prelude build-closure-4
+  (from (mt-fn ?function (mt-v ?a) (mt-v ?b) (mt-v ?c) (mt-v ?d))) (to (mt-v (mt-fn ?function ?a ?b ?c ?d))))
+(linked-rewrite meta-theory-native-prelude build-list-type
+  (from (mt-list-type (mt-v ?element))) (to (mt-v (mt-list-type ?element))))
+(linked-rewrite meta-theory-native-prelude build-option-type
+  (from (mt-option-type (mt-v ?element))) (to (mt-v (mt-option-type ?element))))
+(linked-rewrite meta-theory-native-prelude build-vector-type
+  (from (mt-vector-type (mt-v ?element) (mt-v ?length))) (to (mt-v (mt-vector-type ?element ?length))))
+(linked-rewrite meta-theory-native-prelude build-product-type
+  (from (mt-product-type (mt-v ?left) (mt-v ?right))) (to (mt-v (mt-product-type ?left ?right))))
+# One arrow link is both implication between decided propositions and a
+# function type between type values (propositions as types).
+(linked-rewrite meta-theory-native-prelude implies-true
+  (from (mt-arrow (mt-v mt-true) ?right)) (to ?right))
+(linked-rewrite meta-theory-native-prelude implies-false
+  (from (mt-arrow (mt-v mt-false) ?right)) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude build-arrow-type
+  (from (mt-arrow (mt-v ?domain) (mt-v ?codomain))) (to (mt-v (mt-arrow ?domain ?codomain))))
+
+# Closure application enters the closure's own function, whose generated
+# rules either saturate the call or build a larger closure.
+(linked-rewrite meta-theory-native-prelude apply-0
+  (from (mt-apply (mt-v (mt-fn ?function)) (mt-v ?x)))
+  (to (?function mt-enter (mt-v ?x))))
+(linked-rewrite meta-theory-native-prelude apply-1
+  (from (mt-apply (mt-v (mt-fn ?function ?a)) (mt-v ?x)))
+  (to (?function mt-enter (mt-v ?a) (mt-v ?x))))
+(linked-rewrite meta-theory-native-prelude apply-2
+  (from (mt-apply (mt-v (mt-fn ?function ?a ?b)) (mt-v ?x)))
+  (to (?function mt-enter (mt-v ?a) (mt-v ?b) (mt-v ?x))))
+(linked-rewrite meta-theory-native-prelude apply-3
+  (from (mt-apply (mt-v (mt-fn ?function ?a ?b ?c)) (mt-v ?x)))
+  (to (?function mt-enter (mt-v ?a) (mt-v ?b) (mt-v ?c) (mt-v ?x))))
+(linked-rewrite meta-theory-native-prelude apply-4
+  (from (mt-apply (mt-v (mt-fn ?function ?a ?b ?c ?d)) (mt-v ?x)))
+  (to (?function mt-enter (mt-v ?a) (mt-v ?b) (mt-v ?c) (mt-v ?d) (mt-v ?x))))
+
+# Control and Boolean connectives.
+(linked-rewrite meta-theory-native-prelude if-true
+  (from (mt-if (mt-v mt-true) ?then ?else)) (to ?then))
+(linked-rewrite meta-theory-native-prelude if-false
+  (from (mt-if (mt-v mt-false) ?then ?else)) (to ?else))
+(linked-rewrite meta-theory-native-prelude not-true
+  (from (mt-not (mt-v mt-true))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude not-false
+  (from (mt-not (mt-v mt-false))) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude and-true
+  (from (mt-and (mt-v mt-true) ?right)) (to ?right))
+(linked-rewrite meta-theory-native-prelude and-false
+  (from (mt-and (mt-v mt-false) ?right)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude or-true
+  (from (mt-or (mt-v mt-true) ?right)) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude or-false
+  (from (mt-or (mt-v mt-false) ?right)) (to ?right))
+(linked-rewrite meta-theory-native-prelude iff
+  (from (mt-iff (mt-v ?left) (mt-v ?right))) (to (mt-equal-raw ?left ?right)))
+
+# Binary natural arithmetic. Every result stays canonical.
+(linked-rewrite meta-theory-native-prelude successor-zero
+  (from (mt-succ-raw mt-zero)) (to (mt-v (mt-b1 mt-zero))))
+(linked-rewrite meta-theory-native-prelude successor-even
+  (from (mt-succ-raw (mt-b0 ?n))) (to (mt-v (mt-b1 ?n))))
+(linked-rewrite meta-theory-native-prelude successor-odd
+  (from (mt-succ-raw (mt-b1 ?n))) (to (mt-shift-zero (mt-succ-raw ?n))))
+(linked-rewrite meta-theory-native-prelude predecessor-one
+  (from (mt-pred-raw (mt-b1 mt-zero))) (to (mt-v mt-zero)))
+(linked-rewrite meta-theory-native-prelude predecessor-odd-even
+  (from (mt-pred-raw (mt-b1 (mt-b0 ?n)))) (to (mt-v (mt-b0 (mt-b0 ?n)))))
+(linked-rewrite meta-theory-native-prelude predecessor-odd-odd
+  (from (mt-pred-raw (mt-b1 (mt-b1 ?n)))) (to (mt-v (mt-b0 (mt-b1 ?n)))))
+(linked-rewrite meta-theory-native-prelude predecessor-even
+  (from (mt-pred-raw (mt-b0 ?n))) (to (mt-shift-one (mt-pred-raw ?n))))
+(linked-rewrite meta-theory-native-prelude shift-zero-zero
+  (from (mt-shift-zero (mt-v mt-zero))) (to (mt-v mt-zero)))
+(linked-rewrite meta-theory-native-prelude shift-zero-even
+  (from (mt-shift-zero (mt-v (mt-b0 ?n)))) (to (mt-v (mt-b0 (mt-b0 ?n)))))
+(linked-rewrite meta-theory-native-prelude shift-zero-odd
+  (from (mt-shift-zero (mt-v (mt-b1 ?n)))) (to (mt-v (mt-b0 (mt-b1 ?n)))))
+(linked-rewrite meta-theory-native-prelude shift-one
+  (from (mt-shift-one (mt-v ?n))) (to (mt-v (mt-b1 ?n))))
+(linked-rewrite meta-theory-native-prelude view-zero
+  (from (mt-nat-view mt-zero)) (to (mt-v mt-view-zero)))
+(linked-rewrite meta-theory-native-prelude view-even
+  (from (mt-nat-view (mt-b0 ?n))) (to (mt-view-successor (mt-pred-raw (mt-b0 ?n)))))
+(linked-rewrite meta-theory-native-prelude view-odd
+  (from (mt-nat-view (mt-b1 ?n))) (to (mt-view-successor (mt-pred-raw (mt-b1 ?n)))))
+(linked-rewrite meta-theory-native-prelude view-successor
+  (from (mt-view-successor (mt-v ?predecessor))) (to (mt-v (mt-view-succ ?predecessor))))
+
+(linked-rewrite meta-theory-native-prelude add
+  (from (mt-add (mt-v ?left) (mt-v ?right))) (to (mt-add-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude add-zero-left
+  (from (mt-add-raw mt-zero ?right)) (to (mt-v ?right)))
+(linked-rewrite meta-theory-native-prelude add-zero-right
+  (from (mt-add-raw ?left mt-zero)) (to (mt-v ?left)))
+(linked-rewrite meta-theory-native-prelude add-even-even
+  (from (mt-add-raw (mt-b0 ?left) (mt-b0 ?right))) (to (mt-shift-zero (mt-add-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude add-even-odd
+  (from (mt-add-raw (mt-b0 ?left) (mt-b1 ?right))) (to (mt-shift-one (mt-add-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude add-odd-even
+  (from (mt-add-raw (mt-b1 ?left) (mt-b0 ?right))) (to (mt-shift-one (mt-add-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude add-odd-odd
+  (from (mt-add-raw (mt-b1 ?left) (mt-b1 ?right))) (to (mt-shift-zero (mt-add-carry (mt-add-raw ?left ?right)))))
+(linked-rewrite meta-theory-native-prelude add-carry
+  (from (mt-add-carry (mt-v ?sum))) (to (mt-succ-raw ?sum)))
+
+(linked-rewrite meta-theory-native-prelude compare-zero-zero
+  (from (mt-compare-raw mt-zero mt-zero ?lower)) (to (mt-v ?lower)))
+(linked-rewrite meta-theory-native-prelude compare-zero-even
+  (from (mt-compare-raw mt-zero (mt-b0 ?right) ?lower)) (to (mt-v mt-order-less)))
+(linked-rewrite meta-theory-native-prelude compare-zero-odd
+  (from (mt-compare-raw mt-zero (mt-b1 ?right) ?lower)) (to (mt-v mt-order-less)))
+(linked-rewrite meta-theory-native-prelude compare-even-zero
+  (from (mt-compare-raw (mt-b0 ?left) mt-zero ?lower)) (to (mt-v mt-order-greater)))
+(linked-rewrite meta-theory-native-prelude compare-odd-zero
+  (from (mt-compare-raw (mt-b1 ?left) mt-zero ?lower)) (to (mt-v mt-order-greater)))
+(linked-rewrite meta-theory-native-prelude compare-even-even
+  (from (mt-compare-raw (mt-b0 ?left) (mt-b0 ?right) ?lower)) (to (mt-compare-raw ?left ?right ?lower)))
+(linked-rewrite meta-theory-native-prelude compare-odd-odd
+  (from (mt-compare-raw (mt-b1 ?left) (mt-b1 ?right) ?lower)) (to (mt-compare-raw ?left ?right ?lower)))
+(linked-rewrite meta-theory-native-prelude compare-even-odd
+  (from (mt-compare-raw (mt-b0 ?left) (mt-b1 ?right) ?lower)) (to (mt-compare-raw ?left ?right mt-order-less)))
+(linked-rewrite meta-theory-native-prelude compare-odd-even
+  (from (mt-compare-raw (mt-b1 ?left) (mt-b0 ?right) ?lower)) (to (mt-compare-raw ?left ?right mt-order-greater)))
+(linked-rewrite meta-theory-native-prelude less-raw
+  (from (mt-less-raw ?left ?right)) (to (mt-order-is-less (mt-compare-raw ?left ?right mt-order-equal))))
+(linked-rewrite meta-theory-native-prelude order-less-less
+  (from (mt-order-is-less (mt-v mt-order-less))) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude order-less-equal
+  (from (mt-order-is-less (mt-v mt-order-equal))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude order-less-greater
+  (from (mt-order-is-less (mt-v mt-order-greater))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude order-greater-less
+  (from (mt-order-is-greater (mt-v mt-order-less))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude order-greater-equal
+  (from (mt-order-is-greater (mt-v mt-order-equal))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude order-greater-greater
+  (from (mt-order-is-greater (mt-v mt-order-greater))) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude less
+  (from (mt-less (mt-v ?left) (mt-v ?right))) (to (mt-less-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude less-or-equal
+  (from (mt-less-equal (mt-v ?left) (mt-v ?right)))
+  (to (mt-not (mt-order-is-greater (mt-compare-raw ?left ?right mt-order-equal)))))
+(linked-rewrite meta-theory-native-prelude nat-equal
+  (from (mt-nat-equal (mt-v ?left) (mt-v ?right))) (to (mt-equal-raw ?left ?right)))
+
+# Truncated subtraction: zero unless the left operand is greater.
+(linked-rewrite meta-theory-native-prelude subtract
+  (from (mt-sub (mt-v ?left) (mt-v ?right)))
+  (to (mt-sub-check ?left ?right (mt-order-is-greater (mt-compare-raw ?left ?right mt-order-equal)))))
+(linked-rewrite meta-theory-native-prelude subtract-floor
+  (from (mt-sub-check ?left ?right (mt-v mt-false))) (to (mt-v mt-zero)))
+(linked-rewrite meta-theory-native-prelude subtract-positive
+  (from (mt-sub-check ?left ?right (mt-v mt-true))) (to (mt-sub-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude subtract-zero
+  (from (mt-sub-raw ?left mt-zero)) (to (mt-v ?left)))
+(linked-rewrite meta-theory-native-prelude subtract-even-even
+  (from (mt-sub-raw (mt-b0 ?left) (mt-b0 ?right))) (to (mt-shift-zero (mt-sub-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude subtract-odd-odd
+  (from (mt-sub-raw (mt-b1 ?left) (mt-b1 ?right))) (to (mt-shift-zero (mt-sub-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude subtract-odd-even
+  (from (mt-sub-raw (mt-b1 ?left) (mt-b0 ?right))) (to (mt-shift-one (mt-sub-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude subtract-even-odd
+  (from (mt-sub-raw (mt-b0 ?left) (mt-b1 ?right))) (to (mt-shift-one (mt-sub-borrow (mt-sub-raw ?left ?right)))))
+(linked-rewrite meta-theory-native-prelude subtract-borrow
+  (from (mt-sub-borrow (mt-v ?difference))) (to (mt-pred-raw ?difference)))
+(linked-rewrite meta-theory-native-prelude multiply
+  (from (mt-mul (mt-v ?left) (mt-v ?right))) (to (mt-mul-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude multiply-zero
+  (from (mt-mul-raw ?left mt-zero)) (to (mt-v mt-zero)))
+(linked-rewrite meta-theory-native-prelude multiply-even
+  (from (mt-mul-raw ?left (mt-b0 ?right))) (to (mt-shift-zero (mt-mul-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude multiply-odd
+  (from (mt-mul-raw ?left (mt-b1 ?right))) (to (mt-mul-add ?left (mt-shift-zero (mt-mul-raw ?left ?right)))))
+(linked-rewrite meta-theory-native-prelude multiply-add
+  (from (mt-mul-add ?left (mt-v ?product))) (to (mt-add-raw ?product ?left)))
+# Lean and Rocq both define natural division by zero as zero.
+(linked-rewrite meta-theory-native-prelude divide-by-zero
+  (from (mt-div (mt-v ?left) (mt-v mt-zero))) (to (mt-v mt-zero)))
+(linked-rewrite meta-theory-native-prelude divide
+  (from (mt-div (mt-v ?left) (mt-v ?right))) (to (mt-div-raw ?left ?right mt-zero)))
+(linked-rewrite meta-theory-native-prelude divide-check
+  (from (mt-div-raw ?left ?right ?quotient))
+  (to (mt-div-test ?left ?right ?quotient (mt-less-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude divide-done
+  (from (mt-div-test ?left ?right ?quotient (mt-v mt-true))) (to (mt-v ?quotient)))
+(linked-rewrite meta-theory-native-prelude divide-step
+  (from (mt-div-test ?left ?right ?quotient (mt-v mt-false)))
+  (to (mt-div-next ?right (mt-succ-raw ?quotient) (mt-sub-raw ?left ?right))))
+(linked-rewrite meta-theory-native-prelude divide-next
+  (from (mt-div-next ?right (mt-v ?quotient) (mt-v ?left))) (to (mt-div-raw ?left ?right ?quotient)))
+
+# Structural equality of raw values of one family. Generated structure rules
+# extend mt-equal-raw for records.
+(linked-rewrite meta-theory-native-prelude equal
+  (from (mt-equal (mt-v ?left) (mt-v ?right))) (to (mt-equal-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude not-equal
+  (from (mt-not-equal ?left ?right)) (to (mt-not (mt-equal ?left ?right))))
+(linked-rewrite meta-theory-native-prelude equal-both-true
+  (from (mt-equal-both (mt-v mt-true) ?left ?right)) (to (mt-equal-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude equal-both-false
+  (from (mt-equal-both (mt-v mt-false) ?left ?right)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-zero-zero
+  (from (mt-equal-raw mt-zero mt-zero)) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude equal-zero-even
+  (from (mt-equal-raw mt-zero (mt-b0 ?right))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-zero-odd
+  (from (mt-equal-raw mt-zero (mt-b1 ?right))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-even-zero
+  (from (mt-equal-raw (mt-b0 ?left) mt-zero)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-odd-zero
+  (from (mt-equal-raw (mt-b1 ?left) mt-zero)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-even-even
+  (from (mt-equal-raw (mt-b0 ?left) (mt-b0 ?right))) (to (mt-equal-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude equal-odd-odd
+  (from (mt-equal-raw (mt-b1 ?left) (mt-b1 ?right))) (to (mt-equal-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude equal-even-odd
+  (from (mt-equal-raw (mt-b0 ?left) (mt-b1 ?right))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-odd-even
+  (from (mt-equal-raw (mt-b1 ?left) (mt-b0 ?right))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-nil-nil
+  (from (mt-equal-raw mt-nil mt-nil)) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude equal-nil-cons
+  (from (mt-equal-raw mt-nil (mt-cons ?head ?tail))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-cons-nil
+  (from (mt-equal-raw (mt-cons ?head ?tail) mt-nil)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-cons-cons
+  (from (mt-equal-raw (mt-cons ?left-head ?left-tail) (mt-cons ?right-head ?right-tail)))
+  (to (mt-equal-both (mt-equal-raw ?left-head ?right-head) ?left-tail ?right-tail)))
+(linked-rewrite meta-theory-native-prelude equal-pairs
+  (from (mt-equal-raw (mt-pair ?left-first ?left-second) (mt-pair ?right-first ?right-second)))
+  (to (mt-equal-both (mt-equal-raw ?left-first ?right-first) ?left-second ?right-second)))
+(linked-rewrite meta-theory-native-prelude equal-none-none
+  (from (mt-equal-raw mt-none mt-none)) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude equal-none-some
+  (from (mt-equal-raw mt-none (mt-some ?right))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-some-none
+  (from (mt-equal-raw (mt-some ?left) mt-none)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-some-some
+  (from (mt-equal-raw (mt-some ?left) (mt-some ?right))) (to (mt-equal-raw ?left ?right)))
+(linked-rewrite meta-theory-native-prelude equal-true-true
+  (from (mt-equal-raw mt-true mt-true)) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude equal-true-false
+  (from (mt-equal-raw mt-true mt-false)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-false-true
+  (from (mt-equal-raw mt-false mt-true)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude equal-false-false
+  (from (mt-equal-raw mt-false mt-false)) (to (mt-v mt-true)))
+
+# Lists. Counters are binary naturals, decremented through mt-pred-raw.
+(linked-rewrite meta-theory-native-prelude reverse-done
+  (from (mt-reverse-raw mt-nil ?result)) (to (mt-v ?result)))
+(linked-rewrite meta-theory-native-prelude reverse-step
+  (from (mt-reverse-raw (mt-cons ?head ?tail) ?result)) (to (mt-reverse-raw ?tail (mt-cons ?head ?result))))
+(linked-rewrite meta-theory-native-prelude length
+  (from (mt-length (mt-v ?list))) (to (mt-length-raw ?list mt-zero)))
+(linked-rewrite meta-theory-native-prelude length-done
+  (from (mt-length-raw mt-nil ?count)) (to (mt-v ?count)))
+(linked-rewrite meta-theory-native-prelude length-step
+  (from (mt-length-raw (mt-cons ?head ?tail) ?count)) (to (mt-length-next ?tail (mt-succ-raw ?count))))
+(linked-rewrite meta-theory-native-prelude length-next
+  (from (mt-length-next ?tail (mt-v ?count))) (to (mt-length-raw ?tail ?count)))
+(linked-rewrite meta-theory-native-prelude append
+  (from (mt-append (mt-v ?left) (mt-v ?right))) (to (mt-prepend-reversed (mt-reverse-raw ?left mt-nil) ?right)))
+(linked-rewrite meta-theory-native-prelude prepend-reversed
+  (from (mt-prepend-reversed (mt-v ?reversed) ?right)) (to (mt-reverse-raw ?reversed ?right)))
+(linked-rewrite meta-theory-native-prelude map
+  (from (mt-map (mt-v ?function) (mt-v ?list))) (to (mt-map-raw ?function ?list mt-nil)))
+(linked-rewrite meta-theory-native-prelude map-done
+  (from (mt-map-raw ?function mt-nil ?result)) (to (mt-reverse-raw ?result mt-nil)))
+(linked-rewrite meta-theory-native-prelude map-step
+  (from (mt-map-raw ?function (mt-cons ?head ?tail) ?result))
+  (to (mt-map-next ?function ?tail ?result (mt-apply (mt-v ?function) (mt-v ?head)))))
+(linked-rewrite meta-theory-native-prelude map-next
+  (from (mt-map-next ?function ?tail ?result (mt-v ?value))) (to (mt-map-raw ?function ?tail (mt-cons ?value ?result))))
+(linked-rewrite meta-theory-native-prelude all
+  (from (mt-all (mt-v ?predicate) (mt-v ?list))) (to (mt-all-raw ?predicate ?list)))
+(linked-rewrite meta-theory-native-prelude all-done
+  (from (mt-all-raw ?predicate mt-nil)) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude all-step
+  (from (mt-all-raw ?predicate (mt-cons ?head ?tail)))
+  (to (mt-all-next ?predicate ?tail (mt-apply (mt-v ?predicate) (mt-v ?head)))))
+(linked-rewrite meta-theory-native-prelude all-next-true
+  (from (mt-all-next ?predicate ?tail (mt-v mt-true))) (to (mt-all-raw ?predicate ?tail)))
+(linked-rewrite meta-theory-native-prelude all-next-false
+  (from (mt-all-next ?predicate ?tail (mt-v mt-false))) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude member
+  (from (mt-member (mt-v ?value) (mt-v ?list))) (to (mt-member-raw ?value ?list)))
+(linked-rewrite meta-theory-native-prelude member-done
+  (from (mt-member-raw ?value mt-nil)) (to (mt-v mt-false)))
+(linked-rewrite meta-theory-native-prelude member-step
+  (from (mt-member-raw ?value (mt-cons ?head ?tail)))
+  (to (mt-member-next ?value ?tail (mt-equal-raw ?value ?head))))
+(linked-rewrite meta-theory-native-prelude member-found
+  (from (mt-member-next ?value ?tail (mt-v mt-true))) (to (mt-v mt-true)))
+(linked-rewrite meta-theory-native-prelude member-next
+  (from (mt-member-next ?value ?tail (mt-v mt-false))) (to (mt-member-raw ?value ?tail)))
+(linked-rewrite meta-theory-native-prelude take
+  (from (mt-take (mt-v ?count) (mt-v ?list))) (to (mt-take-raw ?count ?list mt-nil)))
+(linked-rewrite meta-theory-native-prelude take-zero
+  (from (mt-take-raw mt-zero ?list ?result)) (to (mt-reverse-raw ?result mt-nil)))
+(linked-rewrite meta-theory-native-prelude take-empty
+  (from (mt-take-raw ?count mt-nil ?result)) (to (mt-reverse-raw ?result mt-nil)))
+(linked-rewrite meta-theory-native-prelude take-step
+  (from (mt-take-raw ?count (mt-cons ?head ?tail) ?result))
+  (to (mt-take-next (mt-pred-raw ?count) ?tail (mt-cons ?head ?result))))
+(linked-rewrite meta-theory-native-prelude take-next
+  (from (mt-take-next (mt-v ?count) ?tail ?result)) (to (mt-take-raw ?count ?tail ?result)))
+(linked-rewrite meta-theory-native-prelude drop
+  (from (mt-drop (mt-v ?count) (mt-v ?list))) (to (mt-drop-raw ?count ?list)))
+(linked-rewrite meta-theory-native-prelude drop-zero
+  (from (mt-drop-raw mt-zero ?list)) (to (mt-v ?list)))
+(linked-rewrite meta-theory-native-prelude drop-empty
+  (from (mt-drop-raw ?count mt-nil)) (to (mt-v mt-nil)))
+(linked-rewrite meta-theory-native-prelude drop-step
+  (from (mt-drop-raw ?count (mt-cons ?head ?tail))) (to (mt-drop-next (mt-pred-raw ?count) ?tail)))
+(linked-rewrite meta-theory-native-prelude drop-next
+  (from (mt-drop-next (mt-v ?count) ?tail)) (to (mt-drop-raw ?count ?tail)))
+(linked-rewrite meta-theory-native-prelude nth
+  (from (mt-nth (mt-v ?index) (mt-v ?list) (mt-v ?default))) (to (mt-nth-raw ?index ?list ?default)))
+(linked-rewrite meta-theory-native-prelude nth-empty
+  (from (mt-nth-raw ?index mt-nil ?default)) (to (mt-v ?default)))
+(linked-rewrite meta-theory-native-prelude nth-zero
+  (from (mt-nth-raw mt-zero (mt-cons ?head ?tail) ?default)) (to (mt-v ?head)))
+(linked-rewrite meta-theory-native-prelude nth-step
+  (from (mt-nth-raw ?index (mt-cons ?head ?tail) ?default))
+  (to (mt-nth-next (mt-pred-raw ?index) ?tail ?default)))
+(linked-rewrite meta-theory-native-prelude nth-next
+  (from (mt-nth-next (mt-v ?index) ?tail ?default)) (to (mt-nth-raw ?index ?tail ?default)))
+(linked-rewrite meta-theory-native-prelude replicate
+  (from (mt-replicate (mt-v ?count) (mt-v ?value))) (to (mt-replicate-raw ?count ?value mt-nil)))
+(linked-rewrite meta-theory-native-prelude replicate-done
+  (from (mt-replicate-raw mt-zero ?value ?result)) (to (mt-v ?result)))
+(linked-rewrite meta-theory-native-prelude replicate-step
+  (from (mt-replicate-raw ?count ?value ?result))
+  (to (mt-replicate-next (mt-pred-raw ?count) ?value (mt-cons ?value ?result))))
+(linked-rewrite meta-theory-native-prelude replicate-next
+  (from (mt-replicate-next (mt-v ?count) ?value ?result)) (to (mt-replicate-raw ?count ?value ?result)))
+
+# Pairs and the option monad used by Lean do-notation.
+(linked-rewrite meta-theory-native-prelude first
+  (from (mt-first (mt-v (mt-pair ?first ?second)))) (to (mt-v ?first)))
+(linked-rewrite meta-theory-native-prelude second
+  (from (mt-second (mt-v (mt-pair ?first ?second)))) (to (mt-v ?second)))
+(linked-rewrite meta-theory-native-prelude option-bind-none
+  (from (mt-option-bind (mt-v mt-none) ?continuation)) (to (mt-v mt-none)))
+(linked-rewrite meta-theory-native-prelude option-bind-some
+  (from (mt-option-bind (mt-v (mt-some ?value)) ?continuation))
+  (to (mt-apply ?continuation (mt-v ?value))))

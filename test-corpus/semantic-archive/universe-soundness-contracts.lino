@@ -1,0 +1,81 @@
+# Foundation-declared universe policies and soundness contracts. Every policy,
+# order edge, typing-judgement name and obligation is an ordinary linked fact;
+# the validator reads them through public workspace queries and checks them
+# relative to that declaration. None of this certifies global consistency.
+(linked-program universe-typing)
+(linked-inference universe-typing declared-level
+  (premise (universe-below ?lower ?upper))
+  (conclusion (has-type ?lower ?upper)))
+(linked-program cumulative-typing (uses universe-typing))
+(linked-inference cumulative-typing lift
+  (premise (has-type ?term ?middle))
+  (premise (universe-below ?middle ?upper))
+  (conclusion (has-type ?term ?upper)))
+
+(linked-program stratified-contract)
+(linked-fact stratified-contract policy (judgement (universe-policy stratified)))
+(linked-fact stratified-contract typing (judgement (universe-typing-judgement has-type)))
+(linked-fact stratified-contract base (judgement (universe-below Type U1)))
+(linked-fact stratified-contract next (judgement (universe-below U1 U2)))
+(linked-fact stratified-contract no-self (judgement (soundness-contract no-universe-self-typing)))
+
+(linked-program cumulative-contract (uses stratified-contract))
+(linked-fact cumulative-contract cumulativity (judgement (universe-cumulativity cumulative)))
+
+(linked-program smuggled-self-contract (uses stratified-contract))
+(linked-fact smuggled-self-contract self (judgement (has-type Type Type)))
+
+(linked-program circular-contract (uses stratified-contract))
+(linked-fact circular-contract back (judgement (universe-below U2 U1)))
+
+(linked-program type-in-type-contract)
+(linked-fact type-in-type-contract policy (judgement (universe-policy type-in-type)))
+(linked-fact type-in-type-contract typing (judgement (universe-typing-judgement has-type)))
+(linked-fact type-in-type-contract base (judgement (universe-below Type U1)))
+(linked-fact type-in-type-contract self (judgement (has-type Type Type)))
+
+(linked-program consistency-claim-contract (uses stratified-contract))
+(linked-fact consistency-claim-contract claim (judgement (soundness-contract global-consistency)))
+
+(linked-program universe-theory)
+(linked-fact universe-theory sample (judgement (term-of zero Nat)))
+
+(linked-foundation universe-policy (version stratified)
+  (typing universe-typing) (axioms stratified-contract) (cycle-policy inductive))
+(linked-foundation universe-policy (version stratified-cumulative-rules)
+  (typing cumulative-typing) (axioms stratified-contract) (cycle-policy inductive))
+(linked-foundation universe-policy (version cumulative)
+  (typing cumulative-typing) (axioms cumulative-contract) (cycle-policy inductive))
+(linked-foundation universe-policy (version smuggled-self)
+  (typing universe-typing) (axioms smuggled-self-contract) (cycle-policy inductive))
+(linked-foundation universe-policy (version circular)
+  (typing universe-typing) (axioms circular-contract) (cycle-policy inductive))
+(linked-foundation universe-policy (version type-in-type)
+  (typing universe-typing) (axioms type-in-type-contract) (cycle-policy inductive))
+(linked-foundation universe-policy (version consistency-claim)
+  (typing universe-typing) (axioms consistency-claim-contract) (cycle-policy inductive))
+(linked-foundation silent-universes (version 1)
+  (typing universe-typing) (cycle-policy inductive))
+(linked-foundation signed-universes (version 1)
+  (typing universe-typing)
+  (signature (has-type ?term ?type) (universe-below ?lower ?upper) (term-of ?term ?type))
+  (cycle-policy inductive))
+
+(linked-instance stratified-study
+  (theory universe-theory) (foundation universe-policy (version stratified)))
+(linked-instance uncumulative-study
+  (theory universe-theory) (foundation universe-policy (version stratified-cumulative-rules)))
+(linked-instance cumulative-study
+  (theory universe-theory) (foundation universe-policy (version cumulative)))
+(linked-instance smuggled-study
+  (theory universe-theory) (foundation universe-policy (version smuggled-self)))
+(linked-instance circular-study
+  (theory universe-theory) (foundation universe-policy (version circular)))
+(linked-instance type-in-type-study
+  (theory universe-theory) (foundation universe-policy (version type-in-type)))
+(linked-instance consistency-study
+  (theory universe-theory) (foundation universe-policy (version consistency-claim)))
+(linked-instance silent-study
+  (theory universe-theory) (foundation silent-universes (version 1)))
+(linked-instance signed-study
+  (theory universe-theory) (foundation signed-universes (version 1)))

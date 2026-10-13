@@ -32,6 +32,8 @@
 import {
   LinkedProgramRegistry,
   cloneTerm,
+  directInstantiate,
+  directMatchTerm,
   variablesIn,
 } from './rml-linked-program.mjs';
 import { keyOf, emitLinoTerm } from './rml-links.mjs';
@@ -39,6 +41,10 @@ import { keyOf, emitLinoTerm } from './rml-links.mjs';
 const PACKAGE_SCHEMA = 'rml-foundation-package/v1';
 const RESULT_SCHEMA = 'rml-foundation-result/v1';
 const EXECUTION_SCHEMA = 'rml-foundation-execution/v1';
+const OUTCOME_SCHEMA = 'rml-foundation-outcome/v1';
+const REPLAY_SCHEMA = 'rml-foundation-replay/v1';
+// Replay walks a caller-supplied proof tree; bound it independently of search.
+const MAX_REPLAY_NODES = 100_000;
 
 // Each role admits one rule kind, so a declared role is a checked
 // classification of a program rather than a label.
@@ -106,6 +112,139 @@ const RESULT_STATUSES = Object.freeze([
     provesRefutation: false,
   },
 ]);
+
+// One outcome contract for every public result path. A status says what the
+// search found; an outcome additionally says whether the established
+// evidence rests on caller assumptions. `assumption-dependent` takes
+// precedence over proved, refuted, and contradictory, and its `truth` field
+// keeps which side was established. A normal form is a computation, not a
+// truth value.
+const OUTCOMES = Object.freeze([
+  {
+    kind: 'proved',
+    truth: 'true',
+    establishes: true,
+    meaning: 'The query was derived and its evidence uses no caller assumption.',
+  },
+  {
+    kind: 'refuted',
+    truth: 'false',
+    establishes: true,
+    meaning: 'The foundation-defined refutation was derived without caller assumptions and the query was not. Falsity is relative to the foundation proof role.',
+  },
+  {
+    kind: 'contradictory',
+    truth: 'both',
+    establishes: true,
+    meaning: 'Both the query and its refutation were derived without caller assumptions.',
+  },
+  {
+    kind: 'assumption-dependent',
+    truth: 'conditional',
+    establishes: true,
+    meaning: 'Established evidence uses at least one caller assumption; it holds only relative to the listed assumptions. The truth field tells which side was derived.',
+  },
+  {
+    kind: 'unknown',
+    truth: 'undetermined',
+    establishes: false,
+    meaning: 'Saturation reached a fixed point without evidence for either side. This is not falsity.',
+  },
+  {
+    kind: 'exhausted',
+    truth: 'undetermined',
+    establishes: false,
+    meaning: 'A declared bound stopped the work before evidence was found. Nothing is established.',
+  },
+  {
+    kind: 'unsupported',
+    truth: 'undetermined',
+    establishes: false,
+    meaning: 'The input is outside the foundation signature or the supported mechanisms. Nothing is established.',
+  },
+  {
+    kind: 'computed',
+    truth: 'not-applicable',
+    establishes: false,
+    meaning: 'An execution reached a normal form. A computed value is not a proof of any judgement.',
+  },
+]);
+const STATUS_TRUTH = Object.freeze({
+  proved: 'true',
+  refuted: 'false',
+  contradictory: 'both',
+});
+
+function proofNodes(proof, visit) {
+  if (proof === null || proof === undefined) return;
+  const stack = [proof];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    visit(node);
+    for (const premise of node.premises ?? []) stack.push(premise);
+  }
+}
+
+/**
+ * Classify a foundation result or execution into the shared outcome
+ * contract. Only the established side's evidence decides whether the outcome
+ * depends on caller assumptions.
+ */
+function classifyOutcome(result) {
+  if (result?.schema === EXECUTION_SCHEMA) {
+    const kind = result.status === 'normal' ? 'computed' : result.status;
+    return {
+      schema: OUTCOME_SCHEMA,
+      kind,
+      status: result.status,
+      truth: kind === 'computed' ? 'not-applicable' : 'undetermined',
+      establishes: false,
+      assumptionDependent: false,
+      assumptions: [],
+      coinductive: false,
+    };
+  }
+  if (result?.schema !== RESULT_SCHEMA) {
+    throw new Error('classifyOutcome requires a foundation result or execution');
+  }
+  const truth = STATUS_TRUTH[result.status] ?? 'undetermined';
+  const established = [];
+  if (truth === 'true' || truth === 'both') {
+    established.push(result.proof, ...(result.answers ?? []).map(answer => answer.proof));
+  }
+  if (truth === 'false' || truth === 'both') established.push(result.refutation?.proof);
+  const used = new Set();
+  let coinductive = false;
+  for (const proof of established) {
+    proofNodes(proof, node => {
+      if (node.program === '<assumption>') {
+        used.add(Number(String(node.rule).slice('assumption-'.length)) - 1);
+      } else if (node.program === '<hypothesis>') {
+        coinductive = true;
+      }
+    });
+  }
+  const assumptions = [...used].sort((a, b) => a - b)
+    .filter(index => Number.isSafeInteger(index) && index >= 0 && index < result.assumptions.length)
+    .map(index => cloneTerm(result.assumptions[index]));
+  const establishes = truth !== 'undetermined';
+  const dependent = establishes && assumptions.length > 0;
+  return {
+    schema: OUTCOME_SCHEMA,
+    kind: dependent ? 'assumption-dependent' : result.status,
+    status: result.status,
+    truth,
+    establishes,
+    assumptionDependent: dependent,
+    assumptions,
+    coinductive,
+  };
+}
+
+function rebindLeaves(term, bindings) {
+  if (Array.isArray(term)) return term.map(child => rebindLeaves(child, bindings));
+  return bindings.get(term) ?? term;
+}
 
 function describeTerm(value) {
   if (value === undefined) return 'nothing';
@@ -675,6 +814,16 @@ class FoundationWorkspace {
     return RESULT_STATUSES.map(status => ({ ...status }));
   }
 
+  /** Describe every outcome kind of the shared result contract. */
+  static outcomes() {
+    return OUTCOMES.map(outcome => ({ ...outcome }));
+  }
+
+  /** Classify an `ask` result or an `execute` result into an outcome. */
+  static classifyOutcome(result) {
+    return classifyOutcome(result);
+  }
+
   /** List the roles a foundation may declare and the rule kind each admits. */
   static roles() {
     return ROLES.map(role => ({ role, kind: ROLE_KINDS[role] }));
@@ -748,6 +897,9 @@ class FoundationWorkspace {
       signature: foundation.signature.map(cloneTerm),
       cyclePolicy: this.#cyclePolicy(foundation),
       rules,
+      // The declared content of every rule above, in the same order, as the
+      // linked forms that define it.
+      ruleForms: rules.map(rule => this.#ruleForm(rule)),
       bootstrap: {
         kernel: kernel.name,
         operations: kernel.operations,
@@ -842,7 +994,7 @@ class FoundationWorkspace {
       input: cloneTerm(term),
     };
     if (reduced.failure !== null) {
-      return {
+      const stopped = {
         ...base,
         status: failureStatus(reduced.failure),
         reason: reduced.failure.reductionFailure,
@@ -852,8 +1004,9 @@ class FoundationWorkspace {
         trace: null,
         hostOperations: session.hostOperations(),
       };
+      return { ...stopped, outcome: classifyOutcome(stopped) };
     }
-    return {
+    const normal = {
       ...base,
       status: 'normal',
       reason: 'normal-form',
@@ -869,6 +1022,7 @@ class FoundationWorkspace {
       })),
       hostOperations: session.hostOperations(),
     };
+    return { ...normal, outcome: classifyOutcome(normal) };
   }
 
   /**
@@ -935,6 +1089,218 @@ class FoundationWorkspace {
       };
     });
     return { workspace, revisions };
+  }
+
+  /**
+   * Independently replay the evidence of an `ask` result against this
+   * workspace's loaded rules and the foundation's declared cycle policy,
+   * without searching. Every proof step must instantiate its named rule from
+   * the instance closure after import rebinding: premises match the
+   * normalized premise judgements and the instantiated conclusion normalizes
+   * to the step's judgement. Assumption leaves must name the result's own
+   * assumptions. A coinductive hypothesis leaf is accepted only under a
+   * guarded-coinductive policy, only on the side that recorded that
+   * hypothesis, and only when the root of that proof is a declared guard.
+   * The status must agree with which sides carry evidence. The replay is a
+   * host check of foundation-level proof objects; it does not grant the
+   * foundation's rules intrinsic authority.
+   */
+  replay(result) {
+    if (result === null || typeof result !== 'object' || result.schema !== RESULT_SCHEMA) {
+      throw new Error('replay requires a foundation result returned by ask');
+    }
+    const instance = this.#instance(result.instance);
+    const data = this.#data(instance);
+    const policy = instance.foundation.cyclePolicy;
+    const checks = [];
+    const finish = reason => ({
+      schema: REPLAY_SCHEMA,
+      accepted: reason === 'replayed',
+      reason,
+      instance: instance.name,
+      foundation: { name: instance.foundation.name, version: instance.foundation.version },
+      cyclePolicy: this.#cyclePolicy(instance.foundation),
+      outcome: reason === 'replayed' ? classifyOutcome(result) : null,
+      checks,
+    });
+    if (result.foundation?.name !== instance.foundation.name ||
+        result.foundation?.version !== instance.foundation.version) {
+      return finish('foundation-mismatch');
+    }
+    if (JSON.stringify(result.cyclePolicy ?? null) !==
+        JSON.stringify(this.#cyclePolicy(instance.foundation))) {
+      return finish('cycle-policy-mismatch');
+    }
+    const maxSteps = result.bounds?.maxSteps;
+    if (!Number.isSafeInteger(maxSteps) || maxSteps <= 0) return finish('malformed-bounds');
+    const assumptions = Array.isArray(result.assumptions) ? result.assumptions : null;
+    if (assumptions === null) return finish('malformed-assumptions');
+
+    const session = this.#session();
+    const registry = session.registry([...data.forms, ...instance.forms.program]);
+    const reduce = term => {
+      try {
+        assertTerm(term, 'replayed judgement');
+      } catch {
+        return null;
+      }
+      const reduced = reductionOutcome(registry, instance.name, term, maxSteps);
+      return reduced.failure === null ? reduced.term : null;
+    };
+    const normalize = term => {
+      const reduced = reduce(term);
+      return reduced === null ? null : emitLinoTerm(reduced);
+    };
+    const rules = this.#effectiveRules(instance);
+    const closure = new Set(data.closure);
+    const guards = new Set(policy.guards.map(guard => ruleKey('guard', guard.program, guard.rule)));
+
+    const replaySide = (side, proof, goal, hypothesis) => {
+      let nodes = 0;
+      const fail = reason => ({ side, accepted: false, reason, nodes });
+      if (proof === null || typeof proof !== 'object') return fail('missing-proof');
+      const goalKey = normalize(goal);
+      if (goalKey === null || normalize(proof.judgement) !== goalKey) return fail('goal-mismatch');
+      const rootIsGuard = guards.has(ruleKey('guard', proof.program, proof.rule));
+      const stack = [proof];
+      while (stack.length > 0) {
+        const node = stack.pop();
+        nodes += 1;
+        if (nodes > MAX_REPLAY_NODES) return fail('replay-node-limit');
+        if (node === null || typeof node !== 'object' || !Array.isArray(node.premises)) {
+          return fail('malformed-proof-step');
+        }
+        const own = normalize(node.judgement);
+        if (own === null) return fail('unnormalizable-judgement');
+        if (node.program === '<assumption>') {
+          const match = /^assumption-([1-9]\d*)$/.exec(String(node.rule));
+          const index = match === null ? -1 : Number(match[1]) - 1;
+          if (node.premises.length !== 0 || node.role !== 'assumption' ||
+              index < 0 || index >= assumptions.length || normalize(assumptions[index]) !== own) {
+            return fail('forged-assumption');
+          }
+          continue;
+        }
+        if (node.program === '<hypothesis>') {
+          if (policy.kind !== 'guarded-coinductive') return fail('hypothesis-under-inductive-policy');
+          if (hypothesis === null || hypothesis === undefined || normalize(hypothesis) !== own ||
+              node.rule !== 'coinductive-hypothesis' || node.role !== 'hypothesis' ||
+              node.premises.length !== 0) {
+            return fail('forged-hypothesis');
+          }
+          if (!rootIsGuard) return fail('hypothesis-without-final-guard');
+          continue;
+        }
+        if (!closure.has(node.program)) return fail('rule-outside-instance');
+        if (node.role !== (data.roleOf.get(node.program) ?? 'theory')) return fail('role-mismatch');
+        const variants = rules.get(ruleKey('rule', node.program, node.rule)) ?? [];
+        const premiseTerms = [];
+        for (const premise of node.premises) {
+          const term = premise && typeof premise === 'object' ? reduce(premise.judgement) : null;
+          if (term === null) return fail('unnormalizable-judgement');
+          premiseTerms.push(term);
+        }
+        const instantiates = variants.some(variant => {
+          if (variant.kind === 'fact') {
+            return node.premises.length === 0 && normalize(variant.judgement) === own;
+          }
+          if (variant.premises.length !== premiseTerms.length) return false;
+          const substitution = new Map();
+          for (const [index, pattern] of variant.premises.entries()) {
+            if (directMatchTerm(pattern, premiseTerms[index], substitution) === null) return false;
+          }
+          return normalize(directInstantiate(variant.conclusion, substitution)) === own;
+        });
+        if (!instantiates) return fail('step-does-not-instantiate-rule');
+        stack.push(...node.premises);
+      }
+      return { side, accepted: true, reason: 'replayed', nodes };
+    };
+
+    const ground = result.answers === null || result.answers === undefined;
+    const truth = STATUS_TRUTH[result.status] ?? 'undetermined';
+    const queryEvidence = ground ? result.proof : (result.answers.length > 0 ? result.answers : null);
+    const refutationEvidence = result.refutation?.proof ?? null;
+    const hasQuery = queryEvidence !== null && queryEvidence !== undefined;
+    const wantsQuery = truth === 'true' || truth === 'both';
+    const wantsRefutation = truth === 'false' || truth === 'both';
+    if (hasQuery !== wantsQuery || (refutationEvidence !== null) !== wantsRefutation) {
+      return finish('evidence-status-mismatch');
+    }
+    if (hasQuery && ground) {
+      checks.push(replaySide('query', result.proof, result.normalized, result.coinduction?.hypothesis));
+    } else if (hasQuery) {
+      for (const [index, answer] of result.answers.entries()) {
+        const fits = answer?.judgement !== undefined && result.normalized !== null &&
+          directMatchTerm(result.normalized, answer.judgement, new Map()) !== null;
+        checks.push(fits
+          ? replaySide(`answer-${index + 1}`, answer.proof, answer.judgement, null)
+          : { side: `answer-${index + 1}`, accepted: false, reason: 'answer-outside-pattern', nodes: 0 });
+      }
+    }
+    if (refutationEvidence !== null) {
+      checks.push(replaySide(
+        'refutation',
+        refutationEvidence,
+        result.refutation.judgement,
+        result.refutation.coinduction?.hypothesis,
+      ));
+    }
+    const failed = checks.find(check => !check.accepted);
+    return finish(failed === undefined ? 'replayed' : failed.reason);
+  }
+
+  // Every fact and inference reachable from the instance program, with the
+  // import rebindings on its path applied, keyed by program and rule.
+  #effectiveRules(instance) {
+    const rules = new Map();
+    const seen = new Set();
+    const push = (program, rule, variant) => {
+      const key = ruleKey('rule', program, rule);
+      rules.set(key, [...(rules.get(key) ?? []), variant]);
+    };
+    const visit = (name, rebindings) => {
+      const context = JSON.stringify([name, ...rebindings.map(bindings => [...bindings.entries()])]);
+      if (seen.has(context)) return;
+      seen.add(context);
+      const program = this.#registry.programs.get(name);
+      const rebind = term => rebindings.reduce(rebindLeaves, cloneTerm(term));
+      for (const fact of program.facts) {
+        push(name, fact.name, { kind: 'fact', judgement: rebind(fact.judgement) });
+      }
+      for (const rule of program.inferences) {
+        push(name, rule.name, {
+          kind: 'inference',
+          premises: rule.premises.map(rebind),
+          conclusion: rebind(rule.conclusion),
+        });
+      }
+      for (const dependency of program.uses) {
+        visit(
+          dependency.program,
+          dependency.rebindings.size === 0 ? rebindings : [dependency.rebindings, ...rebindings],
+        );
+      }
+    };
+    visit(instance.name, []);
+    return rules;
+  }
+
+  #ruleForm({ program: programName, rule: ruleName, kind }) {
+    const program = this.#registry.programs.get(programName);
+    if (kind === 'rewrite') {
+      const rule = program.rewrites.find(item => item.name === ruleName);
+      return ['linked-rewrite', programName, ruleName,
+        ['from', cloneTerm(rule.pattern)], ['to', cloneTerm(rule.replacement)]];
+    }
+    if (kind === 'fact') {
+      const fact = program.facts.find(item => item.name === ruleName);
+      return ['linked-fact', programName, ruleName, ['judgement', cloneTerm(fact.judgement)]];
+    }
+    const rule = program.inferences.find(item => item.name === ruleName);
+    return ['linked-inference', programName, ruleName,
+      ...rule.premises.map(premise => ['premise', cloneTerm(premise)]),
+      ['conclusion', cloneTerm(rule.conclusion)]];
   }
 
   #askGround(context, query) {
@@ -1287,7 +1653,7 @@ class FoundationWorkspace {
         kind: 'rewrite',
       });
     }
-    return {
+    const result = {
       schema: RESULT_SCHEMA,
       instance: instance.name,
       theory: {
@@ -1326,6 +1692,7 @@ class FoundationWorkspace {
       bounds: { ...bounds },
       hostOperations: session.hostOperations(),
     };
+    return { ...result, outcome: classifyOutcome(result) };
   }
 
   #cyclePolicy(foundation) {

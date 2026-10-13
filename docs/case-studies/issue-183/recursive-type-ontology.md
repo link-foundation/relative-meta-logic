@@ -100,12 +100,25 @@ which are classifier-first. The interop profile exposes both booleans so an
 adapter cannot silently reverse endpoints. `linkCliInteropProfile` and
 `link_cli_interop_profile` compute and test this mapping in both runtimes.
 
-This finite ontology does not yet recursively close every RML rule,
-substitution, judgement, proof, foundation, or physical encoding. Pair types
-created by general typed networks are still textual references until their
-own links are supplied. Strict identity- and cycle-preserving serialization,
-restoration, unified-address closure checks and explicit linked universe-policy
-witnesses are now available for typed graphs; see
-[Semantic archives](../../SEMANTIC_ARCHIVE.md). Automatic projection of the
-entire host-side semantic surface remains open, and graph closure does not
-certify logical soundness.
+Strict identity- and cycle-preserving serialization, restoration and
+unified-address closure checks are available for typed graphs; see
+[Semantic archives](../../SEMANTIC_ARCHIVE.md). The semantic closure projection
+there lowers this ontology together with actual linked programs, rules,
+foundation packages, workspace judgements, proofs, assumptions, substitutions
+and reduction values into one validated network, with categories as links.
+
+A logical foundation can now declare its universe policy, order, typing
+predicate, cumulativity and soundness obligations as linked facts. The
+universe-contract validator checks them through public queries: a stratified
+foundation rejects a derived `Type : Type` with a self-cycle witness, an
+explicit `type-in-type` foundation is accepted with that label, and a
+foundation without a contract is `not-declared`. Promoting this ontology's
+graph facts to judgements is an explicit caller choice; it changes the
+stratified verdict but never the `Type = (Type, Type)` link.
+
+Open boundaries remain. Pair types created by general typed networks are
+textual references until their own links are supplied. Rewrite traces,
+refutation/coinduction details, bootstrap reports, language-source networks and
+the compiled kernel are not yet lowered into the closure. The validator checks
+declared obligations relative to derived judgements; neither graph closure nor
+an accepted contract certifies logical soundness or consistency.

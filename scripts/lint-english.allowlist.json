@@ -33,7 +33,9 @@
     "rTRUE"
   ],
   "identifierFiles": [
-    "upstream-0.0.3.lino"
+    "upstream-0.0.3.lino",
+    "upstream-0.0.3-native.lino",
+    "upstream-0.0.3-native-conversion.lino"
   ],
   "links": []
 }
