@@ -1,0 +1,38 @@
+{
+  "schema": "rml-dependency-audit/v1",
+  "checkedAt": "2026-10-13",
+  "method": "Official npm registry metadata (npm view), crates.io API and static.crates.io archives, GitHub API for upstream issue/PR/release state. Published package sources were downloaded and compared file by file; no Rust code was compiled locally.",
+  "npm": {
+    "links-notation": { "previous": "0.25.1", "selected": "0.26.0", "latest": "0.26.0", "published": "2026-10-12T05:42:38.396Z", "integrity": "sha512-rB3Zfp+ncZJXFkj/3zoR2vtQKb85M0sPLI9KVdWBGXdcyjrqDYRviYSdK3RlCb5a+QqNEkYyEoUyA11RzB+I/g==", "sourceComparison": "src/ and dist/ byte-identical to 0.25.1; only package.json version/devDependency ranges and a new tests/SharedTextParity.test.js differ", "consumers": ["js/package.json", "js/package-lock.json", "vscode/package.json", "vscode/package-lock.json"] },
+    "web-tree-sitter": { "selected": "0.27.1", "latest": "0.27.1" },
+    "events": { "selected": "3.3.0", "latest": "3.3.0" },
+    "@babel/parser": { "selected": "8.0.7", "latest": "8.0.7" },
+    "esbuild": { "selected": "^0.28.2", "latest": "0.28.2" },
+    "jsdoc": { "selected": "^4.0.5", "latest": "4.0.5" },
+    "vscode-languageclient": { "selected": "^10.1.2", "latest": "10.1.2" },
+    "@vscode/vsce": { "selected": "^4.0.0", "latest": "4.0.0" },
+    "meta-language": { "latest": "0.46.0", "published": "2026-06-28T14:42:34.612Z", "consumed": "official release source commit a79782093cae3b33606483ac9f3e1d05faf36de0 (submodule js/vendor/meta-language, tag v1.0.0)", "note": "No npm release matches the Rust 1.0.0 implementation; npm publication remains absent." }
+  },
+  "crates": {
+    "links-notation": { "previous": "0.25.1", "selected": "0.26.0", "latest": "0.26.0", "updated": "2026-10-12T05:41:08.532173Z", "checksum": "39987645430b430b8bbc0cf40c04629c2039e6fb68e541171745c07c155fd16b", "sourceRevision": "ef32b5bb8987fe2ed8e2391862af82ccc4c90a7d", "rustVersion": "1.87", "sourceComparison": "src/ byte-identical to 0.25.1; adds the shared_text_parity_tests test target; companion links-notation-macro 0.1.1 -> 0.1.2 (src/ byte-identical, syn requirement ^3.0.6 -> ^3.0.7)" },
+    "links-notation-macro": { "previous": "0.1.1", "selected": "0.1.2", "checksum": "b42d4a79a99204f93c19d70c0c6c8a174842438bf6588a830df911aedcc1d523" },
+    "syn": { "previous": "3.0.6", "selected": "3.0.9", "checksum": "d78c8dee4c7bf0e14673097256fed6142ce9d3b85a408189d07482442145823b", "note": "Lock resolution only for the runtime crate and its path consumers; scripts/linked-runtime-rust keeps its reviewed exact pins." },
+    "sha2": { "previous": "0.11.0", "selected": "0.11.1", "latest": "0.11.1", "checksum": "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19" },
+    "serde_json": { "previous": "1.0.151", "selected": "1.0.154", "latest": "1.0.154", "checksum": "e7e9cc8b1b85264074fbcc02a88680c4096b1e47df8f739dceb03bf482f04bd6", "addsDependency": "foldhash 0.2.0 (checksum 77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb)" },
+    "regex": { "selected": "1.13.1", "latest": "1.13.1" },
+    "meta-language": { "selected": "=1.0.0", "latest": "1.0.0", "updated": "2026-10-08T12:27:34.219097Z" },
+    "lockfiles": ["rust/Cargo.lock", "rust/relational-kernel/Cargo.lock", "rust/control-flow/Cargo.lock", "rust/linked-target/Cargo.lock"],
+    "lockMethod": "cargo update -p links-notation@0.25.1 -p sha2 -p serde_json (resolution only; no compilation)"
+  },
+  "upstream": {
+    "metaLanguageIssue195": { "state": "CLOSED", "closedAt": "2026-10-06T21:17:21Z" },
+    "metaLanguagePullRequest196": { "state": "MERGED", "mergedAt": "2026-10-06T21:17:19Z", "head": "ddcde321b955df37a11b32ebcfb8c8ae96ca7843" },
+    "metaLanguageLatestRelease": { "tag": "v1.0.0", "published": "2026-10-08T12:27:43Z", "registries": ["crates.io"] },
+    "metaLanguageMainAfterRelease": { "commitsAhead": 10, "head": "e870367fe", "released": false },
+    "metaLanguageOpenFollowUps": ["#199 remaining issue-195 scope including release", "#197 dependency freshness (links-notation 0.13 -> 0.22)", "#221 CI on main"]
+  },
+  "notConsumed": [
+    "meta-language main after v1.0.0: unreleased; consuming it would be a source pin, not a release.",
+    "npm meta-language matching 1.0.0: not published."
+  ]
+}

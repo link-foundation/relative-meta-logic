@@ -14,8 +14,15 @@ if (!fs.existsSync(sourceDir)) {
 
 if (fs.lstatSync(targetDir, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error('Staged server output may not be a symlink');
 fs.mkdirSync(targetDir, { recursive: true });
+// An inherited producer lease is bound to RML_CACHE_ROOT. A generated or
+// copied runtime tree (for example a source-free scratch emission inside the
+// leased worktree's private TMPDIR) is not that worktree: it stages its server
+// with exclusive creation exactly as an unleased checkout does. A lease that
+// does name this tree must still verify, so a forged or stale lease fails.
+const realRoot = target => { try { return fs.realpathSync(target); } catch { return null; } };
+const leasedRoot = process.env.RML_CACHE_ROOT ? realRoot(process.env.RML_CACHE_ROOT) : realRoot(repoRoot);
 let producer;
-if (process.env.RML_CACHE_LEASE && process.env.RML_CACHE_PRODUCTION) {
+if (process.env.RML_CACHE_LEASE && process.env.RML_CACHE_PRODUCTION && leasedRoot === realRoot(repoRoot)) {
   producer = await import('../../scripts/build-cache.mjs');
   const cache = producer.context(repoRoot);
   if (!producer.inheritedLease(cache)) throw new Error('Staged server output requires a verified producer lease');

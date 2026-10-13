@@ -8,9 +8,16 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { copyMeasurementSources } from './measurement-source.mjs';
 const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const output = process.argv[2];
-const native = process.argv[3] === '--native';
-if (!output || process.argv.length > 4 || (process.argv[3] && !native)) throw new Error('Usage: node scripts/measure-build-cache.mjs <report.json> [--native]');
+const [output, ...flags] = process.argv.slice(2);
+const native = flags.includes('--native');
+// The required portable-fragment oracles are explicit and recorded in scope;
+// an oracle outside this set is never silently counted as verified.
+const oracleFlag = flags.find(flag => flag.startsWith('--oracles='));
+const oracles = oracleFlag ? oracleFlag.slice('--oracles='.length).split(',') : ['Rust', 'Lean', 'Rocq'];
+if (!output || output.startsWith('--') || flags.some(flag => flag !== '--native' && flag !== oracleFlag) || (oracleFlag && !native) ||
+    !oracles.length || oracles.some(name => !['Rust', 'Lean', 'Rocq'].includes(name)) || !oracles.includes('Rust') || new Set(oracles).size !== oracles.length) {
+  throw new Error('Usage: node scripts/measure-build-cache.mjs <report.json> [--native [--oracles=Rust[,Lean][,Rocq]]]');
+}
 const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'rml measured cycle '));
 const env = { ...process.env, RML_CACHE_MIN_FREE_BYTES: '0' };
 const results = [];
@@ -25,6 +32,8 @@ function run(label, command, cwd = fixture) {
 try {
   copyMeasurementSources(source, fixture);
   fs.cpSync(path.join(source, 'js/node_modules'), path.join(fixture, 'js/node_modules'), { recursive: true, verbatimSymlinks: true });
+  // Source-free editor integration tests require the installed editor runtime providers.
+  if (fs.existsSync(path.join(source, 'vscode/node_modules'))) fs.cpSync(path.join(source, 'vscode/node_modules'), path.join(fixture, 'vscode/node_modules'), { recursive: true, verbatimSymlinks: true });
   for (const args of [['init', '-q'], ['config', 'user.name', 'Cache measurement'], ['config', 'user.email', 'cache@example.invalid'], ['add', '.'], ['-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'measurement inputs']]) execFileSync('git', ['-C', fixture, ...args], { stdio: 'pipe' });
   run('bootstrap fresh fixture', [process.execPath, 'scripts/bootstrap.mjs']);
   const wrapper = path.join(fixture, 'scripts/run-with-cache.mjs');
@@ -40,11 +49,11 @@ try {
   run('post-rebuild full JavaScript verification', [process.execPath, wrapper, '--', 'npm', '--prefix', 'js', 'test']);
   if (native) {
     run('post-clean full Rust rebuild and verification', [process.execPath, wrapper, '--isolate-output', 'rust/target', '--', 'cargo', 'test', '--locked', '--manifest-path', 'rust/Cargo.toml', '--all-targets']);
-    run('post-clean required Rust Lean Rocq translation oracles', [process.execPath, wrapper, '--', process.execPath, 'scripts/check-portable-native.mjs', '--require=Rust,Lean,Rocq']);
+    run(`post-clean required ${oracles.join(' ')} translation oracles`, [process.execPath, wrapper, '--', process.execPath, 'scripts/check-portable-native.mjs', `--require=${oracles.join(',')}`]);
   }
   run('final full cleanup', [process.execPath, 'scripts/build-cache.mjs', '--full']);
   const final = JSON.parse(fs.readFileSync(path.join(fixture, '.rml-cache/reports/last-cleanup.json')));
-  const report = { schemaVersion: 1, recordedAt: new Date().toISOString(), platform: `${process.platform}/${process.arch}`, node: process.version, scope: native ? 'Actual JSDoc and all Rust test-target builds, full cache cleanup, clean rebuild, full JavaScript/Rust suites and all required Rust/Lean/Rocq portable-fragment oracles in an isolated fixture; excludes Docker, global toolchain/dependency caches and full issue-183 acceptance.' : 'Actual JSDoc build, full cache cleanup, clean rebuild, and full npm JavaScript test suite in an isolated fixture; not Rust/Lean/Rocq/Docker or full issue-183 acceptance.', sourceRevision: execFileSync('git', ['-C', source, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), measurementInputTree: execFileSync('git', ['-C', fixture, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim(), policySha256: crypto.createHash('sha256').update(fs.readFileSync(path.join(fixture, 'scripts/cache-policy.json'))).digest('hex'), implementationHashes: Object.fromEntries(['scripts/build-cache.mjs', 'scripts/run-with-cache.mjs', 'scripts/bootstrap.mjs', 'scripts/build-cache.test.mjs', 'scripts/build-cache-policy.test.mjs', 'scripts/cli-paths.test.mjs', 'scripts/measure-build-cache.mjs', 'scripts/measurement-source.mjs', 'scripts/measurement-source.test.mjs'].map(p => [p, crypto.createHash('sha256').update(fs.readFileSync(path.join(fixture, p))).digest('hex')])), byteAccounting: 'Logical regular-file sizes across registered cache roots, not a filesystem quota or measurement of physical blocks; diagnostic evidence is excluded.', firstBuildBytes: first.beforeBytes, fullClean: { beforeBytes: cleaned.beforeBytes, afterBytes: cleaned.afterBytes, reclaimedBytes: cleaned.reclaimedBytes }, rebuiltBytes: rebuilt.beforeBytes, finalClean: { beforeBytes: final.beforeBytes, afterBytes: final.afterBytes, reclaimedBytes: final.reclaimedBytes }, results };
+  const report = { schemaVersion: 1, recordedAt: new Date().toISOString(), platform: `${process.platform}/${process.arch}`, node: process.version, scope: native ? `Actual JSDoc and all Rust test-target builds, full cache cleanup, clean rebuild, full JavaScript/Rust suites and required ${oracles.join('/')} portable-fragment oracles in an isolated fixture; excludes ${['Lean', 'Rocq'].filter(name => !oracles.includes(name)).map(name => `${name} oracles, `).join('')}Docker, global toolchain/dependency caches and full issue-183 acceptance.` : 'Actual JSDoc build, full cache cleanup, clean rebuild, and full npm JavaScript test suite in an isolated fixture; not Rust/Lean/Rocq/Docker or full issue-183 acceptance.', sourceRevision: execFileSync('git', ['-C', source, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), measurementInputTree: execFileSync('git', ['-C', fixture, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim(), policySha256: crypto.createHash('sha256').update(fs.readFileSync(path.join(fixture, 'scripts/cache-policy.json'))).digest('hex'), implementationHashes: Object.fromEntries(['scripts/build-cache.mjs', 'scripts/run-with-cache.mjs', 'scripts/bootstrap.mjs', 'scripts/build-cache.test.mjs', 'scripts/build-cache-policy.test.mjs', 'scripts/cli-paths.test.mjs', 'scripts/measure-build-cache.mjs', 'scripts/measurement-source.mjs', 'scripts/measurement-source.test.mjs'].map(p => [p, crypto.createHash('sha256').update(fs.readFileSync(path.join(fixture, p))).digest('hex')])), requiredNativeOracles: native ? oracles : [], byteAccounting: 'Logical regular-file sizes across registered cache roots, not a filesystem quota or measurement of physical blocks; diagnostic evidence is excluded.', firstBuildBytes: first.beforeBytes, fullClean: { beforeBytes: cleaned.beforeBytes, afterBytes: cleaned.afterBytes, reclaimedBytes: cleaned.reclaimedBytes }, rebuiltBytes: rebuilt.beforeBytes, finalClean: { beforeBytes: final.beforeBytes, afterBytes: final.afterBytes, reclaimedBytes: final.reclaimedBytes }, results };
   fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
   fs.writeFileSync(output, `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify({ report: output, firstBuildBytes: report.firstBuildBytes, reclaimedBytes: cleaned.reclaimedBytes, rebuiltBytes: report.rebuiltBytes, checks: results.map(r => [r.label, r.exitCode]) }, null, 2));

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { byteCount, measureDockerCaches, measureDockerResource, measureDockerContainer, verifyDockerBuilder } from './docker-cache-budget.mjs';
+import { byteCount, dockerCli, measureDockerCaches, measureDockerResource, measureDockerContainer, verifyDockerBuilder } from './docker-cache-budget.mjs';
 
 const image = `sha256:${'a'.repeat(64)}`;
 const ownerLabel = 'org.link-foundation.rml.owner';
@@ -209,4 +209,29 @@ test('legacy or unknown external-resource leases require accounting rather than 
       assert.ok(fs.existsSync(lease));
     }
   });
+});
+
+test('an absent Docker CLI is reported as unavailable and never measured as zero bytes', () => {
+  fixture(({ root }) => {
+    const absent = Object.assign(new Error('spawnSync docker ENOENT'), { code: 'ENOENT' });
+    assert.throws(() => measureDockerCaches(root, { run() { throw absent; } }), /Docker CLI unavailable: docker/);
+    assert.throws(() => verifyDockerBuilder(record, { run() { throw absent; } }), /Docker CLI unavailable/);
+  });
+});
+
+test('an explicit Docker CLI argv is honored and malformed overrides fail closed', () => {
+  assert.deepEqual(dockerCli(undefined), ['docker']);
+  assert.deepEqual(dockerCli(''), ['docker']);
+  assert.deepEqual(dockerCli(JSON.stringify([process.execPath, '/fixture/docker double.cjs'])), [process.execPath, '/fixture/docker double.cjs']);
+  for (const value of ['docker', '[]', '{"program":"docker"}', '[""]', '["docker",1]']) assert.throws(() => dockerCli(value), /RML_DOCKER_CLI/);
+  const previous = process.env.RML_DOCKER_CLI;
+  process.env.RML_DOCKER_CLI = JSON.stringify(['node', 'docker-double.cjs']);
+  try {
+    const seen = [];
+    const run = (program, args) => { seen.push([program, ...args]); return `Name: ${record.builder}\nDriver: docker-container\nNodes:\nName: ${record.builder}0\nEndpoint: ${record.builderEndpoint}`; };
+    assert.equal(verifyDockerBuilder(record, { run }), record.builderEndpoint);
+    assert.deepEqual(seen, [['node', 'docker-double.cjs', 'buildx', 'inspect', record.builder]]);
+  } finally {
+    if (previous === undefined) delete process.env.RML_DOCKER_CLI; else process.env.RML_DOCKER_CLI = previous;
+  }
 });

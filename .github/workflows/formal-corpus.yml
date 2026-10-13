@@ -247,8 +247,12 @@ jobs:
             mkdir -p "$oracle_output"
             runner_owner="$(id -u):$(id -g)"
             trap "sudo chown -R $runner_owner \"$oracle_output\"" EXIT
-            sudo chown -R 1000:1000 "$oracle_output"
+            # The digest-pinned Ubuntu 24.04 image reserves 1000 for "ubuntu";
+            # its /etc/passwd assigns isabelle 1001:1001. Run as that exact
+            # identity so ownership of the private output cannot drift.
+            sudo chown -R 1001:1001 "$oracle_output"
             bash docker/run-owned.sh --init \
+              --user 1001:1001 \
               --entrypoint /bin/bash \
               --volume "$PWD:/rml:ro" \
               --volume "$(command -v node):/usr/local/bin/node:ro" \

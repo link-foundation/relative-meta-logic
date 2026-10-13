@@ -18,7 +18,7 @@ function fixtureEnvironment(extra = {}) {
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml cache spaces '));
   fs.mkdirSync(path.join(root, 'scripts'));
-  for (const name of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
+  for (const name of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'cargo-unit-sweep.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
   fs.mkdirSync(path.join(root, 'js'));
   fs.mkdirSync(path.join(root, 'rust'));
   fs.writeFileSync(path.join(root, 'js/package.json'), '{"name":"fixture"}\n');
@@ -52,7 +52,8 @@ test('a queued lease reloads preceding ownership and preserves preexisting zero-
   const queuedLease = lock(queuedContext);
   beginProduction(firstContext, firstLease);
   const output = isolatedOutput(firstContext, 'target', 'rust');
-  const relative = path.relative(f.root, output).split(path.sep).join('/');
+  // The context root is canonical; the fixture spelling may be a /var alias.
+  const relative = path.relative(firstContext.root, output).split(path.sep).join('/');
   fs.writeFileSync(path.join(output, 'generated'), 'compiler output');
   fs.writeFileSync(path.join(output, 'generated-empty'), '');
   capture(firstContext, baseline);
@@ -175,6 +176,74 @@ test('custom target paths with spaces are owned; external/traversal/source paths
   assert.notEqual(f.wrap('process.exit(0)', [], { CARGO_TARGET_DIR: os.tmpdir() }).status, 0);
 });
 
+test('a successful private Cargo operation sweeps superseded units and records the result without changing status', { skip: process.platform === 'win32' }, t => {
+  const f = fixture(t);
+  // A Cargo double: the build leaves a carried-forward superseded unit beside
+  // the current one; the JSON reference query reports only the current unit.
+  const cargo = path.join(f.root, 'bin', 'cargo');
+  fs.mkdirSync(path.dirname(cargo));
+  fs.writeFileSync(cargo, `#!${node}
+const fs = require('node:fs'), path = require('node:path');
+const deps = path.join(process.env.CARGO_TARGET_DIR, 'debug', 'deps');
+if (process.argv.includes('--message-format=json')) {
+  if (process.env.FAKE_QUERY_FAIL) process.exit(101);
+  console.log(JSON.stringify({ reason: 'compiler-artifact', filenames: [path.join(deps, 'librml-1111111111111111.rlib')], fresh: true }));
+  process.exit(0);
+}
+fs.mkdirSync(deps, { recursive: true });
+fs.writeFileSync(path.join(deps, 'librml-1111111111111111.rlib'), 'current');
+fs.writeFileSync(path.join(deps, 'librml-2222222222222222.rlib'), 'superseded');
+fs.writeFileSync(path.join(deps, 'rml-3333333333333333'), 'untouched test kind');
+process.exit(Number(process.env.FAKE_BUILD_STATUS || 0));
+`, { mode: 0o755 });
+  const receipts = () => fs.readdirSync(path.join(f.root, '.rml-cache/evidence')).filter(name => /^\d+-\d+\.json$/.test(name)).map(name => JSON.parse(read(f, `.rml-cache/evidence/${name}`)));
+  const run = extra => f.run(['scripts/run-with-cache.mjs', '--isolate-output', 'rust/target', '--', cargo, 'build', '--locked'], extra);
+  const swept = run();
+  ok(swept);
+  assert.match(swept.stderr, /superseded Cargo units removed=1 reclaimed=10 bytes/);
+  const receipt = receipts().find(item => item.cargoSweep && !item.cargoSweep.skipped);
+  assert.deepEqual(receipt.cargoSweep.removed, ['debug/deps/librml-2222222222222222.rlib']);
+  assert.deepEqual(receipt.cargoSweep.query.slice(1), ['build', '--locked', '--message-format=json']);
+  // A failing reference query deletes nothing and leaves a successful build successful.
+  const failedQuery = run({ FAKE_QUERY_FAIL: '1' });
+  ok(failedQuery);
+  assert.match(failedQuery.stderr, /sweep skipped: reference query failed: exit 101/);
+  // A failed build is never swept and keeps its own status.
+  const failedBuild = run({ FAKE_BUILD_STATUS: '7' });
+  assert.equal(failedBuild.status, 7);
+  assert.doesNotMatch(failedBuild.stderr, /superseded Cargo unit/);
+  ok(f.clean('--full'));
+  assert.equal(read(f, 'README.md'), 'source\n');
+});
+
+test('a symlinked alias of the worktree root maps custom targets without resolving in-tree links', { skip: process.platform === 'win32' }, t => {
+  const f = fixture(t);
+  const aliases = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-root-alias-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-alias-outside-'));
+  t.after(() => { fs.rmSync(aliases, { recursive: true, force: true }); fs.rmSync(outside, { recursive: true, force: true }); });
+  // Like macOS /var -> /private/var: the target names the same worktree.
+  const alias = path.join(aliases, 'checkout alias');
+  fs.symlinkSync(f.root, alias, 'dir');
+  ok(f.wrap(writeProgram('aliased target/debug/a'), [], { CARGO_TARGET_DIR: path.join(alias, 'aliased target') }));
+  assert.equal(read(f, 'aliased target/debug/a'), 'cache');
+  ok(f.clean('--full'));
+  assert.equal(exists(f, 'aliased target/debug/a'), false);
+  // Entry points invoked through the alias must run, never exit 0 unexecuted.
+  const viaAlias = (script, args) => spawnSync(node, [path.join(alias, 'scripts', script), ...args], { cwd: alias, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), encoding: 'utf8' });
+  const failed = viaAlias('run-with-cache.mjs', ['--', node, '-e', 'console.log("ran via alias"); process.exit(5)']);
+  assert.equal(failed.status, 5, failed.stderr);
+  assert.match(failed.stdout, /ran via alias/);
+  assert.match(viaAlias('build-cache.mjs', ['--report']).stdout, /build-cache: before=/);
+  assert.equal(viaAlias('publish-cache-output.mjs', []).status, 1);
+  assert.equal(viaAlias('docker-cache-budget.mjs', []).status, 1);
+  // A link below the root is not an alias of the root and stays rejected.
+  fs.writeFileSync(path.join(outside, 'keep'), 'outside');
+  fs.symlinkSync(outside, path.join(f.root, 'linked target'), 'dir');
+  assert.notEqual(f.wrap('process.exit(0)', [], { CARGO_TARGET_DIR: path.join(alias, 'linked target', 'debug') }).status, 0);
+  ok(f.clean('--full'));
+  assert.equal(fs.readFileSync(path.join(outside, 'keep'), 'utf8'), 'outside');
+});
+
 test('aggregate byte budget enforced without optional cargo-sweep/du/docker tools', t => {
   const f = fixture(t);
   ok(f.wrap(writeProgram('target/a', 'a'.repeat(100)) + writeProgram('js/.cache/b', 'b'.repeat(100)).replace('const fs=', 'var fs='), [], { RML_CACHE_BUDGET_BYTES: '50' }));
@@ -241,6 +310,29 @@ test('symlink escapes and other worktree artifacts cannot be registered or remov
   assert.equal(fs.readFileSync(path.join(external, 'secret'), 'utf8'), 'external');
   f.git('worktree', 'add', '--detach', path.join(f.root, 'other-worktree'));
   assert.notEqual(f.wrap('process.exit(0)', ['--cache', 'other-worktree', '--class', 'rust']).status, 0);
+});
+
+test('a worktree nested under the primary checkout owns its caches but cannot claim a worktree nested inside it', t => {
+  const f = fixture(t);
+  // Agent and editor tooling commonly places linked worktrees below the
+  // primary checkout (for example `.claude/worktrees/*`). The containing
+  // primary worktree is an ancestor, not an overlapping peer.
+  const child = path.join(f.root, '.worktrees', 'child worktree');
+  f.git('worktree', 'add', '-q', '--detach', child);
+  const inChild = args => spawnSync(node, args, { cwd: child, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0', RML_CACHE_LOCK_TIMEOUT_MS: '1000' }), encoding: 'utf8' });
+  ok(inChild(['scripts/run-with-cache.mjs', '--cache', 'target', '--class', 'rust', '--', node, '-e', writeProgram('target/debug/out')]));
+  assert.equal(fs.readFileSync(path.join(child, 'target/debug/out'), 'utf8'), 'cache');
+  ok(inChild(['scripts/build-cache.mjs', '--full']));
+  assert.equal(fs.existsSync(path.join(child, 'target/debug/out')), false);
+  assert.equal(fs.readFileSync(path.join(child, 'README.md'), 'utf8'), 'source\n');
+  execFileSync('git', ['-C', child, 'worktree', 'add', '-q', '--detach', path.join(child, 'grandchild')]);
+  const claimed = inChild(['scripts/run-with-cache.mjs', '--cache', 'grandchild', '--class', 'rust', '--', node, '-e', 'process.exit(0)']);
+  assert.notEqual(claimed.status, 0);
+  assert.match(claimed.stderr, /overlaps another worktree/);
+  // The primary checkout still refuses to treat the nested worktree as cache.
+  const parent = f.wrap('process.exit(0)', ['--cache', '.worktrees', '--class', 'rust']);
+  assert.notEqual(parent.status, 0);
+  assert.match(parent.stderr, /overlaps another worktree/);
 });
 
 async function waitFor(predicate, timeout = 10000) {
@@ -313,6 +405,76 @@ test('unleased active Node build is preserved; cleanup succeeds after it exits',
   assert.equal(exists(f, 'target/live'), true);
   child.kill();
   await done;
+  ok(f.clean('--full'));
+  assert.equal(exists(f, 'target/live'), false);
+});
+
+test('a builder inside a nested worktree or repository is attributed to it unless it overlaps this tree\'s caches', async t => {
+  const f = fixture(t);
+  const { context, assertNoUnleasedBuilders } = await import('./build-cache.mjs');
+  const peer = path.join(f.root, '.claude', 'worktrees', 'peer agent');
+  f.git('worktree', 'add', '-q', '--detach', peer);
+  fs.mkdirSync(path.join(peer, 'target'), { recursive: true });
+  fs.writeFileSync(path.join(peer, 'target', 'peer-output'), 'peer build output');
+  // An unlisted nested repository (its own .git file) outside every cache root.
+  fs.mkdirSync(path.join(f.root, 'vendored tool', 'src'), { recursive: true });
+  fs.writeFileSync(path.join(f.root, 'vendored tool', '.git'), 'gitdir: /elsewhere\n');
+  // A nested temporary clone inside a registered cache root stays this tree's concern.
+  fs.mkdirSync(path.join(f.root, '.rml-cache', 'consumers', 'clone', '.git'), { recursive: true });
+  const c = context(f.root);
+  const pid = 2147483001;
+  const inspect = cwd => assertNoUnleasedBuilders(c, {
+    platform: 'linux', realPath: value => value, isAlive: () => true,
+    run(command) { assert.equal(command, 'ps'); return `${pid} 1 S node\n`; },
+    readLink(link) { return link.endsWith('/exe') ? '/usr/bin/node' : cwd; },
+  });
+  // Process working directories are canonical (macOS tmpdir is a /var alias).
+  const at = (...parts) => path.join(c.root, ...parts);
+  for (const cwd of [at('.claude', 'worktrees', 'peer agent'), at('.claude', 'worktrees', 'peer agent', 'target'), at('vendored tool', 'src')]) assert.doesNotThrow(() => inspect(cwd), cwd);
+  for (const cwd of [c.root, at('js'), at('.rml-cache', 'consumers', 'clone'), at('.claude')]) {
+    assert.throws(() => inspect(cwd), error => error.code === 'RML_CACHE_DEFERRED' && /Active unleased build process/.test(error.message), cwd);
+  }
+  // Attribution never extends this tree's cleanup into the nested worktree.
+  assert.notEqual(f.wrap('process.exit(0)', ['--cache', '.claude/worktrees', '--class', 'rust']).status, 0);
+  ok(f.clean('--full'));
+  assert.equal(fs.readFileSync(path.join(peer, 'target', 'peer-output'), 'utf8'), 'peer build output');
+});
+
+test('pre-commit continues past a deferral; another worktree\'s live build does not defer it at all', async t => {
+  const f = fixture(t);
+  ok(f.run(['scripts/bootstrap.mjs']));
+  const peer = path.join(f.root, '.claude', 'worktrees', 'peer agent');
+  f.git('worktree', 'add', '-q', '--detach', peer);
+  const commit = message => {
+    fs.appendFileSync(path.join(f.root, 'README.md'), `${message}\n`);
+    f.git('add', 'README.md');
+    return spawnSync('git', ['-C', f.root, 'commit', '-qm', message], { env: fixtureEnvironment(), encoding: 'utf8' });
+  };
+  const live = cwd => {
+    const child = spawn(node, ['-e', 'setInterval(()=>{},1000)'], { cwd, stdio: 'ignore' });
+    t.after(() => { if (child.exitCode === null) child.kill(); });
+    return child;
+  };
+  const peerBuild = live(peer);
+  await new Promise(r => setTimeout(r, 200));
+  ok(f.clean());
+  const quiet = commit('peer build is running');
+  ok(quiet);
+  assert.doesNotMatch(quiet.stderr, /deferred/);
+  peerBuild.kill(); await finished(peerBuild);
+  // This tree's own live build defers cleanup: a direct run fails visibly,
+  // while the hook reports the deferral and lets the commit proceed.
+  ok(f.wrap(writeProgram('target/live')));
+  const ownBuild = live(path.join(f.root, 'js'));
+  await new Promise(r => setTimeout(r, 200));
+  const direct = f.clean('--full');
+  assert.equal(direct.status, 1);
+  assert.match(direct.stderr, /Active unleased build process/);
+  const deferred = commit('own build is running');
+  ok(deferred);
+  assert.match(deferred.stderr, /pre-commit cleanup deferred, commit continues: Active unleased build process/);
+  assert.equal(exists(f, 'target/live'), true);
+  ownBuild.kill(); await finished(ownBuild);
   ok(f.clean('--full'));
   assert.equal(exists(f, 'target/live'), false);
 });

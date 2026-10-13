@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
-import { context, resumeProduction, validatePath } from '../build-cache.mjs';
+import { context, resumeProduction, rootRelative, validatePath } from '../build-cache.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const run = (command, args) => spawnSync(command, args, { cwd: root, encoding: 'utf8', timeout: 1200000, maxBuffer: 32 * 1024 * 1024 });
@@ -16,7 +16,7 @@ const target = process.env.CARGO_TARGET_DIR;
 assert.ok(target && path.isAbsolute(target), 'Acceptance parity requires run-with-cache.mjs --isolate-output rust/target');
 const cache = context(root);
 const production = resumeProduction(cache);
-const relativeTarget = path.relative(root, target).split(path.sep).join('/');
+const relativeTarget = rootRelative(cache, target);
 validatePath(cache, relativeTarget);
 const registered = production.roots.find(output => output.parent === 'rust/target' && output.path === relativeTarget);
 assert.ok(registered, 'Acceptance parity requires the current producer private Cargo target');

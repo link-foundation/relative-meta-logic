@@ -21,7 +21,8 @@ process.exit(Number(process.env.VSCE_STATUS || 0));
 `;
 
 function fixture(t, realVsce) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml VSIX output '));
+  // VSCE reports the canonical extension directory (macOS tmpdir is a /var alias).
+  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'rml VSIX output ')));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const extension = path.join(root, 'vscode');
   fs.mkdirSync(path.join(root, 'scripts'));

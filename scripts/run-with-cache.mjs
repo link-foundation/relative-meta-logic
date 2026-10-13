@@ -5,7 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { context, register, roots, validatePath, inventory, capture, beginProduction, resumeProduction, recordProductionOptions, reportProductionFailure, productionFailure, isolatedOutput, finishProduction, lock, inheritedLease, cleanup, printReport, lowDisk, writeState, assertNoUnleasedBuilders } from './build-cache.mjs';
+import { context, register, roots, rootRelative, validatePath, inventory, capture, beginProduction, resumeProduction, recordProductionOptions, reportProductionFailure, productionFailure, isolatedOutput, finishProduction, lock, inheritedLease, cleanup, printReport, lowDisk, writeState, assertNoUnleasedBuilders } from './build-cache.mjs';
 import { bootstrap } from './bootstrap.mjs';
 
 function options(argv) {
@@ -43,7 +43,7 @@ function operationCaches(c, opts) {
     const targetArg = opts.command.find(a => a.startsWith('--target-dir='))?.slice('--target-dir='.length);
     const target = targetArg ?? (targetFlag >= 0 ? opts.command[targetFlag + 1] : process.env.CARGO_TARGET_DIR);
     if (target && !opts.isolateOutput && !target.includes('{output}')) {
-      caches.push({ path: path.relative(c.root, path.resolve(process.cwd(), target)).split(path.sep).join('/'), class: 'rust' });
+      caches.push({ path: rootRelative(c, target), class: 'rust' });
     }
   }
   if (opts.isolateOutput) caches.push({ path: opts.isolateOutput, class: opts.caches.find(item => item.path === opts.isolateOutput)?.class ?? 'rust' });
@@ -266,11 +266,19 @@ async function main() {
     const command = operationCommand(opts, outputDirectory);
     const env = { CARGO_BUILD_JOBS: String(jobs), RUST_TEST_THREADS: String(jobs), CARGO_INCREMENTAL: '0', SCCACHE_CACHE_SIZE: '512M', ...process.env, TMPDIR: temporary, TMP: temporary, TEMP: temporary, ...producerEnv, RML_CACHE_OUTPUT_DIR: outputDirectory, ...(opts.isolateOutput ? { CARGO_TARGET_DIR: outputDirectory } : {}), RML_CACHE_LEASE: lease.token };
     status = await execute(command, env, log, pid => lease.child(pid), () => lowDisk(c), reason => { resourceLimit = reason; });
+    let cargoSweep;
+    if (status === 0 && opts.isolateOutput && /^cargo(?:\.exe)?$/i.test(path.basename(command[0]))) {
+      // Still inside the lease: only this operation's private target changes.
+      // A failed reference query or sweep deletes nothing and never changes status.
+      try { cargoSweep = (await import('./cargo-unit-sweep.mjs')).sweepAfterCargo(command, env, outputDirectory); }
+      catch (error) { cargoSweep = { skipped: `sweep unavailable: ${error.message}` }; }
+      console.error(cargoSweep.skipped ? `build-cache: superseded Cargo unit sweep skipped: ${cargoSweep.skipped}` : `build-cache: superseded Cargo units removed=${cargoSweep.removed.length} reclaimed=${cargoSweep.reclaimedBytes} bytes (referenced=${cargoSweep.referencedUnits})`);
+    }
     if (opts.sourceMigration && status === 0) {
       try { await checkAuthority(); }
       catch (error) { sourceValidationFailed = true; console.error(`build-cache: source migration did not produce a consistent linked implementation: ${error.message}`); }
     }
-    fs.writeFileSync(path.join(evidence, `${id}.json`), JSON.stringify({ command, ...(opts.isolateOutput ? { isolatedOutput: path.relative(c.root, outputDirectory) } : {}), exitCode: status || (sourceValidationFailed ? 2 : 0), ...(resourceLimit ? { resourceLimit } : {}), ...(opts.sourceMigration ? { commandExitCode: status, sourceMigration: true, sourceValidationPassed: status === 0 && !sourceValidationFailed } : {}), timestamp: new Date().toISOString() }, null, 2));
+    fs.writeFileSync(path.join(evidence, `${id}.json`), JSON.stringify({ command, ...(opts.isolateOutput ? { isolatedOutput: path.relative(c.root, outputDirectory) } : {}), exitCode: status || (sourceValidationFailed ? 2 : 0), ...(resourceLimit ? { resourceLimit } : {}), ...(cargoSweep ? { cargoSweep } : {}), ...(opts.sourceMigration ? { commandExitCode: status, sourceMigration: true, sourceValidationPassed: status === 0 && !sourceValidationFailed } : {}), timestamp: new Date().toISOString() }, null, 2));
     archiveOutputs(c, opts, evidence, id, outputDirectory);
   } catch (error) {
     // Execution failures are reported only after the owned child has stopped.
@@ -307,4 +315,4 @@ async function main() {
   }
   process.exitCode = status || (cleanupFailed || archiveFailed || sourceValidationFailed ? 2 : 0);
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(error => { console.error(`run-with-cache: ${error.message}`); process.exitCode = 1; });
+if (process.argv[1] && (() => { try { return fs.realpathSync(process.argv[1]); } catch { return path.resolve(process.argv[1]); } })() === fileURLToPath(import.meta.url)) main().catch(error => { console.error(`run-with-cache: ${error.message}`); process.exitCode = 1; });
