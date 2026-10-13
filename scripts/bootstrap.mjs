@@ -58,7 +58,7 @@ export function bootstrap(root = rootHere) {
   git(['config', '--worktree', 'core.hooksPath', local]);
   return { installed: true, path: local, composedWith: source };
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && (() => { try { return fs.realpathSync(process.argv[1]); } catch { return path.resolve(process.argv[1]); } })() === fileURLToPath(import.meta.url)) {
   try {
     const result = bootstrap();
     console.log(`bootstrap: ${result.installed ? `installed composed hooks at ${result.path}` : result.reason}`);

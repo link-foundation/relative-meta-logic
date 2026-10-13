@@ -228,6 +228,14 @@ test('a symlinked alias of the worktree root maps custom targets without resolvi
   assert.equal(read(f, 'aliased target/debug/a'), 'cache');
   ok(f.clean('--full'));
   assert.equal(exists(f, 'aliased target/debug/a'), false);
+  // Entry points invoked through the alias must run, never exit 0 unexecuted.
+  const viaAlias = (script, args) => spawnSync(node, [path.join(alias, 'scripts', script), ...args], { cwd: alias, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), encoding: 'utf8' });
+  const failed = viaAlias('run-with-cache.mjs', ['--', node, '-e', 'console.log("ran via alias"); process.exit(5)']);
+  assert.equal(failed.status, 5, failed.stderr);
+  assert.match(failed.stdout, /ran via alias/);
+  assert.match(viaAlias('build-cache.mjs', ['--report']).stdout, /build-cache: before=/);
+  assert.equal(viaAlias('publish-cache-output.mjs', []).status, 1);
+  assert.equal(viaAlias('docker-cache-budget.mjs', []).status, 1);
   // A link below the root is not an alias of the root and stays rejected.
   fs.writeFileSync(path.join(outside, 'keep'), 'outside');
   fs.symlinkSync(outside, path.join(f.root, 'linked target'), 'dir');

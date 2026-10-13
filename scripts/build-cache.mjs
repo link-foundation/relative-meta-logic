@@ -683,7 +683,7 @@ async function main() {
     if (!result.budgetSatisfied) process.exitCode = 2;
   } finally { lease.release(); }
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(error => {
+if (process.argv[1] && (() => { try { return fs.realpathSync(process.argv[1]); } catch { return path.resolve(process.argv[1]); } })() === fileURLToPath(import.meta.url)) main().catch(error => {
   // The installed pre-commit hook sets RML_CACHE_HOOK=1. A deferral deletes
   // nothing and only means a live build may still use its outputs; the next
   // wrapper, hook or CI teardown retries. It must not abort an unrelated

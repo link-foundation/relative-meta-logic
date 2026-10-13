@@ -296,4 +296,4 @@ async function main() {
   }
   throw new Error(`Unknown Docker budget operation: ${action}`);
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(error => { console.error(`docker-cache: ${error.message}`); process.exitCode = 1; });
+if (process.argv[1] && (() => { try { return fs.realpathSync(process.argv[1]); } catch { return path.resolve(process.argv[1]); } })() === fileURLToPath(import.meta.url)) main().catch(error => { console.error(`docker-cache: ${error.message}`); process.exitCode = 1; });

@@ -27,7 +27,7 @@ export function publishOutput(source, destination) {
   visit(source, destination);
   return count;
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && (() => { try { return fs.realpathSync(process.argv[1]); } catch { return path.resolve(process.argv[1]); } })() === fileURLToPath(import.meta.url)) {
   try {
     if (process.argv.length !== 4) throw new Error('Usage: publish-cache-output.mjs <isolated-source> <generated-destination>');
     console.log(`Published ${publishOutput(process.argv[2], process.argv[3])} produced files`);
