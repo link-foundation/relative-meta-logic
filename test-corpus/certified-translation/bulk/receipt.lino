@@ -6,7 +6,7 @@
     (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
     (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
   (implementation
-    (file "scripts/generate-certified-bulk.mjs" eef0606442caccbc525e0d4b449008e930b0c6862e8d7fc004fe2811408fee2b)
+    (file "scripts/generate-certified-bulk.mjs" 58ce64a8a0e745bb58ef5299e15327d39cf0b3ceda25590fa5c8d75f1589e7b6)
     (file "js/src/rml-certified-translation.mjs" 92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585)
     (file "js/vendor/meta-language-pr201/upstream-files.json" 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7)
     (file "test-corpus/certified-translation/mirrors.json" a13859ab563ca82aec9cb04ff863c79af5795ad10421cb6ce9f5e9a4bffc9fba))
@@ -3132,465 +3132,465 @@
       (path mirrors.lino)
       (sha256 2d40e76dec9adfbf356fb1fe6e77f24856c305d99000b64f4de302ad7d60c465))
     (output
-      (path "targets/js/src/check.lean.lean")
+      (path "targets/js/src/check.lean.lean.txt")
       (sha256 007e795f5a976af815a30305f35cfb203ed1cee110d7b9abfd62e6010bf8aa71))
     (output
-      (path "targets/js/src/check.rocq.v")
+      (path "targets/js/src/check.rocq.v.txt")
       (sha256 a3189678d8362efad1cac36ba32e9a9bc3b514376158f7e661061ce1785518c2))
     (output
-      (path "targets/js/src/check.rust.rs")
+      (path "targets/js/src/check.rust.rs.txt")
       (sha256 0057a7206cfa7c4c15d3fe3fef1e21b78067fd4f1452c092ac31d8d7edc59bd1))
     (output
-      (path "targets/js/src/cst-js.lean.lean")
+      (path "targets/js/src/cst-js.lean.lean.txt")
       (sha256 45bd13e6e36df84a98cf28fc1bc32b54a53d725aa1f2c8d58304232de41da8d5))
     (output
-      (path "targets/js/src/cst-js.rocq.v")
+      (path "targets/js/src/cst-js.rocq.v.txt")
       (sha256 2e2634e56b90f58ceda66e59d24b64378bcbcabdb81ec89802cafb9f20ded213))
     (output
-      (path "targets/js/src/cst-js.rust.rs")
+      (path "targets/js/src/cst-js.rust.rs.txt")
       (sha256 79faeb717806840cd89dfbfb55063092f542b3983165cda2ee320307e79b03bc))
     (output
-      (path "targets/js/src/cst-lean.lean.lean")
+      (path "targets/js/src/cst-lean.lean.lean.txt")
       (sha256 a712086fefe288adf7dbbf6562f36c0553c093b6a44e2ea9aa28349ab6122596))
     (output
-      (path "targets/js/src/cst-lean.rocq.v")
+      (path "targets/js/src/cst-lean.rocq.v.txt")
       (sha256 89c2c87eda2d920822d50359d04e68398e628e379c34e2d979259182cd30386a))
     (output
-      (path "targets/js/src/cst-lean.rust.rs")
+      (path "targets/js/src/cst-lean.rust.rs.txt")
       (sha256 afb4b9c704156d8ee926847501f038d972ad4a76e17e4441ec04b12574ab877f))
     (output
-      (path "targets/js/src/cst-rocq.lean.lean")
+      (path "targets/js/src/cst-rocq.lean.lean.txt")
       (sha256 3c41a70b026b08dfedb24c0c142beda28ed47e2e67768acdc262eaeab851fe88))
     (output
-      (path "targets/js/src/cst-rocq.rocq.v")
+      (path "targets/js/src/cst-rocq.rocq.v.txt")
       (sha256 fd29486a0cbb60cb873285e9df5ed1cf1087ecd058ad1a79485b06bd594145a8))
     (output
-      (path "targets/js/src/cst-rocq.rust.rs")
+      (path "targets/js/src/cst-rocq.rust.rs.txt")
       (sha256 e0d319c334c64bf9d89bb4dfb13dcabcbf135f608393ebdbfb41075360d89fec))
     (output
-      (path "targets/js/src/cst-rust.lean.lean")
+      (path "targets/js/src/cst-rust.lean.lean.txt")
       (sha256 6540ca1e560d4317b70804003c096f2e3709c5c7e748074d31a53a3092277d73))
     (output
-      (path "targets/js/src/cst-rust.rocq.v")
+      (path "targets/js/src/cst-rust.rocq.v.txt")
       (sha256 4514d599f79648239c5045ce50dab2958c09955b54a8206f283d3a9ca3a0cb98))
     (output
-      (path "targets/js/src/cst-rust.rust.rs")
+      (path "targets/js/src/cst-rust.rust.rs.txt")
       (sha256 518111f0da569c06e7932317a0d63aab93d4ff4eed893fe21d59ce96470bd0b1))
     (output
-      (path "targets/js/src/cst.lean.lean")
+      (path "targets/js/src/cst.lean.lean.txt")
       (sha256 333cb6a3806fbf904c647e96eb5cd089a0e3b825a52d98bc868b9bbba927870b))
     (output
-      (path "targets/js/src/cst.rocq.v")
+      (path "targets/js/src/cst.rocq.v.txt")
       (sha256 fc1b49c943deba65921b03e8107e1640e169b04c23b53ed20192e36913db29d3))
     (output
-      (path "targets/js/src/cst.rust.rs")
+      (path "targets/js/src/cst.rust.rs.txt")
       (sha256 7fc6d03b7bc8566eea2e3caf889cda43d700cc7c6c5c82e9900e9c6383482bbc))
     (output
-      (path "targets/js/src/rml-address-sequence.lean.lean")
+      (path "targets/js/src/rml-address-sequence.lean.lean.txt")
       (sha256 af5f4c02e65037240a97070e23144f7c478a11eeae8c953a746b611880c1f993))
     (output
-      (path "targets/js/src/rml-address-sequence.rocq.v")
+      (path "targets/js/src/rml-address-sequence.rocq.v.txt")
       (sha256 9ae010987b3f3a7b4277f3ad34bb7d8b195d9b4c7e27740fcd6642b564ab2e08))
     (output
-      (path "targets/js/src/rml-address-sequence.rust.rs")
+      (path "targets/js/src/rml-address-sequence.rust.rs.txt")
       (sha256 ff062e0ef3449b5931a45b4722ca1a59bd20316ba4caa5b9d878c56e6f67c368))
     (output
-      (path "targets/js/src/rml-certified-translation.lean.lean")
+      (path "targets/js/src/rml-certified-translation.lean.lean.txt")
       (sha256 c594b6fa9b0bea42045f010591d1f49d074a70e4dd3f4a4f72ca653637338cfb))
     (output
-      (path "targets/js/src/rml-certified-translation.rocq.v")
+      (path "targets/js/src/rml-certified-translation.rocq.v.txt")
       (sha256 c626b4132d3ac492783e0780d94dbc267531b8f7efbd87f5f25a870c1f2e26b0))
     (output
-      (path "targets/js/src/rml-certified-translation.rust.rs")
+      (path "targets/js/src/rml-certified-translation.rust.rs.txt")
       (sha256 e11b0d27eec89572176bdae8cb30804105e3ba7663e4c296c5a854482d53681d))
     (output
-      (path "targets/js/src/rml-combinator-kernel.lean.lean")
+      (path "targets/js/src/rml-combinator-kernel.lean.lean.txt")
       (sha256 b2371a28547672ca60c5ea03bed3d27f070322a9ad7bd29360298126828ec63c))
     (output
-      (path "targets/js/src/rml-combinator-kernel.rocq.v")
+      (path "targets/js/src/rml-combinator-kernel.rocq.v.txt")
       (sha256 00728fe829877cd6fd6d6ca73ed02eb1857dedde100d25b7af7f8fe9b0eb2ffe))
     (output
-      (path "targets/js/src/rml-combinator-kernel.rust.rs")
+      (path "targets/js/src/rml-combinator-kernel.rust.rs.txt")
       (sha256 a082ca78908b6365d2bd53dc2885873a483107c4bc5d8aa2e95973ecc8505179))
     (output
-      (path "targets/js/src/rml-control-flow-codegen.lean.lean")
+      (path "targets/js/src/rml-control-flow-codegen.lean.lean.txt")
       (sha256 c61eb9bdd388e9a8f33ee35569c903f2bed14e938b33ab4cf7819d95c39ee959))
     (output
-      (path "targets/js/src/rml-control-flow-codegen.rocq.v")
+      (path "targets/js/src/rml-control-flow-codegen.rocq.v.txt")
       (sha256 0ae4b4e63865818b3f1397b6ced5c84e64e10eb513b423599630f4a4551c39b2))
     (output
-      (path "targets/js/src/rml-control-flow-codegen.rust.rs")
+      (path "targets/js/src/rml-control-flow-codegen.rust.rs.txt")
       (sha256 aa2e5df6ccceb7a31e79e9bae3fc6bbb4d22228fc446ba233d61b74b7c25e763))
     (output
-      (path "targets/js/src/rml-control-flow-javascript.lean.lean")
+      (path "targets/js/src/rml-control-flow-javascript.lean.lean.txt")
       (sha256 345175e05a682c3e5fb09230223fe7b8c5fa2f58e71aac9ea1d8025ddf61aa17))
     (output
-      (path "targets/js/src/rml-control-flow-javascript.rocq.v")
+      (path "targets/js/src/rml-control-flow-javascript.rocq.v.txt")
       (sha256 bc5a9b63f1dcb9fcc866e25462f6e6a7e1d3bbb12a27512f0d09dbfa6ab03e27))
     (output
-      (path "targets/js/src/rml-control-flow-javascript.rust.rs")
+      (path "targets/js/src/rml-control-flow-javascript.rust.rs.txt")
       (sha256 0f805de39218ccdee7e300a69852bc34953f9548c56a02d1eac6ca93ad2f1bc6))
     (output
-      (path "targets/js/src/rml-control-flow-proof-codegen.lean.lean")
+      (path "targets/js/src/rml-control-flow-proof-codegen.lean.lean.txt")
       (sha256 a1bb58499e53b0362fd3a09b3f5bde7cc72591fdad6f04c53cffca9a1ec4bc4c))
     (output
-      (path "targets/js/src/rml-control-flow-proof-codegen.rocq.v")
+      (path "targets/js/src/rml-control-flow-proof-codegen.rocq.v.txt")
       (sha256 2e63219bcc3eb483bf549b41bb0ccd2130b88629f58038c78a791bc29f668333))
     (output
-      (path "targets/js/src/rml-control-flow-proof-codegen.rust.rs")
+      (path "targets/js/src/rml-control-flow-proof-codegen.rust.rs.txt")
       (sha256 523ebb94f834b7f52f72c937d5ad52f9f067d1cae96c23a599dababca4e97be9))
     (output
-      (path "targets/js/src/rml-control-flow-rust.lean.lean")
+      (path "targets/js/src/rml-control-flow-rust.lean.lean.txt")
       (sha256 c061aaba1f135ab4924ac9da1e0b9037a2dc02c57b49ee3635a797a6e03d1eee))
     (output
-      (path "targets/js/src/rml-control-flow-rust.rocq.v")
+      (path "targets/js/src/rml-control-flow-rust.rocq.v.txt")
       (sha256 a7ab6d82030d728c743b5cd6b117fad5cda673796599098bba713c8640ca9976))
     (output
-      (path "targets/js/src/rml-control-flow-rust.rust.rs")
+      (path "targets/js/src/rml-control-flow-rust.rust.rs.txt")
       (sha256 18b628936ee96e8508b6ebf15f0990a833ba110140f311655ff85a35cce203a4))
     (output
-      (path "targets/js/src/rml-control-flow.lean.lean")
+      (path "targets/js/src/rml-control-flow.lean.lean.txt")
       (sha256 a34d5668785279504130b5d2cc04c766ef914a437f55c611471bad52d3dd45de))
     (output
-      (path "targets/js/src/rml-control-flow.rocq.v")
+      (path "targets/js/src/rml-control-flow.rocq.v.txt")
       (sha256 067f0400719309eb2df902b5476fedbbff15c8027645433cc153ccad20f603ac))
     (output
-      (path "targets/js/src/rml-control-flow.rust.rs")
+      (path "targets/js/src/rml-control-flow.rust.rs.txt")
       (sha256 feb5e6ea2ebd02217acb62c82d358730574b1bdc8967fd755f1bb30912b1dcd8))
     (output
-      (path "targets/js/src/rml-formal-corpus.lean.lean")
+      (path "targets/js/src/rml-formal-corpus.lean.lean.txt")
       (sha256 8bcf077fd21a74496d6c75eb07a5bcf67e4772d13d540f94b93d427ae78b4009))
     (output
-      (path "targets/js/src/rml-formal-corpus.rocq.v")
+      (path "targets/js/src/rml-formal-corpus.rocq.v.txt")
       (sha256 b5f4d9fddd696ea03c3d1ab48c90bedaa7e8e6a7e73961fe8ad6858ca37e309d))
     (output
-      (path "targets/js/src/rml-formal-corpus.rust.rs")
+      (path "targets/js/src/rml-formal-corpus.rust.rs.txt")
       (sha256 bdbc18693bef331c0bb61b957a0935828ca34f849c801a8ea210db460b5b3490))
     (output
-      (path "targets/js/src/rml-formal-semantics.lean.lean")
+      (path "targets/js/src/rml-formal-semantics.lean.lean.txt")
       (sha256 a771fdc04248033f0df5158f66895ffd9c75b7f89dcbb5f7903ecdbd60082d6f))
     (output
-      (path "targets/js/src/rml-formal-semantics.rocq.v")
+      (path "targets/js/src/rml-formal-semantics.rocq.v.txt")
       (sha256 f2fa1f75467692fdcb7978e13e788389e3c6d8c3f39f1408c0c63ac2b14ba39e))
     (output
-      (path "targets/js/src/rml-formal-semantics.rust.rs")
+      (path "targets/js/src/rml-formal-semantics.rust.rs.txt")
       (sha256 8f901ea9381bf058deedea60251269536cf98f8fc3e5f53ae022b2e9dcf75403))
     (output
-      (path "targets/js/src/rml-foundation-search.lean.lean")
+      (path "targets/js/src/rml-foundation-search.lean.lean.txt")
       (sha256 3877c5ea810190e9d3c701a4cba6ac33b8133595843a140dfc38162256df8483))
     (output
-      (path "targets/js/src/rml-foundation-search.rocq.v")
+      (path "targets/js/src/rml-foundation-search.rocq.v.txt")
       (sha256 76d82652ff0400772148b02b8820b24f0d03f947404501f62c29b3f89a09947e))
     (output
-      (path "targets/js/src/rml-foundation-search.rust.rs")
+      (path "targets/js/src/rml-foundation-search.rust.rs.txt")
       (sha256 908d6a5d9a36001519fb3501f4f88c38935845842af07bd97a77b0a88ab739d7))
     (output
-      (path "targets/js/src/rml-foundation-workspace.lean.lean")
+      (path "targets/js/src/rml-foundation-workspace.lean.lean.txt")
       (sha256 0f9afdbff86d59d8627561375629dd25f48a268e146285592eaec4e0e696e437))
     (output
-      (path "targets/js/src/rml-foundation-workspace.rocq.v")
+      (path "targets/js/src/rml-foundation-workspace.rocq.v.txt")
       (sha256 fdf426ad0c69cf198422e5608e0718f847bf62b20299701ab035bd8c52d5f0a7))
     (output
-      (path "targets/js/src/rml-foundation-workspace.rust.rs")
+      (path "targets/js/src/rml-foundation-workspace.rust.rs.txt")
       (sha256 eae52b15a7dc4a33882bd3455cbc6d706d8b10140ea1ae9a3714480c7aa881a3))
     (output
-      (path "targets/js/src/rml-horn-resolution.lean.lean")
+      (path "targets/js/src/rml-horn-resolution.lean.lean.txt")
       (sha256 465c8b81150faa15d40f287309b08568f7840ff833948bf40e6baeaf8a3136d2))
     (output
-      (path "targets/js/src/rml-horn-resolution.rocq.v")
+      (path "targets/js/src/rml-horn-resolution.rocq.v.txt")
       (sha256 f92f755822f17b9f61bec7e66e3fd8e256d6ccf06f7c7056c11c366286bd5d57))
     (output
-      (path "targets/js/src/rml-horn-resolution.rust.rs")
+      (path "targets/js/src/rml-horn-resolution.rust.rs.txt")
       (sha256 120f8264b8f931ec7a7deb2be7e8ee69a84a8f7241662674d63969578c19cb0e))
     (output
-      (path "targets/js/src/rml-lambda-kernel.lean.lean")
+      (path "targets/js/src/rml-lambda-kernel.lean.lean.txt")
       (sha256 228bb0725f6fc9fa36617869ba25c440c69dd5a081f4604d7724313a2b78ac2d))
     (output
-      (path "targets/js/src/rml-lambda-kernel.rocq.v")
+      (path "targets/js/src/rml-lambda-kernel.rocq.v.txt")
       (sha256 cd1851c8191c22e2436ea194c1f4e0f542836098e6769d10fdfccba260fd1bec))
     (output
-      (path "targets/js/src/rml-lambda-kernel.rust.rs")
+      (path "targets/js/src/rml-lambda-kernel.rust.rs.txt")
       (sha256 9b3d505c5a8c91ebebb95618f7f99593d8e5948801160a5eea3955f6dcf50e65))
     (output
-      (path "targets/js/src/rml-linked-program.lean.lean")
+      (path "targets/js/src/rml-linked-program.lean.lean.txt")
       (sha256 a695d515a49f6790290d9a169ef2b502e7b36012528fc58744b52ae43b973619))
     (output
-      (path "targets/js/src/rml-linked-program.rocq.v")
+      (path "targets/js/src/rml-linked-program.rocq.v.txt")
       (sha256 076de4f8e9cd9cdf2e42afc25fb34e4208225b1bb72ea8d7a3f9a79ae11caeb3))
     (output
-      (path "targets/js/src/rml-linked-program.rust.rs")
+      (path "targets/js/src/rml-linked-program.rust.rs.txt")
       (sha256 5a5fb3dcff7741d88308d1e5b07c6458a3e97e78cafdb335f80bd5b7a2fcebcb))
     (output
-      (path "targets/js/src/rml-links.lean.lean")
+      (path "targets/js/src/rml-links.lean.lean.txt")
       (sha256 81c1b060f2c3dcab3d02ad51c60d7581f62380c21adcab719159ecab5ff0bc40))
     (output
-      (path "targets/js/src/rml-links.rocq.v")
+      (path "targets/js/src/rml-links.rocq.v.txt")
       (sha256 4c74a4cbf729cbaca3256bb723bbaec20df0ae9afc3aa6fbb2c384dfd360e14c))
     (output
-      (path "targets/js/src/rml-links.rust.rs")
+      (path "targets/js/src/rml-links.rust.rs.txt")
       (sha256 2c0f871fe54ee7009aaaeefc8813760a4801d5c574065b1e625a4d6887eff2cc))
     (output
-      (path "targets/js/src/rml-lino-frontend.lean.lean")
+      (path "targets/js/src/rml-lino-frontend.lean.lean.txt")
       (sha256 20dabfeb63b41880fcd68304c207da0b9e05e302c4ca736714cfad902031aebe))
     (output
-      (path "targets/js/src/rml-lino-frontend.rocq.v")
+      (path "targets/js/src/rml-lino-frontend.rocq.v.txt")
       (sha256 61f550b831f145da26a53a426d20d9e6f80a70f22a653f988eda3757728877f9))
     (output
-      (path "targets/js/src/rml-lino-frontend.rust.rs")
+      (path "targets/js/src/rml-lino-frontend.rust.rs.txt")
       (sha256 ddf67fc4f1d3a997ebb7fbb68c69e52423c39ef801dfb7a89adc211bde7fcb04))
     (output
-      (path "targets/js/src/rml-lsp.lean.lean")
+      (path "targets/js/src/rml-lsp.lean.lean.txt")
       (sha256 b9a8ef8f541cf7c4d0df3f97c9b953c626f264f1f0ff4c0ebb9aa7391eaaaef8))
     (output
-      (path "targets/js/src/rml-lsp.rocq.v")
+      (path "targets/js/src/rml-lsp.rocq.v.txt")
       (sha256 2d46fabc87a8a57438fe2eb4fe5c12fad4ea04dc40ff9cb1a2d286896be710df))
     (output
-      (path "targets/js/src/rml-lsp.rust.rs")
+      (path "targets/js/src/rml-lsp.rust.rs.txt")
       (sha256 e3b50089539caa46dd2f9eee143dba43e1135066ee045ecf945d6a93d616c2fe))
     (output
-      (path "targets/js/src/rml-meta-structure.lean.lean")
+      (path "targets/js/src/rml-meta-structure.lean.lean.txt")
       (sha256 8bd0032135817d717e9c07dd448a44db98bf2f834569ea42037e5ac4687f5216))
     (output
-      (path "targets/js/src/rml-meta-structure.rocq.v")
+      (path "targets/js/src/rml-meta-structure.rocq.v.txt")
       (sha256 065122eb24b74eb7033a40364931a397eabec731ad468651feb9f0b1d02e0ad5))
     (output
-      (path "targets/js/src/rml-meta-structure.rust.rs")
+      (path "targets/js/src/rml-meta-structure.rust.rs.txt")
       (sha256 433110e429830cec819bae7813146f7fce4be04b1a0c51f72f550ad92b9ad927))
     (output
-      (path "targets/js/src/rml-meta-theory-native.lean.lean")
+      (path "targets/js/src/rml-meta-theory-native.lean.lean.txt")
       (sha256 e824033bd1d3522f32ef3ddb7f631ca601e0ae26e2ba61c63108729042fe20ad))
     (output
-      (path "targets/js/src/rml-meta-theory-native.rocq.v")
+      (path "targets/js/src/rml-meta-theory-native.rocq.v.txt")
       (sha256 72dd646dbde191f61895c505639e3f2f3cdc1cb2207d69f9bf1efe10a2ee3dbe))
     (output
-      (path "targets/js/src/rml-meta-theory-native.rust.rs")
+      (path "targets/js/src/rml-meta-theory-native.rust.rs.txt")
       (sha256 522a1a796b1bcf564ee1b61b7d3b8279eb3965a84160041bee80b3ee6b894529))
     (output
-      (path "targets/js/src/rml-relational-kernel.lean.lean")
+      (path "targets/js/src/rml-relational-kernel.lean.lean.txt")
       (sha256 7e48b3fa150b2784dafc7ca2a20269683d6241eb748cfd6a1194d7b51810c251))
     (output
-      (path "targets/js/src/rml-relational-kernel.rocq.v")
+      (path "targets/js/src/rml-relational-kernel.rocq.v.txt")
       (sha256 de1139b8cba8cc4a7f2228c4bd53eefa97f52660d4fd17ce362d85abf6850783))
     (output
-      (path "targets/js/src/rml-relational-kernel.rust.rs")
+      (path "targets/js/src/rml-relational-kernel.rust.rs.txt")
       (sha256 8a9ae0346e48a78b5880a5a81bbd7f9dd1312d2ebc1e8e1e7b7e5c31ab89fb76))
     (output
-      (path "targets/js/src/rml-rocq.rust.rs")
+      (path "targets/js/src/rml-rocq.rust.rs.txt")
       (sha256 e16ab6b7711b51866188479c53064e537359f7f63fe5b447901ed274f68cde12))
     (output
-      (path "targets/js/src/rml-semantic-closure.lean.lean")
+      (path "targets/js/src/rml-semantic-closure.lean.lean.txt")
       (sha256 13e6c230e745c66e9be01b63cd7da8074cf2baa091b4c741a40b31d638a9f1f9))
     (output
-      (path "targets/js/src/rml-semantic-closure.rocq.v")
+      (path "targets/js/src/rml-semantic-closure.rocq.v.txt")
       (sha256 91237d605ab2f300d484761c6c4fe68cc3bdb364c67986369f987c14f3e14fab))
     (output
-      (path "targets/js/src/rml-semantic-closure.rust.rs")
+      (path "targets/js/src/rml-semantic-closure.rust.rs.txt")
       (sha256 3099978a5ac25e67c25126d0248a3d70e3cddad215b255d61fa5a96529b2112f))
     (output
-      (path "targets/rust/src/address_sequence.javascript.js")
+      (path "targets/rust/src/address_sequence.javascript.js.txt")
       (sha256 b010574c171cc50d87db55cb2f0fe862f6b378d30675abc45d0a407bf9338fc3))
     (output
-      (path "targets/rust/src/address_sequence.lean.lean")
+      (path "targets/rust/src/address_sequence.lean.lean.txt")
       (sha256 3725adc87fb9cf32e95a2ed758ede8c412fc09452503e50fb0852b42d4517ff1))
     (output
-      (path "targets/rust/src/address_sequence.rocq.v")
+      (path "targets/rust/src/address_sequence.rocq.v.txt")
       (sha256 e98be71dbd2129370e350cc9af7231103b4b1cb17f84a170e37e1d246dc6cea0))
     (output
-      (path "targets/rust/src/certified_translation.javascript.js")
+      (path "targets/rust/src/certified_translation.javascript.js.txt")
       (sha256 06fc8deb813a497819b388881db20260050bcb77f784cc2c42f46a5a0254fa86))
     (output
-      (path "targets/rust/src/certified_translation.lean.lean")
+      (path "targets/rust/src/certified_translation.lean.lean.txt")
       (sha256 95051a85173c29fc9e78203ad22a4642ef38793f7f6869cd9176a071d89c46d6))
     (output
-      (path "targets/rust/src/certified_translation.rocq.v")
+      (path "targets/rust/src/certified_translation.rocq.v.txt")
       (sha256 97c9d11ebd2d7cd9893e27ab362dae5ec4352de9fc28d9ad4b107a48fe4666c7))
     (output
-      (path "targets/rust/src/cst_js.javascript.js")
+      (path "targets/rust/src/cst_js.javascript.js.txt")
       (sha256 a402979dcf040cb9c94b1f178accce38957e5914f6517298a48b45c719ea0ae4))
     (output
-      (path "targets/rust/src/cst_js.lean.lean")
+      (path "targets/rust/src/cst_js.lean.lean.txt")
       (sha256 37334b5b1464c6ac8689e569e315dac8b1641ea1b4105548c4bbd9ac7a8b7c7d))
     (output
-      (path "targets/rust/src/cst_js.rocq.v")
+      (path "targets/rust/src/cst_js.rocq.v.txt")
       (sha256 c89337060b457975aa84f56b9e01afa11c50023d2ee2014247e2dfb1bd17d30f))
     (output
-      (path "targets/rust/src/cst.javascript.js")
+      (path "targets/rust/src/cst.javascript.js.txt")
       (sha256 778077b76906cae68e5f6c481efee4c3948b5fb4e1399d74df4b05ac638a8457))
     (output
-      (path "targets/rust/src/cst.lean.lean")
+      (path "targets/rust/src/cst.lean.lean.txt")
       (sha256 3bbb73c4420834e0afdab8034f0c3a028e6c32e5b649dd7e297f1d9e0e9019ca))
     (output
-      (path "targets/rust/src/cst.rocq.v")
+      (path "targets/rust/src/cst.rocq.v.txt")
       (sha256 c9a02487e1f8e3ec16c96b85f294ab3ae3bcef99d1a3db2936ff077801d286f1))
     (output
-      (path "targets/rust/src/formal_corpus.javascript.js")
+      (path "targets/rust/src/formal_corpus.javascript.js.txt")
       (sha256 87f7b8e44473f8c9327cb631fa38872ab4efb88ec72da3f917d026b554d8cabf))
     (output
-      (path "targets/rust/src/formal_corpus.lean.lean")
+      (path "targets/rust/src/formal_corpus.lean.lean.txt")
       (sha256 2c7af1a903f25fa6638f87c312ef332f45b57914216b1972f5291ce693c2d7f4))
     (output
-      (path "targets/rust/src/formal_corpus.rocq.v")
+      (path "targets/rust/src/formal_corpus.rocq.v.txt")
       (sha256 5be620ecc2f4cc5c2ea14a7d566ea1b431dd13bc7c106e2771793b13def64b70))
     (output
-      (path "targets/rust/src/foundation_workspace.javascript.js")
+      (path "targets/rust/src/foundation_workspace.javascript.js.txt")
       (sha256 c44e01cef7d13652b8ef1396158404598990861db63aaf4f722152efd47d2e45))
     (output
-      (path "targets/rust/src/foundation_workspace.lean.lean")
+      (path "targets/rust/src/foundation_workspace.lean.lean.txt")
       (sha256 f6a4458a95c9ac9096a2d0b736f725b0928e57ddee354ab4489c0f11f3b96c32))
     (output
-      (path "targets/rust/src/foundation_workspace.rocq.v")
+      (path "targets/rust/src/foundation_workspace.rocq.v.txt")
       (sha256 aa9c8d4e2009750c2cd018fd874dfbbf5fc96041629411933e2013d3ad62fdb8))
     (output
-      (path "targets/rust/src/js_rename.javascript.js")
+      (path "targets/rust/src/js_rename.javascript.js.txt")
       (sha256 e6ef1f32ebab2a3fc493c96c48c258fbde1bcd9bdf6c7e0a27475b08330cf847))
     (output
-      (path "targets/rust/src/js_rename.lean.lean")
+      (path "targets/rust/src/js_rename.lean.lean.txt")
       (sha256 f5d3dc3524de3965d33c425af51779ea23aff37a4237292ce782a63f66f4d436))
     (output
-      (path "targets/rust/src/js_rename.rocq.v")
+      (path "targets/rust/src/js_rename.rocq.v.txt")
       (sha256 9f187a59112226e2aae2151422b914412b432feb70a16c702a49c01abb5e9b9c))
     (output
-      (path "targets/rust/src/lambda_kernel.javascript.js")
+      (path "targets/rust/src/lambda_kernel.javascript.js.txt")
       (sha256 7fe760a09959856fb101649c96241a2d123e3891577b74e0df1eb2af413691d5))
     (output
-      (path "targets/rust/src/lambda_kernel.lean.lean")
+      (path "targets/rust/src/lambda_kernel.lean.lean.txt")
       (sha256 d81e09accb68880d6a4548b1467078a65be71684d7c5a5d93fb1e942601970a1))
     (output
-      (path "targets/rust/src/lambda_kernel.rocq.v")
+      (path "targets/rust/src/lambda_kernel.rocq.v.txt")
       (sha256 2af9ab42265b9c6df5e4e4a4615935ea6f97dc4c391257038cd69c05a6c1e1ca))
     (output
-      (path "targets/rust/src/lib.javascript.js")
+      (path "targets/rust/src/lib.javascript.js.txt")
       (sha256 9f5f2d2972bfe32d092034b648fdf7dea4ab97b4b96fcaaa3ff8abc3e387f88b))
     (output
-      (path "targets/rust/src/lib.lean.lean")
+      (path "targets/rust/src/lib.lean.lean.txt")
       (sha256 247023164833c6098f8c9353f334e4123798bf928c24451029b152a76113ef1f))
     (output
-      (path "targets/rust/src/lib.rocq.v")
+      (path "targets/rust/src/lib.rocq.v.txt")
       (sha256 b4d2e3c59bd3fcd1b8a2c60486586fa94240f6deb587c97f224c4eba56e7fdbe))
     (output
-      (path "targets/rust/src/linked_program.javascript.js")
+      (path "targets/rust/src/linked_program.javascript.js.txt")
       (sha256 fbc194480fc8f765b3c836bcf8b5bb2db3be10aef766801f6a1a5380af6794e1))
     (output
-      (path "targets/rust/src/linked_program.lean.lean")
+      (path "targets/rust/src/linked_program.lean.lean.txt")
       (sha256 e5730fb0aee00244834a993b80c28a2c9d749d4b98daaea52cf7b685eebfaa1f))
     (output
-      (path "targets/rust/src/linked_program.rocq.v")
+      (path "targets/rust/src/linked_program.rocq.v.txt")
       (sha256 a19b7d098c300fec3cd274e2de18c38f6a407697c632c0fac6af1ee8ed75d4dd))
     (output
-      (path "targets/rust/src/linked_program/combinator_kernel.javascript.js")
+      (path "targets/rust/src/linked_program/combinator_kernel.javascript.js.txt")
       (sha256 9bf6c800aa2c12553148fc67fa505f3bacdd0c9e4fe64ac52d7c9b8cbe55f0ff))
     (output
-      (path "targets/rust/src/linked_program/combinator_kernel.lean.lean")
+      (path "targets/rust/src/linked_program/combinator_kernel.lean.lean.txt")
       (sha256 e91343a5b16157a4a9e70c2c4da492a334ede5e72482268630e658b48c01fdec))
     (output
-      (path "targets/rust/src/linked_program/combinator_kernel.rocq.v")
+      (path "targets/rust/src/linked_program/combinator_kernel.rocq.v.txt")
       (sha256 18b3f6f4dbeb6f05746fad282d2bd5cdf6af45f70a3ae0511f7daf6ddb7e7ec1))
     (output
-      (path "targets/rust/src/linked_proof.javascript.js")
+      (path "targets/rust/src/linked_proof.javascript.js.txt")
       (sha256 918a9716990fe3c49b348f94fa56ca11a568175ddd536c6a65836f70f036e043))
     (output
-      (path "targets/rust/src/linked_proof.lean.lean")
+      (path "targets/rust/src/linked_proof.lean.lean.txt")
       (sha256 ccb58916906a983f4be55dd3738d1d59762fbdfb95c9a4508f73e3a0bbbd5c15))
     (output
-      (path "targets/rust/src/linked_proof.rocq.v")
+      (path "targets/rust/src/linked_proof.rocq.v.txt")
       (sha256 fc47662af09dea8af3ff8bffc2b26f6685954d9682488909576d45f6e85e3a39))
     (output
-      (path "targets/rust/src/lino_frontend.javascript.js")
+      (path "targets/rust/src/lino_frontend.javascript.js.txt")
       (sha256 470f62c5622b55ca32a837faf7723bec8c17f186dd37a83da1887a030ae64ea7))
     (output
-      (path "targets/rust/src/lino_frontend.lean.lean")
+      (path "targets/rust/src/lino_frontend.lean.lean.txt")
       (sha256 09e62ca7713b945fe3e1009b73a8e61ab0cf54e70aba3f3934930f0cb5646691))
     (output
-      (path "targets/rust/src/lino_frontend.rocq.v")
+      (path "targets/rust/src/lino_frontend.rocq.v.txt")
       (sha256 b18db30a94aff249ab6a0fcbb7f2fed8b28318a417e5a0443ca3ad476abd64fc))
     (output
-      (path "targets/rust/src/meta_language_structure.javascript.js")
+      (path "targets/rust/src/meta_language_structure.javascript.js.txt")
       (sha256 a54eb67c2c90fbe6bec303f3e2e345956daa0237c74b1c68a4df428f296bc00d))
     (output
-      (path "targets/rust/src/meta_language_structure.lean.lean")
+      (path "targets/rust/src/meta_language_structure.lean.lean.txt")
       (sha256 3dd0766b29261630366908fd30a0939c57c285b634a5e1cd4c571f9aef768528))
     (output
-      (path "targets/rust/src/meta_language_structure.rocq.v")
+      (path "targets/rust/src/meta_language_structure.rocq.v.txt")
       (sha256 ff146a26f328cebb745ad5428a61e3237f919eab4bd10b4d0d421e3c99368c26))
     (output
-      (path "targets/rust/src/meta_language_support.javascript.js")
+      (path "targets/rust/src/meta_language_support.javascript.js.txt")
       (sha256 040ae4401e9f4ce34bef37540fa46d1e78f41b39e06ad2db6d35a557bcd90170))
     (output
-      (path "targets/rust/src/meta_language_support.lean.lean")
+      (path "targets/rust/src/meta_language_support.lean.lean.txt")
       (sha256 317ac8fa48675b0410522318686f358e37e4f7aa1e7c52c67177e1ea7b37f680))
     (output
-      (path "targets/rust/src/meta_language_support.rocq.v")
+      (path "targets/rust/src/meta_language_support.rocq.v.txt")
       (sha256 98b111c9c6b19d2176e46c3bc338d166e4c92b4b0d4f2872114b710213b96c61))
     (output
-      (path "targets/rust/src/meta_theory_certificates.javascript.js")
+      (path "targets/rust/src/meta_theory_certificates.javascript.js.txt")
       (sha256 d3f30cce0194c7de0356005d79b2999d916995597354294eddb159f45e120442))
     (output
-      (path "targets/rust/src/meta_theory_certificates.lean.lean")
+      (path "targets/rust/src/meta_theory_certificates.lean.lean.txt")
       (sha256 c67b9a81f9ec97db7b28ccb50986453febb7efed71a39ea2a5dca2b9ad38b540))
     (output
-      (path "targets/rust/src/meta_theory_certificates.rocq.v")
+      (path "targets/rust/src/meta_theory_certificates.rocq.v.txt")
       (sha256 e3c9809537b0dd2684c724054b8cf8d6776517df93e157733fd51e73b85c90ee))
     (output
-      (path "targets/rust/src/meta_theory_native.javascript.js")
+      (path "targets/rust/src/meta_theory_native.javascript.js.txt")
       (sha256 708830cdcd68aca3f690338914ae2ef3c1a3392f928983def534d9e5c08d591d))
     (output
-      (path "targets/rust/src/meta_theory_native.lean.lean")
+      (path "targets/rust/src/meta_theory_native.lean.lean.txt")
       (sha256 1b0160c96a7e05dc6d85b7227fa6ecfd3fe8254bde7483f31b146fa512285827))
     (output
-      (path "targets/rust/src/meta_theory_native.rocq.v")
+      (path "targets/rust/src/meta_theory_native.rocq.v.txt")
       (sha256 2a09f41b619c4b09392dcf1f9c455b2db2033115383579b4ccb49c07a67c79bf))
     (output
-      (path "targets/rust/src/meta.javascript.js")
+      (path "targets/rust/src/meta.javascript.js.txt")
       (sha256 30e63e58589ced5e11233d757e29aa459e77467874739ed5ae83cc1d3604893d))
     (output
-      (path "targets/rust/src/meta.lean.lean")
+      (path "targets/rust/src/meta.lean.lean.txt")
       (sha256 fbbf675a2edaba358a045a2d019093dd8f577d8276397102be0c4b7c339dbf6b))
     (output
-      (path "targets/rust/src/meta.rocq.v")
+      (path "targets/rust/src/meta.rocq.v.txt")
       (sha256 80f73eafb6d903375c4291e5723e360e3f6e620fce8509c88d373a1826e384f3))
     (output
-      (path "targets/rust/src/portable_natural.javascript.js")
+      (path "targets/rust/src/portable_natural.javascript.js.txt")
       (sha256 17192eab6e385040476ff89be5d2d47cd4b243495e7657a1164ad89f5b0188a8))
     (output
-      (path "targets/rust/src/portable_natural.lean.lean")
+      (path "targets/rust/src/portable_natural.lean.lean.txt")
       (sha256 e6701cdc8b811b8344622f0da0582af361e84c35193819149897066105b70ef7))
     (output
-      (path "targets/rust/src/portable_natural.rocq.v")
+      (path "targets/rust/src/portable_natural.rocq.v.txt")
       (sha256 016caf3f00db325ee863ab41531537c5432e28dbe8e125ff615705dc0f599b88))
     (output
-      (path "targets/rust/src/repl.javascript.js")
+      (path "targets/rust/src/repl.javascript.js.txt")
       (sha256 a54e34070d5901f91696735637e09e087aed13dfaf8a1c7ea3046e4340eae1b6))
     (output
-      (path "targets/rust/src/repl.lean.lean")
+      (path "targets/rust/src/repl.lean.lean.txt")
       (sha256 359bcf1e61ffb0b7fcc83a66a6694b336e9c8a3805b7ad41f91f2608dd1ee6c6))
     (output
-      (path "targets/rust/src/repl.rocq.v")
+      (path "targets/rust/src/repl.rocq.v.txt")
       (sha256 3961b026046e1574d37e63f3811112e592ed3d45eb43d630974ffccd373e4c2f))
     (output
-      (path "targets/rust/src/semantic_closure.javascript.js")
+      (path "targets/rust/src/semantic_closure.javascript.js.txt")
       (sha256 e958d609e89f438a426b184ab7225fb5a9973957ad04d40207374f760dc164d0))
     (output
-      (path "targets/rust/src/semantic_closure.lean.lean")
+      (path "targets/rust/src/semantic_closure.lean.lean.txt")
       (sha256 efce218befbb30b86f23d6d5e89eb30eb1a6a7d1a2dc933e56c8ec7b8e4c0c50))
     (output
-      (path "targets/rust/src/semantic_closure.rocq.v")
+      (path "targets/rust/src/semantic_closure.rocq.v.txt")
       (sha256 b05bca7c6a4aa6169eb908dfd71ad75ee5747000f8b8acb12e5c608ef0007ef7))
     (output
-      (path "targets/rust/src/theory_network.javascript.js")
+      (path "targets/rust/src/theory_network.javascript.js.txt")
       (sha256 78778b4db9d8808a1d7538302d268c5eeed7b2c864440c362137030917951e7e))
     (output
-      (path "targets/rust/src/theory_network.lean.lean")
+      (path "targets/rust/src/theory_network.lean.lean.txt")
       (sha256 9ffe4a1b29066fbc29e97cf9c05f4d9231889e75854d81c7fc8ff61e028c0bbb))
     (output
-      (path "targets/rust/src/theory_network.rocq.v")
+      (path "targets/rust/src/theory_network.rocq.v.txt")
       (sha256 73553d91b3aff7e26f23b176abe209e4f4ab8f698c578bba2bfc6fdce462e560))
     (output
-      (path "targets/rust/src/upstream_language.javascript.js")
+      (path "targets/rust/src/upstream_language.javascript.js.txt")
       (sha256 8dbc4bf8135209e20ab1f12599b55472f64f9b4aaf7c6f556fd01b60c7101a65))
     (output
-      (path "targets/rust/src/upstream_language.lean.lean")
+      (path "targets/rust/src/upstream_language.lean.lean.txt")
       (sha256 e1d8c144f08f4c6623134aa92d5d0c39cd4e388b3c775cac32c081ba33c5c424))
     (output
-      (path "targets/rust/src/upstream_language.rocq.v")
+      (path "targets/rust/src/upstream_language.rocq.v.txt")
       (sha256 1c6b72e8ed0f92e19cece839199b496ddfc241f604d3666480a3e1c1cb14353d)))
   (authority (macros none) (traits none) (runtime none) (external-kernels oracle-only)))

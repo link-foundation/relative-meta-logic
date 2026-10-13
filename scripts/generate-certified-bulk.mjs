@@ -462,7 +462,9 @@ export function buildCertifiedBulk(run = runCertifiedBulk()) {
       output.set(`certificates/${stem}.${target.toLowerCase()}.lino`, outputs.map(({ output: item }) => item.certificate).join('\n\n') + '\n');
       const comment = { JavaScript: ['// ', ''], Rust: ['// ', ''], Lean: ['-- ', ''], Rocq: ['(* ', ' *)'] }[target];
       // Each target follows its header line verbatim, so the text up to the next header hashes to target-sha256.
-      output.set(`targets/${stem}.${target.toLowerCase()}.${CERTIFIED_EXTENSIONS[target]}`, outputs.map(({ record, output: item }) => {
+      // A bundle concatenates separate targets (each with its own prelude and inner attributes), so it is
+      // stored as text: it is evidence, never one compilable module, and must not join the source inventory.
+      output.set(`targets/${stem}.${target.toLowerCase()}.${CERTIFIED_EXTENSIONS[target]}.txt`, outputs.map(({ record, output: item }) => {
         if (!item.targetSource.endsWith('\n')) throw new Error(`target of ${record.id} does not end with a newline`);
         return `${comment[0]}rml-certified-item ${record.id} target-sha256=${sha256(item.targetSource)}${comment[1]}\n${item.targetSource}`;
       }).join(''));

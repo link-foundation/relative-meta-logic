@@ -183,7 +183,9 @@ The committed output in
   re-derivable first-refusal receipt;
 - `certificates/` and `targets/`: the RML certificate and target text of every
   admitted item, per source file and target; each target is preceded by an
-  `rml-certified-item` header carrying its hash;
+  `rml-certified-item` header carrying its hash. Target bundles end in `.txt`
+  because they concatenate separate targets, each with its own prelude, and are
+  evidence rather than one compilable module;
 - `mirrors.lino`: the comparison with hand-written mirrors below.
 
 | Source | Files | Items | Admitted | Lowered | Refused |

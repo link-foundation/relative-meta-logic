@@ -185,7 +185,7 @@ describe('certified bulk translation of the repository (R165)', () => {
         const certified = local.filter(item => entries(entry(item.form, 'targets'), 'target').some(form => form[1] === target));
         if (!certified.length) continue;
         const certificates = bulk(`certificates/${stem}.${target.toLowerCase()}.lino`).replace(/\n$/u, '').split('\n\n');
-        const targetFile = bulk(`targets/${stem}.${target.toLowerCase()}.${CERTIFIED_EXTENSIONS[target]}`);
+        const targetFile = bulk(`targets/${stem}.${target.toLowerCase()}.${CERTIFIED_EXTENSIONS[target]}.txt`);
         const headers = [...targetFile.matchAll(/^.*rml-certified-item (\S+) target-sha256=([0-9a-f]{64}).*\n/gmu)];
         assert.equal(certificates.length, certified.length, `${stem} ${target}`);
         assert.equal(headers.length, certified.length, `${stem} ${target}`);
@@ -219,7 +219,7 @@ describe('certified bulk translation of the repository (R165)', () => {
       const item = items.find(candidate => candidate.id === value(form, 'item'));
       assert.equal(item?.status, 'admitted', mirror.id);
       const signature = value(form, 'certified-signature');
-      const targetFile = bulk(`targets/${item.path.replace(/\.[^.]+$/u, '')}.${mirror.to.toLowerCase()}.${CERTIFIED_EXTENSIONS[mirror.to]}`);
+      const targetFile = bulk(`targets/${item.path.replace(/\.[^.]+$/u, '')}.${mirror.to.toLowerCase()}.${CERTIFIED_EXTENSIONS[mirror.to]}.txt`);
       assert.ok(targetFile.split('\n').includes(signature), `${mirror.id}: the committed target declares ${signature}`);
       if (mirror.correspondence === 'signature-differs') {
         assert.equal(value(form, 'verdict'), 'signature-differs', mirror.id);
