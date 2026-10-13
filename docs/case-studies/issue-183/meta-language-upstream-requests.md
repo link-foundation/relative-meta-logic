@@ -115,3 +115,12 @@ from RML; it is not a claim about upstream plans.
     *Request:* emit local names inside the module, qualified names outside it,
     and add a native Rocq check for module-scoped inductives to the upstream
     emitter tests.
+19. **Same native construct trees in both packages.** For the Rust grammar,
+    the Rust crate's `native_construct_tree` keeps `block_comment` and
+    `line_comment` extras while the JavaScript `nativeConstructTree` drops
+    them, so the two runtimes observe different exercised constructs over the
+    same corpus (first observed by the Rust inventory mirror on PR 184 head
+    `512ee1a`). RML pins exactly this divergence in
+    `rust/tests/language_construct_inventory_tests.rs` and counts exercise from
+    the JavaScript trees. *Request:* one documented policy for extras
+    (comments, trivia) in construct trees, identical in both packages.

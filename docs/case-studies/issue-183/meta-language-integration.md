@@ -295,3 +295,10 @@ and `where` declarations (and therefore the vendored `project.lean`) and Rocq
 `CoFixpoint`; these are recorded refusals. Exercised means only that the native
 grammar built the construct: it is not compiler, kernel or runtime acceptance,
 nor resolution, elaboration, execution, verification or translation of it.
+
+The two packages do not yet build identical construct trees: for the Rust
+grammar the Rust crate keeps `block_comment` and `line_comment` extras that the
+JavaScript package drops. Exercise counts come from the JavaScript trees, and
+the Rust mirror pins exactly that comment divergence, so any other difference,
+or an upstream repair, fails the test until the inventory is regenerated
+(upstream request 19 in `meta-language-upstream-requests.md`).

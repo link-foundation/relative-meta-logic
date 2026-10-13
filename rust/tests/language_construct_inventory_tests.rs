@@ -195,8 +195,21 @@ fn rust_grammar_api_and_parser_reproduce_the_shared_construct_inventory() {
             .map(|row| row[0].as_str().unwrap())
             .collect();
         let observed: BTreeSet<&str> = counts.keys().map(String::as_str).collect();
+        // The Rust crate keeps comment extras in its native construct trees while the
+        // JavaScript package drops them (meta-language-upstream-requests.md, request 19).
+        // Pin that exact divergence so any other difference, or its repair, fails here.
+        let comment_divergence: BTreeSet<&str> = match name {
+            "Rust" => ["block_comment", "line_comment"].into_iter().collect(),
+            _ => BTreeSet::new(),
+        };
+        let divergence: BTreeSet<&str> = observed.difference(&exercised).copied().collect();
         assert_eq!(
-            observed, exercised,
+            divergence, comment_divergence,
+            "{name}: Rust-only exercised constructs differ from the pinned comment divergence"
+        );
+        let shared: BTreeSet<&str> = observed.difference(&comment_divergence).copied().collect();
+        assert_eq!(
+            shared, exercised,
             "{name}: exercised constructs differ between runtimes"
         );
     }

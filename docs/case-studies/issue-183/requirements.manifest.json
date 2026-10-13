@@ -49,7 +49,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -74,12 +74,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         }
       ],
       "claimedEvidence": "`rml-by-links` in `core.lino`; mirrored definition-chain tests.",
@@ -215,7 +215,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -240,12 +240,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         }
       ],
       "claimedEvidence": "`links-by-sets` and `links-by-types`, exact contracts, linked conformance cases, and witness proofs.",
@@ -381,7 +381,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -406,12 +406,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         }
       ],
       "claimedEvidence": "`links-by-links`, addressed doublet template, and source/target/address rules.",
@@ -729,7 +729,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -754,12 +754,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         }
       ],
       "claimedEvidence": "`set-theory` linked rules and `encodeSet` / `encode_set` provide canonical insertion, equality, union, intersection, and image behavior.",
@@ -1089,7 +1089,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -1114,12 +1114,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         }
       ],
       "claimedEvidence": "Explicitly bounded right-spine `walk`; mirrored direct/two-node cycle tests.",
@@ -1227,7 +1227,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -1252,12 +1252,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         }
       ],
       "claimedEvidence": "Shared `(term theory local-name address)` links and address-mediated translation tests.",
@@ -1548,7 +1548,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
@@ -1573,7 +1573,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "f78b989cb57064fe9bcbabfa32bb45b728babc3cb1b212c421fbf8cc947e1509"
+          "sha256": "7f2138eaa765815c534f23df9c96573f9fe46a2c9a9161ef96ca3b3246aa34c6"
         }
       ],
       "claimedEvidence": "`rml:structure:1` now carries layout/trivia/token links bound to syntax occurrences and a SHA-256 provenance receipt; `emitRmlExactSource` / `emit_rml_exact_source` rebuild every file of the shared frontend corpus byte-for-byte after the buffer is discarded, and `rmlStageReport` / `rml_stage_report` separate preservation, exact source, parsing, resolution, elaboration, execution and verification. Swapped layout, refusal receipts and tampered provenance are rejected. `No RML elaborator or proof checker runs in this representation; elaboration/verification report not-run`.",
@@ -2026,7 +2026,7 @@
         },
         {
           "path": "rust/src/lino_frontend.rs",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d",
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35",
           "role": "historical-claim"
         },
         {
@@ -2414,7 +2414,7 @@
       "implementationClaims": [
         {
           "path": "js/package.json",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af",
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e",
           "role": "historical-claim"
         },
         {
@@ -3360,7 +3360,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -3385,12 +3385,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         }
       ],
       "claimedEvidence": "`core.lino` encodes proof objects; `rml-theory-network.mjs` and `theory_network.rs` replay them against exact expected judgements. Mirrored `theory-network` and `proof-substrate` tests reject missing witnesses, unrelated valid proofs, damaged premises, unresolved dependencies, and proof cycles.",
@@ -3768,7 +3768,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "rust/src/theory_network.rs",
@@ -3793,12 +3793,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         }
       ],
       "claimedEvidence": "`foundation.lino` and `upstream-0.0.3-foundation.lino` are separately loaded contracts. Mirrored `theory-network` regressions reject candidate-supplied rules, axioms, adapter contracts, conformance cases, assumptions, and expected obligations.",
@@ -5019,7 +5019,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -6657,7 +6657,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "eff96d6cb8a689f03111ad07c476f1f6e3d741dec7ad54cbdb4fb66d8ea553b3"
+          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -6735,7 +6735,7 @@
         {
           "path": "docs/case-studies/issue-183/language-coverage.json",
           "role": "coverage-inventory-artifact",
-          "sha256": "ce83ef8c7328db1eb2ea05235c7055d8e371afab1ddf4e8c3941990eb8b7b27f"
+          "sha256": "a734beb321ab34bf6337ea60d725bb03897ce5f7db4c70d4db0a27ab287ae25d"
         },
         {
           "path": "js/src/rml-upstream-language.mjs",
@@ -6745,7 +6745,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -8127,7 +8127,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -9779,7 +9779,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
@@ -9804,7 +9804,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "f78b989cb57064fe9bcbabfa32bb45b728babc3cb1b212c421fbf8cc947e1509"
+          "sha256": "7f2138eaa765815c534f23df9c96573f9fe46a2c9a9161ef96ca3b3246aa34c6"
         }
       ],
       "claimedEvidence": "Declaration, binder, role and resolution records (bound/global/ambiguous/free) keyed by occurrence address are recomputed and compared on every read by `rmlSemanticIdentities` / `rml_semantic_identities`, so stored identities are never trusted; 11 corpus cases pass and 9 mutations (retargeted binder, forged occurrence, dangling target, contradicted status, unaccounted record, layout/provenance tampering) are rejected. `Resolution covers RML/LiNo binders, not type-checked elaboration of rules, proofs and substitutions`.",
@@ -10262,7 +10262,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "js/src/rml-upstream-language.mjs",
@@ -11482,7 +11482,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "f78b989cb57064fe9bcbabfa32bb45b728babc3cb1b212c421fbf8cc947e1509"
+          "sha256": "7f2138eaa765815c534f23df9c96573f9fe46a2c9a9161ef96ca3b3246aa34c6"
         }
       ],
       "claimedEvidence": "`rmlStructureOnly` and typed-link serialization with `checkRmlPlanes` require every link to be accounted for and reachable; exact source is emitted from links alone and stage outcomes are reported separately. `Elaboration and verification stages, and Rust execution evidence pending CI, remain open; full networks parse about 3x slower`.",
@@ -13234,7 +13234,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "f78b989cb57064fe9bcbabfa32bb45b728babc3cb1b212c421fbf8cc947e1509"
+          "sha256": "7f2138eaa765815c534f23df9c96573f9fe46a2c9a9161ef96ca3b3246aa34c6"
         },
         {
           "path": "test-corpus/meta-language/four-language-binding-rewrites.json",
@@ -13927,7 +13927,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -15122,7 +15122,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -15887,7 +15887,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -17082,7 +17082,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -17832,12 +17832,12 @@
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -17847,17 +17847,17 @@
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "js/src/rml-portable-natural.mjs",
@@ -19067,7 +19067,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -19952,7 +19952,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -21277,7 +21277,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "js/src/rml-foundation-packages.mjs",
@@ -22052,7 +22052,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         }
       ],
       "claimedEvidence": "`foundation-context` tests exercise independent positive/negative guarded searches, contradiction/refutation outcomes, local hypotheses, cross-version assumption isolation, and dependency invalidation through the public runtime. Guarded search remains a bounded single-hypothesis final-guard construction; `general foundation-defined coinductive proof policy and replay remain open`.",
@@ -22451,7 +22451,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         }
       ],
       "claimedEvidence": "`foundation-context` tests distinguish proved, refuted, contradictory, unknown, exhausted and unsupported and preserve established evidence when the opposite search exhausts. Results carry foundation, theory, assumptions and bounds. `The unified result contract across complete language import/elaboration/translation/proof workflows remains open`.",
@@ -23629,7 +23629,7 @@
       "implementationClaims": [
         {
           "path": "js/package.json",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af",
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e",
           "role": "historical-claim"
         },
         {
@@ -23640,7 +23640,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -26343,7 +26343,7 @@
         },
         {
           "path": "rust/src/lino_frontend.rs",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d",
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35",
           "role": "historical-claim"
         },
         {
@@ -26403,7 +26403,7 @@
       "implementationClaims": [
         {
           "path": "scripts/issue-183-requirements.mjs",
-          "sha256": "eff96d6cb8a689f03111ad07c476f1f6e3d741dec7ad54cbdb4fb66d8ea553b3",
+          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a",
           "role": "historical-claim"
         }
       ],
@@ -28283,7 +28283,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -28774,7 +28774,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -29265,7 +29265,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -29756,7 +29756,7 @@
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "rust/src/certified_translation.rs",
@@ -29796,7 +29796,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-upstream-requests.md",
           "role": "implementation",
-          "sha256": "c47492686ebf924f289d3db5f9cb57d8b4900343c5f723a5d5577734389b3d27"
+          "sha256": "c17309308eaeb7506c3526a179ebd9be64f6ae6e984d011ebb8c31dddd3b65ed"
         }
       ],
       "claimedEvidence": "`js/vendor/meta-language-pr201/` copies 52 files byte-for-byte from meta-language commit `7c4bf8f1`, locked by `upstream-files.json` (path, bytes, sha256) with license, `VENDORED.md` removal criteria and two documented shims; `meta-language-upstream-requests.md` drafts 18 upstream requests to file later. `The copy must be removed once a meta-language release provides these capabilities`.",
@@ -30308,7 +30308,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -30399,7 +30399,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "test-corpus/foundations/foundation-context.lino",
@@ -30512,7 +30512,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -30666,7 +30666,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "lib/meta-theory/core.lino",
@@ -30696,7 +30696,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -30881,7 +30881,7 @@
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta.mjs",
@@ -31142,12 +31142,12 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "lib/meta-theory/core.lino",
@@ -31267,7 +31267,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e"
+          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
         },
         {
           "path": "rust/src/linked_program/dispatch_tests.rs",
@@ -31292,7 +31292,7 @@
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/portable_natural.rs",
@@ -31520,12 +31520,12 @@
         {
           "path": "scripts/issue-183-requirements-gate.test.mjs",
           "role": "test",
-          "sha256": "fede8a707da2759e8aa5fd4a9abfff5b71d9b33c160567f296048caa04c05f3b"
+          "sha256": "11902a02cbe09c8c5bb18ea85a8d9180ddffbbfd4b607fab1e7979facf339201"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "eff96d6cb8a689f03111ad07c476f1f6e3d741dec7ad54cbdb4fb66d8ea553b3"
+          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -31540,7 +31540,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "21f0808a31178ce52a7057c8d52ce8cefdd54151f61c87b112ced3fc4b1fe34d"
+          "sha256": "c0118c65c0386dae4a50ee2c5e6988cf5de6b6b806158d55fe0b16b283c80ca5"
         }
       ],
       "assertions": [
@@ -31581,7 +31581,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -31662,7 +31662,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e"
+          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
         },
         {
           "path": "rust/Cargo.toml",
@@ -31735,17 +31735,17 @@
         {
           "path": "js/tests/meta-language-structure.test.mjs",
           "role": "test",
-          "sha256": "3199025b6e2c6c661eee7cfe34b78baa964a319a5a124e3cfda8c8c84906a856"
+          "sha256": "9ea0639281ff476c290d94186a3fa77d209bfd862c3f49dee5d7d63f6c59d856"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "js/src/rml-lino-frontend.mjs",
@@ -31755,7 +31755,7 @@
         {
           "path": "test-corpus/meta-language/rml-structure.json",
           "role": "fixture",
-          "sha256": "d14ee52c15b3583da545814541b41389a4c05d1da1c0caa30201eda33e05ef35"
+          "sha256": "91c76647f20866257ae461bff882d25df29a28138eadc437ba1bc01da2293b5a"
         },
         {
           "path": "test-corpus/meta-language/structured-snapshot.json",
@@ -31775,7 +31775,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -31861,27 +31861,27 @@
         {
           "path": "rust/tests/meta_language_structure_tests.rs",
           "role": "test",
-          "sha256": "96f248de1339d4dd32f9b09ec92e047cd57d9a80714314feb56d410610d2da5f"
+          "sha256": "6d05912b7bad96e83467fc98369af7579a929ef347de9ba22110afb2fcf1df22"
         },
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "test-corpus/meta-language/rml-structure.json",
           "role": "fixture",
-          "sha256": "d14ee52c15b3583da545814541b41389a4c05d1da1c0caa30201eda33e05ef35"
+          "sha256": "91c76647f20866257ae461bff882d25df29a28138eadc437ba1bc01da2293b5a"
         },
         {
           "path": "test-corpus/meta-language/structured-snapshot.json",
@@ -31969,7 +31969,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "test-corpus/meta-language/identifier-rewrites.json",
@@ -31979,7 +31979,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -32130,7 +32130,7 @@
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "test-corpus/meta-language/identifier-rewrites.json",
@@ -32208,7 +32208,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -32387,7 +32387,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -32683,7 +32683,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -32967,7 +32967,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -33147,7 +33147,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -33517,7 +33517,7 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "scripts/verify-meta-language-source.mjs",
@@ -34717,7 +34717,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/package-lock.json",
@@ -35073,7 +35073,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/src/check.mjs",
@@ -35263,12 +35263,12 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta.mjs",
@@ -35358,32 +35358,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -35720,32 +35720,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -36010,7 +36010,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e"
+          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -36035,7 +36035,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/main.rs",
@@ -36050,12 +36050,12 @@
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "rust/src/portable_natural.rs",
@@ -36183,7 +36183,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/src/check.mjs",
@@ -36373,12 +36373,12 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta.mjs",
@@ -36468,32 +36468,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -36810,32 +36810,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -37095,7 +37095,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e"
+          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -37120,7 +37120,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/main.rs",
@@ -37135,12 +37135,12 @@
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "rust/src/portable_natural.rs",
@@ -37303,7 +37303,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/src/check.mjs",
@@ -37493,12 +37493,12 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta.mjs",
@@ -37583,32 +37583,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -37925,32 +37925,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -38210,7 +38210,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e"
+          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -38235,7 +38235,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/main.rs",
@@ -38250,12 +38250,12 @@
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "rust/src/portable_natural.rs",
@@ -38408,7 +38408,7 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/src/check.mjs",
@@ -38598,12 +38598,12 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta.mjs",
@@ -38688,32 +38688,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -38950,32 +38950,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "implementation",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -39235,7 +39235,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e"
+          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -39260,7 +39260,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/main.rs",
@@ -39275,12 +39275,12 @@
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "rust/src/portable_natural.rs",
@@ -39363,7 +39363,7 @@
         {
           "path": "js/package.json",
           "role": "implementation",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/src/check.mjs",
@@ -39553,12 +39553,12 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta.mjs",
@@ -40823,32 +40823,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "fixture",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -41043,7 +41043,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "eff96d6cb8a689f03111ad07c476f1f6e3d741dec7ad54cbdb4fb66d8ea553b3"
+          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -41146,32 +41146,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "fixture",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -41431,7 +41431,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e"
+          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -41456,7 +41456,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/main.rs",
@@ -41471,12 +41471,12 @@
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "rust/src/portable_natural.rs",
@@ -41541,7 +41541,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "eff96d6cb8a689f03111ad07c476f1f6e3d741dec7ad54cbdb4fb66d8ea553b3"
+          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -41608,7 +41608,7 @@
         {
           "path": "js/package.json",
           "role": "implementation",
-          "sha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af"
+          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
         },
         {
           "path": "js/src/check.mjs",
@@ -41798,12 +41798,12 @@
         {
           "path": "js/src/rml-meta-language.mjs",
           "role": "implementation",
-          "sha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af"
+          "sha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a"
         },
         {
           "path": "js/src/rml-meta-structure.mjs",
           "role": "implementation",
-          "sha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924"
+          "sha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f"
         },
         {
           "path": "js/src/rml-meta.mjs",
@@ -43068,32 +43068,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "fixture",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -43288,7 +43288,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "eff96d6cb8a689f03111ad07c476f1f6e3d741dec7ad54cbdb4fb66d8ea553b3"
+          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -43421,32 +43421,32 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "d6cc95d80a6fe56a2860fe4b0505b508bd9b21a07e1afd2e372203a638caa3b9"
+          "sha256": "ef5c2ad780e4de9a0fcdcb200d7e8555e873325b888b7ee0fbaaa06b4e75380c"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8"
+          "sha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "8e2ba3a2d53911b1206b2ba19398658ef1a4b607e1b048137917ecc5e56e65fd"
+          "sha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "5950032c8afd5d6ddb7d667ee8dfe13e6928af820bacbb2dffe717be215db179"
+          "sha256": "4324058cd45c529d73bdbac297b82dcc1a58fd198d93b549d315262a50ee281b"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4"
+          "sha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0"
         },
         {
           "path": "lib/linked-runtime/rust-manifest.json",
           "role": "fixture",
-          "sha256": "52b81696ad7254cca32f4fff43a0963df3d6d2979a3724a219078d7d5e81aa04"
+          "sha256": "5daa13701af5fad6453bd2841d9586f8a39435487794dd0ccf16f634fb43fcbb"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -43706,7 +43706,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e"
+          "sha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -43731,7 +43731,7 @@
         {
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
-          "sha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d"
+          "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
         },
         {
           "path": "rust/src/main.rs",
@@ -43746,12 +43746,12 @@
         {
           "path": "rust/src/meta_language_structure.rs",
           "role": "implementation",
-          "sha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc"
+          "sha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea"
         },
         {
           "path": "rust/src/meta_language_support.rs",
           "role": "implementation",
-          "sha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289"
+          "sha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada"
         },
         {
           "path": "rust/src/portable_natural.rs",
@@ -43816,7 +43816,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "eff96d6cb8a689f03111ad07c476f1f6e3d741dec7ad54cbdb4fb66d8ea553b3"
+          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -43903,12 +43903,12 @@
         {
           "path": "js/tests/certified-translation.test.mjs",
           "role": "test",
-          "sha256": "3d2b1f0eed1fb73dfa84dadb63e4d79b1ecce437c906cc3d5c4a0b379d2c9f4d"
+          "sha256": "ef70adb4d163cb24430fcaafdd88b22473fab838d237b58073cd0d04c5e8769e"
         },
         {
           "path": "js/src/rml-certified-translation.mjs",
           "role": "implementation",
-          "sha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1"
+          "sha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6"
         },
         {
           "path": "scripts/generate-certified-translations.mjs",
@@ -43923,7 +43923,7 @@
         {
           "path": "test-corpus/certified-translation/generated/receipt.lino",
           "role": "fixture",
-          "sha256": "f55438c9b5b1c629d109b0d11125ad2ad92f3bc133db00481b0cbcfaef90eac9"
+          "sha256": "061f13c5b9e9eab833e128026d70cdc595caa169709502e160bc930c9b57dcfd"
         },
         {
           "path": "js/vendor/meta-language-pr201/upstream-files.json",
@@ -44305,7 +44305,7 @@
         {
           "path": "test-corpus/certified-translation/generated/receipt.lino",
           "role": "fixture",
-          "sha256": "f55438c9b5b1c629d109b0d11125ad2ad92f3bc133db00481b0cbcfaef90eac9"
+          "sha256": "061f13c5b9e9eab833e128026d70cdc595caa169709502e160bc930c9b57dcfd"
         }
       ],
       "assertions": [
@@ -44730,7 +44730,7 @@
         {
           "path": "rust/tests/language_construct_inventory_tests.rs",
           "role": "test",
-          "sha256": "1547753dce9710fdf97f347f084000769fb100f2ef066317e5298fac9a4e5341"
+          "sha256": "759abbf409ba84b39bb2d4ca6644eabb8782222be908683f082088591e5ba5e6"
         },
         {
           "path": "docs/case-studies/issue-183/language-constructs.json",
