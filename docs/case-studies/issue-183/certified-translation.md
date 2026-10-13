@@ -156,6 +156,96 @@ Hand-written expectations in [`test-corpus/certified-translation/cases.json`](..
 are independent of the RML evaluator and emitters. The JavaScript sources are also
 run natively by Node as an independent oracle in the JavaScript tests.
 
+## Repository-scale bulk translation (R165)
+
+[`scripts/generate-certified-bulk.mjs`](../../../scripts/generate-certified-bulk.mjs)
+runs the same pipeline over this repository's own sources. Every top-level item
+of every module in `js/src` (JavaScript, cut with `@babel/parser`) and `rust/src`
+(Rust, cut by a token scanner that covers each file without gaps) is taken at its
+exact original span, closed over the same-file declarations it names, and
+translated into the other three languages. The Lean and Rocq files under `lib/`
+are translated at module granularity; `lib/` holds no JavaScript today. The only
+harness additions are recorded in the receipt: JavaScript function declarations
+are placed first (they are hoisted), and a Rust program without `main` gets an
+effect-free `fn main() {}`. `import` and `use` declarations are not translated.
+
+The committed output in
+[`test-corpus/certified-translation/bulk/`](../../../test-corpus/certified-translation/bulk/receipt.lino)
+(284 files, 4.7 MB) is:
+
+- `receipt.lino`: translator pin, implementation hashes, the recipe, scope,
+  totals, per-language and per-path counts, refusal causes, mirror summary,
+  input fingerprints (path, sha256, bytes, item count) and every output hash;
+- `items-<language>.lino`: one record per item with its span, byte span, text
+  hash, closure size, assembled-program hash and status; a refusal names the
+  stage, kind, cause, exact message, the original span and hash of the refused
+  construct, whether it sits in the item or in a dependency, and the hash of the
+  re-derivable first-refusal receipt;
+- `certificates/` and `targets/`: the RML certificate and target text of every
+  admitted item, per source file and target; each target is preceded by an
+  `rml-certified-item` header carrying its hash;
+- `mirrors.lino`: the comparison with hand-written mirrors below.
+
+| Source | Files | Items | Admitted | Lowered | Refused |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| JavaScript (`js/src`) | 49 | 1116 | 78 | 101 | 937 |
+| Rust (`rust/src`) | 33 | 1448 | 70 | 0 | 1378 |
+| Lean (`lib/`, modules) | 10 | 10 | 0 | 0 | 10 |
+| Rocq (`lib/`, modules) | 9 | 9 | 0 | 0 | 9 |
+| **Total** | **101** | **2583** | **148** | **101** | **2334** |
+
+"Admitted" means the item's own declaration appears in the emitted correspondence
+for at least one target. "Lowered" means the program translated but the item has
+no declaration of its own (a top-level JavaScript `const` becomes a `let` in
+`main`). Each directed path is judged on its own: 78 JavaScript items translate to
+Rust, 64 to Lean and 64 to Rocq, because the proof-target emitters refuse some
+string operations; all 70 admitted Rust items translate to all three targets.
+That gives **416 certified translations**, each with an RML certificate that
+`checkTranslationCertificate` validates against the re-assembled source program.
+Admitted items are mostly small: 55 JavaScript functions and 23 constants, and
+46 Rust constants, 18 enums, 5 functions and 1 inline module.
+
+Refusals are aggregated by cause, with source-specific names (local functions,
+classes, field names) abstracted and standard-library names, operators, methods
+and types kept. The largest first-refusal causes are `pub struct` reaching a
+syntax error (516 Rust items), `Vec<…>` (179), slice and array types (153),
+regular expressions (133 JavaScript items), named functions used as values (118)
+and out-of-line modules (105). Each cause is turned into an upstream request in
+[meta-language-upstream-requests.md](meta-language-upstream-requests.md)
+(requests 20 to 37).
+
+### Hand-written mirrors
+
+[`test-corpus/certified-translation/mirrors.json`](../../../test-corpus/certified-translation/mirrors.json)
+pairs admitted translations with existing hand-written mirrors in the other
+runtime and lists inputs with the mirror's documented result, worked out by
+reading the mirror source; no mirror is compiled. For each pair the generator
+appends calls to the item's program and translates it again. The probe must keep
+exactly the bulk translation's signature, so it observes the same certified
+function. Observers are RML's own evaluation of the intermediate when it covers
+the constructs; on a Rust-to-JavaScript path, the certified JavaScript target run
+in Node; otherwise, a JavaScript rendering of the decoded certified intermediate
+(`renderCertifiedJavaScript`) run in Node. That intermediate is the one the Rust
+certificate pins by hash; the Rust target itself runs only in CI.
+
+14 of 16 pairs match on all 50 documented calls: `quantize`,
+`_isStrictlyOffendingStatus`, `prefixMarker`, `isLeanPunctChar`,
+`isRocqPunctChar`, the Lean, Rocq and Rust block-comment scanners, `rangeWithin`,
+`isVariable`, `_isPiSig` and `_isForallNode` from JavaScript to Rust, and
+`rule_key` and `token_base_name` from Rust to JavaScript. Most pairs are
+`domain-widened`: the certified signature is wider than the mirror's (f64 for
+`usize`, `String` for `char`, `Vec<String>` for a `Node::List` of leaves), and
+calls stay in the mirror's domain. Two pairs differ in signature and are
+recorded without a behaviour comparison. Without call sites the certified
+`tokenBaseName` is inferred as `Option<f64> -> Option<f64>`, and `ruleKey` as
+taking `f64`s, while the mirrors take `&str` (upstream request 29).
+
+`--check` regenerates everything in memory (about 35 s) and fails on any stale,
+missing or unexpected file. Because the inputs are the repository's own sources,
+**any edit under `js/src`, `rust/src` or the `lib/` Lean and Rocq files needs
+`node scripts/generate-certified-bulk.mjs` to be re-run** before
+`js/tests/certified-bulk.test.mjs` passes.
+
 ## Native validity (CI only)
 
 [`scripts/check-certified-translation-native.mjs`](../../../scripts/check-certified-translation-native.mjs)
@@ -190,8 +280,10 @@ manually. Locally only the JavaScript part may be run
 ## Verification commands
 
 ```sh
-cd js && node --test tests/certified-translation.test.mjs     # 69 tests
+(cd js && node --test tests/certified-translation.test.mjs)   # 69 tests
 node scripts/generate-certified-translations.mjs --check
+(cd js && node --test tests/certified-bulk.test.mjs)         # 8 tests, about 90 s
+node scripts/generate-certified-bulk.mjs --check
 node scripts/check-certified-translation-native.mjs --languages=JavaScript --require=JavaScript
 # CI only:
 node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --test certified_translation_tests
@@ -213,3 +305,8 @@ node scripts/check-certified-translation-native.mjs --require=JavaScript,Rust,Le
 - Emitted targets cannot yet be re-imported through the frontends because of the
   emitter runtime preludes (upstream request 14), so target → links regeneration
   is checked from the certified intermediate rather than from the target text.
+- The 416 bulk targets are not yet run natively: `translation-native` covers the
+  curated corpus only. The mirror comparison observes the certified intermediate
+  in JavaScript, and no Rust, Lean or Rocq bulk target has been compiled. At
+  repository scale, 90% of items (2334 of 2583) are refused; the receipt records
+  why, item by item.
