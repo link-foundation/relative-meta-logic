@@ -63,7 +63,10 @@ function unify(left, right, bindings, trail) {
     let [a, b] = pending.pop(); a = walk(a, bindings); b = walk(b, bindings);
     if (a === b) continue;
     if (variable(a) || variable(b)) {
-      if (!variable(a)) [a, b] = [b, a];
+      // Bind the younger of two free variables to the older one. Either
+      // orientation is the same substitution up to renaming; this one keeps
+      // long deterministic recursions from retaining a chain of output cells.
+      if (!variable(a) || variable(b) && b.birth > a.birth) [a, b] = [b, a];
       const value = bindingValue(a, b, bindings);
       if (value === null) return false;
       bindings.set(a, value); trail.push(a);

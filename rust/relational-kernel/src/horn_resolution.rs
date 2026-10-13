@@ -229,6 +229,18 @@ fn unify(a: Ref, b: Ref, bindings: &mut Bindings, trail: &mut Vec<Ref>) -> Resul
             continue;
         }
         match (a.as_ref(), b.as_ref()) {
+            // Bind the younger of two free variables to the older one. Either
+            // orientation is the same substitution up to renaming; this one keeps
+            // long deterministic recursions from retaining a chain of output cells.
+            (Term::Variable(_, left_birth, _), Term::Variable(_, right_birth, cell))
+                if right_birth > left_birth =>
+            {
+                let Some(value) = binding_value(&b, a.clone(), bindings, 0)? else {
+                    return Ok(false);
+                };
+                *cell.borrow_mut() = Some(value);
+                trail.push(b.clone());
+            }
             (Term::Variable(_, _, cell), _) => {
                 let Some(value) = binding_value(&a, b.clone(), bindings, 0)? else {
                     return Ok(false);
