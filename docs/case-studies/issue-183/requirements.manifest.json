@@ -36452,7 +36452,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -36770,7 +36770,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/docker-cache-budget.mjs",
@@ -37090,7 +37090,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -37403,7 +37403,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -37706,7 +37706,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         }
       ],
       "claimedEvidence": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space and documents every override in `docs/BUILD_CACHE.md`. Cleanup sweeps stale and disposable outputs across classes, reports before/after/reclaimed bytes for both the logical size and the allocated filesystem blocks (hard links counted once), and enforces the budget on either metric (`RML_CACHE_BUDGET_METRIC` is `logical` or `allocated`; any other value fails before deleting anything). Local and Docker usage are combined in one measured budget report; full clean removes all registered caches and is idempotent. `scripts/build-cache.test.mjs` exercises cross-class budgets, allocated accounting, protected over-budget data and full-clean idempotence. Windows reports logical sizes as its allocation fallback, which the report labels.",
@@ -37924,7 +37924,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         }
       ],
       "claimedEvidence": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. After a successful private Cargo build/check/test/bench, `scripts/cargo-unit-sweep.mjs` removes only superseded units of the same artifact stem; failed queries delete nothing and never change exit status; `RML_CACHE_CARGO_SWEEP=0` is the documented debug override. `docs/case-studies/issue-183/data/build-cache-measurement-native.json` records the native CI measurement (run 38417088378): the sweep removed 9 superseded units (10,983,827 bytes) in both Rust steps, the postflight budget bounded the compiled tree, and the full Rust suite still passed 1244 tests in 110 suites with the full JavaScript suite passing.",
@@ -38172,7 +38172,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -38426,7 +38426,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -38778,7 +38778,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -43358,7 +43358,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/build-cache.test.mjs",
@@ -51910,7 +51910,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -52408,7 +52408,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -54155,7 +54155,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -54683,7 +54683,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -59699,7 +59699,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87"
+          "sha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950"
         },
         {
           "path": "docker/ci-build.sh",

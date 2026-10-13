@@ -851,7 +851,7 @@ export function assertNoUnleasedBuilders(c, { platform = process.platform, run =
     const separator = platform === 'win32' ? path.win32.sep : path.sep;
     if (cwd === root || cwd.startsWith(`${root}${separator}`)) {
       if (foreignNestedRepository(c, cwd, root, separator, platform, exists)) continue;
-      if (hostedOutsideTree(p, executable, cwd, root, separator, { platform, run, readLink, realPath, readFile, readDir, isFile, queryOptions })) continue;
+      if (hostedOutsideTree(p, executable, cwd, root, { platform, run, readLink, realPath, readFile, readDir, isFile, queryOptions })) continue;
       throw deferral(`Active unleased build process ${p.pid}; cleanup deferred`);
     }
   }
@@ -866,9 +866,10 @@ const packageManager = /(?:^|[\\/])(?:npm|npx|pnpm|pnpx|yarn|yarnpkg|corepack)(?
  * be established keeps the deferral; Windows exposes no open-file inventory
  * here, so it always defers.
  */
-function hostedOutsideTree(p, executable, cwd, root, separator, { platform, run, readLink, realPath, readFile, readDir, isFile, queryOptions }) {
+function hostedOutsideTree(p, executable, cwd, root, { platform, run, readLink, realPath, readFile, readDir, isFile, queryOptions }) {
   if (!/^node$/.test(executable.split(/[\\/]/).at(-1)) || (platform !== 'linux' && platform !== 'darwin')) return false;
-  const inside = file => file === root || file.startsWith(`${root}${separator}`);
+  // Linux and macOS name every path with `/`, whatever the host that inspects them.
+  const inside = file => file === root || file.startsWith(`${root}/`);
   try {
     // ps joins arguments with spaces, so a split script path fails the file check below and defers.
     const args = platform === 'linux'
