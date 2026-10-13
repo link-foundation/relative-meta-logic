@@ -206,6 +206,30 @@ onward, and per-record slot exchange identifies at least as much as uniform
 reversal. Finiteness is not removed. No assumption is thereby shown intrinsic
 or eliminable for links in general, and R71/R73/R74 stay open.
 
+## Conditional continuation join at every small width
+
+`conditionalContinuationProbe` reports its observations for one chain,
+`[3,0,1]`, `[4,1,2]` with witness `[5,3,4]`.
+`experiments/continuation-join/exhaustive.mjs` applies the same join to every
+ordered addressed binary structure with three records (1855 classes) and four
+records (56400 classes), up to renaming and record order, and writes
+`test-corpus/continuation-join/report.json`:
+
+| Observation on the probe chain | Three records | Four records |
+| --- | --- | --- |
+| uniform slot reversal reverses the continuation | holds everywhere | holds everywhere |
+| adding the result record keeps the join | holds everywhere | holds everywhere |
+| witness orientation is dispensable | fails in 72 classes | fails in 4244 classes |
+| the two projections give different pairs | agree on 15 non-empty joins | agree on 689 |
+| each supporting record is needed | holds | 103 of 4786 output pairs survive one removal |
+| the result is not yet recorded | already recorded in 32 classes | in 1584 |
+
+Reversal equivariance and monotonicity are general for these widths, and
+monotonicity holds at every width because the join is a positive existential
+query. The other single-chain observations belong to that chain, not to the
+join. This advances R145/R146 by separating them, and it neither makes the
+join intrinsic nor authorizes a projection.
+
 ## Reproduce
 
 ```sh
@@ -213,16 +237,18 @@ node experiments/definition-replacement/mechanism-matrix.mjs
 node experiments/foundation-comparison/compare.mjs
 node experiments/verifier-provenance/removal-matrix.mjs
 node experiments/assumption-removal/matrix.mjs
+node experiments/continuation-join/exhaustive.mjs
 node --test js/tests/horn-link-substitution.test.mjs js/tests/mechanism-replacement.test.mjs \
   js/tests/meta-foundation-comparison.test.mjs js/tests/horn-rml-elaboration.test.mjs \
-  js/tests/verifier-provenance.test.mjs js/tests/assumption-removal.test.mjs
+  js/tests/verifier-provenance.test.mjs js/tests/assumption-removal.test.mjs \
+  js/tests/continuation-join.test.mjs
 cargo test --manifest-path rust/relational-kernel/Cargo.toml
 ```
 
 The Rust mirrors are `horn_link_substitution_tests.rs`,
 `meta_foundation_comparison_tests.rs`, `horn_rml_elaboration_tests.rs`,
-`verifier_provenance_tests.rs` and `assumption_removal_tests.rs` under
-`rust/relational-kernel/tests/`. The JavaScript elaboration test compares
+`verifier_provenance_tests.rs`, `assumption_removal_tests.rs` and
+`continuation_join_tests.rs` under `rust/relational-kernel/tests/`. The JavaScript elaboration test compares
 every shared observation under each D'. To stay within the companion CI time
 limit, its Rust mirror compares the elaborated programs and one reduction per
 document instead.
