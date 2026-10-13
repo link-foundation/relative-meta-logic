@@ -28,6 +28,34 @@ function fixture(t) {
   return { root, run, wrap, read, evidence };
 }
 function ok(result) { assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}\n${result.error ?? ''}`); }
+// A Node tool double (cargo, rustc) found by its bare name. POSIX runs the script
+// through its shebang. Windows CreateProcess finds only real executables for a bare
+// name, so the double is a copy of node.exe named after the tool; a NODE_OPTIONS
+// preload runs its sibling script. `<tool> --version` then prints Node's version.
+const fakeToolPreload = `const fs=require('node:fs'),path=require('node:path');
+const script=path.join(path.dirname(process.execPath),path.basename(process.execPath,'.exe')+'.fake-tool.cjs');
+if(fs.existsSync(script)){
+  // node.exe took the tool's first argument as its own script; restore the tool's argv.
+  process.argv.splice(1,1,script,path.basename(process.argv[1]??''));
+  // Write synchronously so the exit below cannot drop piped output.
+  for(const [stream,fd] of [[process.stdout,1],[process.stderr,2]])stream.write=(chunk,encoding,callback)=>{fs.writeSync(fd,typeof chunk==='string'?chunk:Buffer.from(chunk));(typeof encoding==='function'?encoding:callback)?.();return true;};
+  require(script);
+  process.exit();
+}`;
+function fakeTool(bin, name, body) {
+  fs.mkdirSync(bin, { recursive: true });
+  if (process.platform !== 'win32') {
+    fs.writeFileSync(path.join(bin, name), `#!/usr/bin/env node\n${body}`, { mode: 0o755 });
+    return {};
+  }
+  fs.copyFileSync(node, path.join(bin, `${name}.exe`));
+  fs.writeFileSync(path.join(bin, `${name}.fake-tool.cjs`), body);
+  const preload = path.join(bin, 'fake-tool-preload.cjs');
+  fs.writeFileSync(preload, fakeToolPreload);
+  return { NODE_OPTIONS: `--require ${JSON.stringify(preload)}` };
+}
+const junction = process.platform === 'win32' ? 'junction' : 'dir';
+const rmlBinary = process.platform === 'win32' ? 'rml.exe' : 'rml';
 const nested = (command, flags = []) => [node, 'scripts/run-with-cache.mjs', ...flags, '--', ...command];
 
 test('direct nested wrapper composes registration, retention, isolation, placeholders and archive before outer cleanup', t => {
@@ -72,20 +100,19 @@ test('nested wrapper without isolation inherits output and temporary directories
   assert.equal(fs.existsSync(path.join(output, 'inner.bin')), false);
 });
 
-test('cargo entry point nested in an outer operation owns and reuses isolated compiler output', { skip: process.platform === 'win32' }, t => {
+test('cargo entry point nested in an outer operation owns and reuses isolated compiler output', t => {
   const f = fixture(t);
-  fs.mkdirSync(path.join(f.root, 'bin'));
-  fs.writeFileSync(path.join(f.root, 'bin/cargo'), `#!/usr/bin/env node
+  const toolEnv = fakeTool(path.join(f.root, 'bin'), 'cargo', `
     const fs=require('node:fs'),path=require('node:path');
     const target=process.env.CARGO_TARGET_DIR;
-    if(target!==process.env.RML_CACHE_OUTPUT_DIR||!target.includes('/rust/target/.rml-producer-'))process.exit(81);
+    if(target!==process.env.RML_CACHE_OUTPUT_DIR||!target.split(path.sep).join('/').includes('/rust/target/.rml-producer-'))process.exit(81);
     const output=path.join(target,'dependency.bin');
     const reused=fs.existsSync(output);
     if(!reused)fs.writeFileSync(output,'compiled dependency fixture');
     fs.writeFileSync('cargo-result.json',JSON.stringify({target,reused,args:process.argv.slice(2)}));
-  `, { mode: 0o755 });
+  `);
   // The cargo here is a mock, so the local Rust policy is overridden explicitly.
-  const env = { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}`, RML_ALLOW_LOCAL_RUST: '1' };
+  const env = { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}`, ...toolEnv, RML_ALLOW_LOCAL_RUST: '1' };
   ok(f.wrap([node, 'scripts/cargo.mjs', 'build'], [], env));
   const first = JSON.parse(f.read('cargo-result.json'));
   assert.equal(first.reused, false);
@@ -214,11 +241,11 @@ for (const requested of ['{output}/../outside', '{output}/report/../../outside',
   });
 }
 
-test('archive placeholder rejects a report symlink and retains evidence without following it', { skip: process.platform === 'win32' }, t => {
+test('archive placeholder rejects a report symlink and retains evidence without following it', t => {
   const f = fixture(t);
   fs.mkdirSync(path.join(f.root, 'user-data'));
   fs.writeFileSync(path.join(f.root, 'user-data/private.txt'), 'private user bytes');
-  const result = f.wrap([node, '-e', `const fs=require('node:fs'),path=require('node:path');fs.symlinkSync(path.resolve('user-data'),path.join(process.env.RML_CACHE_OUTPUT_DIR,'report'),'dir');`], ['--isolate-output', '.rml-cache/compiler', '--archive', '{output}/report']);
+  const result = f.wrap([node, '-e', `const fs=require('node:fs'),path=require('node:path');fs.symlinkSync(path.resolve('user-data'),path.join(process.env.RML_CACHE_OUTPUT_DIR,'report'),'${junction}');`], ['--isolate-output', '.rml-cache/compiler', '--archive', '{output}/report']);
   assert.equal(result.status, 2, result.stderr);
   assert.match(result.stderr, /Symlink cache path is protected/);
   assert.equal(f.read('user-data/private.txt'), 'private user bytes');
@@ -232,15 +259,14 @@ function acceptanceParityFixture(t) {
   fs.copyFileSync(path.join(source, 'acceptance/issue-183-parity.test.mjs'), path.join(f.root, 'scripts/acceptance/issue-183-parity.test.mjs'));
   fs.mkdirSync(path.join(f.root, 'test-corpus'));
   fs.writeFileSync(path.join(f.root, 'test-corpus/probe.lino'), '(probe)\n');
-  fs.mkdirSync(path.join(f.root, 'bin'));
   // These tools test routing only; they do not count as native parity evidence.
-  fs.writeFileSync(path.join(f.root, 'bin/cargo'), `#!/usr/bin/env node
+  const toolEnv = fakeTool(path.join(f.root, 'bin'), 'cargo', `
     const fs=require('node:fs'),path=require('node:path'),a=process.argv.slice(2);
     const target=a[a.indexOf('--target-dir')+1];
     fs.writeFileSync('cargo-routing.json',JSON.stringify({target,environment:process.env.CARGO_TARGET_DIR,args:a}));
     fs.mkdirSync(path.join(target,'debug'),{recursive:true});
-    fs.writeFileSync(path.join(target,'debug/rml'),'mock routing artifact');
-  `, { mode: 0o755 });
+    fs.writeFileSync(path.join(target,'debug',${JSON.stringify(rmlBinary)}),'mock routing artifact');
+  `);
   fs.writeFileSync(path.join(f.root, 'scripts/check-corpus-parity.mjs'), `import fs from 'node:fs';import assert from 'node:assert/strict';
     const a=process.argv.slice(2),binary=a[a.indexOf('--rust-bin')+1];
     assert.equal(fs.readFileSync(binary,'utf8'),'mock routing artifact');
@@ -248,11 +274,11 @@ function acceptanceParityFixture(t) {
     if(a.includes('--js-cli')){console.error('stdout differs: injected-parity-drift');process.exitCode=1}
     else console.log('Corpus parity passed for 1 file(s).');
   `);
-  const env = { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}`, NODE_TEST_CONTEXT: undefined, NODE_OPTIONS: undefined, NODE_UNIQUE_ID: undefined };
+  const env = { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}`, NODE_TEST_CONTEXT: undefined, NODE_OPTIONS: undefined, NODE_UNIQUE_ID: undefined, ...toolEnv };
   return { ...f, env };
 }
 
-test('acceptance parity builds and consumes the same active private Cargo target while shared output stays protected', { skip: process.platform === 'win32' }, t => {
+test('acceptance parity builds and consumes the same active private Cargo target while shared output stays protected', t => {
   const f = acceptanceParityFixture(t);
   fs.mkdirSync(path.join(f.root, 'rust/target'));
   fs.writeFileSync(path.join(f.root, 'rust/target/user-note'), 'protected shared output');
@@ -261,14 +287,14 @@ test('acceptance parity builds and consumes the same active private Cargo target
   assert.equal(routing.target, routing.environment);
   assert.ok(routing.target.startsWith(path.join(f.root, 'rust/target/.rml-producer-')));
   const consumed = f.read('consumed-binary.txt').trim().split('\n');
-  assert.deepEqual(consumed, [path.join(routing.target, 'debug/rml'), path.join(routing.target, 'debug/rml')]);
+  assert.deepEqual(consumed, [path.join(routing.target, 'debug', rmlBinary), path.join(routing.target, 'debug', rmlBinary)]);
   assert.equal(f.read('rust/target/user-note'), 'protected shared output');
   ok(f.run(['scripts/build-cache.mjs', '--full']));
-  assert.equal(fs.existsSync(path.join(routing.target, 'debug/rml')), false);
+  assert.equal(fs.existsSync(path.join(routing.target, 'debug', rmlBinary)), false);
   assert.equal(f.read('rust/target/user-note'), 'protected shared output');
 });
 
-for (const variant of ['missing', 'stale']) test(`acceptance parity rejects a ${variant} private target before invoking Cargo`, { skip: process.platform === 'win32' }, t => {
+for (const variant of ['missing', 'stale']) test(`acceptance parity rejects a ${variant} private target before invoking Cargo`, t => {
   const f = acceptanceParityFixture(t);
   let command = [node, '--test', 'scripts/acceptance/issue-183-parity.test.mjs'];
   let flags = [];
@@ -287,15 +313,14 @@ for (const variant of ['missing', 'stale']) test(`acceptance parity rejects a ${
   if (variant === 'stale') assert.equal(f.read('rust/target/.rml-producer-stale/user-note'), 'previous target user data');
 });
 
-test('acceptance Cargo producers inherit one private target for the complete outer operation', { skip: process.platform === 'win32' }, t => {
+test('acceptance Cargo producers inherit one private target for the complete outer operation', t => {
   const f = fixture(t);
   fs.copyFileSync(path.join(source, 'issue-183-requirements.mjs'), path.join(f.root, 'scripts/issue-183-requirements.mjs'));
   fs.mkdirSync(path.join(f.root, 'rust/tests'));
   fs.writeFileSync(path.join(f.root, 'rust/tests/routing.rs'), '// Independent routing fixture: positive and negative controls.\n');
   fs.writeFileSync(path.join(f.root, 'rust/Cargo.lock'), 'fixture lock\n');
   fs.writeFileSync(path.join(f.root, 'implementation.rs'), '// Routing implementation input\n');
-  fs.mkdirSync(path.join(f.root, 'bin'));
-  fs.writeFileSync(path.join(f.root, 'bin/cargo'), `#!/usr/bin/env node
+  const toolEnv = fakeTool(path.join(f.root, 'bin'), 'cargo', `
     const fs=require('node:fs'),path=require('node:path');
     if(process.argv[2]==='--version'){console.log('cargo routing mock');process.exit(0)}
     const target=process.env.CARGO_TARGET_DIR;
@@ -303,15 +328,15 @@ test('acceptance Cargo producers inherit one private target for the complete out
     fs.appendFileSync('cargo-targets.jsonl',JSON.stringify({target,args:process.argv.slice(2)})+'\\n');
     fs.writeFileSync(path.join(target,'test-artifact'),'mock native output');
     console.log('running 2 tests\\ntest positive ... ok\\ntest negative ... ok\\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s');
-  `, { mode: 0o755 });
-  fs.writeFileSync(path.join(f.root, 'bin/rustc'), '#!/usr/bin/env node\nconsole.log("rustc routing mock");\n', { mode: 0o755 });
+  `);
+  fakeTool(path.join(f.root, 'bin'), 'rustc', 'console.log("rustc routing mock");\n');
   const program = `const fs=require('node:fs'),assert=require('node:assert/strict');
     const {executeIssue183Check,sha256}=require('./scripts/issue-183-requirements.mjs');
     const pin=(name,role)=>({path:name,role,sha256:sha256(fs.readFileSync(name))});
     const check={id:'routing',kind:'cargo-test',testTarget:'routing',testFiles:['rust/tests/routing.rs'],files:[pin('rust/Cargo.toml','configuration'),pin('rust/Cargo.lock','configuration'),pin('implementation.rs','implementation'),pin('rust/tests/routing.rs','test-and-fixture')],assertions:[{file:'rust/tests/routing.rs',name:'positive',polarity:'positive'},{file:'rust/tests/routing.rs',name:'negative',polarity:'negative'}]};
     for(let i=0;i<2;i++){const result=executeIssue183Check(process.cwd(),check);assert.equal(result.passed,true,result.error);assert.equal(result.assertions.length,2);}
   `;
-  ok(f.wrap([node, '-e', program], ['--isolate-output', 'rust/target'], { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}`, RML_ALLOW_LOCAL_RUST: '1' }));
+  ok(f.wrap([node, '-e', program], ['--isolate-output', 'rust/target'], { PATH: `${path.join(f.root, 'bin')}${path.delimiter}${process.env.PATH}`, ...toolEnv, RML_ALLOW_LOCAL_RUST: '1' }));
   const calls = f.read('cargo-targets.jsonl').trim().split('\n').map(JSON.parse);
   assert.equal(calls.length, 2);
   assert.equal(calls[0].target, calls[1].target);

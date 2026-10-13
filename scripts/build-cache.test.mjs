@@ -39,6 +39,34 @@ const writeProgram = (relative, content = 'cache') => relative.startsWith('.rml-
 function ok(result) { assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`); }
 const exists = (f, p) => fs.existsSync(path.join(f.root, p));
 const read = (f, p) => fs.readFileSync(path.join(f.root, p), 'utf8');
+const junction = process.platform === 'win32' ? 'junction' : 'dir';
+// A Node tool double (cargo). POSIX runs the script through its shebang.
+// Windows CreateProcess runs only real executables, so the double is a copy of
+// node.exe named after the tool; a NODE_OPTIONS preload runs its sibling script.
+const fakeToolPreload = `const fs=require('node:fs'),path=require('node:path');
+const script=path.join(path.dirname(process.execPath),path.basename(process.execPath,'.exe')+'.fake-tool.cjs');
+if(fs.existsSync(script)){
+  // node.exe took the tool's first argument as its own script; restore the tool's argv.
+  process.argv.splice(1,1,script,path.basename(process.argv[1]??''));
+  // Write synchronously so the exit below cannot drop piped output.
+  for(const [stream,fd] of [[process.stdout,1],[process.stderr,2]])stream.write=(chunk,encoding,callback)=>{fs.writeSync(fd,typeof chunk==='string'?chunk:Buffer.from(chunk));(typeof encoding==='function'?encoding:callback)?.();return true;};
+  require(script);
+  process.exit();
+}`;
+function fakeTool(bin, name, body) {
+  fs.mkdirSync(bin, { recursive: true });
+  if (process.platform !== 'win32') {
+    const tool = path.join(bin, name);
+    fs.writeFileSync(tool, `#!${node}\n${body}`, { mode: 0o755 });
+    return { tool, env: {} };
+  }
+  const tool = path.join(bin, `${name}.exe`);
+  fs.copyFileSync(node, tool);
+  fs.writeFileSync(path.join(bin, `${name}.fake-tool.cjs`), body);
+  const preload = path.join(bin, 'fake-tool-preload.cjs');
+  fs.writeFileSync(preload, fakeToolPreload);
+  return { tool, env: { NODE_OPTIONS: `--require ${JSON.stringify(preload)}` } };
+}
 
 test('a queued lease reloads preceding ownership and preserves preexisting zero-byte files', async t => {
   const f = fixture(t);
@@ -176,14 +204,11 @@ test('custom target paths with spaces are owned; external/traversal/source paths
   assert.notEqual(f.wrap('process.exit(0)', [], { CARGO_TARGET_DIR: os.tmpdir() }).status, 0);
 });
 
-test('a successful private Cargo operation sweeps superseded units and records the result without changing status', { skip: process.platform === 'win32' }, t => {
+test('a successful private Cargo operation sweeps superseded units and records the result without changing status', t => {
   const f = fixture(t);
   // A Cargo double: the build leaves a carried-forward superseded unit beside
   // the current one; the JSON reference query reports only the current unit.
-  const cargo = path.join(f.root, 'bin', 'cargo');
-  fs.mkdirSync(path.dirname(cargo));
-  fs.writeFileSync(cargo, `#!${node}
-const fs = require('node:fs'), path = require('node:path');
+  const { tool: cargo, env: toolEnv } = fakeTool(path.join(f.root, 'bin'), 'cargo', `const fs = require('node:fs'), path = require('node:path');
 const deps = path.join(process.env.CARGO_TARGET_DIR, 'debug', 'deps');
 if (process.argv.includes('--message-format=json')) {
   if (process.env.FAKE_QUERY_FAIL) process.exit(101);
@@ -195,9 +220,9 @@ fs.writeFileSync(path.join(deps, 'librml-1111111111111111.rlib'), 'current');
 fs.writeFileSync(path.join(deps, 'librml-2222222222222222.rlib'), 'superseded');
 fs.writeFileSync(path.join(deps, 'rml-3333333333333333'), 'untouched test kind');
 process.exit(Number(process.env.FAKE_BUILD_STATUS || 0));
-`, { mode: 0o755 });
+`);
   const receipts = () => fs.readdirSync(path.join(f.root, '.rml-cache/evidence')).filter(name => /^\d+-\d+\.json$/.test(name)).map(name => JSON.parse(read(f, `.rml-cache/evidence/${name}`)));
-  const run = extra => f.run(['scripts/run-with-cache.mjs', '--isolate-output', 'rust/target', '--', cargo, 'build', '--locked'], extra);
+  const run = extra => f.run(['scripts/run-with-cache.mjs', '--isolate-output', 'rust/target', '--', cargo, 'build', '--locked'], { ...toolEnv, ...extra });
   const swept = run();
   ok(swept);
   assert.match(swept.stderr, /superseded Cargo units removed=1 reclaimed=10 bytes/);
@@ -216,14 +241,14 @@ process.exit(Number(process.env.FAKE_BUILD_STATUS || 0));
   assert.equal(read(f, 'README.md'), 'source\n');
 });
 
-test('a symlinked alias of the worktree root maps custom targets without resolving in-tree links', { skip: process.platform === 'win32' }, t => {
+test('a symlinked alias of the worktree root maps custom targets without resolving in-tree links', t => {
   const f = fixture(t);
   const aliases = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-root-alias-'));
   const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-alias-outside-'));
   t.after(() => { fs.rmSync(aliases, { recursive: true, force: true }); fs.rmSync(outside, { recursive: true, force: true }); });
   // Like macOS /var -> /private/var: the target names the same worktree.
   const alias = path.join(aliases, 'checkout alias');
-  fs.symlinkSync(f.root, alias, 'dir');
+  fs.symlinkSync(f.root, alias, junction);
   ok(f.wrap(writeProgram('aliased target/debug/a'), [], { CARGO_TARGET_DIR: path.join(alias, 'aliased target') }));
   assert.equal(read(f, 'aliased target/debug/a'), 'cache');
   ok(f.clean('--full'));
@@ -238,7 +263,7 @@ test('a symlinked alias of the worktree root maps custom targets without resolvi
   assert.equal(viaAlias('docker-cache-budget.mjs', []).status, 1);
   // A link below the root is not an alias of the root and stays rejected.
   fs.writeFileSync(path.join(outside, 'keep'), 'outside');
-  fs.symlinkSync(outside, path.join(f.root, 'linked target'), 'dir');
+  fs.symlinkSync(outside, path.join(f.root, 'linked target'), junction);
   assert.notEqual(f.wrap('process.exit(0)', [], { CARGO_TARGET_DIR: path.join(alias, 'linked target', 'debug') }).status, 0);
   ok(f.clean('--full'));
   assert.equal(fs.readFileSync(path.join(outside, 'keep'), 'utf8'), 'outside');
@@ -341,7 +366,38 @@ async function waitFor(predicate, timeout = 10000) {
   while (!predicate()) { if (Date.now() - start > timeout) throw new Error('Timed out waiting for fixture'); await new Promise(r => setTimeout(r, 25)); }
 }
 function finished(child) { return new Promise(resolve => child.once('close', (code, signal) => resolve({ code, signal }))); }
+const running = pid => { try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; } };
+/**
+ * Hard-kill a wrapper whose command wrote `command-pid` and exits once `finish` exists, then recover its lease.
+ * Neither platform runs the wrapper's cleanup. POSIX: the command leads its own process group, outlives the
+ * wrapper and keeps the lease. Windows: libuv's kill-on-close job ends the command with its wrapper.
+ */
+async function hardKillAndRecover(t, f, child, done) {
+  const command = Number(read(f, 'command-pid'));
+  t.after(() => { if (running(command)) process.kill(command, 'SIGKILL'); });
+  child.kill('SIGKILL');
+  await done;
+  if (process.platform === 'win32') await waitFor(() => !running(command));
+  else {
+    assert.equal(running(command), true, 'the command outlives its killed wrapper');
+    const held = f.clean('--full');
+    assert.notEqual(held.status, 0);
+    assert.match(held.stderr, /another build holds the worktree lease/);
+    fs.writeFileSync(path.join(f.root, 'finish'), 'yes');
+    await waitFor(() => !running(command));
+  }
+  const abandoned = f.clean('--full');
+  assert.notEqual(abandoned.status, 0);
+  assert.match(abandoned.stderr, /Abandoned build lease.*--recover/);
+  const recovered = f.run(['scripts/build-cache.mjs', '--recover', '--full']);
+  ok(recovered);
+  assert.match(recovered.stderr, /recovered abandoned lease of killed build/);
+  assert.equal(exists(f, '.git/rml-cache/lock'), false);
+}
 
+// Inapplicable on Windows: no catchable signal reaches another process there (Node's kill is TerminateProcess). Its
+// stop-and-clean path is covered by 'disk exhaustion during a build stops the owned child, records failure, and
+// releases its lease' (build-resource-monitor.test.mjs); hard termination by the 'hard kill' outcomes below.
 test('active parallel wrapper holds lease; interruption stops child then cleans and keeps logs', { skip: process.platform === 'win32' }, async t => {
   const f = fixture(t);
   const program = writeProgram('.rml-cache/scratch/active') + 'console.log("started");setInterval(()=>{},1000)';
@@ -605,7 +661,7 @@ test('source archives require explicit opt-in and still preserve baseline source
   assert.equal(read(f, 'README.md'), 'source\n');
 });
 
-test('hook and report state symlinks are rejected without modifying their target', { skip: process.platform === 'win32' }, t => {
+test('hook and report state symlinks are rejected without modifying their target', t => {
   const f = fixture(t);
   ok(f.run(['scripts/bootstrap.mjs']));
   const hook = path.join(f.git('config', '--get', 'core.hooksPath').trim(), 'pre-commit');
@@ -615,7 +671,7 @@ test('hook and report state symlinks are rejected without modifying their target
   assert.notEqual(f.run(['scripts/bootstrap.mjs']).status, 0);
   assert.equal(fs.readFileSync(outside, 'utf8'), '# RML composed cache hook v1\nprivate\n');
   fs.mkdirSync(path.join(f.root, '.rml-cache'));
-  fs.symlinkSync(path.join(f.root, 'scripts'), path.join(f.root, '.rml-cache/evidence'));
+  fs.symlinkSync(path.join(f.root, 'scripts'), path.join(f.root, '.rml-cache/evidence'), junction);
   assert.notEqual(f.clean('--full').status, 0);
 });
 
@@ -643,15 +699,26 @@ test('hook configuration is per-worktree and never replaces another worktree hoo
   assert.equal(f.git('config', '--get', 'core.hooksPath').trim(), ownHooks);
 });
 
-test('missing Node is an explicit hook failure instead of silently disabling cleanup', { skip: process.platform === 'win32' }, t => {
+test('missing Node is an explicit hook failure instead of silently disabling cleanup', t => {
   const f = fixture(t);
   ok(f.run(['scripts/bootstrap.mjs']));
-  const bin = path.join(f.root, 'minimal tools');
-  fs.mkdirSync(bin);
-  const gitBinary = execFileSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).trim();
-  fs.symlinkSync(gitBinary, path.join(bin, 'git'));
+  let bin, shell = '/bin/sh';
+  if (process.platform === 'win32') {
+    // Git for Windows runs hooks with its MSYS sh; its exec path holds git.exe and never Node.
+    bin = execFileSync('git', ['--exec-path'], { encoding: 'utf8' }).trim();
+    shell = path.resolve(bin, '../../../usr/bin/sh.exe');
+    assert.ok(fs.existsSync(shell), shell);
+    assert.equal(fs.existsSync(path.join(bin, 'node.exe')), false);
+  } else {
+    bin = path.join(f.root, 'minimal tools');
+    fs.mkdirSync(bin);
+    const gitBinary = execFileSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).trim();
+    fs.symlinkSync(gitBinary, path.join(bin, 'git'));
+  }
   const hook = path.join(f.git('config', '--get', 'core.hooksPath').trim(), 'pre-commit');
-  const result = spawnSync('/bin/sh', [hook], { cwd: f.root, encoding: 'utf8', env: fixtureEnvironment({ PATH: bin }) });
+  // Environment names are case-insensitive on Windows: replace Path instead of adding a second spelling.
+  const env = Object.fromEntries(Object.entries(fixtureEnvironment()).filter(([name]) => name.toUpperCase() !== 'PATH'));
+  const result = spawnSync(shell, [hook], { cwd: f.root, encoding: 'utf8', env: { ...env, PATH: bin } });
   assert.equal(result.status, 127);
   assert.match(result.stderr, /requires Node/);
 });
@@ -736,13 +803,15 @@ for (const scope of ['foreign-namespace', 'foreign-boot', 'unknown-identity', 'l
   });
 }
 
-test('matching token and colliding live PID never borrow a foreign namespace lease', { skip: process.platform !== 'linux' }, t => {
+test('matching token and colliding live PID never borrow a foreign namespace lease', async t => {
   const f = fixture(t);
+  const { processIdentity } = await import('./build-cache.mjs');
+  // This host's real realm (Linux PID namespace, macOS boot session, Windows process-tree root), made foreign.
+  const identity = processIdentity();
+  assert.ok(identity.bootId && identity.pidNamespace, JSON.stringify(identity));
   const dir = path.join(f.root, '.git/rml-cache/lock');
   fs.mkdirSync(dir, { recursive: true });
-  const owner = { pid: process.pid, host: os.hostname(), token: 'colliding-token', processIdentity: {
-    platform: 'linux', host: os.hostname(), bootId: fs.readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim(), pidNamespace: `${fs.readlinkSync('/proc/self/ns/pid')}:foreign`,
-  } };
+  const owner = { pid: process.pid, host: os.hostname(), token: 'colliding-token', processIdentity: { ...identity, pidNamespace: `${identity.pidNamespace}:foreign` } };
   fs.writeFileSync(path.join(dir, 'owner.json'), JSON.stringify(owner));
   const result = f.wrap(writeProgram('target/must-not-start'), [], { RML_CACHE_LEASE: owner.token, RML_CACHE_LOCK_TIMEOUT_MS: '0' });
   assert.notEqual(result.status, 0);
@@ -810,12 +879,14 @@ for (const exitCode of [0, 41]) {
   });
 }
 
-for (const outcome of ['success', 'failure', 'interrupt']) {
+for (const outcome of ['success', 'failure', 'interrupt', 'hard kill']) {
+  // The interrupt outcome is inapplicable on Windows: no catchable signal reaches another process there; the
+  // 'hard kill' outcome is its portable termination counterpart.
   test(`concurrent user files and edits survive ${outcome} with explicit producer receipts`, { skip: outcome === 'interrupt' && process.platform === 'win32' }, async t => {
     const f = fixture(t);
     ok(f.wrap(writeProgram('target/previous', 'old compiler output')));
     const program = writeProgram('target/generated', 'owned compiler output') + `
-      const fs=require('node:fs');fs.writeFileSync('ready','yes');
+      const fs=require('node:fs');fs.writeFileSync('command-pid',String(process.pid));fs.writeFileSync('ready','yes');
       const timer=setInterval(()=>{if(fs.existsSync('finish')){clearInterval(timer);process.exit(${outcome === 'failure' ? 29 : 0})}},25);
     `;
     const child = spawn(node, ['scripts/run-with-cache.mjs', '--', node, '-e', program], { cwd: f.root, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), stdio: 'pipe' });
@@ -824,13 +895,18 @@ for (const outcome of ['success', 'failure', 'interrupt']) {
     await waitFor(() => exists(f, 'ready'));
     fs.writeFileSync(path.join(f.root, 'target/new-user-file'), 'concurrent user data');
     fs.writeFileSync(path.join(f.root, 'target/previous'), 'user edited existing output during build');
-    if (outcome === 'interrupt') child.kill('SIGTERM');
-    else fs.writeFileSync(path.join(f.root, 'finish'), 'yes');
-    assert.equal((await done).code, outcome === 'interrupt' ? 143 : outcome === 'failure' ? 29 : 0);
+    if (outcome === 'hard kill') await hardKillAndRecover(t, f, child, done);
+    else {
+      if (outcome === 'interrupt') child.kill('SIGTERM');
+      else fs.writeFileSync(path.join(f.root, 'finish'), 'yes');
+      assert.equal((await done).code, outcome === 'interrupt' ? 143 : outcome === 'failure' ? 29 : 0);
+    }
     ok(f.clean('--full'));
     assert.equal(read(f, 'target/new-user-file'), 'concurrent user data');
     assert.equal(read(f, 'target/previous'), 'user edited existing output during build');
-    assert.equal(exists(f, 'target/generated'), false);
+    // A hard-killed wrapper never receipted its output, so cleanup fails safe and keeps it.
+    if (outcome === 'hard kill') assert.equal(read(f, 'target/generated'), 'owned compiler output');
+    else assert.equal(exists(f, 'target/generated'), false);
     const registry = JSON.parse(read(f, '.git/rml-cache/registry.json'));
     assert.deepEqual(registry.files, {});
   });
@@ -907,6 +983,8 @@ test('a native producer reuses unchanged private warm output and quarantines use
   assert.equal(fs.readFileSync(path.join(second.target, 'user-note'), 'utf8'), 'private work inside old target');
 });
 
+// Inapplicable on Windows: the runner has no POSIX make/cc toolchain (MSVC nmake/cl needs a vcvars environment); warm
+// private-output reuse is covered there by 'a native producer reuses unchanged private warm output and quarantines user edits'.
 test('a real native make/compiler operation reuses its private compiled artifact', { skip: process.platform === 'win32' }, t => {
   if (spawnSync('make', ['--version']).status !== 0 || spawnSync('cc', ['--version']).status !== 0) { t.skip('native make/cc toolchain is not installed'); return; }
   const f = fixture(t);
@@ -935,7 +1013,8 @@ test('a real native make/compiler operation reuses its private compiled artifact
   assert.equal(fs.existsSync(executable), false);
 });
 
-for (const outcome of ['success', 'failure', 'interrupt']) {
+for (const outcome of ['success', 'failure', 'interrupt', 'hard kill']) {
+  // As above, Windows covers the interrupt outcome by the portable 'hard kill' outcome.
   test(`concurrent writes to the prior private target survive ${outcome} of the next producer`, { skip: outcome === 'interrupt' && process.platform === 'win32' }, async t => {
     const f = fixture(t);
     const program = `const fs=require('node:fs'),path=require('node:path');
@@ -945,7 +1024,7 @@ for (const outcome of ['success', 'failure', 'interrupt']) {
     const previous = read(f, 'previous-target');
     const waiting = `const fs=require('node:fs'),path=require('node:path');
       if(fs.readFileSync(path.join(process.env.RML_CACHE_OUTPUT_DIR,'dependency.bin'),'utf8')!=='verified compiler bytes')process.exit(81);
-      fs.writeFileSync('ready',process.env.RML_CACHE_OUTPUT_DIR);
+      fs.writeFileSync('command-pid',String(process.pid));fs.writeFileSync('ready',process.env.RML_CACHE_OUTPUT_DIR);
       const timer=setInterval(()=>{if(fs.existsSync('finish')){clearInterval(timer);process.exit(${outcome === 'failure' ? 37 : 0})}},25);`;
     const child = spawn(node, ['scripts/run-with-cache.mjs', '--isolate-output', 'target', '--', node, '-e', waiting], { cwd: f.root, env: fixtureEnvironment({ RML_CACHE_MIN_FREE_BYTES: '0' }), stdio: 'pipe' });
     const done = finished(child);
@@ -954,14 +1033,19 @@ for (const outcome of ['success', 'failure', 'interrupt']) {
     const current = read(f, 'ready');
     fs.writeFileSync(path.join(previous, 'dependency.bin'), 'my edited prior artifact');
     fs.writeFileSync(path.join(previous, 'user-note'), 'my concurrent notes');
-    if (outcome === 'interrupt') child.kill('SIGTERM');
-    else fs.writeFileSync(path.join(f.root, 'finish'), 'yes');
-    assert.equal((await done).code, outcome === 'interrupt' ? 143 : outcome === 'failure' ? 37 : 0);
+    if (outcome === 'hard kill') await hardKillAndRecover(t, f, child, done);
+    else {
+      if (outcome === 'interrupt') child.kill('SIGTERM');
+      else fs.writeFileSync(path.join(f.root, 'finish'), 'yes');
+      assert.equal((await done).code, outcome === 'interrupt' ? 143 : outcome === 'failure' ? 37 : 0);
+    }
     ok(f.clean('--full'));
     assert.equal(fs.readFileSync(path.join(previous, 'user-note'), 'utf8'), 'my concurrent notes');
     assert.equal(fs.readFileSync(path.join(previous, 'dependency.bin'), 'utf8'), 'my edited prior artifact');
     assert.notEqual(current, previous);
-    assert.equal(fs.existsSync(path.join(current, 'dependency.bin')), false);
+    // A hard-killed wrapper never receipted its private target, so cleanup fails safe and keeps it.
+    if (outcome === 'hard kill') assert.equal(fs.readFileSync(path.join(current, 'dependency.bin'), 'utf8'), 'verified compiler bytes');
+    else assert.equal(fs.existsSync(path.join(current, 'dependency.bin')), false);
   });
 }
 
@@ -990,7 +1074,7 @@ test('atomic editor replacement at deletion is restored without deleting its new
   assert.ok(result.protected.some(item => /user data restored/.test(item.reason)));
 });
 
-test('an ancestor symlink substitution cannot redirect deletion into outside data', { skip: process.platform === 'win32' }, async t => {
+test('an ancestor symlink substitution cannot redirect deletion into outside data', async t => {
   const f = fixture(t);
   ok(f.wrap(writeProgram('target/cache.bin', 'owned cache bytes')));
   const { context, cleanup } = await import('./build-cache.mjs');
@@ -1004,7 +1088,7 @@ test('an ancestor symlink substitution cannot redirect deletion into outside dat
     if (!injected && path.basename(from) === 'cache.bin' && path.basename(to) === 'artifact') {
       injected = true;
       rename(parent, `${parent}.saved-owned`);
-      fs.symlinkSync(outside, parent, 'dir');
+      fs.symlinkSync(outside, parent, junction);
     }
     return rename(from, to);
   };
@@ -1096,6 +1180,35 @@ test('a hard-killed build lease is recovered only by --recover once nothing of i
   assert.equal(exists(f, 'target/before-kill'), false);
 });
 
+test('a surviving in-tree descendant of a killed build keeps its lease even outside its process group', async t => {
+  const f = fixture(t);
+  const { processIdentity } = await import('./build-cache.mjs');
+  ok(f.wrap(writeProgram('target/still-used')));
+  // The killed command's descendant detached from its group (Windows: from its job) and still runs in the tree.
+  const leader = spawnSync(node, ['-e', "const c=require('node:child_process').spawn(process.execPath,['-e','setTimeout(()=>{},60000)'],{detached:true,stdio:'ignore'});c.unref();console.log(c.pid)"], { cwd: f.root, encoding: 'utf8' });
+  ok(leader);
+  const descendant = Number(leader.stdout.trim());
+  assert.ok(Number.isInteger(descendant) && descendant > 0, leader.stdout);
+  t.after(() => { if (running(descendant)) process.kill(descendant, 'SIGKILL'); });
+  const dir = abandonedLease(f, { pid: deadPid(), child: leader.pid, processIdentity: processIdentity() });
+  const owner = fs.readFileSync(path.join(dir, 'owner.json'), 'utf8');
+  const refused = f.run(['scripts/build-cache.mjs', '--recover', '--full']);
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /Active unleased build process/);
+  assert.equal(fs.readFileSync(path.join(dir, 'owner.json'), 'utf8'), owner);
+  assert.equal(read(f, 'target/still-used'), 'cache');
+  process.kill(descendant, 'SIGKILL');
+  await waitFor(() => !running(descendant));
+  const recovered = f.run(['scripts/build-cache.mjs', '--recover', '--full']);
+  ok(recovered);
+  assert.match(recovered.stderr, /recovered abandoned lease of killed build/);
+  assert.equal(fs.existsSync(dir), false);
+  assert.equal(exists(f, 'target/still-used'), false);
+});
+
+// Inapplicable on Windows: it has no POSIX process groups. A descendant that outlives the killed build is covered
+// there by 'a surviving in-tree descendant of a killed build keeps its lease even outside its process group', and
+// the command's death with its wrapper (job kill-on-close) by the 'hard kill' outcomes above.
 test('a killed build whose process group still runs, or an interrupted recovery, keeps its lease', { skip: process.platform === 'win32' }, async t => {
   const f = fixture(t);
   const { processIdentity } = await import('./build-cache.mjs');

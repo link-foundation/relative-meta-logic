@@ -63,13 +63,14 @@ test('superseded units of referenced kinds are removed while fresh, untouched an
   assert.deepEqual(sweepSupersededUnits(root, referencedUnits(messages(root), root)).removed, []);
 });
 
-test('a symlinked profile or deps directory is never followed', { skip: process.platform === 'win32' }, t => {
+test('a symlinked profile or deps directory is never followed', t => {
   const { root } = target(t);
   const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-cargo-outside-'));
   t.after(() => fs.rmSync(outside, { recursive: true, force: true }));
   fs.writeFileSync(path.join(outside, `librml-${OLD}.rlib`), 'outside');
   fs.rmSync(path.join(root, 'debug/deps'), { recursive: true });
-  fs.symlinkSync(outside, path.join(root, 'debug/deps'), 'dir');
+  // Windows creates the unprivileged directory link, a junction, which lstat also reports as a link.
+  fs.symlinkSync(outside, path.join(root, 'debug/deps'), process.platform === 'win32' ? 'junction' : 'dir');
   const result = sweepSupersededUnits(root, referencedUnits(messages(root), root));
   assert.ok(result.removed.every(item => !item.startsWith('debug/deps/')));
   assert.equal(fs.readFileSync(path.join(outside, `librml-${OLD}.rlib`), 'utf8'), 'outside');
