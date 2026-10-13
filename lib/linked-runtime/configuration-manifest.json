@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "31bbd4f4dacd26f08cc0af090c6cd320b76de9246c8cef6b4d1d25f1df6c5a04",
-  "archiveBytes": 719393,
-  "linkCount": 14559,
+  "archiveSha256": "412e7b900c980f891c7f9bfaf93a0172ae9a2d00df5340c7f03e871a3cb77f84",
+  "archiveBytes": 761222,
+  "linkCount": 14576,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -281,6 +281,11 @@
       "generatedSha256": "5a013dfee749a5d826e008cce778dd4e9274b26462202af9d480ca7b07db61ae"
     },
     {
+      "path": "lib/meta-theory/meta-theory-native-prelude.lino",
+      "sourceSha256": "31a7492c180268241398b06f00d37ed2c7c4e621ee734bb55794d2f47852ed0f",
+      "generatedSha256": "31a7492c180268241398b06f00d37ed2c7c4e621ee734bb55794d2f47852ed0f"
+    },
+    {
       "path": "lib/meta-theory/proof-verifier.lino",
       "sourceSha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f",
       "generatedSha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
@@ -299,6 +304,16 @@
       "path": "lib/meta-theory/upstream-0.0.3-foundation.lino",
       "sourceSha256": "93430a406b9b7cf536b8e07eea3ff5a03f7ddbc6bd9a287ae19f3006505a2963",
       "generatedSha256": "93430a406b9b7cf536b8e07eea3ff5a03f7ddbc6bd9a287ae19f3006505a2963"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-native-conversion.lino",
+      "sourceSha256": "eebabfcee597e265b90a4ff21d9aa6189a1153f50b942c099d0f80e06f3a02cf",
+      "generatedSha256": "eebabfcee597e265b90a4ff21d9aa6189a1153f50b942c099d0f80e06f3a02cf"
+    },
+    {
+      "path": "lib/meta-theory/upstream-0.0.3-native.lino",
+      "sourceSha256": "5711f39e9eb7d770e0a945412df3e80f69e8b7d66ad6a571ee9227f40ed2aa6e",
+      "generatedSha256": "5711f39e9eb7d770e0a945412df3e80f69e8b7d66ad6a571ee9227f40ed2aa6e"
     },
     {
       "path": "lib/meta-theory/upstream-0.0.3-source/LICENSE",
@@ -717,8 +732,8 @@
     },
     {
       "path": "scripts/lint-english.allowlist.json",
-      "sourceSha256": "7d04f1d5971db43643d96f158f77f40b89ea610efde9cb52c676dabbf59a4f1f",
-      "generatedSha256": "91f7f2b9fa08623b221d194f483469a95c01d11c8e811241e2561f05f5bf44b1"
+      "sourceSha256": "468bb558c4c1d82d627ecd6e33a0a3956b44ebdf778744a71aeb36ecd2213d89",
+      "generatedSha256": "57e146a3963f4c8198eea61f031dca47a144635dd2482aa5fbc13a6cee97eff6"
     },
     {
       "path": "vscode/.vscodeignore",

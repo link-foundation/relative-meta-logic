@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-rust-implementation-manifest/v1",
-  "moduleCount": 48,
-  "linkCount": 312923,
+  "moduleCount": 52,
+  "linkCount": 340814,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -52,6 +52,14 @@
       "astSha256": "9ea2ac3ab2f7d8332a7639d40f5ba81d62cfabb2b68c1ae649aaa2acb2270d25",
       "generatedSha256": "b67202158f4b67ae5b7c4c33afdfb4d811c58411c573465dfca226ab13461a6a",
       "macroInvocations": 11,
+      "verbatimNodes": 0
+    },
+    {
+      "path": "rust/examples/meta_theory_workflow.rs",
+      "sourceSha256": "af6455c928afea0cfc4e53d1556dee7fd9b0c82204d446a4e7a06a5e77ce4a97",
+      "astSha256": "592d02e6a98f567297cbf20f8093649c16b9729bd20c1fed4240a7b032baf567",
+      "generatedSha256": "3395fe60853bbd5347d9de31da56d70da53adbc89974ba18e922e817a148934e",
+      "macroInvocations": 35,
       "verbatimNodes": 0
     },
     {
@@ -216,18 +224,18 @@
     },
     {
       "path": "rust/src/foundation_packages.rs",
-      "sourceSha256": "ae70ee649411e3b4bd338b966ab065fd4b9de22bb3c5b14d300c4b259491b0ad",
-      "astSha256": "2dccbc5293393a8466b76065b1a9e2a4424759436871ae2a08b8a6aeeb20e952",
-      "generatedSha256": "388a5750f2da7ae21e66dea9e9667281e548128218fc7f9de2bb779b55bf43ed",
+      "sourceSha256": "542c599545ca13037a03975abcb4351dbe5895387965369ce4ef26613bb02410",
+      "astSha256": "173be6e73c4480ed844a86cc21100057ca50d182c7287220c9b0ed300a8c08c9",
+      "generatedSha256": "17c3a96fa77938ff7073fced83ac2564ef255c2303e8b52ef0e776d35daa39e0",
       "macroInvocations": 19,
       "verbatimNodes": 0
     },
     {
       "path": "rust/src/foundation_workspace.rs",
-      "sourceSha256": "acf59a4a96f9189294448cc73b49e66282a88df0091904d3959e289628eb3fcd",
-      "astSha256": "caf917e732ba7126f531f27018f7adc9e022763ea48200f0cd592490d9af1a1a",
-      "generatedSha256": "cc64505543f1bfefabdd797ec08c993c2444cc8ad23d3a0676170b666a3ddec8",
-      "macroInvocations": 120,
+      "sourceSha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07",
+      "astSha256": "f6ac0e2a80898fb5bb272077ac018ebbc0306398055cf140e4551a6e959d7342",
+      "generatedSha256": "db5aba5dd116d8d8668f09a2153e8b465213a40413ee4e815c0e0c45ef3905c8",
+      "macroInvocations": 128,
       "verbatimNodes": 0
     },
     {
@@ -256,9 +264,9 @@
     },
     {
       "path": "rust/src/lib.rs",
-      "sourceSha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609",
-      "astSha256": "6952ba06785076a5fcfd7b2bca565c270a3f68a54d7e0267e52c8a72e22076b6",
-      "generatedSha256": "31ce2c629207132d4974f099b2f5966192082f8fa6ef903ad439ee16d18027a2",
+      "sourceSha256": "e48ffd9d9ef459f4a68fc62d7ce26768f97e1ab827702f04480a6f262ef1d387",
+      "astSha256": "23cb248981ceac23cd44e24396bd803d4a8c90cf4986103b31ebe7ae480f527d",
+      "generatedSha256": "46894666f0e0e950c69945c05b7207b31325539aab38e84cd036a1b0018c785d",
       "macroInvocations": 561,
       "verbatimNodes": 0
     },
@@ -335,6 +343,22 @@
       "verbatimNodes": 0
     },
     {
+      "path": "rust/src/meta_theory_certificates.rs",
+      "sourceSha256": "357991c18891094be019d1a9dcbedb6a288d7c220ec964ca69eaa74d23fb2708",
+      "astSha256": "06fc3b1381aa4d5dc928ad6e3672be6899f6e61c7121ab234e2504646dbf4f5c",
+      "generatedSha256": "9a9c00b80eb445b5d70338cf0ef5077efb44f116cbd878a42c721488b48ca3f7",
+      "macroInvocations": 33,
+      "verbatimNodes": 0
+    },
+    {
+      "path": "rust/src/meta_theory_native.rs",
+      "sourceSha256": "43d5d318a5c588523322fa2b3ee30e4b7a897f6aa6061614674c21c5fb9028ac",
+      "astSha256": "f136be32446dac55e6f226182bec43d8cc6056590b2f0ea3236a83b0260404b8",
+      "generatedSha256": "64a887c5c492f3bf02237ab4a93cd98f7fa09d652386721e65cbb30b32df75bd",
+      "macroInvocations": 10,
+      "verbatimNodes": 0
+    },
+    {
       "path": "rust/src/portable_natural.rs",
       "sourceSha256": "4ec04b05b690c1bb67f5fc26f2cf17970034b96260fb055c81fec569127fa1bd",
       "astSha256": "ee7dc2dfc67175742700d2cb8647cfb8f2bd37e058868af3d344878937e9d78d",
@@ -364,6 +388,14 @@
       "astSha256": "dc4eaeab126183fd328a041ca24958aba7a485c49f418255e60470c42328b7a5",
       "generatedSha256": "c2bf42273c3e21cce5fb29e9b2c856a5ab1529b9bcf06099929d5bf71dbc87c2",
       "macroInvocations": 1,
+      "verbatimNodes": 0
+    },
+    {
+      "path": "rust/src/semantic_closure.rs",
+      "sourceSha256": "5dafac7f0f89d2d4f7349363861111fe33c98a21baba79edd0da33ab4642303c",
+      "astSha256": "13643e09c006fdfbe2d6cd5bf23219a8da28c95e5de08f7c3f45ea9d5a01b471",
+      "generatedSha256": "af1b305c7422b3704cf72f132cae94b4120502e29fcbbaddcbed540e851f5e01",
+      "macroInvocations": 79,
       "verbatimNodes": 0
     },
     {
@@ -402,8 +434,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveBytes": 1425500,
-  "archiveSha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0",
+  "archiveBytes": 1552719,
+  "archiveSha256": "4677fdb23d922a55dd8d22c4f4221f53f493d5a875353b7d78a99ffe8e3df762",
   "toolLockSha256": "acfd9616c8b3e7740701bd61a4981f4029cfbedfdacb884af7900526182df829",
   "toolSources": [
     {
