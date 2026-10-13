@@ -7373,7 +7373,7 @@
     {
       "id": "R52",
       "obligation": "Align repository-wide architecture and vision documentation with the latest links-represented design.",
-      "status": "Partial — current bootstrap documented",
+      "status": "Partial — current tree, specifications and certified translation documented; product-level links-represented closure (R151) not yet the architecture",
       "originalWording": [
         {
           "sourceId": "comment-5750752869",
@@ -7426,11 +7426,11 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`README.md`, `ARCHITECTURE.md`, `docs/FOUNDATIONS.md`, and `docs/META_THEORY.md` align on the current `external laws -> linked source -> K1 -> F -> T` boundary; `full-language, recursive ontology, workflow, and open-gap documentation is not yet repository-wide` (R132).",
+      "claimedEvidence": "`README.md`, `ARCHITECTURE.md`, `docs/FOUNDATIONS.md`, and `docs/META_THEORY.md` align on the current `external laws -> linked source -> K1 -> F -> T` boundary. The 2026-10-14 sweep rewrote the `ARCHITECTURE.md` project tree for `lib/`, `test-corpus/`, `scripts/`, `docs/`, `js/vendor/`, `docker/` and `vscode/`, corrected the runtime dependency list, and added source-specification and certified-translation sections with their open gaps. The vision of a parser, elaborator, compiler and code generator that are themselves links (R151) is still not the implemented architecture, and full-language, recursive-ontology and workflow documentation follows those open rows (R132).",
       "checks": [
         "docs-issue-183"
       ],
-      "remainingGap": "`README.md`, `ARCHITECTURE.md`, `docs/FOUNDATIONS.md`, and `docs/META_THEORY.md` align on the current `external laws -> linked source -> K1 -> F -> T` boundary; `full-language, recursive ontology, workflow, and open-gap documentation is not yet repository-wide` (R132).",
+      "remainingGap": "`README.md`, `ARCHITECTURE.md`, `docs/FOUNDATIONS.md`, and `docs/META_THEORY.md` align on the current `external laws -> linked source -> K1 -> F -> T` boundary. The 2026-10-14 sweep rewrote the `ARCHITECTURE.md` project tree for `lib/`, `test-corpus/`, `scripts/`, `docs/`, `js/vendor/`, `docker/` and `vscode/`, corrected the runtime dependency list, and added source-specification and certified-translation sections with their open gaps. The vision of a parser, elaborator, compiler and code generator that are themselves links (R151) is still not the implemented architecture, and full-language, recursive-ontology and workflow documentation follows those open rows (R132).",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -34171,7 +34171,7 @@
     {
       "id": "R134",
       "obligation": "Align all guides, examples, case-study data, capability data, and release notes with actual behavior and open gaps.",
-      "status": "Partial — runtime/source guides and coverage updated; repository-wide sweep open",
+      "status": "Partial — 2026-10-14 sweep aligned guides, READMEs, counts, versions and Rust commands; historical case studies keep their original references",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -34191,11 +34191,11 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. `The complete repository-wide guides/examples/capability/release-note reconciliation remains unestablished`, including final release publication and full-language claims.",
+      "claimedEvidence": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. The 2026-10-14 sweep corrected the certified-translation counts against `receipt.lino` (12 programs, 36 translations, 48 refusal receipts), links-notation 0.26.0 across the guides, the Node engines range, the dependency lists, the shared-versus-JavaScript-only test scope, the examples and test-corpus indexes, and every Rust test command (now `node scripts/cargo.mjs` or marked hosted-CI only); `docs/case-studies/issue-183/README.md` indexes every note with its status. Not reconciled: historical case studies (issues 26, 68, 97, 138, 163, 167, 181) keep references to removed files, `docs/DEPENDENCY_AUDIT.md` keeps its dated table, `docs/FORMAL_PROPOSITIONS.md` is hash-frozen with a raw `cargo test` line, no release notes are published, and documentation claims are checked only by path, link and freshness tests rather than executed against behavior.",
       "checks": [
         "docs-issue-183"
       ],
-      "remainingGap": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. `The complete repository-wide guides/examples/capability/release-note reconciliation remains unestablished`, including final release publication and full-language claims.",
+      "remainingGap": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. The 2026-10-14 sweep corrected the certified-translation counts against `receipt.lino` (12 programs, 36 translations, 48 refusal receipts), links-notation 0.26.0 across the guides, the Node engines range, the dependency lists, the shared-versus-JavaScript-only test scope, the examples and test-corpus indexes, and every Rust test command (now `node scripts/cargo.mjs` or marked hosted-CI only); `docs/case-studies/issue-183/README.md` indexes every note with its status. Not reconciled: historical case studies (issues 26, 68, 97, 138, 163, 167, 181) keep references to removed files, `docs/DEPENDENCY_AUDIT.md` keeps its dated table, `docs/FORMAL_PROPOSITIONS.md` is hash-frozen with a raw `cargo test` line, no release notes are published, and documentation claims are checked only by path, link and freshness tests rather than executed against behavior.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
