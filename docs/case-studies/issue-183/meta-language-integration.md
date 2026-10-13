@@ -25,7 +25,9 @@ shared four-language fixture is exercised in both runtimes, including invalid
 input and missing-context/capture refusal. Full semantic translation remains
 open: upstream's unsupported-input envelopes do not satisfy that requirement.
 
-RML now uses maintained links-notation 0.25.1 in both runtimes, with its existing
+RML now uses maintained links-notation 0.26.0 in both runtimes (selected in the
+2026-10-13 registry refresh; its sources are byte-identical to the audited
+0.25.1, see [DEPENDENCY_AUDIT.md](../../DEPENDENCY_AUDIT.md)), with its existing
 LiNo frontend and structured-links-network corpus checked for compatibility. Existing
 RML-specific syntax and portable-natural behavior remain separate from the
 newly consumed general-language APIs.

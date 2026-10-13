@@ -215,6 +215,11 @@ export async function execute(command, env, log, onSpawn, checkResources, onReso
 }
 async function main() {
   const opts = options(process.argv.slice(2));
+  if (/^cargo(?:\.exe)?$/i.test(path.basename(opts.command[0]))) {
+    const { cargoCompiles, localRustRefusal } = await import('./local-rust-policy.mjs');
+    const refusal = cargoCompiles(opts.command.slice(1)) && localRustRefusal();
+    if (refusal) { console.error(`run-with-cache: refused: ${refusal}`); process.exitCode = 97; return; }
+  }
   const c = context();
   const authorityGuard = path.join(c.root, 'scripts/check-linked-implementation.mjs');
   const checkAuthority = async () => {

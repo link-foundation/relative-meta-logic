@@ -296,7 +296,7 @@ Everything else used by the typed kernel — `pi-formation`,
 is `links-defined` / `links-checked`. The trust audit therefore states
 the entire kernel boundary in a single report rather than burying it in
 source code; the pinning test
-`js/tests/typed-kernel-links.test.mjs:184` ("reports the complete
+`js/tests/typed-kernel-links.test.mjs` ("reports the complete
 typed-kernel boundary in foundation-report") enforces the boundary
 mechanically.
 

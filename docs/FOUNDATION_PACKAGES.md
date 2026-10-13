@@ -126,7 +126,7 @@ Both test suites load the same two independent source fixtures in
 
 ```sh
 node --test js/tests/foundation-packages.test.mjs js/tests/foundation-unseen-logic.test.mjs
-cargo test --manifest-path rust/Cargo.toml --test foundation_packages_tests --test foundation_unseen_logic_tests
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --test foundation_packages_tests --test foundation_unseen_logic_tests   # hosted CI only
 ```
 
 Positive tests cover concurrent same-name/version-separated behavior, explicitly

@@ -141,10 +141,10 @@ JavaScript:
 node --test js/tests/foundation-context.test.mjs js/tests/foundation-workspace.test.mjs
 ```
 
-Rust:
+Rust (hosted CI only; refused locally unless `RML_ALLOW_LOCAL_RUST=1`):
 
 ```sh
-cargo test --manifest-path rust/Cargo.toml --test foundation_context_tests --test foundation_workspace_tests
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --test foundation_context_tests --test foundation_workspace_tests
 ```
 
 Both context test files load exactly the same Links fixture and exercise the
@@ -200,7 +200,7 @@ Run the mirrored confidence tests:
 
 ```sh
 node --test js/tests/confidence-context.test.mjs
-cargo test --manifest-path rust/Cargo.toml --test confidence_context_tests
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --test confidence_context_tests   # hosted CI only
 ```
 
 The full joint-estimation and mutation witnesses use the public direct-structural

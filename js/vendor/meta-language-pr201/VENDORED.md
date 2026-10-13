@@ -51,8 +51,8 @@ as RML's owned linked implementation.
   `LinkMetadata` class identity shared with RML.
 
 The copied modules use `links-notation` only to read the two `.lino` data files.
-They resolve RML's installed `links-notation@0.25.1` instead of upstream's pinned
-0.22.0; the vendored tests exercise this combination.
+They resolve RML's installed `links-notation` (0.26.0, pinned in `js/package.json`)
+instead of upstream's pinned 0.22.0; the vendored tests exercise this combination.
 
 ## Removal criteria
 

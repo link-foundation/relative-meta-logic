@@ -436,6 +436,18 @@ Path queries keep a visited set. Local terms share explicit concept addresses,
 so `translateTerm` / `translate_term` translates through data rather than a
 hard-coded vocabulary.
 
+Separate, fuller source specifications of simple types, finite graphs, and
+relational algebra live in
+[`lib/meta-theory/type-specification.lino`](../lib/meta-theory/type-specification.lino),
+[`graph-specification.lino`](../lib/meta-theory/graph-specification.lino), and
+[`relational-algebra-specification.lino`](../lib/meta-theory/relational-algebra-specification.lino).
+Both runtimes execute them with the direct structural reducer, and the linked
+natural-deduction verifier checks their theorem certificates. Their laws and
+meta-theorems are certified on named instances and tested on bounded ones, not
+proved universally; the type specification has no polymorphism, recursion,
+sums, or dependent types. See
+[`case-studies/issue-183/meta-theory-specifications.md`](./case-studies/issue-183/meta-theory-specifications.md).
+
 ## Loading the bundled network
 
 The executable program forms and network declarations are concatenated as one

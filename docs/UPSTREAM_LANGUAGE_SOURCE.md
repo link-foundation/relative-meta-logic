@@ -46,8 +46,8 @@ and licenses are preserved. The verifier checks every shipped runtime file,
 RML's manifests and all four Rust consumer locks; `--source /path/to/official/checkout` additionally
 checks an independently materialized checkout at the exact commit.
 
-RML uses links-notation 0.25.1 in JavaScript and Rust. The vendored JavaScript
-runtime resolves RML's 0.23.0 as well; its unmodified upstream package metadata
+RML uses links-notation 0.26.0 in JavaScript and Rust. The vendored JavaScript
+runtime resolves RML's 0.26.0 as well; its unmodified upstream package metadata
 names 0.22.0, so this is an explicitly tested dependency upgrade. The Rust
 upstream crate retains its own 0.22.0 dependency. Both JavaScript dependencies
 and the Rust registry dependency are locked. Generated upstream parser binaries and
@@ -117,6 +117,14 @@ ECMAScript 2026, Lean 4.34.1 and Rocq 9.3. Successful local parser tests and
 older installed proof tools do not establish those native toolchain contracts.
 RML's own bounded portable-natural translator and proof verifier remain
 separately tested implementations.
+
+RML's [certified translation](case-studies/issue-183/certified-translation.md)
+does not use this release for its frontends. It uses a separate, temporarily
+vendored copy of unreleased meta-language PR #201
+([`js/vendor/meta-language-pr201`](../js/vendor/meta-language-pr201/VENDORED.md),
+reached through `#meta-language-pr201/*`), pinned by commit and a per-file hash
+lock and registered as a declared external boundary. It is removed once a
+meta-language release ships those frontends, the checker, and the emitters.
 
 ## Verification commands
 

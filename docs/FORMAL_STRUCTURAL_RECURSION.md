@@ -12,10 +12,10 @@ Run the JavaScript contracts from the repository root:
 node scripts/run-with-cache.mjs -- node --test --test-concurrency=1 js/tests/formal-collections.test.mjs js/tests/formal-definition-context.test.mjs js/tests/formal-recursion.test.mjs
 ```
 
-Run the same 37 recursion obligations in Rust:
+Run the same 37 recursion obligations in Rust (hosted CI only; refused locally unless `RML_ALLOW_LOCAL_RUST=1`):
 
 ```sh
-node scripts/run-with-cache.mjs -- cargo test --manifest-path rust/Cargo.toml --locked --test formal_recursion_tests -- --test-threads=1
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --locked --test formal_recursion_tests -- --test-threads=1
 ```
 
 The fixture generator only constructs generic terms and expected normal forms. It does not invoke a native prover or obtain expected values from the reducer under test:

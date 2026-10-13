@@ -105,7 +105,9 @@ are not executable authority; the manifest additionally records the original
 source-byte digest for snapshot provenance.
 
 For Rust, build the pinned generic adapter with
-`cargo build --locked --manifest-path scripts/linked-runtime-rust/Cargo.toml`.
+`cargo build --locked --manifest-path scripts/linked-runtime-rust/Cargo.toml`
+(on hosted CI; the repository's Rust verifiers refuse to compile Rust outside CI
+unless `RML_ALLOW_LOCAL_RUST=1` is set).
 Pass the resulting `rml-linked-rust-ast` executable to
 `scripts/generate-linked-rust-runtime.mjs --capture HELPER`, `--check HELPER`, or
 `--emit HELPER OUTPUT`. Emit uses only the supplied Link ASTs and the unchanged

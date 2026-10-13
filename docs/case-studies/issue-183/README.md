@@ -361,3 +361,24 @@ foundations.
 Native Lean/Rocq builds cross-check the pinned external artifact. They cannot
 authorize or execute an RML linked program, and four upstream Lean `sorry`
 declarations remain reported as admitted.
+
+## Further notes
+
+Each note states its own scope and open gaps:
+
+- [Source specifications of types, graphs and relational algebra](meta-theory-specifications.md):
+  linked specifications with certified instances; universal proofs and richer
+  type systems remain open.
+- [Portable natural-number translation](portable-natural-translation.md) and
+  [certified four-language translation](certified-translation.md): twelve
+  directed paths for a checked fragment with RML-checked certificates and
+  first-refusal receipts; full-language translation remains open.
+- [Draft meta-language feature requests](meta-language-upstream-requests.md):
+  unfiled drafts needed before the vendored PR #201 copy can be removed.
+- [Official meta-language release integration](meta-language-integration.md).
+- [Source-defined Horn candidate](relational-source-kernel.md) and
+  [direct lambda-link source control](direct-lambda-control.md).
+- [Orientation and consequence independence](orientation-independence.md) and
+  its [requirement audit](orientation-requirement-audit.md): R147 and R148
+  remain partial.
+- [Structural evidence scope review](structural-evidence-review.md).

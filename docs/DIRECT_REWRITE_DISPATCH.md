@@ -66,7 +66,7 @@ The ordinary test commands discover the dispatch regressions automatically:
 
 ```sh
 npm --prefix js test
-node scripts/run-with-cache.mjs -- cargo test --manifest-path rust/Cargo.toml --all-targets
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --all-targets   # hosted CI only
 ```
 
 Focused checks:
@@ -74,7 +74,7 @@ Focused checks:
 ```sh
 node scripts/run-with-cache.mjs -- node --test --test-concurrency=1 scripts/linked-dispatch-*.test.mjs
 node --test scripts/linked-result-sharing.test.mjs js/tests/linked-reduction-result.test.mjs
-node scripts/run-with-cache.mjs -- cargo test --manifest-path rust/Cargo.toml --lib dispatch_contract_tests
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --lib dispatch_contract_tests   # hosted CI only
 ```
 
 The JavaScript oracle is a test-only snapshot of the runtime at commit

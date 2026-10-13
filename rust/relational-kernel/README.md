@@ -4,7 +4,8 @@ This companion crate exposes `horn_resolution` and `relational_kernel` while
 reusing the existing RML crate's public Node, parser and linked-program types.
 It requires no additional exports or semantic changes in that crate.
 
-From the repository root:
+From the repository root (Rust is compiled only on hosted CI; outside CI this
+is a deliberate exception, see [`docs/BUILD_CACHE.md`](../../docs/BUILD_CACHE.md)):
 
 ```sh
 node scripts/run-with-cache.mjs --cache rust/relational-kernel/target --class rust -- cargo test --manifest-path rust/relational-kernel/Cargo.toml --all-targets --locked -j 2 -- --test-threads=1

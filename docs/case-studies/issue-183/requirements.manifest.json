@@ -1577,7 +1577,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "78c96fc6644afcd50a5889806a790d983c25665fccec4188599a91a5f6325d9d"
+          "sha256": "c961b08a3de51f1b58d3f85a280d416564af90100cda0d8bfad088447932eb53"
         }
       ],
       "claimedEvidence": "`rml:structure:1` now carries layout/trivia/token links bound to syntax occurrences and a SHA-256 provenance receipt; `emitRmlExactSource` / `emit_rml_exact_source` rebuild every file of the shared frontend corpus byte-for-byte after the buffer is discarded, and `rmlStageReport` / `rml_stage_report` separate preservation, exact source, parsing, resolution, elaboration, execution and verification. Swapped layout, refusal receipts and tampered provenance are rejected. `No RML elaborator or proof checker runs in this representation; elaboration/verification report not-run`.",
@@ -2029,7 +2029,7 @@
       "implementationClaims": [
         {
           "path": "ARCHITECTURE.md",
-          "sha256": "d82a1e0bf423dae2e4b75c8722e064d7b1c3ff4ac9a6b254c9e8a150adb50749",
+          "sha256": "db41fb804180c0e7c39fe9bde98e12b8c864360d24b2ba6f7becf90719ca28db",
           "role": "historical-claim"
         },
         {
@@ -2990,7 +2990,7 @@
       "implementationClaims": [
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812",
+          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42",
           "role": "historical-claim"
         },
         {
@@ -6701,7 +6701,7 @@
         {
           "path": "docs/META_THEORY_NATIVE.md",
           "role": "implementation",
-          "sha256": "566de8a652445e782cd67c7fcba60c35e0de69b0a143b2eed28058945f3b0355"
+          "sha256": "90e1b81c2577ab72cac2ceb16d699f8152eb8e2c7d4f1b27c2e46c772d0b93c6"
         },
         {
           "path": "js/src/rml-meta-theory-native.mjs",
@@ -7228,17 +7228,17 @@
       "implementationClaims": [
         {
           "path": "README.md",
-          "sha256": "4f2de62835c96bf23fbb9c15075ed897a3a2eeff0edf8ab76e831bfe46db48d5",
+          "sha256": "bd8e8b64ec0d58392ba1976ea3aafb872fcf1d6651184c23e82c5b5d99e48b35",
           "role": "historical-claim"
         },
         {
           "path": "ARCHITECTURE.md",
-          "sha256": "d82a1e0bf423dae2e4b75c8722e064d7b1c3ff4ac9a6b254c9e8a150adb50749",
+          "sha256": "db41fb804180c0e7c39fe9bde98e12b8c864360d24b2ba6f7becf90719ca28db",
           "role": "historical-claim"
         },
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812",
+          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42",
           "role": "historical-claim"
         },
         {
@@ -7407,12 +7407,12 @@
       "implementationClaims": [
         {
           "path": "README.md",
-          "sha256": "4f2de62835c96bf23fbb9c15075ed897a3a2eeff0edf8ab76e831bfe46db48d5",
+          "sha256": "bd8e8b64ec0d58392ba1976ea3aafb872fcf1d6651184c23e82c5b5d99e48b35",
           "role": "historical-claim"
         },
         {
           "path": "ARCHITECTURE.md",
-          "sha256": "d82a1e0bf423dae2e4b75c8722e064d7b1c3ff4ac9a6b254c9e8a150adb50749",
+          "sha256": "db41fb804180c0e7c39fe9bde98e12b8c864360d24b2ba6f7becf90719ca28db",
           "role": "historical-claim"
         },
         {
@@ -7422,7 +7422,7 @@
         },
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812",
+          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42",
           "role": "historical-claim"
         }
       ],
@@ -9481,7 +9481,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         },
         {
           "path": "js/src/rml-surface-lowering.mjs",
@@ -16386,7 +16386,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "78c96fc6644afcd50a5889806a790d983c25665fccec4188599a91a5f6325d9d"
+          "sha256": "c961b08a3de51f1b58d3f85a280d416564af90100cda0d8bfad088447932eb53"
         }
       ],
       "claimedEvidence": "Declaration, binder, role and resolution records (bound/global/ambiguous/free) keyed by occurrence address are recomputed and compared on every read by `rmlSemanticIdentities` / `rml_semantic_identities`, so stored identities are never trusted; 11 corpus cases pass and 9 mutations (retargeted binder, forged occurrence, dangling target, contradicted status, unaccounted record, layout/provenance tampering) are rejected. `Resolution covers RML/LiNo binders, not type-checked elaboration of rules, proofs and substitutions`.",
@@ -18068,7 +18068,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "78c96fc6644afcd50a5889806a790d983c25665fccec4188599a91a5f6325d9d"
+          "sha256": "c961b08a3de51f1b58d3f85a280d416564af90100cda0d8bfad088447932eb53"
         }
       ],
       "claimedEvidence": "`rmlStructureOnly` and typed-link serialization with `checkRmlPlanes` require every link to be accounted for and reachable; exact source is emitted from links alone and stage outcomes are reported separately. `Elaboration and verification stages, and Rust execution evidence pending CI, remain open; full networks parse about 3x slower`.",
@@ -19824,7 +19824,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "78c96fc6644afcd50a5889806a790d983c25665fccec4188599a91a5f6325d9d"
+          "sha256": "c961b08a3de51f1b58d3f85a280d416564af90100cda0d8bfad088447932eb53"
         },
         {
           "path": "test-corpus/meta-language/four-language-binding-rewrites.json",
@@ -21741,7 +21741,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         },
         {
           "path": "js/src/rml-surface-lowering.mjs",
@@ -23806,7 +23806,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         }
       ],
       "claimedEvidence": "Partial. Every certificate declares a seven-dimension preservation contract that `js/src/rml-certified-translation.mjs` re-derives; lowered programs add a `lowering` section and every term is bound to the shared concept space (`js/src/rml-concept-space.mjs`). Gap: `preservation is certified for the admitted core and observed main only`",
@@ -25916,7 +25916,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         }
       ],
       "claimedEvidence": "Partial. Re-derivable first-refusal receipts for 16 refusal sources, including seven at the new `rml-lowering` stage whose spans map to the original bytes (`js/src/rml-surface-lowering.mjs`, `rust/src/certified_translation.rs`); termination of general or mutual recursion stays an open obligation. Gap: `universal theorems and general-recursion termination stay open obligations`",
@@ -26901,7 +26901,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         }
       ],
       "claimedEvidence": "Partial. RML observation checks 36 translations against hand-written expectations, including lowered records and generics (`test-corpus/certified-translation/cases.json`); `scripts/check-certified-translation-native.mjs` runs each source and target natively in CI. Gap: `native Lean/Rocq/rustc oracle runs are CI-only and behavioral equivalence covers observed main only`",
@@ -36457,7 +36457,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -36755,7 +36755,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -37095,7 +37095,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -37408,7 +37408,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         }
       ],
       "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup.",
@@ -37691,7 +37691,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -37904,7 +37904,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -38177,7 +38177,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -38431,7 +38431,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -38783,7 +38783,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -39029,7 +39029,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         },
         {
           "path": "scripts/generate-certified-bulk.mjs",
@@ -39601,7 +39601,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         },
         {
           "path": "js/src/rml-concept-space.mjs",
@@ -40222,7 +40222,7 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         },
         {
           "path": "js/src/rml-concept-space.mjs",
@@ -40795,12 +40795,12 @@
         {
           "path": "docs/case-studies/issue-183/certified-translation.md",
           "role": "implementation",
-          "sha256": "1670e41198a864324ddd0cee4d6605cf99827375a73f21bbf058a8741581b3d4"
+          "sha256": "ac87707bc96e2b769135072b3967f98ba07d39ae8dea74ef14269fccb68d25cc"
         },
         {
           "path": "js/vendor/meta-language-pr201/VENDORED.md",
           "role": "implementation",
-          "sha256": "9086bbc8babcc3b96fa48c603e40dd6ac83e0303c9fd2c10bc6040e2434db7a4"
+          "sha256": "c3c47a362c430e2d3cd07e0a26c6889376847355326d4314dd2d6900f09689bf"
         },
         {
           "path": "js/vendor/meta-language-pr201/upstream-files.json",
@@ -40810,7 +40810,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-upstream-requests.md",
           "role": "implementation",
-          "sha256": "1305433d4df4b236abeb60fe8e468e41c4d462a4618d7d81ed2bcb35aae13737"
+          "sha256": "080a2db275ab2fe75982865132a9eb0cba2d2f1f310c86a2a14a4d5fe911442f"
         }
       ],
       "claimedEvidence": "Partial. meta-language#201 code stays vendored with exact provenance and working locally; `docs/case-studies/issue-183/meta-language-upstream-requests.md` now drafts 42 upstream requests, adding records and field access (38), checked generics (39), termination evidence (40), certificate concepts (41) and observable aliased/extra rules (42). Gap: `removal awaits an upstream release; requests are drafted, not filed`",
@@ -41381,7 +41381,7 @@
         {
           "path": "docs/LINKED_IMPLEMENTATION.md",
           "role": "implementation",
-          "sha256": "cf9836adccd81220b75c89cff1c37dc26cbe2fe6ba5f6650637354fe29eb7f9b"
+          "sha256": "8e8a2fd3e9094a82dd9067a26ae6278ac87e4c9036df51fd2eda31fbcb9974da"
         },
         {
           "path": "scripts/local-rust-policy.mjs",
@@ -41414,12 +41414,12 @@
           "sha256": "12382fe9cc8f9901d615d672737f4960d17535f967bbf09302f88ed3da535c6f"
         }
       ],
-      "claimedEvidence": "`scripts/local-rust-policy.mjs` refuses Rust compilation unless the process runs on hosted CI (`CI` or `GITHUB_ACTIONS`) or `RML_ALLOW_LOCAL_RUST=1` is set for that invocation; the acceptance gate's native producer (`executeCargoCheck`), `scripts/cargo.mjs`, `verify-linked-target.mjs`, `verify-linked-rust-runtime.mjs` and the source migration ask it before starting cargo, while `cargo fmt` and `cargo fetch` stay available. `scripts/local-rust-policy.test.mjs` shows the refusal for a real reviewed native check and for the cargo wrapper, and the permission on CI and with the override. Rust was compiled and tested by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml), and source migration runs on a hosted runner through `.github/workflows/linked-recapture.yml`. `Before this policy existed, one local run of the full completion gate on 2026-10-13 compiled the Rust suites; its rust/target was deleted, and the override remains available to a contributor who deliberately sets it`.",
+      "claimedEvidence": "`scripts/local-rust-policy.mjs` refuses Rust compilation unless the process runs on hosted CI (`CI` or `GITHUB_ACTIONS`) or `RML_ALLOW_LOCAL_RUST=1` is set for that invocation; the acceptance gate's native producer (`executeCargoCheck`), `scripts/cargo.mjs`, `scripts/run-with-cache.mjs` when its command is `cargo`, `verify-linked-target.mjs`, `verify-linked-rust-runtime.mjs` and the source migration ask it before starting cargo, while `cargo fmt` and `cargo fetch` stay available. `scripts/local-rust-policy.test.mjs` shows the refusal for a real reviewed native check, the cargo wrapper and the cache wrapper, and the permission on CI and with the override. A `cargo` call hidden inside a shell command (the Docker image build runs `sh -ec 'cargo build …'`) is not intercepted. Rust was compiled and tested by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml), and source migration runs on a hosted runner through `.github/workflows/linked-recapture.yml`. Before this policy existed, one local run of the full completion gate on 2026-10-13 compiled the Rust suites; its rust/target was deleted, and the override remains available to a contributor who deliberately sets it.",
       "checks": [
         "linked-recapture-policy",
         "local-rust-policy"
       ],
-      "remainingGap": "`scripts/local-rust-policy.mjs` refuses Rust compilation unless the process runs on hosted CI (`CI` or `GITHUB_ACTIONS`) or `RML_ALLOW_LOCAL_RUST=1` is set for that invocation; the acceptance gate's native producer (`executeCargoCheck`), `scripts/cargo.mjs`, `verify-linked-target.mjs`, `verify-linked-rust-runtime.mjs` and the source migration ask it before starting cargo, while `cargo fmt` and `cargo fetch` stay available. `scripts/local-rust-policy.test.mjs` shows the refusal for a real reviewed native check and for the cargo wrapper, and the permission on CI and with the override. Rust was compiled and tested by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml), and source migration runs on a hosted runner through `.github/workflows/linked-recapture.yml`. `Before this policy existed, one local run of the full completion gate on 2026-10-13 compiled the Rust suites; its rust/target was deleted, and the override remains available to a contributor who deliberately sets it`.",
+      "remainingGap": "`scripts/local-rust-policy.mjs` refuses Rust compilation unless the process runs on hosted CI (`CI` or `GITHUB_ACTIONS`) or `RML_ALLOW_LOCAL_RUST=1` is set for that invocation; the acceptance gate's native producer (`executeCargoCheck`), `scripts/cargo.mjs`, `scripts/run-with-cache.mjs` when its command is `cargo`, `verify-linked-target.mjs`, `verify-linked-rust-runtime.mjs` and the source migration ask it before starting cargo, while `cargo fmt` and `cargo fetch` stay available. `scripts/local-rust-policy.test.mjs` shows the refusal for a real reviewed native check, the cargo wrapper and the cache wrapper, and the permission on CI and with the override. A `cargo` call hidden inside a shell command (the Docker image build runs `sh -ec 'cargo build …'`) is not intercepted. Rust was compiled and tested by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml), and source migration runs on a hosted runner through `.github/workflows/linked-recapture.yml`. Before this policy existed, one local run of the full completion gate on 2026-10-13 compiled the Rust suites; its rust/target was deleted, and the override remains available to a contributor who deliberately sets it.",
       "verificationState": "live-producer-bound-infrastructure-contract",
       "assertionBindings": [
         {
@@ -43338,7 +43338,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "scripts/bootstrap.mjs",
@@ -43363,7 +43363,7 @@
         {
           "path": "scripts/build-cache.test.mjs",
           "role": "test",
-          "sha256": "98855a5a2028c319535e6351a2867add09323bdd4687de7a82332042ac1e958d"
+          "sha256": "191032afda2b47f0340ecb851bb912a873d183c8c6c056d73051acf75b450dd8"
         }
       ],
       "assertions": [
@@ -48180,7 +48180,7 @@
         {
           "path": "docs/META_THEORY.md",
           "role": "specification",
-          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812"
+          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42"
         },
         {
           "path": "js/package-lock.json",
@@ -48772,7 +48772,7 @@
         {
           "path": "docs/META_THEORY.md",
           "role": "specification",
-          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812"
+          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -51935,7 +51935,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         }
       ],
       "assertions": [
@@ -52433,7 +52433,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         }
       ],
       "assertions": [
@@ -54180,7 +54180,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "test-corpus/foundation-structural-evidence/certificates.json",
@@ -54708,7 +54708,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         },
         {
           "path": "test-corpus/foundation-structural-evidence/certificates.json",
@@ -56201,7 +56201,7 @@
         {
           "path": "docs/LINKED_IMPLEMENTATION.md",
           "role": "fixture",
-          "sha256": "cf9836adccd81220b75c89cff1c37dc26cbe2fe6ba5f6650637354fe29eb7f9b"
+          "sha256": "8e8a2fd3e9094a82dd9067a26ae6278ac87e4c9036df51fd2eda31fbcb9974da"
         }
       ],
       "assertions": [
@@ -59405,17 +59405,17 @@
         {
           "path": "README.md",
           "role": "specification",
-          "sha256": "4f2de62835c96bf23fbb9c15075ed897a3a2eeff0edf8ab76e831bfe46db48d5"
+          "sha256": "bd8e8b64ec0d58392ba1976ea3aafb872fcf1d6651184c23e82c5b5d99e48b35"
         },
         {
           "path": "ARCHITECTURE.md",
           "role": "specification",
-          "sha256": "d82a1e0bf423dae2e4b75c8722e064d7b1c3ff4ac9a6b254c9e8a150adb50749"
+          "sha256": "db41fb804180c0e7c39fe9bde98e12b8c864360d24b2ba6f7becf90719ca28db"
         },
         {
           "path": "docs/META_THEORY.md",
           "role": "specification",
-          "sha256": "2e8254716118db0bffd5b6a60ae7b59e6bc573511ef307ed5171d32800bd0812"
+          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42"
         },
         {
           "path": "docs/case-studies/issue-183/foundation-search.md",
@@ -59425,7 +59425,7 @@
         {
           "path": "docs/case-studies/issue-183/README.md",
           "role": "specification",
-          "sha256": "d9c6a4795fab16b129d08138f741fa6da8c33c6ff15fd7f048aed6eb20cb3ff4"
+          "sha256": "f34964ebab681cf70da2dcf8128e25abb29f8dab07ba7bc62488e5c952831187"
         },
         {
           "path": "lib/meta-theory/universal.lino",
@@ -60640,7 +60640,7 @@
         {
           "path": "scripts/local-rust-policy.test.mjs",
           "role": "test",
-          "sha256": "6dd8356650ad3b0f5b3a21af17aa96774eaad772d25c9c13a6c5c5e2f1adcea5"
+          "sha256": "2b2722e3b5fa548bdfd1a5dbdf5ff374437e4a871467d5e2a643b8018bccd539"
         },
         {
           "path": "scripts/local-rust-policy.mjs",
@@ -60661,6 +60661,11 @@
           "path": "rust/Cargo.toml",
           "role": "fixture",
           "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "scripts/run-with-cache.mjs",
+          "role": "implementation",
+          "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         }
       ],
       "assertions": [

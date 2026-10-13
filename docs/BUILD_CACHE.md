@@ -18,7 +18,8 @@ node scripts/bootstrap.mjs --install
 npm --prefix js test
 npm --prefix js run docs
 
-# Wrap an entire Rust producer/consumer operation in one lease.
+# Wrap an entire Rust producer/consumer operation in one lease (hosted CI;
+# scripts/cargo.mjs is the same wrapper with the local Rust policy applied).
 node scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --manifest-path rust/Cargo.toml --all-targets
 
 # Inspect, perform normal bounded cleanup, or remove all provably owned outputs.
@@ -30,10 +31,12 @@ node scripts/build-cache.mjs --full
 node scripts/build-cache.mjs --recover --full
 ```
 
-Rust is compiled and tested only on hosted CI. Outside CI, `scripts/cargo.mjs`, the
-acceptance gate's native producers and the linked-runtime Rust verifiers refuse to
-start a Rust build (`scripts/local-rust-policy.mjs`), and local verification uses
-the JavaScript implementation; `cargo fmt` and `cargo fetch` stay available.
+Rust is compiled and tested only on hosted CI. Outside CI, `scripts/cargo.mjs`,
+`scripts/run-with-cache.mjs` when its command is `cargo`, the acceptance gate's
+native producers and the linked-runtime Rust verifiers refuse to start a Rust build
+(`scripts/local-rust-policy.mjs`), and local verification uses the JavaScript
+implementation; `cargo fmt` and `cargo fetch` stay available. A `cargo` call hidden
+inside a shell command, such as the Docker image build, is not intercepted.
 Setting `RML_ALLOW_LOCAL_RUST=1` for one invocation is the deliberate override.
 
 `npm ci` in `js/` invokes `prepare`, which installs the repository-local hook

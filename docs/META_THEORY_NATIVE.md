@@ -247,7 +247,7 @@ node scripts/generate-meta-theory-certificates.mjs [--check]
 node scripts/generate-meta-theory-map.mjs [--check]
 node --test scripts/meta-theory-native.test.mjs scripts/meta-theory-certificates.test.mjs scripts/meta-theory-map.test.mjs
 node --test js/tests/meta-theory-workflow.test.mjs
-cargo test --test meta_theory_native_tests --test meta_theory_certificates_tests --test meta_theory_map_tests --test meta_theory_workflow_tests
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml --test meta_theory_native_tests --test meta_theory_certificates_tests --test meta_theory_map_tests --test meta_theory_workflow_tests   # hosted CI only
 ```
 
 ## Boundaries

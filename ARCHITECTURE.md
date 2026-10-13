@@ -9,42 +9,33 @@ This document describes the internal architecture of **Relative Meta-Logic (RML,
 ├── ARCHITECTURE.md          # This file
 ├── README.md                # Project overview, syntax, and examples
 ├── LICENSE                  # Unlicense (public domain)
-├── examples/                # Shared .lino knowledge bases (run by both langs)
-│   ├── README.md
+├── examples/                # Shared .lino knowledge bases (run by both langs) and Node .mjs workflows
 │   ├── expected.lino        # Canonical outputs both implementations must match (Links Notation)
-│   ├── classical-logic.lino
-│   ├── propositional-logic.lino
-│   ├── fuzzy-logic.lino
-│   ├── ternary-kleene.lino
-│   ├── belnap-four-valued.lino
-│   ├── liar-paradox.lino
-│   ├── liar-paradox-balanced.lino
-│   ├── bayesian-inference.lino
-│   ├── bayesian-network.lino
-│   ├── markov-chain.lino
-│   ├── markov-network.lino
-│   ├── self-reasoning.lino
-│   ├── dependent-types.lino
-│   ├── demo.lino
-│   └── flipped-axioms.lino
+│   └── *.lino, *.mjs        # See examples/README.md
+├── lib/                     # Shared .lino libraries (classical, modal, set-theory, self, meta-theory, …)
+│   └── meta-theory/         # Linked meta-theory programs, proof verifiers and specifications
+├── test-corpus/             # Shared regression inputs and generated fixtures (both runtimes)
+├── docs/                    # Reference documentation, tutorials and case studies
+├── scripts/                 # Node generators, freshness gates, CI checks and the build-cache runner
 ├── js/                      # JavaScript implementation
 │   ├── package.json
 │   ├── src/
+│   │   ├── rml-links.mjs          # Core evaluator, CLI and library exports
 │   │   ├── rml-lino-frontend.mjs  # Shared LiNo front end (source to link strings)
-│   │   └── rml-links.mjs    # Core implementation
-│   └── tests/
-│       ├── rml-links.test.mjs
-│       └── shared-examples.test.mjs   # Runs every /examples/*.lino file
-└── rust/                    # Rust implementation
-    ├── Cargo.toml
-    ├── Cargo.lock
-    ├── src/
-    │   ├── lib.rs           # Core implementation
-    │   ├── lino_frontend.rs # Shared LiNo front end (source to link strings)
-    │   └── main.rs          # CLI entry point
-    └── tests/
-        ├── rml_tests.rs
-        └── shared_examples.rs         # Runs every /examples/*.lino file
+│   │   ├── rml-check.mjs, rml-meta.mjs, rml-lsp.mjs  # rml-check, rml-meta and LSP entry points
+│   │   └── rml-*.mjs, cst*.mjs    # Meta-theory, linked program, translation and export modules
+│   ├── vendor/              # Pinned meta-language submodule and the vendored PR #201 copy
+│   └── tests/               # *.test.mjs, including shared-examples.test.mjs
+├── rust/                    # Rust implementation
+│   ├── Cargo.toml
+│   ├── src/
+│   │   ├── lib.rs           # Core implementation
+│   │   ├── lino_frontend.rs # Shared LiNo front end (source to link strings)
+│   │   ├── main.rs          # CLI entry point (bin/rml-check.rs, bin/rml-meta.rs for the others)
+│   │   └── *.rs             # Rust counterparts of most JavaScript modules
+│   └── tests/               # *_tests.rs, including shared_examples.rs
+├── docker/                  # Container images for both implementations
+└── vscode/                  # VS Code extension
 ```
 
 Both implementations are kept equivalent. Most test files have a counterpart in the other language
@@ -366,6 +357,37 @@ vertex-set-constrained subset with typed edges and reachability; and
 The format, upstream 0.0.3 mapping, and verification boundary are documented in
 [`docs/META_THEORY.md`](./docs/META_THEORY.md).
 
+### Source Specifications
+
+[`lib/meta-theory/type-specification.lino`](./lib/meta-theory/type-specification.lino),
+[`graph-specification.lino`](./lib/meta-theory/graph-specification.lino), and
+[`relational-algebra-specification.lino`](./lib/meta-theory/relational-algebra-specification.lino)
+are ordinary linked programs: a simply typed calculus with base, function, and
+product types; finite directed graphs with transitive closure as a least fixed
+point; and Codd's six relational-algebra operators with 16 laws stated as data.
+Both runtimes execute them, and `js/src/rml-spec-certificates.mjs` (producer and
+checker) and `rust/src/spec_certificates.rs` (checker) check their theorem
+certificates with the linked natural-deduction verifier. Certificates and laws
+cover named instances only, plus bounded exhaustive checks in the JavaScript
+tests; universal proofs and richer type systems (polymorphism, recursion, sums,
+dependent types) are open. See
+[`docs/case-studies/issue-183/meta-theory-specifications.md`](./docs/case-studies/issue-183/meta-theory-specifications.md).
+
+### Certified Translation
+
+`js/src/rml-certified-translation.mjs` translates a checked fragment of
+JavaScript, Rust, Lean, and Rocq through the vendored meta-language PR #201
+frontends, a source-free typed program stored as an RML structure network, and
+the vendored emitters. Each translation carries a Links certificate that the
+RML checker re-derives without a Lean or Rocq kernel; unsupported input yields a
+first-refusal receipt naming its stage (`rml-lowering`, `frontend`, `checker`,
+`archive-validation`, or `emitter`). `js/src/rml-surface-lowering.mjs` lowers
+records, structures, explicitly instantiated generics, and Rocq 9 constructor
+parameter wildcards before the frontend. `rust/src/certified_translation.rs`
+checks certificate integrity only. Universal theorems, general recursion, and
+emitter faithfulness stay open obligations. See
+[`docs/case-studies/issue-183/certified-translation.md`](./docs/case-studies/issue-183/certified-translation.md).
+
 ### Program Extraction
 
 Both implementations expose program extraction for the typed, non-probabilistic
@@ -545,7 +567,7 @@ Operators are redefinable at runtime via LiNo syntax:
 
 1. **No operator precedence:** All grouping is explicit via parentheses. This keeps the parser minimal and unambiguous.
 
-2. **Decimal rounding over arbitrary precision:** Using 12-digit decimal rounding instead of arbitrary-precision decimal libraries. This is sufficient for logic/probability use cases and keeps numeric code free of extra libraries. The runtime dependencies are `links-notation` and `meta-language` in both languages, plus `sha2` in Rust and `events` in JavaScript.
+2. **Decimal rounding over arbitrary precision:** Using 12-digit decimal rounding instead of arbitrary-precision decimal libraries. This is sufficient for logic/probability use cases and keeps numeric code free of extra libraries. The Rust runtime dependencies are `links-notation`, `meta-language`, `sha2`, `serde_json` and `regex`. The JavaScript package depends on `links-notation`, `events` and `web-tree-sitter`, and reaches `meta-language` through the pinned `js/vendor/meta-language` submodule (`#meta-language`) and the temporarily vendored PR #201 copy (`#meta-language-pr201/*`, see [VENDORED.md](./js/vendor/meta-language-pr201/VENDORED.md)).
 
 3. **Arithmetic is unclamped:** Arithmetic results are not restricted to the logic range `[lo, hi]`. Clamping only happens when results enter the logical domain (queries, logical operators). This allows natural arithmetic while preserving logic semantics.
 
@@ -569,6 +591,13 @@ Both suites cover the same ground; the original shared tests fall into these cat
 
 Run tests:
 ```bash
-cd js && npm test       # JavaScript
-cd rust && cargo test   # Rust
+cd js && npm test                                          # JavaScript
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml   # Rust (hosted CI only)
 ```
+
+Rust is compiled and tested only on hosted CI (`CI=true` or
+`GITHUB_ACTIONS=true`). Outside CI, `scripts/cargo.mjs` and
+`scripts/run-with-cache.mjs -- cargo …` refuse compiling subcommands with exit code 97 (`scripts/local-rust-policy.mjs`), and local
+verification uses the JavaScript implementation; `cargo fmt` stays available.
+`RML_ALLOW_LOCAL_RUST=1` is the explicit per-invocation override. See
+[docs/BUILD_CACHE.md](./docs/BUILD_CACHE.md).

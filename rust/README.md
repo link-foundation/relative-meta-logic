@@ -10,6 +10,14 @@ The source-pinned meta-language dependency requires Rust 1.90 or later and a C c
 
 ## Building
 
+Repository policy compiles and tests Rust only on hosted CI (`CI=true` or
+`GITHUB_ACTIONS=true`). Outside CI, `node scripts/cargo.mjs` (run from the
+repository root) refuses `build`, `test`, `check`, `run`, `clippy` and other
+compiling subcommands with exit code 97, and local verification uses the
+JavaScript implementation; `cargo fmt` and `cargo fetch` stay available. Setting
+`RML_ALLOW_LOCAL_RUST=1` for one invocation is the deliberate override. See
+[`../docs/BUILD_CACHE.md`](../docs/BUILD_CACHE.md).
+
 ```bash
 cd rust
 cargo build
@@ -242,7 +250,8 @@ typed converse, union, intersection, and composition. See
 ## Testing
 
 ```bash
-cargo test
+# From the repository root; refused outside CI unless RML_ALLOW_LOCAL_RUST=1.
+node scripts/cargo.mjs test --all-targets --manifest-path rust/Cargo.toml
 ```
 
 The test suite covers:
@@ -260,7 +269,7 @@ The test suite covers:
 
 ## Implementation Notes
 
-The Rust implementation uses the official [`links-notation`](https://crates.io/crates/links-notation) crate for LiNo parsing. The implementation is a direct port of the JavaScript version and produces identical results for all test cases.
+The Rust implementation uses the official [`links-notation`](https://crates.io/crates/links-notation) crate for LiNo parsing. It mirrors the JavaScript evaluator and must produce identical results on the shared examples and test corpus. Some modules are narrower than their JavaScript counterparts: `certified_translation.rs` checks translation certificates for integrity only, and `spec_certificates.rs` checks specification certificates without producing them.
 
 ## License
 

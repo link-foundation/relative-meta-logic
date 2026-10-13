@@ -311,15 +311,15 @@ Run the full JavaScript suite before changing encoded files:
 npm test
 ```
 
-For Rust parity on mirrored self-bootstrap tests:
+For Rust parity on mirrored self-bootstrap tests (hosted CI only; refused
+locally unless `RML_ALLOW_LOCAL_RUST=1`), from the repository root:
 
 ```bash
-cd ../rust
-cargo test self_grammar
-cargo test self_evaluator
-cargo test self_types
-cargo test self_operators
-cargo test self_metatheorem
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml self_grammar
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml self_evaluator
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml self_types
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml self_operators
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml self_metatheorem
 ```
 
 ## Reading Checklist

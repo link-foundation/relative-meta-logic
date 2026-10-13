@@ -135,7 +135,7 @@ Run ordinary shared semantic and source-lowering tests:
 node scripts/run-with-cache.mjs -- node --test \
   js/tests/control-flow.test.mjs js/tests/control-flow-source.test.mjs
 node scripts/run-with-cache.mjs --cache rust/control-flow/target --class rust -- \
-  cargo test --manifest-path rust/control-flow/Cargo.toml
+  cargo test --manifest-path rust/control-flow/Cargo.toml   # hosted CI only
 ```
 
 Generate fixtures with the existing syntax-capture infrastructure:

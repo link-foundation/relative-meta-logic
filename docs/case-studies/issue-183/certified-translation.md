@@ -77,6 +77,11 @@ construct it replaces:
 - Explicit type parameters (Rust `<T>`, Lean and Rocq `(A : Type)`) are
   monomorphized per explicit instantiation under fresh mangled names, up to 64
   copies.
+- Rocq 9 constructor patterns of a parameterized inductive carry one `_` per
+  parameter (`| none _ => …`, `| some _ _ rest => …`), as Rocq requires. The
+  monomorphic copy has no parameters, so those wildcards are dropped; a pattern
+  that omits them is refused (`constructor pattern without its parameters`), as
+  Rocq itself rejects it.
 
 The certificate of a lowered program carries a `lowering` section listing every
 rewrite with its kind, subject and exact original span, and every frontend span
@@ -203,9 +208,9 @@ refusals listed above.
 ## Bulk production, receipts and freshness
 
 `node scripts/generate-certified-translations.mjs` translates the corpus in bulk:
-8 programs × 3 targets = **24 certified translations covering all 12 directed
-paths**, 8 intermediate archives, and 11 refusal sources × 3 targets = 33
-receipts, plus a producer receipt (`generated/receipt.lino`) with the translator
+12 programs × 3 targets = **36 certified translations covering all 12 directed
+paths**, 12 intermediate archives, and 16 refusal sources × 3 targets = 48
+receipts (`totals (translations 36) (refusals 48)` in the receipt), plus a producer receipt (`generated/receipt.lino`) with the translator
 pin, implementation hashes, input fingerprints, every output hash and the
 reconstruction recipe. `--check` regenerates in memory and rejects stale,
 missing or unexpected files; it requires no compiler, kernel, network or install.

@@ -25,7 +25,7 @@ from RML; it is not a claim about upstream plans.
    relations, `toLino`, `fromLino`) from catalog-dependent parsing, or load the
    catalog lazily.
 3. **Align the `links-notation` dependency.** The copied modules pin
-   `links-notation@0.22.0`; RML runs them on 0.25.1. *Request:* declare the
+   `links-notation@0.22.0`; RML runs them on 0.26.0. *Request:* declare the
    supported range and test the typed-program schema loader against it.
 4. **Guarantee a stable `toLino` canonical form.** RML certificates hash the
    serialized typed-program network (`intermediate sha256`). *Request:* document

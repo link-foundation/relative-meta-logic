@@ -27,6 +27,10 @@ test('a local run refuses every repository path that would compile Rust', () => 
   const refused = spawnSync(process.execPath, [wrapper, 'build'], { env: local, encoding: 'utf8' });
   assert.equal(refused.status, 97);
   assert.match(refused.stderr, /refused: Rust is compiled only in CI/);
+  // The cache wrapper refuses a direct Cargo build before it takes a lease or starts a process.
+  const cached = spawnSync(process.execPath, [fileURLToPath(new URL('./run-with-cache.mjs', import.meta.url)), '--', 'cargo', 'test', '--locked'], { env: local, encoding: 'utf8' });
+  assert.equal(cached.status, 97);
+  assert.match(cached.stderr, /run-with-cache: refused: Rust is compiled only in CI/);
   // The acceptance gate's native producer records a refusal for a real Rust test target instead of compiling.
   const root = fileURLToPath(new URL('..', import.meta.url));
   const pin = (file, role) => ({ path: file, role, sha256: sha256(fs.readFileSync(new URL(`../${file}`, import.meta.url))) });

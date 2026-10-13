@@ -4,7 +4,7 @@ JavaScript implementation of the Relative Meta-Logic (RML) framework.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 22.0.0
+- [Node.js](https://nodejs.org/) `^22.18.0 || >=24.11.0` (the `engines` range in `package.json`)
 
 ## Installation
 
@@ -357,6 +357,11 @@ graph/relation semantics, nested sequence/set encodings, and cycle semantics.
 npm test
 ```
 
+`npm test` runs `tests/*.test.mjs` and the repository's `../scripts/*.test.mjs`
+through the build-cache runner. Local verification is JavaScript-only: Rust is
+compiled and tested only on hosted CI (see
+[`../docs/BUILD_CACHE.md`](../docs/BUILD_CACHE.md)).
+
 The test suite covers:
 - Tokenization, parsing, and quantization
 - Evaluation logic and operator aggregators
@@ -369,10 +374,15 @@ The test suite covers:
 - Domain plugins: Pecan-style automatic-sequence theorem decisions
 - Checked cross-theory definitions, unified concept addresses, two finite-set interpretations, and addressed doublet sequences
 - Self-referential types: `(Type: Type Type)`, paradox resolution alongside types
+- Type, graph, and relational-algebra specifications: native cases, theorem certificates, forged and mutated certificates (`tests/meta-theory-specifications.test.mjs`)
+- Certified translation: certificates, first-refusal receipts, RML surface lowering, the shared concept space, and the bulk freshness gate (`tests/certified-translation.test.mjs`, `tests/rml-surface-lowering.test.mjs`, `tests/rml-concept-space.test.mjs`, `tests/certified-bulk.test.mjs`)
 
 ## Dependencies
 
 - [`links-notation`](https://github.com/link-foundation/links-notation) — official LiNo parser
+- [`events`](https://www.npmjs.com/package/events) — `EventEmitter` for the `links-notation` stream parser in the bundled browser playground
+- [`web-tree-sitter`](https://www.npmjs.com/package/web-tree-sitter) — tree-sitter runtime imported by the vendored `meta-language` grammar code
+- `meta-language` — the pinned [`vendor/meta-language`](./vendor/meta-language) submodule (`#meta-language`) and the temporarily vendored PR #201 copy (`#meta-language-pr201/*`; see [`VENDORED.md`](./vendor/meta-language-pr201/VENDORED.md))
 
 ## License
 

@@ -11,7 +11,17 @@ This project provides two equivalent implementations:
 - **[JavaScript](./js/)** — Node.js implementation using the official [links-notation](https://github.com/link-foundation/links-notation) parser
 - **[Rust](./rust/)** — Rust implementation using the official [links-notation](https://github.com/link-foundation/links-notation) crate
 
-Both implementations pass the same comprehensive test suites and produce identical results.
+Both implementations run the same shared examples and test corpus and must
+produce identical results; the `parity` workflow compares their command-line
+output. Some tooling exists only in JavaScript or has a narrower Rust
+counterpart: for example, certificate producers, the certified-translation
+pipeline, and RML surface lowering are JavaScript; Rust mirrors check the
+resulting certificates (the certified-translation mirror checks integrity only).
+
+Rust is compiled and tested only on hosted CI. Outside CI,
+`node scripts/cargo.mjs` refuses compiling subcommands (exit code 97) and local
+verification uses the JavaScript implementation; set `RML_ALLOW_LOCAL_RUST=1`
+for one invocation to override. See [Build cache lifecycle](./docs/BUILD_CACHE.md).
 
 For implementation details, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 For versioning, deprecations, and release expectations, see
@@ -28,6 +38,8 @@ translation boundaries, see [Upstream language source](./docs/UPSTREAM_LANGUAGE_
 - [Configurability and operator redefinition](./docs/CONFIGURABILITY.md) - Why every operator, truth constant, range, and valence is redefinable at runtime, with the precedence rules and a comparison to Lean/Rocq fixed semantics.
 - [Foundations and root-construct registry](./docs/FOUNDATIONS.md) - The trust catalogue of every primitive the kernel depends on, the `(foundation …)` / `(with-foundation …)` / `(foundation-report)` surface, the bundled Boolean and Kleene foundations, and the backward-compatibility guarantee.
 - [Executable meta-theory](./docs/META_THEORY.md) - A theory-independent linked rewrite/inference machine with link-defined lambda, set, type, graph, relation, and RML programs; checked cross-theory witnesses; and a non-authoritative Lean/Rocq provenance corpus.
+- [Type, graph, and relational-algebra specifications](./docs/case-studies/issue-183/meta-theory-specifications.md) - Simply typed, finite-graph, and relational-algebra specifications as linked programs with certified instances; universal proofs and richer type systems remain open.
+- [Certified translation](./docs/case-studies/issue-183/certified-translation.md) - JavaScript, Rust, Lean, and Rocq translation of a checked fragment through an RML links intermediate, with RML-checked certificates and first-refusal receipts for everything outside it.
 - [Typed kernel rules](./docs/KERNEL.md) - The implemented D1 rules for `Pi`, `lambda`, `apply`, `(expr of Type)`, and `(type of expr)`.
 - [Soundness statement](./docs/SOUNDNESS.md) - The trusted-kernel guarantee, proof-replay checker, trusted operator base, and aggregator-relative scope of soundness.
 - [Metatheorem checker](./docs/METATHEOREMS.md) - The C3 Twelf-style guarantee that composes D12 totality, D14 coverage, D15 modes, and D13 termination, plus the `rml-meta` CLI.
@@ -226,6 +238,12 @@ cargo run -- ../examples/demo.lino
 cargo run -- export lean ../examples/lean-export-basic.lino -o out.lean
 ```
 
+Repository policy compiles Rust only on hosted CI, so these raw `cargo`
+commands are for CI or a deliberate local exception; local verification uses the
+JavaScript CLI. The repository wrappers (`scripts/cargo.mjs`,
+`scripts/run-with-cache.mjs -- cargo …` and the linked runtime verifiers) enforce the policy and accept `RML_ALLOW_LOCAL_RUST=1` as the
+override.
+
 ### Docker
 
 Container images for both implementations live under
@@ -264,7 +282,9 @@ implementations walk `test-corpus/*.lino` and compare query results against
 The `parity` GitHub Actions workflow also builds the Rust CLI and runs
 `node scripts/check-corpus-parity.mjs`, which executes every root
 `test-corpus/*.lino` file through both implementations and fails when their
-exit status, stdout, or stderr diverge. To run the same parity gate locally:
+exit status, stdout, or stderr diverge. The gate builds the Rust CLI, so under
+the repository policy it runs on hosted CI; the same steps outside CI are a
+deliberate local exception:
 
 ```bash
 cd js && npm ci
@@ -1142,8 +1162,8 @@ node scripts/run-with-cache.mjs -- npm --prefix js ci
 node scripts/run-with-cache.mjs -- npm --prefix vscode ci --omit=dev
 npm --prefix js test
 
-# Rust
-node scripts/run-with-cache.mjs -- cargo test --all-targets --manifest-path rust/Cargo.toml
+# Rust (hosted CI only; refused locally unless RML_ALLOW_LOCAL_RUST=1)
+node scripts/cargo.mjs test --all-targets --manifest-path rust/Cargo.toml
 
 # Machine-readable bootstrap boundary and previous/current delta
 npm --prefix js run report:bootstrap-metrics
@@ -1194,11 +1214,11 @@ for the full code list and usage examples.
 
 ## English-readability lint
 
-Every link in `examples/` (and, when introduced, `lib/`) is expected to read
-as an English sentence. A small lint script enforces the conventions:
+Every link in `examples/*.lino` and `lib/*/*.lino` is expected to read as an
+English sentence. A small lint script enforces the conventions:
 
 ```bash
-node scripts/lint-english.mjs --allowlist scripts/lint-english.allowlist.json examples/*.lino
+node scripts/lint-english.mjs --allowlist scripts/lint-english.allowlist.json examples/*.lino lib/*/*.lino
 # or, from the JS package:
 (cd js && npm run lint:english)
 ```

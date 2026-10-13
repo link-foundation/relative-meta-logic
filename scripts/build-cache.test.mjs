@@ -18,7 +18,7 @@ function fixtureEnvironment(extra = {}) {
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml cache spaces '));
   fs.mkdirSync(path.join(root, 'scripts'));
-  for (const name of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'cargo-unit-sweep.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
+  for (const name of ['build-cache.mjs', 'docker-cache-budget.mjs', 'build-cache-windows.ps1', 'cache-policy.json', 'run-with-cache.mjs', 'cargo-unit-sweep.mjs', 'local-rust-policy.mjs', 'bootstrap.mjs', 'initialize-meta-language.mjs']) fs.copyFileSync(path.join(source, name), path.join(root, 'scripts', name));
   fs.mkdirSync(path.join(root, 'js'));
   fs.mkdirSync(path.join(root, 'rust'));
   fs.writeFileSync(path.join(root, 'js/package.json'), '{"name":"fixture"}\n');
@@ -222,7 +222,7 @@ fs.writeFileSync(path.join(deps, 'rml-3333333333333333'), 'untouched test kind')
 process.exit(Number(process.env.FAKE_BUILD_STATUS || 0));
 `);
   const receipts = () => fs.readdirSync(path.join(f.root, '.rml-cache/evidence')).filter(name => /^\d+-\d+\.json$/.test(name)).map(name => JSON.parse(read(f, `.rml-cache/evidence/${name}`)));
-  const run = extra => f.run(['scripts/run-with-cache.mjs', '--isolate-output', 'rust/target', '--', cargo, 'build', '--locked'], { ...toolEnv, ...extra });
+  const run = extra => f.run(['scripts/run-with-cache.mjs', '--isolate-output', 'rust/target', '--', cargo, 'build', '--locked'], { ...toolEnv, RML_ALLOW_LOCAL_RUST: '1', ...extra });
   const swept = run();
   ok(swept);
   assert.match(swept.stderr, /superseded Cargo units removed=1 reclaimed=10 bytes/);
