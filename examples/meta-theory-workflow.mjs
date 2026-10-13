@@ -4,7 +4,9 @@
  * user-defined logic, through public APIs only. Every value in the report is
  * recomputed here: native execution runs the generated linked program, the
  * certificate is re-checked by the trusted checker, and the unseen logic's
- * answers are replayed by its own package workspace. Rust mirrors this in
+ * answers are replayed by its own package workspace. The source specifications
+ * of types, graphs and relational algebra run natively and their theorem
+ * certificates are re-checked by the linked verifier. Rust mirrors this in
  * rust/examples/meta_theory_workflow.rs with the same expected report.
  */
 import { readFileSync } from 'node:fs';
@@ -15,6 +17,9 @@ import {
   META_THEORY_NATIVE_PROGRAM, binaryNatural, compactNative, isNativeValue, nativeRegistry, renderNativeValue,
 } from '../js/src/rml-meta-theory-native.mjs';
 import { checkMetaTheoryCertificate, metaTheoryCertificateRegistries } from '../js/src/rml-meta-theory-certificates.mjs';
+import {
+  SPEC_PROGRAMS, checkSpecCertificate, renderLink, specEvaluate, specRegistries, specTheorems,
+} from '../js/src/rml-spec-certificates.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const json = path => JSON.parse(read(path));
@@ -23,6 +28,12 @@ export const MAPPED_DECLARATION = 'rml.formal.lean.SetSequenceEquivalence.toOrde
 export const UPSTREAM_COMMAND = 'rml.formal.lean.NetworkExamples#command-17';
 export const CERTIFIED_THEOREM = 'rml.formal.lean.SetSequenceEquivalence.set_sequence_equivalence';
 export const UNSEEN_QUERY = 'home-reaches-dry';
+/** The theorem of each source specification whose statement the report shows. */
+export const SPEC_SAMPLES = Object.freeze({
+  'type-specification': 'preservation-swap',
+  'graph-specification': 'reach-transitive-cycle',
+  'relational-algebra-specification': 'join-associative',
+});
 
 /** Inverse of the shared fixture compaction: (mt-natural N) to a binary natural. */
 export function expandNative(term) {
@@ -45,6 +56,48 @@ export function nativeCall(registry, address, args) {
 export function theoremDependencies(coverage, address) {
   const theorems = new Set(coverage.declarations.filter(entry => entry.kind === 'theorem').map(entry => entry.address));
   return coverage.declarations.find(entry => entry.address === address).references.filter(item => theorems.has(item));
+}
+
+/** Sources of the type, graph and relational-algebra specifications and the linked verifier. */
+export function specificationSources(overrides = {}) {
+  return {
+    specs: Object.fromEntries(Object.entries(SPEC_PROGRAMS).map(([program, path]) => [program, overrides[program] ?? read(path)])),
+    universal: read('lib/meta-theory/universal.lino'),
+    verifier: read('lib/meta-theory/proof-verifier.lino'),
+    natural: read('lib/meta-theory/proof-verifier-natural.lino'),
+  };
+}
+
+/**
+ * Execute every recorded specification case natively and re-check every
+ * specification certificate, then show that a mutated certificate fails.
+ */
+export function runSpecifications(sources = specificationSources()) {
+  const registries = specRegistries(sources);
+  const cases = json('test-corpus/meta-theory-specifications/cases.json').cases;
+  const certificates = json('test-corpus/meta-theory-specifications/certificates.json').certificates;
+  return Object.keys(SPEC_PROGRAMS).map(program => {
+    const own = cases.filter(item => item.program === program);
+    const reproduced = own.filter(item => {
+      const reduced = specEvaluate(registries, program, item.request);
+      return JSON.stringify(reduced.term) === JSON.stringify(item.expected) && reduced.steps === item.steps;
+    });
+    const certified = certificates.filter(item => item.program === program && checkSpecCertificate(registries, item.certificate).accepted)
+      .map(item => item.theorem);
+    const sample = certificates.find(item => item.program === program && item.theorem === SPEC_SAMPLES[program]).certificate;
+    const mutated = structuredClone(sample);
+    mutated.facts[mutated.facts.length - 1].value = 'mutated';
+    return {
+      program,
+      cases: own.length,
+      negativeCases: own.filter(item => item.polarity === 'negative').length,
+      casesReproduced: reproduced.length,
+      theorems: specTheorems(registries, program),
+      certified,
+      sample: { theorem: SPEC_SAMPLES[program], statement: renderLink(sample.goal) },
+      mutatedCertificateAccepted: checkSpecCertificate(registries, mutated).accepted,
+    };
+  });
 }
 
 function unseenPackages() {
@@ -107,6 +160,9 @@ export function runMetaTheoryWorkflow() {
     return { version, status: answer.result.status, outcome: answer.result.outcome.kind, replayAccepted: replay.accepted };
   });
 
+  // 6. Execute the type, graph and relational-algebra specifications natively and re-check their certificates.
+  const specifications = runSpecifications();
+
   return {
     schema: 'rml-meta-theory-workflow/v1',
     corpus: { declarations: corpus.declarations.length, fingerprint: corpus.fingerprint },
@@ -139,6 +195,7 @@ export function runMetaTheoryWorkflow() {
       forgedConclusionAccepted: forgedCheck.accepted,
     },
     unseenLogic: { query: UNSEEN_QUERY, answers: unseen },
+    specifications,
   };
 }
 
