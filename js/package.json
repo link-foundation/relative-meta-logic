@@ -55,7 +55,8 @@
     "node": "^22.18.0 || >=24.11.0"
   },
   "imports": {
-    "#meta-language": "./vendor/meta-language/js/src/index.js"
+    "#meta-language": "./vendor/meta-language/js/src/index.js",
+    "#meta-language-pr201/*": "./vendor/meta-language-pr201/js/src/*"
   },
   "files": [
     "src",
@@ -65,6 +66,7 @@
     "vendor/meta-language/LICENSE",
     "vendor/LICENSE.meta-language",
     "vendor/meta-language-provenance.json",
+    "vendor/meta-language-pr201",
     "README.md"
   ]
 }

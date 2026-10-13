@@ -1,0 +1,27 @@
+{
+  "schema": "rml:certified-translation-corpus:1",
+  "description": "Hand-written expectations, independent of the RML evaluator and the vendored emitters. Each positive source is translated to the three other languages (24 directed translations covering all 12 paths); each refusal source must produce a first-refusal receipt for every other language.",
+  "translations": [
+    { "name": "javascript-inventory", "source": "sources/javascript-inventory.js", "language": "JavaScript", "lines": ["12", "2", "stocked", "empty"], "constructs": ["records", "tagged unions", "switch matching", "list recursion"], "proofObligations": { "discharged": 0, "open": 0 } },
+    { "name": "javascript-numeric", "source": "sources/javascript-numeric.js", "language": "JavaScript", "lines": ["2432902008176640000", "3.5", "18446744073709551616"], "constructs": ["BigInt", "binary64", "object namespace module", "assertions"], "proofObligations": { "discharged": 1, "open": 0 } },
+    { "name": "lean-list", "source": "sources/lean-list.lean", "language": "Lean", "lines": ["3", "42", "empty", "long"], "constructs": ["inductive list", "equation-compiler recursion", "match", "strings", "universal theorem"], "proofObligations": { "discharged": 0, "open": 1 } },
+    { "name": "lean-tree", "source": "sources/lean-tree.lean", "language": "Lean", "lines": ["9", "2", "42"], "constructs": ["namespace module", "inductive tree", "structural recursion", "closed theorem"], "proofObligations": { "discharged": 1, "open": 0 } },
+    { "name": "rocq-expr", "source": "sources/rocq-expr.v", "language": "Rocq", "lines": ["14", "3"], "constructs": ["Module", "inductive expression tree", "Fixpoint", "closed theorem"], "proofObligations": { "discharged": 1, "open": 0 } },
+    { "name": "rocq-queue", "source": "sources/rocq-queue.v", "language": "Rocq", "lines": ["37", "2", "calm", "calm"], "constructs": ["enumeration", "recursive queue", "nested constructor patterns", "universal theorem"], "proofObligations": { "discharged": 0, "open": 1 } },
+    { "name": "rust-fold", "source": "sources/rust-fold.rs", "language": "Rust", "lines": ["12", "55", "-1 1"], "constructs": ["checked i64 arithmetic", "general recursion", "let", "assert"], "proofObligations": { "discharged": 1, "open": 0 } },
+    { "name": "rust-shapes", "source": "sources/rust-shapes.rs", "language": "Rust", "lines": ["29", "3", "large"], "constructs": ["module", "enum tuple variants", "Box recursion", "wildcard match", "assert_eq"], "proofObligations": { "discharged": 1, "open": 0 } }
+  ],
+  "refusals": [
+    { "name": "javascript-class", "source": "refusals/javascript-class.js", "language": "JavaScript", "stage": "frontend", "kind": "unsupported", "construct": "class" },
+    { "name": "javascript-generic-use", "source": "refusals/javascript-generic-use.js", "language": "JavaScript", "stage": "frontend", "kind": "type", "construct": "polymorphic use" },
+    { "name": "lean-axiom", "source": "refusals/lean-axiom.lean", "language": "Lean", "stage": "frontend", "kind": "unsupported", "construct": "axiom" },
+    { "name": "lean-implicit-polymorphism", "source": "refusals/lean-implicit-polymorphism.lean", "language": "Lean", "stage": "frontend", "kind": "unsupported", "construct": "implicit binder" },
+    { "name": "lean-typeclass", "source": "refusals/lean-typeclass.lean", "language": "Lean", "stage": "frontend", "kind": "unsupported", "construct": "class" },
+    { "name": "rocq-admitted", "source": "refusals/rocq-admitted.v", "language": "Rocq", "stage": "frontend", "kind": "unsupported", "construct": "Admitted" },
+    { "name": "rocq-record", "source": "refusals/rocq-record.v", "language": "Rocq", "stage": "frontend", "kind": "unsupported", "construct": "Record" },
+    { "name": "rust-generic-function", "source": "refusals/rust-generic-function.rs", "language": "Rust", "stage": "frontend", "kind": "unsupported", "construct": "generic function" },
+    { "name": "rust-macro-rules", "source": "refusals/rust-macro-rules.rs", "language": "Rust", "stage": "frontend", "kind": "syntax", "construct": "macro_rules!" },
+    { "name": "rust-trait-impl", "source": "refusals/rust-trait-impl.rs", "language": "Rust", "stage": "frontend", "kind": "unsupported", "construct": "trait" },
+    { "name": "rust-u32-structural-recursion", "source": "refusals/rust-u32-structural-recursion.rs", "language": "Rust", "stage": "archive-validation", "kind": "type", "construct": "u32 recursion accepted by the checker but rejected by the typed-program archive (upstream gap)" }
+  ]
+}

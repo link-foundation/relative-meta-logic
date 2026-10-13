@@ -14065,6 +14065,7 @@ pub mod meta;
 pub mod meta_language_support;
 pub mod meta_language_structure;
 pub mod portable_natural;
+pub mod certified_translation;
 pub mod js_rename;
 pub mod formal_corpus;
 pub mod theory_network;

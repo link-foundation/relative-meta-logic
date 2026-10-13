@@ -5,6 +5,12 @@ explicit, nontrivial computational fragment. It does **not** complete full
 four-language support, translate arbitrary proofs, or close R106–R109. The
 full-language requirements remain unchanged.
 
+The wider [certified translation pipeline](certified-translation.md) adds
+inductive data, pattern matching, structural recursion, modules, checked
+integers, theorems and RML-checked translation certificates for all twelve
+paths through the temporarily vendored meta-language PR #201 core. This
+fragment and its native receipt remain unchanged.
+
 ## Source and target grammar
 
 All four frontends accept named pure functions, positional parameters, natural

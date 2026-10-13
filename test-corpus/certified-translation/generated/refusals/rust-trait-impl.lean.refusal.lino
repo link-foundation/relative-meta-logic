@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 08773f63de57d9673507fe27b262054fbed1bbd79a3c610beadce2e51df4182b)
+    (bytes 379)
+    (utf16 379))
+  (target (language Lean) (status not-emitted))
+  (stage frontend)
+  (diagnostic
+    (kind unsupported)
+    (message "Rust trait item: trait items are outside the portable core")
+    (span 106 111)
+    (bytes 106 111)
+    (span-sha256 982055e51c25a06a78218a70083240ea36ba656fd9081bf39440f847aa46f825))
+  (preserved-source
+    (sha256 08773f63de57d9673507fe27b262054fbed1bbd79a3c610beadce2e51df4182b)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 201ba989b928c981892e5373e015e9fddaf0b1953085771bd92c07a4692217fb))

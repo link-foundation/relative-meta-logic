@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rocq)
+    (sha256 82c12f32b028bcd7750732ecc40b5698ce6529896425be9430db1952ab62733a)
+    (bytes 270)
+    (utf16 270))
+  (target (language JavaScript) (status not-emitted))
+  (stage frontend)
+  (diagnostic
+    (kind unsupported)
+    (message "Rocq Record command: outside the portable core")
+    (span 130 136)
+    (bytes 130 136)
+    (span-sha256 bfdd510698ef3ccbf17f2c67fc47790e1ba72894fb74fe284bbc136b47ef73e6))
+  (preserved-source
+    (sha256 82c12f32b028bcd7750732ecc40b5698ce6529896425be9430db1952ab62733a)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 d71f8950a99d8891dbc1f2067cc1518f407679a28e91ac1781c6667acf3cfc90))
