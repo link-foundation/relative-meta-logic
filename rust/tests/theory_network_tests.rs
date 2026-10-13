@@ -1780,3 +1780,191 @@ fn bounds_deep_and_shared_versioned_structure_by_expanded_visits_and_output_coun
         .unwrap_err()
         .contains("visit limit exceeded"));
 }
+
+fn top_level_names<'a>(source: &'a str, head: &str) -> Vec<&'a str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix(head))
+        .filter_map(|rest| {
+            rest.split(|character: char| {
+                character.is_whitespace() || character == '(' || character == ')'
+            })
+            .next()
+        })
+        .filter(|name| !name.is_empty())
+        .collect()
+}
+
+#[test]
+fn names_no_bundled_theory_or_object_program_in_the_host_runtime() {
+    let mut names = top_level_names(UNIVERSAL, "(linked-program ");
+    names.extend(top_level_names(CORE, "(theory "));
+    assert!(names.contains(&"lambda-calculus") && names.contains(&"set-theory"));
+    let source_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
+    let runtime = [
+        "theory_network.rs",
+        "linked_program.rs",
+        "linked_program/combinator_kernel.rs",
+    ]
+    .iter()
+    .map(|file| fs::read_to_string(source_root.join(file)).expect("runtime source"))
+    .collect::<Vec<_>>()
+    .join("\n");
+    // The runtime names only the meta-foundation interpreter, whose trace path
+    // and bootstrap probe it reports; it names no object theory or program.
+    let named = names
+        .iter()
+        .copied()
+        .filter(|name| *name != "links-meta-foundation" && runtime.contains(*name))
+        .collect::<BTreeSet<_>>();
+    assert!(named.is_empty(), "{named:?}");
+}
+
+#[test]
+fn rejects_a_user_defined_logic_whose_linked_program_fails_its_conformance_case() {
+    let source = r#"
+(linked-program user-counter-program)
+(linked-rewrite user-counter-program evaluate-linked-contract
+  (from (counter (successor ?value)))
+  (to ?value))
+(theory source-theory (address user.source-theory))
+(theory target-theory (address user.target-theory))
+(term source-theory entity user.concept.entity)
+(term target-theory entity user.concept.entity)
+(implementation user-counter
+  (contract user-counter-contract)
+  (program user-counter-program)
+  (kind user-defined-semantics)
+  (subject source-theory)
+  (using target-theory)
+  (obligation evaluates-linked-contract))
+(witness user.definition.counter
+  (kind user-defined-semantics)
+  (implementation user-counter)
+  (proof user.proof.counter))
+(proof-object user.proof.counter
+  (applies verified-theory-definition)
+  (premise-by user.capability.counter)
+  (conclusion
+    (source-by-target defines source-theory using target-theory
+      via user-counter as user-defined-semantics)))
+(definition source-by-target
+  (subject source-theory)
+  (using target-theory)
+  (witness user.definition.counter))
+"#;
+    // The trusted case expects a result the user's linked rule does not
+    // produce, so the generic reduction path must refuse the definition.
+    let trusted_foundation = format!(
+        r#"{FOUNDATION}
+(implementation-contract user-counter-contract
+  (kind user-defined-semantics)
+  (obligation evaluates-linked-contract))
+(conformance-case user-counter-contract evaluates-linked-contract
+  (program user-counter-program)
+  (input (counter (successor zero)))
+  (expected (successor zero)))
+(axiom user.capability.counter
+  (judgement (user-counter implements user-defined-semantics)))
+"#
+    );
+    let error = TheoryNetwork::from_rml(&format!("{UNIVERSAL}\n{source}"), &trusted_foundation)
+        .err()
+        .expect("a failing conformance case must be rejected");
+    assert!(
+        error.contains(
+            "implementation user-counter failed reduction conformance user-counter-contract.evaluates-linked-contract"
+        ),
+        "{error}"
+    );
+}
+
+#[test]
+fn verifies_every_bundled_definition_under_the_complete_trusted_foundation() {
+    let network = bundled_network();
+    let mut verified = 0;
+    for theory in network.theory_names() {
+        for definition in network.definitions_for(theory) {
+            assert!(
+                network
+                    .definition_verification(&definition.name)
+                    .expect("bundled definition is verified")
+                    .verified,
+                "{}",
+                definition.name
+            );
+            verified += 1;
+        }
+    }
+    assert!(verified >= 10, "{verified} definitions");
+}
+
+#[test]
+fn rejects_the_bundled_network_when_any_trusted_axiom_or_rule_is_removed() {
+    let mut forms: Vec<String> = Vec::new();
+    for line in FOUNDATION.split('\n') {
+        if line.starts_with('(') || forms.is_empty() {
+            forms.push(line.to_string());
+        } else if let Some(form) = forms.last_mut() {
+            form.push('\n');
+            form.push_str(line);
+        }
+    }
+    let trusted = forms
+        .iter()
+        .enumerate()
+        .filter(|(_, form)| form.starts_with("(axiom ") || form.starts_with("(rule "))
+        .map(|(index, _)| index)
+        .collect::<Vec<_>>();
+    assert_eq!(trusted.len(), 21);
+    let candidate = format!("{UNIVERSAL}\n{CORE}");
+    assert!(TheoryNetwork::from_rml(&candidate, FOUNDATION).is_ok());
+    for index in trusted {
+        let reduced = forms
+            .iter()
+            .enumerate()
+            .filter(|(other, _)| *other != index)
+            .map(|(_, form)| form.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(
+            TheoryNetwork::from_rml(&candidate, &reduced).is_err(),
+            "{} is not needed",
+            forms[index].lines().next().unwrap_or_default()
+        );
+    }
+}
+
+#[test]
+fn verifies_the_bundled_network_without_starting_a_proof_assistant_process() {
+    let network = bundled_network();
+    for definition in [
+        "links-by-sets",
+        "graphs-by-finite-sets",
+        "relations-by-types",
+    ] {
+        assert!(
+            network
+                .definition_verification(definition)
+                .expect("bundled definition")
+                .verified,
+            "{definition}"
+        );
+    }
+    // The crate starts processes only for the optional SMT and ATP back ends
+    // in lib.rs; no module on the network verification path names one.
+    let source_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
+    let mut verification_path = vec![
+        source_root.join("theory_network.rs"),
+        source_root.join("linked_program.rs"),
+        source_root.join("formal_corpus.rs"),
+        source_root.join("lino_frontend.rs"),
+    ];
+    verification_path.extend(files_under(&source_root.join("linked_program")));
+    for path in verification_path {
+        let text = fs::read_to_string(&path).expect("runtime source");
+        for marker in ["std::process", "Command::new", "Command::"] {
+            assert!(!text.contains(marker), "{} names {marker}", path.display());
+        }
+    }
+}
