@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "ff44419f451525abc5ef6b38ad9a65822329a0f8f3f611cb9af840e844589353",
-  "archiveBytes": 2195390,
+  "archiveSha256": "588734bdaceee9b8669012eb1653a97b334f428cb4b724cb9b1b743377a801b1",
+  "archiveBytes": 2195391,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -862,9 +862,9 @@
     },
     {
       "path": "scripts/build-cache.mjs",
-      "sourceSha256": "19b2a46cad9e05144fa73e9f7ec46a3ef8f81a46660146bdf5acbccf3c46eb87",
-      "astSha256": "671db9cec360daaf92ed5b17c4eed46f887178f9ce27e29c845bc0f3d7c53136",
-      "generatedSha256": "5bdc48688f08972f32d068ada76c0ed19dc24f1261e2eda8b4c0d64b2eb2effa"
+      "sourceSha256": "4bcd4cfe40599eeedfd38029d44df9b650ca677c283f1bc8514f2f62d0904950",
+      "astSha256": "3037f408dcf027ca041d77b96c218abc5359dc26132fb4218f36df4040346e37",
+      "generatedSha256": "533545c5a6dae90bf13ac3a9078f112f3911aeb3f23aebc1de20f35ceb28b322"
     },
     {
       "path": "scripts/build-docs.mjs",
