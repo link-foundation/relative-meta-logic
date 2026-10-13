@@ -38,6 +38,59 @@ for (const filename of workflows) {
   });
 }
 
+// A raw producer outside the wrapper writes outputs no receipt owns. Steps not
+// entering run-with-cache may reach npm scripts only when those scripts wrap
+// themselves or produce nothing (reports, checks and dependency installs).
+const producer = /\b(?:cargo (?:build|test|doc|bench|check|clippy|run|install|rustc)|lake (?:build|exe)|rocq makefile|coqc\s|make -f|docker (?:build|buildx|run|compose (?:up|build|run)))\b|\bnode --test\b|scripts\/build-(?:docs|playground|vsix)\b/;
+const packageScripts = directory => {
+  const file = join(root, directory, 'package.json');
+  return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')).scripts ?? {} : null;
+};
+export function unwrappedProducers(step, scripts = packageScripts) {
+  if (!/^\s+run:/m.test(step) || /node (?:\.\.\/)?scripts\/run-with-cache\.mjs/.test(step)) return [];
+  const script = step.slice(step.search(/^\s+run:/m));
+  const found = [];
+  const direct = script.match(producer);
+  if (direct) found.push(`raw producer: ${direct[0].trim()}`);
+  const directory = step.match(/^\s+working-directory: (\S+)\s*$/m)?.[1] ?? '.';
+  for (const [, prefix, name = 'test'] of script.matchAll(/\bnpm (?:--prefix (\S+) )?(?:test\b|run ([\w:-]+))/g)) {
+    const command = scripts(prefix ?? directory)?.[name];
+    if (command === undefined) found.push(`undefined npm script ${prefix ?? directory}:${name}`);
+    else if (!/run-with-cache\.mjs/.test(command) && producer.test(command)) found.push(`unwrapped npm script ${prefix ?? directory}:${name}`);
+  }
+  return found;
+}
+
+// Each exemption names the exact command and why it can write no repository output.
+const producerExemptions = new Map([
+  // The candidate validator's own unit test runs before the experiment tree has a
+  // lifecycle; it writes only below os.tmpdir() and removes its fixtures.
+  ['cache-candidate-validation.yml', ['node --test .github/candidates/cache-portability/validate.test.mjs']],
+]);
+for (const filename of workflows) {
+  test(`${filename}: no step runs a build or test producer outside a cache lease`, () => {
+    const exempt = producerExemptions.get(filename) ?? [];
+    for (const job of jobs(read(`.github/workflows/${filename}`))) {
+      for (const step of steps(job)) {
+        if (exempt.some(command => step.includes(`run: ${command}\n`))) continue;
+        assert.deepEqual(unwrappedProducers(step), [], step);
+      }
+    }
+    for (const command of exempt) assert.ok(read(`.github/workflows/${filename}`).includes(`run: ${command}\n`), `stale exemption: ${command}`);
+  });
+}
+
+test('the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones', () => {
+  const scripts = () => ({ test: 'node ../scripts/run-with-cache.mjs -- node --test tests/*.test.mjs', raw: 'node --test tests/*.test.mjs', report: 'node ../scripts/report-bootstrap-metrics.mjs' });
+  const step = body => `      - name: fixture\n        working-directory: js\n        run: ${body}\n`;
+  for (const body of ['cargo check --manifest-path rust/Cargo.toml', 'cargo clippy --all-targets', 'docker buildx build .', 'node --test scripts/x.test.mjs', 'npm run raw', 'npm run missing', 'lake build']) {
+    assert.notDeepEqual(unwrappedProducers(step(body), scripts), [], body);
+  }
+  for (const body of ['npm test', 'npm run report', 'node scripts/run-with-cache.mjs -- cargo test', 'cargo --version', 'node scripts/build-cache.mjs --full']) {
+    assert.deepEqual(unwrappedProducers(step(body), scripts), [], body);
+  }
+});
+
 test('the cross-platform lifecycle job executes every cache lifecycle suite on all supported OSes', () => {
   const portability = read('.github/workflows/cache-portability.yml');
   assert.match(portability, /os: \[ubuntu-latest, macos-latest, windows-latest\]/);

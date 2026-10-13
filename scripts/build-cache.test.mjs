@@ -721,6 +721,8 @@ for (const platform of ['darwin', 'win32']) {
     if (platform === 'win32') {
       assert.equal(calls[0][0], 'powershell.exe');
       for (const query of ['Win32_OperatingSystem', 'Win32_ComputerSystemProduct', 'Win32_Process', 'ParentProcessId', 'CreationDate']) assert.ok(calls[0][1].at(-1).includes(query));
+      // A reused parent PID names a younger process, which is never an ancestor.
+      assert.match(calls[0][1].at(-1), /\$entry\.CreationDate -gt \$root\.CreationDate\)\{break\}/);
     }
     const state = path.join(f.root, '.git/rml-cache');
     const dir = path.join(state, 'lock');
@@ -1015,4 +1017,85 @@ test('the real cache suite runs inside an outer private target without borrowing
   assert.match(result.stdout, /all declared cache classes are reclaimed; full is idempotent; evidence\/source survive/);
   assert.match(result.stdout, /(?:pass|passed)\s+1|1\s+(?:pass|passed)/);
   assert.doesNotMatch(result.stdout + result.stderr, /Unsafe cache path/);
+});
+
+function abandonedLease(f, owner) {
+  const dir = path.join(f.root, '.git/rml-cache/lock');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'owner.json'), JSON.stringify({ host: os.hostname(), token: 'killed-build-token', started: Date.now(), ...owner }));
+  return dir;
+}
+const deadPid = () => spawnSync(node, ['-e', '']).pid;
+
+test('a hard-killed build lease is recovered only by --recover once nothing of it still runs', async t => {
+  const f = fixture(t);
+  const { processIdentity } = await import('./build-cache.mjs');
+  ok(f.wrap(writeProgram('target/before-kill')));
+  const dir = abandonedLease(f, { pid: deadPid(), child: deadPid(), processIdentity: processIdentity() });
+  const blocked = f.clean('--full');
+  assert.notEqual(blocked.status, 0);
+  assert.match(blocked.stderr, /Abandoned build lease.*--recover/);
+  assert.equal(exists(f, 'target/before-kill'), true);
+  const recovered = f.run(['scripts/build-cache.mjs', '--recover', '--full']);
+  ok(recovered);
+  assert.match(recovered.stderr, /recovered abandoned lease of killed build/);
+  assert.equal(fs.existsSync(dir), false);
+  assert.equal(fs.existsSync(path.join(f.root, '.git/rml-cache/lock-recovery')), false);
+  assert.equal(exists(f, 'target/before-kill'), false);
+});
+
+test('a killed build whose process group still runs, or an interrupted recovery, keeps its lease', { skip: process.platform === 'win32' }, async t => {
+  const f = fixture(t);
+  const { processIdentity } = await import('./build-cache.mjs');
+  ok(f.wrap(writeProgram('target/still-used')));
+  // The group leader exits at once, leaving a descendant in its process group.
+  const leader = spawn(node, ['-e', "require('node:child_process').spawn(process.execPath,['-e','setTimeout(()=>{},60000)'],{stdio:'ignore'}).unref()"], { detached: true, stdio: 'ignore' });
+  t.after(() => { try { process.kill(-leader.pid, 'SIGKILL'); } catch { /* already gone */ } });
+  await new Promise(resolve => leader.once('exit', resolve));
+  const dir = abandonedLease(f, { pid: deadPid(), child: leader.pid, processIdentity: processIdentity() });
+  const owner = fs.readFileSync(path.join(dir, 'owner.json'), 'utf8');
+  const refused = f.run(['scripts/build-cache.mjs', '--recover', '--full']);
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /process group of the killed build is still running/);
+  assert.equal(fs.readFileSync(path.join(dir, 'owner.json'), 'utf8'), owner);
+  assert.equal(read(f, 'target/still-used'), 'cache');
+  process.kill(-leader.pid, 'SIGKILL');
+  for (const end = Date.now() + 10000; Date.now() < end;) {
+    try { process.kill(-leader.pid, 0); } catch { break; }
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  fs.mkdirSync(path.join(f.root, '.git/rml-cache/lock-recovery'));
+  const interrupted = f.run(['scripts/build-cache.mjs', '--recover', '--full']);
+  assert.notEqual(interrupted.status, 0);
+  assert.match(interrupted.stderr, /Lease recovery in progress or interrupted/);
+  assert.equal(fs.readFileSync(path.join(dir, 'owner.json'), 'utf8'), owner);
+  assert.equal(read(f, 'target/still-used'), 'cache');
+});
+
+test('cleanup reports allocated filesystem bytes and can enforce the budget on them', t => {
+  const f = fixture(t);
+  ok(f.wrap(writeProgram('target/small', 'a'.repeat(100)), [], { RML_CACHE_BUDGET_BYTES: '150' }));
+  let report = JSON.parse(read(f, '.rml-cache/reports/last-cleanup.json'));
+  assert.equal(report.budgetMetric, 'logical');
+  assert.equal(exists(f, 'target/small'), true);
+  const stat = fs.statSync(path.join(f.root, 'target/small'));
+  const allocated = Number.isFinite(stat.blocks) && stat.blocks >= 0 ? stat.blocks * 512 : stat.size;
+  assert.equal(report.localAllocatedAfterBytes, allocated);
+  assert.equal(report.allocationSource, process.platform === 'win32' ? 'logical-size-fallback' : 'filesystem-blocks');
+  ok(f.run(['scripts/build-cache.mjs'], { RML_CACHE_BUDGET_BYTES: '150', RML_CACHE_BUDGET_METRIC: 'allocated' }));
+  report = JSON.parse(read(f, '.rml-cache/reports/last-cleanup.json'));
+  assert.equal(report.budgetMetric, 'allocated');
+  assert.equal(report.localAllocatedBeforeBytes, allocated);
+  assert.equal(exists(f, 'target/small'), allocated <= 150);
+  assert.ok(report.afterBytes <= 150);
+  assert.equal(report.budgetSatisfied, true);
+});
+
+test('an unknown budget metric fails closed without deleting anything', t => {
+  const f = fixture(t);
+  ok(f.wrap(writeProgram('target/kept')));
+  const result = f.run(['scripts/build-cache.mjs', '--full'], { RML_CACHE_BUDGET_METRIC: 'blocks' });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /RML_CACHE_BUDGET_METRIC must be logical or allocated/);
+  assert.equal(read(f, 'target/kept'), 'cache');
 });

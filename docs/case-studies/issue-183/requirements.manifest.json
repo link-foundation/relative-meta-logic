@@ -12188,7 +12188,7 @@
     {
       "id": "R96",
       "obligation": "Audit every remaining assumption of the repaired addressed representation and produce another falsifiable result.",
-      "status": "Partial — five additional probes complete",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5786000580",
@@ -12211,13 +12211,24 @@
           "bodySha256": "5361a046c55e0b0ef94eb026e7a6be53001f2c7aa4bc7dcad61bf3cb44cecad9"
         }
       ],
-      "implementationClaims": [],
-      "claimedEvidence": "The `sharedAddressComposition` audit removes single-link isolation; `structuralApplicationComposition` holds identity, self-incidence, shared address, and recursion while exhibiting a connected composition countermodel; `linkCarriedSelectionAuthority` tests linked asymmetry; and `linkedStructuralAdmissibility` tests exact-cover certificates plus context. The `linkedVerifierStep` probe factors out a local incidence join with a linked trace. Formation admits all `49` ordered address pairs without selecting composition, and the new certificate filter remains externally interpreted. The broader matrix in R127 remains open. An exhaustive one-at-a-time assumption-removal matrix with first witness pairs now covers every retained assumption. `Finiteness is not removed and the remaining audit stays open`.",
+      "implementationClaims": [
+        {
+          "path": "experiments/assumption-removal/matrix.mjs",
+          "role": "implementation",
+          "sha256": "572bf3d0cc0cfcda34d94cd86e0c55fd76f7e11b2fa450ca964d80dd624a3665"
+        },
+        {
+          "path": "experiments/assumption-removal/finiteness.mjs",
+          "role": "implementation",
+          "sha256": "63552929951cf70caa629c60963dd18a10d99dbc119b4664c92b787afb6f376b"
+        }
+      ],
+      "claimedEvidence": "Five earlier probes (`sharedAddressComposition`, `structuralApplicationComposition`, `linkCarriedSelectionAuthority`, `linkedStructuralAdmissibility`, `linkedVerifierStep`) audit isolation, composition, selection, admissibility and verifier steps. `experiments/assumption-removal/matrix.mjs` then removes each remaining finite assumption of the repaired addressed representation one at a time by exhaustive enumeration with first witness pairs, and `experiments/assumption-removal/finiteness.mjs` removes the last one, finiteness: exhaustively no finite one-slot structure up to four links embeds onto a proper part of itself, while a symbolic shift certificate identifies each infinite ray with its tail, two invariants show that only the first link of a ray is an invisible deletion, and the two-sided line has none. Both are mirrored in `js/tests/assumption-removal.test.mjs` and `rust/tests/assumption_removal_tests.rs` with negative controls. The certificate filter of `linkedStructuralAdmissibility` remains externally interpreted, and no assumption is shown intrinsic, which R71/R73/R74 track.",
       "checks": [
         "assumption-removal-js",
         "assumption-removal-rust"
       ],
-      "remainingGap": "The `sharedAddressComposition` audit removes single-link isolation; `structuralApplicationComposition` holds identity, self-incidence, shared address, and recursion while exhibiting a connected composition countermodel; `linkCarriedSelectionAuthority` tests linked asymmetry; and `linkedStructuralAdmissibility` tests exact-cover certificates plus context. The `linkedVerifierStep` probe factors out a local incidence join with a linked trace. Formation admits all `49` ordered address pairs without selecting composition, and the new certificate filter remains externally interpreted. The broader matrix in R127 remains open. An exhaustive one-at-a-time assumption-removal matrix with first witness pairs now covers every retained assumption. `Finiteness is not removed and the remaining audit stays open`.",
+      "remainingGap": "Five earlier probes (`sharedAddressComposition`, `structuralApplicationComposition`, `linkCarriedSelectionAuthority`, `linkedStructuralAdmissibility`, `linkedVerifierStep`) audit isolation, composition, selection, admissibility and verifier steps. `experiments/assumption-removal/matrix.mjs` then removes each remaining finite assumption of the repaired addressed representation one at a time by exhaustive enumeration with first witness pairs, and `experiments/assumption-removal/finiteness.mjs` removes the last one, finiteness: exhaustively no finite one-slot structure up to four links embeds onto a proper part of itself, while a symbolic shift certificate identifies each infinite ray with its tail, two invariants show that only the first link of a ray is an invisible deletion, and the two-sided line has none. Both are mirrored in `js/tests/assumption-removal.test.mjs` and `rust/tests/assumption_removal_tests.rs` with negative controls. The certificate filter of `linkedStructuralAdmissibility` remains externally interpreted, and no assumption is shown intrinsic, which R71/R73/R74 track.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -12261,9 +12272,94 @@
           "file": "rust/tests/assumption_removal_tests.rs",
           "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
           "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "finiteness removal is reproduced exactly and no finite structure embeds onto a proper part of itself",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "removing finiteness identifies each ray with its tail by a symbolic shift certificate",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "only the first link of a ray is an invisible deletion and the two-sided line has none",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a surjective shift or a non-affine structure identifies no proper substructure",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "finiteness_removal_is_reproduced_exactly_and_no_finite_structure_embeds_onto_a_proper_part_of_itself",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "removing_finiteness_identifies_each_ray_with_its_tail_by_a_symbolic_shift_certificate",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "only_the_first_link_of_a_ray_is_an_invisible_deletion_and_the_two_sided_line_has_none",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_surjective_shift_or_a_non_affine_structure_identifies_no_proper_substructure",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "the removal matrix is reproduced exactly and starts from the audited base contract",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "finiteness removal is reproduced exactly and no finite structure embeds onto a proper part of itself",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a surjective shift or a non-affine structure identifies no proper substructure",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "the_removal_matrix_is_reproduced_exactly_and_starts_from_the_audited_base_contract",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "finiteness_removal_is_reproduced_exactly_and_no_finite_structure_embeds_onto_a_proper_part_of_itself",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_surjective_shift_or_a_non_affine_structure_identifies_no_proper_substructure",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R97",
@@ -30389,7 +30485,7 @@
     {
       "id": "R127",
       "obligation": "Explicitly enumerate repaired-representation assumptions, their forcing facts, and distinctions lost when each is removed, then add a falsifiable result.",
-      "status": "Partial — every retained assumption removed with first witness pairs",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -30440,15 +30536,20 @@
         {
           "path": "experiments/assumption-removal/matrix.mjs",
           "role": "implementation",
-          "sha256": "5ee7a291a2a43f0240ac0b1ac90e905873a2d26a52786e2b035b9ab3d837a6e5"
+          "sha256": "572bf3d0cc0cfcda34d94cd86e0c55fd76f7e11b2fa450ca964d80dd624a3665"
+        },
+        {
+          "path": "experiments/assumption-removal/finiteness.mjs",
+          "role": "implementation",
+          "sha256": "63552929951cf70caa629c60963dd18a10d99dbc119b4664c92b787afb6f376b"
         }
       ],
-      "claimedEvidence": "`experiments/assumption-removal/matrix.mjs` removes each retained assumption of the repaired addressed representation one at a time, reproduces the audited base class counts (2/10/77/799), records how many classes each removal identifies or separates and gives first witness pairs; local non-faithfulness survives every identifying removal. `Finiteness itself is not removed, and no intrinsic forcing fact is claimed`.",
+      "claimedEvidence": "`experiments/assumption-removal/matrix.mjs` enumerates the repaired-representation assumptions with their provenance as forcing fact (issue contract or observer restriction), removes each one at a time, reproduces the audited base class counts (2/10/77/799), records how many classes each removal identifies or separates and gives first witness pairs; local non-faithfulness survives every identifying removal. `experiments/assumption-removal/finiteness.mjs` covers finiteness: its forcing fact is that every self-embedding of a finite structure is onto (checked exhaustively up to four links), and its removal identifies each infinite ray with a proper substructure by a symbolic shift certificate. Both runtimes reproduce `test-corpus/assumption-removal/report.json` and `finiteness.json`. No forcing fact is claimed intrinsic to links, which R71/R73/R74 track.",
       "checks": [
         "assumption-removal-js",
         "assumption-removal-rust"
       ],
-      "remainingGap": "`experiments/assumption-removal/matrix.mjs` removes each retained assumption of the repaired addressed representation one at a time, reproduces the audited base class counts (2/10/77/799), records how many classes each removal identifies or separates and gives first witness pairs; local non-faithfulness survives every identifying removal. `Finiteness itself is not removed, and no intrinsic forcing fact is claimed`.",
+      "remainingGap": "`experiments/assumption-removal/matrix.mjs` enumerates the repaired-representation assumptions with their provenance as forcing fact (issue contract or observer restriction), removes each one at a time, reproduces the audited base class counts (2/10/77/799), records how many classes each removal identifies or separates and gives first witness pairs; local non-faithfulness survives every identifying removal. `experiments/assumption-removal/finiteness.mjs` covers finiteness: its forcing fact is that every self-embedding of a finite structure is onto (checked exhaustively up to four links), and its removal identifies each infinite ray with a proper substructure by a symbolic shift certificate. Both runtimes reproduce `test-corpus/assumption-removal/report.json` and `finiteness.json`. No forcing fact is claimed intrinsic to links, which R71/R73/R74 track.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -30492,9 +30593,94 @@
           "file": "rust/tests/assumption_removal_tests.rs",
           "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
           "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "finiteness removal is reproduced exactly and no finite structure embeds onto a proper part of itself",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "removing finiteness identifies each ray with its tail by a symbolic shift certificate",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "only the first link of a ray is an invisible deletion and the two-sided line has none",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a surjective shift or a non-affine structure identifies no proper substructure",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "finiteness_removal_is_reproduced_exactly_and_no_finite_structure_embeds_onto_a_proper_part_of_itself",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "removing_finiteness_identifies_each_ray_with_its_tail_by_a_symbolic_shift_certificate",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "only_the_first_link_of_a_ray_is_an_invisible_deletion_and_the_two_sided_line_has_none",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_surjective_shift_or_a_non_affine_structure_identifies_no_proper_substructure",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "each removal identifies or separates exactly the recorded number of classes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "removing finiteness identifies each ray with its tail by a symbolic shift certificate",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a single link has no local non-faithfulness and no record-order witness",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "each_removal_identifies_or_separates_exactly_the_recorded_number_of_classes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "removing_finiteness_identifies_each_ray_with_its_tail_by_a_symbolic_shift_certificate",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R128",
@@ -30733,7 +30919,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-foundation-comparison.md",
           "role": "implementation",
-          "sha256": "6f502c58bd535dc9c73b6369485b7fcc7588bf6518efbe62bfff5fe57f5f8454"
+          "sha256": "9f656a7b1679c3475e8d6c2334ae9a6ab25e8befa5618b2f3a003f20db8dcf12"
         }
       ],
       "claimedEvidence": "The meta-foundation comparison runs S/K and the Horn link-substitution foundation under one workload and observation contract: preserved reductions, judgements and proofs; workload-relative removal minimality ({S,K}; 7 of 11 Horn laws); self-interpretation, self-description and image regeneration; a traced trust boundary; and a lock-step criterion separating Horn from S/K but not from a renamed S/K. The report claims neither ranking nor global minimality. `The relational-kernel Rust mirrors cannot yet be bound by the gate, and S/K self-generation is not shown`.",
@@ -32919,6 +33105,54 @@
           "file": "rust/tests/assumption_removal_tests.rs",
           "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
           "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "finiteness removal is reproduced exactly and no finite structure embeds onto a proper part of itself",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "removing finiteness identifies each ray with its tail by a symbolic shift certificate",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "only the first link of a ray is an invisible deletion and the two-sided line has none",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a surjective shift or a non-affine structure identifies no proper substructure",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "finiteness_removal_is_reproduced_exactly_and_no_finite_structure_embeds_onto_a_proper_part_of_itself",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "removing_finiteness_identifies_each_ray_with_its_tail_by_a_symbolic_shift_certificate",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "only_the_first_link_of_a_ray_is_an_invisible_deletion_and_the_two_sided_line_has_none",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_surjective_shift_or_a_non_affine_structure_identifies_no_proper_substructure",
+          "polarity": "negative"
         }
       ],
       "completionBindings": [],
@@ -33769,10 +34003,43 @@
       ],
       "implementationClaims": [],
       "claimedEvidence": "`orientation-requirement-audit.md` records general positive-completion and full-reduct expansion-independence results, independently checked in Lean 4.34.1 and Rocq 9.3.0. Exact-source hosted checks pass all 42 named theorems and five false-claim controls per kernel. The completeness of the relevant no-bridge contract, or an independently justified semantic bridge and its applicability, remains unresolved.",
-      "checks": [],
+      "checks": [
+        "orientation-independence"
+      ],
       "remainingGap": "Mirrored `consequenceAudit` / `consequence_audit` tests report `CONSEQUENCE_REQUIRES_UNRECORDED_ORIENTED_EXCLUSION`. A pair is possible when some admissible completion of the recorded pairs `[0,1]` and `[1,2]` contains it, and follows when every admissible completion does. Over all `128` completions on `{K,A,B}`, every pair is possible and nothing new follows without an exclusion. The transitive exclusion (`13` completions) makes `[0,2]` follow, the circular exclusion (`2` completions) makes `[2,0]` follow, and admitting either (`14` completions) makes only the unoriented connection follow. Each exclusion's meet is the least model of one surviving projection, so the exclusion restates a law. Of the `16` two-premise position laws, address renaming, arbitrary substitution, record reordering, and nested encoding pass all `16`; slot reversal, non-degeneracy, and unordered novelty leave `[P.first,Q.second]` and `[Q.second,P.first]`. Every criterion commutes with the output swap, which fixes no non-degenerate law. Slot-position preservation, unit neutrality, a declared closed model, and premise recoverability each select `[0,2]`, while an equally generic mirror selects `[2,0]`; their provenance is an output-slot alignment, an imported identity law, an already recorded conclusion, or imported irreversibility. The two least models agree on the premises but have `1` versus `3` automorphisms, and dropping slot order admits a premise automorphism exchanging K and B. Four exclusions are consistent with the records, so `the recorded links do not determine the exclusion or its orientation`. This is a finite negative for the tested contract; a host-free generic principle deriving K-B from K-A and A-B remains open. R148 continues with where the orientation itself could come from.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "the two native proof sources retain the same audited theorem obligations",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "recorded native result matches these sources and includes both kernels and rejected counterclaims",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "dedicated CI requires real Lean and Rocq checks and owned-cache teardown",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "proof holes, extra assumptions, inventory loss, and empty native checks fail closed",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "an absent requested compiler fails instead of skipping native checking",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -33803,10 +34070,43 @@
       ],
       "implementationClaims": [],
       "claimedEvidence": "`orientation-requirement-audit.md` distinguishes general duality, symmetry obstructions, definable structural selectors, and full-reduct expansion independence. Maintained-toolchain verification passes in both kernels. These conditional theorems do not establish intrinsic consequence-orientation authority or justify admitting every free semantic expansion; the applicability contract remains open.",
-      "checks": [],
+      "checks": [
+        "orientation-independence"
+      ],
       "remainingGap": "Mirrored `orientationAudit` / `orientation_audit` tests report `CONSEQUENCE_ORIENTATION_DISTINGUISHED_BUT_NOT_FORCED` from address equality and, per contract, slot order, with no completion, exclusion, or position law. On the premises `[3,0,1]` and `[4,1,2]`, named ordered slots have `1` symmetry and anonymous ordered slots have `2`, whose non-identity symmetry exchanges K with B; both keep `[0,2]` and `[2,0]` in different orbits, while unordered slots make them coincide. Across all `4567` extensions by up to two ordinary records, `4` exchange the two candidates, `4563` keep them separated, and no symmetry under either ordered contract fixes exactly one candidate; `4332` of the extensions are chiral under anonymous slots. Two same-observation pairs locate what slot order contributes. An achiral and a chiral structure agree on all `16` position-law readouts but have `1` versus `0` slot-reversing symmetries, and neither ranks a candidate. A cycle and a detour share one unordered shadow; in the cycle a named symmetry exchanges the candidates, while the detour separates them and the two laws read opposite pairs. All `120` address renamings, named and anonymous tagged encodings, and a rigid self-referential tag carrier with `1` symmetry keep the candidates separated but unranked; swapping the tags is an isomorphism, so the aligned candidate decodes to either `[0,2]` or `[2,0]`. The provenance classification gives the join address `FORCED_BY_INCIDENCE`, candidate separation `FORCED_BY_SLOT_ORDER`, end asymmetry `FORCED_BY_SLOT_NAMES_OR_CHIRAL_CONTEXT`, slot identity `FORCED_ONLY_BY_A_RIGID_SELF_REFERENTIAL_CARRIER`, and the premise-to-conclusion slot correspondence `CHOSEN_NOT_FORCED`. The no-go is `EVERY_INTRINSIC_LINK_OBSERVATION_PRESERVED_ORIENTATION_STILL_REVERSIBLE`: the output swap commutes with every contract symmetry of every structure, so each invariant selector has an invariant twin that chooses the opposite orientation. Once conclusions are recorded and composed again, the identity and exchange correspondences build different closures of `[3,0,1]`, `[4,1,2]`, `[5,2,9]`, and only a `REQUIREMENT_ON_HOW_CONSEQUENCE_COMPOSES` separates them. `The records force separation, not orientation`: this is a finite negative for the tested contracts, and an intrinsic source of orientation outside address equality and slot order remains open.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "the two native proof sources retain the same audited theorem obligations",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "recorded native result matches these sources and includes both kernels and rejected counterclaims",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "dedicated CI requires real Lean and Rocq checks and owned-cache teardown",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "proof holes, extra assumptions, inventory loss, and empty native checks fail closed",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "orientation-independence",
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "an absent requested compiler fails instead of skipping native checking",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -33835,7 +34135,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-foundation-comparison.md",
           "role": "implementation",
-          "sha256": "6f502c58bd535dc9c73b6369485b7fcc7588bf6518efbe62bfff5fe57f5f8454"
+          "sha256": "9f656a7b1679c3475e8d6c2334ae9a6ab25e8befa5618b2f3a003f20db8dcf12"
         }
       ],
       "claimedEvidence": "Registered here and in the claim boundary below. Its parts are the open or partial rows it gathers: closure covers only the declared bootstrap path (`R55`, `R62`, `R64`, `R132`); `OPEN_NO_COMPARABLE_ALTERNATIVE` leaves one reduced and self-hosted foundation, so no second foundation exists to replace it and no semantic preservation under replacement is shown (`R130`); the full link-executed verifier and authority closure remain open (`R143`); and execution, consequence, and orientation authority remain open (`R71`, `R147`, `R148`). R25, R26, and R53 rebind one unchanged theory across user foundations, which is object-level substitutability and does not replace the meta-foundation below K1. The gate stays open until every criterion has an executable witness for two such foundations. Two genuinely different, comparably reduced meta-foundations now execute one byte-identical upper layer (`meta-foundation-comparison.md`): S/K and a Horn link-substitution foundation, separated by a lock-step criterion that does not separate a renamed S/K re-encoding. `S/K is still produced by a host compiler, LiNo parsing and codecs remain host code, S/K self-generation is not shown and minimality is relative to this workload, so the gate stays open`.",
@@ -33961,7 +34261,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-foundation-comparison.md",
           "role": "implementation",
-          "sha256": "6f502c58bd535dc9c73b6369485b7fcc7588bf6518efbe62bfff5fe57f5f8454"
+          "sha256": "9f656a7b1679c3475e8d6c2334ae9a6ab25e8befa5618b2f3a003f20db8dcf12"
         }
       ],
       "claimedEvidence": "The earlier mirrored K1 D/D' witness replaces matching, substitution, selection and verification rules in `universal.lino`. `js/tests/kernel-replacement.test.mjs` and `rust/tests/kernel_replacement_tests.rs` now load the linked `test-corpus/kernel-replacement/mirror-substitution.ski` artifact per registry: replacing recursive K0 substitution changes nested execution on the same host runtime, while concurrent baseline registries retain their behavior. Positive tests compare loaded baseline inference/import/proof results; negative tests reject missing roots, forged references, disabled contractions, invalid basis and resource bounds. `experiments/definition-replacement/k0-replacement.mjs` reproduces the witness. The artifact is still generated from linked source by the existing host compiler; this is not full recursive replacement of typing, elaboration, verification, interpretation and code generation (`R62`, `R149`, `R151`). On the Horn foundation `fixed-point-source.lino` runs unchanged; five linked mechanism D′ edits change the lambda control, the compiled S/K run and the Horn run identically, two linked Link-as-substitution D′ edits change the shadowed-binder and divergent-argument probes on the unchanged generic resolver, and elaboration D′ edits change execution with no host edit (`horn-link-substitution.lino`, `mechanism-replacement` and `horn-link-substitution` suites). `The generic Horn resolver's own unification and the compiled S/K contractions remain host laws, so substitution is linked only down to that boundary`.",
@@ -34371,7 +34671,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -34655,7 +34955,7 @@
     {
       "id": "R157",
       "obligation": "Provide one documented cleanup entry point covering every regenerable Rust, JS, parser/compiler, Lean/Rocq, acceptance/benchmark, nested clone/package-build, and project-owned container/BuildKit cache class.",
-      "status": "Partial — registered local classes and owned Docker lifecycle",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -34672,11 +34972,6 @@
       ],
       "implementationClaims": [
         {
-          "path": "scripts/build-cache.mjs",
-          "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
-        },
-        {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
           "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
@@ -34690,14 +34985,26 @@
           "path": "scripts/cargo.mjs",
           "role": "implementation",
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+        },
+        {
+          "path": "scripts/build-cache.mjs",
+          "role": "implementation",
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+        },
+        {
+          "path": "scripts/docker-cache-budget.mjs",
+          "role": "implementation",
+          "sha256": "4d7af95535532e1411da18945104cb581231393655dd01a0dba42fb7f1711733"
         }
       ],
-      "claimedEvidence": "`scripts/cache-policy.json` registers Rust targets, JS caches, package consumers, parser/compiler, Lean/Rocq, acceptance/benchmark and container-output classes, including nested generated targets. `scripts/build-cache.mjs --full` removes provably owned outputs; project-owned Docker resources have a separate exact-label lifecycle. A fingerprint-aware Cargo superseded-unit sweep (`scripts/cargo-unit-sweep.mjs`) and Windows-safe Docker CLI resolution (`RML_DOCKER_CLI`) extend the covered classes. `A second real Docker teardown in docker.yml after these changes is still required`.",
+      "claimedEvidence": "`scripts/cache-policy.json` registers Rust targets, JS caches, package consumers, parser/compiler, Lean/Rocq, acceptance/benchmark and container-output classes, including nested generated targets, plus the fingerprint-aware Cargo superseded-unit sweep (`scripts/cargo-unit-sweep.mjs`). `node scripts/build-cache.mjs --full` is the single documented entry point (`docs/BUILD_CACHE.md`): it removes provably owned local outputs and, through `reclaimOrphanedDockerResources` in `scripts/docker-cache-budget.mjs`, the project-owned builders, images, state volumes and containers whose wrapper died, after verifying exact names, IDs and labels; relabelled, replaced or unverifiable resources keep their lease. `docs/case-studies/issue-183/data/docker-teardown-ci.json` records a real `docker.yml` teardown (run 38417088168) that reclaimed 3,015,355,031 builder bytes and left zero owned Docker and local bytes; `scripts/build-cache-ci-evidence.test.mjs` rejects kept resources, failures and leftover bytes. Global caches and unrelated Docker resources stay out of scope by design.",
       "checks": [
         "build-cache-lifecycle",
-        "cargo-unit-sweep"
+        "cargo-unit-sweep",
+        "build-cache-ci-evidence",
+        "cache-tool-availability"
       ],
-      "remainingGap": "`scripts/cache-policy.json` registers Rust targets, JS caches, package consumers, parser/compiler, Lean/Rocq, acceptance/benchmark and container-output classes, including nested generated targets. `scripts/build-cache.mjs --full` removes provably owned outputs; project-owned Docker resources have a separate exact-label lifecycle. A fingerprint-aware Cargo superseded-unit sweep (`scripts/cargo-unit-sweep.mjs`) and Windows-safe Docker CLI resolution (`RML_DOCKER_CLI`) extend the covered classes. `A second real Docker teardown in docker.yml after these changes is still required`.",
+      "remainingGap": "`scripts/cache-policy.json` registers Rust targets, JS caches, package consumers, parser/compiler, Lean/Rocq, acceptance/benchmark and container-output classes, including nested generated targets, plus the fingerprint-aware Cargo superseded-unit sweep (`scripts/cargo-unit-sweep.mjs`). `node scripts/build-cache.mjs --full` is the single documented entry point (`docs/BUILD_CACHE.md`): it removes provably owned local outputs and, through `reclaimOrphanedDockerResources` in `scripts/docker-cache-budget.mjs`, the project-owned builders, images, state volumes and containers whose wrapper died, after verifying exact names, IDs and labels; relabelled, replaced or unverifiable resources keep their lease. `docs/case-studies/issue-183/data/docker-teardown-ci.json` records a real `docker.yml` teardown (run 38417088168) that reclaimed 3,015,355,031 builder bytes and left zero owned Docker and local bytes; `scripts/build-cache-ci-evidence.test.mjs` rejects kept resources, failures and leftover bytes. Global caches and unrelated Docker resources stay out of scope by design.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -34849,9 +35156,136 @@
           "file": "scripts/cargo-unit-sweep.test.mjs",
           "name": "no reported units, a failed query, or a disabled sweep deletes nothing",
           "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle measured a full clean, a byte-identical clean rebuild and fully passing suites",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle shows the superseded-unit sweep and the budget bounding Rust output",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a forged, failing or incomplete native measurement is rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed Docker teardown removed every owned resource and left nothing behind",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a Docker teardown that kept resources, failed or left bytes is rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the cross-platform lifecycle job executes every cache lifecycle suite on all supported OSes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an absent Docker CLI is reported as unavailable and never measured as zero bytes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "an absent Docker CLI for accounting is reported unavailable and never becomes a passing build",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "full cleanup reclaims an orphaned owned builder exactly and then removes its lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an orphaned builder interrupted before creation removes only its labelled state volume",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "orphan reclaim refuses relabelled, replaced or unverifiable resources and keeps their lease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an orphaned container is resolved by its exact name and labels, never by a foreign one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "docker.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "tests.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "all declared cache classes are reclaimed; full is idempotent; evidence/source survive",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "full cleanup reclaims an orphaned owned builder exactly and then removes its lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed Docker teardown removed every owned resource and left nothing behind",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "full cleanup preserves tracked, preexisting and subsequently edited files",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "orphan reclaim refuses relabelled, replaced or unverifiable resources and keeps their lease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a Docker teardown that kept resources, failed or left bytes is rejected",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R158",
@@ -34875,7 +35309,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -35159,7 +35593,7 @@
     {
       "id": "R159",
       "obligation": "Run cleanup at build, test, coverage, benchmark, package and acceptance completion and CI teardown, including failure and handled interruption; preserve exit status, settle owned child processes, archive evidence first, check low disk before running, and provide full-clean mode.",
-      "status": "Partial — normal workflows and handled failure/interruption covered",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -35176,16 +35610,6 @@
       ],
       "implementationClaims": [
         {
-          "path": "scripts/build-cache.mjs",
-          "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
-        },
-        {
-          "path": "scripts/run-with-cache.mjs",
-          "role": "implementation",
-          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
-        },
-        {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
           "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
@@ -35194,13 +35618,24 @@
           "path": "scripts/cargo.mjs",
           "role": "implementation",
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+        },
+        {
+          "path": "scripts/build-cache.mjs",
+          "role": "implementation",
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+        },
+        {
+          "path": "scripts/run-with-cache.mjs",
+          "role": "implementation",
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         }
       ],
-      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup. Behavioral tests cover success/failure/missing commands/interruption/external leases; workflow tests detect disabled lifecycle wiring. A deferral caused by another tree never aborts a commit (`RML_CACHE_HOOK`), and entry points invoked through a symlinked checkout path no longer exit 0 without executing. `Hard-kill recovery and raw commands outside the wrappers remain uncovered`.",
+      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup.",
       "checks": [
-        "build-cache-lifecycle"
+        "build-cache-lifecycle",
+        "cache-tool-availability"
       ],
-      "remainingGap": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup. Behavioral tests cover success/failure/missing commands/interruption/external leases; workflow tests detect disabled lifecycle wiring. A deferral caused by another tree never aborts a commit (`RML_CACHE_HOOK`), and entry points invoked through a symlinked checkout path no longer exit 0 without executing. `Hard-kill recovery and raw commands outside the wrappers remain uncovered`.",
+      "remainingGap": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -35334,14 +35769,129 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "pre-commit continues past a deferral; another worktree's live build does not defer it at all",
           "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the cross-platform lifecycle job executes every cache lifecycle suite on all supported OSes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an absent Docker CLI is reported as unavailable and never measured as zero bytes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "an absent Docker CLI for accounting is reported unavailable and never becomes a passing build",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "full cleanup reclaims an orphaned owned builder exactly and then removes its lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an orphaned builder interrupted before creation removes only its labelled state volume",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "orphan reclaim refuses relabelled, replaced or unverifiable resources and keeps their lease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an orphaned container is resolved by its exact name and labels, never by a foreign one",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "docker.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "tests.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a hard-killed build lease is recovered only by --recover once nothing of it still runs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a killed build whose process group still runs, or an interrupted recovery, keeps its lease",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a hard-killed build lease is recovered only by --recover once nothing of it still runs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "docker.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "tests.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a killed build whose process group still runs, or an interrupted recovery, keeps its lease",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "success, failure and missing commands preserve status and archive output before cleanup",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "active parallel wrapper holds lease; interruption stops child then cleans and keeps logs",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R160",
       "obligation": "Sweep stale/disposable outputs across all classes and enforce a configurable aggregate disk budget, reporting before/after/reclaimed bytes; full-clean removes all registered caches and any temporary debug override is documented.",
-      "status": "Partial — logical local aggregate budget; daemon accounting separate",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -35358,11 +35908,6 @@
       ],
       "implementationClaims": [
         {
-          "path": "scripts/build-cache.mjs",
-          "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
-        },
-        {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
           "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
@@ -35376,13 +35921,18 @@
           "path": "scripts/cargo.mjs",
           "role": "implementation",
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+        },
+        {
+          "path": "scripts/build-cache.mjs",
+          "role": "implementation",
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         }
       ],
-      "claimedEvidence": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space; cleanup reports logical before/after/reclaimed bytes and rejects protected over-budget output. Tests exercise cross-class budgets, stale/disposable cleanup and full-clean idempotence. Local and Docker usage are combined in one measured budget report. `No physical disk quota is enforced`.",
+      "claimedEvidence": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space and documents every override in `docs/BUILD_CACHE.md`. Cleanup sweeps stale and disposable outputs across classes, reports before/after/reclaimed bytes for both the logical size and the allocated filesystem blocks (hard links counted once), and enforces the budget on either metric (`RML_CACHE_BUDGET_METRIC` is `logical` or `allocated`; any other value fails before deleting anything). Local and Docker usage are combined in one measured budget report; full clean removes all registered caches and is idempotent. `scripts/build-cache.test.mjs` exercises cross-class budgets, allocated accounting, protected over-budget data and full-clean idempotence. Windows reports logical sizes as its allocation fallback, which the report labels.",
       "checks": [
         "build-cache-lifecycle"
       ],
-      "remainingGap": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space; cleanup reports logical before/after/reclaimed bytes and rejects protected over-budget output. Tests exercise cross-class budgets, stale/disposable cleanup and full-clean idempotence. Local and Docker usage are combined in one measured budget report. `No physical disk quota is enforced`.",
+      "remainingGap": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space and documents every override in `docs/BUILD_CACHE.md`. Cleanup sweeps stale and disposable outputs across classes, reports before/after/reclaimed bytes for both the logical size and the allocated filesystem blocks (hard links counted once), and enforces the budget on either metric (`RML_CACHE_BUDGET_METRIC` is `logical` or `allocated`; any other value fails before deleting anything). Local and Docker usage are combined in one measured budget report; full clean removes all registered caches and is idempotent. `scripts/build-cache.test.mjs` exercises cross-class budgets, allocated accounting, protected over-budget data and full-clean idempotence. Windows reports logical sizes as its allocation fallback, which the report labels.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -35510,14 +36060,51 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "new lease records its process identity before starting the owned command",
           "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "cleanup reports allocated filesystem bytes and can enforce the budget on them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "an unknown budget metric fails closed without deleting anything",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "cleanup reports allocated filesystem bytes and can enforce the budget on them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "aggregate byte budget enforced without optional cargo-sweep/du/docker tools",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "an unknown budget metric fails closed without deleting anything",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "pre-run low disk prevents the command and reports why",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R161",
       "obligation": "Bound build/test concurrency, debug and incremental growth; prefer compile-only checks where execution is unnecessary, reuse compatible outputs and bound compiler caches without reducing platform/feature/behavior coverage.",
-      "status": "Partial — fingerprint-aware superseded-unit sweep delivered; native measurement pending",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -35534,11 +36121,6 @@
       ],
       "implementationClaims": [
         {
-          "path": "scripts/build-cache.mjs",
-          "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
-        },
-        {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
           "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
@@ -35552,14 +36134,25 @@
           "path": "scripts/cargo.mjs",
           "role": "implementation",
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
+        },
+        {
+          "path": "scripts/cargo-unit-sweep.mjs",
+          "role": "implementation",
+          "sha256": "202bc18d12960817af4bd71027e4ce97c2fdefb23fb979eab72b1a732f0bb69b"
+        },
+        {
+          "path": "scripts/build-cache.mjs",
+          "role": "implementation",
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         }
       ],
-      "claimedEvidence": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. Full JavaScript regression coverage is preserved. After a successful private Cargo build/check/test/bench the sweep re-queries the same command with JSON messages and removes only superseded units of the same artifact stem; failed queries delete nothing and never change exit status; `RML_CACHE_CARGO_SWEEP=0` is the documented debug override. `Native measurement of the sweep in CI is pending`.",
+      "claimedEvidence": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. After a successful private Cargo build/check/test/bench, `scripts/cargo-unit-sweep.mjs` removes only superseded units of the same artifact stem; failed queries delete nothing and never change exit status; `RML_CACHE_CARGO_SWEEP=0` is the documented debug override. `docs/case-studies/issue-183/data/build-cache-measurement-native.json` records the native CI measurement (run 38417088378): the sweep removed 9 superseded units (10,983,827 bytes) in both Rust steps, the postflight budget bounded the compiled tree, and the full Rust suite still passed 1244 tests in 110 suites with the full JavaScript suite passing.",
       "checks": [
         "build-cache-lifecycle",
-        "cargo-unit-sweep"
+        "cargo-unit-sweep",
+        "build-cache-ci-evidence"
       ],
-      "remainingGap": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. Full JavaScript regression coverage is preserved. After a successful private Cargo build/check/test/bench the sweep re-queries the same command with JSON messages and removes only superseded units of the same artifact stem; failed queries delete nothing and never change exit status; `RML_CACHE_CARGO_SWEEP=0` is the documented debug override. `Native measurement of the sweep in CI is pending`.",
+      "remainingGap": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. After a successful private Cargo build/check/test/bench, `scripts/cargo-unit-sweep.mjs` removes only superseded units of the same artifact stem; failed queries delete nothing and never change exit status; `RML_CACHE_CARGO_SWEEP=0` is the documented debug override. `docs/case-studies/issue-183/data/build-cache-measurement-native.json` records the native CI measurement (run 38417088378): the sweep removed 9 superseded units (10,983,827 bytes) in both Rust steps, the postflight budget bounded the compiled tree, and the full Rust suite still passed 1244 tests in 110 suites with the full JavaScript suite passing.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -35717,9 +36310,64 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "a successful private Cargo operation sweeps superseded units and records the result without changing status",
           "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle measured a full clean, a byte-identical clean rebuild and fully passing suites",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle shows the superseded-unit sweep and the budget bounding Rust output",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a forged, failing or incomplete native measurement is rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed Docker teardown removed every owned resource and left nothing behind",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a Docker teardown that kept resources, failed or left bytes is rejected",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "superseded units of referenced kinds are removed while fresh, untouched and uplifted outputs stay",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle shows the superseded-unit sweep and the budget bounding Rust output",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "no reported units, a failed query, or a disabled sweep deletes nothing",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a forged, failing or incomplete native measurement is rejected",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R162",
@@ -35743,7 +36391,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -35937,7 +36585,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -36113,7 +36761,7 @@
     {
       "id": "R164",
       "obligation": "Measure before/after disk use for a representative development/acceptance cycle, then prove a clean rebuild and full verification pass; cleanup must never fabricate successful test evidence or hide failures.",
-      "status": "Partial — measured JSDoc clean rebuild and full JS; native acceptance cycle pending",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -36132,7 +36780,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -36153,13 +36801,19 @@
           "path": "docs/case-studies/issue-183/data/build-cache-measurement.json",
           "role": "measurement-artifact",
           "sha256": "7533a51962a848c07fac6dc907314c48454da2bddf6d26bea91e99796ee17863"
+        },
+        {
+          "path": "scripts/measure-build-cache.mjs",
+          "role": "implementation",
+          "sha256": "68cdb2ae2a2192838e83443fb71323832db57f5bd0cc8f2d14a254ea8edeb4d8"
         }
       ],
-      "claimedEvidence": "`data/build-cache-measurement.json` records a real spaced-path fixture cycle on Node 24.19.0: JSDoc produced 2,254,547 bytes, full clean reclaimed all bytes to zero, clean rebuild reproduced 2,254,547 bytes, and final clean returned to zero; the full JavaScript suite passed 1717/1717. Commands, logs, scope and six implementation hashes are recorded. `measure-build-cache.mjs --native` and a cache-portability job measure a native clean-rebuild cycle and archive the report even on failure; a local spaced-path cycle reproduced 2,526,689 JSDoc bytes after a full clean, but its full suite had one environment failure, so it is not counted as a passing cycle. `The first native CI measurement and a fully passing measured cycle are pending`.",
+      "claimedEvidence": "`docs/case-studies/issue-183/data/build-cache-measurement-native.json` condenses the native CI cycle of `scripts/measure-build-cache.mjs --native` (run 38417088378, artifact 11828243230, full-report SHA-256 recorded): the first JSDoc and complete Rust test-target builds produced 961,813,632 bytes, full clean reclaimed every byte to zero, the clean rebuild and verification reproduced exactly 961,813,632 bytes, and final clean returned to zero. After the clean, the full JavaScript suite passed (2804 pass, 0 fail, 1 skipped of 2805), the full Rust suite passed 1244 tests in 110 suites and the available native oracles (rustc 1.99.0, Lean 4.34.1) passed. `scripts/build-cache-ci-evidence.test.mjs` rejects failed, forged, incomplete or unprovenanced measurements. The scope excludes Rocq oracles, Docker and full acceptance, which their own workflows measure; the earlier JSDoc cycle in `data/build-cache-measurement.json` is kept.",
       "checks": [
-        "build-cache-lifecycle"
+        "build-cache-lifecycle",
+        "build-cache-ci-evidence"
       ],
-      "remainingGap": "`data/build-cache-measurement.json` records a real spaced-path fixture cycle on Node 24.19.0: JSDoc produced 2,254,547 bytes, full clean reclaimed all bytes to zero, clean rebuild reproduced 2,254,547 bytes, and final clean returned to zero; the full JavaScript suite passed 1717/1717. Commands, logs, scope and six implementation hashes are recorded. `measure-build-cache.mjs --native` and a cache-portability job measure a native clean-rebuild cycle and archive the report even on failure; a local spaced-path cycle reproduced 2,526,689 JSDoc bytes after a full clean, but its full suite had one environment failure, so it is not counted as a passing cycle. `The first native CI measurement and a fully passing measured cycle are pending`.",
+      "remainingGap": "`docs/case-studies/issue-183/data/build-cache-measurement-native.json` condenses the native CI cycle of `scripts/measure-build-cache.mjs --native` (run 38417088378, artifact 11828243230, full-report SHA-256 recorded): the first JSDoc and complete Rust test-target builds produced 961,813,632 bytes, full clean reclaimed every byte to zero, the clean rebuild and verification reproduced exactly 961,813,632 bytes, and final clean returned to zero. After the clean, the full JavaScript suite passed (2804 pass, 0 fail, 1 skipped of 2805), the full Rust suite passed 1244 tests in 110 suites and the available native oracles (rustc 1.99.0, Lean 4.34.1) passed. `scripts/build-cache-ci-evidence.test.mjs` rejects failed, forged, incomplete or unprovenanced measurements. The scope excludes Rocq oracles, Docker and full acceptance, which their own workflows measure; the earlier JSDoc cycle in `data/build-cache-measurement.json` is kept.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -36287,9 +36941,52 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "new lease records its process identity before starting the owned command",
           "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle measured a full clean, a byte-identical clean rebuild and fully passing suites",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle shows the superseded-unit sweep and the budget bounding Rust output",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a forged, failing or incomplete native measurement is rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed Docker teardown removed every owned resource and left nothing behind",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a Docker teardown that kept resources, failed or left bytes is rejected",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle measured a full clean, a byte-identical clean rebuild and fully passing suites",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-ci-evidence",
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a forged, failing or incomplete native measurement is rejected",
+          "polarity": "negative"
+        }
+      ]
     },
     {
       "id": "R165",
@@ -40243,11 +40940,6 @@
       ],
       "files": [
         {
-          "path": "scripts/build-cache.test.mjs",
-          "role": "test",
-          "sha256": "2859d7bfe41ae0a8d0fd43f053886a3e41699a44bf01791f056911cb800552f8"
-        },
-        {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
           "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
@@ -40268,9 +40960,14 @@
           "sha256": "963ffdc0eac46b141a17a92cac09b6e75b4716d7e1bfa9039944b850a511958a"
         },
         {
+          "path": "scripts/build-cache.test.mjs",
+          "role": "test",
+          "sha256": "e216e5b2e310af225080ab068b3ec995594fb23dfa4cc6c21f6b67298b45fe54"
+        },
+        {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         }
       ],
       "assertions": [
@@ -40403,6 +41100,26 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "pre-commit continues past a deferral; another worktree's live build does not defer it at all",
           "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a hard-killed build lease is recovered only by --recover once nothing of it still runs",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a killed build whose process group still runs, or an interrupted recovery, keeps its lease",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "cleanup reports allocated filesystem bytes and can enforce the budget on them",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "an unknown budget metric fails closed without deleting anything",
+          "polarity": "negative"
         }
       ],
       "timeoutMs": 120000
@@ -48772,7 +49489,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -49270,7 +49987,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -51017,7 +51734,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -51545,7 +52262,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "7f85e74b2ca4859e00bf75e9c17e45c9223fbc9b512453c3a20266fb9f0c885e"
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -52806,22 +53523,32 @@
         {
           "path": "scripts/docker-cache-budget.test.mjs",
           "role": "test",
-          "sha256": "4140aa4932f6b65e10f678283319dcddad28d5b590b75f563fc8d7ec07a03329"
+          "sha256": "07dc47b513c7e8f5a461208e493194a7dc83ed6f350daf93d4bd9a327f1c94cf"
         },
         {
           "path": "scripts/build-cache-policy.test.mjs",
           "role": "test",
-          "sha256": "2aec6463c295920f469d24f69a500d3764bf6c7c58d119d3c725e805b2410428"
+          "sha256": "936ddcbd2cca4086082fdaf4b964694d23d2a5c3b14e76751a3b9afda0693208"
         },
         {
           "path": "scripts/docker-cache-budget.mjs",
           "role": "implementation",
-          "sha256": "24b0b6e86345ebf1ba1e68b2605320ec5d0416a0c4171d4437ff4bee0f04b8a0"
+          "sha256": "4d7af95535532e1411da18945104cb581231393655dd01a0dba42fb7f1711733"
         },
         {
           "path": ".github/workflows/cache-portability.yml",
           "role": "fixture",
-          "sha256": "77689b60b43f68780ade48e4a18f9ec2cf573b2e7e93a79f4fcf8277b641a7a6"
+          "sha256": "796e6e532982fa2241dbccb5ada96f65957edb82f9283bf17b38d4468a6b8cd3"
+        },
+        {
+          "path": ".github/workflows/docker.yml",
+          "role": "fixture",
+          "sha256": "bbf1a2422773e1307be2e0737645fd2eff45c3d45909419dd1609ed8be4e4ee3"
+        },
+        {
+          "path": ".github/workflows/tests.yml",
+          "role": "fixture",
+          "sha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
         }
       ],
       "assertions": [
@@ -52838,6 +53565,41 @@
         {
           "file": "scripts/build-cache-policy.test.mjs",
           "name": "an absent Docker CLI for accounting is reported unavailable and never becomes a passing build",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "full cleanup reclaims an orphaned owned builder exactly and then removes its lease",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an orphaned builder interrupted before creation removes only its labelled state volume",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "orphan reclaim refuses relabelled, replaced or unverifiable resources and keeps their lease",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an orphaned container is resolved by its exact name and labels, never by a foreign one",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "docker.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "tests.yml: no step runs a build or test producer outside a cache lease",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones",
           "polarity": "negative"
         }
       ]
@@ -54291,17 +55053,27 @@
         {
           "path": "js/tests/assumption-removal.test.mjs",
           "role": "test",
-          "sha256": "6d7b83762bfc3f11710e0736cde8cd9ba9d8d78e014be223954cccc63927fe97"
+          "sha256": "8012b2f282b8095d3580f82e9f1b91246d71323ea7ec3be42aabe52a5c7164e3"
         },
         {
           "path": "experiments/assumption-removal/matrix.mjs",
           "role": "implementation",
-          "sha256": "5ee7a291a2a43f0240ac0b1ac90e905873a2d26a52786e2b035b9ab3d837a6e5"
+          "sha256": "572bf3d0cc0cfcda34d94cd86e0c55fd76f7e11b2fa450ca964d80dd624a3665"
+        },
+        {
+          "path": "experiments/assumption-removal/finiteness.mjs",
+          "role": "implementation",
+          "sha256": "63552929951cf70caa629c60963dd18a10d99dbc119b4664c92b787afb6f376b"
         },
         {
           "path": "test-corpus/assumption-removal/report.json",
           "role": "fixture",
-          "sha256": "b35054d944b5688975c9ab27e128acc0b3e0286beb56ed7bb0066985a23b0f74"
+          "sha256": "f2b60d25a78bb2adf24861bafbf8a7141df3e721dc7770d17bf1fbbcd261732e"
+        },
+        {
+          "path": "test-corpus/assumption-removal/finiteness.json",
+          "role": "fixture",
+          "sha256": "449368edec6a7da0566f7740b6c13a635c92f4cc683a3bf99a190001524dea22"
         }
       ],
       "assertions": [
@@ -54323,6 +55095,26 @@
         {
           "file": "js/tests/assumption-removal.test.mjs",
           "name": "negative controls: a single link has no local non-faithfulness and no record-order witness",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "finiteness removal is reproduced exactly and no finite structure embeds onto a proper part of itself",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "removing finiteness identifies each ray with its tail by a symbolic shift certificate",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "only the first link of a ray is an invisible deletion and the two-sided line has none",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a surjective shift or a non-affine structure identifies no proper substructure",
           "polarity": "negative"
         }
       ],
@@ -54378,11 +55170,6 @@
       ],
       "files": [
         {
-          "path": "rust/tests/assumption_removal_tests.rs",
-          "role": "test",
-          "sha256": "67af2ca13331ba9a59d27a1930417ed794dc58f5194d8fa3e2aed929d93a3195"
-        },
-        {
           "path": "rust/Cargo.toml",
           "role": "dependency",
           "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
@@ -54393,14 +55180,29 @@
           "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
+          "path": "rust/tests/assumption_removal_tests.rs",
+          "role": "test",
+          "sha256": "ffc4c4f03f36ef75bd210ff74e58c5618029d7f31645ae323a45d300b87a95cf"
+        },
+        {
           "path": "experiments/assumption-removal/matrix.mjs",
           "role": "implementation",
-          "sha256": "5ee7a291a2a43f0240ac0b1ac90e905873a2d26a52786e2b035b9ab3d837a6e5"
+          "sha256": "572bf3d0cc0cfcda34d94cd86e0c55fd76f7e11b2fa450ca964d80dd624a3665"
+        },
+        {
+          "path": "experiments/assumption-removal/finiteness.mjs",
+          "role": "implementation",
+          "sha256": "63552929951cf70caa629c60963dd18a10d99dbc119b4664c92b787afb6f376b"
         },
         {
           "path": "test-corpus/assumption-removal/report.json",
           "role": "fixture",
-          "sha256": "b35054d944b5688975c9ab27e128acc0b3e0286beb56ed7bb0066985a23b0f74"
+          "sha256": "f2b60d25a78bb2adf24861bafbf8a7141df3e721dc7770d17bf1fbbcd261732e"
+        },
+        {
+          "path": "test-corpus/assumption-removal/finiteness.json",
+          "role": "fixture",
+          "sha256": "449368edec6a7da0566f7740b6c13a635c92f4cc683a3bf99a190001524dea22"
         }
       ],
       "assertions": [
@@ -54417,6 +55219,26 @@
         {
           "file": "rust/tests/assumption_removal_tests.rs",
           "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "finiteness_removal_is_reproduced_exactly_and_no_finite_structure_embeds_onto_a_proper_part_of_itself",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "removing_finiteness_identifies_each_ray_with_its_tail_by_a_symbolic_shift_certificate",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "only_the_first_link_of_a_ray_is_an_invisible_deletion_and_the_two_sided_line_has_none",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_surjective_shift_or_a_non_affine_structure_identifies_no_proper_substructure",
           "polarity": "negative"
         }
       ],
@@ -56175,6 +56997,138 @@
       ],
       "testTarget": "lino_frontend_tests",
       "timeoutMs": 1200000
+    },
+    {
+      "id": "build-cache-ci-evidence",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/build-cache-ci-evidence.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/build-cache-ci-evidence.test.mjs",
+          "role": "test",
+          "sha256": "1c8e89d36b2fa272154b506adb9ffdea39a58d973c1e81ca6c06ddea04351c94"
+        },
+        {
+          "path": "scripts/measure-build-cache.mjs",
+          "role": "implementation",
+          "sha256": "68cdb2ae2a2192838e83443fb71323832db57f5bd0cc8f2d14a254ea8edeb4d8"
+        },
+        {
+          "path": "scripts/build-cache.mjs",
+          "role": "implementation",
+          "sha256": "d2e6916ae783927cbe9cd478ff3b3968a3ac8753b7acf6e71a400e65e042bacb"
+        },
+        {
+          "path": "docker/ci-build.sh",
+          "role": "implementation",
+          "sha256": "c01513b675789fb6bae00475543b4f1573130faa21bd8572796e729141dd50df"
+        },
+        {
+          "path": "docs/case-studies/issue-183/data/build-cache-measurement-native.json",
+          "role": "fixture",
+          "sha256": "f567213d31b7efe7e33fa5482ad7b0b4132878c375a24096f9bb7966b4cbe569"
+        },
+        {
+          "path": "docs/case-studies/issue-183/data/docker-teardown-ci.json",
+          "role": "fixture",
+          "sha256": "a3abc2140b0b45f2d8945f81ca6f1cb55c05c066e5f9c11b72a72083bf1342b4"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle measured a full clean, a byte-identical clean rebuild and fully passing suites",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed native cycle shows the superseded-unit sweep and the budget bounding Rust output",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a forged, failing or incomplete native measurement is rejected",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "the committed Docker teardown removed every owned resource and left nothing behind",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache-ci-evidence.test.mjs",
+          "name": "a Docker teardown that kept resources, failed or left bytes is rejected",
+          "polarity": "negative"
+        }
+      ]
+    },
+    {
+      "id": "orientation-independence",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/orientation-independence.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/orientation-independence.test.mjs",
+          "role": "test",
+          "sha256": "58f119aae45b041013e5853fdac6f9f296c542b785256df393875826509a7c8c"
+        },
+        {
+          "path": "scripts/check-orientation-independence.mjs",
+          "role": "implementation",
+          "sha256": "9d52cd5c3a98d317ad0e632efe319b3b624bd84fd7e21c4398d566ae47a20e02"
+        },
+        {
+          "path": "test-corpus/orientation-independence/OrientationIndependence.lean",
+          "role": "fixture",
+          "sha256": "2728113d0332f4a7eb5ccc35d043044f0a5f8b940846be6d094d5145bc32126d"
+        },
+        {
+          "path": "test-corpus/orientation-independence/OrientationIndependence.v",
+          "role": "fixture",
+          "sha256": "9e4e5ddc7af370c35e729e52eff72a4440b4c6af76e4b8c1622810faf2fc80b8"
+        },
+        {
+          "path": "test-corpus/orientation-independence/verification.json",
+          "role": "fixture",
+          "sha256": "2c7c3e103a83ff28951f501653a0b85ae34f36c5548954c1308976712797e689"
+        },
+        {
+          "path": ".github/workflows/orientation-proofs.yml",
+          "role": "fixture",
+          "sha256": "4acb3f4628d4ebc6b64a8a771e1c8cff8f21208ba3650e74a2e28b61f755e992"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "the two native proof sources retain the same audited theorem obligations",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "recorded native result matches these sources and includes both kernels and rejected counterclaims",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "dedicated CI requires real Lean and Rocq checks and owned-cache teardown",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "proof holes, extra assumptions, inventory loss, and empty native checks fail closed",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/orientation-independence.test.mjs",
+          "name": "an absent requested compiler fails instead of skipping native checking",
+          "polarity": "negative"
+        }
+      ]
     }
   ]
 }

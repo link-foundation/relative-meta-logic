@@ -182,6 +182,92 @@ export function measureDockerCaches(root, { run = execFileSync, excludeLease } =
   }
   return { bytes, resources };
 }
+function missingBuilder(error) {
+  return /no builder .*found/i.test(String(error?.stderr ?? error?.message ?? ''));
+}
+function reclaimContainer(root, record, run) {
+  const file = cidfilePath(root, record.cidfile);
+  const id = fs.existsSync(file) ? fs.readFileSync(file, 'utf8').trim() : null;
+  if (id !== null && !/^[0-9a-f]{64}$/.test(id)) throw new Error('Invalid immutable Docker container ID');
+  // A killed client may have created the container before writing its CID
+  // file. Its random exact name and both ownership labels identify it then.
+  const container = inspect(run, ['container', 'inspect', id ?? record.name], { missing: true });
+  if (container) {
+    if (container.Name !== `/${record.name}` || (id && container.Id !== id) || !/^[0-9a-f]{64}$/.test(container.Id)) throw new Error(`Docker container immutable identity or name changed: ${record.name}`);
+    ownedLabels(record, container.Config?.Labels, container.Id);
+    command(run, ['container', 'stop', '--time', '10', container.Id]);
+    command(run, ['container', 'wait', container.Id]);
+    command(run, ['container', 'rm', container.Id]);
+    if (inspect(run, ['container', 'inspect', container.Id], { missing: true })) throw new Error(`Owned Docker container remains: ${record.name}`);
+  } else if (id) throw new Error('Previously recorded Docker container disappeared before teardown');
+  fs.rmSync(file, { force: true });
+}
+function reclaimBuilder(record, run) {
+  for (const imageId of record.images) {
+    const image = inspect(run, ['image', 'inspect', imageId], { missing: true });
+    if (!image) continue;
+    if (image.Id !== imageId) throw new Error('Docker image identity changed');
+    ownedLabels(record, image.Config?.Labels, imageId);
+    command(run, ['image', 'rm', imageId]);
+  }
+  const volume = inspect(run, ['volume', 'inspect', record.volume], { missing: true });
+  if (volume) {
+    if (volume.Name !== record.volume) throw new Error('Docker state volume identity changed');
+    ownedLabels(record, volume.Labels, record.volume);
+  }
+  const container = inspect(run, ['inspect', '--type', 'container', record.container], { missing: true });
+  if (container && ((record.containerId && container.Id !== record.containerId) || !Array.isArray(container.Mounts) ||
+      !container.Mounts.some(m => m.Destination === '/var/lib/buildkit' && m.Name === record.volume && m.Type === 'volume'))) throw new Error('Docker builder container identity or state mount changed');
+  let builder = true;
+  try { verifyDockerBuilder(record, { run }); }
+  catch (error) {
+    // Only an explicit "no builder" answer is absence; a changed builder fails closed.
+    if (!missingBuilder(error)) throw error;
+    builder = false;
+  }
+  if (builder) command(run, ['buildx', 'rm', record.builder]);
+  else if (container) throw new Error(`Docker builder container exists without its builder: ${record.builder}`);
+  if (inspect(run, ['volume', 'inspect', record.volume], { missing: true })) command(run, ['volume', 'rm', record.volume]);
+  const remaining = [
+    ...record.images.filter(imageId => inspect(run, ['image', 'inspect', imageId], { missing: true })),
+    ...(inspect(run, ['volume', 'inspect', record.volume], { missing: true }) ? [record.volume] : []),
+    ...(inspect(run, ['inspect', '--type', 'container', record.container], { missing: true }) ? [record.container] : []),
+  ];
+  if (remaining.length) throw new Error(`Owned Docker resources remain: ${remaining.join(', ')}`);
+}
+/**
+ * Reclaim the exact resources of external leases whose shell helper was killed
+ * before its trap ran. The caller must hold the exclusive worktree lease: the
+ * helpers run only under a wrapper that holds it, so no live helper owns these
+ * leases. Every identity and label is verified again; a changed or ambiguous
+ * resource keeps its lease and fails closed. Nothing is pruned or discovered.
+ */
+export function reclaimOrphanedDockerResources(root, { run = execFileSync } = {}) {
+  const directory = path.join(root, '.rml-cache', 'evidence');
+  if (fs.lstatSync(path.join(root, '.rml-cache'), { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error('Docker accounting directory may not be a symlink');
+  if (!fs.existsSync(directory)) return [];
+  if (fs.lstatSync(directory).isSymbolicLink()) throw new Error('Docker accounting directory may not be a symlink');
+  const reclaimed = [];
+  for (const name of fs.readdirSync(directory).filter(name => /^external-lease-.*\.json$/.test(name)).sort()) {
+    const file = path.join(directory, name);
+    const stat = fs.lstatSync(file);
+    if (!stat.isFile() || stat.nlink !== 1) throw new Error('Unsafe Docker accounting lease');
+    const record = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!['buildx', 'docker-container'].includes(record.kind)) throw new Error('Unsupported external-resource lease; resolve it manually');
+    validateManifest(root, record);
+    let bytes = null;
+    // A helper killed mid-teardown can leave a partial resource that no longer
+    // has complete accounting; its removal is still verified exactly.
+    try { bytes = measureResource(record, { run }).bytes; } catch { /* reported as unmeasured */ }
+    if (record.kind === 'docker-container') reclaimContainer(root, record, run);
+    else reclaimBuilder(record, run);
+    const resource = record.builder ?? record.name;
+    safeWrite(path.join(root, '.rml-cache', 'reports', `docker-reclaim-${resource}.json`), { version: 1, kind: record.kind, name: resource, phase: record.phase, measuredBytes: bytes, resourcesRemoved: true, timestamp: new Date().toISOString() });
+    fs.unlinkSync(file);
+    reclaimed.push({ kind: record.kind, name: resource, bytes });
+  }
+  return reclaimed;
+}
 function safeWrite(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const previous = fs.lstatSync(file, { throwIfNoEntry: false });

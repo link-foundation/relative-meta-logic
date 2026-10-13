@@ -25,6 +25,9 @@ node scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --man
 node scripts/build-cache.mjs --report --json
 node scripts/build-cache.mjs
 node scripts/build-cache.mjs --full
+
+# After a hard kill (SIGKILL, power loss) left the worktree lease behind.
+node scripts/build-cache.mjs --recover --full
 ```
 
 `npm ci` in `js/` invokes `prepare`, which installs the repository-local hook
@@ -62,6 +65,28 @@ A blocked aggregate budget refuses the build before execution. Handled signals
 allow child cleanup a bounded grace period: `RML_CACHE_SIGNAL_GRACE_MS` defaults
 to 15000 milliseconds before escalation to a forced stop.
 
+### Hard-kill recovery
+
+A handled signal always releases the lease. A hard kill (SIGKILL, a crashed
+shell or a power loss) cannot, so the lease is left behind. Ordinary cleanup and
+builds never steal such a lease: they report `Abandoned build lease` and stop.
+`node scripts/build-cache.mjs --recover` removes it only when all of these hold:
+
+- the recorded wrapper and command processes are in this machine's process realm
+  and no longer exist;
+- on POSIX, the process groups of both are empty (the wrapper starts each
+  command as the leader of a new process group, so a surviving descendant that
+  stayed in the group keeps the lease);
+- the active-builder scan finds no builder still running in this worktree,
+  including a descendant that left the group;
+- the recovery mutex `lock-recovery` beside the lease is free, and the exact
+  abandoned record (same token, still dead) is re-read under it.
+
+A lease from another machine, boot or PID namespace is never classified dead.
+An interrupted recovery leaves `lock-recovery`; remove it after checking that no
+recovery is running. Run `--recover --full` to also reclaim what the killed
+build left behind, including its owned Docker resources (see the Docker boundary).
+
 Nested npm tasks share the outer lease. Keep a build and its immediate consumers
 inside one wrapper so cleanup cannot race the consumer. For example, the parity
 workflow builds the Rust binary and compares corpus output inside one operation.
@@ -72,6 +97,7 @@ The docs workflow retains `_site` until the Pages artifact has been uploaded.
 | `RML_CACHE_BUDGET_BYTES` | 1 GiB | One aggregate limit across recognized local files and provably owned Docker resources |
 | `RML_CACHE_MIN_FREE_BYTES` | 256 MiB | Minimum available bytes at the pre-build check |
 | `RML_CACHE_STALE_HOURS` | 24 hours | Maximum warm-cache age since the last content or modification-time update |
+| `RML_CACHE_BUDGET_METRIC` | `logical` | `logical` budgets regular-file sizes; `allocated` budgets the filesystem blocks the files occupy |
 
 Normal cleanup drops owned disposable scratch outputs and stale files, then
 oldest owned warm files until the aggregate budget is satisfied. Rust incremental
@@ -88,8 +114,16 @@ the filesystem runs low. Active checks do not repeatedly hash build outputs or
 query the Docker daemon.
 Protected pre-existing or edited data can keep the reported total above budget.
 The report marks this as blocked rather than deleting data to force compliance.
-Byte accounting uses logical regular-file sizes, not physical filesystem blocks;
-hard links, sparse files and directory/metadata allocation are not a hard quota.
+By default the budget counts logical regular-file sizes. Every cleanup report
+also records the allocated bytes of the same files (`localAllocatedBeforeBytes`,
+`localAllocatedAfterBytes`, `localAllocatedReclaimedBytes`): POSIX 512-byte
+blocks, with hard links counted once per device and inode, so sparse files count
+less and many small files count whole blocks. `RML_CACHE_BUDGET_METRIC=allocated`
+enforces the budget on those allocated bytes instead. Windows exposes no block
+count, so there the report says `allocationSource: logical-size-fallback` and
+uses logical sizes. Directory and filesystem metadata are not counted, and owned
+Docker resources keep their conservative logical accounting. Neither metric is a
+hard filesystem quota.
 Evidence and reports are intentionally outside the disposable byte budget and
 survive full cleanup; manage their retention separately. Routine CI artifacts retain them
 for seven days; the issue acceptance workflow uses thirty days.
@@ -334,6 +368,21 @@ rootfs is excluded). The formats are documented by Docker for
 [Buildx disk usage](https://docs.docker.com/reference/cli/docker/buildx/du/) and
 [container size inspection](https://docs.docker.com/reference/cli/docker/inspect/#inspect-the-size-of-a-container--s---size).
 Unknown or legacy external leases without verifiable accounting fail closed.
+
+The helpers run only under the wrapper, which holds the worktree lease. An
+explicit `node scripts/build-cache.mjs --full` that holds that lease therefore
+knows any remaining external lease belongs to a helper killed before its trap
+ran. It reclaims exactly those resources before the local cleanup: it verifies
+again each image ID and label, the state volume's labels, the builder's node,
+driver and endpoint, the builder container's immutable ID and state mount, or
+the container's immutable ID, exact random name and labels. Then it removes the
+images, the builder, the state volume or the container, checks that each is
+gone, writes `.rml-cache/reports/docker-reclaim-<name>.json` and only then
+deletes the lease. A changed, relabelled or unverifiable resource, an
+unavailable daemon or an absent CLI keeps the lease and fails. Bounded cleanup
+and `--report` never reclaim external resources. This makes `--full` the single
+cleanup entry point for every registered class, including project-owned
+container and BuildKit resources.
 Intermediate helper reports can truthfully show temporary excess and
 `localCleanupRequired`; final aggregate enforcement belongs to the outer wrapper
 after local output cleanup.

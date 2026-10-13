@@ -203,8 +203,40 @@ audit's.
 Each identifying row has a first witness pair. The non-faithfulness of local
 single-link descriptors survives every identifying removal from two links
 onward, and per-record slot exchange identifies at least as much as uniform
-reversal. Finiteness is not removed. No assumption is thereby shown intrinsic
-or eliminable for links in general, and R71/R73/R74 stay open.
+reversal. No assumption is thereby shown intrinsic or eliminable for links in
+general, and R71/R73/R74 stay open.
+
+### Removing finiteness
+
+Finite enumeration cannot remove finiteness, so
+`experiments/assumption-removal/finiteness.mjs` removes it separately and
+writes `test-corpus/assumption-removal/finiteness.json`. Finiteness is replaced
+by finite presentation: an affine one-slot structure has the record
+`[n, n + step]` for every integer `n` from its start, or for every integer.
+
+- **Forcing fact.** Every self-embedding of a finite structure is onto. An
+  embedding is an injective address map that sends records to records, so
+  deleting a link is always observable. This was checked exhaustively over
+  the audited one-slot classes (2, 10, 77 and 799 structures; 2, 14, 120 and
+  1464 self-embeddings). None of the embeddings is non-surjective, and no
+  single-link deletion is invisible.
+- **Removal.** The shift `x -> x + 1` is a symbolic, non-surjective
+  self-embedding of the forward ray `[n, n+1]` (n ≥ 0). It is also one for the
+  backward ray `[n, n-1]` (n ≥ 1). Each ray is therefore identified with the
+  proper substructure left after deleting its first link. A concrete prefix
+  check confirms the certificate on every window of up to 32 records.
+- **Which deletions stay visible.** Two isomorphism invariants decide each
+  deletion: atoms (referenced addresses that are not links) and unreferenced
+  links. Deleting the first link of a ray is the only invisible deletion. Any
+  later deletion leaves a dangling reference, which changes `(0, 1)` to
+  `(1, 2)` for the forward ray and `(1, 0)` to `(2, 1)` for the backward ray.
+  The two-sided line `[n, n+1]` over all integers has no invisible deletion,
+  because its shift is onto. Both slot orientations behave alike.
+
+The deletion invariants cover the first 24 deletions. Windows of radius 4
+and 8 agree on every one of them, which checks that the structure is uniform
+beyond the start. This does not show finiteness intrinsic or eliminable for
+links in general.
 
 ## Conditional continuation join at every small width
 
@@ -237,6 +269,7 @@ node experiments/definition-replacement/mechanism-matrix.mjs
 node experiments/foundation-comparison/compare.mjs
 node experiments/verifier-provenance/removal-matrix.mjs
 node experiments/assumption-removal/matrix.mjs
+node experiments/assumption-removal/finiteness.mjs
 node experiments/continuation-join/exhaustive.mjs
 node --test js/tests/horn-link-substitution.test.mjs js/tests/mechanism-replacement.test.mjs \
   js/tests/meta-foundation-comparison.test.mjs js/tests/horn-rml-elaboration.test.mjs \

@@ -353,3 +353,277 @@ fn negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_o
         .unwrap()
         .contains("No assumption is thereby shown intrinsic or eliminable"));
 }
+
+// Mirrors experiments/assumption-removal/finiteness.mjs: finiteness removed by
+// finitely presented affine one-slot structures.
+const FINITENESS: &str = include_str!("../../test-corpus/assumption-removal/finiteness.json");
+const PREFIX_BOUND: i64 = 32;
+const DELETION_BOUND: i64 = 24;
+
+struct Affine {
+    id: &'static str,
+    start: Option<i64>,
+    step: i64,
+}
+
+const STRUCTURES: [Affine; 3] = [
+    Affine { id: "forward-ray", start: Some(0), step: 1 },
+    Affine { id: "backward-ray", start: Some(1), step: -1 },
+    Affine { id: "two-sided-line", start: None, step: 1 },
+];
+
+fn embeddings(records: &[Vec<usize>], into: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    fn choose(
+        index: usize,
+        chosen: &mut Vec<usize>,
+        records: &[Vec<usize>],
+        into: &[Vec<usize>],
+        found: &mut Vec<Vec<usize>>,
+    ) {
+        if index == records.len() {
+            let mut image: BTreeMap<usize, usize> = BTreeMap::new();
+            for (position, target) in chosen.iter().enumerate() {
+                for slot in 0..2 {
+                    let (from, to) = (records[position][slot], into[*target][slot]);
+                    if image.get(&from).is_some_and(|existing| *existing != to) {
+                        return;
+                    }
+                    image.insert(from, to);
+                }
+            }
+            if image.values().collect::<BTreeSet<_>>().len() == image.len() {
+                found.push(chosen.clone());
+            }
+            return;
+        }
+        for target in 0..into.len() {
+            chosen.push(target);
+            choose(index + 1, chosen, records, into, found);
+            chosen.pop();
+        }
+    }
+    let mut found = Vec::new();
+    choose(0, &mut Vec::new(), records, into, &mut found);
+    found
+}
+
+fn finite_control(widths: &[usize]) -> Value {
+    Value::Array(
+        widths
+            .iter()
+            .map(|&links| {
+                let (mut structures, mut maps, mut non_surjective, mut invisible) = (0u64, 0u64, 0u64, 0u64);
+                restricted_growth(links * 2, &mut |flat: &[usize]| {
+                    let records: Records = (0..links).map(|index| flat[index * 2..index * 2 + 2].to_vec()).collect();
+                    if records.iter().map(|record| record[0]).collect::<BTreeSet<_>>().len() != links {
+                        return;
+                    }
+                    structures += 1;
+                    for map in embeddings(&records, &records) {
+                        maps += 1;
+                        if map.iter().collect::<BTreeSet<_>>().len() != links {
+                            non_surjective += 1;
+                        }
+                    }
+                    for deleted in 0..links {
+                        let rest: Records = records
+                            .iter()
+                            .enumerate()
+                            .filter(|(index, _)| *index != deleted)
+                            .map(|(_, record)| record.clone())
+                            .collect();
+                        if !embeddings(&records, &rest).is_empty() {
+                            invisible += 1;
+                        }
+                    }
+                });
+                json!({
+                    "links": links,
+                    "structures": structures,
+                    "selfEmbeddings": maps,
+                    "nonSurjectiveSelfEmbeddings": non_surjective,
+                    "invisibleDeletions": invisible,
+                })
+            })
+            .collect(),
+    )
+}
+
+fn affine_record(structure: &Affine, n: i64) -> [i64; 2] {
+    [n, n + structure.step]
+}
+
+fn shift_certificate(structure: &Affine) -> Value {
+    let offsets = [0, structure.step];
+    let shifted = offsets.map(|offset| offset + 1);
+    let successor = offsets.map(|offset| offset + 1);
+    let commute = shifted == successor;
+    match structure.start {
+        Some(start) => {
+            let address_start = start + structure.step.min(0);
+            let tail_start = start + 1 + structure.step.min(0);
+            json!({
+                "map": "x -> x + 1",
+                "injective": true,
+                "recordsCommute": commute,
+                "imageRecordStart": start + 1,
+                "imageAddressStart": address_start + 1,
+                "tailAddressStart": tail_start,
+                "surjective": false,
+                "identifiesWithProperSubstructure": commute && address_start + 1 == tail_start,
+            })
+        }
+        None => json!({
+            "map": "x -> x + 1",
+            "injective": true,
+            "recordsCommute": commute,
+            "imageRecordStart": null,
+            "imageAddressStart": null,
+            "tailAddressStart": null,
+            "surjective": true,
+            "identifiesWithProperSubstructure": false,
+        }),
+    }
+}
+
+fn prefix_check(structure: &Affine, bound: i64, record_of: &dyn Fn(&Affine, i64) -> [i64; 2]) -> Value {
+    let from = structure.start.unwrap_or(-bound);
+    for length in 1..=bound {
+        for n in from..from + length {
+            let image = record_of(structure, n).map(|address| address + 1);
+            if image != record_of(structure, n + 1) {
+                return json!({ "bound": bound, "holds": false, "failure": { "length": length, "n": n } });
+            }
+        }
+    }
+    json!({ "bound": bound, "holds": true, "failure": null })
+}
+
+fn invariants(structure: &Affine, deleted: Option<i64>, radius: i64) -> (i64, i64) {
+    let centre = deleted.or(structure.start).unwrap_or(0);
+    let low = structure.start.unwrap_or(centre - radius);
+    let high = centre.max(structure.start.unwrap_or(centre)) + radius;
+    let first = low - if structure.start.is_none() { radius } else { 0 };
+    let records: Vec<[i64; 2]> = (first..=high + radius)
+        .filter(|n| Some(*n) != deleted)
+        .map(|n| affine_record(structure, n))
+        .collect();
+    let links: BTreeSet<i64> = records.iter().map(|record| record[0]).collect();
+    let referenced: BTreeSet<i64> = records.iter().map(|record| record[1]).collect();
+    let lowest = match structure.start {
+        None => low,
+        Some(start) => start + structure.step.min(0),
+    };
+    let (mut atoms, mut unreferenced) = (0, 0);
+    for address in lowest..=high {
+        if referenced.contains(&address) && !links.contains(&address) {
+            atoms += 1;
+        }
+        if links.contains(&address) && !referenced.contains(&address) {
+            unreferenced += 1;
+        }
+    }
+    (atoms, unreferenced)
+}
+
+fn infinite_row(structure: &Affine) -> Value {
+    let base = invariants(structure, None, 4);
+    let from = structure.start.unwrap_or(-DELETION_BOUND);
+    let mut deletions = Vec::new();
+    for deleted in from..from + DELETION_BOUND {
+        let narrow = invariants(structure, Some(deleted), 4);
+        let wide = invariants(structure, Some(deleted), 8);
+        deletions.push((deleted, narrow, narrow == wide, narrow != base));
+    }
+    json!({
+        "id": structure.id,
+        "start": structure.start,
+        "step": structure.step,
+        "certificate": shift_certificate(structure),
+        "prefix": prefix_check(structure, PREFIX_BOUND, &affine_record),
+        "invariants": { "atoms": base.0, "unreferencedLinks": base.1 },
+        "firstDeletionInvariants": deletions.iter().take(3).map(|(deleted, (atoms, unreferenced), _, _)| {
+            json!({ "deleted": deleted, "atoms": atoms, "unreferencedLinks": unreferenced })
+        }).collect::<Vec<_>>(),
+        "invisibleDeletions": deletions.iter().filter(|item| !item.3).map(|item| item.0).collect::<Vec<_>>(),
+        "everyWindowStable": deletions.iter().all(|item| item.2),
+    })
+}
+
+#[test]
+fn finiteness_removal_is_reproduced_exactly_and_no_finite_structure_embeds_onto_a_proper_part_of_itself() {
+    let recorded: Value = serde_json::from_str(FINITENESS).unwrap();
+    let control = finite_control(&[1, 2, 3, 4]);
+    assert_eq!(control, recorded["finiteControl"]);
+    let counts = |key: &str| -> Vec<u64> {
+        control.as_array().unwrap().iter().map(|item| item[key].as_u64().unwrap()).collect()
+    };
+    assert_eq!(counts("structures"), vec![2, 10, 77, 799]);
+    assert_eq!(counts("selfEmbeddings"), vec![2, 14, 120, 1464]);
+    assert_eq!(counts("nonSurjectiveSelfEmbeddings"), vec![0, 0, 0, 0]);
+    assert_eq!(counts("invisibleDeletions"), vec![0, 0, 0, 0]);
+    let computed = STRUCTURES.iter().map(infinite_row).collect::<Vec<_>>();
+    assert_eq!(Value::Array(computed), recorded["infinite"]);
+    let matrix: Value = serde_json::from_str(REPORT).unwrap();
+    assert_eq!(matrix["retainedWithoutRemoval"], json!([]));
+    assert_eq!(matrix["removedByProbe"]["finiteness"], json!("experiments/assumption-removal/finiteness.mjs"));
+}
+
+#[test]
+fn removing_finiteness_identifies_each_ray_with_its_tail_by_a_symbolic_shift_certificate() {
+    for structure in &STRUCTURES[..2] {
+        let certificate = shift_certificate(structure);
+        assert_eq!(certificate["identifiesWithProperSubstructure"], json!(true), "{}", structure.id);
+        assert_eq!(certificate["surjective"], json!(false), "{}", structure.id);
+        assert_eq!(certificate["imageAddressStart"], certificate["tailAddressStart"], "{}", structure.id);
+        assert_eq!(
+            prefix_check(structure, PREFIX_BOUND, &affine_record),
+            json!({ "bound": 32, "holds": true, "failure": null })
+        );
+    }
+    let recorded: Value = serde_json::from_str(FINITENESS).unwrap();
+    assert_eq!(
+        recorded["results"],
+        json!({
+            "finiteStructuresHaveOnlySurjectiveSelfEmbeddings": true,
+            "finiteControlReproducesAuditedBaseCounts": true,
+            "everyRayIsIdentifiedWithItsTail": true,
+            "onlyTheFirstLinkOfARayIsInvisible": true,
+            "theTwoSidedLineHasNoInvisibleDeletion": true,
+            "bothSlotOrientationsBehaveAlike": true,
+        })
+    );
+}
+
+#[test]
+fn only_the_first_link_of_a_ray_is_an_invisible_deletion_and_the_two_sided_line_has_none() {
+    let rows = STRUCTURES.iter().map(infinite_row).collect::<Vec<_>>();
+    assert_eq!(rows[0]["invariants"], json!({ "atoms": 0, "unreferencedLinks": 1 }));
+    assert_eq!(rows[1]["invariants"], json!({ "atoms": 1, "unreferencedLinks": 0 }));
+    assert_eq!(rows[0]["invisibleDeletions"], json!([0]));
+    assert_eq!(rows[1]["invisibleDeletions"], json!([1]));
+    assert_eq!(rows[2]["invisibleDeletions"], json!([]));
+    assert!(rows.iter().all(|row| row["everyWindowStable"] == json!(true)));
+    // Deleting a later link leaves a dangling reference, an isomorphism invariant.
+    assert_eq!(invariants(&STRUCTURES[0], Some(40), 4), (1, 2));
+}
+
+#[test]
+fn negative_controls_a_surjective_shift_or_a_non_affine_structure_identifies_no_proper_substructure() {
+    let line = shift_certificate(&STRUCTURES[2]);
+    assert_eq!(line["surjective"], json!(true));
+    assert_eq!(line["identifiesWithProperSubstructure"], json!(false));
+    // References growing at slope 2 are not shift-invariant: the very first window fails.
+    let doubled = |_: &Affine, n: i64| [n, 2 * n];
+    assert_eq!(
+        prefix_check(&STRUCTURES[0], PREFIX_BOUND, &doubled),
+        json!({ "bound": 32, "holds": false, "failure": { "length": 1, "n": 0 } })
+    );
+    let control = finite_control(&[1, 2]);
+    assert!(control.as_array().unwrap().iter().all(|item| item["invisibleDeletions"] == json!(0)));
+    let recorded: Value = serde_json::from_str(FINITENESS).unwrap();
+    assert!(recorded["claimBoundary"]
+        .as_str()
+        .unwrap()
+        .contains("not a claim that finiteness is intrinsic or eliminable"));
+}

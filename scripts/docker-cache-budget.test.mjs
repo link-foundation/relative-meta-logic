@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { byteCount, dockerCli, measureDockerCaches, measureDockerResource, measureDockerContainer, verifyDockerBuilder } from './docker-cache-budget.mjs';
+import { byteCount, dockerCli, measureDockerCaches, measureDockerResource, measureDockerContainer, reclaimOrphanedDockerResources, verifyDockerBuilder } from './docker-cache-budget.mjs';
 
 const image = `sha256:${'a'.repeat(64)}`;
 const ownerLabel = 'org.link-foundation.rml.owner';
@@ -234,4 +234,101 @@ test('an explicit Docker CLI argv is honored and malformed overrides fail closed
   } finally {
     if (previous === undefined) delete process.env.RML_DOCKER_CLI; else process.env.RML_DOCKER_CLI = previous;
   }
+});
+
+// A stateful daemon double: inspections answer from live state, removals change it.
+function liveDaemon({ labels = { [ownerLabel]: record.owner, [runLabel]: record.run }, builder = true } = {}) {
+  const live = { image: true, volume: true, container: true, builder };
+  const calls = [];
+  const absent = what => Object.assign(new Error('inspect failed'), { stderr: `Error: No such ${what}` });
+  const run = (command, args) => {
+    calls.push(args);
+    const [verb, action] = args;
+    if (verb === 'image' && action === 'inspect') { if (!live.image) throw absent('image'); return JSON.stringify({ Id: image, Size: 13, Config: { Labels: labels } }); }
+    if (verb === 'image' && action === 'rm') { live.image = false; return ''; }
+    if (verb === 'volume' && action === 'inspect') { if (!live.volume) throw absent('volume'); return JSON.stringify({ Name: record.volume, Labels: labels }); }
+    if (verb === 'volume' && action === 'rm') { live.volume = false; return ''; }
+    if (verb === 'inspect') { if (!live.container) throw absent('object'); return JSON.stringify({ Id: record.containerId, Mounts: [{ Type: 'volume', Name: record.volume, Destination: '/var/lib/buildkit' }] }); }
+    if (verb === 'buildx' && action === 'inspect') {
+      if (!live.builder) throw Object.assign(new Error('inspect failed'), { stderr: `ERROR: no builder "${record.builder}" found` });
+      return `Name: ${record.builder}\nDriver: docker-container\nNodes:\nName: ${record.builder}0\nEndpoint: ${record.builderEndpoint}`;
+    }
+    if (verb === 'buildx' && action === 'rm') { live.builder = false; live.container = false; return ''; }
+    if (verb === 'exec') return JSON.stringify({ ID: 'layer', Size: 18 });
+    throw new Error(`Unexpected Docker call: ${args.join(' ')}`);
+  };
+  return { run, calls, live };
+}
+
+test('full cleanup reclaims an orphaned owned builder exactly and then removes its lease', () => {
+  fixture(({ root, lease }) => {
+    const docker = liveDaemon();
+    const reclaimed = reclaimOrphanedDockerResources(root, docker);
+    assert.deepEqual(reclaimed, [{ kind: 'buildx', name: record.builder, bytes: 31 }]);
+    assert.deepEqual(docker.live, { image: false, volume: false, container: false, builder: false });
+    assert.equal(fs.existsSync(lease), false);
+    const report = JSON.parse(fs.readFileSync(path.join(root, '.rml-cache/reports', `docker-reclaim-${record.builder}.json`), 'utf8'));
+    assert.equal(report.resourcesRemoved, true);
+    assert.equal(report.measuredBytes, 31);
+    assert.ok(docker.calls.some(args => args.join(' ') === `image rm ${image}`));
+    assert.ok(docker.calls.some(args => args.join(' ') === `buildx rm ${record.builder}`));
+    assert.ok(docker.calls.every(args => !args.some(value => /prune|system|--force|^-f$/.test(value))));
+    // Nothing left to reclaim is not an error and touches no Docker state.
+    assert.deepEqual(reclaimOrphanedDockerResources(root, { run() { throw new Error('must not execute Docker'); } }), []);
+  });
+});
+
+test('an orphaned builder interrupted before creation removes only its labelled state volume', () => {
+  fixture(({ root, save, lease }) => {
+    save({ phase: 'provisioning', images: [], containerId: undefined, builderEndpoint: undefined });
+    const docker = liveDaemon({ builder: false });
+    docker.live.container = false;
+    docker.live.image = false;
+    assert.equal(reclaimOrphanedDockerResources(root, docker).length, 1);
+    assert.equal(docker.live.volume, false);
+    assert.equal(fs.existsSync(lease), false);
+  });
+});
+
+test('orphan reclaim refuses relabelled, replaced or unverifiable resources and keeps their lease', () => {
+  fixture(({ root, lease }) => {
+    const foreign = liveDaemon({ labels: { [ownerLabel]: 'someone-else', [runLabel]: record.run } });
+    assert.throws(() => reclaimOrphanedDockerResources(root, foreign), /ownership mismatch/);
+    assert.ok(fs.existsSync(lease));
+    assert.ok(foreign.calls.every(args => !args.includes('rm')));
+    const daemonDown = { run() { throw Object.assign(new Error('failed'), { stderr: 'Cannot connect to the Docker daemon' }); } };
+    assert.throws(() => reclaimOrphanedDockerResources(root, daemonDown), /accounting failed/);
+    assert.ok(fs.existsSync(lease));
+    const missingCli = { run() { throw Object.assign(new Error('spawn docker ENOENT'), { code: 'ENOENT' }); } };
+    assert.throws(() => reclaimOrphanedDockerResources(root, missingCli), /unavailable/);
+    assert.ok(fs.existsSync(lease));
+  });
+});
+
+test('an orphaned container is resolved by its exact name and labels, never by a foreign one', () => {
+  containerFixture(({ root, lease, containerLease, containerRecord, container, id }) => {
+    fs.unlinkSync(lease);
+    // The client was killed before it wrote the CID file.
+    fs.unlinkSync(path.join(root, containerRecord.cidfile));
+    const removed = [];
+    let present = true;
+    const run = (command, args) => {
+      if (args[0] === 'container' && args[1] === 'inspect') { if (!present) throw Object.assign(new Error('x'), { stderr: 'Error: No such container' }); return JSON.stringify(container); }
+      if (args[0] === 'container' && ['stop', 'wait'].includes(args[1])) return '';
+      if (args[0] === 'container' && args[1] === 'rm') { removed.push(args.at(-1)); present = false; return ''; }
+      throw new Error(`Unexpected Docker call: ${args.join(' ')}`);
+    };
+    assert.equal(reclaimOrphanedDockerResources(root, { run }).length, 1);
+    assert.deepEqual(removed, [id]);
+    assert.equal(fs.existsSync(containerLease), false);
+    fs.writeFileSync(containerLease, JSON.stringify(containerRecord));
+    for (const changed of [{ Name: '/rml-owned-other' }, { Config: { Labels: {} } }]) {
+      const run = (command, args) => {
+        if (args[0] === 'container' && args[1] === 'inspect') return JSON.stringify({ ...container, ...changed });
+        throw new Error(`must not mutate: ${args.join(' ')}`);
+      };
+      assert.throws(() => reclaimOrphanedDockerResources(root, { run }), /identity or name changed|ownership mismatch/);
+      assert.ok(fs.existsSync(containerLease));
+    }
+  });
 });

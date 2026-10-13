@@ -6,7 +6,7 @@ import os from 'node:os';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { measureDockerCaches } from './docker-cache-budget.mjs';
+import { measureDockerCaches, reclaimOrphanedDockerResources } from './docker-cache-budget.mjs';
 
 export const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const policy = JSON.parse(fs.readFileSync(new URL('./cache-policy.json', import.meta.url), 'utf8'));
@@ -72,6 +72,8 @@ export function processIdentity({ platform = process.platform, host = os.hostnam
       // Bind the machine/boot to the observed process-tree root, not just its
       // hostname. A container/silo can share host hardware and boot metadata.
       // Ordinary npm/cmd/Node descendants resolve the same live root identity.
+      // Windows keeps a dead parent's PID in ParentProcessId; once that PID is
+      // reused, a younger process is not an ancestor, so the walk stops there.
       const script = `$ErrorActionPreference='Stop';
 $os=Get-CimInstance Win32_OperatingSystem;
 $machine=(Get-CimInstance Win32_ComputerSystemProduct).UUID;
@@ -79,7 +81,9 @@ $processes=@(Get-CimInstance Win32_Process);
 $byId=@{};foreach($p in $processes){$byId[[int]$p.ProcessId]=$p};
 $cursor=${pid};$seen=@{};$root=$null;
 while($byId.ContainsKey($cursor) -and -not $seen.ContainsKey($cursor)){
- $entry=$byId[$cursor];if($entry.CreationDate){$root=$entry};
+ $entry=$byId[$cursor];
+ if($root -and $entry.CreationDate -and $entry.CreationDate -gt $root.CreationDate){break};
+ if($entry.CreationDate){$root=$entry};
  $seen[$cursor]=$true;$cursor=[int]$entry.ParentProcessId
 };
 if(-not $root -or -not $root.CreationDate){throw 'Cannot establish process ancestry'};
@@ -102,7 +106,7 @@ function alive(pid) {
   if (!Number.isInteger(pid) || pid < 1) return false;
   try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; }
 }
-export async function lock(c, { timeout = Number(process.env.RML_CACHE_LOCK_TIMEOUT_MS ?? 60000) } = {}) {
+export async function lock(c, { timeout = Number(process.env.RML_CACHE_LOCK_TIMEOUT_MS ?? 60000), recover = false } = {}) {
   const dir = path.join(c.state, 'lock');
   const started = Date.now();
   const token = crypto.randomUUID();
@@ -145,8 +149,10 @@ export async function lock(c, { timeout = Number(process.env.RML_CACHE_LOCK_TIME
       try { owner = JSON.parse(fs.readFileSync(path.join(dir, 'owner.json'), 'utf8')); } catch { /* partial acquisition: fail closed */ }
       if (sameProcessRealm(owner, identity) && !alive(owner.pid) && !alive(owner.child)) {
         // A killed wrapper's descendants may still own outputs. An abandoned lease is
-        // intentionally not auto-stolen; recover using bootstrap after inspecting it.
-        throw new Error(`Abandoned build lease at ${dir}; verify no descendants remain before removing this lease`);
+        // never stolen implicitly; --recover removes it only after verification.
+        if (!recover) throw new Error(`Abandoned build lease at ${dir}; run node scripts/build-cache.mjs --recover to verify that no descendant remains and remove it`);
+        recoverAbandonedLease(c, owner);
+        continue;
       }
       if (Date.now() - started >= timeout) {
         const visibility = sameProcessRealm(owner, identity) ? '' : ' (foreign or unknown process namespace/boot)';
@@ -155,6 +161,40 @@ export async function lock(c, { timeout = Number(process.env.RML_CACHE_LOCK_TIME
       await sleep(100);
     }
   }
+}
+function processGroupAlive(group) {
+  if (!Number.isInteger(group) || group < 1) return false;
+  try { process.kill(-group, 0); return true; } catch (error) { return error.code !== 'ESRCH'; }
+}
+/**
+ * Hard-kill recovery for a same-realm lease whose wrapper and child are dead.
+ * On POSIX the wrapper started its command as the leader of a new process
+ * group, so an empty group proves no descendant that kept the group survives;
+ * the builder scan also refuses any builder still running in this tree,
+ * including one that left the group. A recovery mutex serializes recoverers,
+ * and the exact abandoned record is re-read under it before removal, so a
+ * lease acquired after another recovery is never removed.
+ */
+export function recoverAbandonedLease(c, owner, { platform = process.platform, groupAlive = processGroupAlive, isAlive = alive, scan = assertNoUnleasedBuilders } = {}) {
+  const dir = path.join(c.state, 'lock');
+  if (platform !== 'win32' && [owner.child, owner.pid].some(group => groupAlive(group))) throw deferral(`Abandoned build lease at ${dir}: a process group of the killed build is still running`);
+  scan(c, { allowExternalLeases: true });
+  const mutex = path.join(c.state, 'lock-recovery');
+  try { fs.mkdirSync(mutex); }
+  catch (error) {
+    if (error.code === 'EEXIST') throw new Error(`Lease recovery in progress or interrupted at ${mutex}; remove it after verifying no recovery is running`);
+    throw error;
+  }
+  try {
+    let current;
+    try { current = JSON.parse(fs.readFileSync(path.join(dir, 'owner.json'), 'utf8')); }
+    catch (error) { if (error.code === 'ENOENT') return false; throw error; }
+    if (current.token !== owner.token || isAlive(current.pid) || isAlive(current.child)) return false;
+    fs.unlinkSync(path.join(dir, 'owner.json'));
+    fs.rmdirSync(dir);
+    console.error(`build-cache: recovered abandoned lease of killed build ${owner.pid}${owner.child ? ` (command ${owner.child})` : ''}`);
+    return true;
+  } finally { fs.rmdirSync(mutex); }
 }
 export function inheritedLease(c, { identity } = {}) {
   if (!process.env.RML_CACHE_LEASE) return false;
@@ -222,10 +262,34 @@ export function roots(c) {
   const result = [...policy.roots, ...c.registry.roots, ...patterned].filter((r, i, all) => all.findIndex(x => x.path === r.path) === i);
   return result.filter((r, i) => !result.some((p, j) => i !== j && r.path.startsWith(`${p.path}/`)));
 }
+/**
+ * Allocated bytes of one inode: POSIX reports 512-byte blocks, so sparse files
+ * count less and small files count whole blocks. Windows has no block count;
+ * its logical size is used and the report says which metric was available.
+ */
+export const allocatedSize = s => Number.isFinite(s.blocks) && s.blocks >= 0 ? s.blocks * 512 : s.size;
+/** Hard links share one allocation, so each device/inode pair counts once. */
+export function allocatedBytes(files) {
+  const seen = new Set();
+  let total = 0;
+  for (const file of Object.values(files)) {
+    const key = `${file.device}:${file.inode}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    total += file.allocated ?? file.bytes;
+  }
+  return total;
+}
+export function budgetMetric() {
+  const metric = process.env.RML_CACHE_BUDGET_METRIC ?? policy.budgetMetric ?? 'logical';
+  if (!['logical', 'allocated'].includes(metric)) throw new Error('RML_CACHE_BUDGET_METRIC must be logical or allocated');
+  return metric;
+}
+const budgetedBytes = (files, metric = budgetMetric()) => metric === 'allocated' ? allocatedBytes(files) : Object.values(files).reduce((sum, file) => sum + file.bytes, 0);
 function stamp(full) {
   const s = fs.lstatSync(full);
   if (!s.isFile()) return null;
-  return { bytes: s.size, hash: digest(fs.readFileSync(full)), modified: s.mtimeMs, mode: s.mode, device: s.dev, inode: s.ino };
+  return { bytes: s.size, allocated: allocatedSize(s), hash: digest(fs.readFileSync(full)), modified: s.mtimeMs, mode: s.mode, device: s.dev, inode: s.ino };
 }
 export function inventory(c, { hashes = true } = {}) {
   const files = {};
@@ -253,7 +317,7 @@ export function inventory(c, { hashes = true } = {}) {
       let names;
       try { names = fs.readdirSync(full); } catch (error) { if (error.code === 'ENOENT') return; throw error; }
       for (const name of names) walk(`${relative}/${name}`, category, disposable);
-    } else if (s.isFile()) files[relative] = { ...(hashes ? stamp(full) : { bytes: s.size, modified: s.mtimeMs, mode: s.mode, device: s.dev, inode: s.ino }), class: category, disposable: !!disposable, recovery: relative.split('/').some(part => part.startsWith('.rml-delete-')) };
+    } else if (s.isFile()) files[relative] = { ...(hashes ? stamp(full) : { bytes: s.size, allocated: allocatedSize(s), modified: s.mtimeMs, mode: s.mode, device: s.dev, inode: s.ino }), class: category, disposable: !!disposable, recovery: relative.split('/').some(part => part.startsWith('.rml-delete-')) };
     else protectedPaths.push({ path: relative, reason: 'not a regular file' });
   }
   for (const r of roots(c)) walk(r.path, r.class, r.disposable);
@@ -496,7 +560,7 @@ export function finishProduction(c) {
 export function localCacheBytes(c) {
   if (c.production) mergeProductionRecords(c);
   else if (process.env.RML_CACHE_PRODUCTION && inheritedLease(c)) resumeProduction(c);
-  return Object.values(inventory(c, { hashes: false }).files).reduce((sum, file) => sum + file.bytes, 0);
+  return budgetedBytes(inventory(c, { hashes: false }).files);
 }
 export function aggregateCacheBytes(c) {
   const localBytes = localCacheBytes(c);
@@ -606,7 +670,9 @@ export function cleanup(c, { full = false, reportOnly = false, onlyRoots } = {})
   const staleMs = numberSetting(process.env.RML_CACHE_STALE_HOURS, policy.staleHours, 'RML_CACHE_STALE_HOURS') * 3600000;
   const current = inventory(c);
   const entries = Object.entries(current.files);
-  const localBefore = entries.reduce((sum, [, f]) => sum + f.bytes, 0);
+  const metric = budgetMetric();
+  const localBefore = budgetedBytes(current.files, metric);
+  const allocatedBefore = allocatedBytes(current.files);
   const external = measureDockerCaches(c.root);
   const before = localBefore + external.bytes;
   let after = before;
@@ -645,12 +711,13 @@ export function cleanup(c, { full = false, reportOnly = false, onlyRoots } = {})
     delete c.registry.files[relative];
     if (!deleted) { protectedPaths.push({ path: relative, reason: 'changed during deletion; user data restored' }); continue; }
     removed.push(relative);
-    after -= record.bytes;
+    after -= metric === 'allocated' ? record.allocated : record.bytes;
 
   }
   const remaining = inventory(c, { hashes: false });
-  after = Object.values(remaining.files).reduce((sum, file) => sum + file.bytes, 0) + external.bytes;
-  const result = { version: 1, root: c.root, mode: full ? 'full' : 'bounded', beforeBytes: before, afterBytes: after, reclaimedBytes: before - after, budgetBytes: budget, budgetSatisfied: after <= budget, localBeforeBytes: localBefore, localAfterBytes: after - external.bytes, externalBytes: external.bytes, externalResources: external.resources, removed, protected: protectedPaths, classes: policy.classes, timestamp: new Date().toISOString() };
+  after = budgetedBytes(remaining.files, metric) + external.bytes;
+  const allocatedAfter = allocatedBytes(remaining.files);
+  const result = { version: 1, root: c.root, mode: full ? 'full' : 'bounded', budgetMetric: metric, beforeBytes: before, afterBytes: after, reclaimedBytes: before - after, budgetBytes: budget, budgetSatisfied: after <= budget, localAllocatedBeforeBytes: allocatedBefore, localAllocatedAfterBytes: allocatedAfter, localAllocatedReclaimedBytes: allocatedBefore - allocatedAfter, allocationSource: process.platform === 'win32' ? 'logical-size-fallback' : 'filesystem-blocks', localBeforeBytes: localBefore, localAfterBytes: after - external.bytes, externalBytes: external.bytes, externalResources: external.resources, removed, protected: protectedPaths, classes: policy.classes, timestamp: new Date().toISOString() };
   if (!reportOnly) {
     c.registry.producers = (c.registry.producers ?? []).filter(producer => Object.keys(remaining.files).some(relative => relative.startsWith(`${producer.path}/`)));
     if (full) c.registry.retained = onlyRoots ? (c.registry.retained ?? []).filter(retained => !onlyRoots.some(root => retained === root || retained.startsWith(`${root}/`))) : [];
@@ -687,10 +754,16 @@ async function main() {
     } finally { lease?.release(); }
     return;
   }
-  if (args.some(a => !['--full', '--report', '--json'].includes(a))) throw new Error('Usage: node scripts/build-cache.mjs [--full] [--report] [--json]');
+  if (args.some(a => !['--full', '--report', '--json', '--recover'].includes(a))) throw new Error('Usage: node scripts/build-cache.mjs [--full] [--report] [--json] [--recover]');
   const c = context();
-  const lease = await lock(c);
+  const lease = await lock(c, { recover: args.includes('--recover') });
   try {
+    // Docker helpers run only under a wrapper that holds this lease. Holding it
+    // here proves any remaining external lease belongs to a helper killed before
+    // its trap ran; an explicit full cleanup reclaims those exact resources.
+    if (args.includes('--full') && !args.includes('--report')) {
+      for (const resource of reclaimOrphanedDockerResources(c.root)) console.error(`build-cache: reclaimed orphaned ${resource.kind} ${resource.name} (${resource.bytes ?? 'unmeasured'} bytes)`);
+    }
     assertNoUnleasedBuilders(c);
     const result = cleanup(c, { full: args.includes('--full'), reportOnly: args.includes('--report') });
     if (args.includes('--json')) console.log(JSON.stringify(result, null, 2)); else printReport(result);
@@ -710,9 +783,9 @@ if (process.argv[1] && (() => { try { return fs.realpathSync(process.argv[1]); }
 });
 
 /** Conservative backstop for raw cargo/node/lake/rocq runs outside the wrapper. */
-export function assertNoUnleasedBuilders(c, { platform = process.platform, run = execFileSync, readLink = fs.readlinkSync, realPath = fs.realpathSync.native, isAlive = alive, exists = fs.existsSync } = {}) {
+export function assertNoUnleasedBuilders(c, { platform = process.platform, run = execFileSync, readLink = fs.readlinkSync, realPath = fs.realpathSync.native, isAlive = alive, exists = fs.existsSync, allowExternalLeases = false } = {}) {
   const evidence = path.join(c.root, '.rml-cache', 'evidence');
-  if (fs.existsSync(evidence) && fs.readdirSync(evidence).some(name => name.startsWith('external-lease-') && name.endsWith('.json'))) throw new Error('Active or unresolved external-resource lease; stop and verify owned Docker resources before cleanup');
+  if (!allowExternalLeases && fs.existsSync(evidence) && fs.readdirSync(evidence).some(name => name.startsWith('external-lease-') && name.endsWith('.json'))) throw new Error('Active or unresolved external-resource lease; stop and verify owned Docker resources before cleanup');
   const queryOptions = { encoding: 'utf8', timeout: 20000, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] };
   let processes;
   try {

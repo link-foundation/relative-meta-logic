@@ -188,7 +188,8 @@ export function assumptionRemovalMatrix() {
       'distinct link addresses in one shared address space',
       'address equality is the only observation',
     ],
-    retainedWithoutRemoval: ['finiteness (only finite widths are enumerated)'],
+    retainedWithoutRemoval: [],
+    removedByProbe: { finiteness: 'experiments/assumption-removal/finiteness.mjs' },
     rows,
     results: {
       everyRemovalChangesSomeWidth: rows.every(row => row.widths.some(width =>
@@ -200,7 +201,7 @@ export function assumptionRemovalMatrix() {
         width.identifiedClasses <= rows[1].widths[index].identifiedClasses),
     },
     status: 'FINITE_ASSUMPTION_REMOVAL_MATRIX_FOR_THE_RETAINED_CONTRACT',
-    claimBoundary: 'Each count is an exhaustive finite enumeration for the listed widths. A removal that identifies classes shows which distinctions rest on that assumption; one that separates classes shows what the assumption excludes. No assumption is thereby shown intrinsic or eliminable for links in general, and finiteness itself is not removed.',
+    claimBoundary: 'Each count is an exhaustive finite enumeration for the listed widths. A removal that identifies classes shows which distinctions rest on that assumption; one that separates classes shows what the assumption excludes. No assumption is thereby shown intrinsic or eliminable for links in general. Finiteness cannot be removed by finite enumeration; finiteness.mjs removes it for finitely presented structures.',
   };
 }
 
