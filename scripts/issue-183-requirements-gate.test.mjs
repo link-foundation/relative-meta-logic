@@ -487,9 +487,11 @@ process.exitCode = report.passed ? 0 : 1;
   it('preserves all reviewed sources and the expanded inventory independently of labels', () => {
     const input = loadIssue183Inputs(ROOT);
     const rows = validateIssue183Inventory(input);
-    assert.ok(rows.length >= 164);
-    assert.ok(input.sources.conversationCount >= 204);
-    assert.equal(input.sources.latestCommentId, '5856764556');
+    assert.ok(rows.length >= 169);
+    assert.ok(input.sources.conversationCount >= 205);
+    assert.equal(input.sources.latestCommentId, '6138933223');
     assert.ok(input.sources.sources.find(source => source.id === 'comment-5856764556').originalText.includes('always-selected required aggregate acceptance job'));
+    assert.ok(input.sources.sources.find(source => source.id === 'comment-6138933223').originalText.includes('translation should be provable'));
+    for (const id of [165, 166, 167, 168, 169]) assert.ok(rows.some(row => row.id === id), `R${id} must stay registered`);
   });
 });

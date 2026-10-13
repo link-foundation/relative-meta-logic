@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "21f0808a31178ce52a7057c8d52ce8cefdd54151f61c87b112ced3fc4b1fe34d"
+    "sha256": "c0118c65c0386dae4a50ee2c5e6988cf5de6b6b806158d55fe0b16b283c80ca5"
   },
   "requirements": [
     {
@@ -3984,6 +3984,10 @@
         {
           "sourceId": "pull-184@884aba190dcb",
           "bodySha256": "884aba190dcb7a313db7937ddc94212128b99901373d3dcd76891e15653ce3bb"
+        },
+        {
+          "sourceId": "comment-6138933223",
+          "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
         }
       ],
       "implementationClaims": [
@@ -5787,6 +5791,10 @@
         {
           "sourceId": "pull-184@884aba190dcb",
           "bodySha256": "884aba190dcb7a313db7937ddc94212128b99901373d3dcd76891e15653ce3bb"
+        },
+        {
+          "sourceId": "comment-6138933223",
+          "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
         }
       ],
       "implementationClaims": [],
@@ -22652,6 +22660,10 @@
         {
           "sourceId": "pull-184@884aba190dcb",
           "bodySha256": "884aba190dcb7a313db7937ddc94212128b99901373d3dcd76891e15653ce3bb"
+        },
+        {
+          "sourceId": "comment-6138933223",
+          "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
         }
       ],
       "implementationClaims": [],
@@ -24467,6 +24479,96 @@
           "polarity": "positive"
         }
       ],
+      "completionBindings": []
+    },
+    {
+      "id": "R165",
+      "obligation": "Apply the practices of link-assistant/router#761 (exact original-source spans/hashes, checked meta-language intermediate, explicit refusal receipts, producer receipts with input fingerprints, freshness and forward/reverse regeneration gates, no implicit authority grants) and use automated translation for bulk work.",
+      "status": "Open",
+      "originalWording": [
+        {
+          "sourceId": "comment-6138933223",
+          "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
+        }
+      ],
+      "implementationClaims": [],
+      "claimedEvidence": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "checks": [],
+      "remainingGap": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "verificationState": "not-execution-certified",
+      "assertionBindings": [],
+      "completionBindings": []
+    },
+    {
+      "id": "R166",
+      "obligation": "Design RML to fully support automatic translation between programming languages and make every translation provable through RML-checked linked translation certificates that bind source/target identities, construct correspondence, preservation contract and discharged/open obligations, rejecting forged, stale or mismatched certificates.",
+      "status": "Open",
+      "originalWording": [
+        {
+          "sourceId": "comment-6138933223",
+          "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
+        }
+      ],
+      "implementationClaims": [],
+      "claimedEvidence": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "checks": [],
+      "remainingGap": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "verificationState": "not-execution-certified",
+      "assertionBindings": [],
+      "completionBindings": []
+    },
+    {
+      "id": "R167",
+      "obligation": "Apply the practices of link-foundation/meta-language#201: shared link-based concept space, source-free typed program archives, LiNo fixtures, checked immutable products and Rust↔meta-language↔JavaScript translation.",
+      "status": "Open",
+      "originalWording": [
+        {
+          "sourceId": "comment-6138933223",
+          "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
+        }
+      ],
+      "implementationClaims": [],
+      "claimedEvidence": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "checks": [],
+      "remainingGap": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "verificationState": "not-execution-certified",
+      "assertionBindings": [],
+      "completionBindings": []
+    },
+    {
+      "id": "R168",
+      "obligation": "Temporarily vendor the required meta-language#201 code with exact provenance, make it work locally, record the upstream feature requests needed for a future meta-language release to fully support RML, and remove the copy once such a release exists.",
+      "status": "Open",
+      "originalWording": [
+        {
+          "sourceId": "comment-6138933223",
+          "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
+        }
+      ],
+      "implementationClaims": [],
+      "claimedEvidence": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "checks": [],
+      "remainingGap": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "verificationState": "not-execution-certified",
+      "assertionBindings": [],
+      "completionBindings": []
+    },
+    {
+      "id": "R169",
+      "obligation": "Do not compile Rust locally; local verification uses JavaScript and Rust parity is verified by CI.",
+      "status": "Open",
+      "originalWording": [
+        {
+          "sourceId": "comment-6138933223",
+          "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
+        }
+      ],
+      "implementationClaims": [],
+      "claimedEvidence": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "checks": [],
+      "remainingGap": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
+      "verificationState": "not-execution-certified",
+      "assertionBindings": [],
       "completionBindings": []
     }
   ],

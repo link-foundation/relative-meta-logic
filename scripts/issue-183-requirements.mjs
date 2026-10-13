@@ -12,6 +12,12 @@ const SHA256 = /^[a-f0-9]{64}$/;
 const BASELINE_COUNT = 164;
 const LATEST_COMMENT = 'comment-5856764556';
 
+// Test runners report resolved paths; a symlinked temporary root (macOS /var -> /private/var) must not hide an executed assertion.
+function canonicalPath(location) {
+  const resolved = path.resolve(location);
+  try { return fs.realpathSync(resolved); } catch { return resolved; }
+}
+
 export function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
 }
@@ -196,7 +202,7 @@ export function executeIssue183Check(root, check) {
     const completed = events.filter(event => event.type === 'test:pass' && event.data.details?.type !== 'suite');
     requireThat(!events.some(event => event.type === 'test:fail' || event.data.skip || event.data.todo), `${check.id} contains failed, skipped, or unsupported assertions`);
     for (const assertion of check.assertions) {
-      const matches = completed.filter(event => event.data.name === assertion.name && path.resolve(event.data.file ?? '') === path.resolve(root, assertion.file));
+      const matches = completed.filter(event => event.data.name === assertion.name && canonicalPath(event.data.file ?? '') === canonicalPath(path.resolve(root, assertion.file)));
       requireThat(matches.length === 1, `${check.id} required assertion did not execute exactly once: ${assertion.name}`);
       evidence.assertions.push({ ...assertion, passed: true });
     }
