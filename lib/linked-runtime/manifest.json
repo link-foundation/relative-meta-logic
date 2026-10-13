@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
   "moduleCount": 189,
-  "linkCount": 364969,
+  "linkCount": 365042,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "0a8b169e0f9a748702ee2521aae76bd1ed2d778a12e3d4b87bed25de35ca4008",
-  "archiveBytes": 2160914,
+  "archiveSha256": "d293f3895969e55404054644a5a85b60af02fb45eb1ce22a1c1854116f18f21f",
+  "archiveBytes": 2161061,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -826,9 +826,9 @@
     },
     {
       "path": "js/src/rml-surface-lowering.mjs",
-      "sourceSha256": "21b061f6395289969b47209376d36e27971d921e69a50e552dfc674accc11185",
-      "astSha256": "6bb7485cf76197fe33505be0c07ef6bb70e105adc4b79e90f20716a46266ae50",
-      "generatedSha256": "9e237f232584a3681a36cad74e92833db8f128409b40344e7c9bb2bbbf898a3c"
+      "sourceSha256": "c5287e08247fd0f2c2ad1f1841d6b0a90c08179b523f27d4e3e58d257527b60b",
+      "astSha256": "e8d1d05bf81de02556f2a4c09db925f85e11e56e33f7e715f8ba6d098d83acc1",
+      "generatedSha256": "d0c1df4ea8d208859e71752d06bf61068095893b797730619d2542faf4316168"
     },
     {
       "path": "js/src/rml-theory-network.mjs",
@@ -1222,9 +1222,9 @@
     },
     {
       "path": "scripts/verify-linked-rust-runtime.mjs",
-      "sourceSha256": "40fc57780889d85bc3252e82d0980558e88742b7dbc2d84e96c5098fd4a5282a",
-      "astSha256": "6615087ba3c4c1db298fe384154b42b02936526708e55bc19f85281ba2a7f72a",
-      "generatedSha256": "c266968019a1c379c05fee6e5bf5ca1122fffd98d274fc3534f83c1c4b7ba4b8"
+      "sourceSha256": "592326c4cbcbeb37a8f660fe5c142f8b7319af063815a7ef5cbc2d39150c0f20",
+      "astSha256": "172799f09b2a0ae34d49cb63199a6758e4e4a932e0b60df32a08180663c07b72",
+      "generatedSha256": "a191e84ea89073a3cba6946f8c728538711b7f4fe7fcef240e9b8d2b9513d1fe"
     },
     {
       "path": "scripts/verify-linked-target.mjs",
