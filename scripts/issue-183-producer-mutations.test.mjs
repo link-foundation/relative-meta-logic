@@ -100,16 +100,15 @@ describe('real issue 183 producer-to-gate mutations', () => {
   });
 
   it('a falsified Complete status on a real partial row is rejected although its executed check passes', context => {
-    // Project real R120 through the real gate: its reviewed obligation,
+    // Project real R143 through the real gate: its reviewed obligation,
     // original sources, implementation pins, JavaScript producer and progress
     // bindings, with a consistent hand edit of both status cells to Complete.
-    const record = structuredClone(manifest.requirements.find(row => row.id === 'R120'));
+    const record = structuredClone(manifest.requirements.find(row => row.id === 'R143'));
     assert.match(record.status, /^Partial/);
     assert.equal(record.completionBindings.length, 0);
-    const check = realCheck('foundation-context-js');
+    assert.equal(record.nativeValidationRequired, true);
+    const check = realCheck('verifier-provenance-js');
     const root = scratch(context, [check]);
-    // The reviewed check reads this fixture but does not pin it yet.
-    fs.copyFileSync(path.join(ROOT, 'test-corpus/foundations/expected.json'), path.join(root, 'test-corpus/foundations/expected.json'));
     for (const pin of record.implementationClaims) {
       fs.mkdirSync(path.dirname(path.join(root, pin.path)), { recursive: true });
       fs.copyFileSync(path.join(ROOT, pin.path), path.join(root, pin.path));
