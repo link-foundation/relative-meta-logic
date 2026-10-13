@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-rust-implementation-manifest/v1",
-  "moduleCount": 47,
-  "linkCount": 294640,
+  "moduleCount": 48,
+  "linkCount": 299779,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -143,6 +143,14 @@
       "verbatimNodes": 0
     },
     {
+      "path": "rust/src/certified_translation.rs",
+      "sourceSha256": "2699ff684bc389307df1d4b66d32e7b464e53b75c5745a06bcc2cde209663459",
+      "astSha256": "2844084cc84e6475e9437ebdde6dc0802edc599f26a74c8dfeba692a1827926b",
+      "generatedSha256": "87d2c407807724591e1cdf427d1fc2810291e894bb1525943c96f86e5b8022f9",
+      "macroInvocations": 14,
+      "verbatimNodes": 0
+    },
+    {
       "path": "rust/src/check.rs",
       "sourceSha256": "e471121e9bb64238c5699264a87e16857a0ade7fc1cdf5f60ff57132d31851c1",
       "astSha256": "a6860eec60c8f6d6fc752b3ab3843640c6777494443a455ab7c4aa85b3109224",
@@ -248,9 +256,9 @@
     },
     {
       "path": "rust/src/lib.rs",
-      "sourceSha256": "986d021521157b24dd7a0d3d89cb387c2c3d11420ca3f25a6f0178ef074b135e",
-      "astSha256": "3d528b9ea91b2f9dcc9de51c74e9eedee4c7b4c15def088510efcee84b3b2b56",
-      "generatedSha256": "a6042a50031bc8c0e7d013105699d283b03cf16cb0ae039652a94f368a566c3d",
+      "sourceSha256": "9bd5f787e2491628bb9ff055d114d68fbfb7cf24927fd69492e466a85e5b2609",
+      "astSha256": "6952ba06785076a5fcfd7b2bca565c270a3f68a54d7e0267e52c8a72e22076b6",
+      "generatedSha256": "31ce2c629207132d4974f099b2f5966192082f8fa6ef903ad439ee16d18027a2",
       "macroInvocations": 561,
       "verbatimNodes": 0
     },
@@ -394,8 +402,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveBytes": 1342545,
-  "archiveSha256": "e6d6105192b34044ad6600e551dbf5924e9587e0809d3aadfdcc6968203c5db4",
+  "archiveBytes": 1365844,
+  "archiveSha256": "2ec6023efe8a83be5bfe5cba05903fccdd8cd310103cd5d30907b888b3619712",
   "toolLockSha256": "acfd9616c8b3e7740701bd61a4981f4029cfbedfdacb884af7900526182df829",
   "toolSources": [
     {

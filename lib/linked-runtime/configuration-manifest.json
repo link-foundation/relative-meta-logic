@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "ec8d5f7c634bf737e15f47986ddc28d99ce6296a274bb8d5e0b7860e63b338a8",
-  "archiveBytes": 715752,
-  "linkCount": 14528,
+  "archiveSha256": "66fd655d165fafd917f42b1b56c03be258c1b7802a9415f54796b2ba2eca7dbe",
+  "archiveBytes": 717820,
+  "linkCount": 14549,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -76,6 +76,11 @@
       "generatedSha256": "6abc578a7bacc31b41a97b87b6c74d298b423e2d6513b8d3d516a83e4d059c64"
     },
     {
+      "path": ".github/workflows/linked-recapture.yml",
+      "sourceSha256": "1e75a739df9f5ece51c170889b75b317344a6e91015270a9c1e81d8db649bc7c",
+      "generatedSha256": "1e75a739df9f5ece51c170889b75b317344a6e91015270a9c1e81d8db649bc7c"
+    },
+    {
       "path": ".github/workflows/linked-target.yml",
       "sourceSha256": "612ab0fccc8bdb35b532e09123fbcb198521cc8382dac4a672f4f6758761fe5b",
       "generatedSha256": "612ab0fccc8bdb35b532e09123fbcb198521cc8382dac4a672f4f6758761fe5b"
@@ -104,6 +109,11 @@
       "path": ".github/workflows/tests.yml",
       "sourceSha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f",
       "generatedSha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
+    },
+    {
+      "path": ".github/workflows/translation-native.yml",
+      "sourceSha256": "4d5da42438024a66f081e95c7205f4c293b110b2eb23964e82517db4beb8861e",
+      "generatedSha256": "4d5da42438024a66f081e95c7205f4c293b110b2eb23964e82517db4beb8861e"
     },
     {
       "path": ".gitmodules",
@@ -162,8 +172,8 @@
     },
     {
       "path": "js/package.json",
-      "sourceSha256": "bf6e1f192f723ea56af7d416756cee9df18331f6cc68e83c6aa36067d91168af",
-      "generatedSha256": "a535fdb4324a3c1d297caef7226b0a0a890e39d969440fc1456a199450b6b1c8"
+      "sourceSha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e",
+      "generatedSha256": "88bafadf7acf14d014c3cfd9f8f1523fb8be1d967c59117067e07e7886d5a0f7"
     },
     {
       "path": "js/vendor/meta-language-provenance.json",
@@ -537,8 +547,8 @@
     },
     {
       "path": "scripts/external-checkouts.json",
-      "sourceSha256": "23e3c0fd213681b706acf633d8be6b944de8cac049fb6279a6c5248d53543adf",
-      "generatedSha256": "1f025918dda229a00c214d01821e56381ea7fb0e37d94c267cde14fa2e3b942d"
+      "sourceSha256": "53d61d75ccc584df066131da2bbb08c9344001dfe82acdbddd111c89a6cb2ec5",
+      "generatedSha256": "14cb95edc4057df9c7ebcdbb3ce3e83814d3059a2c2ff3de85cc50bd2f79a61d"
     },
     {
       "path": "scripts/install-rocq-kernel.sh",
