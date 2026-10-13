@@ -79,6 +79,14 @@ An already verified helper can be selected with `--helper=PATH`. The wrapper's
 it still fails unless the resulting implementation is consistent. Ordinary
 builds and tests neither defer that check nor recapture edited host sources.
 
+Contributors do not compile Rust locally; local checks run the JavaScript
+runtime, and the hosted CI jobs compile and test the Rust mirror. The migration
+above builds the Rust syntax helper, so it runs on a hosted runner instead:
+push the tree to a `recapture/**` branch, and `.github/workflows/linked-recapture.yml`
+runs `update-linked-implementation.mjs`, then uploads the resulting
+`linked-recapture.patch` artifact without committing anything. Review the
+patch and apply it with `git apply` before committing.
+
 `node scripts/generate-linked-runtime.mjs --capture` explicitly imports the
 current JavaScript runtime and non-test build scripts, checks structural
 round-tripping and saves the graph and manifest. This is a migration or deliberate

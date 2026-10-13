@@ -30408,20 +30408,59 @@
     {
       "id": "R169",
       "obligation": "Do not compile Rust locally; local verification uses JavaScript and Rust parity is verified by CI.",
-      "status": "Open",
+      "status": "Complete as a documented development workflow",
       "originalWording": [
         {
           "sourceId": "comment-6138933223",
           "bodySha256": "4cf49b3a7029b69dabd3bc6c937779f6b8a900355aebde95263757c148aaf5c7"
         }
       ],
-      "implementationClaims": [],
-      "claimedEvidence": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
-      "checks": [],
-      "remainingGap": "`Registered from comment 6138933223; implementation and executed evidence pending in this PR`.",
-      "verificationState": "not-execution-certified",
-      "assertionBindings": [],
-      "completionBindings": []
+      "implementationClaims": [
+        {
+          "path": ".github/workflows/linked-recapture.yml",
+          "role": "implementation",
+          "sha256": "1e75a739df9f5ece51c170889b75b317344a6e91015270a9c1e81d8db649bc7c"
+        },
+        {
+          "path": "docs/LINKED_IMPLEMENTATION.md",
+          "role": "implementation",
+          "sha256": "cf9836adccd81220b75c89cff1c37dc26cbe2fe6ba5f6650637354fe29eb7f9b"
+        }
+      ],
+      "claimedEvidence": "Local verification in this PR ran JavaScript suites only, and Rust was compiled and tested only by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml). Source migration, which builds the Rust syntax helper, runs on a hosted runner through `.github/workflows/linked-recapture.yml` for `recapture/**` pushes and yields a reviewable `linked-recapture.patch` without committing; `docs/LINKED_IMPLEMENTATION.md` documents the workflow. `scripts/linked-recapture-policy.test.mjs` requires the hosted migration and patch upload and rejects write permission, commits, pushes and pull-request triggers. `This governs contributor workflow; it cannot prove that no individual contributor compiles Rust on their own machine`.",
+      "checks": [
+        "linked-recapture-policy"
+      ],
+      "remainingGap": "Local verification in this PR ran JavaScript suites only, and Rust was compiled and tested only by hosted CI (tests.yml, translation-native.yml, linked-implementation.yml). Source migration, which builds the Rust syntax helper, runs on a hosted runner through `.github/workflows/linked-recapture.yml` for `recapture/**` pushes and yields a reviewable `linked-recapture.patch` without committing; `docs/LINKED_IMPLEMENTATION.md` documents the workflow. `scripts/linked-recapture-policy.test.mjs` requires the hosted migration and patch upload and rejects write permission, commits, pushes and pull-request triggers. `This governs contributor workflow; it cannot prove that no individual contributor compiles Rust on their own machine`.",
+      "verificationState": "live-producer-bound-infrastructure-contract",
+      "assertionBindings": [
+        {
+          "checkId": "linked-recapture-policy",
+          "file": "scripts/linked-recapture-policy.test.mjs",
+          "name": "the hosted recapture workflow runs the source migration and uploads a reviewable patch",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-recapture-policy",
+          "file": "scripts/linked-recapture-policy.test.mjs",
+          "name": "the hosted recapture workflow cannot commit, push or run on pull requests",
+          "polarity": "negative"
+        }
+      ],
+      "completionBindings": [
+        {
+          "checkId": "linked-recapture-policy",
+          "file": "scripts/linked-recapture-policy.test.mjs",
+          "name": "the hosted recapture workflow runs the source migration and uploads a reviewable patch",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-recapture-policy",
+          "file": "scripts/linked-recapture-policy.test.mjs",
+          "name": "the hosted recapture workflow cannot commit, push or run on pull requests",
+          "polarity": "negative"
+        }
+      ]
     }
   ],
   "checks": [
@@ -45232,6 +45271,42 @@
         {
           "file": "scripts/build-output-publication.test.mjs",
           "name": "a generated runtime copy inside the leased scratch stages its server; a forged lease naming it fails closed",
+          "polarity": "negative"
+        }
+      ]
+    },
+    {
+      "id": "linked-recapture-policy",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/linked-recapture-policy.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/linked-recapture-policy.test.mjs",
+          "role": "test",
+          "sha256": "eb82708fea5cf222dbf23dc1d9d72cf793f2ad40c426a4ef559f516ccb957abc"
+        },
+        {
+          "path": ".github/workflows/linked-recapture.yml",
+          "role": "implementation",
+          "sha256": "1e75a739df9f5ece51c170889b75b317344a6e91015270a9c1e81d8db649bc7c"
+        },
+        {
+          "path": "docs/LINKED_IMPLEMENTATION.md",
+          "role": "implementation",
+          "sha256": "cf9836adccd81220b75c89cff1c37dc26cbe2fe6ba5f6650637354fe29eb7f9b"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/linked-recapture-policy.test.mjs",
+          "name": "the hosted recapture workflow runs the source migration and uploads a reviewable patch",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/linked-recapture-policy.test.mjs",
+          "name": "the hosted recapture workflow cannot commit, push or run on pull requests",
           "polarity": "negative"
         }
       ]
