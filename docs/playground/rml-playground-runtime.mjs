@@ -4049,11 +4049,15 @@ function parseOne(tokens) {
 }
 var isNum = ((s) => /^-?(\d+(\.\d+)?|\.\d+)$/.test(s));
 var DECIMAL_PRECISION = 12;
+function shiftDecimal(x, places) {
+  const [mantissa, exponent = "0"] = String(x).split("e");
+  return +(mantissa + "e" + (Number(exponent) + places));
+}
 function decRound(x) {
   if (!Number.isFinite(x)) {
     return x;
   }
-  return +(Math.round(x + "e" + DECIMAL_PRECISION) + "e-" + DECIMAL_PRECISION);
+  return shiftDecimal(Math.round(shiftDecimal(x, DECIMAL_PRECISION)), -DECIMAL_PRECISION);
 }
 function keyOf(node) {
   if (Array.isArray(node)) {
@@ -5147,7 +5151,7 @@ function parseRootConstructForm(node) {
 }
 function parseFoundationForm(node) {
   if (!Array.isArray(node) || node[0] !== "foundation" || node.length < 2) {
-    throw new RmlError("E061", "foundation form must be `(foundation <name> ...)`");
+    throw new RmlError("E061", "foundation form must be `(foundation <name> \u2026)`");
   }
   const rawName = node[1];
   if (typeof rawName !== "string" || !rawName) {
@@ -9470,7 +9474,7 @@ function evaluate(code, options) {
                                 provenance.push(null);
                               }
                               if (traceEnabled && trace) {
-                                trace.push(new TraceEvent({ kind: "eval-nat", detail: `${formatTraceValue(body[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(", ") || "<none>"}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`, span }));
+                                trace.push(new TraceEvent({ kind: "eval-nat", detail: `${keyOf(body[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(", ") || "<none>"}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`, span }));
                               }
                             } else {
                               if (Array.isArray(body) && body[0] === "strict-foundation") {
@@ -9550,7 +9554,7 @@ function evaluate(code, options) {
     if (Array.isArray(form) && form.length === 2 && form[0] === "namespace" && typeof form[1] === "string") {
       const ns = form[1];
       if (ns.includes(".")) {
-        diagnostics.push(new Diagnostic({ code: "E009", message: `Namespace name must not contain '.': "${ns}"`, span }));
+        diagnostics.push(new Diagnostic({ code: "E009", message: `Invalid namespace name "${ns}"`, span }));
       } else {
         env.namespace = ns;
         if (traceEnabled && trace) {
@@ -9737,7 +9741,7 @@ function evaluate(code, options) {
           provenance.push(null);
         }
         if (traceEnabled && trace) {
-          trace.push(new TraceEvent({ kind: "eval-nat", detail: `${formatTraceValue(form[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(", ") || "<none>"}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`, span }));
+          trace.push(new TraceEvent({ kind: "eval-nat", detail: `${keyOf(form[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(", ") || "<none>"}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`, span }));
         }
       } catch (err) {
         const diagSpan = err && err.span || span;
@@ -9877,7 +9881,7 @@ function handleImport(rawTarget, alias, span, importingFile, env, importStack, i
   try {
     text = fs.readFileSync(resolved, "utf8");
   } catch (err) {
-    return new Diagnostic({ code: "E007", message: `Failed to read import "${target}": ${err.message}`, span });
+    return new Diagnostic({ code: "E007", message: `Failed to read import "${target}": ${err?.code === "ENOENT" ? "file not found" : err.message}`, span });
   }
   importedFiles.add(resolved);
   importStack.push(resolved);
