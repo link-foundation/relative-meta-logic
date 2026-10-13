@@ -9847,13 +9847,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -10016,6 +10010,30 @@
           "checkId": "certified-translation-rust",
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
           "polarity": "positive"
         }
       ],
@@ -22334,13 +22352,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -22503,6 +22515,30 @@
           "checkId": "certified-translation-rust",
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
           "polarity": "positive"
         }
       ],
@@ -24377,13 +24413,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -24571,6 +24601,30 @@
           "file": "js/tests/rml-concept-space.test.mjs",
           "name": "rejects inexact, altered, ambiguous, unbound, duplicated, foreign and mismatched concept spaces",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
+          "polarity": "positive"
         }
       ],
       "nativeValidationRequired": true,
@@ -26578,13 +26632,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -26747,6 +26795,30 @@
           "checkId": "certified-translation-rust",
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
           "polarity": "positive"
         }
       ],
@@ -27409,13 +27481,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -27578,6 +27644,30 @@
           "checkId": "certified-translation-rust",
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
           "polarity": "positive"
         }
       ],
@@ -39306,13 +39396,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -39445,6 +39529,30 @@
           "checkId": "certified-bulk-js",
           "file": "js/tests/certified-bulk.test.mjs",
           "name": "matches the hand-written mirrors on their documented behaviour without compiling them",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
           "polarity": "positive"
         }
       ],
@@ -39855,13 +39963,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -40049,6 +40151,30 @@
           "file": "js/tests/rml-concept-space.test.mjs",
           "name": "rejects inexact, altered, ambiguous, unbound, duplicated, foreign and mismatched concept spaces",
           "polarity": "negative"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
+          "polarity": "positive"
         }
       ],
       "completionBindings": []
@@ -40458,13 +40584,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -40603,6 +40723,30 @@
           "checkId": "certified-translation-rust",
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
           "polarity": "positive"
         }
       ],
@@ -41022,13 +41166,7 @@
         {
           "checkId": "certified-translation-js",
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "checkId": "certified-translation-js",
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -41191,6 +41329,30 @@
           "checkId": "certified-translation-rust",
           "file": "rust/tests/certified_translation_tests.rs",
           "name": "concept_space_reuses_meta_language_records_exactly_and_rebuilds_byte_for_byte",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "certified-translation-js",
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
           "polarity": "positive"
         }
       ],
@@ -54959,12 +55121,7 @@
         },
         {
           "file": "js/tests/certified-translation.test.mjs",
-          "name": "rocq-record: refuses at frontend for every target",
-          "polarity": "negative"
-        },
-        {
-          "file": "js/tests/certified-translation.test.mjs",
-          "name": "rust-generic-function: refuses at frontend for every target",
+          "name": "rust-generic-function: refuses at rml-lowering for every target",
           "polarity": "negative"
         },
         {
@@ -55056,6 +55213,26 @@
           "file": "js/tests/certified-translation.test.mjs",
           "name": "rejects a near-miss, relabelled, dropped or missing concept binding",
           "polarity": "negative"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → JavaScript is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Rust is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: Rocq → RML → Lean is certified and checked",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/certified-translation.test.mjs",
+          "name": "rocq-record: the committed Links archive regenerates every target without source",
+          "polarity": "positive"
         }
       ],
       "timeoutMs": 600000
