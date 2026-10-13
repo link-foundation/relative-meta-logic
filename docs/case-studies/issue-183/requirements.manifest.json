@@ -2095,7 +2095,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/rocq.rs",
@@ -31037,7 +31037,7 @@
     {
       "id": "R123",
       "obligation": "Apply native RML execution and proof verification to complete set, type, Links, graph, and relational-algebra source specifications.",
-      "status": "Partial — executable fragments exist",
+      "status": "Partial — simply typed, finite-graph and relational-algebra specifications run natively with certified instances; universal proofs and richer type systems open",
       "originalWording": [
         {
           "sourceId": "comment-5786000580",
@@ -31063,16 +31063,43 @@
       "implementationClaims": [
         {
           "path": "lib/meta-theory/universal.lino",
-          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d",
-          "role": "historical-claim"
+          "role": "implementation",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        },
+        {
+          "path": "lib/meta-theory/type-specification.lino",
+          "role": "implementation",
+          "sha256": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93"
+        },
+        {
+          "path": "lib/meta-theory/graph-specification.lino",
+          "role": "implementation",
+          "sha256": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762"
+        },
+        {
+          "path": "lib/meta-theory/relational-algebra-specification.lino",
+          "role": "implementation",
+          "sha256": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349"
+        },
+        {
+          "path": "js/src/rml-spec-certificates.mjs",
+          "role": "implementation",
+          "sha256": "f3bf963919a99916051b9dfb60e3101760f345185ddb389306c7d5c1858804dd"
+        },
+        {
+          "path": "rust/src/spec_certificates.rs",
+          "role": "implementation",
+          "sha256": "fad993d1cdfb6f68509e3a713c45d94d135a68010d1b6b017a2e1284ca7efd25"
         }
       ],
-      "claimedEvidence": "Native linked execution and certificates now cover the upstream set, sequence, network and Links corpus, and the researcher recipe runs upstream definitions on new data where a changed body changes the result. `Complete type, graph and relational-algebra specifications are not yet encoded`.",
+      "claimedEvidence": "Sets and Links run natively through `lib/meta-theory/universal.lino` and the certified upstream corpus. The new `lib/meta-theory/type-specification.lino`, `lib/meta-theory/graph-specification.lino` and `lib/meta-theory/relational-algebra-specification.lino` are linked programs that run natively in both runtimes. Types: base, function and product types; 13 typing rules; call-by-value reduction; preservation and progress. Graphs: vertices, edges, adjacency, paths, reachability, acyclicity, and the transitive closure as the least fixed point of `E ∪ R;E`. Relational algebra: selection, projection, natural join, union, difference and rename (a relationally complete basis), with 16 laws. `js/src/rml-spec-certificates.mjs` and the Rust mirror `rust/src/spec_certificates.rs` check all 28 theorem certificates (`test-corpus/meta-theory-specifications/certificates.json`). The checker recomputes each statement from the specification, re-executes every fact and runs the natural-deduction linked verifier. `js/tests/meta-theory-specifications.test.mjs` and `rust/tests/meta_theory_specifications_tests.rs` reproduce 73 native cases and reject: ill-typed terms, a cyclic graph, schema-mismatched unions, mutated certificates, five forged derivations, and an old certificate after the join changes. The researcher recipe (`examples/meta-theory-workflow.mjs`, `rust/examples/meta_theory_workflow.rs`) re-checks every certificate, and a changed join definition changes its result. The scope is listed in `docs/case-studies/issue-183/meta-theory-specifications.md`. `Laws quantified over all relations, graphs or well-typed terms are tested on bounded instances, not proved; the type specification has no polymorphism, recursion, sums or dependent types; the specification generator is JavaScript-only and Rust only checks`.",
       "checks": [
         "meta-theory-workflow-js",
-        "meta-theory-workflow-rust"
+        "meta-theory-workflow-rust",
+        "meta-theory-specifications-js",
+        "meta-theory-specifications-rust"
       ],
-      "remainingGap": "Native linked execution and certificates now cover the upstream set, sequence, network and Links corpus, and the researcher recipe runs upstream definitions on new data where a changed body changes the result. `Complete type, graph and relational-algebra specifications are not yet encoded`.",
+      "remainingGap": "Sets and Links run natively through `lib/meta-theory/universal.lino` and the certified upstream corpus. The new `lib/meta-theory/type-specification.lino`, `lib/meta-theory/graph-specification.lino` and `lib/meta-theory/relational-algebra-specification.lino` are linked programs that run natively in both runtimes. Types: base, function and product types; 13 typing rules; call-by-value reduction; preservation and progress. Graphs: vertices, edges, adjacency, paths, reachability, acyclicity, and the transitive closure as the least fixed point of `E ∪ R;E`. Relational algebra: selection, projection, natural join, union, difference and rename (a relationally complete basis), with 16 laws. `js/src/rml-spec-certificates.mjs` and the Rust mirror `rust/src/spec_certificates.rs` check all 28 theorem certificates (`test-corpus/meta-theory-specifications/certificates.json`). The checker recomputes each statement from the specification, re-executes every fact and runs the natural-deduction linked verifier. `js/tests/meta-theory-specifications.test.mjs` and `rust/tests/meta_theory_specifications_tests.rs` reproduce 73 native cases and reject: ill-typed terms, a cyclic graph, schema-mismatched unions, mutated certificates, five forged derivations, and an old certificate after the join changes. The researcher recipe (`examples/meta-theory-workflow.mjs`, `rust/examples/meta_theory_workflow.rs`) re-checks every certificate, and a changed join definition changes its result. The scope is listed in `docs/case-studies/issue-183/meta-theory-specifications.md`. `Laws quantified over all relations, graphs or well-typed terms are tested on bounded instances, not proved; the type specification has no polymorphism, recursion, sums or dependent types; the specification generator is JavaScript-only and Rust only checks`.",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -31115,6 +31142,144 @@
           "checkId": "meta-theory-workflow-rust",
           "file": "rust/tests/meta_theory_workflow_tests.rs",
           "name": "a_changed_definition_body_does_not_reproduce_the_original_result",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "every recorded case reproduces its value and step count",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "negative cases reject ill-typed terms, cyclic graphs and schema-mismatched unions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "the specifications state exactly the documented operators, theorems and proof rules",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "every theorem certificate is accepted and the generator reproduces both fixtures",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "mutated certificates are rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "forged derivations recorded in the fixture are rejected for the recorded reason",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "an ill-typed term has no derivation while its well-typed neighbour does",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "type preservation and progress hold for every one-step reduct of the named terms",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "reachability derivations exist exactly for the pairs in the computed closure",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "the transitive closure is below every prefixed point among all relations on three vertices",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "a cyclic graph has no dag certificate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "every law holds on bounded instances beyond the certified ones",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "false equations and violated side conditions are refuted",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-js",
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "a changed join definition changes the statement result and rejects the old certificate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-rust",
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "every_recorded_specification_case_reproduces_its_value_and_steps",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-rust",
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "negative_specification_cases_reject_ill_typed_terms_cyclic_graphs_and_mismatched_unions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-rust",
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "specifications_state_the_recorded_theorems_and_proof_rules",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-rust",
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "every_specification_certificate_is_accepted",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-specifications-rust",
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "mutated_specification_certificates_are_rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-rust",
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "forged_specification_derivations_are_rejected_for_the_recorded_reason",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-specifications-rust",
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "a_changed_join_definition_rejects_the_old_specification_certificate",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-workflow-js",
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "a changed specification definition changes the recipe result and rejects the old certificates",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-workflow-rust",
+          "file": "rust/tests/meta_theory_workflow_tests.rs",
+          "name": "a_changed_specification_definition_changes_the_recipe_result",
           "polarity": "negative"
         }
       ],
@@ -38784,7 +38949,7 @@
         {
           "path": "test-corpus/certified-translation/bulk/receipt.lino",
           "role": "implementation",
-          "sha256": "8a5812785a9fcad625e89192fa67326b991e42317b98580d06cda5f8e002f9a6"
+          "sha256": "27d83ee363aa5c496bcbcb4037f5ccf87da178a847e1af556881e41ce8685c63"
         }
       ],
       "claimedEvidence": "Byte-exact source pins with sha256 and UTF-16/UTF-8 spans, a checked intermediate re-serialized before emission, first-refusal receipts, producer receipts fingerprinting every input/output with a reconstruction recipe, `--check` freshness gates, JavaScript-first local gates and explicit `none` authority for macros/traits/runtime. `scripts/generate-certified-bulk.mjs` translates every top-level item of `js/src` and `rust/src` (closed over same-file dependencies) plus the `lib/` Lean and Rocq modules: 101 files and 2583 items, of which 148 are admitted, 101 lowered into `main` and 2334 refused with exact first-refusal records, giving 416 certified translations; the committed `test-corpus/certified-translation/bulk/receipt.lino` aggregates counts per language and path and refusal causes by site. Fourteen admitted translations match their hand-written mirrors on 50 documented calls; two are recorded as signature-differing. `About 90% of repository items are refused by the current core, and native rustc/Lean/Rocq runs of the bulk targets are not yet performed`.",
@@ -41489,7 +41654,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         }
       ],
       "assertions": [
@@ -41677,7 +41842,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/linked_program/dispatch_tests.rs",
@@ -42152,7 +42317,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/Cargo.toml",
@@ -45618,7 +45783,7 @@
         {
           "path": "docs/case-studies/issue-183/researcher-workflow.md",
           "role": "specification",
-          "sha256": "393c05274451d36b08d1009690e411dd675ed6d410439b41622584b5e0ebe6fb"
+          "sha256": "e7c055725a84a2af2b205b9d77f61df958cbac306aabdd26f5ba2d1305274ed3"
         },
         {
           "path": "examples/researcher-workflow.mjs",
@@ -46240,7 +46405,7 @@
         {
           "path": "docs/case-studies/issue-183/researcher-workflow.md",
           "role": "specification",
-          "sha256": "393c05274451d36b08d1009690e411dd675ed6d410439b41622584b5e0ebe6fb"
+          "sha256": "e7c055725a84a2af2b205b9d77f61df958cbac306aabdd26f5ba2d1305274ed3"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -46570,7 +46735,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -47655,7 +47820,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -48770,7 +48935,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -49795,7 +49960,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -51991,7 +52156,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -54266,7 +54431,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -56425,17 +56590,47 @@
         {
           "path": "js/tests/meta-theory-workflow.test.mjs",
           "role": "test",
-          "sha256": "b3caf82c872aaa08be498c2ea86a17bda673d5fca4cc9fbc1ee9dee06c345ac2"
+          "sha256": "ca24510d68fc6c3b9e41f630d8e2a8288cb41a83799885e1a74aa5f68c7bc62d"
         },
         {
           "path": "examples/meta-theory-workflow.mjs",
           "role": "implementation",
-          "sha256": "2111fb9dfc7357b24025899900d0b34e6313c585d595fff5e8f52389a4a98b1f"
+          "sha256": "86e39f105be453a99abc7ace394ca4772c0536b6843ea477e3f01c293a7b06e8"
         },
         {
           "path": "test-corpus/researcher-workflow/meta-theory-expected.json",
           "role": "fixture",
-          "sha256": "e7d33e62845272b9936c5cd15d383e55790afd48fb5a8ec8030f88a1cca43f16"
+          "sha256": "c218df0c105519fc5750142166baec6fb80db40f7be931117ef0842294fb67ed"
+        },
+        {
+          "path": "js/src/rml-spec-certificates.mjs",
+          "role": "implementation",
+          "sha256": "f3bf963919a99916051b9dfb60e3101760f345185ddb389306c7d5c1858804dd"
+        },
+        {
+          "path": "lib/meta-theory/type-specification.lino",
+          "role": "implementation",
+          "sha256": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93"
+        },
+        {
+          "path": "lib/meta-theory/graph-specification.lino",
+          "role": "implementation",
+          "sha256": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762"
+        },
+        {
+          "path": "lib/meta-theory/relational-algebra-specification.lino",
+          "role": "implementation",
+          "sha256": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349"
+        },
+        {
+          "path": "test-corpus/meta-theory-specifications/cases.json",
+          "role": "fixture",
+          "sha256": "12fe861af83dc2bb017fb745acfddd9fbc31a7d5395e447118befc6f0a05e183"
+        },
+        {
+          "path": "test-corpus/meta-theory-specifications/certificates.json",
+          "role": "fixture",
+          "sha256": "e03dc54e9194a697865d79447b1e1cf7362b40e691a13263abdea1d4349e28b1"
         }
       ],
       "assertions": [
@@ -56458,6 +56653,11 @@
           "file": "js/tests/meta-theory-workflow.test.mjs",
           "name": "the recipe certificate is rejected after its cited lemma is removed from the dependencies",
           "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-theory-workflow.test.mjs",
+          "name": "a changed specification definition changes the recipe result and rejects the old certificates",
+          "polarity": "negative"
         }
       ],
       "timeoutMs": 1200000
@@ -56470,11 +56670,6 @@
       ],
       "files": [
         {
-          "path": "rust/tests/meta_theory_workflow_tests.rs",
-          "role": "test",
-          "sha256": "9ac95e44743bc7691edb066cbd5af06c7f9687712c4e55905d4268f0adb00209"
-        },
-        {
           "path": "rust/Cargo.toml",
           "role": "dependency",
           "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
@@ -56485,14 +56680,49 @@
           "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
+          "path": "rust/tests/meta_theory_workflow_tests.rs",
+          "role": "test",
+          "sha256": "2bfe5e1648feaea836367d6139c9a10c8fc22a2244bc86558c52dcb387375dbd"
+        },
+        {
           "path": "rust/examples/meta_theory_workflow.rs",
           "role": "implementation",
-          "sha256": "1551e28e366656b3dc40a660e135e980b8edc2dfe9aaa4e8d856da7003cb74a8"
+          "sha256": "7ae7397452432df290637f26948f4944aca23d5484c68fe54690febd03e2ba49"
         },
         {
           "path": "test-corpus/researcher-workflow/meta-theory-expected.json",
           "role": "fixture",
-          "sha256": "e7d33e62845272b9936c5cd15d383e55790afd48fb5a8ec8030f88a1cca43f16"
+          "sha256": "c218df0c105519fc5750142166baec6fb80db40f7be931117ef0842294fb67ed"
+        },
+        {
+          "path": "rust/src/spec_certificates.rs",
+          "role": "implementation",
+          "sha256": "fad993d1cdfb6f68509e3a713c45d94d135a68010d1b6b017a2e1284ca7efd25"
+        },
+        {
+          "path": "lib/meta-theory/type-specification.lino",
+          "role": "implementation",
+          "sha256": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93"
+        },
+        {
+          "path": "lib/meta-theory/graph-specification.lino",
+          "role": "implementation",
+          "sha256": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762"
+        },
+        {
+          "path": "lib/meta-theory/relational-algebra-specification.lino",
+          "role": "implementation",
+          "sha256": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349"
+        },
+        {
+          "path": "test-corpus/meta-theory-specifications/cases.json",
+          "role": "fixture",
+          "sha256": "12fe861af83dc2bb017fb745acfddd9fbc31a7d5395e447118befc6f0a05e183"
+        },
+        {
+          "path": "test-corpus/meta-theory-specifications/certificates.json",
+          "role": "fixture",
+          "sha256": "e03dc54e9194a697865d79447b1e1cf7362b40e691a13263abdea1d4349e28b1"
         }
       ],
       "assertions": [
@@ -56509,6 +56739,11 @@
         {
           "file": "rust/tests/meta_theory_workflow_tests.rs",
           "name": "a_changed_definition_body_does_not_reproduce_the_original_result",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_workflow_tests.rs",
+          "name": "a_changed_specification_definition_changes_the_recipe_result",
           "polarity": "negative"
         }
       ],
@@ -56940,7 +57175,7 @@
         {
           "path": "test-corpus/certified-translation/bulk/receipt.lino",
           "role": "fixture",
-          "sha256": "8a5812785a9fcad625e89192fa67326b991e42317b98580d06cda5f8e002f9a6"
+          "sha256": "27d83ee363aa5c496bcbcb4037f5ccf87da178a847e1af556881e41ce8685c63"
         },
         {
           "path": "test-corpus/certified-translation/mirrors.json",
@@ -57754,7 +57989,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -58733,7 +58968,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -59239,7 +59474,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "test-corpus/lino-frontend/cases.json",
@@ -59980,7 +60215,7 @@
         {
           "path": "test-corpus/runtime-parity/observations.json",
           "role": "fixture",
-          "sha256": "983fe0bd4e9b8ca7a99abcce78acd0c4e8c523aec1e00491f251dff011a11282"
+          "sha256": "8df41f97afe95ec97b615c4c4ac26d7b619d3a07b67e850c132f56304cef8f18"
         },
         {
           "path": "test-corpus/runtime-parity/inputs/equality-layers.lino",
@@ -60037,7 +60272,7 @@
         {
           "path": "rust/src/lib.rs",
           "role": "implementation",
-          "sha256": "c0f297f1074fd4a5c0e4e91fafdeff2e91e6a94b7ddec9c5da773ebc6c14796b"
+          "sha256": "73156842bca43cfe32fb6227ed428e2431b27ea1a7af5e6a21c89b5c3e52963d"
         },
         {
           "path": "rust/src/rocq.rs",
@@ -60047,7 +60282,7 @@
         {
           "path": "test-corpus/runtime-parity/observations.json",
           "role": "fixture",
-          "sha256": "983fe0bd4e9b8ca7a99abcce78acd0c4e8c523aec1e00491f251dff011a11282"
+          "sha256": "8df41f97afe95ec97b615c4c4ac26d7b619d3a07b67e850c132f56304cef8f18"
         },
         {
           "path": "rust/Cargo.toml",
@@ -60263,6 +60498,251 @@
           "polarity": "negative"
         }
       ]
+    },
+    {
+      "id": "meta-theory-specifications-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/meta-theory-specifications.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/meta-theory-specifications.test.mjs",
+          "role": "test",
+          "sha256": "33a8c9f2d00435915c8d2a89645a49a5f9a88458da5e07367ad103db04ba11c4"
+        },
+        {
+          "path": "js/src/rml-spec-certificates.mjs",
+          "role": "implementation",
+          "sha256": "f3bf963919a99916051b9dfb60e3101760f345185ddb389306c7d5c1858804dd"
+        },
+        {
+          "path": "scripts/generate-meta-theory-specifications.mjs",
+          "role": "implementation",
+          "sha256": "6c49a892ab58e0792a1f7f409e777f743f37e109b5eb9e5731a2ffc8073e7977"
+        },
+        {
+          "path": "lib/meta-theory/type-specification.lino",
+          "role": "implementation",
+          "sha256": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93"
+        },
+        {
+          "path": "lib/meta-theory/graph-specification.lino",
+          "role": "implementation",
+          "sha256": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762"
+        },
+        {
+          "path": "lib/meta-theory/relational-algebra-specification.lino",
+          "role": "implementation",
+          "sha256": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349"
+        },
+        {
+          "path": "lib/meta-theory/universal.lino",
+          "role": "implementation",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier.lino",
+          "role": "implementation",
+          "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "test-corpus/meta-theory-specifications/cases.json",
+          "role": "fixture",
+          "sha256": "12fe861af83dc2bb017fb745acfddd9fbc31a7d5395e447118befc6f0a05e183"
+        },
+        {
+          "path": "test-corpus/meta-theory-specifications/certificates.json",
+          "role": "fixture",
+          "sha256": "e03dc54e9194a697865d79447b1e1cf7362b40e691a13263abdea1d4349e28b1"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "every recorded case reproduces its value and step count",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "negative cases reject ill-typed terms, cyclic graphs and schema-mismatched unions",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "the specifications state exactly the documented operators, theorems and proof rules",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "every theorem certificate is accepted and the generator reproduces both fixtures",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "mutated certificates are rejected",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "forged derivations recorded in the fixture are rejected for the recorded reason",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "an ill-typed term has no derivation while its well-typed neighbour does",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "type preservation and progress hold for every one-step reduct of the named terms",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "reachability derivations exist exactly for the pairs in the computed closure",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "the transitive closure is below every prefixed point among all relations on three vertices",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "a cyclic graph has no dag certificate",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "every law holds on bounded instances beyond the certified ones",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "false equations and violated side conditions are refuted",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-theory-specifications.test.mjs",
+          "name": "a changed join definition changes the statement result and rejects the old certificate",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "meta-theory-specifications-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/meta_theory_specifications_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/meta_theory_specifications_tests.rs",
+          "role": "test",
+          "sha256": "41c9a8007d8dc77edb4860d979a667b75cc538485982b2ad512073fbd46e8f97"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/spec_certificates.rs",
+          "role": "implementation",
+          "sha256": "fad993d1cdfb6f68509e3a713c45d94d135a68010d1b6b017a2e1284ca7efd25"
+        },
+        {
+          "path": "lib/meta-theory/type-specification.lino",
+          "role": "implementation",
+          "sha256": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93"
+        },
+        {
+          "path": "lib/meta-theory/graph-specification.lino",
+          "role": "implementation",
+          "sha256": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762"
+        },
+        {
+          "path": "lib/meta-theory/relational-algebra-specification.lino",
+          "role": "implementation",
+          "sha256": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349"
+        },
+        {
+          "path": "lib/meta-theory/universal.lino",
+          "role": "implementation",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier.lino",
+          "role": "implementation",
+          "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "test-corpus/meta-theory-specifications/cases.json",
+          "role": "fixture",
+          "sha256": "12fe861af83dc2bb017fb745acfddd9fbc31a7d5395e447118befc6f0a05e183"
+        },
+        {
+          "path": "test-corpus/meta-theory-specifications/certificates.json",
+          "role": "fixture",
+          "sha256": "e03dc54e9194a697865d79447b1e1cf7362b40e691a13263abdea1d4349e28b1"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "every_recorded_specification_case_reproduces_its_value_and_steps",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "negative_specification_cases_reject_ill_typed_terms_cyclic_graphs_and_mismatched_unions",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "specifications_state_the_recorded_theorems_and_proof_rules",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "every_specification_certificate_is_accepted",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "mutated_specification_certificates_are_rejected",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "forged_specification_derivations_are_rejected_for_the_recorded_reason",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_specifications_tests.rs",
+          "name": "a_changed_join_definition_rejects_the_old_specification_certificate",
+          "polarity": "negative"
+        }
+      ],
+      "testTarget": "meta_theory_specifications_tests",
+      "timeoutMs": 1800000
     }
   ]
 }

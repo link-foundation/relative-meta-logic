@@ -238,6 +238,10 @@
       "sha256": "5a013dfee749a5d826e008cce778dd4e9274b26462202af9d480ca7b07db61ae"
     },
     {
+      "path": "lib/meta-theory/graph-specification.lino",
+      "sha256": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762"
+    },
+    {
       "path": "lib/meta-theory/horn-link-substitution.lino",
       "sha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1"
     },
@@ -262,8 +266,16 @@
       "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
     },
     {
+      "path": "lib/meta-theory/relational-algebra-specification.lino",
+      "sha256": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349"
+    },
+    {
       "path": "lib/meta-theory/relational-kernel.lino",
       "sha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1"
+    },
+    {
+      "path": "lib/meta-theory/type-specification.lino",
+      "sha256": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93"
     },
     {
       "path": "lib/meta-theory/universal.lino",
@@ -4280,6 +4292,80 @@
       }
     },
     {
+      "input": "lib/meta-theory/graph-specification.lino",
+      "mode": "run",
+      "status": 0,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      }
+    },
+    {
+      "input": "lib/meta-theory/graph-specification.lino",
+      "mode": "trace",
+      "status": 0,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "dbb52583869ccebc99e2088b36d0be3324394fc9fa70dfdeed5efc19d462ee96",
+        "bytes": 17190
+      }
+    },
+    {
+      "input": "lib/meta-theory/graph-specification.lino",
+      "mode": "extract-js",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "8012a99d04f1990361d2e73e567e1d0f67cf24e87d0835917f898afc3e715bf5",
+        "bytes": 71,
+        "text": "Cannot extract unsupported form \"(linked-program graph-specification)\"\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/graph-specification.lino",
+      "mode": "extract-rust",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "8012a99d04f1990361d2e73e567e1d0f67cf24e87d0835917f898afc3e715bf5",
+        "bytes": 71,
+        "text": "Cannot extract unsupported form \"(linked-program graph-specification)\"\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/graph-specification.lino",
+      "mode": "export-rocq",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "5a04f4eba4a746798dc4b17da33f5683f1d6e45cbf8f85bf76c0d961b7da4d8f",
+        "bytes": 107,
+        "text": "Rocq export error: top-level form `(linked-program graph-specification)` is outside the Rocq export subset\n"
+      }
+    },
+    {
       "input": "lib/meta-theory/horn-link-substitution.lino",
       "mode": "run",
       "status": 0,
@@ -4725,6 +4811,80 @@
       }
     },
     {
+      "input": "lib/meta-theory/relational-algebra-specification.lino",
+      "mode": "run",
+      "status": 0,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      }
+    },
+    {
+      "input": "lib/meta-theory/relational-algebra-specification.lino",
+      "mode": "trace",
+      "status": 0,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "39764bfbc70538a8b44f43344747ae56ca8bc98970e97ae99fe7a4b319a91180",
+        "bytes": 56207
+      }
+    },
+    {
+      "input": "lib/meta-theory/relational-algebra-specification.lino",
+      "mode": "extract-js",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "c28fd37956aa60483ddb3843ce5e0758c825a5824307bbc2fab58918dbc8e702",
+        "bytes": 84,
+        "text": "Cannot extract unsupported form \"(linked-program relational-algebra-specification)\"\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/relational-algebra-specification.lino",
+      "mode": "extract-rust",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "c28fd37956aa60483ddb3843ce5e0758c825a5824307bbc2fab58918dbc8e702",
+        "bytes": 84,
+        "text": "Cannot extract unsupported form \"(linked-program relational-algebra-specification)\"\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/relational-algebra-specification.lino",
+      "mode": "export-rocq",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "798cbc9817501896228105bf01163f7b4e894b6b0a58129a309381db2bf9e258",
+        "bytes": 120,
+        "text": "Rocq export error: top-level form `(linked-program relational-algebra-specification)` is outside the Rocq export subset\n"
+      }
+    },
+    {
       "input": "lib/meta-theory/relational-kernel.lino",
       "mode": "run",
       "status": 0,
@@ -4796,6 +4956,80 @@
         "sha256": "50fb55e8354121858e3529bf0788a4c0a44a20d09af8f6367f6181d32392c2aa",
         "bytes": 120,
         "text": "Rocq export error: top-level form `(horn-clause bits-empty (bits-equal end end yes))` is outside the Rocq export subset\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/type-specification.lino",
+      "mode": "run",
+      "status": 0,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      }
+    },
+    {
+      "input": "lib/meta-theory/type-specification.lino",
+      "mode": "trace",
+      "status": 0,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "7f6e59e713aac5033610abcc25813fda196751498bce9bdd7ebab9119cd4aa0e",
+        "bytes": 34346
+      }
+    },
+    {
+      "input": "lib/meta-theory/type-specification.lino",
+      "mode": "extract-js",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "69bee69c0806059ce5a8344da4379f8cec64e11a8d7f93dc08e5e7890f33de86",
+        "bytes": 70,
+        "text": "Cannot extract unsupported form \"(linked-program type-specification)\"\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/type-specification.lino",
+      "mode": "extract-rust",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "69bee69c0806059ce5a8344da4379f8cec64e11a8d7f93dc08e5e7890f33de86",
+        "bytes": 70,
+        "text": "Cannot extract unsupported form \"(linked-program type-specification)\"\n"
+      }
+    },
+    {
+      "input": "lib/meta-theory/type-specification.lino",
+      "mode": "export-rocq",
+      "status": 1,
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "text": ""
+      },
+      "stderr": {
+        "sha256": "29dac69c547f9fd877ff33dc80856f3648deb6992900f7447cdcf90ecb317d8a",
+        "bytes": 106,
+        "text": "Rocq export error: top-level form `(linked-program type-specification)` is outside the Rocq export subset\n"
       }
     },
     {
