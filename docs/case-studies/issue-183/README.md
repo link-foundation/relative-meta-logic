@@ -299,6 +299,17 @@ preserved observations and no hidden host authority, and (R151) a Link
 representation for every RML-specific semantic decision down to code
 generation. Both remain open.
 
+[Two meta-foundations under one linked upper layer](meta-foundation-comparison.md)
+runs the unchanged `fixed-point-source.lino` on a second foundation,
+first-order Horn resolution with linked Link-as-substitution clauses. It
+compares that foundation with closed S/K by preservation, law removal,
+self-interpretation, trust boundary and a lock-step non-equivalence criterion.
+On its source workflows, RML elaboration (keywords, the pattern-variable
+sigil and every registry rejection) is decided by linked clauses. Its
+provenance and assumption matrices remove one verifier operation or one
+representation assumption at a time. The note lists what keeps the R149 gate
+and R151 open.
+
 Program imports accept `(rebind abstract-concept selected-concept)` clauses.
 One unchanged classifier is tested over strict and permissive user
 foundations, producing different results. The bundled set theory is also

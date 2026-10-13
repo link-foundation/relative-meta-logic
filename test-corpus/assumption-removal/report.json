@@ -1,0 +1,858 @@
+{
+ "schema": "rml-assumption-removal-matrix/v1",
+ "baseContract": [
+  "finite ordered link records",
+  "ordered reference slots, one or two per link",
+  "distinct link addresses in one shared address space",
+  "address equality is the only observation"
+ ],
+ "retainedWithoutRemoval": [
+  "finiteness (only finite widths are enumerated)"
+ ],
+ "rows": [
+  {
+   "id": "ordered-link-records",
+   "assumption": "finite ordered link records",
+   "provenance": "OBSERVER_RESTRICTION",
+   "removal": "records are compared up to permutation",
+   "widths": [
+    {
+     "links": 1,
+     "slots": 1,
+     "baseClasses": 2,
+     "classesAfterRemoval": 2,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 0,
+     "firstWitness": null,
+     "localNonFaithfulnessBefore": false,
+     "localNonFaithfulnessAfter": false
+    },
+    {
+     "links": 2,
+     "slots": 1,
+     "baseClasses": 10,
+     "classesAfterRemoval": 7,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 3,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        1
+       ],
+       [
+        1,
+        1
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    },
+    {
+     "links": 3,
+     "slots": 1,
+     "baseClasses": 77,
+     "classesAfterRemoval": 20,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 57,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ],
+       [
+        2,
+        2
+       ]
+      ],
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        1
+       ],
+       [
+        2,
+        0
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    },
+    {
+     "links": 4,
+     "slots": 1,
+     "baseClasses": 799,
+     "classesAfterRemoval": 61,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 738,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ],
+       [
+        2,
+        0
+       ],
+       [
+        3,
+        1
+       ]
+      ],
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ],
+       [
+        2,
+        0
+       ],
+       [
+        3,
+        2
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    },
+    {
+     "links": 1,
+     "slots": 2,
+     "baseClasses": 5,
+     "classesAfterRemoval": 5,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 0,
+     "firstWitness": null,
+     "localNonFaithfulnessBefore": false,
+     "localNonFaithfulnessAfter": false
+    },
+    {
+     "links": 2,
+     "slots": 2,
+     "baseClasses": 151,
+     "classesAfterRemoval": 85,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 66,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        1,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        1
+       ],
+       [
+        1,
+        1,
+        1
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    },
+    {
+     "links": 3,
+     "slots": 2,
+     "baseClasses": 10481,
+     "classesAfterRemoval": 1855,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 8626,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        2,
+        0,
+        2
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        1
+       ],
+       [
+        2,
+        0,
+        0
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    }
+   ]
+  },
+  {
+   "id": "ordered-reference-slots",
+   "assumption": "ordered reference slots",
+   "provenance": "OBSERVER_RESTRICTION",
+   "removal": "each record may exchange its two reference slots independently",
+   "widths": [
+    {
+     "links": 1,
+     "slots": 2,
+     "baseClasses": 5,
+     "classesAfterRemoval": 4,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 1,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        1
+       ]
+      ],
+      [
+       [
+        0,
+        1,
+        0
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": false,
+     "localNonFaithfulnessAfter": false
+    },
+    {
+     "links": 2,
+     "slots": 2,
+     "baseClasses": 151,
+     "classesAfterRemoval": 66,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 85,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        1
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        1,
+        0
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    },
+    {
+     "links": 3,
+     "slots": 2,
+     "baseClasses": 10481,
+     "classesAfterRemoval": 2406,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 8075,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        2,
+        0,
+        1
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        2,
+        1,
+        0
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    }
+   ]
+  },
+  {
+   "id": "slot-orientation",
+   "assumption": "a fixed orientation of the reference slots",
+   "provenance": "OBSERVER_RESTRICTION",
+   "removal": "every record exchanges its two reference slots together",
+   "widths": [
+    {
+     "links": 1,
+     "slots": 2,
+     "baseClasses": 5,
+     "classesAfterRemoval": 4,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 1,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        1
+       ]
+      ],
+      [
+       [
+        0,
+        1,
+        0
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": false,
+     "localNonFaithfulnessAfter": false
+    },
+    {
+     "links": 2,
+     "slots": 2,
+     "baseClasses": 151,
+     "classesAfterRemoval": 85,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 66,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        1
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        1,
+        0
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    },
+    {
+     "links": 3,
+     "slots": 2,
+     "baseClasses": 10481,
+     "classesAfterRemoval": 5328,
+     "direction": "IDENTIFIES",
+     "identifiedClasses": 5153,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        2,
+        0,
+        1
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        2,
+        1,
+        0
+       ]
+      ]
+     ],
+     "localNonFaithfulnessBefore": true,
+     "localNonFaithfulnessAfter": true
+    }
+   ]
+  },
+  {
+   "id": "distinct-link-addresses",
+   "assumption": "distinct link addresses in one shared address space",
+   "provenance": "ISSUE_CONTRACT_SHARED_ADDRESS_SPACE_WITH_OBSERVER_DISTINCTNESS",
+   "removal": "two links may carry the same address",
+   "widths": [
+    {
+     "links": 1,
+     "slots": 1,
+     "baseClasses": 2,
+     "classesAfterRemoval": 2,
+     "direction": "SEPARATES",
+     "addedClasses": 0,
+     "firstWitness": null
+    },
+    {
+     "links": 2,
+     "slots": 1,
+     "baseClasses": 10,
+     "classesAfterRemoval": 15,
+     "direction": "SEPARATES",
+     "addedClasses": 5,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 3,
+     "slots": 1,
+     "baseClasses": 77,
+     "classesAfterRemoval": 203,
+     "direction": "SEPARATES",
+     "addedClasses": 126,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 4,
+     "slots": 1,
+     "baseClasses": 799,
+     "classesAfterRemoval": 4140,
+     "direction": "SEPARATES",
+     "addedClasses": 3341,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 1,
+     "slots": 2,
+     "baseClasses": 5,
+     "classesAfterRemoval": 5,
+     "direction": "SEPARATES",
+     "addedClasses": 0,
+     "firstWitness": null
+    },
+    {
+     "links": 2,
+     "slots": 2,
+     "baseClasses": 151,
+     "classesAfterRemoval": 203,
+     "direction": "SEPARATES",
+     "addedClasses": 52,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        0,
+        0,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 3,
+     "slots": 2,
+     "baseClasses": 10481,
+     "classesAfterRemoval": 21147,
+     "direction": "SEPARATES",
+     "addedClasses": 10666,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        0,
+        0,
+        0
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "fixed-reference-arity",
+   "assumption": "one fixed number of reference slots per link",
+   "provenance": "OBSERVER_RESTRICTION",
+   "removal": "each link independently has one or two reference slots",
+   "widths": [
+    {
+     "links": 1,
+     "slots": "1|2",
+     "baseClasses": 7,
+     "classesAfterRemoval": 7,
+     "direction": "SEPARATES",
+     "addedClasses": 0,
+     "firstWitness": null
+    },
+    {
+     "links": 2,
+     "slots": "1|2",
+     "baseClasses": 161,
+     "classesAfterRemoval": 235,
+     "direction": "SEPARATES",
+     "addedClasses": 74,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 3,
+     "slots": "1|2",
+     "baseClasses": 10558,
+     "classesAfterRemoval": 17419,
+     "direction": "SEPARATES",
+     "addedClasses": 6861,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ],
+       [
+        2,
+        0
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "equality-only-observation",
+   "assumption": "address equality is the only observation",
+   "provenance": "OBSERVER_ADDITION_TESTED",
+   "removal": "an observer total order on addresses is also observed",
+   "widths": [
+    {
+     "links": 1,
+     "slots": 1,
+     "baseClasses": 2,
+     "classesAfterRemoval": 3,
+     "direction": "SEPARATES",
+     "addedClasses": 1,
+     "firstWitness": [
+      [
+       [
+        0,
+        1
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 2,
+     "slots": 1,
+     "baseClasses": 10,
+     "classesAfterRemoval": 62,
+     "direction": "SEPARATES",
+     "addedClasses": 52,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 3,
+     "slots": 1,
+     "baseClasses": 77,
+     "classesAfterRemoval": 3210,
+     "direction": "SEPARATES",
+     "addedClasses": 3133,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ],
+       [
+        2,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 4,
+     "slots": 1,
+     "baseClasses": 799,
+     "classesAfterRemoval": 310344,
+     "direction": "SEPARATES",
+     "addedClasses": 309545,
+     "firstWitness": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ],
+       [
+        2,
+        0
+       ],
+       [
+        3,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 1,
+     "slots": 2,
+     "baseClasses": 5,
+     "classesAfterRemoval": 13,
+     "direction": "SEPARATES",
+     "addedClasses": 8,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        1
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 2,
+     "slots": 2,
+     "baseClasses": 151,
+     "classesAfterRemoval": 4142,
+     "direction": "SEPARATES",
+     "addedClasses": 3991,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        0
+       ]
+      ]
+     ]
+    },
+    {
+     "links": 3,
+     "slots": 2,
+     "baseClasses": 10481,
+     "classesAfterRemoval": 5544342,
+     "direction": "SEPARATES",
+     "addedClasses": 5533861,
+     "firstWitness": [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        2,
+        0,
+        0
+       ]
+      ]
+     ]
+    }
+   ]
+  }
+ ],
+ "results": {
+  "everyRemovalChangesSomeWidth": true,
+  "everyIdentifyingRemovalHasAWitness": true,
+  "localNonFaithfulnessSurvivesEveryIdentifyingRemovalFromTwoLinks": true,
+  "orientationRemovalIdentifiesLessThanSlotOrderRemoval": true
+ },
+ "status": "FINITE_ASSUMPTION_REMOVAL_MATRIX_FOR_THE_RETAINED_CONTRACT",
+ "claimBoundary": "Each count is an exhaustive finite enumeration for the listed widths. A removal that identifies classes shows which distinctions rest on that assumption; one that separates classes shows what the assumption excludes. No assumption is thereby shown intrinsic or eliminable for links in general, and finiteness itself is not removed."
+}
