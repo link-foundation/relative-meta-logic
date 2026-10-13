@@ -643,14 +643,13 @@ class LinkedProgramRegistry {
   }
 
   /**
-   * Execute the foundation probe and publish conservative, falsifiable
-   * measurements of the host machinery still outside linked semantics.
+   * Compare a runtime-observed semantic trace with the kernel trust graph:
+   * every observed path must be a trust-graph node, every observed operation
+   * a reported kernel operation or derived host service, and every observed
+   * path-to-operation segment must be reachable through `dependsOn` edges.
+   * Anything else is reported as undocumented rather than dropped.
    */
-  static bootstrapMetricsReport(source) {
-    const { programs, selfHosting } = LinkedProgramRegistry
-      .#runBootstrapMetricProbe(source);
-    const trace = programs.runtimeSemanticTrace();
-    const kernel = LinkedProgramRegistry.bootstrapKernelReport();
+  static runtimeTrustGraphCoverage(trace, kernel = LinkedProgramRegistry.bootstrapKernelReport()) {
     const nodes = new Map(kernel.trustGraph.nodes.map(node => [node.id, node]));
     const reportedOperations = new Set([
       ...kernel.operations,
@@ -671,7 +670,7 @@ class LinkedProgramRegistry {
       .filter(operation => !reportedOperations.has(operation));
     const undocumentedPathSegments = trace.observedPathSegments.filter(({ path, operation }) =>
       !reachesOperation(path, operation));
-    const runtimeTrustGraphCoverage = {
+    return {
       documentedObservedPaths: trace.observedPaths.length - undocumentedPaths.length,
       totalObservedPaths: trace.observedPaths.length,
       documentedObservedPathSegments:
@@ -682,6 +681,19 @@ class LinkedProgramRegistry {
       undocumentedPathSegments,
       trace,
     };
+  }
+
+  /**
+   * Execute the foundation probe and publish conservative, falsifiable
+   * measurements of the host machinery still outside linked semantics.
+   */
+  static bootstrapMetricsReport(source) {
+    const { programs, selfHosting } = LinkedProgramRegistry
+      .#runBootstrapMetricProbe(source);
+    const trace = programs.runtimeSemanticTrace();
+    const kernel = LinkedProgramRegistry.bootstrapKernelReport();
+    const runtimeTrustGraphCoverage = LinkedProgramRegistry.runtimeTrustGraphCoverage(trace, kernel);
+    const { undocumentedPaths, undocumentedOperations, undocumentedPathSegments } = runtimeTrustGraphCoverage;
 
     const removalExperiments = IMPLEMENTED_BOUNDARY_OPERATIONS.map(operation => {
       try {

@@ -7068,12 +7068,15 @@ impl LinkedProgramRegistry {
         Ok((programs, self_hosting.trace))
     }
 
-    /// Executes the foundation probe and reports the host machinery that still
-    /// exists outside the links-defined interpreter.
-    pub fn bootstrap_metrics_report(source: &str) -> Result<BootstrapMetricsReport, String> {
-        let (programs, self_hosting_trace) = Self::run_bootstrap_metric_probe(source, &[])?;
-        let trace = programs.runtime_semantic_trace();
-        let kernel = Self::bootstrap_kernel_report();
+    /// Compare a runtime-observed semantic trace with the kernel trust graph:
+    /// every observed path must be a trust-graph node, every observed
+    /// operation a reported kernel operation or derived host service, and every
+    /// observed path-to-operation segment must be reachable through
+    /// `depends_on` edges. Anything else is reported as undocumented.
+    pub fn runtime_trust_graph_coverage(
+        trace: &BootstrapRuntimeTrace,
+        kernel: &BootstrapKernelReport,
+    ) -> BootstrapRuntimeTrustGraphCoverage {
         let nodes: BTreeMap<&str, &BootstrapTrustNode> = kernel
             .trust_graph
             .nodes
@@ -7136,7 +7139,7 @@ impl LinkedProgramRegistry {
             })
             .cloned()
             .collect();
-        let runtime_trust_graph_coverage = BootstrapRuntimeTrustGraphCoverage {
+        BootstrapRuntimeTrustGraphCoverage {
             documented_observed_paths: trace.observed_paths.len() - undocumented_paths.len(),
             total_observed_paths: trace.observed_paths.len(),
             documented_observed_path_segments: trace.observed_path_segments.len()
@@ -7146,7 +7149,16 @@ impl LinkedProgramRegistry {
             undocumented_operations,
             undocumented_path_segments,
             trace: trace.clone(),
-        };
+        }
+    }
+
+    /// Executes the foundation probe and reports the host machinery that still
+    /// exists outside the links-defined interpreter.
+    pub fn bootstrap_metrics_report(source: &str) -> Result<BootstrapMetricsReport, String> {
+        let (programs, self_hosting_trace) = Self::run_bootstrap_metric_probe(source, &[])?;
+        let trace = programs.runtime_semantic_trace();
+        let kernel = Self::bootstrap_kernel_report();
+        let runtime_trust_graph_coverage = Self::runtime_trust_graph_coverage(&trace, &kernel);
 
         let removal_experiments: Vec<BootstrapRemovalExperiment> =
             IMPLEMENTED_HOST_SEMANTIC_OPERATIONS
