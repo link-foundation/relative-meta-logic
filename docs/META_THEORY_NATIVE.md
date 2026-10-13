@@ -14,7 +14,7 @@ does not ask Lean or Rocq for anything.
 | Dependency check | 229 exact: elaborated references equal recorded links | same |
 | Evaluation commands | 90 of 90 reach values; 52 of 52 source comments agree; 84 Lean/Rocq pairs agree | `test-corpus/meta-theory-native/cases.json` |
 | Execution witnesses | 183 declarations: 150 needed by an upstream case, 33 by a probe on upstream data (ablation) | same |
-| Proof certificates | 14 of 36 theorems certified; 4 with closed chains; 22 outside the fragment | `test-corpus/meta-theory-certificates/certificates.json` |
+| Proof certificates | 17 of 36 theorems certified; 5 with closed chains; 19 outside the fragment | `test-corpus/meta-theory-certificates/certificates.json` |
 | Stage map | every declaration and command, all stages | `test-corpus/meta-theory-coverage/map.json` |
 
 ## Native linked definitions
@@ -108,7 +108,13 @@ elaborates the preserved source proof and is untrusted. It supports:
 - Lean: term-mode lemma application with `_` holes, anonymous constructors and
   `fun`, and `by intro … / exact … / rfl`;
 - Rocq: `intro(s)`, `unfold`, `simpl`, `apply`, `exact`, `exists`, `split`,
-  `reflexivity`, and conjunction `destruct H as [A B]`.
+  `reflexivity`, and conjunction `destruct H as [A B]`;
+- list induction: Lean `induction l with | nil => … | cons x rest ih => …`
+  and Rocq `induction l as [ | h t IH ]`;
+- Rocq case analysis on a list, `destruct l as [ | h t ]`. Each branch gets
+  a local equation `l = nil` or `l = cons h t`, and every hypothesis that
+  mentions `l` is rewritten through it with a checked `rewrite` rule. A
+  user-written `rewrite` or `rw` tactic stays outside the fragment.
 
 The **checker** (`checkMetaTheoryCertificate`; Rust
 `rml::meta_theory_certificates::check_meta_theory_certificate`) trusts none
@@ -125,25 +131,63 @@ of the certificate's logical content. It:
    - `forall-intro`: the eigen-constant must be fresh, absent from the goal
      and the hypotheses;
    - `exists-intro`: the premise must be the body with the witness substituted;
-4. runs `proof-verifier.lino`, which checks rules, premises, bindings,
-   conclusions, dependency order and reachability.
+   - `local`: a hypothesis open only inside one branch. Each local must be
+     discharged by exactly one `induction` or `cases` rule and must state
+     what that rule assumes;
+   - `induction`: the target must be a list-typed eigen-constant. The
+     premises must be the base case and the step case of the motive, with the
+     induction hypothesis discharged. The head and tail must be fresh,
+     distinct names;
+   - `cases`: the premises must be the two discharged equations
+     `target = nil` and `target = cons y ys`;
+   - `rewrite`: the side condition must restate the rewrite as a
+     `congruent` claim;
+4. runs `proof-verifier-natural.lino`. It extends `proof-verifier.lino`
+   (rules, premises, bindings, conclusions, dependency order, reachability)
+   with linked rules for discharge, local closure and the congruence side
+   condition of a rewrite. So the verifier, not the host, checks that a
+   rewrite replaces only equal subterms and that no local stays open at the
+   root;
+5. after acceptance, checks that no eigen-constant escapes through an
+   undischarged local.
 
 The certified theorems are:
 
 - in both languages: `meta_network_is_duplet_network`,
   `meta_reference_space_elements_valid`, `ListToSet_elements_valid`,
-  `ListToSet_membership`, `ordered_unique_has_no_dup` and
-  `set_sequence_equivalence`;
-- in Rocq only: `strictly_ascending_cons` and `strictly_ascending_head`.
+  `ListToSet_membership`, `ordered_unique_has_no_dup`,
+  `set_sequence_equivalence` and `toOrderedUnique_is_ascending` (list
+  induction);
+- in Rocq only: `strictly_ascending_cons`, `strictly_ascending_head` and
+  `strictly_ascending_tail` (case analysis with rewrites).
 
 A certificate is *relative* to every lemma it cites that is not itself
 certified. The record lists those lemmas and their upstream status. For
 example, Lean `set_sequence_equivalence` is relative to the admitted
-(`sorry`) `mem_toOrderedUnique`. Four chains are closed.
+(`sorry`) `mem_toOrderedUnique` and, through the now certified
+`toOrderedUnique_is_ascending`, to the admitted
+`insertSorted_preserves_ascending`. Five chains are closed: both
+`meta_network_is_duplet_network` and Rocq `strictly_ascending_cons`,
+`strictly_ascending_head` and `strictly_ascending_tail`.
 
-The 22 uncertified theorems are reported with their exact reason:
-induction, rewriting, case analysis, `simp`-closed goals, `;` sequencing, or
-an admitted `sorry`. An admitted proof is never certified.
+The 19 uncertified theorems are reported with their exact reason. An
+admitted proof is never certified.
+
+| Theorem | Language | Reason recorded |
+| --- | --- | --- |
+| `ReferenceListDimensionPreserved` | Lean | induction other than list induction with `nil` and `cons` arms |
+| `ReferenceListToTupleOfReferencesInverse` | Lean | tactic `congr` |
+| `TupleFunctionEquivalenceAfterTransforms` | Lean | tactic `rw` |
+| `TupleOfReferencesDimensionPreserved` | Lean | `simp` does not close the goal by conversion |
+| `insertSorted_preserves_ascending`, `mem_insertSorted`, `mem_toOrderedUnique`, `strictly_ascending_implies_no_dup` | Lean | admitted `sorry` |
+| `ReferenceListDimensionPreserved`, `insertSorted_preserves_ascending` | Rocq | tactic sequencing with `;` |
+| `ReferenceListToTupleOfReferencesInverse`, `TupleOfReferencesDimensionPreserved` | Rocq | induction other than `induction l as [ \| h t IH ]` |
+| `TupleFunctionEquivalenceAfterTransforms` | Rocq | tactic `rewrite` |
+| `insertSorted_head_cases`, `insertSorted_non_empty` | Rocq | `destruct` other than a conjunction hypothesis |
+| `mem_insertSorted` | Rocq | goal is not a conjunction (`mt-and`) |
+| `mem_toOrderedUnique` | Rocq | tactic `tauto` |
+| `strictly_ascending_all_greater` | Rocq | induction target is not a list-typed eigen-constant |
+| `strictly_ascending_implies_no_dup` | Rocq | tactic `auto` |
 
 Mutations are rejected in both runtimes:
 
@@ -154,7 +198,13 @@ Mutations are rejected in both runtimes:
 - conclusion: an edited node conclusion or goal;
 - statement: an edited statement;
 - conversion: a forged conversion;
-- dependency: an undeclared or self citation, or an edited dependency list.
+- dependency: an undeclared or self citation, or an edited dependency list;
+- local: a missing, ownerless, misstated or doubly discharged local;
+- induction: a wrong motive, a mistyped target, or stale or shared
+  eigen-constants;
+- rewrite: a forged rewrite (the linked congruence side condition fails) or a
+  side condition that does not restate the rewrite;
+- scope: an eigen-constant escaping through an undischarged local.
 
 The tests are `scripts/meta-theory-certificates.test.mjs` and
 `rust/tests/meta_theory_certificates_tests.rs`.
@@ -208,5 +258,7 @@ cargo test --test meta_theory_native_tests --test meta_theory_certificates_tests
   observed value. They are not a proof of the declaration's specification.
 - The shared source parser and proof producer are JavaScript, as for the
   typed layers. Rust re-checks all generated evidence independently.
-- Certificates cover a first-order fragment. Inductive and rewriting proofs
-  remain outside it, so R122/R123 completion is not claimed.
+- Certificates cover a first-order fragment extended with list induction,
+  list case analysis and the rewrites those case equations need. The 19
+  theorems listed above remain outside it, so R63/R122/R123 completion is not
+  claimed.

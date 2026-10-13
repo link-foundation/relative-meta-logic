@@ -41,6 +41,7 @@ test('the recipe certificate is rejected after its cited lemma is removed from t
   const registries = metaTheoryCertificateRegistries({
     prelude, program, conversion: read('lib/meta-theory/upstream-0.0.3-native-conversion.lino'),
     universal: read('lib/meta-theory/universal.lino'), verifier: read('lib/meta-theory/proof-verifier.lino'),
+    natural: read('lib/meta-theory/proof-verifier-natural.lino'),
   });
   const certificates = JSON.parse(read('test-corpus/meta-theory-certificates/certificates.json'));
   const certificate = certificates.theorems.find(item => item.theorem === CERTIFIED_THEOREM).certificate;

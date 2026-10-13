@@ -3,7 +3,7 @@
   "corpusFingerprint": "f85e7951384dbb639725eb021419982d367f5e1eeef2c5528602a4e35d8af0b9",
   "programHash": "5711f39e9eb7d770e0a945412df3e80f69e8b7d66ad6a571ee9227f40ed2aa6e",
   "preludeHash": "31a7492c180268241398b06f00d37ed2c7c4e621ee734bb55794d2f47852ed0f",
-  "conversionHash": "eebabfcee597e265b90a4ff21d9aa6189a1153f50b942c099d0f80e06f3a02cf",
+  "conversionHash": "3326ee477fff3aa366c19ae5f84c32d15dcf4fc978118133657dc94c417856b2",
   "semantics": "untyped call-by-value linked execution; typing is the separate formal-propositions layer",
   "declarationCount": 229,
   "elaborated": 229,

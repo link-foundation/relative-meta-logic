@@ -89,6 +89,7 @@ export function runMetaTheoryWorkflow() {
   const registries = metaTheoryCertificateRegistries({
     prelude, program, conversion: read('lib/meta-theory/upstream-0.0.3-native-conversion.lino'),
     universal: read('lib/meta-theory/universal.lino'), verifier: read('lib/meta-theory/proof-verifier.lino'),
+    natural: read('lib/meta-theory/proof-verifier-natural.lino'),
   });
   const coverage = json('test-corpus/meta-theory-native/coverage.json');
   const dependencies = theoremDependencies(coverage, CERTIFIED_THEOREM);

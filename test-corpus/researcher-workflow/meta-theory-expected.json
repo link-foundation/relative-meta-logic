@@ -91,8 +91,8 @@
     "accepted": true,
     "chain": "relative",
     "relativeTo": [
-      "rml.formal.lean.SetSequenceEquivalence.mem_toOrderedUnique (admitted)",
-      "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending (verified)"
+      "rml.formal.lean.SetSequenceEquivalence.insertSorted_preserves_ascending (admitted)",
+      "rml.formal.lean.SetSequenceEquivalence.mem_toOrderedUnique (admitted)"
     ],
     "forgedConclusionAccepted": false
   },

@@ -1,8 +1,9 @@
 /**
  * Replayable proof certificates for theorems of the pinned meta-theory corpus.
  *
- * A certificate is ordinary data for the existing linked proof verifier
- * (lib/meta-theory/proof-verifier.lino). The trusted checker rebuilds every
+ * A certificate is ordinary data for the natural-deduction linked proof
+ * verifier (lib/meta-theory/proof-verifier-natural.lino, which reuses
+ * lib/meta-theory/proof-verifier.lino). The trusted checker rebuilds every
  * logical part of the context itself: the theorem statement and every cited
  * lemma statement are recomputed by the native linked program from preserved
  * tokens, lemma rules are offered only for theorems among the theorem's
@@ -17,14 +18,34 @@
  *                  for an eigen-constant absent from the conclusion, the goal
  *                  and every hypothesis
  *   exists-intro   (holds B[W]) => (holds (mt-exists (mt-binder b D) B))
+ *   local          (local ID (holds A)): an assumption that only its owning
+ *                  induction or cases rule may discharge
+ *   rewrite        (holds (mt-equal L R)), (holds A) => (holds B) where the
+ *                  linked verifier checks that B is A with occurrences of L
+ *                  replaced by R (or R by L); L and R are closed
+ *   induction      (holds P[nil]), (discharge IH (holds P[cons h t])) =>
+ *                  (holds P[x]) for a list-typed eigen-constant x, with IH
+ *                  concluding (holds P[t]) and fresh eigen-constants h, t
+ *   cases          (discharge E0 G), (discharge E1 G) => G for a list-typed
+ *                  eigen-constant x, with E0 concluding x = nil and E1
+ *                  concluding x = cons h t for fresh h, t
+ *
+ * Eigen-constant types come from the statement binders, from declared
+ * parameter types for inferred binders, from quantifier domains and from the
+ * induction and cases rules themselves; an induction or cases target must have
+ * the list type the rule names under every declaration. After the linked
+ * verifier accepts, the checker also requires that no undischarged local a
+ * quantifier, induction or cases node depends on mentions its eigen-constants.
  *
  * The producer elaborates the source proof (Lean terms and `by intro/exact/rfl`,
- * Rocq intro/intros/unfold/simpl/apply/exact/exists/split/reflexivity) into a
- * derivation. It is untrusted: whatever it emits must pass the checker.
- * Induction, rewriting, case analysis and simp-closed goals are reported as
- * outside the certificate fragment rather than approximated.
+ * `induction ... with` arms and goal-closing `simp`, Rocq intro/intros/unfold/
+ * simpl/apply/exact/exists/split/reflexivity, `induction` and `destruct` of a
+ * list) into a derivation. It is untrusted: whatever it emits must pass the
+ * checker. Arithmetic decision procedures, iff rewriting, induction over
+ * indexed families and tactic sequencing are reported as outside the
+ * certificate fragment rather than approximated.
  */
-import { LINKED_PROOF_PROGRAM, encodeLinkedProofData } from './rml-linked-proof.mjs';
+import { LINKED_PROOF_NATURAL_PROGRAM, encodeLinkedProofData } from './rml-linked-proof.mjs';
 import { LinkedProgramRegistry } from './rml-linked-program.mjs';
 import { META_THEORY_CONVERSION_PROGRAM, META_THEORY_NATIVE_PROGRAM } from './rml-meta-theory-native.mjs';
 
@@ -38,15 +59,43 @@ const CONNECTIVES = new Set(['mt-equal', 'mt-not-equal', 'mt-and', 'mt-or', 'mt-
 const PROP_TYPE = ['mt-v', 'mt-prop-type'];
 const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
 
-/** Registries for statements/conversion and for the linked proof verifier. */
-export function metaTheoryCertificateRegistries({ prelude, program, conversion, universal, verifier }) {
+const NIL = ['mt-v', 'mt-nil'];
+const TRUE = ['mt-v', 'mt-true'];
+const MOTIVE = 'mt-motive';
+
+/**
+ * Registries for statements/conversion and for the linked proof verifier;
+ * `natural` is lib/meta-theory/proof-verifier-natural.lino.
+ */
+export function metaTheoryCertificateRegistries({ prelude, program, conversion, universal, verifier, natural }) {
+  if (typeof natural !== 'string') throw new TypeError('certificate registries need the natural-deduction verifier source');
   return {
     native: LinkedProgramRegistry.fromRml(`${prelude}\n${program}\n${conversion}`, { executionBasis: 'direct-structural' }),
-    verifier: LinkedProgramRegistry.fromRml(`${universal}\n${verifier}`, { executionBasis: 'direct-structural' }),
+    verifier: LinkedProgramRegistry.fromRml(`${universal}\n${verifier}\n${natural}`, { executionBasis: 'direct-structural' }),
   };
 }
 
 export const eigen = bound => ['mt-v', ['mt-eigen', bound]];
+const eigenName = term => (Array.isArray(term) && term.length === 2 && term[0] === 'mt-v' && Array.isArray(term[1]) &&
+  term[1].length === 2 && term[1][0] === 'mt-eigen' && typeof term[1][1] === 'string' ? term[1][1] : undefined);
+
+/** Replace every occurrence of a whole subterm. */
+function replaceTerm(term, from, to) {
+  if (same(term, from)) return to;
+  return typeof term === 'string' ? term : term.map(item => replaceTerm(item, from, to));
+}
+
+function mentionsLocal(term) {
+  if (typeof term === 'string') return false;
+  if (term.length === 2 && term[0] === 'mt-local') return true;
+  return term.some(mentionsLocal);
+}
+
+function bindsName(term, name) {
+  if (typeof term === 'string') return false;
+  if (term[0] === 'mt-binder' && term[1] === name) return true;
+  return term.some(item => bindsName(item, name));
+}
 
 function substituteLocal(term, bound, replacement) {
   if (typeof term === 'string') return term;
@@ -153,18 +202,149 @@ export const STRUCTURAL_RULES = Object.freeze([
   ['rule', 'and-right', [['holds', ['mt-and', ['variable', 'left'], ['variable', 'right']]]], ['holds', ['variable', 'right']]],
   ['rule', 'refl', [['instance', 'refl', 'term', ['variable', 'term']]],
     ['holds', ['mt-equal', ['variable', 'term'], ['variable', 'term']]]],
+  ['rule', 'true-intro', [], ['holds', TRUE]],
 ]);
+
+const INSTANCE_KINDS = new Set(['instance', 'conversion', 'forall-intro', 'exists-intro', 'local', 'rewrite', 'induction', 'cases']);
+
+/** The value of a list built from eigen-constants h and t. */
+export const consOf = (head, tail) => ['mt-cons', eigen(head), eigen(tail)];
+
+/**
+ * The declared type of an inferred binder: every corpus function the
+ * statement applies directly to the binder declares a closed parameter type
+ * (mt-parameter-type F k) in the conversion program; all such witnesses must
+ * agree. Returns undefined when there is no witness or they disagree.
+ */
+export function inferredBinderType(registries, statement, bound) {
+  const witnesses = [];
+  const visit = term => {
+    if (typeof term === 'string') return;
+    if (typeof term[0] === 'string' && term[0].startsWith('rml.formal.')) {
+      term.slice(1).forEach((argument, index) => {
+        if (!same(argument, ['mt-local', bound])) return;
+        const type = normalize(registries.native, META_THEORY_CONVERSION_PROGRAM, ['mt-parameter-type', term[0], String(index)]);
+        if (Array.isArray(type) && type[0] !== 'mt-parameter-type') witnesses.push(type);
+      });
+    }
+    term.forEach(visit);
+  };
+  visit(statement);
+  if (!witnesses.length || witnesses.some(type => !same(type, witnesses[0]))) return undefined;
+  return witnesses[0];
+}
+
+/** Declared types of the theorem's own data eigen-constants. */
+export function theoremEigenTypes(registries, generalized) {
+  const types = new Map();
+  for (const binder of generalized.binders) {
+    if (binder.kind !== 'data') continue;
+    const type = binder.type === 'mt-inferred-domain'
+      ? inferredBinderType(registries, generalized.statement, binder.bound) : closeLocals(binder.type);
+    if (type !== undefined) types.set(binder.bound, [type]);
+  }
+  return types;
+}
+
+/** Every declared type of every eigen-constant: statement, quantifier, induction and cases. */
+function eigenDeclarations(registries, generalized, entries) {
+  const types = theoremEigenTypes(registries, generalized);
+  const declare = (name, type) => {
+    if (type === 'mt-inferred-domain') return;
+    types.set(name, [...(types.get(name) ?? []), type]);
+  };
+  for (const entry of entries) {
+    if (entry.kind === 'forall-intro') {
+      const binder = entry.rule?.[3]?.[1]?.[1];
+      if (Array.isArray(binder) && binder[0] === 'mt-binder') declare(binder[1], binder[2]);
+    }
+    if ((entry.kind === 'induction' || entry.kind === 'cases') && Array.isArray(entry.domain)) {
+      declare(entry.head, ['mt-v', entry.domain[1]?.[1]]);
+      declare(entry.tail, entry.domain);
+    }
+  }
+  return types;
+}
+
+/** Shape and freshness of an induction or cases rule; its locals are checked by the owner check. */
+function checkStructuralInduction(generalized, entry) {
+  const { kind, rule, target, domain, head, tail } = entry;
+  const id = rule[1];
+  const name = eigenName(target);
+  if (name === undefined) return `${id}: the ${kind} target must be an eigen-constant`;
+  if (!Array.isArray(domain) || domain.length !== 2 || domain[0] !== 'mt-v' || !Array.isArray(domain[1]) ||
+      domain[1].length !== 2 || domain[1][0] !== 'mt-list-type') return `${id}: the ${kind} domain must be a list type`;
+  if (typeof head !== 'string' || typeof tail !== 'string' || head === tail || head === name || tail === name) {
+    return `${id}: the ${kind} eigen-constants must be distinct names`;
+  }
+  const [, , premises, conclusion] = rule;
+  const fresh = [eigen(head), eigen(tail)];
+  const stale = term => fresh.some(constant => occurs(term, constant));
+  if (stale(conclusion) || stale(generalized.goal) || generalized.hypotheses.some(stale)) {
+    return `${id}: eigen-constant is not fresh`;
+  }
+  if (kind === 'induction') {
+    const { motive, hypothesis } = entry;
+    if (motive?.bound !== MOTIVE || !Array.isArray(motive.body) || bindsName(motive.body, MOTIVE)) return `${id}: malformed motive`;
+    if (stale(motive.body)) return `${id}: the motive mentions the step eigen-constants`;
+    const at = value => ['holds', substituteLocal(motive.body, MOTIVE, value)];
+    const expected = [at(NIL), ['discharge', hypothesis, at(consOf(head, tail))]];
+    if (!same(premises, expected)) return `${id}: premises are not the base and step cases of the motive`;
+    if (!same(conclusion, at(target))) return `${id}: conclusion is not the motive at the target`;
+    return undefined;
+  }
+  const [zero, one] = entry.equations ?? [];
+  if (!same(premises, [['discharge', zero, conclusion], ['discharge', one, conclusion]])) {
+    return `${id}: premises are not the two discharged cases of the conclusion`;
+  }
+  return undefined;
+}
+
+/** The conclusion each owned local must state. */
+function ownedLocals(entry) {
+  if (entry.kind === 'induction') {
+    return [[entry.hypothesis, ['holds', substituteLocal(entry.motive.body, MOTIVE, eigen(entry.tail))]]];
+  }
+  if (entry.kind === 'cases') {
+    return [[entry.equations[0], ['holds', ['mt-equal', entry.target, NIL]]],
+      [entry.equations[1], ['holds', ['mt-equal', entry.target, consOf(entry.head, entry.tail)]]]];
+  }
+  return [];
+}
 
 /**
  * Check one instance rule supplied by a certificate. Returns a problem string
  * or undefined. `generalized` is the checker's own generalization.
  */
 export function checkInstanceRule(registries, generalized, entry) {
-  const { kind, rule } = entry;
-  if (!Array.isArray(rule) || rule.length !== 4 || rule[0] !== 'rule' || typeof rule[1] !== 'string' ||
+  const { kind, rule } = entry ?? {};
+  if (!INSTANCE_KINDS.has(kind)) return `unknown instance rule kind ${kind}`;
+  if (kind === 'local') {
+    if (!Array.isArray(rule) || rule.length !== 3 || rule[0] !== 'local' || typeof rule[1] !== 'string' ||
+        !rule[1].startsWith('local:') || !Array.isArray(rule[2]) || rule[2][0] !== 'holds' || rule[2].length !== 2) {
+      return 'malformed local';
+    }
+    return hasVariable(rule[2]) ? `${rule[1]}: locals must be ground` : undefined;
+  }
+  const sided = kind === 'rewrite';
+  if (!Array.isArray(rule) || rule.length !== (sided ? 5 : 4) || rule[0] !== 'rule' || typeof rule[1] !== 'string' ||
       !rule[1].startsWith(`${kind}:`) || !Array.isArray(rule[2])) return 'malformed instance rule';
   const [, id, premises, conclusion] = rule;
-  if (hasVariable(premises) || hasVariable(conclusion)) return `${id}: instance rules must be ground`;
+  if (hasVariable(premises) || hasVariable(conclusion) || (sided && hasVariable(rule[4]))) return `${id}: instance rules must be ground`;
+  if (kind === 'induction' || kind === 'cases') return checkStructuralInduction(generalized, entry);
+  if (kind === 'rewrite') {
+    const [equation, source] = premises;
+    if (premises.length !== 2 || equation?.[0] !== 'holds' || equation.length !== 2 || !Array.isArray(equation[1]) ||
+        equation[1][0] !== 'mt-equal' || equation[1].length !== 3 || source?.[0] !== 'holds' || source.length !== 2 ||
+        conclusion[0] !== 'holds' || conclusion.length !== 2) return `${id}: expects an equation and a holds premise`;
+    const [, left, right] = equation[1];
+    if (mentionsLocal(left) || mentionsLocal(right)) return `${id}: rewritten terms must be closed`;
+    const side = rule[4];
+    const forward = same(side, ['congruent', left, right, source[1], conclusion[1]]);
+    const backward = same(side, ['congruent', right, left, source[1], conclusion[1]]);
+    // Only the shape is checked here; the congruence itself is checked by the linked verifier.
+    return forward || backward ? undefined : `${id}: side condition does not restate the rewrite`;
+  }
   if (kind === 'instance') {
     if (premises.length || conclusion.length !== 4 || conclusion[0] !== 'instance') return `${id}: malformed instance fact`;
     return undefined;
@@ -196,6 +376,67 @@ export function checkInstanceRule(registries, generalized, entry) {
   return `${id}: unknown instance rule kind ${kind}`;
 }
 
+/**
+ * Check a certificate's instance rules together: each rule alone, unique ids,
+ * every local owned by exactly one induction or cases rule that states it,
+ * and induction and cases targets typed as the list type the rule names.
+ */
+export function checkInstanceRules(registries, generalized, entries) {
+  const problems = [];
+  const ids = new Set();
+  for (const entry of entries) {
+    const problem = checkInstanceRule(registries, generalized, entry);
+    if (problem) problems.push(problem);
+    if (ids.has(entry?.rule?.[1])) problems.push(`duplicate instance rule ${entry?.rule?.[1]}`);
+    ids.add(entry?.rule?.[1]);
+  }
+  if (problems.length) return problems;
+  const locals = new Map(entries.filter(entry => entry.kind === 'local').map(entry => [entry.rule[1], entry.rule[2]]));
+  const owners = new Map();
+  for (const entry of entries) {
+    for (const [id, conclusion] of ownedLocals(entry)) {
+      if (owners.has(id)) problems.push(`${id}: discharged by more than one rule`);
+      owners.set(id, entry.rule[1]);
+      if (!locals.has(id)) problems.push(`${entry.rule[1]}: missing local ${id}`);
+      else if (!same(locals.get(id), conclusion)) problems.push(`${id}: local does not state what ${entry.rule[1]} assumes`);
+    }
+  }
+  for (const id of locals.keys()) if (!owners.has(id)) problems.push(`${id}: local has no discharging rule`);
+  const declarations = eigenDeclarations(registries, generalized, entries);
+  for (const entry of entries) {
+    if (entry.kind !== 'induction' && entry.kind !== 'cases') continue;
+    const name = eigenName(entry.target);
+    const types = declarations.get(name) ?? [];
+    if (!types.length) problems.push(`${entry.rule[1]}: the type of eigen-constant ${name} is not declared`);
+    else if (types.some(type => !same(type, entry.domain))) problems.push(`${entry.rule[1]}: eigen-constant ${name} is not of type ${JSON.stringify(entry.domain)}`);
+  }
+  return problems;
+}
+
+/**
+ * Eigenvariable condition on the verified derivation: a forall-intro,
+ * induction or cases node may not depend on an undischarged local that
+ * mentions the eigen-constants it introduces.
+ */
+export function checkEigenScopes(entries, candidate) {
+  const byId = new Map(entries.map(entry => [entry.rule[1], entry]));
+  const problems = [];
+  for (const node of Array.isArray(candidate?.[4]) ? candidate[4] : []) {
+    const entry = byId.get(node[2]);
+    if (!entry) continue;
+    const introduced = entry.kind === 'forall-intro' ? [entry.rule[3][1][1][1]]
+      : entry.kind === 'induction' || entry.kind === 'cases' ? [entry.head, entry.tail] : [];
+    for (const dependency of Array.isArray(node[6]) ? node[6] : []) {
+      const local = byId.get(dependency);
+      if (local?.kind !== 'local') continue;
+      if (introduced.some(name => occurs(local.rule[2], eigen(name)))) {
+        problems.push(`${node[1]}: eigen-constant escapes through undischarged ${dependency}`);
+      }
+    }
+  }
+  return problems;
+}
+
 /** The exact context the checker trusts for a theorem and its validated instance rules. */
 export function certificateContext(registries, address, theoremDependencies, generalized, instanceRules) {
   const lemmas = [...theoremDependencies].sort().map(dependency => lemmaRule(registries, dependency));
@@ -215,22 +456,24 @@ export function checkMetaTheoryCertificate(registries, certificate, { theoremDep
   const generalized = generalizeTheorem(registries, address);
   if (!same(generalized.statement, certificate.statement)) problems.push('statement differs from the native elaboration');
   if (!same(generalized.goal, certificate.goal)) problems.push('goal differs from the generalized statement');
-  const ids = new Set();
-  for (const entry of certificate.instanceRules ?? []) {
-    const problem = checkInstanceRule(registries, generalized, entry);
-    if (problem) problems.push(problem);
-    if (ids.has(entry.rule?.[1])) problems.push(`duplicate instance rule ${entry.rule?.[1]}`);
-    ids.add(entry.rule?.[1]);
-  }
+  const entries = Array.isArray(certificate.instanceRules) ? certificate.instanceRules : [];
+  problems.push(...checkInstanceRules(registries, generalized, entries));
   const cited = (certificate.cites ?? []).filter(item => !theoremDependencies.includes(item));
   for (const item of cited) problems.push(`cites ${item}, which is not a recorded theorem dependency`);
   if (problems.length) return { accepted: false, problems };
-  const context = certificateContext(registries, address, theoremDependencies, generalized, certificate.instanceRules ?? []);
+  const context = certificateContext(registries, address, theoremDependencies, generalized, entries);
   const request = ['verify-linked-proof', encodeLinkedProofData(context, PROOF_LIMITS),
     encodeLinkedProofData(generalized.goal, PROOF_LIMITS), encodeLinkedProofData(certificate.candidate, PROOF_LIMITS)];
-  const reduced = registries.verifier.reduceResult(LINKED_PROOF_PROGRAM, request, { maxSteps: VERIFIER_STEPS });
-  const accepted = Array.isArray(reduced.term) && reduced.term[0] === 'proof-accepted';
-  return { accepted, problems: accepted ? [] : ['linked proof verifier rejected the derivation'], result: reduced.term, steps: reduced.steps };
+  const reduced = registries.verifier.reduceResult(LINKED_PROOF_NATURAL_PROGRAM, request, { maxSteps: VERIFIER_STEPS });
+  const verified = Array.isArray(reduced.term) && reduced.term[0] === 'proof-accepted';
+  const scopes = verified ? checkEigenScopes(entries, certificate.candidate) : [];
+  const accepted = verified && scopes.length === 0;
+  return {
+    accepted,
+    problems: accepted ? [] : verified ? scopes : ['linked proof verifier rejected the derivation'],
+    result: reduced.term,
+    steps: reduced.steps,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -238,9 +481,35 @@ export function checkMetaTheoryCertificate(registries, certificate, { theoremDep
 
 const LEAN_TACTICS = new Set(['intro', 'intros', 'exact', 'rfl', 'simp', 'induction', 'cases', 'rw', 'congr', 'apply',
   'unfold', 'constructor', 'omega', 'decide', 'sorry']);
-const ROCQ_TACTICS = new Set(['intro', 'intros', 'unfold', 'simpl', 'apply', 'exact', 'exists', 'split', 'reflexivity', 'destruct']);
+const ROCQ_TACTICS = new Set(['intro', 'intros', 'unfold', 'simpl', 'apply', 'exact', 'exists', 'split', 'reflexivity', 'destruct',
+  'induction']);
+// Proofs of True: Rocq's constructor I and Lean's trivial/True.intro.
+const TRUE_PROOFS = new Set(['I', 'trivial', 'True.intro']);
 
 class Unsupported extends Error {}
+
+/** Split a Lean tactic block at tactic words; `induction` owns every token after it (its arms). */
+function leanSplit(tokens) {
+  const tactics = [];
+  let index = 0;
+  while (index < tokens.length) {
+    const word = tokens[index].text;
+    if (!LEAN_TACTICS.has(word)) throw new Unsupported(`unexpected token ${word} in tactic block`);
+    let end = index + 1;
+    let depth = 0;
+    while (end < tokens.length && word !== 'induction') {
+      const text = tokens[end].text;
+      if (['(', '[', '⟨', '{'].includes(text)) depth += 1;
+      if ([')', ']', '⟩', '}'].includes(text)) depth -= 1;
+      if (depth === 0 && LEAN_TACTICS.has(text)) break;
+      end += 1;
+    }
+    if (word === 'induction') end = tokens.length;
+    tactics.push({ word, tokens: tokens.slice(index + 1, end) });
+    index = end;
+  }
+  return tactics;
+}
 
 function matchPattern(pattern, term, assignment, unknown) {
   if (Array.isArray(pattern) && pattern.length === 2 && pattern[0] === 'variable') {
@@ -271,6 +540,7 @@ class CertificateProducer {
     this.delta = new Map(native.conversionRules().map(rule => [rule.pattern[0], rule]));
     this.theoremDependencies = this.declaration.dependencies.filter(item => native.corpus.declarationAt(item)?.kind === 'theorem');
     this.generalized = generalizeTheorem(registries, address);
+    this.types = theoremEigenTypes(registries, this.generalized);
     this.instanceRules = [];
     this.nodes = [];
     this.cites = new Set();
@@ -290,8 +560,8 @@ class CertificateProducer {
     return record;
   }
 
-  instanceRule(kind, premises, conclusion, extra = {}) {
-    const rule = ['rule', this.fresh(kind), premises, conclusion];
+  instanceRule(kind, premises, conclusion, extra = {}, side = undefined) {
+    const rule = ['rule', this.fresh(kind), premises, conclusion, ...(side ? [side] : [])];
     const entry = { kind, rule, ...extra };
     // The producer is untrusted, but it reports an unjustified step as outside
     // the fragment instead of emitting a certificate the checker must reject.
@@ -299,6 +569,112 @@ class CertificateProducer {
     if (problem) throw new Unsupported(problem);
     this.instanceRules.push(entry);
     return rule[1];
+  }
+
+  /** A local assumption; its owning induction or cases rule discharges it. */
+  local(conclusion) {
+    const rule = ['local', this.fresh('local'), conclusion];
+    this.instanceRules.push({ kind: 'local', rule });
+    return rule[1];
+  }
+
+  trueIntro(goal) {
+    return this.convert(this.node('true-intro', ['holds', TRUE], []), goal);
+  }
+
+  /** Rewrite `source` with an equation node, left to right or (backward) right to left. */
+  rewrite(equation, source, conclusion, backward = false) {
+    if (same(source.conclusion, conclusion)) return source;
+    const [, left, right] = equation.conclusion[1];
+    const side = backward ? ['congruent', right, left, source.conclusion[1], conclusion[1]]
+      : ['congruent', left, right, source.conclusion[1], conclusion[1]];
+    const id = this.instanceRule('rewrite', [equation.conclusion, source.conclusion], conclusion, {}, side);
+    return this.node(id, conclusion, [equation, source]);
+  }
+
+  /** A fresh eigen-constant name derived from a source name. */
+  freshEigen(name) {
+    const taken = candidate => this.types.has(candidate) || occurs(this.generalized.goal, eigen(candidate)) ||
+      this.generalized.hypotheses.some(hypothesis => occurs(hypothesis, eigen(candidate)));
+    let candidate = name;
+    for (let index = 1; taken(candidate); index += 1) candidate = `${name}-${index}`;
+    return candidate;
+  }
+
+  /** The list type of an eigen-constant, or undefined. */
+  listType(target) {
+    const types = this.types.get(eigenName(target)) ?? [];
+    const [type] = types;
+    if (!types.length || types.some(item => !same(item, type))) return undefined;
+    return Array.isArray(type) && type[0] === 'mt-v' && Array.isArray(type[1]) && type[1][0] === 'mt-list-type' ? type : undefined;
+  }
+
+  declare(name, type) {
+    this.types.set(name, [...(this.types.get(name) ?? []), type]);
+  }
+
+  /**
+   * Structural list induction on an eigen-constant. `solveNil(goal)` and
+   * `solveCons(goal, head, tail, hypothesis)` prove the two cases; the
+   * hypothesis is a node concluding the motive at the tail.
+   */
+  induction(goal, target, names, solveNil, solveCons) {
+    const domain = this.listType(target);
+    if (!domain) throw new Unsupported('induction target is not a list-typed eigen-constant');
+    const body = replaceTerm(goal[1], target, ['mt-local', MOTIVE]);
+    if (bindsName(body, MOTIVE)) throw new Unsupported('goal binds the motive name');
+    const head = this.freshEigen(names[0]);
+    this.declare(head, ['mt-v', domain[1][1]]);
+    const tail = this.freshEigen(names[1]);
+    this.declare(tail, domain);
+    const at = value => ['holds', substituteLocal(body, MOTIVE, value)];
+    const hypothesis = this.local(at(eigen(tail)));
+    const base = this.convert(solveNil(at(NIL)), at(NIL));
+    const step = this.convert(solveCons(at(consOf(head, tail)), head, tail, this.node(hypothesis, at(eigen(tail)), [])),
+      at(consOf(head, tail)));
+    const id = this.instanceRule('induction', [at(NIL), ['discharge', hypothesis, at(consOf(head, tail))]], goal,
+      { target, motive: { bound: MOTIVE, body }, domain, head, tail, hypothesis });
+    return this.node(id, goal, [base, step]);
+  }
+
+  /**
+   * Case analysis of a list eigen-constant. `solve(goal, equation, head, tail)`
+   * proves the goal with the target replaced by nil or by cons head tail;
+   * the result is rewritten back with the case's equation.
+   */
+  cases(goal, target, names, solve) {
+    const domain = this.listType(target);
+    if (!domain) throw new Unsupported('destruct target is not a list-typed eigen-constant');
+    const head = this.freshEigen(names[0]);
+    this.declare(head, ['mt-v', domain[1][1]]);
+    const tail = this.freshEigen(names[1]);
+    this.declare(tail, domain);
+    const values = [NIL, consOf(head, tail)];
+    const equations = values.map(value => this.local(['holds', ['mt-equal', target, value]]));
+    const branches = values.map((value, index) => {
+      const equation = this.node(equations[index], ['holds', ['mt-equal', target, value]], []);
+      const opened = replaceTerm(goal, target, value);
+      const proof = this.convert(solve(opened, equation, index === 0 ? undefined : [head, tail]), opened);
+      return this.rewrite(equation, proof, goal, true);
+    });
+    const id = this.instanceRule('cases', equations.map(equation => ['discharge', equation, goal]), goal,
+      { target, domain, head, tail, equations });
+    return this.node(id, goal, branches);
+  }
+
+  /** Rewrite every proof in scope that mentions the target with a case equation. */
+  rewriteScope(scope, equation) {
+    const [, target, value] = equation.conclusion[1];
+    const inner = new Map();
+    for (const [name, entry] of scope) {
+      const proof = entry?.hypothesis || entry?.derived ? this.proofNamed(name, scope) : undefined;
+      if (proof && occurs(proof.conclusion, target)) {
+        inner.set(name, { derived: this.rewrite(equation, proof, replaceTerm(proof.conclusion, target, value)) });
+      } else if (!same(entry, target)) {
+        inner.set(name, entry);
+      }
+    }
+    return inner;
   }
 
   /** Conclude exactly `goal` from a node, inserting a checked conversion when needed. */
@@ -355,6 +731,8 @@ class CertificateProducer {
     for (let left = pattern, i = 0; left && i < 6; left = this.unfoldHead(left), i += 1) {
       for (let right = term, j = 0; right && j < 6; right = this.unfoldHead(right), j += 1) attempts.push([left, right]);
     }
+    // Finally the conversion normal form, which also unfolds recursive definitions on constructors.
+    if (!hasVariable(term)) attempts.push([pattern, normalize(this.registries.native, META_THEORY_CONVERSION_PROGRAM, term)]);
     for (const [left, right] of attempts) {
       const trial = new Map(assignment);
       if (matchPattern(left, right, trial, unknown)) {
@@ -454,6 +832,7 @@ class CertificateProducer {
     const quantifier = this.view(goal[1], 'mt-forall');
     const [, [, bound], body] = quantifier;
     const opened = ['holds', substituteLocal(body, bound, eigen(bound))];
+    if (quantifier[1][2] !== 'mt-inferred-domain') this.declare(bound, quantifier[1][2]);
     const inner = new Map(scope);
     if (name) inner.set(name, eigen(bound));
     const child = this.convert(proveBody(opened, inner), opened);
@@ -464,6 +843,7 @@ class CertificateProducer {
   /** Elaborate a Lean/Rocq proof term against an optional goal. */
   term(node, scope, goal) {
     if (node.t === 'name' && node.name === 'rfl') return this.refl(goal);
+    if (node.t === 'name' && TRUE_PROOFS.has(node.name) && !this.proofNamed(node.name, scope)) return this.trueIntro(goal);
     if (node.t === 'name' && this.proofNamed(node.name, scope)) return this.convert(this.proofNamed(node.name, scope), goal);
     if (node.t === 'name' || (node.t === 'app' && node.fn.t === 'name')) {
       const name = node.t === 'name' ? node.name : node.fn.name;
@@ -519,24 +899,7 @@ class CertificateProducer {
       reader.end();
       return this.leanTerm(node, scope, pending);
     }
-    const tactics = [];
-    let index = 1;
-    while (index < tokens.length) {
-      const word = tokens[index].text;
-      if (!LEAN_TACTICS.has(word)) throw new Unsupported(`unexpected token ${word} in tactic block`);
-      let end = index + 1;
-      let depth = 0;
-      while (end < tokens.length) {
-        const text = tokens[end].text;
-        if (['(', '[', '⟨', '{'].includes(text)) depth += 1;
-        if ([')', ']', '⟩', '}'].includes(text)) depth -= 1;
-        if (depth === 0 && LEAN_TACTICS.has(text)) break;
-        end += 1;
-      }
-      tactics.push({ word, tokens: tokens.slice(index + 1, end) });
-      index = end;
-    }
-    return this.leanTactics(tactics, this.generalized.goal, scope, pending);
+    return this.leanTactics(leanSplit(tokens.slice(1)), this.generalized.goal, scope, pending);
   }
 
   leanTerm(node, scope, pending) {
@@ -566,7 +929,19 @@ class CertificateProducer {
       }
       return this.leanTactics(rest, goal, inner, queue);
     }
+    if (tactic.word === 'induction') return this.leanInduction(tactic.tokens, goal, scope, pending);
+    // A simp followed by further tactics only rewrites the goal definitionally,
+    // which conversion re-establishes; a final simp must close the goal.
+    if (tactic.word === 'simp' && rest.length) return this.leanTactics(rest, goal, scope, pending);
     if (rest.length) throw new Unsupported(`tactic ${tactic.word} followed by further tactics`);
+    if (tactic.word === 'simp') {
+      try {
+        return this.trueIntro(goal);
+      } catch (error) {
+        if (error instanceof Unsupported) throw new Unsupported('simp does not close the goal by conversion');
+        throw error;
+      }
+    }
     if (tactic.word === 'rfl' && !tactic.tokens.length) return this.refl(goal);
     if (tactic.word === 'exact') {
       const reader = this.elaborator.reader(tactic.tokens);
@@ -575,6 +950,38 @@ class CertificateProducer {
       return this.term(node, scope, goal);
     }
     throw new Unsupported(`tactic ${tactic.word} is outside the certificate fragment`);
+  }
+
+  /** `induction x with | nil => tactics | cons h t ih => tactics` on a list eigen-constant. */
+  leanInduction(tokens, goal, scope, pending) {
+    const texts = tokens.map(token => token.text);
+    const value = scope.get(texts[0]);
+    if (!Array.isArray(value) || texts[1] !== 'with' || texts[2] !== '|') {
+      throw new Unsupported('induction is outside the certificate fragment except list induction with nil and cons arms');
+    }
+    const arms = new Map();
+    let start = 3;
+    for (let index = 3; index <= texts.length; index += 1) {
+      if (index < texts.length && texts[index] !== '|') continue;
+      const arm = tokens.slice(start, index);
+      const arrow = arm.findIndex(token => token.text === '=>');
+      if (arrow < 1) throw new Unsupported('malformed induction arm');
+      arms.set(arm[0].text, { names: arm.slice(1, arrow).map(token => token.text), tactics: leanSplit(arm.slice(arrow + 1)) });
+      start = index + 1;
+    }
+    const nil = arms.get('nil');
+    const cons = arms.get('cons');
+    if (arms.size !== 2 || !nil || !cons || nil.names.length || cons.names.length !== 3) {
+      throw new Unsupported('induction arms must be nil and cons h t ih');
+    }
+    return this.induction(goal, value, cons.names, opened => this.leanTactics(nil.tactics, opened, scope, pending),
+      (opened, head, tail, hypothesis) => {
+        const inner = new Map(scope);
+        inner.set(cons.names[0], eigen(head));
+        inner.set(cons.names[1], eigen(tail));
+        inner.set(cons.names[2], { derived: hypothesis });
+        return this.leanTactics(cons.tactics, opened, inner, pending);
+      });
   }
 
   rocqProof() {
@@ -635,9 +1042,48 @@ class CertificateProducer {
       case 'unfold':
       case 'simpl':
         return this.rocqSolve(queue, goal, scope, pending);
-      case 'destruct': {
-        // Only conjunction hypotheses: destruct H as [ A B ].
+      case 'induction': {
+        // List induction: induction l as [ | h t IH ], introducing l first when it is still pending.
         const texts = args.map(token => token.text);
+        if (texts.length !== 8 || texts[1] !== 'as' || texts[2] !== '[' || texts[3] !== '|' || texts[7] !== ']') {
+          throw new Unsupported('induction is outside the certificate fragment except induction l as [ | h t IH ]');
+        }
+        let inner = scope;
+        let rest = pending;
+        if (!scope.has(texts[0]) && Array.isArray(pending[0])) {
+          inner = new Map(scope);
+          inner.set(texts[0], pending[0]);
+          rest = pending.slice(1);
+        }
+        const value = inner.get(texts[0]);
+        if (!Array.isArray(value)) throw new Unsupported(`induction target ${texts[0]} is not a data variable`);
+        const [, , , , head, tail, hypothesisName] = texts;
+        return this.induction(goal, value, [head, tail], opened => this.rocqSolve(queue, opened, inner, rest),
+          (opened, headName, tailName, hypothesis) => {
+            const step = new Map(inner);
+            step.set(head, eigen(headName));
+            step.set(tail, eigen(tailName));
+            step.set(hypothesisName, { derived: hypothesis });
+            return this.rocqSolve(queue, opened, step, rest);
+          });
+      }
+      case 'destruct': {
+        const texts = args.map(token => token.text);
+        if (Array.isArray(scope.get(texts[0]))) {
+          // Case analysis of a list: destruct l as [ | h t ].
+          if (texts.length !== 7 || texts[1] !== 'as' || texts[2] !== '[' || texts[3] !== '|' || texts[6] !== ']') {
+            throw new Unsupported('destruct of data is outside the certificate fragment except destruct l as [ | h t ]');
+          }
+          return this.cases(goal, scope.get(texts[0]), [texts[4], texts[5]], (opened, equation, eigens) => {
+            const inner = this.rewriteScope(scope, equation);
+            if (eigens) {
+              inner.set(texts[4], eigen(eigens[0]));
+              inner.set(texts[5], eigen(eigens[1]));
+            }
+            return this.rocqSolve(queue, opened, inner, pending);
+          });
+        }
+        // Otherwise only conjunction hypotheses: destruct H as [ A B ].
         const proof = this.proofNamed(texts[0], scope);
         if (!proof || texts[1] !== 'as' || texts[2] !== '[' || texts[5] !== ']' || texts.length !== 6) {
           throw new Unsupported('destruct is outside the certificate fragment except for conjunction hypotheses');
@@ -672,10 +1118,16 @@ class CertificateProducer {
   candidate(root) {
     const dependencies = new Map();
     const reachable = [];
+    const premisesOf = new Map(this.instanceRules.filter(entry => entry.rule[0] === 'rule').map(entry => [entry.rule[1], entry.rule[2]]));
     const visit = node => {
       if (dependencies.has(node.id)) return dependencies.get(node.id);
       const list = [node.rule];
-      for (const premise of node.premises) for (const item of visit(premise)) if (!list.includes(item)) list.push(item);
+      node.premises.forEach((premise, index) => {
+        // A discharging premise removes its local from that premise's dependencies.
+        const pattern = premisesOf.get(node.rule)?.[index];
+        const discharged = Array.isArray(pattern) && pattern[0] === 'discharge' ? pattern[1] : undefined;
+        for (const item of visit(premise)) if (item !== discharged && !list.includes(item)) list.push(item);
+      });
       dependencies.set(node.id, list);
       reachable.push(node);
       return list;
@@ -704,6 +1156,10 @@ export function produceMetaTheoryCertificate(native, registries, address) {
   // Drop instance rules that the final derivation does not use.
   const candidate = producer.candidate(root);
   const used = new Set(candidate[4].map(node => node[2]));
+  // Locals stay when a used rule discharges them, even if no node cites them.
+  for (const entry of producer.instanceRules) {
+    if (used.has(entry.rule[1])) for (const [id] of ownedLocals(entry)) used.add(id);
+  }
   producer.instanceRules = producer.instanceRules.filter(entry => used.has(entry.rule[1]));
   return {
     theorem: address,
