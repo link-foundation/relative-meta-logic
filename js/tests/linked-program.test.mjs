@@ -925,4 +925,237 @@ describe('links-defined universal program evaluator', () => {
       ],
     );
   });
+
+  it('leaves unbound indices and non-lambda redexes unreduced', () => {
+    const programs = registry();
+    // An index with no binder in its environment has no value to take.
+    const unbound = ['evaluate', ['bound', 'zero'], 'empty-environment'];
+    const stuck = programs.reduce('lambda-calculus', unbound);
+    assert.deepEqual(stuck.term, unbound);
+    assert.deepEqual(stuck.trace, []);
+
+    // Beta reduction applies to a lambda only.
+    const notLambda = ['beta', ['free', 'f'], ['free', 'a']];
+    assert.deepEqual(programs.reduce('lambda-calculus', notLambda).term, notLambda);
+
+    // The argument fills index zero only: an index that points past the one
+    // binder stays unbound instead of capturing the argument.
+    assert.deepEqual(
+      programs.reduce('lambda-calculus', [
+        'beta',
+        ['lambda', ['bound', ['successor', 'zero']]],
+        ['free', 'a'],
+      ]).term,
+      ['evaluate', ['bound', 'zero'], 'empty-environment'],
+    );
+
+    // An inner binder keeps its own index: applying the outer lambda leaves
+    // the inner body unsubstituted inside a closure.
+    assert.deepEqual(
+      programs.reduce('lambda-calculus', [
+        'evaluate',
+        ['apply', ['lambda', ['lambda', ['bound', 'zero']]], ['free', 'a']],
+        'empty-environment',
+      ]).term,
+      ['closure', ['bound', 'zero'], ['bind', ['free', 'a'], 'empty-environment']],
+    );
+  });
+
+  it('keeps a portable theory undecided until a foundation is selected', () => {
+    const programs = registry(`
+      (linked-program portable-classifier)
+      (linked-rewrite portable-classifier classify
+        (from (classify ?value))
+        (to (foundation-decision ?value)))
+      (linked-program strict-foundation)
+      (linked-rewrite strict-foundation decide-unknown
+        (from (strict-decision unknown))
+        (to reject))
+      (linked-program classifier-over-strict
+        (uses portable-classifier
+          (rebind foundation-decision strict-decision))
+        (uses strict-foundation))
+    `);
+
+    // The unchanged theory decides nothing by itself; the selected foundation
+    // decides only the cases it defines.
+    assert.deepEqual(
+      programs.reduce('portable-classifier', ['classify', 'unknown']).term,
+      ['foundation-decision', 'unknown'],
+    );
+    assert.equal(programs.reduce('classifier-over-strict', ['classify', 'unknown']).term, 'reject');
+    assert.deepEqual(
+      programs.reduce('classifier-over-strict', ['classify', 'known']).term,
+      ['strict-decision', 'known'],
+    );
+
+    // Each instance of the one set program answers non-members with false and
+    // leaves the constructors of the other foundation alone.
+    const traditional = ['sequence-cons', 'a', ['sequence-cons', 'b', ['sequence-empty']]];
+    const associative = ['link-cons', 'a', ['link-cons', 'b', ['link-empty']]];
+    assert.equal(
+      programs.reduce('set-theory-over-traditional-sequences', ['member', 'c', traditional]).term,
+      'false',
+    );
+    assert.equal(
+      programs.reduce('set-theory-over-associative-links', ['member', 'c', associative]).term,
+      'false',
+    );
+    for (const [instance, foreign] of [
+      ['set-theory-over-traditional-sequences', associative],
+      ['set-theory-over-associative-links', traditional],
+      ['set-theory', traditional],
+    ]) {
+      assert.deepEqual(
+        programs.reduce(instance, ['member', 'b', foreign]).term,
+        ['member', 'b', foreign],
+        instance,
+      );
+    }
+
+    assert.throws(
+      () => registry(`
+        (linked-program parent)
+        (linked-program invalid-import
+          (uses parent (rebind ?pattern-variable concrete)))
+      `),
+      /cannot rebind pattern variables/,
+    );
+    assert.throws(
+      () => registry(`
+        (linked-program portable-classifier)
+        (linked-program instance-without-foundation
+          (uses portable-classifier (rebind foundation-decision missing-decision))
+          (uses missing-foundation))
+      `),
+      /uses unknown program missing-foundation/,
+    );
+  });
+
+  it('fails closed when any boundary operation is disabled', () => {
+    const identity = ['beta', ['lambda', ['bound', 'zero']], ['free', 'a']];
+    const run = disabledOperations => LinkedProgramRegistry
+      .fromRml(source, { disabledOperations })
+      .reduce('lambda-calculus', identity)
+      .term;
+    assert.deepEqual(run([]), ['free', 'a']);
+    for (const disabled of [
+      ['contract-s-link'],
+      ['contract-k-link'],
+      ['contract-s-link', 'contract-k-link'],
+      ['parse-linked-forms'],
+      ['enforce-cycle-and-resource-bounds'],
+    ]) {
+      assert.throws(
+        () => run(disabled),
+        new RegExp(`disabled host semantic operation (${disabled.join('|')})`),
+        disabled.join(' and '),
+      );
+    }
+
+    // The published removal experiments agree: no boundary operation can be
+    // dropped, and the zero-transition candidate cannot run the probe.
+    const report = LinkedProgramRegistry.bootstrapMetricsReport(source);
+    assert.deepEqual(
+      report.removalExperiments.map(({ operation, baselinePreserved }) =>
+        [operation, baselinePreserved]),
+      [
+        ['parse-linked-forms', false],
+        ['contract-s-link', false],
+        ['contract-k-link', false],
+        ['enforce-cycle-and-resource-bounds', false],
+      ],
+    );
+    assert.ok(report.removalExperiments.every(experiment =>
+      /disabled host semantic operation/.test(experiment.observedFailure)));
+    const zero = report.foundationSearchExperiments[0];
+    assert.equal(zero.candidate, 'zero-semantic-transition');
+    assert.equal(zero.classification, 'INSUFFICIENT');
+    assert.equal(zero.baselinePreserved, false);
+    assert.match(zero.observedFailure, /disabled host semantic operation contract-[sk]-link/);
+    assert.equal(report.current.foundationCompression.smallestSufficientHostOperations, 2);
+  });
+
+  it('finds no host duplicate of a linked capability on the closed S/K path', () => {
+    const workload = `
+      (linked-program duplicate-probe-rewrite)
+      (linked-rewrite duplicate-probe-rewrite apply
+        (from (probe-input ?value))
+        (to (probe-output ?value)))
+      (linked-program duplicate-probe-import
+        (uses duplicate-probe-rewrite
+          (rebind probe-input imported-input)))
+      (linked-program duplicate-probe-proof)
+      (linked-fact duplicate-probe-proof premise
+        (judgement (probe-holds a)))
+      (linked-inference duplicate-probe-proof infer
+        (premise (probe-holds ?value))
+        (conclusion (probe-derived ?value)))
+    `;
+    // These host operations implement matching, substitution, traversal,
+    // import rebinding, and inference for the direct structural basis.
+    const hostImplementations = [
+      'compare-link-structure',
+      'bind-pattern-variables',
+      'substitute-bound-structures',
+      'select-and-traverse-rewrite-rules',
+      'resolve-and-rebind-program-imports',
+      'saturate-inference-rules',
+    ];
+    const verifyRequest = [
+      'meta-verify',
+      ['atom', 'a'],
+      [
+        'meta-rewrite',
+        ['rules', ['rewrite', ['pair', ['atom', 'identity'], ['meta-variable', 'argument']], ['meta-variable', 'argument']], ['no-rules']],
+        ['pair', ['atom', 'identity'], ['atom', 'a']],
+      ],
+    ];
+    const run = (executionBasis, disabledOperations) => {
+      const programs = LinkedProgramRegistry.fromRml(`${source}\n${workload}`, {
+        executionBasis,
+        disabledOperations,
+      });
+      assert.deepEqual(
+        programs.reduce('duplicate-probe-import', ['imported-input', 'value']).term,
+        ['probe-output', 'value'],
+      );
+      if (!programs.prove('duplicate-probe-proof', ['probe-derived', 'a']).ok) {
+        throw new Error('inference failed');
+      }
+      assert.equal(programs.reduce('links-meta-foundation', verifyRequest).term, 'verified');
+      return programs.runtimeSemanticTrace().observedOperations;
+    };
+
+    // With every host implementation disabled, the closed S/K path still
+    // imports, rewrites, infers, and verifies, observing only K0.
+    assert.deepEqual(run('s-k', hostImplementations), [
+      'contract-k-link',
+      'contract-s-link',
+      'enforce-cycle-and-resource-bounds',
+      'parse-linked-forms',
+    ]);
+    // The same operations carry the direct basis, so disabling them is not vacuous.
+    assert.deepEqual(
+      run('direct-structural', []),
+      [...hostImplementations, 'enforce-cycle-and-resource-bounds', 'parse-linked-forms'].sort(),
+    );
+    for (const operation of hostImplementations) {
+      assert.throws(() => run('direct-structural', [operation]), Error, operation);
+    }
+  });
+
+  it('does not invent previous values for metrics the earlier revision did not measure', () => {
+    const report = LinkedProgramRegistry.bootstrapMetricsReport(source);
+    const unmeasured = report.comparison.filter(entry => entry.previous === null);
+    assert.deepEqual(unmeasured.map(entry => entry.metric), ['independent-external-semantic-laws']);
+    for (const entry of report.comparison) {
+      if (typeof entry.previous === 'number' && typeof entry.current === 'number') {
+        assert.equal(entry.delta, entry.current - entry.previous, entry.metric);
+      } else {
+        assert.equal(entry.delta, null, entry.metric);
+      }
+    }
+    assert.match(report.previousRevision, /^[0-9a-f]{40}$/);
+  });
 });
