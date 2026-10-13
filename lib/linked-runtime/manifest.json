@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
-  "moduleCount": 170,
-  "linkCount": 292174,
+  "moduleCount": 171,
+  "linkCount": 294278,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -44,7 +44,7 @@
         "target": "vscode/src/extension.js"
       }
     ],
-    "staticImportEdges": 569,
+    "staticImportEdges": 573,
     "dynamicImportSites": [
       {
         "from": "experiments/issue-181-meta-language-js-smoke.mjs",
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499",
-  "archiveBytes": 1771112,
+  "archiveSha256": "e7dc9ca7145fe2d397c5315c23f28c88c6693a9200d381b00bf6b78ebe55dea0",
+  "archiveBytes": 1781929,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -772,15 +772,15 @@
     },
     {
       "path": "scripts/bootstrap.mjs",
-      "sourceSha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2",
-      "astSha256": "aeadab9c44debc8a9e3d148b9e5f11a9e7bc862389fc870aa62e5e067f7ff224",
-      "generatedSha256": "af0da95b94f214ede029e0bf0bb3059a62e43ca9a88e2bb2a4dcba3f0f87abc3"
+      "sourceSha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604",
+      "astSha256": "fd15e9b9a748afcac45142bdc533daca81fd2e07fbdba2c4f9a930fc7e920181",
+      "generatedSha256": "7c8c106eda19d9b4a45510b1e3ea2a14a54c735c6893f5d82dd4b0e0104eaa91"
     },
     {
       "path": "scripts/build-cache.mjs",
-      "sourceSha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c",
-      "astSha256": "15e2c447125314749a1fe5b3c9f773a9225c67c990e210694d59c209974fac9a",
-      "generatedSha256": "92a93de1684396f6ed78446ac1f40bde04038c00935b845820a58ef0aa5cb81b"
+      "sourceSha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409",
+      "astSha256": "d47aecf58ab875319d48d44cc4f94838a84438d102958042da7516b47fdb38ba",
+      "generatedSha256": "d746222376796eae3027b9f89741ad93fd2284b7a3488c7d59af463a32102afa"
     },
     {
       "path": "scripts/build-docs.mjs",
@@ -793,6 +793,12 @@
       "sourceSha256": "ae9167326ced823b5c0afcb11fce6ba747a75726b2abb8f2c2bae76114b7330f",
       "astSha256": "13aa3229fea207129501836bf0ef33664685579a39917a5984a126632f1c19da",
       "generatedSha256": "04a5fe48fae1e9e18cfe14415bcfd74f4de19f1d7a6655498246da3772edb4a7"
+    },
+    {
+      "path": "scripts/cargo-unit-sweep.mjs",
+      "sourceSha256": "202bc18d12960817af4bd71027e4ce97c2fdefb23fb979eab72b1a732f0bb69b",
+      "astSha256": "e716401484d6ace1dc9cc36e11c3b077110a1a77150dae84cb143e08626e42f2",
+      "generatedSha256": "28a35016942315d24e93009a6842c2afe92ff7d7b3f3d6900191fd9a82675930"
     },
     {
       "path": "scripts/cargo.mjs",
@@ -880,9 +886,9 @@
     },
     {
       "path": "scripts/docker-cache-budget.mjs",
-      "sourceSha256": "477d75161bed21ce4bce37435b7059555bd96d1d655188539fd32d2673617a2d",
-      "astSha256": "24dc8e1e197623a1f73bbee5ee70537868e9ac4db449e3373905e059235a8b4c",
-      "generatedSha256": "ebd520ba4cee61ada40594a780b936f34345b17f2ec7fc527ab4526eac4f63be"
+      "sourceSha256": "24b0b6e86345ebf1ba1e68b2605320ec5d0416a0c4171d4437ff4bee0f04b8a0",
+      "astSha256": "154e5ad1d0bffc2ff2e3da69e0253578218d819945543a90bcbada54352d100a",
+      "generatedSha256": "9931e31cd190a6e7abbcaa58ce618469a19460aab6398d8c353fd7e254899d4f"
     },
     {
       "path": "scripts/formal-collections-cases.mjs",
@@ -1042,9 +1048,9 @@
     },
     {
       "path": "scripts/measure-build-cache.mjs",
-      "sourceSha256": "c5ab344992e5c58e00bb681a88fab92ebad996c4bd84d80befa3c873a7d196f8",
-      "astSha256": "bb8c3400bd3ca688e4d6cc0c8a2c634ebd6e53f48e4aadd175b68f39fa486847",
-      "generatedSha256": "cf12dcdda847e5c4b71e80ed1e6800d678f47bd708913a9d840ac657356888b0"
+      "sourceSha256": "68cdb2ae2a2192838e83443fb71323832db57f5bd0cc8f2d14a254ea8edeb4d8",
+      "astSha256": "aabcbb861a3e84cba66d71008fd3f2de4f2bb3e469ed4398adc8da5566674fd1",
+      "generatedSha256": "c47662188b3dc43eb657a108e07ac5301697bf85a3b1b4216eae7fee4410c2ac"
     },
     {
       "path": "scripts/measurement-source.mjs",
@@ -1054,9 +1060,9 @@
     },
     {
       "path": "scripts/publish-cache-output.mjs",
-      "sourceSha256": "0d92670bd9b3e141128b20cfa8c9c77719b57bed46bc8d1032d95f8cbb1ddbc5",
-      "astSha256": "a6888226f9863e55de3dfbda2d315d224922091b6d9364b9850ff2d8b33ccc47",
-      "generatedSha256": "91239815f68b2c7cc05a617d3e28ccd57394b22446f815b9ba6bc4dd9122a9f6"
+      "sourceSha256": "c2818dd5d4d1910a6edb52c9cb2e541a7d1e6b1c582ece01a67784a1bdca0928",
+      "astSha256": "27338ec1150c88bcd5aebc1c7bcecce370731884505e6f5732ea47a38f876c23",
+      "generatedSha256": "94203fd9228cb7f5e3bcd7345fb2bba20f39bca45aea4cf82046f61dbc3970ac"
     },
     {
       "path": "scripts/reference-export-fixtures.mjs",
@@ -1084,9 +1090,9 @@
     },
     {
       "path": "scripts/run-with-cache.mjs",
-      "sourceSha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555",
-      "astSha256": "f8c2a8ec158815c8543cf26928501f4f33a76d7d215ace281673ce5769dd72b9",
-      "generatedSha256": "4938fca788348a1783bc3e3c2cd44fd9eead1a2679992701f5bc2dedea031712"
+      "sourceSha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200",
+      "astSha256": "97cebebdb1e29ac80ad3037a218859a7d029ceab5482d7c816150d837caf3894",
+      "generatedSha256": "c14f5175f44969ea4e22279b0436d9c9a93779c4182825ddab6f2daa8edf770c"
     },
     {
       "path": "scripts/update-foundation-candidates.mjs",
@@ -1132,9 +1138,9 @@
     },
     {
       "path": "vscode/scripts/copy-server.mjs",
-      "sourceSha256": "1f9b9e6aa7581391156410264a0dcbeabf4f913cd4c063bdef6117287d699eb5",
-      "astSha256": "4e10b6fe858bb7e1503c6438aaafa68a60888ed1c487ed6dbd97045d464991be",
-      "generatedSha256": "b774a7706c1df4faf2d6601c9a7de9439aeb18b1c86ba084d9c5ff2d87552e20"
+      "sourceSha256": "125f7164e146c3fe86992e8c490b44452d425c2e19e8104537eed884c8188540",
+      "astSha256": "18de488387a48b8c0420ca9d49318c625b445f5963d2c39fa1cd3d642755c083",
+      "generatedSha256": "fc2b6846f59adf61e83e758dacb5ca54d8eaae5c6e0762f2916621128bb076f5"
     },
     {
       "path": "vscode/scripts/package-vsix.mjs",
