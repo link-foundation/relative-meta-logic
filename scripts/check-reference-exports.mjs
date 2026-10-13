@@ -154,6 +154,9 @@ const env = { ...process.env };
 if (language === 'Isabelle') {
   env.USER_HOME = path.join(directory, 'isabelle-user'); env.TMPDIR = path.join(directory, 'isabelle-tmp');
   ensureOutputDirectory(env.USER_HOME); ensureOutputDirectory(env.TMPDIR);
+  // Isabelle's system settings fix ISABELLE_TMP_PREFIX under /tmp and ignore
+  // TMPDIR; the user settings file it sources last keeps the prefix private.
+  writeOutput(path.join(env.USER_HOME, '.isabelle', 'etc', 'settings'), `ISABELLE_TMP_PREFIX=${JSON.stringify(path.join(env.TMPDIR, 'isabelle-'))}\n`);
 }
 function execute(argv, cwd, tag) {
   if (runtime === 'rust') tag = `Rust-${tag}`;
