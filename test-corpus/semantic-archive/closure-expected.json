@@ -1,0 +1,239 @@
+{
+  "schema": "rml-semantic-closure-expected/v1",
+  "closure": {
+    "bytes": 60979,
+    "sha256": "97a37333ad949a683863569f2a2c061538bd5055e93cf39eb56fd69ea62cfd96",
+    "links": 306,
+    "typeFacts": 115,
+    "categories": {
+      "term": 19,
+      "address": 52,
+      "type": 13,
+      "value": 1,
+      "rule": 6,
+      "substitution": 2,
+      "judgement": 3,
+      "proof": 8,
+      "foundation": 1,
+      "ontology": 4,
+      "program": 3
+    }
+  },
+  "universe": {
+    "stratified-study": {
+      "status": "accepted",
+      "reason": "accepted-relative-to-declared-stratification",
+      "policy": "stratified",
+      "obligations": [
+        {
+          "name": "no-universe-self-typing",
+          "source": "declared",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "typing-respects-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "well-founded-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        }
+      ]
+    },
+    "uncumulative-study": {
+      "status": "violated",
+      "reason": "obligation-violated",
+      "policy": "stratified",
+      "obligations": [
+        {
+          "name": "no-universe-self-typing",
+          "source": "declared",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "typing-respects-universe-order",
+          "source": "policy",
+          "status": "violated",
+          "judgement": [
+            "has-type",
+            "Type",
+            "U2"
+          ],
+          "cycle": []
+        },
+        {
+          "name": "well-founded-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        }
+      ]
+    },
+    "cumulative-study": {
+      "status": "accepted",
+      "reason": "accepted-relative-to-declared-stratification",
+      "policy": "stratified",
+      "obligations": [
+        {
+          "name": "no-universe-self-typing",
+          "source": "declared",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "typing-respects-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "well-founded-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        }
+      ]
+    },
+    "smuggled-study": {
+      "status": "violated",
+      "reason": "obligation-violated",
+      "policy": "stratified",
+      "obligations": [
+        {
+          "name": "no-universe-self-typing",
+          "source": "declared",
+          "status": "violated",
+          "judgement": [
+            "has-type",
+            "Type",
+            "Type"
+          ],
+          "cycle": [
+            "Type",
+            "Type"
+          ]
+        },
+        {
+          "name": "typing-respects-universe-order",
+          "source": "policy",
+          "status": "violated",
+          "judgement": [
+            "has-type",
+            "Type",
+            "Type"
+          ],
+          "cycle": [
+            "Type",
+            "Type"
+          ]
+        },
+        {
+          "name": "well-founded-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        }
+      ]
+    },
+    "circular-study": {
+      "status": "violated",
+      "reason": "obligation-violated",
+      "policy": "stratified",
+      "obligations": [
+        {
+          "name": "no-universe-self-typing",
+          "source": "declared",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "typing-respects-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "well-founded-universe-order",
+          "source": "policy",
+          "status": "violated",
+          "judgement": null,
+          "cycle": [
+            "U1",
+            "U2",
+            "U1"
+          ]
+        }
+      ]
+    },
+    "type-in-type-study": {
+      "status": "accepted",
+      "reason": "accepted-relative-to-declared-type-in-type",
+      "policy": "type-in-type",
+      "obligations": []
+    },
+    "consistency-study": {
+      "status": "unsupported",
+      "reason": "obligation-not-checkable",
+      "policy": "stratified",
+      "obligations": [
+        {
+          "name": "global-consistency",
+          "source": "declared",
+          "status": "unsupported",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "no-universe-self-typing",
+          "source": "declared",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "typing-respects-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        },
+        {
+          "name": "well-founded-universe-order",
+          "source": "policy",
+          "status": "holds",
+          "judgement": null,
+          "cycle": []
+        }
+      ]
+    },
+    "silent-study": {
+      "status": "not-declared",
+      "reason": "no-universe-policy",
+      "policy": null,
+      "obligations": []
+    },
+    "signed-study": {
+      "status": "not-declared",
+      "reason": "policy-outside-signature",
+      "policy": null,
+      "obligations": []
+    }
+  }
+}
