@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "a3204b92b4051918db15c815504623cba82187aecd316029ea2fcb53e1238338",
-  "archiveBytes": 717104,
-  "linkCount": 14539,
+  "archiveSha256": "abe045cbe62a90c6952935cc0a8cbf4c22bbafeabc49e0a2614831f62c785f3d",
+  "archiveBytes": 717138,
+  "linkCount": 14538,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -167,8 +167,8 @@
     },
     {
       "path": "js/vendor/meta-language-provenance.json",
-      "sourceSha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d",
-      "generatedSha256": "fd4a6abbe23bedb3223ae1f34d79a10488038614f8fc3054cd58b987cc13f46f"
+      "sourceSha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e",
+      "generatedSha256": "c9c350dea37b04f86b67f3ce22ffb3b4023fd0e18b7c86dc3d5766cff9762072"
     },
     {
       "path": "lib/algebra/core.lino",
