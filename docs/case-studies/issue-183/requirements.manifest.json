@@ -23239,14 +23239,14 @@
           "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
         }
       ],
-      "claimedEvidence": "Cycle policy comes from the linked foundation declaration (versions 1/2/3 yield unknown/unknown/proved for the same query); undeclared or unknown policies are rejected rather than defaulting to induction; guarded replay is restricted to the declared policy; assumptions, hypotheses and revisions never cross versions while rule changes propagate through an aliased shared theory. The selectable policies are still the two host mechanisms (inductive and guarded-coinductive) chosen by the foundation.",
+      "claimedEvidence": "`rml-foundation-workspace.mjs` and `foundation_workspace.rs` take the cycle policy from the linked foundation declaration (versions 1/2/3 yield unknown/unknown/proved for the same query); undeclared or unknown policies are rejected rather than defaulting to induction; guarded replay is restricted to the declared policy; assumptions, hypotheses and revisions never cross versions while rule changes propagate through an aliased shared theory. The selectable policies are still the two host mechanisms (inductive and guarded-coinductive) chosen by the foundation.",
       "checks": [
         "foundation-context-js",
         "foundation-context-rust",
         "foundation-unseen-logic-js",
         "foundation-unseen-logic-rust"
       ],
-      "remainingGap": "Cycle policy comes from the linked foundation declaration (versions 1/2/3 yield unknown/unknown/proved for the same query); undeclared or unknown policies are rejected rather than defaulting to induction; guarded replay is restricted to the declared policy; assumptions, hypotheses and revisions never cross versions while rule changes propagate through an aliased shared theory. The selectable policies are still the two host mechanisms (inductive and guarded-coinductive) chosen by the foundation.",
+      "remainingGap": "`rml-foundation-workspace.mjs` and `foundation_workspace.rs` take the cycle policy from the linked foundation declaration (versions 1/2/3 yield unknown/unknown/proved for the same query); undeclared or unknown policies are rejected rather than defaulting to induction; guarded replay is restricted to the declared policy; assumptions, hypotheses and revisions never cross versions while rule changes propagate through an aliased shared theory. The selectable policies are still the two host mechanisms (inductive and guarded-coinductive) chosen by the foundation.",
       "verificationState": "live-producer-bound-scoped-historical-contract",
       "assertionBindings": [
         {
