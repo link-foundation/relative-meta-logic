@@ -2383,3 +2383,808 @@ fn excludes_asymmetrically_reduced_candidates_from_ranking() {
         );
     }
 }
+
+// Independent finite combinatorics for the negative ontology checks below.
+// They share no code with the runtime: a pattern lists the class of each
+// occurrence, and an occurrence permutation p reads occurrence p[i] at
+// position i.
+fn set_partitions(width: usize) -> Vec<Vec<usize>> {
+    fn extend(
+        prefix: Vec<usize>,
+        width: usize,
+        largest: Option<usize>,
+        partitions: &mut Vec<Vec<usize>>,
+    ) {
+        if prefix.len() == width {
+            partitions.push(prefix);
+            return;
+        }
+        let limit = largest.map_or(0, |value| value + 1);
+        for value in 0..=limit {
+            let mut next = prefix.clone();
+            next.push(value);
+            let next_largest = largest.map_or(value, |current| current.max(value));
+            extend(next, width, Some(next_largest), partitions);
+        }
+    }
+    let mut partitions = Vec::new();
+    extend(Vec::new(), width, None, &mut partitions);
+    partitions
+}
+
+fn first_occurrence_form(pattern: &[usize]) -> Vec<usize> {
+    let mut names: Vec<usize> = Vec::new();
+    let mut form = Vec::with_capacity(pattern.len());
+    for value in pattern {
+        let index = match names.iter().position(|name| name == value) {
+            Some(index) => index,
+            None => {
+                names.push(*value);
+                names.len() - 1
+            }
+        };
+        form.push(index);
+    }
+    form
+}
+
+fn occurrence_permutations(width: usize) -> Vec<Vec<usize>> {
+    if width == 0 {
+        return vec![Vec::new()];
+    }
+    let mut permutations = Vec::new();
+    for rest in occurrence_permutations(width - 1) {
+        for position in 0..width {
+            let mut permutation = rest.clone();
+            permutation.insert(position, width - 1);
+            permutations.push(permutation);
+        }
+    }
+    permutations
+}
+
+fn permute_occurrences(pattern: &[usize], permutation: &[usize]) -> Vec<usize> {
+    first_occurrence_form(
+        &permutation
+            .iter()
+            .map(|index| pattern[*index])
+            .collect::<Vec<_>>(),
+    )
+}
+
+fn automorphisms(patterns: &[Vec<usize>], width: usize) -> Vec<Vec<usize>> {
+    occurrence_permutations(width)
+        .into_iter()
+        .filter(|permutation| {
+            patterns.iter().all(|pattern| {
+                permute_occurrences(pattern, permutation) == first_occurrence_form(pattern)
+            })
+        })
+        .collect()
+}
+
+fn orbit_sizes(group: &[Vec<usize>], width: usize) -> Vec<usize> {
+    let orbits = (0..width)
+        .map(|occurrence| {
+            group
+                .iter()
+                .map(|permutation| permutation[occurrence])
+                .collect::<BTreeSet<_>>()
+        })
+        .collect::<BTreeSet<_>>();
+    let mut sizes = orbits.iter().map(|orbit| orbit.len()).collect::<Vec<_>>();
+    sizes.sort_unstable();
+    sizes
+}
+
+fn canonical_class(patterns: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    occurrence_permutations(patterns[0].len())
+        .iter()
+        .map(|permutation| {
+            patterns
+                .iter()
+                .map(|pattern| permute_occurrences(pattern, permutation))
+                .collect::<Vec<_>>()
+        })
+        .min()
+        .expect("at least one occurrence permutation")
+}
+
+struct JointClass {
+    base: Vec<usize>,
+    refinement: Vec<usize>,
+    base_class: Vec<Vec<usize>>,
+}
+
+fn joint_classes_of_width_four() -> Vec<JointClass> {
+    let mut seen = BTreeSet::new();
+    let mut classes = Vec::new();
+    for base in set_partitions(4) {
+        for refinement in set_partitions(4) {
+            if seen.insert(canonical_class(&[base.clone(), refinement.clone()])) {
+                classes.push(JointClass {
+                    base_class: canonical_class(&[base.clone()]),
+                    base: base.clone(),
+                    refinement,
+                });
+            }
+        }
+    }
+    classes
+}
+
+fn integer_partition_count(total: usize, largest: usize) -> usize {
+    if total == 0 {
+        return 1;
+    }
+    (1..=largest.min(total))
+        .map(|part| integer_partition_count(total - part, part))
+        .sum()
+}
+
+// Addressable classes: a link address followed by unlabelled references, up
+// to address renaming and reference-slot permutation.
+fn unlabelled_addressable_classes(width: usize) -> usize {
+    set_partitions(width + 1)
+        .iter()
+        .map(|pattern| {
+            occurrence_permutations(width)
+                .iter()
+                .map(|permutation| {
+                    let mut ordered = vec![pattern[0]];
+                    ordered.extend(permutation.iter().map(|index| pattern[index + 1]));
+                    first_occurrence_form(&ordered)
+                })
+                .min()
+                .expect("at least one occurrence permutation")
+        })
+        .collect::<BTreeSet<_>>()
+        .len()
+}
+
+#[test]
+fn admits_no_endpoint_direction_or_unique_role_for_two_distinct_references() {
+    // Swapping the two occurrences and renaming the references fixes [0, 1],
+    // so neither occurrence can be singled out as a source or a target.
+    let mut symmetries = automorphisms(&[vec![0, 1]], 2);
+    symmetries.sort();
+    assert_eq!(symmetries, vec![vec![0, 1], vec![1, 0]]);
+    assert_eq!(orbit_sizes(&symmetries, 2), vec![2]);
+    let selectors: [Vec<usize>; 4] = [vec![], vec![0], vec![1], vec![0, 1]];
+    let invariant_selectors = selectors
+        .into_iter()
+        .filter(|selector| {
+            symmetries.iter().all(|permutation| {
+                let mut image = selector
+                    .iter()
+                    .map(|index| permutation[*index])
+                    .collect::<Vec<_>>();
+                image.sort_unstable();
+                &image == selector
+            })
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(invariant_selectors, vec![Vec::<usize>::new(), vec![0, 1]]);
+    let maps: [[usize; 2]; 4] = [[0, 0], [0, 1], [1, 0], [1, 1]];
+    let equivariant_self_maps = maps
+        .into_iter()
+        .filter(|map| {
+            symmetries.iter().all(|permutation| {
+                (0..2).all(|index| map[permutation[index]] == permutation[map[index]])
+            })
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(equivariant_self_maps, vec![[0, 1], [1, 0]]);
+
+    let report = link_ontology_symmetry_report();
+    assert!(
+        !report
+            .distinct_reference_symmetry
+            .invariant_singleton_selector_exists
+    );
+    assert!(
+        !report
+            .distinct_reference_symmetry
+            .unique_equivariant_self_map
+    );
+    assert_eq!(
+        report
+            .distinct_reference_symmetry
+            .equivariant_self_maps
+            .len(),
+        equivariant_self_maps.len()
+    );
+    assert_eq!(
+        report
+            .results
+            .iter()
+            .find(|item| item.id == "endpoint-direction")
+            .map(|item| item.result),
+        Some("NOT_DERIVABLE")
+    );
+    // Two reifications project to the same observation, so link identity is
+    // a representation choice rather than a consequence of the contract.
+    assert_eq!(
+        report
+            .reification_countermodels
+            .iter()
+            .map(|model| (model.projected_observation, model.has_link_identity))
+            .collect::<Vec<_>>(),
+        vec![
+            ("distinct-references", false),
+            ("distinct-references", true)
+        ]
+    );
+}
+
+#[test]
+fn loses_wider_multiplicity_classes_under_the_fixed_two_occurrence_contract() {
+    let report = link_ontology_symmetry_report();
+    let boundary = &report.observation_boundary;
+    // A two-occurrence observation has only two outcomes: same or distinct.
+    let binary_outcomes = set_partitions(2).len();
+    assert_eq!(binary_outcomes, 2);
+    for width in 1..=4 {
+        let enumeration = boundary
+            .arity_enumeration
+            .iter()
+            .find(|item| item.occurrence_count == width)
+            .expect("enumerated width");
+        assert_eq!(
+            enumeration.reference_rename_classes,
+            set_partitions(width).len()
+        );
+        assert_eq!(
+            enumeration.quotient_classes,
+            integer_partition_count(width, width)
+        );
+        assert_eq!(
+            enumeration.multiplicity_spectra.len(),
+            integer_partition_count(width, width)
+        );
+    }
+    // Three and five classes cannot fit into two outcomes.
+    assert!(integer_partition_count(3, 3) > binary_outcomes);
+    assert!(integer_partition_count(4, 4) > binary_outcomes);
+    assert_eq!(boundary.status, "BINARY_CONTRACT_NOT_EXHAUSTIVE");
+    assert_eq!(
+        boundary
+            .loss_audit
+            .iter()
+            .find(|item| item.distinction == "width beyond two occurrences")
+            .map(|item| item.classification),
+        Some("PROVEN_INFORMATION_LOSS")
+    );
+}
+
+#[test]
+fn claims_complete_multiplicity_invariants_only_for_the_enumerated_widths() {
+    let report = link_ontology_symmetry_report();
+    let boundary = &report.observation_boundary;
+    assert_eq!(
+        boundary
+            .arity_enumeration
+            .iter()
+            .map(|item| item.occurrence_count)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 3, 4]
+    );
+    assert!(boundary
+        .generalized_complete_invariant
+        .ends_with("exhaustively tested unlabelled width 1 through 4"));
+    assert!(report
+        .remaining_boundary
+        .ends_with("or generalize every finite enumeration beyond its stated argument."));
+}
+
+#[test]
+fn keeps_occurrence_order_and_unobserved_distinctions_unestablished() {
+    // [0, 0, 1] and [0, 1, 0] differ as ordered patterns, but one reference-slot
+    // exchange carries one to the other: only slot identity separates them.
+    assert_ne!(
+        first_occurrence_form(&[0, 0, 1]),
+        first_occurrence_form(&[0, 1, 0])
+    );
+    assert_eq!(permute_occurrences(&[0, 1, 0], &[0, 2, 1]), vec![0, 0, 1]);
+
+    let report = link_ontology_symmetry_report();
+    let boundary = &report.observation_boundary;
+    let audit = &boundary.starting_representation_audit.quotient_audit;
+    assert_eq!(
+        audit
+            .occurrence_permutation_countermodel
+            .first_ordered_pattern,
+        vec![0, 0, 1]
+    );
+    assert_eq!(
+        audit
+            .occurrence_permutation_countermodel
+            .second_ordered_pattern,
+        vec![0, 1, 0]
+    );
+    assert!(
+        !audit
+            .occurrence_permutation_countermodel
+            .same_under_address_renaming_alone
+    );
+    assert_eq!(audit.occurrence_permutation_intrinsic, "UNRESOLVED");
+    let loss = |distinction: &str| {
+        boundary
+            .loss_audit
+            .iter()
+            .find(|item| item.distinction == distinction)
+            .map(|item| item.classification)
+    };
+    assert_eq!(loss("occurrence order"), Some("UNESTABLISHED_EQUIVALENCE"));
+    assert_eq!(
+        loss("endpoint direction"),
+        Some("NOT_OBSERVED_NOT_DISPROVED")
+    );
+    assert_eq!(
+        loss("dynamics and time"),
+        Some("NOT_OBSERVED_NOT_DISPROVED")
+    );
+    assert_eq!(
+        loss("admissibility from linked descriptions and evidence"),
+        Some("STRUCTURAL_CERTIFICATES_FILTER_RELATIVE_TO_EXTERNAL_VERIFIER")
+    );
+}
+
+#[test]
+fn separates_the_33_joint_classes_only_with_both_equivalence_relations() {
+    let joint = joint_classes_of_width_four();
+    let base_classes = joint
+        .iter()
+        .map(|item| item.base_class.clone())
+        .collect::<BTreeSet<_>>();
+    // Forgetting the second relation leaves five classes, so an encoding that
+    // keeps only the reference partition cannot pass the agreement check.
+    assert_eq!(joint.len(), 33);
+    assert_eq!(base_classes.len(), 5);
+
+    let report = link_ontology_symmetry_report();
+    let refinement = &report.observation_boundary.conditional_refinement;
+    assert_eq!(refinement.joint_quotient_classes, joint.len());
+    assert_eq!(
+        refinement
+            .encodings
+            .iter()
+            .map(|item| item.distinct_classes)
+            .collect::<Vec<_>>(),
+        vec![joint.len(), joint.len(), joint.len()]
+    );
+    assert!(refinement.encoding_agreement);
+    assert_eq!(
+        refinement
+            .projection_fibres
+            .iter()
+            .map(|item| item.joint_classes)
+            .sum::<usize>(),
+        joint.len()
+    );
+    assert_eq!(refinement.projection_fibres.len(), base_classes.len());
+}
+
+#[test]
+fn cannot_recover_the_conditional_relation_from_its_reference_only_projection() {
+    let mut fibres = std::collections::BTreeMap::new();
+    for item in joint_classes_of_width_four() {
+        *fibres.entry(item.base_class).or_insert(0usize) += 1;
+    }
+    let mut fibre_sizes = fibres.into_values().collect::<Vec<_>>();
+    fibre_sizes.sort_unstable();
+    // Every base class has several joint refinements, so no function of the
+    // base projection restores the second relation.
+    assert_eq!(fibre_sizes, vec![5, 5, 7, 7, 9]);
+    assert!(fibre_sizes.iter().all(|size| *size > 1));
+
+    let report = link_ontology_symmetry_report();
+    let refinement = &report.observation_boundary.conditional_refinement;
+    let mut reported = refinement
+        .projection_fibres
+        .iter()
+        .map(|item| item.joint_classes)
+        .collect::<Vec<_>>();
+    reported.sort_unstable();
+    assert_eq!(reported, fibre_sizes);
+    assert!(refinement.every_projection_fibre_ambiguous);
+    assert!(!refinement.refinement_recoverable_from_base);
+    assert_eq!(
+        refinement.assumption.provenance,
+        "CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED"
+    );
+    assert_eq!(refinement.assumption.foundational_status, "UNESTABLISHED");
+}
+
+#[test]
+fn counts_singleton_occurrence_orbits_without_equating_them_with_a_unique_role() {
+    let mut histogram = std::collections::BTreeMap::new();
+    for item in joint_classes_of_width_four() {
+        let singletons = orbit_sizes(
+            &automorphisms(&[item.base.clone(), item.refinement.clone()], 4),
+            4,
+        )
+        .into_iter()
+        .filter(|size| *size == 1)
+        .count();
+        *histogram.entry(singletons).or_insert(0usize) += 1;
+    }
+    let counted = histogram
+        .iter()
+        .map(|(singletons, classes)| (*singletons, *classes))
+        .collect::<Vec<_>>();
+    assert_eq!(counted, vec![(0, 20), (1, 5), (2, 7), (4, 1)]);
+    // Thirteen classes contain a singleton orbit, but only five select exactly one.
+    let with_singleton = counted
+        .iter()
+        .filter(|(singletons, _)| *singletons > 0)
+        .map(|(_, classes)| *classes)
+        .sum::<usize>();
+    assert_eq!(with_singleton, 13);
+    assert_ne!(Some(&with_singleton), histogram.get(&1usize));
+
+    let report = link_ontology_symmetry_report();
+    let refinement = &report.observation_boundary.conditional_refinement;
+    assert_eq!(
+        refinement
+            .singleton_orbit_histogram
+            .iter()
+            .map(|item| (item.singleton_orbits, item.joint_classes))
+            .collect::<Vec<_>>(),
+        counted
+    );
+    assert_eq!(refinement.classes_with_invariant_singleton, with_singleton);
+    assert!(!refinement.universal_singleton_selector_exists);
+    assert!(report
+        .remaining_boundary
+        .contains("derive execution semantics"));
+}
+
+#[test]
+fn traces_interaction_only_asymmetry_to_information_absent_from_the_base() {
+    let base = vec![0, 0, 1, 2];
+    let interaction_only = vec![0, 1, 0, 2];
+    assert_eq!(
+        orbit_sizes(&automorphisms(&[base.clone()], 4), 4),
+        vec![2, 2]
+    );
+    assert_eq!(
+        orbit_sizes(&automorphisms(&[interaction_only.clone()], 4), 4),
+        vec![2, 2]
+    );
+    assert_eq!(
+        orbit_sizes(
+            &automorphisms(&[base.clone(), interaction_only.clone()], 4),
+            4
+        ),
+        vec![1, 1, 1, 1]
+    );
+    // A relabelling that fixes the base moves the conditional pattern, so no
+    // derivation that commutes with relabelling can produce it from the base.
+    assert_eq!(permute_occurrences(&base, &[1, 0, 2, 3]), base);
+    assert_eq!(
+        permute_occurrences(&interaction_only, &[1, 0, 2, 3]),
+        vec![0, 1, 1, 2]
+    );
+
+    // Over every base/candidate pair at widths one through four, candidates
+    // that keep every base symmetry never split a base occurrence orbit.
+    let mut pairs = 0;
+    let mut preserving = 0;
+    for width in 1..=4 {
+        for pattern in set_partitions(width) {
+            let symmetries = automorphisms(&[pattern.clone()], width);
+            for candidate in set_partitions(width) {
+                pairs += 1;
+                let kept = symmetries
+                    .iter()
+                    .all(|permutation| permute_occurrences(&candidate, permutation) == candidate);
+                if !kept {
+                    continue;
+                }
+                preserving += 1;
+                assert_eq!(
+                    orbit_sizes(&automorphisms(&[pattern.clone(), candidate], width), width),
+                    orbit_sizes(&symmetries, width)
+                );
+            }
+        }
+    }
+    assert_eq!((pairs, preserving, pairs - preserving), (255, 73, 182));
+
+    let report = link_ontology_symmetry_report();
+    let refinement = &report.observation_boundary.conditional_refinement;
+    let enumeration = &refinement.derivation_boundary.finite_enumeration;
+    assert_eq!(
+        enumeration
+            .iter()
+            .map(|item| item.candidate_observations_examined)
+            .sum::<usize>(),
+        pairs
+    );
+    assert_eq!(
+        enumeration
+            .iter()
+            .map(|item| item.base_symmetry_preserving_candidates)
+            .sum::<usize>(),
+        preserving
+    );
+    assert!(enumeration
+        .iter()
+        .all(|item| item.preserving_candidates_changing_occurrence_orbits == 0));
+    assert!(
+        !refinement
+            .derivation_boundary
+            .interaction_only_counterexample
+            .conditional_pattern_preserved
+    );
+    assert_eq!(
+        refinement
+            .asymmetry_provenance
+            .classifications
+            .iter()
+            .find(|item| item.id == "RELATIONAL_INTERACTION_ONLY")
+            .map(|item| item.joint_classes),
+        Some(1)
+    );
+}
+
+#[test]
+fn takes_no_set_type_calculus_or_verifier_authority_as_intrinsic_to_links() {
+    let report = link_ontology_symmetry_report();
+    assert_eq!(
+        report
+            .assumptions
+            .iter()
+            .map(|item| item.provenance)
+            .collect::<Vec<_>>(),
+        vec![
+            "EXPERIMENTAL_OBSERVATION_CONTRACT",
+            "EXPERIMENTAL_OBSERVATION_CONTRACT"
+        ]
+    );
+    assert_eq!(
+        report.observation_boundary.unchanged_primitive_vocabulary,
+        vec!["unlabelled reference occurrences", "reference equality"]
+    );
+    let vocabulary = format!(
+        "{:?} {:?} {:?} {:?}",
+        report.starting_contract,
+        report.assumptions,
+        report.deliberately_absent,
+        report.observation_boundary.unchanged_primitive_vocabulary
+    )
+    .to_lowercase();
+    for imported in [
+        "set theory",
+        "category",
+        "type",
+        "lambda",
+        "evaluator",
+        "rewrite",
+        "graph",
+    ] {
+        assert!(!vocabulary.contains(imported), "{imported}");
+    }
+    for absent in ["endpoint order", "source/target roles", "execution law"] {
+        assert!(report.deliberately_absent.contains(&absent), "{absent}");
+    }
+    // The exact-cover verifier is declared external, not derived from links.
+    let admissibility = &report
+        .observation_boundary
+        .starting_representation_audit
+        .linked_structural_admissibility;
+    assert_eq!(
+        admissibility.contract.verification_provenance,
+        "EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY"
+    );
+    assert!(!admissibility.contract.role_names_intrinsic_to_records);
+    assert!(!link_representation_boundary_report().existing_candidates_constrain_search);
+}
+
+#[test]
+fn projects_a_direct_self_link_and_a_fresh_external_link_to_one_reference_only_class() {
+    // A pattern lists the link address and then its reference addresses.
+    fn spectrum(references: &[usize]) -> Vec<usize> {
+        let mut counts = std::collections::BTreeMap::new();
+        for reference in references {
+            *counts.entry(*reference).or_insert(0usize) += 1;
+        }
+        let mut spectrum = counts.into_values().collect::<Vec<_>>();
+        spectrum.sort_unstable_by(|left, right| right.cmp(left));
+        spectrum
+    }
+    fn self_references(pattern: &[usize]) -> usize {
+        pattern[1..]
+            .iter()
+            .filter(|reference| **reference == pattern[0])
+            .count()
+    }
+    let direct_self = vec![0, 0, 1];
+    let fresh_external = vec![0, 1, 2];
+    assert_eq!(spectrum(&direct_self[1..]), spectrum(&fresh_external[1..]));
+    assert_ne!(
+        self_references(&direct_self),
+        self_references(&fresh_external)
+    );
+
+    let counts = (1..=4)
+        .map(|width| {
+            (
+                integer_partition_count(width, width),
+                unlabelled_addressable_classes(width),
+            )
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(counts, vec![(1, 2), (2, 4), (3, 7), (5, 12)]);
+    assert!(counts
+        .iter()
+        .all(|(reference_only, addressable)| addressable > reference_only));
+
+    let report = link_ontology_symmetry_report();
+    let audit = &report.observation_boundary.starting_representation_audit;
+    assert_eq!(
+        audit
+            .finite_enumeration
+            .iter()
+            .map(|item| (item.reference_only_classes, item.addressable_link_classes))
+            .collect::<Vec<_>>(),
+        counts
+    );
+    assert!(!audit.reference_only_projection_faithful);
+    assert_eq!(
+        audit
+            .countermodel
+            .direct_self_link
+            .normalized_address_pattern,
+        direct_self
+    );
+    assert_eq!(
+        audit
+            .countermodel
+            .fresh_external_link
+            .normalized_address_pattern,
+        fresh_external
+    );
+    assert!(audit.countermodel.same_reference_only_projection);
+    assert!(!audit.countermodel.same_addressable_link_class);
+}
+
+#[test]
+fn keeps_reference_slot_identity_unresolved_under_the_declared_address_quotient() {
+    // Ordered link-plus-reference patterns up to address renaming are set
+    // partitions of width + 1 positions; permuting reference slots merges some.
+    let ordered = (1..=4)
+        .map(|width| set_partitions(width + 1).len())
+        .collect::<Vec<_>>();
+    assert_eq!(ordered, vec![2, 5, 15, 52]);
+    let collapsed = (1..=4)
+        .map(|width| ordered[width - 1] - unlabelled_addressable_classes(width))
+        .collect::<Vec<_>>();
+    assert_eq!(collapsed, vec![0, 1, 8, 40]);
+
+    let report = link_ontology_symmetry_report();
+    let audit = &report
+        .observation_boundary
+        .starting_representation_audit
+        .quotient_audit;
+    assert_eq!(
+        audit
+            .finite_enumeration
+            .iter()
+            .map(|item| item.classes_collapsed_by_occurrence_permutation)
+            .collect::<Vec<_>>(),
+        collapsed
+    );
+    assert_eq!(
+        audit
+            .transformations
+            .iter()
+            .map(|item| (item.transformation, item.classification))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                "global address renaming",
+                "DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT",
+            ),
+            (
+                "reference-occurrence permutation",
+                "UNESTABLISHED_EQUIVALENCE",
+            ),
+        ]
+    );
+    assert_eq!(
+        audit.occurrence_permutation_countermodel.interpretation,
+        "DISTINGUISHABLE_ONLY_IF_REFERENCE_SLOTS_HAVE_IDENTITY"
+    );
+    assert_eq!(audit.occurrence_permutation_intrinsic, "UNRESOLVED");
+}
+
+#[test]
+fn does_not_report_halting_for_a_counter_machine_that_reaches_an_undefined_state() {
+    let source = source();
+    for basis in [ExecutionBasis::ClosedSk, ExecutionBasis::DirectStructural] {
+        let registry = LinkedProgramRegistry::from_rml_with_basis(&source, basis, &[])
+            .expect("alternative foundations load");
+        let result = registry
+            .reduce(
+                "link-register-machine",
+                &node(
+                    "(machine-start
+                       (instructions (instruction q0 decrement-left q9 q9) (no-instructions))
+                       q0 (successor zero) zero)",
+                ),
+                10_000,
+            )
+            .expect("the machine reduces to a normal form");
+        // The decrement runs, then no instruction is labelled q9 and no halt
+        // rule applies, so the machine stops scanning without halting.
+        assert!(assert_halted(&result.term).is_err(), "{basis:?}");
+        let Node::List(children) = &result.term else {
+            panic!("{basis:?}: the machine returned an atom");
+        };
+        assert_eq!(
+            children[0],
+            Node::Leaf("machine-scan".to_string()),
+            "{basis:?}"
+        );
+        assert_eq!(children[2], node("(no-instructions)"), "{basis:?}");
+        assert_eq!(children[3], Node::Leaf("q9".to_string()), "{basis:?}");
+        assert!(
+            !result.trace.iter().any(|step| step.rule == "halt-machine"),
+            "{basis:?}"
+        );
+    }
+}
+
+#[test]
+fn leaves_a_guarded_referential_link_with_unequal_endpoints_unobserved() {
+    let source = source();
+    let unequal = node("(observe (guarded-link left-address pulse right-address))");
+    for basis in [ExecutionBasis::ClosedSk, ExecutionBasis::DirectStructural] {
+        let registry = LinkedProgramRegistry::from_rml_with_basis(&source, basis, &[])
+            .expect("alternative foundations load");
+        let result = registry
+            .reduce("guarded-referential-links", &unequal, 10_000)
+            .expect("the unequal link is a normal form");
+        assert_eq!(result.term, unequal, "{basis:?}");
+        assert!(result.trace.is_empty(), "{basis:?}");
+    }
+}
+
+#[test]
+fn selects_no_target_architecture_and_treats_imported_categories_as_unestablished() {
+    let report = link_representation_boundary_report();
+    assert!(!report.target_architecture_selected);
+    assert!(!report.existing_candidates_constrain_search);
+    assert!(!report.imported_primitive_categories.is_empty());
+    for category in &report.imported_primitive_categories {
+        assert_ne!(
+            category.foundational_status, "ESTABLISHED",
+            "{}",
+            category.id
+        );
+        assert_eq!(
+            category.provenance, "IMPORTED_EXPERIMENTAL_VOCABULARY",
+            "{}",
+            category.id
+        );
+    }
+    assert!(report
+        .open_questions
+        .iter()
+        .all(|question| question.status == "UNRESOLVED"));
+}
+
+#[test]
+fn keeps_the_executable_controls_non_constraining_and_never_calls_them_link_native() {
+    let boundary = link_representation_boundary_report();
+    assert_eq!(
+        boundary.existing_candidates_role,
+        "EXECUTABLE_CONTROLS_ONLY"
+    );
+    assert!(!boundary.existing_candidates_constrain_search);
+    let text = format!("{boundary:?} {:?}", link_ontology_symmetry_report()).to_lowercase();
+    assert!(!text.contains("link-native"));
+    assert!(!text.contains("links-native"));
+}
