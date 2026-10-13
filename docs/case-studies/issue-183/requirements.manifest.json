@@ -29,7 +29,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -64,7 +64,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -195,7 +195,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -230,7 +230,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -361,7 +361,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -396,7 +396,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -709,7 +709,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -744,7 +744,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -1069,7 +1069,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -1104,7 +1104,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -1207,7 +1207,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -1242,7 +1242,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -2246,12 +2246,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`LinkedProgramRegistry` performs native linked reduction/inference; theory verification does not call the external corpus or a proof-assistant kernel. External builds are provenance/parity checks only.",
@@ -2509,12 +2509,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "De Bruijn lambda program in `universal.lino`; `((λx.x) a) -> a` and nested capture-safety tests in both runtimes.",
@@ -2599,12 +2599,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "js/src/rml-theory-network.mjs",
@@ -2920,12 +2920,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The theory table and source walkthrough in `docs/META_THEORY.md`; conformance fixtures cover both reduction and judgement views.",
@@ -3440,12 +3440,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The documented `S/K -> closed linked terms -> K1 -> F -> T` model and mirrored kernel reports separate two semantic contractions from parsing and resource control, with zero derived host services and zero object semantics.",
@@ -3580,12 +3580,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`links-meta-foundation` defines object-encoded environment lookup, matching, substitution, rule selection/application, and result verification; mirrored tests execute an encoded copy of its own repeated-variable matching rule and compare it with direct execution.",
@@ -3748,12 +3748,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Import-level `rebind` works across rewrites, facts, inferences, and transitive imports. One portable classifier returns `reject` or `accept` under strict/permissive user foundations without changing its source.",
@@ -3842,12 +3842,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`set-theory-over-traditional-sequences` and `set-theory-over-associative-links` rebind constructor concepts while importing the same complete set program; mirrored membership tests execute both.",
@@ -3936,12 +3936,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`bootstrapMetricsReport` / `bootstrap_metrics_report` fault-inject S, K, parsing, and bounds. S and K are necessary for the current representation/probe; parsing and bounds remain separately non-semantic.",
@@ -4064,12 +4064,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "K1 interprets an encoded copy of its own non-linear `match-identical-atoms` pattern, including repeated-variable equality and substitution; JS/Rust require agreement with direct K0 execution and inspect the K1 trace.",
@@ -4154,12 +4154,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Both reports expose `rml-bootstrap-trust-graph/v1`, including S/K, six links-defined services, non-semantic boundary layers, and public semantic paths with explicit dependencies.",
@@ -4292,12 +4292,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Mirrored `auditBootstrapKernel` / `audit_bootstrap_kernel` tests compare an independent implementation manifest with the report and reject a simulated `hidden-object-evaluator`. The audit also requires every dependency branch to terminate in K0.",
@@ -4418,12 +4418,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "test-corpus/bootstrap-boundary/cases.json",
@@ -4550,12 +4550,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "test-corpus/bootstrap-boundary/cases.json",
@@ -4674,12 +4674,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`bootstrapMetricsReport` / `bootstrap_metrics_report` executes a common probe and reports exactly two host semantic operations: S and K contraction. Parsing and bounds are visible but excluded from the semantic count.",
@@ -4794,12 +4794,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Every boundary operation can be disabled at its execution point. S and K are `INDEPENDENT` relative to the current representation/probe. An executable iota witness preserves identity, discard, and duplication, but records `surfaceLawCount: 1`, `residualExternalSemanticLawCount: 2`, and `semanticInformationReduced: false`; the report explicitly rejects a global irreducibility claim.",
@@ -4901,12 +4901,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`hostLinkedDuplications` / `host_linked_duplications` are empty because matching, substitution, traversal, import/rebinding, inference, and verification have only closed-term implementations.",
@@ -5007,12 +5007,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The linked-load/import/reduce/infer/self-verify task uses six links-defined semantic capabilities and zero host-defined counterparts, so closure is `6/6`, with every capability named.",
@@ -5113,12 +5113,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`hostSemanticLayers` / `host_semantic_layers` separate semantic bootstrap (2), derived semantics (0), parsing (1), resource control (1), observability (0), and object-specific semantics (0).",
@@ -5184,7 +5184,7 @@
     {
       "id": "R38",
       "obligation": "Compare runtime-observed semantics with the trust graph.",
-      "status": "Partial — runtime trust-graph coverage is computed and reported, but detection of an undocumented runtime path is not tested",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "pull-184",
@@ -5207,23 +5207,25 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
-      "claimedEvidence": "`runtimeTrustGraphCoverage` / `runtime_trust_graph_coverage` are computed inline in `bootstrapMetricsReport` / `bootstrap_metrics_report` from the executed trace and record four paths and 10 segments; `measures the complete host semantic surface and self-hosting distance` asserts zero undocumented paths, operations and segments in both runtimes, and the bootstrap-boundary audit rejects an unterminated public path. Gap: no executed test injects an undocumented runtime path, operation or segment into the trace and shows that the coverage comparison reports it, so the comparison is observed only on the documented trace.",
+      "claimedEvidence": "`runtimeTrustGraphCoverage(trace, kernel)` / `runtime_trust_graph_coverage(trace, kernel)` in `js/src/rml-linked-program.mjs` / `rust/src/linked_program.rs` are public functions that `bootstrapMetricsReport` / `bootstrap_metrics_report` use to compare the executed trace with the kernel trust graph. The executed probe trace has four paths and 10 segments, all documented. `js/tests/runtime-trust-coverage.test.mjs` and `rust/tests/runtime_trust_coverage_tests.rs` inject an undocumented path, operation and segment into the executed trace and check that each is reported, and check that removing a real path's trust-graph node, its edges or an operation makes the comparison report that path, segment or operation. The bootstrap-boundary audit rejects an unterminated public path. `none`",
       "checks": [
         "linked-program-js",
         "linked-program-rust",
         "bootstrap-boundary-js",
-        "bootstrap-boundary-rust"
+        "bootstrap-boundary-rust",
+        "runtime-trust-coverage-js",
+        "runtime-trust-coverage-rust"
       ],
-      "remainingGap": "`runtimeTrustGraphCoverage` / `runtime_trust_graph_coverage` are computed inline in `bootstrapMetricsReport` / `bootstrap_metrics_report` from the executed trace and record four paths and 10 segments; `measures the complete host semantic surface and self-hosting distance` asserts zero undocumented paths, operations and segments in both runtimes, and the bootstrap-boundary audit rejects an unterminated public path. Gap: no executed test injects an undocumented runtime path, operation or segment into the trace and shows that the coverage comparison reports it, so the comparison is observed only on the documented trace.",
-      "verificationState": "not-execution-certified",
+      "remainingGap": "`runtimeTrustGraphCoverage(trace, kernel)` / `runtime_trust_graph_coverage(trace, kernel)` in `js/src/rml-linked-program.mjs` / `rust/src/linked_program.rs` are public functions that `bootstrapMetricsReport` / `bootstrap_metrics_report` use to compare the executed trace with the kernel trust graph. The executed probe trace has four paths and 10 segments, all documented. `js/tests/runtime-trust-coverage.test.mjs` and `rust/tests/runtime_trust_coverage_tests.rs` inject an undocumented path, operation and segment into the executed trace and check that each is reported, and check that removing a real path's trust-graph node, its edges or an operation makes the comparison report that path, segment or operation. The bootstrap-boundary audit rejects an unterminated public path. `none`",
+      "verificationState": "full-scope-producer-bound-awaiting-fresh-native-execution",
       "assertionBindings": [
         {
           "checkId": "linked-program-js",
@@ -5248,9 +5250,94 @@
           "file": "rust/tests/bootstrap_boundary_evidence_tests.rs",
           "name": "rejects_public_paths_with_a_branch_that_does_not_terminate_in_k0",
           "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-trust-coverage-js",
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "documents every path, operation and segment of the executed probe trace",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-trust-coverage-js",
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "reports an undocumented runtime path, operation and segment injected into the executed trace",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-trust-coverage-js",
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "reports a real path as undocumented once its trust-graph node or edge is removed",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-trust-coverage-rust",
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_documents_every_path_operation_and_segment",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-trust-coverage-rust",
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_injection_is_reported_as_undocumented",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-trust-coverage-rust",
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_path_without_node_or_edge_is_reported",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "runtime-trust-coverage-js",
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "documents every path, operation and segment of the executed probe trace",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-trust-coverage-js",
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "reports an undocumented runtime path, operation and segment injected into the executed trace",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-trust-coverage-js",
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "reports a real path as undocumented once its trust-graph node or edge is removed",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-trust-coverage-rust",
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_documents_every_path_operation_and_segment",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "runtime-trust-coverage-rust",
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_injection_is_reported_as_undocumented",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "runtime-trust-coverage-rust",
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_path_without_node_or_edge_is_reported",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-program-js",
+          "file": "js/tests/linked-program.test.mjs",
+          "name": "measures the complete host semantic surface and self-hosting distance",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-program-rust",
+          "file": "rust/tests/linked_program_tests.rs",
+          "name": "measures_the_complete_host_semantic_surface_and_self_hosting_distance",
+          "polarity": "positive"
+        }
+      ]
     },
     {
       "id": "R39",
@@ -5278,12 +5365,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The executable semantic host surface falls from eight operations to the S/K basis, so the current ratio is `2/8`. The report scopes necessity to its representation/probe and does not extrapolate to global minimality.",
@@ -5372,12 +5459,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The versioned `rml-bootstrap-metrics/v4` comparison records known values from `8b39df5`, uses `null` for previously unmeasured values, and is printed in the bootstrap workflow.",
@@ -5614,12 +5701,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "lib/meta-theory/fixed-point-source.lino",
@@ -5745,12 +5832,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Mirrored reports distinguish `represented-as-addressed-links`, `derived-inside-system`, `compiled-from-external-semantic-description`, and `externally-primitive`; S/K are explicitly external laws and the six higher capabilities are derived. The representation label does not claim ontological provenance.",
@@ -5848,12 +5935,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`foundationSearchExperiments` / `foundation_search_experiments` record that disabling S and K together fails the complete probe. This is evidence about the current passive host model, not link ontology. S/K succeeds; the iota experiment executes separately, observes both operations, and reports a surface re-encoding rather than reduced semantic information.",
@@ -5948,7 +6035,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -5983,7 +6070,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -6356,7 +6443,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -6391,7 +6478,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -6473,7 +6560,7 @@
     {
       "id": "R47",
       "obligation": "Preserve and semantically account for the complete finite upstream 0.0.3 formal content, not only declaration names.",
-      "status": "Partial — source preserved; native execution of the full corpus, stage map and a certified proof fragment",
+      "status": "Partial — source preserved; native execution of the full corpus, stage map and a certified proof fragment with list induction and case analysis",
       "originalWording": [
         {
           "sourceId": "comment-5751189191",
@@ -6511,11 +6598,6 @@
           "role": "historical-claim"
         },
         {
-          "path": "js/src/rml-meta-theory-native.mjs",
-          "role": "implementation",
-          "sha256": "f3de127b5a2dc2704ae06866f9b2ff52cf639a0567593dd83d444ed37eee5bb7"
-        },
-        {
           "path": "rust/src/meta_theory_native.rs",
           "role": "implementation",
           "sha256": "43d5d318a5c588523322fa2b3ee30e4b7a897f6aa6061614674c21c5fb9028ac"
@@ -6528,15 +6610,22 @@
         {
           "path": "docs/META_THEORY_NATIVE.md",
           "role": "implementation",
-          "sha256": "338e24023e62e07f187ec43f0770406fa8e75adc3127408b66e201707d761ab1"
+          "sha256": "566de8a652445e782cd67c7fcba60c35e0de69b0a143b2eed28058945f3b0355"
+        },
+        {
+          "path": "js/src/rml-meta-theory-native.mjs",
+          "role": "implementation",
+          "sha256": "dd78c28e193c44d49109b66f55f61f1db289ee7b855d09f2ad469a940a21dfe8"
         }
       ],
-      "claimedEvidence": "`upstream-0.0.3-native.lino` is generated from the preserved tokens; 229/229 declarations and 197/197 commands are elaborated with exact dependency links, all 90 `#eval`/`Compute` commands reach values, 52/52 source-stated expectations match and 84 Lean/Rocq pairs agree (6 `SequenceDefinitions` pairs differ honestly by return type); 183 declarations have ablation witnesses (150 upstream, 33 untyped base-case probes) and 14/36 theorems are certified. `Typed elaboration covers 72/229 declarations (132 unsupported, 21 unresolved) and 22 proofs are outside the certificate fragment`.",
+      "claimedEvidence": "`upstream-0.0.3-native.lino` is generated from the preserved tokens; 229/229 declarations and 197/197 commands are elaborated with exact dependency links, all 90 `#eval`/`Compute` commands reach values, 52/52 source-stated expectations match and 84 Lean/Rocq pairs agree (6 `SequenceDefinitions` pairs differ honestly by return type); 183 declarations have ablation witnesses (150 upstream, 33 untyped base-case probes) and 17/36 theorems are certified (`test-corpus/meta-theory-certificates/certificates.json`, listed in `docs/META_THEORY_NATIVE.md` with the exact reason for each of the others). `Typed elaboration covers 72/229 declarations (132 unsupported, 21 unresolved) and 19 proofs are outside the certificate fragment`",
       "checks": [
         "meta-theory-native-js",
-        "meta-theory-native-rust"
+        "meta-theory-native-rust",
+        "meta-theory-certificates-js",
+        "meta-theory-certificates-rust"
       ],
-      "remainingGap": "`upstream-0.0.3-native.lino` is generated from the preserved tokens; 229/229 declarations and 197/197 commands are elaborated with exact dependency links, all 90 `#eval`/`Compute` commands reach values, 52/52 source-stated expectations match and 84 Lean/Rocq pairs agree (6 `SequenceDefinitions` pairs differ honestly by return type); 183 declarations have ablation witnesses (150 upstream, 33 untyped base-case probes) and 14/36 theorems are certified. `Typed elaboration covers 72/229 declarations (132 unsupported, 21 unresolved) and 22 proofs are outside the certificate fragment`.",
+      "remainingGap": "`upstream-0.0.3-native.lino` is generated from the preserved tokens; 229/229 declarations and 197/197 commands are elaborated with exact dependency links, all 90 `#eval`/`Compute` commands reach values, 52/52 source-stated expectations match and 84 Lean/Rocq pairs agree (6 `SequenceDefinitions` pairs differ honestly by return type); 183 declarations have ablation witnesses (150 upstream, 33 untyped base-case probes) and 17/36 theorems are certified (`test-corpus/meta-theory-certificates/certificates.json`, listed in `docs/META_THEORY_NATIVE.md` with the exact reason for each of the others). `Typed elaboration covers 72/229 declarations (132 unsupported, 21 unresolved) and 19 proofs are outside the certificate fragment`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -6652,6 +6741,18 @@
           "file": "rust/tests/meta_theory_native_tests.rs",
           "name": "executes_binary_natural_arithmetic_in_the_prelude",
           "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "certifies list induction and case analysis through discharged locals and checked rewrites",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "certifies_list_induction_and_case_analysis_through_discharged_locals",
+          "polarity": "positive"
         }
       ],
       "completionBindings": []
@@ -6696,12 +6797,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`LinkedProgramRegistry` executes linked rewrites, facts, imports, and inference uniformly in both runtimes; `TheoryNetwork` verifies contracts through that path. The `formal-corpus` native builds are parity/provenance checks and cannot authorize an RML witness.",
@@ -7292,12 +7393,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Generic `(rebind from to)` support in `rml-linked-program.mjs` and `linked_program.rs` applies transitively to rewrites, facts, inference rules, and imports; mirrored tests cover strict/permissive foundations and constructor rebinding.",
@@ -7378,12 +7479,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "lib/meta-theory/universal.lino",
@@ -7751,7 +7852,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`rml-foundation-search.mjs` executes closed S/K, the independent pre-S/K direct structural interpreter, and monotone Horn saturation; trace tests prove the latter two never observe S/K, while `comparisonEligibility` prevents treating them as reduced peers.",
@@ -7919,7 +8020,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "scripts/foundation-search.test.mjs",
@@ -8134,7 +8235,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Mirrored tests disable all `13` residual operations and require failure of the complete workload; every row has `equivalentTo: null`, the report requires executable bisimulation, sets `globallyMinimal: false`, and returns no minimum from an insufficient cohort.",
@@ -8402,7 +8503,7 @@
     {
       "id": "R63",
       "obligation": "Reason about linked definitions, axioms/rules, dependent statements, theorem conclusions, and proofs.",
-      "status": "Partial — corpus theorems certified by the linked verifier; induction and rewrite proofs open",
+      "status": "Partial — 17/36 corpus theorems certified by the linked verifier, including list induction, list case analysis and rewrites; 19 outside the fragment",
       "originalWording": [
         {
           "sourceId": "pull-184",
@@ -8431,11 +8532,6 @@
       ],
       "implementationClaims": [
         {
-          "path": "js/src/rml-linked-proof.mjs",
-          "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
-        },
-        {
           "path": "lib/meta-theory/proof-verifier.lino",
           "role": "implementation",
           "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
@@ -8446,29 +8542,41 @@
           "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
         },
         {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "js/src/rml-linked-proof.mjs",
+          "role": "implementation",
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
+        },
+        {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "js/src/rml-meta-theory-certificates.mjs",
           "role": "implementation",
-          "sha256": "990b7e4f4aa77c4403eccf11470a43646c79cbd61db549844fa5d02d3b50a16f"
+          "sha256": "b56ba719708bd4adfadcc9cc355dc2b7b8555114ed47604f4d1a8fbed879e575"
         },
         {
           "path": "rust/src/meta_theory_certificates.rs",
           "role": "implementation",
-          "sha256": "357991c18891094be019d1a9dcbedb6a288d7c220ec964ca69eaa74d23fb2708"
+          "sha256": "925f7959de2a0009eb0113c003246daa19d1cfe17fbe4c848ff3b5705e846e50"
         }
       ],
-      "claimedEvidence": "`produceMetaTheoryCertificate` is an untrusted producer elaborating Lean term/`intro`/`exact`/`rfl` and Rocq intro/unfold/simpl/apply/exact/exists/split/reflexivity/`destruct as` proofs; `checkMetaTheoryCertificate` checks its output through `proof-verifier.lino` with lemma, hypothesis, structural, instance, conversion and quantifier rules and eigen-constants; admitted proofs are never certified. `22 of 36 theorems use induction, rewrite, simp, data destruct or tactic sequencing and remain outside the fragment`.",
+      "claimedEvidence": "`produceMetaTheoryCertificate` is an untrusted producer elaborating Lean term/`intro`/`exact`/`rfl` and list `induction` with nil and cons arms, and Rocq intro/unfold/simpl/apply/exact/exists/split/reflexivity/conjunction `destruct`, list `induction l as` and list `destruct l as` proofs. `checkMetaTheoryCertificate` validates each lemma, hypothesis, instance, conversion, quantifier, `local`, `induction`, `cases` and `rewrite` rule, then checks the derivation through `proof-verifier-natural.lino`, whose linked rules decide discharge, root closure and the congruence side condition of every rewrite; an eigen-constant may not escape through an undischarged local, and admitted proofs are never certified. 17/36 theorems are certified (5 closed chains), including Lean and Rocq `toOrderedUnique_is_ascending` by list induction and Rocq `strictly_ascending_tail` by case analysis with rewrites. `19 of 36 theorems remain outside the fragment: 4 Lean sorry proofs, and proofs using congr, rw/rewrite tactics, simp not closed by conversion, induction other than list nil/cons, destruct of non-list data, tauto, auto or ; sequencing`",
       "checks": [
         "linked-verifier-js",
         "linked-verifier-rust",
         "meta-theory-certificates-js",
-        "meta-theory-certificates-rust"
+        "meta-theory-certificates-rust",
+        "linked-proof-natural-js",
+        "linked-proof-natural-rust"
       ],
-      "remainingGap": "`produceMetaTheoryCertificate` is an untrusted producer elaborating Lean term/`intro`/`exact`/`rfl` and Rocq intro/unfold/simpl/apply/exact/exists/split/reflexivity/`destruct as` proofs; `checkMetaTheoryCertificate` checks its output through `proof-verifier.lino` with lemma, hypothesis, structural, instance, conversion and quantifier rules and eigen-constants; admitted proofs are never certified. `22 of 36 theorems use induction, rewrite, simp, data destruct or tactic sequencing and remain outside the fragment`.",
+      "remainingGap": "`produceMetaTheoryCertificate` is an untrusted producer elaborating Lean term/`intro`/`exact`/`rfl` and list `induction` with nil and cons arms, and Rocq intro/unfold/simpl/apply/exact/exists/split/reflexivity/conjunction `destruct`, list `induction l as` and list `destruct l as` proofs. `checkMetaTheoryCertificate` validates each lemma, hypothesis, instance, conversion, quantifier, `local`, `induction`, `cases` and `rewrite` rule, then checks the derivation through `proof-verifier-natural.lino`, whose linked rules decide discharge, root closure and the congruence side condition of every rewrite; an eigen-constant may not escape through an undischarged local, and admitted proofs are never certified. 17/36 theorems are certified (5 closed chains), including Lean and Rocq `toOrderedUnique_is_ascending` by list induction and Rocq `strictly_ascending_tail` by case analysis with rewrites. `19 of 36 theorems remain outside the fragment: 4 Lean sorry proofs, and proofs using congr, rw/rewrite tactics, simp not closed by conversion, induction other than list nil/cons, destruct of non-list data, tauto, auto or ; sequencing`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -8884,6 +8992,150 @@
           "file": "rust/tests/meta_theory_certificates_tests.rs",
           "name": "rejects_undeclared_dependencies_self_citation_and_edited_dependency_lists",
           "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "discharged-local",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "rewrite-one-occurrence",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "rewrite-every-occurrence",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "induction-discharges-its-hypothesis",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "undischarged-local",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "discharge-claims-the-local",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "discharge-of-a-plain-rule",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "duplicate-local",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "malformed-local",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "forged-rewrite",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "rewrite-of-a-list-spine",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "unknown-side-condition",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "hypothesis-escapes-into-the-base-case",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "keeps the base verifier verdict and rejection reason on every base case",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "rejects every natural fixture under the base verifier, which has no locals or side conditions",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-js",
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "decides discharge, congruence and closure by linked rules alone",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-natural-rust",
+          "file": "rust/tests/linked_proof_natural_tests.rs",
+          "name": "natural_deduction_fixture_verdicts_and_reasons",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-natural-rust",
+          "file": "rust/tests/linked_proof_natural_tests.rs",
+          "name": "natural_verifier_keeps_every_base_verdict_and_reason",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-natural-rust",
+          "file": "rust/tests/linked_proof_natural_tests.rs",
+          "name": "base_verifier_rejects_natural_derivations",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-natural-rust",
+          "file": "rust/tests/linked_proof_natural_tests.rs",
+          "name": "natural_discharge_and_closure_run_as_linked_rules",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "certifies list induction and case analysis through discharged locals and checked rewrites",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a forged rewrite: the linked verifier checks the congruence side condition",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "certifies_list_induction_and_case_analysis_through_discharged_locals",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_a_forged_rewrite_through_the_linked_congruence_side_condition",
+          "polarity": "negative"
         }
       ],
       "nativeValidationRequired": true,
@@ -9016,7 +9268,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -9618,7 +9870,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "lib/meta-theory/alternative-foundations.lino",
@@ -9820,7 +10072,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "scripts/foundation-search.test.mjs",
@@ -9945,7 +10197,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`comparisonEligibility` is computed from full linked closure, zero host/self duplication, zero external semantic source descriptions, and complete trust coverage. Regression tests admit A, exclude B/C with exact reasons, require two peers, and forbid asymmetric ranking.",
@@ -10157,7 +10409,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The v15 report requires at least `2` execution-comparable candidates, reports `OPEN_NO_COMPARABLE_ALTERNATIVE`, returns no smallest candidate, sets `selectedFoundation: null`, and classifies A/B/C as `EXECUTABLE_CONTROLS_ONLY` for ontology.",
@@ -10459,7 +10711,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`ontologySearch.importedPrimitiveCategories` marks data/operation/state/transition/interpreter/evaluator/rewrite/rule/function/relation as `IMPORTED_EXPERIMENTAL_VOCABULARY` with `UNESTABLISHED` foundational status, sets `targetArchitectureSelected: false`, and publishes three provenance questions plus the derivation acceptance criterion.",
@@ -10545,7 +10797,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The v15 report sets `existingCandidatesRole: EXECUTABLE_CONTROLS_ONLY`, `existingCandidatesConstrainSearch: false`, and per-candidate `constrainsOntologySearch: false`; source provenance is `represented-as-addressed-links`, and tests reject `link-native` / `links-native` in the executable report.",
@@ -10745,7 +10997,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "scripts/foundation-search.test.mjs",
@@ -10841,7 +11093,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`observationBoundary.arityEnumeration` reports `BINARY_CONTRACT_NOT_EXHAUSTIVE`, retains only unlabelled occurrences and equality, exhausts `1/3/13/75` surjective assignments, and derives `1/2/3/5` multiplicity-spectrum classes; `generalizedCompleteInvariant` explicitly limits completeness to the exhaustively tested widths.",
@@ -10931,7 +11183,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`lossAudit` classifies reference names as `DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT`, occurrence order as `UNESTABLISHED_EQUIVALENCE`, fixed width as `PROVEN_INFORMATION_LOSS`, the conditional relation as `PROVEN_NOT_RECOVERABLE`, direct self-reference as `PROVEN_INFORMATION_LOSS_FOR_ADDRESSABLE_LINKS`, cross-link incidence as `PROVEN_INFORMATION_LOSS_UNDER_LOCAL_PROJECTION`, exact-cover admissibility as conditional on an external verifier, and endpoint direction/dynamics as `NOT_OBSERVED_NOT_DISPROVED`.",
@@ -11017,7 +11269,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`canonical-partition-pair`, `paired-equality-matrices`, and `intersection-multiplicity-table` independently recover the same `33` joint classes in JavaScript and Rust.",
@@ -11103,7 +11355,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The unchanged base vocabulary derives wider multiplicity spectra. The separate second equivalence is explicitly `CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED`; only after that premise is exposed do automorphisms derive singleton occurrence orbits.",
@@ -11189,7 +11441,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "All five reference-only width-four classes have `5–9` inequivalent joint refinements, so the second relation is not recoverable after projection. Endpoint direction and dynamics are classified as unobserved rather than absent.",
@@ -11275,7 +11527,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`canonical-partition-pair`, `paired-equality-matrices`, and `intersection-multiplicity-table` agree that multiplicity spectra classify the base family and intersection structure classifies the conditional pairs; tests require exact class and fibre counts in both runtimes.",
@@ -11365,7 +11617,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`singletonOrbitHistogram` reports `20/5/7/1` classes with `0/1/2/4` singleton orbits. Only five classes select exactly one occurrence orbit; `remainingBoundary` forbids turning any orbit into source/target meaning or dynamics.",
@@ -11467,7 +11719,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The `v12` experiment uses only addressed link records, identity, self-incidence, shared addresses, recursion, renaming, conditional slot reversal, and a declared external finite exact-cover verifier. It imports no type theory, lambda calculus, evaluator, rewrite relation, or graph semantics, and labels formation, matching, admissibility, uniqueness, justification, applicability, admission, activation, and execution separately while A/B/C remain non-constraining controls.",
@@ -11659,7 +11911,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`singletonOrbitHistogram` derives `20` classes with zero, `5` with one, `7` with two, and `1` with four singleton orbits in independent JavaScript, Rust, and import-free experiments.",
@@ -11745,7 +11997,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`generalizedCompleteInvariant` says `for each exhaustively tested unlabelled width 1 through 4`; the executable `remainingBoundary`, generated candidate table, docs, and mirrored tests repeat that no unbounded theorem is established.",
@@ -11831,7 +12083,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`asymmetryProvenance` partitions all 33 classes into `7` `BASE_FORCED`, `5` `REFINEMENT_PRESENT_NOT_BASE_FORCED`, `1` `RELATIONAL_INTERACTION_ONLY`, and `20` `NO_SINGLETON_ORBIT`. Four base fibres admit both outcomes; only `[3,1]` forces a singleton across all refinements. The `[0,0,1,2]` countermodel has no singleton with refinement `[0,0,0,0]` but four interaction-only singleton orbits with `[0,1,0,2]`, although each relation alone has orbit sizes `[2,2]`.",
@@ -12008,7 +12260,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`derivationBoundary` exhausts all `255` base/candidate pairs at widths `1..4`: `73` preserve every base symmetry, `182` break at least one, and none of the preserving candidates changes a base occurrence orbit. The general four-step argument proves this for every finite deterministic derivation commuting with occurrence relabelling. The prior interaction-only pattern changes from `[0,1,0,2]` to `[0,1,1,2]` under `[1,0,2,3]`, while its base `[0,0,1,2]` remains fixed. Thus its new distinctions require information not derived from that base.",
@@ -12110,7 +12362,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`rml-link-ontology-symmetry-experiment/v15` uses address/reference equality, renaming, incidence, recursion, optional slot reversal, and explicitly observer-provided exact-cover checking. Direct and indirect self-reference requirements justify comparing link and reference addresses; no set, category, type, lambda, evaluator, rewrite, transition, or graph semantics is smuggled in as intrinsic link authority.",
@@ -12196,7 +12448,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "The issue requires directly self-referential addressed links, making “does a reference equal this link's address?” independently testable before any evaluator or calculus. `startingRepresentationAudit` constructs the direct-self `[0,0,1]` and fresh-external `[0,1,2]` countermodels with the same `[1,1]` reference-only projection. Exhaustive quotients at widths `1..4` collapse `2/4/7/12` addressable classes to `1/2/3/5`; generally, every nonempty multiplicity class has one fresh-address lift plus one self-identifying lift per distinct part size. Thus `REFERENCE_ONLY_PROJECTION_NOT_FAITHFUL_FOR_SELF_REFERENCE`, without claiming that retained link identity is a complete ontology.",
@@ -12282,7 +12534,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`quotientAudit` exhausts widths `1..4`: address renaming leaves `2/5/15/52` ordered equality classes and is `DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT`, while occurrence permutation further collapses `0/1/8/40` classes and is `UNESTABLISHED_EQUIVALENCE`. The `[0,0,1]` / `[0,1,0]` countermodel now has explicit masks `[true,false]` / `[false,true]`. Equality matrices plus those masks are complete before the latter quotient; afterward, `(referenceMultiplicitySpectrum, directSelfReferenceMultiplicity)` is `COMPLETE_INVARIANT_FOR_DECLARED_UNLABELLED_ADDRESS_EQUALITY_CONTRACT`. This derives a smaller descriptor only under the declared unlabelled premise and keeps intrinsic reference-slot identity `UNRESOLVED`.",
@@ -27716,7 +27968,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -27736,7 +27988,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -28679,7 +28931,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -28694,7 +28946,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -29039,7 +29291,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "lib/foundations/packages.lino",
@@ -29059,7 +29311,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`lib/foundations/confidence.lino` represents separately validated probability, confidence, source dependencies, event-independence and confidence-independence assumptions as links. Selected versioned foundations choose minimum or product confidence without host policy callbacks. Mirrored `confidence-context` tests use shared expected values and demonstrate evidence/assumption/dependency/policy mutation with rechecking and cross-version isolation; negative tests reject invalid rationals, missing independence and inference from probability one to object-level truth. The full joint example runs on the public direct-structural basis; selected operations and source proofs run on closed S/K, whose full joint computation explicitly reports its 100-million-contraction limit. `Whole-product self-hosting is not claimed` (R64/R149).",
@@ -29246,7 +29498,7 @@
     {
       "id": "R120",
       "obligation": "Report unknown, bounded exhaustion, unsupported, assumptions, and falsity distinctly without promising a universal decision procedure.",
-      "status": "Partial — one outcome contract for foundation ask/execute/revise/replay; linked-proof results lack it",
+      "status": "Complete",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -29274,7 +29526,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -29294,7 +29546,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -29305,17 +29557,29 @@
           "path": "rust/src/lino_frontend.rs",
           "role": "implementation",
           "sha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35"
+        },
+        {
+          "path": "js/src/rml-linked-proof.mjs",
+          "role": "implementation",
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
+        },
+        {
+          "path": "rust/src/linked_proof.rs",
+          "role": "implementation",
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         }
       ],
-      "claimedEvidence": "`rml-foundation-outcome/v1` distinguishes proved, refuted, contradictory, assumption-dependent, unknown, exhausted, unsupported and computed results in both runtimes, replays every answer and non-result without searching, and rejects forged steps and relabelled statuses. `The public rml-linked-proof result has no outcome field yet`.",
+      "claimedEvidence": "`rml-foundation-outcome/v1` distinguishes proved, refuted, contradictory, assumption-dependent, unknown, exhausted, unsupported and computed results in both runtimes, replays every answer and non-result without searching, and rejects forged steps and relabelled statuses. Linked-proof results now carry the same contract: `checkLinkedProof` / `check_linked_proof` and `linkedProofOutcome` / `linked_proof_outcome` in `js/src/rml-linked-proof.mjs` / `rust/src/linked_proof.rs` report proved, assumption-dependent (listing exactly the used assumptions), unknown (rejected, never refuted), exhausted (step or input bound) and unsupported (malformed input or no linked verdict), read from the linked result rather than the receipt flag, and tested in `js/tests/linked-proof-outcome.test.mjs` and `rust/tests/linked_proof_outcome_tests.rs`. No universal decision procedure is promised. `none`",
       "checks": [
         "foundation-context-js",
         "foundation-context-rust",
         "foundation-unseen-logic-js",
-        "foundation-unseen-logic-rust"
+        "foundation-unseen-logic-rust",
+        "linked-proof-outcome-js",
+        "linked-proof-outcome-rust"
       ],
-      "remainingGap": "`rml-foundation-outcome/v1` distinguishes proved, refuted, contradictory, assumption-dependent, unknown, exhausted, unsupported and computed results in both runtimes, replays every answer and non-result without searching, and rejects forged steps and relabelled statuses. `The public rml-linked-proof result has no outcome field yet`.",
-      "verificationState": "finite-progress-producer-bound-full-scope-unmet",
+      "remainingGap": "`rml-foundation-outcome/v1` distinguishes proved, refuted, contradictory, assumption-dependent, unknown, exhausted, unsupported and computed results in both runtimes, replays every answer and non-result without searching, and rejects forged steps and relabelled statuses. Linked-proof results now carry the same contract: `checkLinkedProof` / `check_linked_proof` and `linkedProofOutcome` / `linked_proof_outcome` in `js/src/rml-linked-proof.mjs` / `rust/src/linked_proof.rs` report proved, assumption-dependent (listing exactly the used assumptions), unknown (rejected, never refuted), exhausted (step or input bound) and unsupported (malformed input or no linked verdict), read from the linked result rather than the receipt flag, and tested in `js/tests/linked-proof-outcome.test.mjs` and `rust/tests/linked_proof_outcome_tests.rs`. No universal decision procedure is promised. `none`",
+      "verificationState": "full-scope-producer-bound-awaiting-fresh-native-execution",
       "assertionBindings": [
         {
           "checkId": "foundation-context-js",
@@ -29544,10 +29808,191 @@
           "file": "rust/tests/foundation_unseen_logic_tests.rs",
           "name": "derives_guarded_and_refuted_results_on_the_default_closed_s_k_runtime_and_replays_them",
           "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports an accepted proof without caller assumptions as proved",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a proof that uses a declared assumption as assumption-dependent and lists only the used ones",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a rejected proof as unknown with its linked reason, never as refuted",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a spent step bound or input bound as exhausted without a receipt",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports malformed input and a verdict-free result as unsupported",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "rejects a relabelled verdict: the outcome follows the linked result, not the receipt flag",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "uses only kinds of the one foundation outcome contract and never claims falsity",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_accepted_without_assumptions_is_proved",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_using_a_declared_assumption_is_assumption_dependent",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_rejection_is_unknown_never_refuted",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_spent_bound_is_exhausted",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_malformed_or_verdict_free_result_is_unsupported",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_relabelled_verdict_follows_the_linked_result",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_outcomes_use_only_the_shared_contract_kinds",
+          "polarity": "positive"
         }
       ],
       "nativeValidationRequired": true,
-      "completionBindings": []
+      "completionBindings": [
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports an accepted proof without caller assumptions as proved",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a proof that uses a declared assumption as assumption-dependent and lists only the used ones",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a rejected proof as unknown with its linked reason, never as refuted",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a spent step bound or input bound as exhausted without a receipt",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports malformed input and a verdict-free result as unsupported",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "rejects a relabelled verdict: the outcome follows the linked result, not the receipt flag",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-js",
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "uses only kinds of the one foundation outcome contract and never claims falsity",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_accepted_without_assumptions_is_proved",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_using_a_declared_assumption_is_assumption_dependent",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_rejection_is_unknown_never_refuted",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_spent_bound_is_exhausted",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_malformed_or_verdict_free_result_is_unsupported",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_relabelled_verdict_follows_the_linked_result",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "linked-proof-outcome-rust",
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_outcomes_use_only_the_shared_contract_kinds",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-js",
+          "file": "js/tests/foundation-unseen-logic.test.mjs",
+          "name": "separates truth, falsity, contradiction, assumption dependence and non-results",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "foundation-unseen-logic-rust",
+          "file": "rust/tests/foundation_unseen_logic_tests.rs",
+          "name": "separates_truth_falsity_contradiction_assumption_dependence_and_non_results",
+          "polarity": "positive"
+        }
+      ]
     },
     {
       "id": "R121",
@@ -29577,7 +30022,7 @@
         {
           "path": "test-corpus/meta-theory-coverage/map.json",
           "role": "implementation",
-          "sha256": "a2404f8fc448500f77149063d4edaf291abd9b026abdadddd816758ae2d98b72"
+          "sha256": "0a18efb55789ab88348ef4b1f74e943797c8afc5b37b1eecedd9f3760588091c"
         }
       ],
       "claimedEvidence": "`test-corpus/meta-theory-coverage/map.json` maps all 229 declarations and 197 commands (by kind) across preservation, typed elaboration, native elaboration, dependency check, native execution, proof and admission; `validateMetaTheoryMap` re-executes every claimed witness and rejects unmapped or duplicated items, partition gaps, stale counts and forged evidence in both runtimes. The map records the unmet stages honestly (for example 132 unsupported typed elaborations), which R47 and R122 track.",
@@ -29727,7 +30172,7 @@
     {
       "id": "R122",
       "obligation": "Provide independently replayable RML definitions/proofs and reject body, binder, premise, proof, conclusion, and dependency mutations for the required meta-theory.",
-      "status": "Partial — replayable definitions and certificates reject all six mutation classes; 22 theorems outside the fragment",
+      "status": "Partial — replayable definitions and certificates reject the six mutation classes plus local, induction, rewrite and scope mutations; 19 theorems outside the fragment",
       "originalWording": [
         {
           "sourceId": "comment-5786000580",
@@ -29754,22 +30199,32 @@
         {
           "path": "js/src/rml-meta-theory-certificates.mjs",
           "role": "implementation",
-          "sha256": "990b7e4f4aa77c4403eccf11470a43646c79cbd61db549844fa5d02d3b50a16f"
+          "sha256": "b56ba719708bd4adfadcc9cc355dc2b7b8555114ed47604f4d1a8fbed879e575"
         },
         {
           "path": "js/src/rml-meta-theory-native.mjs",
           "role": "implementation",
-          "sha256": "f3de127b5a2dc2704ae06866f9b2ff52cf639a0567593dd83d444ed37eee5bb7"
+          "sha256": "dd78c28e193c44d49109b66f55f61f1db289ee7b855d09f2ad469a940a21dfe8"
+        },
+        {
+          "path": "rust/src/meta_theory_certificates.rs",
+          "role": "implementation",
+          "sha256": "925f7959de2a0009eb0113c003246daa19d1cfe17fbe4c848ff3b5705e846e50"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
         }
       ],
-      "claimedEvidence": "Body, binder, premise, proof, conclusion and dependency mutations are rejected by the certificate checker and the native program checker in both runtimes (corrupted definitions and prelude semantics, forged or relabelled witnesses, edited results and step counts, wrong-lemma proofs). `Replay covers the 14 certified theorems and the executable definitions; 22 theorems remain outside the certificate fragment`.",
+      "claimedEvidence": "Body, binder, premise, proof, conclusion and dependency mutations are rejected by the certificate checker and the native program checker in both runtimes (corrupted definitions and prelude semantics, forged or relabelled witnesses, edited results and step counts, wrong-lemma proofs). The induction and case-analysis certificates also reject missing, ownerless, misstated or doubly discharged locals, wrong motives, mistyped targets, stale or shared eigen-constants, forged rewrites (the linked congruence side condition in `proof-verifier-natural.lino` fails) and eigen-constants escaping through undischarged locals, in `scripts/meta-theory-certificates.test.mjs` and `rust/tests/meta_theory_certificates_tests.rs`. `Replay covers the 17 certified theorems and the executable definitions; 19 theorems remain outside the certificate fragment`",
       "checks": [
         "meta-theory-certificates-js",
         "meta-theory-certificates-rust",
         "meta-theory-native-js",
         "meta-theory-native-rust"
       ],
-      "remainingGap": "Body, binder, premise, proof, conclusion and dependency mutations are rejected by the certificate checker and the native program checker in both runtimes (corrupted definitions and prelude semantics, forged or relabelled witnesses, edited results and step counts, wrong-lemma proofs). `Replay covers the 14 certified theorems and the executable definitions; 22 theorems remain outside the certificate fragment`.",
+      "remainingGap": "Body, binder, premise, proof, conclusion and dependency mutations are rejected by the certificate checker and the native program checker in both runtimes (corrupted definitions and prelude semantics, forged or relabelled witnesses, edited results and step counts, wrong-lemma proofs). The induction and case-analysis certificates also reject missing, ownerless, misstated or doubly discharged locals, wrong motives, mistyped targets, stale or shared eigen-constants, forged rewrites (the linked congruence side condition in `proof-verifier-natural.lino` fails) and eigen-constants escaping through undischarged locals, in `scripts/meta-theory-certificates.test.mjs` and `rust/tests/meta_theory_certificates_tests.rs`. `Replay covers the 17 certified theorems and the executable definitions; 19 theorems remain outside the certificate fragment`",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -29975,6 +30430,66 @@
           "file": "rust/tests/meta_theory_native_tests.rs",
           "name": "executes_binary_natural_arithmetic_in_the_prelude",
           "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "certifies list induction and case analysis through discharged locals and checked rewrites",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a missing, ownerless, misstated or doubly discharged local",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects an induction with a wrong motive, a mistyped target or stale eigen-constants",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a forged rewrite: the linked verifier checks the congruence side condition",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-js",
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects an eigen-constant escaping through an undischarged local",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "certifies_list_induction_and_case_analysis_through_discharged_locals",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_a_missing_ownerless_misstated_or_doubly_discharged_local",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_an_induction_with_a_wrong_motive_a_mistyped_target_or_stale_eigen_constants",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_a_forged_rewrite_through_the_linked_congruence_side_condition",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-theory-certificates-rust",
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_an_eigen_constant_escaping_through_an_undischarged_local",
+          "polarity": "negative"
         }
       ],
       "completionBindings": []
@@ -30957,7 +31472,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`quotientAudit`, `slotwiseSelfIncidence`, `sharedAddressComposition`, `structuralApplicationComposition`, mirrored tests, and the v12 report retain the renaming/order boundary, preserve direct and indirect incidence, and leave intrinsic slot and link-record order unresolved. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately.",
@@ -33113,7 +33628,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "`selfIncidenceByReferenceSlot` in `js/src/rml-foundation-search.mjs` and `self_incidence_by_reference_slot` in `rust/src/linked_program.rs` classify the ordered slots through public generic functions. The relation is `RENAMING_INVARIANT_PERMUTATION_EQUIVARIANT`. Seven mirrored `slotwise-self-incidence` tests cover every Boolean mask through eight slots, arity 4096, injective renaming, permutation-versus-count loss, noninjective renaming and absent-address rejection; the report retains its equality-only boundary. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately.",
@@ -33316,7 +33831,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Mirrored `sharedAddressComposition` / `shared_address_composition` audits report `LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL` and retain all named restrictions except single-link isolation. At two links, `[[0,1],[2,3]]` and `[[0,2],[2,0]]` share both local single-link descriptors but differ globally: only the latter has a length-two address-incidence cycle. Exhaustive one-reference counts are `2/10/77/799` shared classes versus `2/4/8/16` local products for one through four ordered links. Cross-reference equality plus reference-to-link-address incidence is a complete invariant for all tested shared classes and has a general finite argument. The audit machine-readably separates issue-forced shared equality, renaming-stable distinction, observer-retained order/arity/size, and explicitly unassigned semantics. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately. Each retained assumption is now varied individually with witness pairs that are distinct in the base and identified only by the removed assumption. `No destination is selected and the remaining assumption audit stays open`.",
@@ -33474,7 +33989,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Mirrored `structuralApplicationComposition` / `structural_application_composition` audits report `RAW_LINK_STRUCTURE_DOES_NOT_ENTAIL_APPLICATION_OR_COMPOSITION`. The recursive candidate records differ under address renaming but coincide only under the explicitly unestablished uniform reference-slot reversal. Their unordered leaf positions have automorphism-orbit sizes `[1,2]`, not three unique roles. The connected countermodel `[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` keeps the `P`/`Q` link identities distinct from the pairwise-distinct `K`/`A`/`B` addresses and preserves direct self-incidence, shared address `A`, and cross-link recursion while containing `K ⟼ A` and `A ⟼ B` but not `K ⟼ B`; adding `[7,0,2]` preserves those premises. Ordinary binary formation permits all `49` ordered pairs on the existing addresses but selects none as composition or execution. A positive result therefore requires an `additional selection/closure law`. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately.",
@@ -33532,7 +34047,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Mirrored `linkCarriedSelectionAuthority` / `link_carried_selection_authority` probes report `LINK_CARRIED_INCIDENCE_BREAKS_SYMMETRY_WITHOUT_CONFERRING_AUTHORITY`, with the loss classification `ASYMMETRY_PERMITS_BUT_DOES_NOT_FORCE_SELECTION`. Their incidence readout is explicitly `EXPERIMENTAL_EQUAL-REFERENCE_OBSERVATION_NOT_INTRINSIC_AUTHORITY`. Duplicate candidates `[7,0,2]` and `[8,0,2]` form one orbit with no invariant singleton. Adding `[9,7,7]` splits the orbit but makes both singleton subsets invariant; opposite referenced/unreferenced readings remain equivariant. Removal marks none, replacement flips the mark, duplication marks both, isomorphic forgery is not structurally rejected, context relocation is isomorphic, and finite/self-referential authority chains leave polarity and execution unresolved. The stage results include `NO_LINK_DERIVED_ADMISSION_VALIDATION_OR_ACTIVATION`, `AMBIENT_EXISTENCE_DOES_NOT_SELECT_APPLICABILITY`, and `NO_TRANSITION_CREATION_OR_PUBLICATION_EVENT`. This demonstrates link-carried structural asymmetry without claiming that external authority is irreducible. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately.",
@@ -33590,7 +34105,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
       "claimedEvidence": "Mirrored `linkedStructuralAdmissibility` / `linked_structural_admissibility` probes report `LINKED_EXACT_COVER_CERTIFICATES_FILTER_CANDIDATES_WITHOUT_SELF_AUTHORIZING` with provenance `EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY`. An injective exact-cover certificate must map every description link once, reconstruct its referenced records, belong to the tested context, and identify a candidate; valid, missing, duplicate, foreign, wrong-decomposition, two-candidate, zero-candidate, other-context, relocated-context, and description-replacement cases expose `ZERO`/`ONE`/`MANY` rather than using a host `if` to choose a winner. A second locally isomorphic candidate and certificate remains admissible, so `isomorphic forgery` is not rejected. The machine-readable distinction audit keeps formation, matching, admissibility, uniqueness, justification, applicability, admission, activation, and execution separate; `NO_LINK_DERIVED_PUBLICATION_OR_ADMISSION` and the authority-regress audit state that evidence roles, the verifier, and the acceptance policy are not authenticated or authorized by the tested links. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately.",
@@ -33687,7 +34202,7 @@
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "lib/meta-theory/proof-verifier.lino",
@@ -33702,7 +34217,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "lib/meta-theory/horn-local-verifier.lino",
@@ -34510,7 +35025,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "scripts/combinator-source.mjs",
@@ -34530,7 +35045,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -39596,7 +40111,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -39702,7 +40217,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -39795,7 +40310,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "scripts/combinator-source.mjs",
@@ -39876,7 +40391,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -39969,7 +40484,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -40114,7 +40629,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "rust/src/main.rs",
@@ -41100,7 +41615,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "lib/foundations/packages.lino",
@@ -41201,7 +41716,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "lib/foundations/packages.lino",
@@ -42079,7 +42594,7 @@
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "lib/meta-theory/proof-verifier.lino",
@@ -42366,7 +42881,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "lib/meta-theory/proof-verifier.lino",
@@ -44190,12 +44705,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "js/src/rml-linked-target-abi.mjs",
@@ -44977,7 +45492,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -44992,7 +45507,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -45300,12 +45815,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "js/src/rml-linked-target-abi.mjs",
@@ -46062,7 +46577,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -46077,7 +46592,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -46420,12 +46935,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "js/src/rml-linked-target-abi.mjs",
@@ -47177,7 +47692,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -47192,7 +47707,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -47525,12 +48040,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "js/src/rml-linked-target-abi.mjs",
@@ -48202,7 +48717,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -48217,7 +48732,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -48480,12 +48995,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "js/src/rml-linked-target-abi.mjs",
@@ -50398,7 +50913,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -50413,7 +50928,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -50725,12 +51240,12 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "js/src/rml-linked-target-abi.mjs",
@@ -52673,7 +53188,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -52688,7 +53203,7 @@
         {
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
-          "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
         },
         {
           "path": "rust/src/lino_frontend.rs",
@@ -54182,7 +54697,7 @@
         {
           "path": "js/src/rml-meta-theory-native.mjs",
           "role": "implementation",
-          "sha256": "f3de127b5a2dc2704ae06866f9b2ff52cf639a0567593dd83d444ed37eee5bb7"
+          "sha256": "dd78c28e193c44d49109b66f55f61f1db289ee7b855d09f2ad469a940a21dfe8"
         },
         {
           "path": "lib/meta-theory/meta-theory-native-prelude.lino",
@@ -54202,7 +54717,7 @@
         {
           "path": "test-corpus/meta-theory-native/coverage.json",
           "role": "fixture",
-          "sha256": "e7c02fabf1dee083087c7764d009ca64084b29848f3e89f71df815e8905e5634"
+          "sha256": "724092752b81da3a336882242a000726b1ad3baba60ed4bfbabb8c838460ecff"
         },
         {
           "path": "scripts/generate-meta-theory-native.mjs",
@@ -54314,7 +54829,7 @@
         {
           "path": "test-corpus/meta-theory-native/coverage.json",
           "role": "fixture",
-          "sha256": "e7c02fabf1dee083087c7764d009ca64084b29848f3e89f71df815e8905e5634"
+          "sha256": "724092752b81da3a336882242a000726b1ad3baba60ed4bfbabb8c838460ecff"
         }
       ],
       "assertions": [
@@ -54372,12 +54887,12 @@
         {
           "path": "scripts/meta-theory-certificates.test.mjs",
           "role": "test",
-          "sha256": "1796860a9152a40d32f0e9a61a58dc7c26d58511d1c47fd3d95845cd8b992faf"
+          "sha256": "c72b04d528a0c9ce5e06bbef65344c5cdf490c3127c16b64d900fab153101f7a"
         },
         {
           "path": "js/src/rml-meta-theory-certificates.mjs",
           "role": "implementation",
-          "sha256": "990b7e4f4aa77c4403eccf11470a43646c79cbd61db549844fa5d02d3b50a16f"
+          "sha256": "b56ba719708bd4adfadcc9cc355dc2b7b8555114ed47604f4d1a8fbed879e575"
         },
         {
           "path": "lib/meta-theory/proof-verifier.lino",
@@ -54387,12 +54902,22 @@
         {
           "path": "test-corpus/meta-theory-certificates/certificates.json",
           "role": "fixture",
-          "sha256": "e5d17dbaacc561a82223c64c358871a89082a00f703d05a832c7f32e68affa05"
+          "sha256": "e6d5a1c0c8a8d36790f82b202ab8d5b2bdce16f32f6e1760b1ba59a9eb43daf9"
         },
         {
           "path": "scripts/generate-meta-theory-certificates.mjs",
           "role": "implementation",
-          "sha256": "7bc9f4da003c502683ffc8f7f2c7ab155cd58b0728e7ecd555a0b5a1d14d3754"
+          "sha256": "78b67ac71cc97aa96842b07a448f2dbf2e76311cb5de4ababc26b68d4a2b8f2e"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "lib/meta-theory/upstream-0.0.3-native-conversion.lino",
+          "role": "fixture",
+          "sha256": "3326ee477fff3aa366c19ae5f84c32d15dcf4fc978118133657dc94c417856b2"
         }
       ],
       "assertions": [
@@ -54440,6 +54965,31 @@
           "file": "scripts/meta-theory-certificates.test.mjs",
           "name": "rejects a mutated source proof that cites the wrong lemma",
           "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "certifies list induction and case analysis through discharged locals and checked rewrites",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a missing, ownerless, misstated or doubly discharged local",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects an induction with a wrong motive, a mistyped target or stale eigen-constants",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects a forged rewrite: the linked verifier checks the congruence side condition",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/meta-theory-certificates.test.mjs",
+          "name": "rejects an eigen-constant escaping through an undischarged local",
+          "polarity": "negative"
         }
       ],
       "timeoutMs": 1200000
@@ -54454,7 +55004,7 @@
         {
           "path": "rust/tests/meta_theory_certificates_tests.rs",
           "role": "test",
-          "sha256": "a77a2cb69f2f3038ba84732ae6f87fdb834bc4e67a738af19a7e829d389520b4"
+          "sha256": "ab0f474be396461ed57855d730736548c1133db9e78a0b2fe916b938d9df0f49"
         },
         {
           "path": "rust/Cargo.toml",
@@ -54469,7 +55019,7 @@
         {
           "path": "rust/src/meta_theory_certificates.rs",
           "role": "implementation",
-          "sha256": "357991c18891094be019d1a9dcbedb6a288d7c220ec964ca69eaa74d23fb2708"
+          "sha256": "925f7959de2a0009eb0113c003246daa19d1cfe17fbe4c848ff3b5705e846e50"
         },
         {
           "path": "lib/meta-theory/proof-verifier.lino",
@@ -54479,7 +55029,17 @@
         {
           "path": "test-corpus/meta-theory-certificates/certificates.json",
           "role": "fixture",
-          "sha256": "e5d17dbaacc561a82223c64c358871a89082a00f703d05a832c7f32e68affa05"
+          "sha256": "e6d5a1c0c8a8d36790f82b202ab8d5b2bdce16f32f6e1760b1ba59a9eb43daf9"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "lib/meta-theory/upstream-0.0.3-native-conversion.lino",
+          "role": "fixture",
+          "sha256": "3326ee477fff3aa366c19ae5f84c32d15dcf4fc978118133657dc94c417856b2"
         }
       ],
       "assertions": [
@@ -54512,6 +55072,31 @@
           "file": "rust/tests/meta_theory_certificates_tests.rs",
           "name": "rejects_undeclared_dependencies_self_citation_and_edited_dependency_lists",
           "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "certifies_list_induction_and_case_analysis_through_discharged_locals",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_a_missing_ownerless_misstated_or_doubly_discharged_local",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_an_induction_with_a_wrong_motive_a_mistyped_target_or_stale_eigen_constants",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_a_forged_rewrite_through_the_linked_congruence_side_condition",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/meta_theory_certificates_tests.rs",
+          "name": "rejects_an_eigen_constant_escaping_through_an_undischarged_local",
+          "polarity": "negative"
         }
       ],
       "testTarget": "meta_theory_certificates_tests",
@@ -54527,7 +55112,7 @@
         {
           "path": "scripts/meta-theory-map.test.mjs",
           "role": "test",
-          "sha256": "310b8274e3fa9f8f0ea12f86e298526fd6709a1cd16b077759bc9333068b9bff"
+          "sha256": "3d3d71c21d0870e5e5f51fad688d8d94d44a8782dae5551b38260253ca3e49a8"
         },
         {
           "path": "scripts/generate-meta-theory-map.mjs",
@@ -54537,7 +55122,7 @@
         {
           "path": "test-corpus/meta-theory-coverage/map.json",
           "role": "fixture",
-          "sha256": "a2404f8fc448500f77149063d4edaf291abd9b026abdadddd816758ae2d98b72"
+          "sha256": "0a18efb55789ab88348ef4b1f74e943797c8afc5b37b1eecedd9f3760588091c"
         }
       ],
       "assertions": [
@@ -54589,7 +55174,7 @@
         {
           "path": "rust/tests/meta_theory_map_tests.rs",
           "role": "test",
-          "sha256": "5d98372a8c254b026e832932198e2b6e1bf682d74e4e01645803efcea9356486"
+          "sha256": "b9a0a3bc4003958316b9e2a1107e8394ed20958214c1413f65eb2c162a587825"
         },
         {
           "path": "rust/Cargo.toml",
@@ -54609,7 +55194,7 @@
         {
           "path": "test-corpus/meta-theory-coverage/map.json",
           "role": "fixture",
-          "sha256": "a2404f8fc448500f77149063d4edaf291abd9b026abdadddd816758ae2d98b72"
+          "sha256": "0a18efb55789ab88348ef4b1f74e943797c8afc5b37b1eecedd9f3760588091c"
         }
       ],
       "assertions": [
@@ -54647,17 +55232,17 @@
         {
           "path": "js/tests/meta-theory-workflow.test.mjs",
           "role": "test",
-          "sha256": "36d5319c88da68317ba240fe411860be571a5c44475e539520341cb90aef1bdb"
+          "sha256": "b3caf82c872aaa08be498c2ea86a17bda673d5fca4cc9fbc1ee9dee06c345ac2"
         },
         {
           "path": "examples/meta-theory-workflow.mjs",
           "role": "implementation",
-          "sha256": "79fca09b9efe10d3fbfbc3277b0881774e82f30f4307ac660008dfd4a4b8ee66"
+          "sha256": "2111fb9dfc7357b24025899900d0b34e6313c585d595fff5e8f52389a4a98b1f"
         },
         {
           "path": "test-corpus/researcher-workflow/meta-theory-expected.json",
           "role": "fixture",
-          "sha256": "e51f2be316f7407aa5f6c0d7f373cf3c5e8a39bd5fbc717bc5647b9b0448e36c"
+          "sha256": "e7d33e62845272b9936c5cd15d383e55790afd48fb5a8ec8030f88a1cca43f16"
         }
       ],
       "assertions": [
@@ -54709,12 +55294,12 @@
         {
           "path": "rust/examples/meta_theory_workflow.rs",
           "role": "implementation",
-          "sha256": "af6455c928afea0cfc4e53d1556dee7fd9b0c82204d446a4e7a06a5e77ce4a97"
+          "sha256": "1551e28e366656b3dc40a660e135e980b8edc2dfe9aaa4e8d856da7003cb74a8"
         },
         {
           "path": "test-corpus/researcher-workflow/meta-theory-expected.json",
           "role": "fixture",
-          "sha256": "e51f2be316f7407aa5f6c0d7f373cf3c5e8a39bd5fbc717bc5647b9b0448e36c"
+          "sha256": "e7d33e62845272b9936c5cd15d383e55790afd48fb5a8ec8030f88a1cca43f16"
         }
       ],
       "assertions": [
@@ -55809,7 +56394,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -55966,7 +56551,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -56124,7 +56709,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -56339,7 +56924,7 @@
         {
           "path": "js/src/rml-linked-proof.mjs",
           "role": "implementation",
-          "sha256": "7a9a21edfda7bffb18bcffbaca2122ebfd394622d072d806f7239080e00eb592"
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
         },
         {
           "path": "js/src/rml-linked-target-abi.mjs",
@@ -56646,7 +57231,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -56753,7 +57338,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "js/src/rml-combinator-kernel.mjs",
@@ -56945,7 +57530,7 @@
         {
           "path": "rust/src/linked_program.rs",
           "role": "implementation",
-          "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         },
         {
           "path": "rust/src/linked_program/combinator_kernel.rs",
@@ -57210,7 +57795,7 @@
         {
           "path": "js/src/rml-linked-program.mjs",
           "role": "implementation",
-          "sha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd"
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
         },
         {
           "path": "README.md",
@@ -57504,7 +58089,7 @@
         {
           "path": "scripts/build-cache-ci-evidence.test.mjs",
           "role": "test",
-          "sha256": "1c8e89d36b2fa272154b506adb9ffdea39a58d973c1e81ca6c06ddea04351c94"
+          "sha256": "a44180c8318c43049d1671dcd30e06af6ca4d34c87cc068d19ae4b2c1f05bc80"
         },
         {
           "path": "scripts/measure-build-cache.mjs",
@@ -57676,6 +58261,491 @@
           "polarity": "negative"
         }
       ]
+    },
+    {
+      "id": "linked-proof-natural-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/linked-proof-natural.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/linked-proof-natural.test.mjs",
+          "role": "test",
+          "sha256": "77236b8c1dad5b239b7fbfac84801b5de06d5a5a9ce81ee9fecddd8f47e018a1"
+        },
+        {
+          "path": "js/src/rml-linked-proof.mjs",
+          "role": "implementation",
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier.lino",
+          "role": "implementation",
+          "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+        },
+        {
+          "path": "lib/meta-theory/universal.lino",
+          "role": "implementation",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        },
+        {
+          "path": "test-corpus/linked-proof/natural-cases.json",
+          "role": "fixture",
+          "sha256": "5f4c666f365207c8beb302a48a3591f75530ae24388a19d82da715a8b6dcac8b"
+        },
+        {
+          "path": "test-corpus/linked-proof/cases.json",
+          "role": "fixture",
+          "sha256": "ce7b4187a0e175f510a9d5a42752f83cd459f530c7f720e9d3b299cea3f3d66b"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "discharged-local",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "rewrite-one-occurrence",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "rewrite-every-occurrence",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "induction-discharges-its-hypothesis",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "undischarged-local",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "discharge-claims-the-local",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "discharge-of-a-plain-rule",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "duplicate-local",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "malformed-local",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "forged-rewrite",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "rewrite-of-a-list-spine",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "unknown-side-condition",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "hypothesis-escapes-into-the-base-case",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "keeps the base verifier verdict and rejection reason on every base case",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "rejects every natural fixture under the base verifier, which has no locals or side conditions",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-natural.test.mjs",
+          "name": "decides discharge, congruence and closure by linked rules alone",
+          "polarity": "positive"
+        }
+      ],
+      "timeoutMs": 600000
+    },
+    {
+      "id": "linked-proof-natural-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/linked_proof_natural_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/linked_proof_natural_tests.rs",
+          "role": "test",
+          "sha256": "3fab754443d9974c3b246cf5b51a23eb07c684db3b4a77f496cc2a85689d0dae"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/linked_proof.rs",
+          "role": "implementation",
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier.lino",
+          "role": "implementation",
+          "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+        },
+        {
+          "path": "lib/meta-theory/universal.lino",
+          "role": "implementation",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        },
+        {
+          "path": "test-corpus/linked-proof/natural-cases.json",
+          "role": "fixture",
+          "sha256": "5f4c666f365207c8beb302a48a3591f75530ae24388a19d82da715a8b6dcac8b"
+        },
+        {
+          "path": "test-corpus/linked-proof/cases.json",
+          "role": "fixture",
+          "sha256": "ce7b4187a0e175f510a9d5a42752f83cd459f530c7f720e9d3b299cea3f3d66b"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/linked_proof_natural_tests.rs",
+          "name": "natural_deduction_fixture_verdicts_and_reasons",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/linked_proof_natural_tests.rs",
+          "name": "natural_verifier_keeps_every_base_verdict_and_reason",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/linked_proof_natural_tests.rs",
+          "name": "base_verifier_rejects_natural_derivations",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/linked_proof_natural_tests.rs",
+          "name": "natural_discharge_and_closure_run_as_linked_rules",
+          "polarity": "positive"
+        }
+      ],
+      "testTarget": "linked_proof_natural_tests",
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "linked-proof-outcome-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/linked-proof-outcome.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/linked-proof-outcome.test.mjs",
+          "role": "test",
+          "sha256": "2f716c17e598342039553aebbd9eab5b3b0377d8298af68f7e3dbc0403aeb6dd"
+        },
+        {
+          "path": "js/src/rml-linked-proof.mjs",
+          "role": "implementation",
+          "sha256": "3142e3c321f5a6ace9ff9c007c5adea7a1fcc8565579a61fa2f85c43f44895f9"
+        },
+        {
+          "path": "js/src/rml-foundation-workspace.mjs",
+          "role": "implementation",
+          "sha256": "aa2f2e5883cc3c95b0506e088ee599cdda608b22fcc0645bd5e6af25107bb3b5"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier.lino",
+          "role": "implementation",
+          "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+        },
+        {
+          "path": "lib/meta-theory/universal.lino",
+          "role": "implementation",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        },
+        {
+          "path": "test-corpus/linked-proof/cases.json",
+          "role": "fixture",
+          "sha256": "ce7b4187a0e175f510a9d5a42752f83cd459f530c7f720e9d3b299cea3f3d66b"
+        },
+        {
+          "path": "test-corpus/linked-proof/natural-cases.json",
+          "role": "fixture",
+          "sha256": "5f4c666f365207c8beb302a48a3591f75530ae24388a19d82da715a8b6dcac8b"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports an accepted proof without caller assumptions as proved",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a proof that uses a declared assumption as assumption-dependent and lists only the used ones",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a rejected proof as unknown with its linked reason, never as refuted",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports a spent step bound or input bound as exhausted without a receipt",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "reports malformed input and a verdict-free result as unsupported",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "rejects a relabelled verdict: the outcome follows the linked result, not the receipt flag",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/linked-proof-outcome.test.mjs",
+          "name": "uses only kinds of the one foundation outcome contract and never claims falsity",
+          "polarity": "positive"
+        }
+      ],
+      "timeoutMs": 600000
+    },
+    {
+      "id": "linked-proof-outcome-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/linked_proof_outcome_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/linked_proof_outcome_tests.rs",
+          "role": "test",
+          "sha256": "0d69abd51436eedfe6df29f54d94ea1b533f41502f6a7545c0c60ecd239e94e7"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/linked_proof.rs",
+          "role": "implementation",
+          "sha256": "f04cd8bd4c1b0ba0b58e0acf5453984a0241bd7a650cd19c8482d6ef87073adb"
+        },
+        {
+          "path": "rust/src/foundation_workspace.rs",
+          "role": "implementation",
+          "sha256": "90103e9f83f226f4961ea05ad85f25a21ebfc0b1edfdb64298ef3c93b7046e07"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier-natural.lino",
+          "role": "implementation",
+          "sha256": "ca312fe83832bad1749746b2c08282c1fbd75d7e040c0ed5abfd693382fe254d"
+        },
+        {
+          "path": "lib/meta-theory/proof-verifier.lino",
+          "role": "implementation",
+          "sha256": "9084ac805dfae40b7ecbf9cf28f6ef26f3bf4181d53775db4abec391b30c695f"
+        },
+        {
+          "path": "lib/meta-theory/universal.lino",
+          "role": "implementation",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        },
+        {
+          "path": "test-corpus/linked-proof/cases.json",
+          "role": "fixture",
+          "sha256": "ce7b4187a0e175f510a9d5a42752f83cd459f530c7f720e9d3b299cea3f3d66b"
+        },
+        {
+          "path": "test-corpus/linked-proof/natural-cases.json",
+          "role": "fixture",
+          "sha256": "5f4c666f365207c8beb302a48a3591f75530ae24388a19d82da715a8b6dcac8b"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_accepted_without_assumptions_is_proved",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_using_a_declared_assumption_is_assumption_dependent",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_rejection_is_unknown_never_refuted",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_spent_bound_is_exhausted",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_malformed_or_verdict_free_result_is_unsupported",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_relabelled_verdict_follows_the_linked_result",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/linked_proof_outcome_tests.rs",
+          "name": "linked_proof_outcomes_use_only_the_shared_contract_kinds",
+          "polarity": "positive"
+        }
+      ],
+      "testTarget": "linked_proof_outcome_tests",
+      "timeoutMs": 1200000
+    },
+    {
+      "id": "runtime-trust-coverage-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/runtime-trust-coverage.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/runtime-trust-coverage.test.mjs",
+          "role": "test",
+          "sha256": "da524c2cb9a54b16826e478ebc4fb84eda4ffab542205acaa3d00503cc2e5f2e"
+        },
+        {
+          "path": "js/src/rml-linked-program.mjs",
+          "role": "implementation",
+          "sha256": "ea3d16cd880127993aa9cc61a4b805dbd21848cc9295c0eff27a572c755735ad"
+        },
+        {
+          "path": "lib/meta-theory/universal.lino",
+          "role": "fixture",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "documents every path, operation and segment of the executed probe trace",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "reports an undocumented runtime path, operation and segment injected into the executed trace",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/runtime-trust-coverage.test.mjs",
+          "name": "reports a real path as undocumented once its trust-graph node or edge is removed",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 600000
+    },
+    {
+      "id": "runtime-trust-coverage-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/runtime_trust_coverage_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/runtime_trust_coverage_tests.rs",
+          "role": "test",
+          "sha256": "11333c51c89e5b9bce4b6faed47266e162323c78501144f93474943a6a1f6039"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "rust/src/linked_program.rs",
+          "role": "implementation",
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
+        },
+        {
+          "path": "lib/meta-theory/universal.lino",
+          "role": "fixture",
+          "sha256": "eb1b2dc07fa9b353779fb7a4319c36ed008bcf9d472f4b8ea487d428bdc3e12d"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_documents_every_path_operation_and_segment",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_injection_is_reported_as_undocumented",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/tests/runtime_trust_coverage_tests.rs",
+          "name": "runtime_trace_path_without_node_or_edge_is_reported",
+          "polarity": "negative"
+        }
+      ],
+      "testTarget": "runtime_trust_coverage_tests",
+      "timeoutMs": 1200000
     }
   ]
 }
