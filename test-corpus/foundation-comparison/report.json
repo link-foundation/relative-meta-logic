@@ -228,7 +228,7 @@
       "leaves": 6,
       "terms": 34491,
       "explored": 34491,
-      "branchingStates": 10917,
+      "branchingStates": 2298,
       "maxNormalForms": 1,
       "failureStates": false
     },
@@ -236,7 +236,7 @@
       "leaves": 6,
       "terms": 34491,
       "explored": 34491,
-      "branchingStates": 10917,
+      "branchingStates": 2298,
       "maxNormalForms": 1,
       "failureStates": false
     },

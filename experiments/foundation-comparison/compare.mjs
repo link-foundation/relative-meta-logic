@@ -168,21 +168,15 @@ function* skTerms(leaves, size) {
     for (const f of skTerms(leaves, left)) for (const a of skTerms(leaves, size - left)) yield [f, a];
   }
 }
+// Every contraction at every redex position, each position once.
 function skSuccessors(term, names) {
+  if (!Array.isArray(term)) return [];
+  const [f, a] = term;
   const results = [];
-  const spine = []; let head = term;
-  while (Array.isArray(head)) { spine.unshift(head[1]); head = head[0]; }
-  if (head === names.K && spine.length >= 2) {
-    results.push(spine.slice(2).reduce((f, a) => [f, a], spine[0]));
-  }
-  if (head === names.S && spine.length >= 3) {
-    const [x, y, z] = spine;
-    results.push(spine.slice(3).reduce((f, a) => [f, a], [[x, z], [y, z]]));
-  }
-  if (Array.isArray(term)) {
-    for (const left of skSuccessors(term[0], names)) results.push([left, term[1]]);
-    for (const right of skSuccessors(term[1], names)) results.push([term[0], right]);
-  }
+  if (Array.isArray(f) && f[0] === names.K) results.push(f[1]);
+  if (Array.isArray(f) && Array.isArray(f[0]) && f[0][0] === names.S) results.push([[f[0][1], a], [f[1], a]]);
+  for (const left of skSuccessors(f, names)) results.push([left, a]);
+  for (const right of skSuccessors(a, names)) results.push([f, right]);
   return results;
 }
 export function exploreCombinatorBasis(names = { S: 'S', K: 'K' }, { maxLeaves = 6, maxStates = 256 } = {}) {
