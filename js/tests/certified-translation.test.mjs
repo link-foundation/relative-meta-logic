@@ -91,6 +91,18 @@ describe('certified translation over all twelve directed paths', () => {
   it('covers all twelve directed language pairs', () => {
     assert.equal(paths.size, 12);
   });
+  it('Rocq targets never qualify a declaration with the module that is still open', () => {
+    for (const name of ['lean-tree', 'rust-shapes']) {
+      const text = read(`generated/${name}/rocq.v`);
+      const open = [];
+      for (const line of text.split('\n')) {
+        const start = /^Module (\S+)\.$/.exec(line), end = /^End (\S+)\.$/.exec(line);
+        if (start) open.push(start[1]); else if (end) open.pop();
+        else for (const module of open) assert.doesNotMatch(line.replace(/"[^"]*"/g, ''), new RegExp(`(?<![\\w.])${module}\\.[A-Za-z_]`), `${name}: ${line}`);
+      }
+      assert.match(read(`generated/${name}/rocq.certificate.lino`), /rml-rocq-open-module-local-names/);
+    }
+  });
   it('JavaScript sources print the hand-written expectations natively (independent oracle)', () => {
     const directory = realpathSync(mkdtempSync(join(tmpdir(), 'rml-certified-js-')));
     try {

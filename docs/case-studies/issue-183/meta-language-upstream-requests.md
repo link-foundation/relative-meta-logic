@@ -104,3 +104,14 @@ from RML; it is not a claim about upstream plans.
     marked as non-proofs. *Request:* an explicit
     `bounded-check-not-proof` discharge kind so downstream consumers cannot
     mistake them for proofs.
+18. **Rocq emitter: no self-qualification inside an open module.** The pinned
+    `emit-rocq.js` writes `Shapes.Tree` and `geometry.Shape` for a module's own
+    declarations while `Module Shapes.` / `Module geometry.` is still open. The
+    pinned Rocq 9.3 kernel rejects both targets ("The reference Shapes.Tree was
+    not found in the current environment"; first observed by `translation-native`
+    on PR 184 head `0322bfb`). RML now emits those references unqualified
+    through `localizeTargetNames` and records the rewrite as the
+    `rml-rocq-open-module-local-names` encoding in each affected certificate.
+    *Request:* emit local names inside the module, qualified names outside it,
+    and add a native Rocq check for module-scoped inductives to the upstream
+    emitter tests.

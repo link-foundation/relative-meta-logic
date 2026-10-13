@@ -20,8 +20,8 @@
     (sha256 35bcc215ccb1ad3a3507cf08a2af4278c17335a26a9263ce4cbf254de2ebecb0))
   (target
     (language Rocq)
-    (sha256 01d2df4dcbe8625ec5ca79c3e1f49cc0b59c525f76c1b96b372be5f9a114e952)
-    (bytes 7376))
+    (sha256 14c070cd260056a106ca795a2b121cc983d4c773a74473a17b2bb250450d5174)
+    (bytes 7286))
   (correspondence
     (construct
       (kind data)
@@ -89,11 +89,12 @@
     (proof-obligations discharged "1 theorem(s) and assertion(s): 1 discharged by RML evaluation, 0 open, 0 refuted"))
   (assumptions (count 0))
   (encodings
-    (count 4)
+    (count 5)
     (encoding "machine-integer:u64" "u64 values are N values; every u64 operation tests where Rust panics, overflow or a zero divisor, and aborts there with Rust's panic message, and otherwise computes the in-range result exactly")
     (encoding program-output "main is the list of lines the source program prints, in order; evaluating it with vm_compute runs the program")
     (encoding output-threading "a function that prints, directly or through a function it calls, takes the lines printed before it and returns them, with its own in front, paired with its value in a generated ml_io data type; main lists the lines of each step in the order they were printed")
-    (encoding abort-threading "a function that may abort, directly or through a function it calls, returns the source's abort message with the lines printed before it in the generated ml_io data type; main is the pair of the lines printed and Some message when the program aborts, None when it does not"))
+    (encoding abort-threading "a function that may abort, directly or through a function it calls, returns the source's abort message with the lines printed before it in the generated ml_io data type; main is the pair of the lines printed and Some message when the program aborts, None when it does not")
+    (encoding rml-rocq-open-module-local-names "inside an open Rocq module, references to that module's own declarations are emitted unqualified"))
   (observation
     (status completed)
     (lines-sha256 8836e61bb2b337f9676452eedf68c96c46243e012c4be6282a3b1ed88d11812e)
@@ -129,4 +130,4 @@
     (runtime none)
     (external-kernels oracle-only)
     (proof-authority rml))
-  (digest sha256 cfaf1f77705e4b671cc5cc72fc870df2337f76b08ac26d0490de962507e9fc5b))
+  (digest sha256 63a20c124e4a442ddb58c19645eb925d32f7ffaf80975c70394efa2162b249c2))

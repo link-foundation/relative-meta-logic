@@ -384,6 +384,39 @@ function sourceForm(fingerprint) {
   return ['source', ['language', fingerprint.language], ['sha256', fingerprint.sha256], ['bytes', String(fingerprint.bytes)], ['utf16', String(fingerprint.utf16)]];
 }
 
+// The vendored Rocq emitter qualifies a module's own declarations with the
+// module name while that module is still open, which Rocq rejects. RML rewrites
+// those references to the local names Rocq resolves inside the module and
+// records the rewrite as an encoding, so the certificate states the change.
+const ROCQ_OPEN_MODULE_ENCODING = Object.freeze({ id: 'rml-rocq-open-module-local-names',
+  statement: 'inside an open Rocq module, references to that module\'s own declarations are emitted unqualified' });
+
+function localizeRocqModules(text) {
+  const open = [];
+  let changed = false;
+  const lines = text.split('\n').map(line => {
+    const start = /^\s*Module\s+([A-Za-z_][\w']*)\s*\.\s*$/.exec(line);
+    const end = /^\s*End\s+([A-Za-z_][\w']*)\s*\.\s*$/.exec(line);
+    if (start) { open.push(start[1]); return line; }
+    if (end) { if (open.at(-1) === end[1]) open.pop(); return line; }
+    if (!open.length) return line;
+    // Rocq strings double their quotes, so splitting on quotes keeps literals at odd indices.
+    return line.split('"').map((part, index) => {
+      if (index % 2) return part;
+      let next = part;
+      for (const name of open) next = next.replace(new RegExp(`(?<![\\w.'])${name}\\.(?=[A-Za-z_])`, 'g'), () => { changed = true; return ''; });
+      return next;
+    }).join('"');
+  });
+  return { text: lines.join('\n'), changed };
+}
+
+function localizeTargetNames(targetLanguage, emitted) {
+  if (targetLanguage !== 'Rocq') return emitted;
+  const { text, changed } = localizeRocqModules(emitted.text);
+  return changed ? { ...emitted, text, encodings: [...emitted.encodings, ROCQ_OPEN_MODULE_ENCODING] } : emitted;
+}
+
 function authorityForm() { return ['authority', ...CERTIFIED_AUTHORITY.map(([key, value]) => [key, value])]; }
 
 /** Translate and certify; refusals return a first-refusal receipt instead of a target. */
@@ -395,7 +428,7 @@ export function translateCertified(source, sourceLanguage, targetLanguage, { imp
   if (result.status === 'refused') return refusal(result, targetLanguage, identity);
   const program = decodeCertifiedIntermediate(result.rmlNetwork, result.root);
   let emitted;
-  try { emitted = EMITTERS[targetLanguage](program); } catch (error) {
+  try { emitted = localizeTargetNames(targetLanguage, EMITTERS[targetLanguage](program)); } catch (error) {
     if (!(error instanceof TranslationError)) throw error;
     return refusal({ ...result, stage: 'emitter', diagnostic: { kind: error.kind, message: error.reason ?? error.message, span: spanRecord(result.sourceText, error.span) } }, targetLanguage, identity);
   }

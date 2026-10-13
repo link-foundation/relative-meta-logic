@@ -21,13 +21,13 @@ Module Shapes.
 
 Inductive Tree : Type :=
 | leaf : N -> Tree
-| node : Shapes.Tree -> Shapes.Tree -> Tree.
+| node : Tree -> Tree -> Tree.
 
-Fixpoint sum (ml_arg0 : Shapes.Tree) {struct ml_arg0} : N :=
-  (match ml_arg0 with | Shapes.leaf value => value | Shapes.node left_ right_ => (N.add (sum left_) (sum right_)) end).
+Fixpoint sum (ml_arg0 : Tree) {struct ml_arg0} : N :=
+  (match ml_arg0 with | leaf value => value | node left_ right_ => (N.add (sum left_) (sum right_)) end).
 
-Fixpoint size (tree : Shapes.Tree) {struct tree} : N :=
-  (match tree with | Shapes.leaf ml_f1 => 1%N | Shapes.node left_ right_ => (N.add (size left_) (size right_)) end).
+Fixpoint size (tree : Tree) {struct tree} : N :=
+  (match tree with | leaf ml_f1 => 1%N | node left_ right_ => (N.add (size left_) (size right_)) end).
 
 End Shapes.
 

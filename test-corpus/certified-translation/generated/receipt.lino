@@ -5,7 +5,7 @@
     (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
     (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
   (implementation
-    (file "js/src/rml-certified-translation.mjs" 0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1)
+    (file "js/src/rml-certified-translation.mjs" ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6)
     (file "scripts/generate-certified-translations.mjs" f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13)
     (file "js/vendor/meta-language-pr201/upstream-files.json" 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
   (recipe
@@ -212,11 +212,11 @@
     (output
       (path "lean-tree/rocq.v")
       (kind target)
-      (sha256 dcfaaf267f19b8a2b4a0b569445701f970e22d33e186d4f426fd5c354dce5384))
+      (sha256 107624398120444a337e6f917a1f092fac15abfe0f204222d4360b3432159cee))
     (output
       (path "lean-tree/rocq.certificate.lino")
       (kind certificate)
-      (sha256 d3a48e0f61b915850226fd6f8a277d6f34ef1c5e6167fd35fa48b486703b65a0))
+      (sha256 c7bcbbf7fa956c3d048564092d00b77187e98b2fac99768082d9a654398888eb))
     (output
       (path "lean-tree/intermediate.lino")
       (kind intermediate)
@@ -324,11 +324,11 @@
     (output
       (path "rust-shapes/rocq.v")
       (kind target)
-      (sha256 01d2df4dcbe8625ec5ca79c3e1f49cc0b59c525f76c1b96b372be5f9a114e952))
+      (sha256 14c070cd260056a106ca795a2b121cc983d4c773a74473a17b2bb250450d5174))
     (output
       (path "rust-shapes/rocq.certificate.lino")
       (kind certificate)
-      (sha256 c58655d39890cbe309e057d16381fb53910f178492d7d4b518d39fdb21b0ea96))
+      (sha256 0a5f30f214187d9edad9125ef711f7f48d63a1ffa4660c4510bb56d63ecedc3c))
     (output
       (path "rust-shapes/intermediate.lino")
       (kind intermediate)
