@@ -6,7 +6,7 @@ use rml::linked_program::link_ontology_symmetry_report;
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet};
 
-const REPORT: &str = include_str!("../../../test-corpus/assumption-removal/report.json");
+const REPORT: &str = include_str!("../../test-corpus/assumption-removal/report.json");
 
 type Records = Vec<Vec<usize>>;
 

@@ -243,12 +243,14 @@ node --test js/tests/horn-link-substitution.test.mjs js/tests/mechanism-replacem
   js/tests/verifier-provenance.test.mjs js/tests/assumption-removal.test.mjs \
   js/tests/continuation-join.test.mjs
 cargo test --manifest-path rust/relational-kernel/Cargo.toml
+cargo test --manifest-path rust/Cargo.toml --test assumption_removal_tests --test continuation_join_tests
 ```
 
-The Rust mirrors are `horn_link_substitution_tests.rs`,
-`meta_foundation_comparison_tests.rs`, `horn_rml_elaboration_tests.rs`,
-`verifier_provenance_tests.rs`, `assumption_removal_tests.rs` and
-`continuation_join_tests.rs` under `rust/relational-kernel/tests/`. The JavaScript elaboration test compares
+The Rust mirrors that need the Horn resolver are `horn_link_substitution_tests.rs`,
+`meta_foundation_comparison_tests.rs`, `horn_rml_elaboration_tests.rs` and
+`verifier_provenance_tests.rs` under `rust/relational-kernel/tests/`. The
+enumeration mirrors `assumption_removal_tests.rs` and
+`continuation_join_tests.rs` need only the main crate and live in `rust/tests/`. The JavaScript elaboration test compares
 every shared observation under each D'. To stay within the companion CI time
 limit, its Rust mirror compares the elaborated programs and one reduction per
 document instead.

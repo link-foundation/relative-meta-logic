@@ -5,7 +5,7 @@ use rml::linked_program::link_ontology_symmetry_report;
 use serde_json::{json, Value};
 use std::collections::BTreeSet;
 
-const REPORT: &str = include_str!("../../../test-corpus/continuation-join/report.json");
+const REPORT: &str = include_str!("../../test-corpus/continuation-join/report.json");
 
 type Record = Vec<usize>;
 type Pair = (usize, usize);
