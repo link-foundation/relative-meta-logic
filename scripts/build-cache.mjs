@@ -13,6 +13,8 @@ export const policy = JSON.parse(fs.readFileSync(new URL('./cache-policy.json', 
 const slash = p => p.split(path.sep).join('/');
 const digest = data => crypto.createHash('sha256').update(data).digest('hex');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+/** Another or an unidentifiable live build: nothing was deleted; retry later. */
+export const deferral = message => Object.assign(new Error(message), { code: 'RML_CACHE_DEFERRED' });
 export function git(root, args) {
   return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trimEnd();
 }
@@ -141,7 +143,7 @@ export async function lock(c, { timeout = Number(process.env.RML_CACHE_LOCK_TIME
       }
       if (Date.now() - started >= timeout) {
         const visibility = sameProcessRealm(owner, identity) ? '' : ' (foreign or unknown process namespace/boot)';
-        throw new Error(`Cache cleanup/build deferred: another build holds the worktree lease${visibility}`);
+        throw deferral(`Cache cleanup/build deferred: another build holds the worktree lease${visibility}`);
       }
       await sleep(100);
     }
@@ -681,10 +683,20 @@ async function main() {
     if (!result.budgetSatisfied) process.exitCode = 2;
   } finally { lease.release(); }
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(error => { console.error(`build-cache: ${error.message}`); process.exitCode = 1; });
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(error => {
+  // The installed pre-commit hook sets RML_CACHE_HOOK=1. A deferral deletes
+  // nothing and only means a live build may still use its outputs; the next
+  // wrapper, hook or CI teardown retries. It must not abort an unrelated
+  // commit. Unsafe state, missing tools and budget violations still fail.
+  if (process.env.RML_CACHE_HOOK === '1' && error.code === 'RML_CACHE_DEFERRED') {
+    console.error(`build-cache: pre-commit cleanup deferred, commit continues: ${error.message}`);
+    return;
+  }
+  console.error(`build-cache: ${error.message}`); process.exitCode = 1;
+});
 
 /** Conservative backstop for raw cargo/node/lake/rocq runs outside the wrapper. */
-export function assertNoUnleasedBuilders(c, { platform = process.platform, run = execFileSync, readLink = fs.readlinkSync, realPath = fs.realpathSync.native, isAlive = alive } = {}) {
+export function assertNoUnleasedBuilders(c, { platform = process.platform, run = execFileSync, readLink = fs.readlinkSync, realPath = fs.realpathSync.native, isAlive = alive, exists = fs.existsSync } = {}) {
   const evidence = path.join(c.root, '.rml-cache', 'evidence');
   if (fs.existsSync(evidence) && fs.readdirSync(evidence).some(name => name.startsWith('external-lease-') && name.endsWith('.json'))) throw new Error('Active or unresolved external-resource lease; stop and verify owned Docker resources before cleanup');
   const queryOptions = { encoding: 'utf8', timeout: 20000, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] };
@@ -722,7 +734,7 @@ export function assertNoUnleasedBuilders(c, { platform = process.platform, run =
     if (platform === 'linux') {
       try { cwd = readLink(`/proc/${p.pid}/cwd`); } catch (error) {
         if (error.code === 'ENOENT' || error.code === 'ESRCH') continue;
-        throw new Error(`Cannot inspect active builder ${p.pid}; cleanup deferred`);
+        throw deferral(`Cannot inspect active builder ${p.pid}; cleanup deferred`);
       }
     } else if (platform === 'darwin') {
       try { cwd = run('lsof', ['-a', '-p', String(p.pid), '-d', 'cwd', '-Fn'], queryOptions).split('\n').find(x => x.startsWith('n'))?.slice(1); }
@@ -734,22 +746,45 @@ export function assertNoUnleasedBuilders(c, { platform = process.platform, run =
           if (/^Z/.test(state)) continue;
         } catch { /* Missing/failed ps alone is not evidence of process death. */ }
         if (!isAlive(p.pid)) continue;
-        throw new Error(`Cannot establish active builder ${p.pid}'s worktree; cleanup deferred`);
+        throw deferral(`Cannot establish active builder ${p.pid}'s worktree; cleanup deferred`);
       }
     } else cwd = p.cwd;
-    if (!cwd) throw new Error(`Unleased compiler ${p.pid} has unknown working directory; cleanup deferred${p.reason ? `: ${p.reason}` : ''}`);
+    if (!cwd) throw deferral(`Unleased compiler ${p.pid} has unknown working directory; cleanup deferred${p.reason ? `: ${p.reason}` : ''}`);
     // Resolve /var versus /private/var on macOS and normalize Windows drive
     // spelling/case before comparing a cwd with the canonical repository root.
     let root = c.root;
     try { cwd = realPath(cwd); } catch {
       if (!isAlive(p.pid)) continue;
-      throw new Error(`Cannot establish active builder ${p.pid}'s worktree; cleanup deferred`);
+      throw deferral(`Cannot establish active builder ${p.pid}'s worktree; cleanup deferred`);
     }
     if (platform === 'win32') {
       cwd = path.win32.normalize(cwd).toLowerCase();
       root = path.win32.normalize(root).toLowerCase();
     }
     const separator = platform === 'win32' ? path.win32.sep : path.sep;
-    if (cwd === root || cwd.startsWith(`${root}${separator}`)) throw new Error(`Active unleased build process ${p.pid}; cleanup deferred`);
+    if (cwd === root || cwd.startsWith(`${root}${separator}`)) {
+      if (foreignNestedRepository(c, cwd, root, separator, platform, exists)) continue;
+      throw deferral(`Active unleased build process ${p.pid}; cleanup deferred`);
+    }
   }
+}
+/**
+ * A builder whose working directory is inside a nested Git worktree or clone
+ * (a directory below this root with its own `.git` file or directory, or a
+ * listed linked worktree) belongs to that tree, for example
+ * `.claude/worktrees/*`. It defers this tree's cleanup only when that nested
+ * tree overlaps one of this tree's registered cache roots, such as a nested
+ * temporary clone this tree owns; without a readable registry it still defers.
+ */
+function foreignNestedRepository(c, cwd, root, separator, platform, exists) {
+  const spell = value => platform === 'win32' ? path.win32.normalize(value).toLowerCase() : value;
+  const listed = new Set((c.worktrees ?? []).map(spell));
+  let nested = null;
+  for (let current = cwd; current !== root && current.startsWith(`${root}${separator}`); current = current.slice(0, current.lastIndexOf(separator))) {
+    if (listed.has(current) || exists(`${current}${separator}.git`)) nested = current;
+  }
+  if (!nested || !c.registry) return false;
+  let registered;
+  try { registered = roots(c).map(item => spell(path.join(c.root, ...item.path.split('/')))); } catch { return false; }
+  return !registered.some(owned => owned === nested || owned.startsWith(`${nested}${separator}`) || nested.startsWith(`${owned}${separator}`));
 }

@@ -38,6 +38,20 @@ for (const filename of workflows) {
   });
 }
 
+test('the cross-platform lifecycle job executes every cache lifecycle suite on all supported OSes', () => {
+  const portability = read('.github/workflows/cache-portability.yml');
+  assert.match(portability, /os: \[ubuntu-latest, macos-latest, windows-latest\]/);
+  assert.match(portability, /fail-fast: false/);
+  assert.doesNotMatch(portability, /continue-on-error|\|\| true|--test-skip-pattern|--test-name-pattern/);
+  const step = steps(jobs(portability)[0]).find(s => /Execute installed hooks and real platform lifecycle/.test(s));
+  assert.ok(step, 'portable lifecycle step is missing');
+  assert.match(step, /run: node scripts\/run-with-cache\.mjs -- node --test /);
+  // A new cache lifecycle suite cannot be added without running on every OS.
+  const suites = readdirSync(join(root, 'scripts')).filter(name => /^(?:build-cache.*|docker-cache-budget|cargo-unit-sweep|build-output-publication|build-vsix-output|build-resource-monitor|ci-source-context)\.test\.mjs$/.test(name));
+  assert.ok(suites.length >= 9, `expected the complete lifecycle suite set, found ${suites.join(', ')}`);
+  for (const suite of suites) assert.ok(step.includes(`scripts/${suite}`), `cache-portability omits ${suite}`);
+});
+
 test('docs and parity consume build outputs before cleanup can evict them', () => {
   const docs = read('.github/workflows/api-docs.yml');
   assert.match(docs, /run-with-cache\.mjs --isolate-output target\/api-docs --retain _site --/);

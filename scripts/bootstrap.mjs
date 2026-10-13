@@ -43,7 +43,7 @@ export function bootstrap(root = rootHere) {
     if (fs.existsSync(target) && !fs.readFileSync(target, 'utf8').includes(marker)) throw new Error(`Refusing to overwrite unknown hook ${target}`);
     const old = path.join(source, name);
     let script = `#!/bin/sh\n${marker}\nstatus=0\nif [ -x ${quote(old)} ]; then\n  ${quote(old)} "$@" || status=$?\nfi\n`;
-    if (name === 'pre-commit') script += 'root=$(git rev-parse --show-toplevel) || exit $?\nif ! command -v node >/dev/null 2>&1; then\n  echo "RML cache cleanup requires Node.js 18.15+; hook not skipped" >&2\n  [ "$status" -ne 0 ] && exit "$status"\n  exit 127\nfi\nnode "$root/scripts/build-cache.mjs"\ncleanup_status=$?\n[ "$status" -ne 0 ] && exit "$status"\nexit "$cleanup_status"\n';
+    if (name === 'pre-commit') script += 'root=$(git rev-parse --show-toplevel) || exit $?\nif ! command -v node >/dev/null 2>&1; then\n  echo "RML cache cleanup requires Node.js 18.15+; hook not skipped" >&2\n  [ "$status" -ne 0 ] && exit "$status"\n  exit 127\nfi\nRML_CACHE_HOOK=1 node "$root/scripts/build-cache.mjs"\ncleanup_status=$?\n[ "$status" -ne 0 ] && exit "$status"\nexit "$cleanup_status"\n';
     else script += 'exit "$status"\n';
     fs.writeFileSync(target, script, { mode: 0o755 });
     fs.chmodSync(target, 0o755);

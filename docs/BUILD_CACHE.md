@@ -222,6 +222,25 @@ forced runner termination cannot execute any program's cleanup handler; the
 next safe invocation can clean registered leftovers, while ambiguous files stay
 protected. Do not work around a safety refusal with a broad recursive deletion.
 
+A builder whose working directory lies in a nested Git worktree or repository
+below this root (a directory with its own `.git` file or directory, or a listed
+linked worktree such as `.claude/worktrees/*` or `.worktrees/*`) belongs to that
+tree and does not defer this tree's cleanup. It still defers when that nested
+tree overlaps one of this tree's registered cache roots, for example a nested
+temporary clone under `.rml-cache/consumers`, or when the registry cannot be
+read. Nested worktrees can never be registered as this tree's cache, so their
+outputs stay outside its cleanup. Equally, a worktree containing this one (the
+primary checkout above `.claude/worktrees/*`) is an ancestor, not an
+overlapping peer.
+
+Deferral (an active unleased builder in this tree, an unidentifiable live
+builder, or another build holding the lease) deletes nothing. A direct
+`build-cache.mjs` run reports it and exits 1. The installed pre-commit hook sets
+`RML_CACHE_HOOK=1`, prints `pre-commit cleanup deferred, commit continues` and
+lets the commit proceed; the next wrapper, hook or CI teardown retries. Unsafe
+state, missing inspection tools, unresolved Docker leases and budget violations
+still fail the hook.
+
 ## Generated-path coverage
 
 The checked-in `scripts/cache-policy.json` is the source of truth. It covers:
@@ -335,6 +354,17 @@ ownership mismatches against a fake Docker CLI. That is safety/control-flow
 coverage, not proof of a real image build or measured Docker disk reclamation;
 the Docker CI job provides the real integration check.
 
+The Bash helpers resolve `docker` from `PATH`, but the Node accountant
+(`scripts/docker-cache-budget.mjs`) can be pointed at a specific CLI with
+`RML_DOCKER_CLI`, a JSON argv prefix such as `["node","/abs/docker-double.cjs"]`.
+Windows process creation resolves only `.exe`/`.com` files from `PATH`, so an
+extensionless fake would otherwise be bypassed in favour of the runner's real
+`docker.exe`; the cross-platform tests therefore name their double explicitly.
+Malformed values fail closed. An absent Docker CLI is reported as
+`Docker CLI unavailable`, never measured as zero bytes: a registered builder is
+then preserved with its external-resource lease and no reclaimed bytes are
+claimed.
+
 ## Formal-ai adaptation record
 
 The implementation reviewed the pinned formal-ai revision
@@ -355,9 +385,30 @@ consumer operation. Hook/cleanup failures are visible rather than always ignored
 Not copied: host-wide Docker deletion, deletion based only on modification time,
 and allowing an optional missing sweeper to silently leave an unenforced budget.
 The hash/size/mtime/mode registry prioritizes preserving unknown and edited files.
-It does not claim Cargo dependency-graph-aware eviction: missing compiler
-artifacts are rebuilt using Cargo's own fingerprint validation, and eviction may
-cost recompilation. This remains a narrower optimization than `cargo-sweep`.
+
+Fingerprint-aware sweep of superseded Cargo units: after a successful
+`cargo build`, `check`, `test` or `bench` in a private `--isolate-output`
+target, `scripts/cargo-unit-sweep.mjs` re-runs the same Cargo command with
+`--message-format=json` (and `--no-run` for tests and benchmarks). Cargo then
+reports every unit of that build, including fresh units it did not need to
+recompile, so the answer does not depend on modification or access times.
+Within each profile directory the build referenced, a `deps/`, `build/` or
+`.fingerprint/` entry is removed only when the build referenced the same
+artifact stem under a different metadata hash, that is, the unit was superseded
+by a dependency, feature, profile or compiler change. Profiles and artifact
+kinds the build did not reference (for example test binaries after a
+library-only build, or `release` after a `debug` build) and uplifted unhashed
+outputs are retained, and links are never followed. This happens inside the
+lease before ownership capture, so a superseded unit carried forward by warm
+seeding is not copied into the next generation. A failed or unavailable
+reference query, or zero reported units, deletes nothing and never changes the
+command status; the outcome is printed and stored as `cargoSweep` in the
+command receipt under `.rml-cache/evidence/`. Set `RML_CACHE_CARGO_SWEEP=0`
+only as a temporary debugging override. Commands other than the four listed
+(`cargo run`, coverage, documentation tests or a caller-selected message
+format) are not swept; whole-generation budget eviction still bounds them.
+Like `cargo-sweep`, the rule may evict a unit a later different command would
+have reused, which costs recompilation, not correctness.
 The complete language/semantic formal-ai adoption map is a separate requirement;
 this cache adaptation does not satisfy it.
 
@@ -376,6 +427,20 @@ It archives each command's output and status before removing its fixture, and
 writes a failure report rather than reporting a failed verification as passing.
 The report distinguishes this JavaScript/docs cycle from native Rust/formal and
 Docker verification; it cannot close the complete issue-183 acceptance gate.
+
+The native cycle adds a complete Rust test-target compilation before the first
+full cleanup, then a clean full Rust rebuild and test run plus the required
+portable-fragment oracles after it:
+
+```sh
+node scripts/measure-build-cache.mjs report.json --native --oracles=Rust,Lean
+```
+
+`--oracles` defaults to `Rust,Lean,Rocq`; the selected set is recorded as
+`requiredNativeOracles` and in the report scope. The `Measured native
+clean-rebuild cycle` job in `.github/workflows/cache-portability.yml` runs this
+with Rust and Lean on Ubuntu and archives the report (also on failure) before
+teardown. Rocq oracles run in the pinned Rocq container jobs instead.
 
 ## Linked-kernel test profile
 
