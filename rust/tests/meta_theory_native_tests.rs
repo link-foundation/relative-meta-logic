@@ -3,7 +3,10 @@
 //! scripts/generate-meta-theory-native.mjs from the preserved upstream tokens;
 //! this mirror re-runs every recorded case and every ablation witness on the
 //! Rust reducer and rejects corrupted programs, preludes, cases and witnesses.
-use rml::linked_program::{ExecutionBasis, LinkedProgramRegistry};
+use rml::meta_theory_native::{
+    ablation_outcome, binary_natural, compact_native, execute_native, expand_native, native_closure,
+    native_registry, natural_value, render_native_value, slice_native_program, META_THEORY_NATIVE_PROGRAM,
+};
 use rml::Node;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -13,9 +16,6 @@ const PRELUDE: &str = include_str!("../../lib/meta-theory/meta-theory-native-pre
 const PROGRAM: &str = include_str!("../../lib/meta-theory/upstream-0.0.3-native.lino");
 const CASES: &str = include_str!("../../test-corpus/meta-theory-native/cases.json");
 const COVERAGE: &str = include_str!("../../test-corpus/meta-theory-native/coverage.json");
-const NATIVE_PROGRAM: &str = "upstream-0.0.3-native";
-const COMMAND_SECTION: &str = "commands";
-const MAX_STEPS: usize = 200_000;
 
 fn on_large_stack<F: FnOnce() + Send + 'static>(run: F) {
     std::thread::Builder::new()
@@ -45,135 +45,6 @@ fn leaf(text: &str) -> Node {
     Node::Leaf(text.to_string())
 }
 
-fn binary(mut number: u64) -> Node {
-    let mut bits = Vec::new();
-    while number > 0 {
-        bits.push(if number % 2 == 1 { "mt-b1" } else { "mt-b0" });
-        number /= 2;
-    }
-    bits.iter()
-        .rev()
-        .fold(leaf("mt-zero"), |inner, bit| Node::List(vec![leaf(bit), inner]))
-}
-
-/// Inverse of the shared compaction: (mt-natural N) back to a binary natural link.
-fn expand(term: &Node) -> Node {
-    match term {
-        Node::List(items) => match items.as_slice() {
-            [Node::Leaf(tag), Node::Leaf(number)] if tag == "mt-natural" => {
-                binary(number.parse().expect("decimal natural"))
-            }
-            _ => Node::List(items.iter().map(expand).collect()),
-        },
-        Node::Leaf(_) => term.clone(),
-    }
-}
-
-/// The number denoted by a canonical little-endian binary natural link.
-fn natural_value(term: &Node) -> Option<u64> {
-    match term {
-        Node::Leaf(text) if text == "mt-zero" => Some(0),
-        Node::List(items) => match items.as_slice() {
-            [Node::Leaf(bit), inner] if bit == "mt-b0" || bit == "mt-b1" => {
-                let half = natural_value(inner)?;
-                if bit == "mt-b0" && half == 0 {
-                    return None;
-                }
-                Some(half * 2 + u64::from(bit == "mt-b1"))
-            }
-            _ => None,
-        },
-        Node::Leaf(_) => None,
-    }
-}
-
-fn compact(term: &Node) -> Node {
-    if let Node::List(items) = term {
-        if let Some(number) = natural_value(term) {
-            return Node::List(vec![leaf("mt-natural"), Node::Leaf(number.to_string())]);
-        }
-        return Node::List(items.iter().map(compact).collect());
-    }
-    term.clone()
-}
-
-fn is_raw(term: &Node) -> bool {
-    match term {
-        Node::Leaf(text) => text != "mt-v",
-        Node::List(items) => {
-            !items.is_empty()
-                && !matches!(&items[0], Node::Leaf(text) if text == "mt-v")
-                && items.iter().all(is_raw)
-        }
-    }
-}
-
-fn is_value(term: &Node) -> bool {
-    matches!(term, Node::List(items) if items.len() == 2
-        && matches!(&items[0], Node::Leaf(tag) if tag == "mt-v")
-        && is_raw(&items[1]))
-}
-
-fn registry(prelude: &str, program: &str) -> Result<LinkedProgramRegistry, String> {
-    LinkedProgramRegistry::from_rml_with_basis(
-        &format!("{prelude}\n{program}"),
-        ExecutionBasis::DirectStructural,
-        &[],
-    )
-}
-
-struct Outcome {
-    term: Option<Node>,
-    steps: usize,
-}
-
-impl Outcome {
-    fn value(&self) -> bool {
-        self.term.as_ref().is_some_and(is_value)
-    }
-}
-
-fn execute(registry: &LinkedProgramRegistry, term: &Node) -> Outcome {
-    match registry.reduce_result(NATIVE_PROGRAM, term, MAX_STEPS) {
-        Ok(summary) => Outcome { term: Some(summary.term), steps: summary.steps },
-        Err(_) => Outcome { term: None, steps: 0 },
-    }
-}
-
-/// Whether an ablated outcome still reaches the recorded value.
-fn ablation(expected: &Node, outcome: &Outcome) -> &'static str {
-    match &outcome.term {
-        None => "failure",
-        Some(_) if !outcome.value() => "stuck",
-        Some(term) if &compact(term) == expected => "unchanged",
-        Some(_) => "different-value",
-    }
-}
-
-fn section_header(section: &str) -> &str {
-    let line = section.split('\n').next().unwrap_or("");
-    line.strip_prefix("# ").unwrap_or("")
-}
-
-/// The generated program restricted to the given declaration sections.
-fn slice(program: &str, addresses: &[String]) -> String {
-    let keep: BTreeSet<&str> = addresses
-        .iter()
-        .map(String::as_str)
-        .chain([COMMAND_SECTION])
-        .collect();
-    let kept: Vec<&str> = program
-        .trim_end()
-        .split("\n\n")
-        .filter(|section| {
-            !section.starts_with("# ")
-                || section.starts_with("# Generated")
-                || keep.contains(section_header(section))
-        })
-        .collect();
-    format!("{}\n", kept.join("\n\n"))
-}
-
 fn strings(value: &Value) -> Vec<String> {
     value
         .as_array()
@@ -181,26 +52,30 @@ fn strings(value: &Value) -> Vec<String> {
         .unwrap_or_default()
 }
 
-/// Declarations reachable through recorded and structural references.
-fn closure(declarations: &[Value], roots: &[String]) -> BTreeSet<String> {
-    let by_address: BTreeMap<&str, &Value> = declarations
+/// Recorded and structural references of every declaration.
+fn references(declarations: &[Value]) -> BTreeMap<String, Vec<String>> {
+    declarations
         .iter()
-        .map(|entry| (entry["address"].as_str().unwrap(), entry))
-        .collect();
-    let mut reached = BTreeSet::new();
-    let mut pending: Vec<String> = roots.to_vec();
-    while let Some(address) = pending.pop() {
-        let Some(entry) = by_address.get(address.as_str()) else { continue };
-        if !reached.insert(address.clone()) {
-            continue;
-        }
-        pending.extend(strings(&entry["references"]));
-        pending.extend(strings(&entry["structuralReferences"]));
-    }
-    reached
+        .map(|entry| {
+            let mut all = strings(&entry["references"]);
+            all.extend(strings(&entry["structuralReferences"]));
+            (entry["address"].as_str().unwrap().to_string(), all)
+        })
+        .collect()
 }
 
-#[derive(Default)]
+/// Naturals, lists, pairs, options and Booleans only (the shared rendering subset).
+fn plain_data(value: &Value) -> bool {
+    const TAGS: &[&str] = &[
+        "mt-v", "mt-natural", "mt-zero", "mt-nil", "mt-cons", "mt-pair", "mt-some", "mt-none", "mt-true", "mt-false",
+    ];
+    match value {
+        Value::String(text) => TAGS.contains(&text.as_str()) || text.chars().all(|character| character.is_ascii_digit()),
+        Value::Array(items) => items.iter().all(plain_data),
+        _ => false,
+    }
+}
+
 struct Scope {
     reexecute_cases: bool,
     addresses: Option<Vec<String>>,
@@ -220,7 +95,7 @@ fn validate(prelude: &str, program: &str, cases: &Value, coverage: &Value, scope
     {
         problems.push("prelude hash differs from the recorded evidence".to_string());
     }
-    let whole = match registry(prelude, program) {
+    let whole = match native_registry(prelude, program) {
         Ok(registry) => registry,
         Err(error) => {
             problems.push(format!("native program does not load: {error}"));
@@ -234,9 +109,9 @@ fn validate(prelude: &str, program: &str, cases: &Value, coverage: &Value, scope
         .collect();
     if scope.reexecute_cases {
         for item in items {
-            let outcome = execute(&whole, &expand(&node(&item["request"])));
+            let outcome = execute_native(&whole, &expand_native(&node(&item["request"])));
             let reproduced = outcome.term.as_ref().is_some_and(|term| {
-                compact(term) == node(&item["expected"])
+                compact_native(term) == node(&item["expected"])
                     && outcome.steps as u64 == item["steps"].as_u64().unwrap()
                     && outcome.value() == item["value"].as_bool().unwrap()
             });
@@ -249,6 +124,7 @@ fn validate(prelude: &str, program: &str, cases: &Value, coverage: &Value, scope
         }
     }
     let declarations = coverage["declarations"].as_array().unwrap();
+    let graph = references(declarations);
     for entry in declarations {
         let address = entry["address"].as_str().unwrap();
         let witness = &entry["executionWitness"];
@@ -279,20 +155,21 @@ fn validate(prelude: &str, program: &str, cases: &Value, coverage: &Value, scope
             continue;
         }
         let recorded_set: BTreeSet<String> = recorded.iter().cloned().collect();
-        if closure(declarations, &recorded) != recorded_set {
+        if native_closure(&graph, &recorded) != recorded_set {
             problems.push(format!("{address}: witness closure is not closed under recorded references"));
             continue;
         }
         let expected = node(&item["expected"]);
-        let request = expand(&node(&item["request"]));
-        let local = registry(prelude, &slice(program, &recorded)).map(|local| execute(&local, &request));
-        if !local.as_ref().is_ok_and(|outcome| ablation(&expected, outcome) == "unchanged") {
+        let request = expand_native(&node(&item["request"]));
+        let local = native_registry(prelude, &slice_native_program(program, &recorded))
+            .map(|local| execute_native(&local, &request));
+        if !local.as_ref().is_ok_and(|outcome| ablation_outcome(&expected, outcome) == "unchanged") {
             problems.push(format!("{address}: witness case does not reach its value on its static closure"));
             continue;
         }
         let without: Vec<String> = recorded.into_iter().filter(|member| member != address).collect();
-        let outcome = registry(prelude, &slice(program, &without))
-            .map(|ablated| ablation(&expected, &execute(&ablated, &request)))
+        let outcome = native_registry(prelude, &slice_native_program(program, &without))
+            .map(|ablated| ablation_outcome(&expected, &execute_native(&ablated, &request)))
             .unwrap_or("failure");
         let claimed = witness["ablation"].as_str().unwrap_or("");
         let claimed_class = if claimed.starts_with("failure") { "failure" } else { claimed };
@@ -336,6 +213,23 @@ fn reexecutes_every_case_and_ablation_witness() {
         assert!(executions.iter().all(|item| item["value"] == true));
         let scope = Scope { reexecute_cases: true, addresses: None };
         assert_eq!(validate(PRELUDE, PROGRAM, &cases, &coverage, &scope), Vec::<String>::new());
+    });
+}
+
+#[test]
+fn renders_values_like_the_shared_fixtures() {
+    on_large_stack(|| {
+        let (cases, _) = fixtures();
+        let registry = native_registry(PRELUDE, PROGRAM).unwrap();
+        for item in cases["cases"].as_array().unwrap() {
+            let Some(rendered) = item["rendered"].as_str() else { continue };
+            if !plain_data(&item["expected"]) {
+                continue;
+            }
+            let outcome = execute_native(&registry, &expand_native(&node(&item["request"])));
+            let language = item["language"].as_str().unwrap_or("lean");
+            assert_eq!(render_native_value(outcome.term.as_ref().unwrap(), language), rendered, "{}", item["id"]);
+        }
     });
 }
 
@@ -449,11 +343,11 @@ fn rejects_edited_results_and_step_counts() {
 #[test]
 fn executes_binary_natural_arithmetic_in_the_prelude() {
     on_large_stack(|| {
-        let registry = registry(PRELUDE, &slice(PROGRAM, &[])).unwrap();
-        let n = |number: u64| Node::List(vec![leaf("mt-v"), binary(number)]);
+        let registry = native_registry(PRELUDE, &slice_native_program(PROGRAM, &[])).unwrap();
+        let n = |number: u64| Node::List(vec![leaf("mt-v"), binary_natural(number)]);
         let run = |operation: &str, left: u64, right: u64| {
             let term = Node::List(vec![leaf(operation), n(left), n(right)]);
-            compact(&registry.reduce_result(NATIVE_PROGRAM, &term, 10_000).unwrap().term)
+            compact_native(&registry.reduce_result(META_THEORY_NATIVE_PROGRAM, &term, 10_000).unwrap().term)
         };
         let natural = |number: u64| {
             Node::List(vec![leaf("mt-v"), Node::List(vec![leaf("mt-natural"), Node::Leaf(number.to_string())])])
@@ -464,7 +358,8 @@ fn executes_binary_natural_arithmetic_in_the_prelude() {
         assert_eq!(run("mt-mul", 121, 11), natural(1331));
         assert_eq!(run("mt-div", 1343, 10), natural(134));
         assert_eq!(run("mt-less", 4, 8), Node::List(vec![leaf("mt-v"), leaf("mt-true")]));
-        assert_eq!(natural_value(&binary(999_999)), Some(999_999));
+        assert_eq!(natural_value(&binary_natural(999_999)), Some(999_999));
         assert_eq!(natural_value(&Node::List(vec![leaf("mt-b0"), leaf("mt-zero")])), None);
+        assert_eq!(expand_native(&compact_native(&binary_natural(1343))), binary_natural(1343));
     });
 }
