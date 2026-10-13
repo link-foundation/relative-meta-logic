@@ -1,0 +1,48 @@
+name: linked-recapture
+
+# Deliberate source migration on a hosted runner, so contributors never build the
+# Rust syntax helper locally. Push the tree to a `recapture/**` branch, then apply
+# the uploaded patch after reviewing it; nothing is committed automatically.
+on:
+  push:
+    branches: ['recapture/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recapture:
+    name: Recapture linked implementation
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Bootstrap repository cache policy
+        run: node scripts/bootstrap.mjs
+      - name: Install dependencies under the cache lifecycle
+        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
+      - name: Run the deliberate source migration
+        run: node scripts/update-linked-implementation.mjs
+      - name: Export the reviewed-migration patch
+        run: |
+          mkdir -p .rml-cache/evidence/recapture
+          git add -A -- . ':!.rml-cache'
+          git diff --cached --binary > .rml-cache/evidence/recapture/linked-recapture.patch
+          git diff --cached --stat
+      - name: Upload the patch and cleanup evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: linked-recapture-patch
+          path: .rml-cache/evidence/**
+          include-hidden-files: true
+      - name: Clean owned build outputs
+        if: always()
+        run: node scripts/build-cache.mjs --full
