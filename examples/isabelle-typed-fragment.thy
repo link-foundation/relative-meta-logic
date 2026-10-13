@@ -16,6 +16,6 @@ consts
   rml_succ :: "rml_natural => rml_natural"
 
 definition rml_identity :: "rml_natural => rml_natural" where
-  "rml_identity = (%v_ref_78. v_ref_78)"
+  "rml_identity = (%v_ref_h78. v_ref_h78)"
 
 end

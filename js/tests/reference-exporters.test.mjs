@@ -36,7 +36,8 @@ test('compiler smoke artifacts exercise exact locals, global retention and false
   assert.ok(fixtures.mappings.length >= 39);
   for (const mapping of fixtures.mappings) {
     assert.match(mapping.lean, /^rml_ref_[0-9a-f]*$/);
-    assert.match(mapping.localIsabelle, /^v_ref_[0-9a-f]*$/);
+    assert.match(mapping.localIsabelle, /^v_ref_h[0-9a-f]*$/);
+    assert.doesNotMatch(mapping.localIsabelle, /_$/, 'Isabelle reserves identifiers ending in _');
     assert.ok(fixtures.Isabelle.positive.includes(`%${mapping.localIsabelle}.`));
   }
   for (const language of ['Lean','Rocq','Isabelle']) {

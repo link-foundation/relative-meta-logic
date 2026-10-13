@@ -2,7 +2,7 @@
 
 Lean and Rocq export every source identifier as `rml_ref_` followed by the lowercase hexadecimal encoding of its exact UTF-8 bytes. Empty labels end at the prefix. Names containing controls, spaces, punctuation, Unicode, keywords, or the prefix itself remain distinct. Declaration, reference and binder occurrences use the same mapping. This deliberately changes generated spelling, including ordinary ASCII names. `Type` and `Prop` retain their builtin meanings in type positions; unsupported rebinding is rejected explicitly.
 
-Isabelle global names use the existing recorded unique-name mapping. Bound variables use `v_ref_` plus UTF-8 hex, so distinct source names cannot capture each other or an `rml_` global name. Source display functions remain human-readable; exact transport uses `emitLinoTerm` / `emit_lino_term`.
+Isabelle global names use the existing recorded unique-name mapping. Bound variables use `v_ref_h` plus UTF-8 hex, so distinct source names cannot capture each other or an `rml_` global name, and the empty name stays a legal Isabelle identifier (Isabelle reserves names ending in `_`). Source display functions remain human-readable; exact transport uses `emitLinoTerm` / `emit_lino_term`.
 
 `scripts/reference-export-fixtures.mjs` constructs compiler smoke artifacts from the shared reference corpus and records source-to-target mappings. Each language gets accepted programs that prove nested functions return the first argument and retain an unrelated global constant, plus separate deliberately false capture and rebinding claims. The fixture includes an atom beginning with the generated prefix, empty/control/Unicode labels, trailing punctuation and language keywords. Builtin rebinding controls are tested at the exporter boundary.
 

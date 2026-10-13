@@ -28,7 +28,7 @@ export function referenceExportFixtures(nativeSources = {}) {
   const beforeEnd = isabelle.replace(/\nend\s*$/, '\n');
   return {
     source,
-    mappings: labels.map((source, index) => ({ source, lean: leanIdent(source), rocq: leanIdent(source), isabelle: globalIsabelle[index + 1], localIsabelle: `v_ref_${Buffer.from(source, 'utf8').toString('hex')}`, index })),
+    mappings: labels.map((source, index) => ({ source, lean: leanIdent(source), rocq: leanIdent(source), isabelle: globalIsabelle[index + 1], localIsabelle: `v_ref_h${Buffer.from(source, 'utf8').toString('hex')}`, index })),
     Lean: {
       extension: 'lean',
       positive: leanSource + '\n' + collisionLean + positiveLean + '\n',

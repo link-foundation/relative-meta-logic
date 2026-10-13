@@ -8633,7 +8633,9 @@ class IsabelleExportContext {
 
   localName(name) {
     // Bound identifiers cannot alias one another or the rml_ global namespace.
-    return 'v_ref_' + Array.from(new TextEncoder().encode(String(name)), byte => byte.toString(16).padStart(2, '0')).join('');
+    // The `h` marker keeps the empty name valid: Isabelle reserves identifiers
+    // ending in `_` for internal variables.
+    return 'v_ref_h' + Array.from(new TextEncoder().encode(String(name)), byte => byte.toString(16).padStart(2, '0')).join('');
   }
 
   ensureTypedecl(name) {
