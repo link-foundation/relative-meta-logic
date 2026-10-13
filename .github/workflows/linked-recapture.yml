@@ -35,7 +35,7 @@ jobs:
       - name: Export the reviewed-migration patch
         run: |
           mkdir -p .rml-cache/evidence/recapture
-          git add -A -- . ':!.rml-cache'
+          git add -A
           git diff --cached --binary > .rml-cache/evidence/recapture/linked-recapture.patch
           git diff --cached --stat
       - name: Upload the patch and cleanup evidence
