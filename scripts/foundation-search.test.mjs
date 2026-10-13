@@ -6,6 +6,7 @@ import {
   foundationSearchReport,
   linkOntologySymmetryExperiment,
 } from '../js/src/rml-foundation-search.mjs';
+import { LinkedProgramRegistry } from '../js/src/rml-linked-program.mjs';
 
 const universalSource = readFileSync(
   new URL('../lib/meta-theory/universal.lino', import.meta.url),
@@ -20,6 +21,85 @@ const expected = JSON.parse(readFileSync(
   'utf8',
 ));
 const report = foundationSearchReport(universalSource, alternativeSource);
+
+// Independent finite combinatorics for the negative ontology checks below.
+// They share no code with js/src/rml-foundation-search.mjs: a pattern lists
+// the class of each occurrence, and an occurrence permutation p reads
+// occurrence p[i] at position i.
+function setPartitions(width) {
+  const partitions = [];
+  const extend = (prefix, largest) => {
+    if (prefix.length === width) {
+      partitions.push(prefix);
+      return;
+    }
+    for (let value = 0; value <= largest + 1; value++) {
+      extend([...prefix, value], Math.max(largest, value));
+    }
+  };
+  extend([], -1);
+  return partitions;
+}
+
+function firstOccurrenceForm(pattern) {
+  const names = new Map();
+  return pattern.map(value => {
+    if (!names.has(value)) names.set(value, names.size);
+    return names.get(value);
+  });
+}
+
+function occurrencePermutations(width) {
+  if (width === 0) return [[]];
+  return occurrencePermutations(width - 1).flatMap(rest =>
+    Array.from({ length: width }, (_, position) =>
+      [...rest.slice(0, position), width - 1, ...rest.slice(position)]));
+}
+
+function permuteOccurrences(pattern, permutation) {
+  return firstOccurrenceForm(permutation.map(index => pattern[index]));
+}
+
+function sameVector(left, right) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function automorphisms(patterns, width = patterns[0].length) {
+  return occurrencePermutations(width).filter(permutation => patterns.every(pattern =>
+    sameVector(permuteOccurrences(pattern, permutation), firstOccurrenceForm(pattern))));
+}
+
+function orbitSizes(group, width) {
+  const orbits = new Set(Array.from({ length: width }, (_, occurrence) =>
+    JSON.stringify([...new Set(group.map(permutation => permutation[occurrence]))].sort())));
+  return [...orbits].map(orbit => JSON.parse(orbit).length).sort((left, right) => left - right);
+}
+
+function canonicalClass(patterns) {
+  return occurrencePermutations(patterns[0].length)
+    .map(permutation => JSON.stringify(patterns.map(pattern => permuteOccurrences(pattern, permutation))))
+    .sort()[0];
+}
+
+function jointClassesOfWidthFour() {
+  const classes = new Map();
+  for (const base of setPartitions(4)) {
+    for (const refinement of setPartitions(4)) {
+      const key = canonicalClass([base, refinement]);
+      if (!classes.has(key)) classes.set(key, { base, refinement, baseClass: canonicalClass([base]) });
+    }
+  }
+  return [...classes.values()];
+}
+
+function integerPartitionCount(total, largest = total) {
+  if (total === 0) return 1;
+  let count = 0;
+  for (let part = Math.min(total, largest); part >= 1; part--) {
+    count += integerPartitionCount(total - part, part);
+  }
+  return count;
+}
 
 describe('architecture-neutral alternative-foundation search', () => {
   it('runs the same complete workload under three semantic mechanisms', () => {
@@ -1832,5 +1912,378 @@ describe('architecture-neutral alternative-foundation search', () => {
       report.comparisonCohort.asymmetricRankingPermitted,
       expected.comparisonCohort.asymmetricRankingPermitted,
     );
+  });
+
+  it('admits no endpoint direction or unique role for two distinct references', () => {
+    // Swapping the two occurrences and renaming the references fixes [0, 1],
+    // so neither occurrence can be singled out as a source or a target.
+    const symmetries = automorphisms([[0, 1]]);
+    assert.deepEqual([...symmetries].sort(), [[0, 1], [1, 0]]);
+    assert.deepEqual(orbitSizes(symmetries, 2), [2]);
+    const invariantSelectors = [[], [0], [1], [0, 1]].filter(selector => symmetries.every(
+      permutation => sameVector(selector.map(index => permutation[index]).sort(), selector)));
+    assert.deepEqual(invariantSelectors, [[], [0, 1]]);
+    const equivariantSelfMaps = [[0, 0], [0, 1], [1, 0], [1, 1]].filter(map => symmetries.every(
+      permutation => [0, 1].every(index => map[permutation[index]] === permutation[map[index]])));
+    assert.deepEqual(equivariantSelfMaps, [[0, 1], [1, 0]]);
+
+    const experiment = linkOntologySymmetryExperiment();
+    const symmetry = experiment.distinctReferenceSymmetry;
+    assert.equal(symmetry.invariantSingletonSelectorExists, false);
+    assert.equal(symmetry.uniqueEquivariantSelfMap, false);
+    assert.equal(symmetry.equivariantSelfMaps.length, equivariantSelfMaps.length);
+    assert.deepEqual(
+      experiment.results.find(item => item.id === 'endpoint-direction').result,
+      'NOT_DERIVABLE',
+    );
+    // Two reifications project to the same observation, so link identity is
+    // a representation choice rather than a consequence of the contract.
+    assert.deepEqual(
+      experiment.reificationCountermodels.map(model =>
+        [model.projectedObservation, model.hasLinkIdentity]),
+      [['distinct-references', false], ['distinct-references', true]],
+    );
+  });
+
+  it('loses wider multiplicity classes under the fixed two-occurrence contract', () => {
+    const boundary = linkOntologySymmetryExperiment().observationBoundary;
+    // A two-occurrence observation has only two outcomes: same or distinct.
+    const binaryOutcomes = setPartitions(2).length;
+    assert.equal(binaryOutcomes, 2);
+    for (const width of [1, 2, 3, 4]) {
+      const enumeration = boundary.arityEnumeration.find(item => item.occurrenceCount === width);
+      assert.equal(enumeration.referenceRenameClasses, setPartitions(width).length);
+      assert.equal(enumeration.quotientClasses, integerPartitionCount(width));
+      assert.equal(enumeration.multiplicitySpectra.length, integerPartitionCount(width));
+    }
+    // Three and five classes cannot fit into two outcomes.
+    assert.ok(integerPartitionCount(3) > binaryOutcomes);
+    assert.ok(integerPartitionCount(4) > binaryOutcomes);
+    assert.equal(boundary.status, 'BINARY_CONTRACT_NOT_EXHAUSTIVE');
+    assert.deepEqual(
+      boundary.lossAudit.find(item => item.distinction === 'width beyond two occurrences').classification,
+      'PROVEN_INFORMATION_LOSS',
+    );
+  });
+
+  it('claims complete multiplicity invariants only for the enumerated widths', () => {
+    const experiment = linkOntologySymmetryExperiment();
+    const boundary = experiment.observationBoundary;
+    assert.deepEqual(boundary.arityEnumeration.map(item => item.occurrenceCount), [1, 2, 3, 4]);
+    assert.match(boundary.generalizedCompleteInvariant, /exhaustively tested unlabelled width 1 through 4$/);
+    assert.match(
+      experiment.remainingBoundary,
+      /or generalize every finite enumeration beyond its stated argument\.$/,
+    );
+    assert.ok(expected.claimBoundary.notProved.includes(
+      'that finite completeness at widths one through four is an unbounded theorem',
+    ));
+    assert.ok(!expected.claimBoundary.proved.some(claim => /unbounded|every width|all widths/i.test(claim)));
+  });
+
+  it('keeps occurrence order and unobserved distinctions unestablished', () => {
+    // [0, 0, 1] and [0, 1, 0] differ as ordered patterns, but one reference-slot
+    // exchange carries one to the other: only slot identity separates them.
+    assert.notDeepEqual(firstOccurrenceForm([0, 0, 1]), firstOccurrenceForm([0, 1, 0]));
+    assert.deepEqual(permuteOccurrences([0, 1, 0], [0, 2, 1]), [0, 0, 1]);
+
+    const boundary = linkOntologySymmetryExperiment().observationBoundary;
+    const audit = boundary.startingRepresentationAudit.quotientAudit;
+    assert.deepEqual(audit.occurrencePermutationCountermodel.firstOrderedPattern, [0, 0, 1]);
+    assert.deepEqual(audit.occurrencePermutationCountermodel.secondOrderedPattern, [0, 1, 0]);
+    assert.equal(audit.occurrencePermutationCountermodel.sameUnderAddressRenamingAlone, false);
+    assert.equal(audit.occurrencePermutationIntrinsic, 'UNRESOLVED');
+    const losses = Object.fromEntries(boundary.lossAudit.map(item =>
+      [item.distinction, item.classification]));
+    assert.equal(losses['occurrence order'], 'UNESTABLISHED_EQUIVALENCE');
+    assert.equal(losses['endpoint direction'], 'NOT_OBSERVED_NOT_DISPROVED');
+    assert.equal(losses['dynamics and time'], 'NOT_OBSERVED_NOT_DISPROVED');
+    assert.equal(
+      losses['admissibility from linked descriptions and evidence'],
+      'STRUCTURAL_CERTIFICATES_FILTER_RELATIVE_TO_EXTERNAL_VERIFIER',
+    );
+  });
+
+  it('separates the 33 joint classes only with both equivalence relations', () => {
+    const joint = jointClassesOfWidthFour();
+    const baseClasses = new Set(joint.map(item => item.baseClass));
+    // Forgetting the second relation leaves five classes, so an encoding that
+    // keeps only the reference partition cannot pass the agreement check.
+    assert.equal(joint.length, 33);
+    assert.equal(baseClasses.size, 5);
+
+    const refinement = linkOntologySymmetryExperiment().observationBoundary.conditionalRefinement;
+    assert.equal(refinement.jointQuotientClasses, joint.length);
+    assert.deepEqual(
+      refinement.encodings.map(item => item.distinctClasses),
+      [joint.length, joint.length, joint.length],
+    );
+    assert.equal(refinement.encodingAgreement, true);
+    assert.equal(
+      refinement.projectionFibres.reduce((total, item) => total + item.jointClasses, 0),
+      joint.length,
+    );
+    assert.equal(refinement.projectionFibres.length, baseClasses.size);
+  });
+
+  it('cannot recover the conditional relation from its reference-only projection', () => {
+    const joint = jointClassesOfWidthFour();
+    const fibreSizes = [...joint.reduce((fibres, item) =>
+      fibres.set(item.baseClass, (fibres.get(item.baseClass) ?? 0) + 1), new Map()).values()]
+      .sort((left, right) => left - right);
+    // Every base class has several joint refinements, so no function of the
+    // base projection restores the second relation.
+    assert.deepEqual(fibreSizes, [5, 5, 7, 7, 9]);
+    assert.ok(fibreSizes.every(size => size > 1));
+
+    const refinement = linkOntologySymmetryExperiment().observationBoundary.conditionalRefinement;
+    assert.deepEqual(
+      refinement.projectionFibres.map(item => item.jointClasses).sort((left, right) => left - right),
+      fibreSizes,
+    );
+    assert.equal(refinement.everyProjectionFibreAmbiguous, true);
+    assert.equal(refinement.refinementRecoverableFromBase, false);
+    assert.equal(refinement.assumption.provenance, 'CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED');
+    assert.equal(refinement.assumption.foundationalStatus, 'UNESTABLISHED');
+  });
+
+  it('counts singleton occurrence orbits without equating them with a unique role', () => {
+    const histogram = new Map();
+    for (const { base, refinement } of jointClassesOfWidthFour()) {
+      const singletons = orbitSizes(automorphisms([base, refinement]), 4)
+        .filter(size => size === 1).length;
+      histogram.set(singletons, (histogram.get(singletons) ?? 0) + 1);
+    }
+    const counted = [...histogram.entries()].sort(([left], [right]) => left - right)
+      .map(([singletonOrbits, jointClasses]) => ({ singletonOrbits, jointClasses }));
+    assert.deepEqual(counted, [
+      { singletonOrbits: 0, jointClasses: 20 },
+      { singletonOrbits: 1, jointClasses: 5 },
+      { singletonOrbits: 2, jointClasses: 7 },
+      { singletonOrbits: 4, jointClasses: 1 },
+    ]);
+    // Thirteen classes contain a singleton orbit, but only five select exactly one.
+    const withSingleton = counted.filter(row => row.singletonOrbits > 0)
+      .reduce((total, row) => total + row.jointClasses, 0);
+    assert.equal(withSingleton, 13);
+    assert.notEqual(withSingleton, histogram.get(1));
+
+    const experiment = linkOntologySymmetryExperiment();
+    const refinement = experiment.observationBoundary.conditionalRefinement;
+    assert.deepEqual(refinement.singletonOrbitHistogram, counted);
+    assert.equal(refinement.classesWithInvariantSingleton, withSingleton);
+    assert.equal(refinement.universalSingletonSelectorExists, false);
+    assert.match(experiment.remainingBoundary, /derive execution semantics/);
+    assert.ok(expected.claimBoundary.notProved.includes(
+      'that a self-incident slot is a source, target, or execution role',
+    ));
+  });
+
+  it('traces interaction-only asymmetry to information absent from the base', () => {
+    const base = [0, 0, 1, 2];
+    const interactionOnly = [0, 1, 0, 2];
+    assert.deepEqual(orbitSizes(automorphisms([base]), 4), [2, 2]);
+    assert.deepEqual(orbitSizes(automorphisms([interactionOnly]), 4), [2, 2]);
+    assert.deepEqual(orbitSizes(automorphisms([base, interactionOnly]), 4), [1, 1, 1, 1]);
+    // A relabelling that fixes the base moves the conditional pattern, so no
+    // derivation that commutes with relabelling can produce it from the base.
+    assert.deepEqual(permuteOccurrences(base, [1, 0, 2, 3]), base);
+    assert.deepEqual(permuteOccurrences(interactionOnly, [1, 0, 2, 3]), [0, 1, 1, 2]);
+
+    // Over every base/candidate pair at widths one through four, candidates
+    // that keep every base symmetry never split a base occurrence orbit.
+    let pairs = 0;
+    let preserving = 0;
+    for (const width of [1, 2, 3, 4]) {
+      for (const pattern of setPartitions(width)) {
+        const symmetries = automorphisms([pattern]);
+        for (const candidate of setPartitions(width)) {
+          pairs += 1;
+          const kept = symmetries.every(permutation =>
+            sameVector(permuteOccurrences(candidate, permutation), candidate));
+          if (!kept) continue;
+          preserving += 1;
+          assert.deepEqual(
+            orbitSizes(automorphisms([pattern, candidate]), width),
+            orbitSizes(symmetries, width),
+          );
+        }
+      }
+    }
+    assert.deepEqual([pairs, preserving, pairs - preserving], [255, 73, 182]);
+
+    const refinement = linkOntologySymmetryExperiment().observationBoundary.conditionalRefinement;
+    const enumeration = refinement.derivationBoundary.finiteEnumeration;
+    assert.equal(enumeration.reduce((total, item) => total + item.candidateObservationsExamined, 0), pairs);
+    assert.equal(enumeration.reduce((total, item) => total + item.baseSymmetryPreservingCandidates, 0), preserving);
+    assert.ok(enumeration.every(item => item.preservingCandidatesChangingOccurrenceOrbits === 0));
+    assert.equal(refinement.derivationBoundary.interactionOnlyCounterexample.conditionalPatternPreserved, false);
+    assert.deepEqual(
+      refinement.asymmetryProvenance.classifications.find(item =>
+        item.id === 'RELATIONAL_INTERACTION_ONLY').jointClasses,
+      1,
+    );
+  });
+
+  it('takes no set, type, calculus, or verifier authority as intrinsic to links', () => {
+    const experiment = linkOntologySymmetryExperiment();
+    assert.deepEqual(
+      experiment.startingContract.assumptions.map(item => item.provenance),
+      ['EXPERIMENTAL_OBSERVATION_CONTRACT', 'EXPERIMENTAL_OBSERVATION_CONTRACT'],
+    );
+    assert.deepEqual(
+      experiment.observationBoundary.unchangedPrimitiveVocabulary,
+      ['unlabelled reference occurrences', 'reference equality'],
+    );
+    const vocabulary = JSON.stringify([
+      experiment.startingContract,
+      experiment.observationBoundary.unchangedPrimitiveVocabulary,
+    ]);
+    for (const imported of ['set theory', 'category', 'type', 'lambda', 'evaluator', 'rewrite', 'graph']) {
+      assert.doesNotMatch(vocabulary, new RegExp(imported, 'i'), imported);
+    }
+    for (const absent of ['endpoint order', 'source/target roles', 'execution law']) {
+      assert.ok(experiment.startingContract.deliberatelyAbsent.includes(absent), absent);
+    }
+    // The exact-cover verifier is declared external, not derived from links.
+    const admissibility = experiment.observationBoundary.startingRepresentationAudit
+      .linkedStructuralAdmissibility;
+    assert.equal(
+      admissibility.contract.verificationProvenance,
+      'EXTERNAL_FINITE_RELATIONAL_CHECK_NOT_LINK_DERIVED_AUTHORITY',
+    );
+    assert.equal(admissibility.contract.roleNamesIntrinsicToRecords, false);
+    assert.ok(report.candidates.every(candidate => candidate.constrainsOntologySearch === false));
+  });
+
+  it('projects a direct self-link and a fresh external link to one reference-only class', () => {
+    // A pattern lists the link address and then its reference addresses.
+    const spectrum = references => [...references.reduce((counts, reference) =>
+      counts.set(reference, (counts.get(reference) ?? 0) + 1), new Map()).values()]
+      .sort((left, right) => right - left);
+    const selfReferences = ([link, ...references]) =>
+      references.filter(reference => reference === link).length;
+    const directSelf = [0, 0, 1];
+    const freshExternal = [0, 1, 2];
+    assert.deepEqual(spectrum(directSelf.slice(1)), spectrum(freshExternal.slice(1)));
+    assert.notEqual(selfReferences(directSelf), selfReferences(freshExternal));
+
+    // Addressable classes: link plus unlabelled references, up to renaming.
+    const addressableClasses = width => new Set(setPartitions(width + 1).map(pattern =>
+      occurrencePermutations(width)
+        .map(permutation => JSON.stringify(firstOccurrenceForm(
+          [pattern[0], ...permutation.map(index => pattern[index + 1])])))
+        .sort()[0])).size;
+    const counts = [1, 2, 3, 4].map(width => [integerPartitionCount(width), addressableClasses(width)]);
+    assert.deepEqual(counts, [[1, 2], [2, 4], [3, 7], [5, 12]]);
+    assert.ok(counts.every(([referenceOnly, addressable]) => addressable > referenceOnly));
+
+    const audit = linkOntologySymmetryExperiment().observationBoundary.startingRepresentationAudit;
+    assert.deepEqual(
+      audit.finiteEnumeration.map(item => [item.referenceOnlyClasses, item.addressableLinkClasses]),
+      counts,
+    );
+    assert.equal(audit.referenceOnlyProjectionFaithful, false);
+    assert.deepEqual(audit.countermodel.directSelfLink.normalizedAddressPattern, directSelf);
+    assert.deepEqual(audit.countermodel.freshExternalLink.normalizedAddressPattern, freshExternal);
+    assert.equal(audit.countermodel.sameReferenceOnlyProjection, true);
+    assert.equal(audit.countermodel.sameAddressableLinkClass, false);
+  });
+
+  it('keeps reference-slot identity unresolved under the declared address quotient', () => {
+    // Ordered link-plus-reference patterns up to address renaming are set
+    // partitions of width + 1 positions; permuting reference slots merges some.
+    const ordered = [1, 2, 3, 4].map(width => setPartitions(width + 1).length);
+    assert.deepEqual(ordered, [2, 5, 15, 52]);
+    const unlabelled = [1, 2, 3, 4].map(width => new Set(setPartitions(width + 1).map(pattern =>
+      occurrencePermutations(width)
+        .map(permutation => JSON.stringify(firstOccurrenceForm(
+          [pattern[0], ...permutation.map(index => pattern[index + 1])])))
+        .sort()[0])).size);
+    const collapsed = ordered.map((count, index) => count - unlabelled[index]);
+    assert.deepEqual(collapsed, [0, 1, 8, 40]);
+
+    const audit = linkOntologySymmetryExperiment().observationBoundary.startingRepresentationAudit
+      .quotientAudit;
+    assert.deepEqual(
+      audit.finiteEnumeration.map(item => item.classesCollapsedByOccurrencePermutation),
+      collapsed,
+    );
+    assert.deepEqual(
+      audit.transformations.map(item => [item.transformation, item.classification]),
+      [
+        ['global address renaming', 'DERIVED_EQUIVALENCE_WITHIN_ADDRESS_EQUALITY_CONTRACT'],
+        ['reference-occurrence permutation', 'UNESTABLISHED_EQUIVALENCE'],
+      ],
+    );
+    assert.equal(
+      audit.occurrencePermutationCountermodel.interpretation,
+      'DISTINGUISHABLE_ONLY_IF_REFERENCE_SLOTS_HAVE_IDENTITY',
+    );
+    assert.equal(audit.occurrencePermutationIntrinsic, 'UNRESOLVED');
+  });
+
+  it('does not report halting for a counter machine that reaches an undefined state', () => {
+    const program = [
+      'instructions',
+      ['instruction', 'q0', 'decrement-left', 'q9', 'q9'],
+      ['no-instructions'],
+    ];
+    for (const executionBasis of ['s-k', 'direct-structural']) {
+      const programs = LinkedProgramRegistry.fromRml(
+        `${universalSource}\n${alternativeSource}`,
+        { executionBasis },
+      );
+      const result = programs.reduce(
+        'link-register-machine',
+        ['machine-start', program, 'q0', ['successor', 'zero'], 'zero'],
+      );
+      // The decrement runs, then no instruction is labelled q9 and no halt
+      // rule applies, so the machine stops scanning without halting.
+      assert.equal(result.term[0], 'machine-scan', executionBasis);
+      assert.deepEqual(result.term[2], ['no-instructions'], executionBasis);
+      assert.equal(result.term[3], 'q9', executionBasis);
+      assert.ok(!result.trace.some(step => step.rule === 'halt-machine'), executionBasis);
+    }
+  });
+
+  it('leaves a guarded referential link with unequal endpoints unobserved', () => {
+    for (const executionBasis of ['s-k', 'direct-structural']) {
+      const programs = LinkedProgramRegistry.fromRml(
+        `${universalSource}\n${alternativeSource}`,
+        { executionBasis },
+      );
+      const unequal = ['observe', ['guarded-link', 'left-address', 'pulse', 'right-address']];
+      const result = programs.reduce('guarded-referential-links', unequal);
+      assert.deepEqual(result.term, unequal, executionBasis);
+      assert.deepEqual(result.trace, [], executionBasis);
+    }
+  });
+
+  it('selects no target architecture and treats imported categories as unestablished', () => {
+    const search = report.ontologySearch;
+    assert.equal(search.targetArchitectureSelected, false);
+    assert.equal(search.existingCandidatesConstrainSearch, false);
+    assert.ok(search.importedPrimitiveCategories.length > 0);
+    for (const category of search.importedPrimitiveCategories) {
+      assert.notEqual(category.foundationalStatus, 'ESTABLISHED', category.id);
+      assert.equal(category.provenance, 'IMPORTED_EXPERIMENTAL_VOCABULARY', category.id);
+    }
+    assert.ok(report.candidates.every(candidate =>
+      candidate.foundationalEligibility.eligible === false &&
+      candidate.foundationalEligibility.exclusionReasons.includes('LINK_ONTOLOGY_UNRESOLVED')));
+    assert.equal(report.conclusion.selectedFoundation, null);
+  });
+
+  it('keeps the executable controls non-constraining and never calls them link-native', () => {
+    assert.equal(report.ontologySearch.existingCandidatesRole, 'EXECUTABLE_CONTROLS_ONLY');
+    for (const candidate of report.candidates) {
+      assert.equal(candidate.ontologyRole, 'EXECUTABLE_CONTROL', candidate.candidate);
+      assert.equal(candidate.constrainsOntologySearch, false, candidate.candidate);
+      assert.notEqual(candidate.sourceProvenance, 'link-native', candidate.candidate);
+    }
+    for (const value of [report, expected]) {
+      assert.doesNotMatch(JSON.stringify(value), /link-native|links-native/i);
+    }
   });
 });

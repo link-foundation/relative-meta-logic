@@ -562,6 +562,77 @@ describe('meta-theory network', () => {
       /candidate theory source cannot declare trusted rule forms/,
     );
   });
+
+  it('names no bundled theory or object program in the host runtime', () => {
+    const names = [
+      ...[...universalSource.matchAll(/^\(linked-program ([^\s()]+)/gm)].map(match => match[1]),
+      ...[...readFileSync(corePath, 'utf8').matchAll(/^\(theory ([^\s()]+)/gm)].map(match => match[1]),
+    ];
+    assert.ok(names.includes('lambda-calculus') && names.includes('set-theory'));
+    const runtime = [
+      'rml-theory-network.mjs',
+      'rml-linked-program.mjs',
+      'rml-combinator-kernel.mjs',
+      'rml-combinator-kernel-data.mjs',
+    ].map(file => readFileSync(join(repoRoot, 'js', 'src', file), 'utf8')).join('\n');
+    // The runtime names only the meta-foundation interpreter, whose trace path
+    // and bootstrap probe it reports; it names no object theory or program.
+    assert.deepStrictEqual(
+      [...new Set(names)].filter(name => name !== 'links-meta-foundation' && runtime.includes(name)),
+      [],
+    );
+  });
+
+  it('rejects a user-defined logic whose linked program fails its conformance case', () => {
+    const source = `
+(linked-program user-counter-program)
+(linked-rewrite user-counter-program evaluate-linked-contract
+  (from (counter (successor ?value)))
+  (to ?value))
+(theory source-theory (address user.source-theory))
+(theory target-theory (address user.target-theory))
+(term source-theory entity user.concept.entity)
+(term target-theory entity user.concept.entity)
+(implementation user-counter
+  (contract user-counter-contract)
+  (program user-counter-program)
+  (kind user-defined-semantics)
+  (subject source-theory)
+  (using target-theory)
+  (obligation evaluates-linked-contract))
+(witness user.definition.counter
+  (kind user-defined-semantics)
+  (implementation user-counter)
+  (proof user.proof.counter))
+(proof-object user.proof.counter
+  (applies verified-theory-definition)
+  (premise-by user.capability.counter)
+  (conclusion
+    (source-by-target defines source-theory using target-theory
+      via user-counter as user-defined-semantics)))
+(definition source-by-target
+  (subject source-theory)
+  (using target-theory)
+  (witness user.definition.counter))
+`;
+    // The trusted case expects a result the user's linked rule does not
+    // produce, so the generic reduction path must refuse the definition.
+    const trustedFoundation = `${foundationSource}
+(implementation-contract user-counter-contract
+  (kind user-defined-semantics)
+  (obligation evaluates-linked-contract))
+(conformance-case user-counter-contract evaluates-linked-contract
+  (program user-counter-program)
+  (input (counter (successor zero)))
+  (expected (successor zero)))
+(axiom user.capability.counter
+  (judgement (user-counter implements user-defined-semantics)))
+`;
+    assert.throws(
+      () => networkFrom(source, trustedFoundation),
+      /implementation user-counter failed reduction conformance user-counter-contract\.evaluates-linked-contract/,
+    );
+  });
 });
 
 describe('graph theory as a constrained links-network subset', () => {

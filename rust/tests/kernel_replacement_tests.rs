@@ -133,3 +133,39 @@ fn runtime_linked_artifacts_fail_closed_on_missing_roots_forged_references_and_b
         .unwrap_err()
         .contains("contraction limit"));
 }
+
+fn rust_sources(directory: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut files = Vec::new();
+    for entry in std::fs::read_dir(directory).expect("source directory exists") {
+        let path = entry.expect("source directory entry").path();
+        if path.is_dir() {
+            files.extend(rust_sources(&path));
+        } else if path.extension().is_some_and(|extension| extension == "rs") {
+            files.push(path);
+        }
+    }
+    files
+}
+
+#[test]
+fn keeps_no_host_language_semantic_description_in_the_runtime() {
+    let source_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
+    let kernel = std::fs::read_to_string(source_root.join("linked_program/combinator_kernel.rs"))
+        .expect("kernel source");
+    // The kernel embeds the generated addressed-link artifact rather than a
+    // host-language description of the fixed-point program.
+    assert!(kernel.contains("include_str!(\"../../../lib/meta-theory/fixed-point.ski\")"));
+    for path in rust_sources(&source_root) {
+        let text = std::fs::read_to_string(&path).expect("runtime source");
+        assert!(
+            !text.contains("fn build_source_kernel"),
+            "{}",
+            path.display()
+        );
+        assert!(!text.contains("build_source_kernel("), "{}", path.display());
+    }
+    assert!(LinkedProgramRegistry::from_rml(PROGRAM)
+        .unwrap()
+        .with_kernel_artifact(DEFAULT_ARTIFACT)
+        .is_ok());
+}

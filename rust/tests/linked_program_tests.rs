@@ -1283,3 +1283,354 @@ fn keeps_k0_substitution_fixed_when_k1_substitution_is_replaced() {
         )
     );
 }
+
+#[test]
+fn leaves_unbound_indices_and_non_lambda_redexes_unreduced() {
+    let programs = registry("");
+    // An index with no binder in its environment has no value to take.
+    let unbound = node("(evaluate (bound zero) empty-environment)");
+    let stuck = programs
+        .reduce("lambda-calculus", &unbound, 10_000)
+        .expect("an unbound index is a normal form");
+    assert_eq!(stuck.term, unbound);
+    assert!(stuck.trace.is_empty());
+
+    // Beta reduction applies to a lambda only.
+    let not_lambda = node("(beta (free f) (free a))");
+    assert_eq!(
+        programs
+            .reduce("lambda-calculus", &not_lambda, 10_000)
+            .expect("a non-lambda redex is a normal form")
+            .term,
+        not_lambda
+    );
+
+    // The argument fills index zero only: an index that points past the one
+    // binder stays unbound instead of capturing the argument.
+    assert_eq!(
+        programs
+            .reduce(
+                "lambda-calculus",
+                &node("(beta (lambda (bound (successor zero))) (free a))"),
+                10_000,
+            )
+            .expect("a dangling index reduces to its unbound form")
+            .term,
+        node("(evaluate (bound zero) empty-environment)")
+    );
+
+    // An inner binder keeps its own index: applying the outer lambda leaves
+    // the inner body unsubstituted inside a closure.
+    assert_eq!(
+        programs
+            .reduce(
+                "lambda-calculus",
+                &node(
+                    "(evaluate (apply (lambda (lambda (bound zero))) (free a)) empty-environment)"
+                ),
+                10_000,
+            )
+            .expect("the outer application reduces")
+            .term,
+        node("(closure (bound zero) (bind (free a) empty-environment))")
+    );
+}
+
+#[test]
+fn keeps_a_portable_theory_undecided_until_a_foundation_is_selected() {
+    let programs = registry(
+        "(linked-program portable-classifier)\n\
+         (linked-rewrite portable-classifier classify\n\
+           (from (classify ?value))\n\
+           (to (foundation-decision ?value)))\n\
+         (linked-program strict-foundation)\n\
+         (linked-rewrite strict-foundation decide-unknown\n\
+           (from (strict-decision unknown))\n\
+           (to reject))\n\
+         (linked-program classifier-over-strict\n\
+           (uses portable-classifier\n\
+             (rebind foundation-decision strict-decision))\n\
+           (uses strict-foundation))",
+    );
+    let reduce = |name: &str, term: &str| -> Node {
+        programs
+            .reduce(name, &node(term), 10_000)
+            .expect("the linked program reduces")
+            .term
+    };
+
+    // The unchanged theory decides nothing by itself; the selected foundation
+    // decides only the cases it defines.
+    assert_eq!(
+        reduce("portable-classifier", "(classify unknown)"),
+        node("(foundation-decision unknown)")
+    );
+    assert_eq!(
+        reduce("classifier-over-strict", "(classify unknown)"),
+        Node::Leaf("reject".to_string())
+    );
+    assert_eq!(
+        reduce("classifier-over-strict", "(classify known)"),
+        node("(strict-decision known)")
+    );
+
+    // Each instance of the one set program answers non-members with false and
+    // leaves the constructors of the other foundation alone.
+    let traditional = "(sequence-cons a (sequence-cons b (sequence-empty)))";
+    let associative = "(link-cons a (link-cons b (link-empty)))";
+    assert_eq!(
+        reduce(
+            "set-theory-over-traditional-sequences",
+            format!("(member c {traditional})").as_str(),
+        ),
+        Node::Leaf("false".to_string())
+    );
+    assert_eq!(
+        reduce(
+            "set-theory-over-associative-links",
+            format!("(member c {associative})").as_str(),
+        ),
+        Node::Leaf("false".to_string())
+    );
+    for (instance, foreign) in [
+        ("set-theory-over-traditional-sequences", associative),
+        ("set-theory-over-associative-links", traditional),
+        ("set-theory", traditional),
+    ] {
+        let term = format!("(member b {foreign})");
+        assert_eq!(reduce(instance, term.as_str()), node(&term), "{instance}");
+    }
+
+    let invalid_import = format!(
+        "{}\n(linked-program parent)\n\
+         (linked-program invalid-import\n\
+           (uses parent (rebind ?pattern-variable concrete)))",
+        source()
+    );
+    assert!(LinkedProgramRegistry::from_rml(&invalid_import)
+        .expect_err("pattern variable rebind must fail")
+        .contains("cannot rebind pattern variables"));
+    let missing_foundation = format!(
+        "{}\n(linked-program portable-classifier)\n\
+         (linked-program instance-without-foundation\n\
+           (uses portable-classifier (rebind foundation-decision missing-decision))\n\
+           (uses missing-foundation))",
+        source()
+    );
+    assert!(LinkedProgramRegistry::from_rml(&missing_foundation)
+        .expect_err("an unknown foundation must fail")
+        .contains("uses unknown program missing-foundation"));
+}
+
+fn reduce_identity_without(disabled: &[&str]) -> Result<Node, String> {
+    LinkedProgramRegistry::from_rml_with_basis(&source(), ExecutionBasis::ClosedSk, disabled)?
+        .reduce(
+            "lambda-calculus",
+            &node("(beta (lambda (bound zero)) (free a))"),
+            10_000,
+        )
+        .map(|result| result.term)
+}
+
+#[test]
+fn fails_closed_when_any_boundary_operation_is_disabled() {
+    assert_eq!(
+        reduce_identity_without(&[]).expect("the baseline reduces"),
+        node("(free a)")
+    );
+    for disabled in [
+        vec!["contract-s-link"],
+        vec!["contract-k-link"],
+        vec!["contract-s-link", "contract-k-link"],
+        vec!["parse-linked-forms"],
+        vec!["enforce-cycle-and-resource-bounds"],
+    ] {
+        let error = reduce_identity_without(disabled.as_slice())
+            .expect_err("a disabled boundary operation must fail closed");
+        assert!(
+            disabled.iter().any(|operation| {
+                error.contains(&format!("disabled host semantic operation {operation}"))
+            }),
+            "{disabled:?}: {error}"
+        );
+    }
+
+    // The published removal experiments agree: no boundary operation can be
+    // dropped, and the zero-transition candidate cannot run the probe.
+    let report = LinkedProgramRegistry::bootstrap_metrics_report(&source())
+        .expect("bootstrap metrics must be reproducible");
+    assert_eq!(
+        report
+            .removal_experiments
+            .iter()
+            .map(|experiment| (experiment.operation, experiment.baseline_preserved))
+            .collect::<Vec<_>>(),
+        vec![
+            ("parse-linked-forms", false),
+            ("contract-s-link", false),
+            ("contract-k-link", false),
+            ("enforce-cycle-and-resource-bounds", false),
+        ]
+    );
+    assert!(report
+        .removal_experiments
+        .iter()
+        .all(|experiment| experiment
+            .observed_failure
+            .contains("disabled host semantic operation")));
+    let zero = &report.foundation_search_experiments[0];
+    assert_eq!(zero.candidate, "zero-semantic-transition");
+    assert_eq!(zero.classification, "INSUFFICIENT");
+    assert_eq!(zero.baseline_preserved, Some(false));
+    assert!(zero
+        .observed_failure
+        .contains("disabled host semantic operation contract-"));
+    assert_eq!(
+        report
+            .current
+            .foundation_compression
+            .smallest_sufficient_host_operations,
+        2
+    );
+}
+
+// These host operations implement matching, substitution, traversal, import
+// rebinding, and inference for the direct structural basis.
+const HOST_IMPLEMENTATIONS: [&str; 6] = [
+    "compare-link-structure",
+    "bind-pattern-variables",
+    "substitute-bound-structures",
+    "select-and-traverse-rewrite-rules",
+    "resolve-and-rebind-program-imports",
+    "saturate-inference-rules",
+];
+
+fn run_duplicate_probe(basis: ExecutionBasis, disabled: &[&str]) -> Result<Vec<String>, String> {
+    let workload = "(linked-program duplicate-probe-rewrite)\n\
+         (linked-rewrite duplicate-probe-rewrite apply\n\
+           (from (probe-input ?value))\n\
+           (to (probe-output ?value)))\n\
+         (linked-program duplicate-probe-import\n\
+           (uses duplicate-probe-rewrite\n\
+             (rebind probe-input imported-input)))\n\
+         (linked-program duplicate-probe-proof)\n\
+         (linked-fact duplicate-probe-proof premise\n\
+           (judgement (probe-holds a)))\n\
+         (linked-inference duplicate-probe-proof infer\n\
+           (premise (probe-holds ?value))\n\
+           (conclusion (probe-derived ?value)))";
+    let programs = LinkedProgramRegistry::from_rml_with_basis(
+        &format!("{}\n{}", source(), workload),
+        basis,
+        disabled,
+    )?;
+    let imported = programs.reduce(
+        "duplicate-probe-import",
+        &node("(imported-input value)"),
+        10_000,
+    )?;
+    if imported.term != node("(probe-output value)") {
+        return Err("import, rebinding, and rewriting changed the result".to_string());
+    }
+    if programs
+        .prove(
+            "duplicate-probe-proof",
+            &node("(probe-derived a)"),
+            &[],
+            128,
+            10_000,
+        )
+        .is_none()
+    {
+        return Err("inference failed".to_string());
+    }
+    let verified = programs.reduce(
+        "links-meta-foundation",
+        &node(
+            "(meta-verify
+               (atom a)
+               (meta-rewrite
+                 (rules
+                   (rewrite
+                     (pair (atom identity) (meta-variable argument))
+                     (meta-variable argument))
+                   (no-rules))
+                 (pair (atom identity) (atom a))))",
+        ),
+        10_000,
+    )?;
+    if verified.term != Node::Leaf("verified".to_string()) {
+        return Err("result verification failed".to_string());
+    }
+    let mut operations = programs.runtime_semantic_trace().observed_operations;
+    operations.sort();
+    Ok(operations)
+}
+
+#[test]
+fn finds_no_host_duplicate_of_a_linked_capability_on_the_closed_sk_path() {
+    // With every host implementation disabled, the closed S/K path still
+    // imports, rewrites, infers, and verifies, observing only K0.
+    assert_eq!(
+        run_duplicate_probe(ExecutionBasis::ClosedSk, &HOST_IMPLEMENTATIONS)
+            .expect("the closed S/K path needs no host implementation"),
+        vec![
+            "contract-k-link",
+            "contract-s-link",
+            "enforce-cycle-and-resource-bounds",
+            "parse-linked-forms",
+        ]
+    );
+    // The same operations carry the direct basis, so disabling them is not vacuous.
+    let direct = run_duplicate_probe(ExecutionBasis::DirectStructural, &[])
+        .expect("the direct basis runs the probe");
+    for operation in HOST_IMPLEMENTATIONS {
+        assert!(
+            direct.iter().any(|observed| observed == operation),
+            "{operation}"
+        );
+        assert!(
+            run_duplicate_probe(ExecutionBasis::DirectStructural, &[operation]).is_err(),
+            "{operation}"
+        );
+    }
+    assert!(!direct
+        .iter()
+        .any(|observed| observed.starts_with("contract-")));
+}
+
+#[test]
+fn does_not_invent_previous_values_for_metrics_the_earlier_revision_did_not_measure() {
+    let report = LinkedProgramRegistry::bootstrap_metrics_report(&source())
+        .expect("bootstrap metrics must be reproducible");
+    assert_eq!(
+        report
+            .comparison
+            .iter()
+            .filter(|entry| entry.previous.is_none())
+            .map(|entry| entry.metric)
+            .collect::<Vec<_>>(),
+        vec!["independent-external-semantic-laws"]
+    );
+    for entry in &report.comparison {
+        let previous = entry
+            .previous
+            .as_deref()
+            .and_then(|value| value.parse::<i64>().ok());
+        let current = entry.current.parse::<i64>().ok();
+        match (previous, current) {
+            (Some(previous), Some(current)) => assert_eq!(
+                entry.delta,
+                Some((current - previous).to_string()),
+                "{}",
+                entry.metric
+            ),
+            _ => assert_eq!(entry.delta, None, "{}", entry.metric),
+        }
+    }
+    assert_eq!(report.previous_revision.len(), 40);
+    assert!(report
+        .previous_revision
+        .chars()
+        .all(|character| character.is_ascii_hexdigit()));
+}
