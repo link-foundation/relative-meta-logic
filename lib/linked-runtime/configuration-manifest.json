@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "412e7b900c980f891c7f9bfaf93a0172ae9a2d00df5340c7f03e871a3cb77f84",
-  "archiveBytes": 761222,
-  "linkCount": 14576,
+  "archiveSha256": "4c14935c78015c6d5545572378fcd48ab2a538c3a482b77b6bff7ded9a558311",
+  "archiveBytes": 775699,
+  "linkCount": 14591,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -279,6 +279,21 @@
       "path": "lib/meta-theory/foundation.lino",
       "sourceSha256": "5a013dfee749a5d826e008cce778dd4e9274b26462202af9d480ca7b07db61ae",
       "generatedSha256": "5a013dfee749a5d826e008cce778dd4e9274b26462202af9d480ca7b07db61ae"
+    },
+    {
+      "path": "lib/meta-theory/horn-link-substitution.lino",
+      "sourceSha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1",
+      "generatedSha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1"
+    },
+    {
+      "path": "lib/meta-theory/horn-local-verifier.lino",
+      "sourceSha256": "181d3f16a93760ad5a56bd30ef52aec8c67616e044568a1dcd0e1f2b9833f405",
+      "generatedSha256": "181d3f16a93760ad5a56bd30ef52aec8c67616e044568a1dcd0e1f2b9833f405"
+    },
+    {
+      "path": "lib/meta-theory/horn-rml-elaboration.lino",
+      "sourceSha256": "d18caba5aa911743e39fe2b173b83feeda2c5523df20a88574bdeba3a1d268a6",
+      "generatedSha256": "d18caba5aa911743e39fe2b173b83feeda2c5523df20a88574bdeba3a1d268a6"
     },
     {
       "path": "lib/meta-theory/meta-theory-native-prelude.lino",

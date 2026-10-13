@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
-  "moduleCount": 178,
-  "linkCount": 326305,
+  "moduleCount": 185,
+  "linkCount": 341385,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -44,7 +44,7 @@
         "target": "vscode/src/extension.js"
       }
     ],
-    "staticImportEdges": 609,
+    "staticImportEdges": 646,
     "dynamicImportSites": [
       {
         "from": "experiments/issue-181-meta-language-js-smoke.mjs",
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "870a329c9ccc8d1c27e43f8670eddc4bad83ed2d42a7ca85c46ee7d1bac4cf80",
-  "archiveBytes": 1948676,
+  "archiveSha256": "875cac80fb0787a392a63e4858f560556f210d4dea2ef5dbbce5963cc88bfacb",
+  "archiveBytes": 2032085,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -154,9 +154,9 @@
     },
     {
       "path": "docs/playground/rml-playground-runtime.mjs",
-      "sourceSha256": "82245f992a9d278b69d5c59c5c2fb2f23bd3ec7e8c18417f915df4e2fb074333",
-      "astSha256": "c57c2bc65c4ddbd76738d14757b889143034f4943548e83124da74fb628e6cc9",
-      "generatedSha256": "71f590f231ad82d6bfab1da549a21f066fa4b693354e1d1df2a3cf90e1b4c58c"
+      "sourceSha256": "f6dae5eb72531110a53d1636c6f0f4ceae314eb409bc95fe6f37cad0d6ddf574",
+      "astSha256": "aef7dfaf41394fb755ab9e7aa40d7d3bf6658612779adb9f79d140adfea6b784",
+      "generatedSha256": "7010693a7fe1cbfb4137341bf277b1b60502b50eb49c3d6d2f17f85b405fdb37"
     },
     {
       "path": "docs/playground/url-state.mjs",
@@ -195,10 +195,22 @@
       "generatedSha256": "e582b89ebea205e5890e3849a18c83087702b5551baba359b2c6b1de7787ecf5"
     },
     {
+      "path": "experiments/assumption-removal/matrix.mjs",
+      "sourceSha256": "5ee7a291a2a43f0240ac0b1ac90e905873a2d26a52786e2b035b9ab3d837a6e5",
+      "astSha256": "e50fc0758fab181c05914ba178aad9bba1b7140a92e615136f7f3908b06836fa",
+      "generatedSha256": "e217c71e34c2fddad486dbf9173f35ebdd63992b49017b9dbb71792d143cc816"
+    },
+    {
       "path": "experiments/combinator-bootstrap.mjs",
       "sourceSha256": "e95cb72968161e9128e82e353bd7bbd4ec80b9260f0a1505eea6236cced3acc9",
       "astSha256": "a5086316a6679270d5de363c776d09f249d9c8c574a77827f3519d0345768a76",
       "generatedSha256": "8c6198ae2f9ea06ea973cfe1ec318c66bd983c266f448401492e2ea05df8a63e"
+    },
+    {
+      "path": "experiments/continuation-join/exhaustive.mjs",
+      "sourceSha256": "f5c60c3e4f364a58cff20c9f92a1a59d8db6f0720010efdcefa0d12b5ef7fa33",
+      "astSha256": "ba0a5761cc519d2b7554668718d4d839931058c76f817322d34cdae1a84140ef",
+      "generatedSha256": "1f756f989e220582c2d5523b47fd61e4f14ddaa9ab0466b090a5bd80583f8977"
     },
     {
       "path": "experiments/contraction-budget-per-call.mjs",
@@ -219,10 +231,22 @@
       "generatedSha256": "077ec8a3523b7321e8448f5660de890fdf2b72cd0aae4764c2f18cd8a9dad255"
     },
     {
+      "path": "experiments/definition-replacement/mechanism-matrix.mjs",
+      "sourceSha256": "68a9225572acee2e2c9e9210d10a0ce0a37e256c0aa0681beeda1e5bff611309",
+      "astSha256": "38caea5265a49775f27f9f5b439ad48124f3da2e8c1624b64f55acc186bc1ff3",
+      "generatedSha256": "d5b5377765c823fa70f80e785433aa7cc1e14ceb42d06ccb5b74335261dd971d"
+    },
+    {
       "path": "experiments/derived-fact-failure.mjs",
       "sourceSha256": "d34946a40e893e2bc9b4ecea3d507f30f6f30733f7f129ca1119bfd6478a7226",
       "astSha256": "6065d4be90b453539f9f24a1af85bb93ec61873c42fdaee5627623c63e3c00c3",
       "generatedSha256": "eee11f03f4e74b6fecd55fe81e7d0306bed4f654d78153d222099dcd1ba2c1f7"
+    },
+    {
+      "path": "experiments/foundation-comparison/compare.mjs",
+      "sourceSha256": "d2139b225d1553308c4d3e49352f50cb8bbffca08b5d58c14805ad6bf854af16",
+      "astSha256": "bf795c697efd8b8efb2134451587615b601bfc557d1f48612c949d7f2414fcfa",
+      "generatedSha256": "298725f5105a91edf31f488dc6116dd8990951ecab33376ab3fa6661ca4599a4"
     },
     {
       "path": "experiments/foundation-contraction-limit.mjs",
@@ -459,6 +483,12 @@
       "generatedSha256": "5030cb4985c361fe70866db156d165bfde04d3ecc64a4bc080e3dc1e04b4eda3"
     },
     {
+      "path": "experiments/verifier-provenance/removal-matrix.mjs",
+      "sourceSha256": "4c904c0b7c12c7f95503131ae8b338d3626aeb37634ee2640a0fe8aa6a620fd2",
+      "astSha256": "9acf9baf2b1c1c320664f4de7c8294fb3e420b00dbd9c0304e4525068e8a5db7",
+      "generatedSha256": "5121da69e485ffd7e5f3fd6e49395623641cdee40587454fe0fd9a4b94458856"
+    },
+    {
       "path": "js/experiments/synth-smoke.mjs",
       "sourceSha256": "9a1f7f97ad9d00fb858a61b9466f1c4dcd6aacbb26132ad24cc79b3986cd9122",
       "astSha256": "d53a5dd74aceb55c18100993aee272acfe7317868047055c44292bc4d6c18235",
@@ -532,9 +562,9 @@
     },
     {
       "path": "js/src/rml-certified-translation.mjs",
-      "sourceSha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6",
-      "astSha256": "3537f1ac5d15362671a288049b6be3dca2bb1f8132a6b216bffdc671e4207e1e",
-      "generatedSha256": "c8c7686a039164d7dbbcd4ace9ed9af710e7a7e9b51ce0aab5878fde0c942078"
+      "sourceSha256": "92225f708d0ddd8dd2a3677a1dd6be55a508b3bbf0a07b52bfea8a1a7f39b585",
+      "astSha256": "9e3036c99560eb45670343dc91d7a01cefb5231deb853e7bb233a43e8fad6b5e",
+      "generatedSha256": "3bda513890628dfa802f412e87ecbeb3b437f33cfa57c473c30d894830edafd8"
     },
     {
       "path": "js/src/rml-check.mjs",
@@ -645,10 +675,16 @@
       "generatedSha256": "3353277a036889220283aa0469d6f7780ed415a7eb26ec92158690f80faef0b9"
     },
     {
+      "path": "js/src/rml-horn-link-substitution.mjs",
+      "sourceSha256": "d3f17fbae39b244a068f34a2ecdea822c64f5f4db3f1980ff80e85418607b5b4",
+      "astSha256": "5eaea003d32321d3761a3c75ee83cbb8f8aa4e09f30dcc95500e2556efc49825",
+      "generatedSha256": "cb4a8b5139904eebb88b04cd04a68b491a2cab294704b1e2053ccff6a0deec5c"
+    },
+    {
       "path": "js/src/rml-horn-resolution.mjs",
-      "sourceSha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345",
-      "astSha256": "0f6c86618e775ee290b3a62d7f9b049b97741454310ee8d7dc0b6475f93505ce",
-      "generatedSha256": "8ecc5301ed7b4eb036cfb3da3a758fd0155921e96882aa9be61e695e0de4d258"
+      "sourceSha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e",
+      "astSha256": "3c78f3d57ba48a198371d6300e72c19417288ccf597a4cfe0d1d8c5fb659a915",
+      "generatedSha256": "6c7c435b52f3b9929410ed69577482b52dee98225f6bdc5e6142f7153d9d2db7"
     },
     {
       "path": "js/src/rml-js-rename.mjs",
@@ -694,9 +730,9 @@
     },
     {
       "path": "js/src/rml-links.mjs",
-      "sourceSha256": "31e1017dc3dbc649e9bf02971e4735f283cced8f2721963c6bc2e6907f2dbb75",
-      "astSha256": "2c51856e94bd0e0fc990fe73723c93cf959eecf22f32a8a666cb62060b27f14d",
-      "generatedSha256": "0acad946c5d633d1793bf63cde563c97fc6f8713e5bdef32556839d1068ba851"
+      "sourceSha256": "b25456f44b0c6c3e5efc1adb7c60a94b51c7cc679068ab519e0410539bfb942d",
+      "astSha256": "ff99a15f3671dab268de2a9c17087bf861f0c01ba33cb22c1de67bf8f9b206ae",
+      "generatedSha256": "e2cbb7b429280fde9f878a7d8ef314710e1694b73270061ffbf86a20df78e906"
     },
     {
       "path": "js/src/rml-lino-frontend.mjs",
@@ -933,6 +969,12 @@
       "generatedSha256": "c100ffe4f762c27179dd2d3e0932ae4f52038b5db8e0d863fe688ff07eef36d3"
     },
     {
+      "path": "scripts/generate-certified-bulk.mjs",
+      "sourceSha256": "58ce64a8a0e745bb58ef5299e15327d39cf0b3ceda25590fa5c8d75f1589e7b6",
+      "astSha256": "c5e93423b27c45b0441bba0f414b5f65b9f65e61c2188e22e28fdd149973fab1",
+      "generatedSha256": "3f39f5bc986d28e3803eefbc3892d7638290b93f66154ca6a252eaa376b06943"
+    },
+    {
       "path": "scripts/generate-certified-translations.mjs",
       "sourceSha256": "f44c96723ee0a3e60a8eb63cfc949f822a6ec8e5f831f467280006350b61dd13",
       "astSha256": "6b045bf9d3a9a9880b3f0c4ebdb6480bbdb85633b6b82a17728d208ea568b711",
@@ -976,9 +1018,9 @@
     },
     {
       "path": "scripts/generate-linked-rust-runtime.mjs",
-      "sourceSha256": "628725958fb4fd4fc5262646fdcfc4a224d4fb549893a9d00e091b1a55787343",
-      "astSha256": "d706c829d57d688ab5384fbed5fb45e15bcbc3609b95a53e949dd191b85daeee",
-      "generatedSha256": "d4c62a814dd9990416dd4fcc4a9a4a5fa537a5289c34ba8ccd616c93c6dfdd01"
+      "sourceSha256": "4bb1edf2f2f373421d5f452026102897db6279a4bbdea30469ed33553b0436ff",
+      "astSha256": "525a9ea7e64e378150c3ac9fbf46324f1d9aa4330010eb332ba0f0fda48ca958",
+      "generatedSha256": "137317fc8eac7620020d1ef60c7deb4ef4d3e60d3c94382348f220037241aa0b"
     },
     {
       "path": "scripts/generate-linked-target.mjs",
@@ -1108,9 +1150,9 @@
     },
     {
       "path": "scripts/reference-export-fixtures.mjs",
-      "sourceSha256": "1e5f49fd1530220113e038cbd5ee1f02ac9a4452545f1da642384fe6e8d7ba0d",
-      "astSha256": "58a2e68aff8e3fc36e82976afda19a90d4b5110b675d97043e3de26babee7c0a",
-      "generatedSha256": "145119cb719f057fed618c178b00829d992ef78acb375d06d3a0c90c2c56268c"
+      "sourceSha256": "a3986100e0c02be980e89134498db6111cdd17288cd1876b0391689f29c6979f",
+      "astSha256": "ac1f99385c7f824e23337e2299c43b148c5fc6d8baf062fd4e46de69724dcda8",
+      "generatedSha256": "137c0fe4b318ef595c93c1c5ef9da2b74566cacb73560dfe11dff69c6db84b9a"
     },
     {
       "path": "scripts/report-bootstrap-metrics.mjs",

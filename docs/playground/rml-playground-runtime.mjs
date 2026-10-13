@@ -10431,7 +10431,7 @@ var IsabelleExportContext = class {
     return unique;
   }
   localName(name) {
-    return "v_ref_" + Array.from(new TextEncoder().encode(String(name)), ((byte) => byte.toString(16).padStart(2, "0"))).join("");
+    return "v_ref_h" + Array.from(new TextEncoder().encode(String(name)), ((byte) => byte.toString(16).padStart(2, "0"))).join("");
   }
   ensureTypedecl(name) {
     if (name === "Type" || name === "Prop") {
