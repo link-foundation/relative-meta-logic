@@ -126,6 +126,23 @@ describe('issue 183 requirement traceability', () => {
     }
   });
 
+  it('gives every executed check a positive and a negative assertion before the gate runs it', () => {
+    // The gate enforces this only after executing every producer; catch it statically.
+    const manifest = JSON.parse(fs.readFileSync(path.join(REPOSITORY_ROOT, 'docs/case-studies/issue-183/requirements.manifest.json'), 'utf8'));
+    for (const check of manifest.checks) {
+      const polarities = new Set(check.assertions.map(assertion => assertion.polarity));
+      assert.ok(polarities.has('positive') && polarities.has('negative'), `${check.id} needs positive and negative assertions`);
+      for (const requirement of manifest.requirements) {
+        for (const binding of [...requirement.assertionBindings ?? [], ...requirement.completionBindings ?? []]) {
+          if (binding.checkId !== check.id) continue;
+          const assertion = check.assertions.find(candidate => candidate.name === binding.name);
+          assert.ok(assertion, `${requirement.id} binds an assertion ${check.id} does not define: ${binding.name}`);
+          assert.equal(binding.polarity, assertion.polarity, `${requirement.id} binding polarity differs from ${check.id}`);
+        }
+      }
+    }
+  });
+
   it('keeps traceability validation separate from the deliberately failing final gate', () => {
     const ledger = readLedger();
     const incomplete = incompleteIssue183Requirements(ledger);

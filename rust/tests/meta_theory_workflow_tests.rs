@@ -26,14 +26,23 @@ fn meta_theory_recipe_reproduces_the_shared_report() {
     });
 }
 
+const ADDRESS: &str = "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique";
+
 #[test]
-fn upstream_definitions_run_on_new_data_and_a_changed_body_changes_the_result() {
+fn upstream_definitions_run_on_new_data() {
     on_large_stack(|| {
-        let address = "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique";
         let registry = native_registry(PRELUDE, PROGRAM).unwrap();
-        let ordered = workflow::native_call(&registry, address, vec![workflow::native_list(&[9, 4, 9, 0])]).unwrap();
+        let ordered = workflow::native_call(&registry, ADDRESS, vec![workflow::native_list(&[9, 4, 9, 0])]).unwrap();
         assert_eq!(render_native_value(&ordered, "lean"), "[0, 4, 9]");
-        let marker = format!("# {address}\n");
+    });
+}
+
+#[test]
+fn a_changed_definition_body_does_not_reproduce_the_original_result() {
+    on_large_stack(|| {
+        let registry = native_registry(PRELUDE, PROGRAM).unwrap();
+        let ordered = workflow::native_call(&registry, ADDRESS, vec![workflow::native_list(&[9, 4, 9, 0])]).unwrap();
+        let marker = format!("# {ADDRESS}\n");
         let start = PROGRAM.find(&marker).unwrap();
         let end = start + PROGRAM[start..].find("\n\n").unwrap();
         let altered = format!(
@@ -44,7 +53,7 @@ fn upstream_definitions_run_on_new_data_and_a_changed_body_changes_the_result() 
         );
         assert_ne!(altered, PROGRAM);
         let changed = native_registry(PRELUDE, &altered).unwrap();
-        let mut term = vec![rml::Node::Leaf(address.to_string())];
+        let mut term = vec![rml::Node::Leaf(ADDRESS.to_string())];
         term.push(workflow::native_list(&[9, 4, 9, 0]));
         let result = changed
             .reduce_result(META_THEORY_NATIVE_PROGRAM, &rml::Node::List(term), NATIVE_MAX_STEPS)

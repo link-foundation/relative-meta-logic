@@ -7553,7 +7553,7 @@
       "implementationClaims": [
         {
           "path": "scripts/issue-183-requirements.test.mjs",
-          "sha256": "7ec8940906c03b8305a438e216b4edbb5538e18b86eabe443c1e29951cf20acb",
+          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81",
           "role": "historical-claim"
         }
       ],
@@ -9558,7 +9558,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "7ec8940906c03b8305a438e216b4edbb5538e18b86eabe443c1e29951cf20acb"
+          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81"
         }
       ],
       "claimedEvidence": "`foundation-search.md`, the case-study index, architecture/runtime guides, this ledger, and `issue-183-requirements.test.mjs` cross-link the implementation, finite symmetry result, and enforced claim boundary.",
@@ -11770,7 +11770,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "7ec8940906c03b8305a438e216b4edbb5538e18b86eabe443c1e29951cf20acb"
+          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -12260,7 +12260,7 @@
           "checkId": "assumption-removal-rust",
           "file": "rust/tests/assumption_removal_tests.rs",
           "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
-          "polarity": "positive"
+          "polarity": "negative"
         }
       ],
       "completionBindings": []
@@ -13856,7 +13856,7 @@
           "checkId": "construct-inventory-rust",
           "file": "rust/tests/language_construct_inventory_tests.rs",
           "name": "an_unclassified_construct_or_a_dead_pattern_is_detected",
-          "polarity": "positive"
+          "polarity": "negative"
         }
       ],
       "completionBindings": [],
@@ -19648,7 +19648,7 @@
           "checkId": "four-language-rewrites-rust",
           "file": "rust/tests/four_language_binding_rewrites_tests.rs",
           "name": "shared_four_language_binding_rewrites_agree_on_locations_edits_and_capture_refusals",
-          "polarity": "negative"
+          "polarity": "positive"
         },
         {
           "checkId": "four-language-rewrites-rust",
@@ -29701,8 +29701,14 @@
         {
           "checkId": "meta-theory-workflow-rust",
           "file": "rust/tests/meta_theory_workflow_tests.rs",
-          "name": "upstream_definitions_run_on_new_data_and_a_changed_body_changes_the_result",
+          "name": "upstream_definitions_run_on_new_data",
           "polarity": "positive"
+        },
+        {
+          "checkId": "meta-theory-workflow-rust",
+          "file": "rust/tests/meta_theory_workflow_tests.rs",
+          "name": "a_changed_definition_body_does_not_reproduce_the_original_result",
+          "polarity": "negative"
         }
       ],
       "completionBindings": []
@@ -30485,7 +30491,7 @@
           "checkId": "assumption-removal-rust",
           "file": "rust/tests/assumption_removal_tests.rs",
           "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
-          "polarity": "positive"
+          "polarity": "negative"
         }
       ],
       "completionBindings": []
@@ -32512,7 +32518,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "7ec8940906c03b8305a438e216b4edbb5538e18b86eabe443c1e29951cf20acb"
+          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81"
         },
         {
           "path": "experiments/issue-183-pr-body-live-repair.mjs",
@@ -32912,7 +32918,7 @@
           "checkId": "assumption-removal-rust",
           "file": "rust/tests/assumption_removal_tests.rs",
           "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
-          "polarity": "positive"
+          "polarity": "negative"
         }
       ],
       "completionBindings": [],
@@ -52525,7 +52531,7 @@
         {
           "file": "rust/tests/language_construct_inventory_tests.rs",
           "name": "an_unclassified_construct_or_a_dead_pattern_is_detected",
-          "polarity": "positive"
+          "polarity": "negative"
         }
       ],
       "testTarget": "language_construct_inventory_tests",
@@ -52675,7 +52681,7 @@
         {
           "file": "rust/tests/four_language_binding_rewrites_tests.rs",
           "name": "shared_four_language_binding_rewrites_agree_on_locations_edits_and_capture_refusals",
-          "polarity": "negative"
+          "polarity": "positive"
         },
         {
           "file": "rust/tests/four_language_binding_rewrites_tests.rs",
@@ -52858,6 +52864,11 @@
         {
           "file": "scripts/build-output-publication.test.mjs",
           "name": "a generated runtime copy inside the leased scratch stages its server; a forged lease naming it fails closed",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-output-publication.test.mjs",
+          "name": "VS Code staging never deletes an unowned server module",
           "polarity": "negative"
         }
       ]
@@ -53425,7 +53436,7 @@
         {
           "path": "rust/tests/meta_theory_workflow_tests.rs",
           "role": "test",
-          "sha256": "68e6034676e40fd9bfb01ede7aafca8798807976bce563853c4658bb16eae3fc"
+          "sha256": "9ac95e44743bc7691edb066cbd5af06c7f9687712c4e55905d4268f0adb00209"
         },
         {
           "path": "rust/Cargo.toml",
@@ -53456,8 +53467,13 @@
         },
         {
           "file": "rust/tests/meta_theory_workflow_tests.rs",
-          "name": "upstream_definitions_run_on_new_data_and_a_changed_body_changes_the_result",
+          "name": "upstream_definitions_run_on_new_data",
           "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/meta_theory_workflow_tests.rs",
+          "name": "a_changed_definition_body_does_not_reproduce_the_original_result",
+          "polarity": "negative"
         }
       ],
       "testTarget": "meta_theory_workflow_tests",
@@ -54401,7 +54417,7 @@
         {
           "file": "rust/tests/assumption_removal_tests.rs",
           "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
-          "polarity": "positive"
+          "polarity": "negative"
         }
       ],
       "testTarget": "assumption_removal_tests",
@@ -55973,7 +55989,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "test",
-          "sha256": "7ec8940906c03b8305a438e216b4edbb5538e18b86eabe443c1e29951cf20acb"
+          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81"
         },
         {
           "path": "scripts/issue-183-pr-body.mjs",

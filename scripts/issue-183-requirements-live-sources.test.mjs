@@ -149,13 +149,36 @@ test('requires actual live access; a missing token is never a passing offline ce
 test('fails closed on rate limiting, auth failure, server failure and malformed JSON', async () => {
   const { expected } = await snapshot();
   for (const status of [401, 403, 429, 500]) {
-    const result = await verifyIssue183LiveSources(expected, { token: 'test-secret', request: async () => response(null, status) });
+    const calls = new Map();
+    const result = await verifyIssue183LiveSources(expected, { token: 'test-secret', retryDelayMs: 0, request: async url => { calls.set(url, (calls.get(url) ?? 0) + 1); return response(null, status); } });
     assert.equal(result.passed, false);
     assert.match(result.errors[0], new RegExp(`HTTP ${status}`));
+    // Only server failures are retried, and only a bounded number of times.
+    // The first exhausted channel fails the scan while parallel channels may still be retrying.
+    assert.equal(Math.max(...calls.values()), status === 500 ? 3 : 1);
+    assert.ok([...calls.values()].every(count => count <= 3));
   }
   const result = await verifyIssue183LiveSources(expected, { token: 'test-secret', request: async () => ({ ...response(null), json: async () => { throw new Error('test-secret'); } }) });
   assert.equal(result.passed, false);
   assert.ok(!JSON.stringify(result).includes('test-secret'));
+});
+
+test('a transient network failure or server error is retried and the scan still verifies', async () => {
+  const { expected, request: liveRequest } = await snapshot();
+  for (const failure of [async () => { throw new Error('socket hang up'); }, async () => response(null, 503)]) {
+    let failed = false;
+    const result = await verifyIssue183LiveSources(expected, { token: 'test-secret', retryDelayMs: 0,
+      request: (url, options) => { if (!failed) { failed = true; return failure(); } return liveRequest(url, options); } });
+    assert.equal(failed, true);
+    assert.equal(result.passed, true, JSON.stringify(result.errors));
+  }
+  const calls = new Map();
+  const exhausted = await verifyIssue183LiveSources(expected, { token: 'test-secret', retryDelayMs: 0, request: async url => { calls.set(url, (calls.get(url) ?? 0) + 1); throw new Error('test-secret'); } });
+  assert.equal(exhausted.passed, false);
+  assert.equal(Math.max(...calls.values()), 3);
+  assert.ok([...calls.values()].every(count => count <= 3));
+  assert.match(exhausted.errors[0], /failed or timed out; freshness was not established/);
+  assert.ok(!JSON.stringify(exhausted).includes('test-secret'));
 });
 
 test('does not expose tokens in network or GraphQL error reports', async () => {

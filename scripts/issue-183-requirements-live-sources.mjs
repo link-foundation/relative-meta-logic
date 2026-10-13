@@ -23,18 +23,28 @@ function uniqueSorted(items, label) {
   return items.sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
 }
 
-export async function fetchIssue183LiveSources({ request = fetch, token, timeoutMs = 20000 } = {}) {
+// Transient transport and server failures are retried a bounded number of times;
+// authentication, rate limiting and every later validation still fail closed.
+const TRANSIENT_STATUSES = new Set([500, 502, 503, 504]);
+
+export async function fetchIssue183LiveSources({ request = fetch, token, timeoutMs = 20000, attempts = 3, retryDelayMs = 2000 } = {}) {
   if (!token) fail('live source verification requires the repository read-only GITHUB_TOKEN; use --offline only for uncertified local diagnostics');
   const headers = { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json' };
   async function json(url, options = {}) {
     if (!url.startsWith(`${REST}/`) && url !== GRAPHQL) fail('refusing to send GitHub credentials outside this repository API');
     let response;
-    try {
-      response = await request(url, { ...options, headers, redirect: 'error', signal: AbortSignal.timeout(timeoutMs) });
-    } catch {
-      // Never propagate request exceptions/headers: adapters can include credentials.
-      fail('GitHub source request failed or timed out; freshness was not established');
+    for (let attempt = 1; ; attempt++) {
+      response = undefined;
+      try {
+        response = await request(url, { ...options, headers, redirect: 'error', signal: AbortSignal.timeout(timeoutMs) });
+      } catch {
+        // Never propagate request exceptions/headers: adapters can include credentials.
+      }
+      if (response && !TRANSIENT_STATUSES.has(response.status)) break;
+      if (attempt >= attempts) break;
+      await new Promise(resolve => setTimeout(resolve, retryDelayMs * attempt));
     }
+    if (!response) fail('GitHub source request failed or timed out; freshness was not established');
     if (!response.ok) fail(`GitHub source request failed (HTTP ${response.status}); freshness was not established`);
     let value;
     try { value = await response.json(); } catch { fail('GitHub returned malformed JSON; freshness was not established'); }
