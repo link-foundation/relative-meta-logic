@@ -139,6 +139,30 @@ const lifecycleSuite = /^scripts\/(?:build-cache.*|docker-cache-budget|cargo-uni
 // Only optional development tools may be absent on a runner; every other skip hides a platform gap.
 const allowedSkip = /^(?:JSDoc|VSCE) development dependency is not installed$/;
 const platformOf = { 'ubuntu-latest': 'linux', 'macos-latest': 'darwin', 'windows-latest': 'win32' };
+// Bare skips a recorded run's own source declared that the current source no longer declares: those tests now
+// run on that platform (portable identity, junctions, Node-backed tool doubles, job semantics). They explain only
+// that run; a newer run must show them executed, and any other run with these bare skips stays rejected.
+const retiredPlatformSkips = {
+  38429794746: {
+    darwin: ['matching token and colliding live PID never borrow a foreign namespace lease'],
+    win32: [
+      'cargo entry point nested in an outer operation owns and reuses isolated compiler output',
+      'archive placeholder rejects a report symlink and retains evidence without following it',
+      'acceptance parity builds and consumes the same active private Cargo target while shared output stays protected',
+      'acceptance parity rejects a missing private target before invoking Cargo',
+      'acceptance parity rejects a stale private target before invoking Cargo',
+      'acceptance Cargo producers inherit one private target for the complete outer operation',
+      'a successful private Cargo operation sweeps superseded units and records the result without changing status',
+      'a symlinked alias of the worktree root maps custom targets without resolving in-tree links',
+      'hook and report state symlinks are rejected without modifying their target',
+      'missing Node is an explicit hook failure instead of silently disabling cleanup',
+      'matching token and colliding live PID never borrow a foreign namespace lease',
+      'an ancestor symlink substitution cannot redirect deletion into outside data',
+      'an exited command cannot hang on a grandchild holding its output pipes',
+      'a symlinked profile or deps directory is never followed',
+    ],
+  },
+};
 
 /**
  * The tests a suite declares as platform-scoped: a title pattern (template parts match anything) and the
@@ -174,8 +198,9 @@ export function portabilityErrors(evidence) {
     if (platform.exitCode !== 0) errors.push(`${os}: lifecycle command failed`);
     if (!(platform.pass > 0) || platform.fail !== 0 || platform.cancelled !== 0 || platform.failed?.length) errors.push(`${os}: lifecycle tests failed`);
     if (platform.pass + platform.skipped + platform.todo !== platform.tests || platform.skips?.length !== platform.skipped) errors.push(`${os}: uncounted tests`);
+    const retired = retiredPlatformSkips[p.runId]?.[platformOf[os]] ?? [];
     for (const skip of platform.skips ?? []) {
-      const scoped = !skip.reason && declared.some(item => item.platforms.includes(platformOf[os]) && item.title.test(skip.name));
+      const scoped = !skip.reason && (declared.some(item => item.platforms.includes(platformOf[os]) && item.title.test(skip.name)) || retired.includes(skip.name));
       if (!scoped && !allowedSkip.test(skip.reason)) errors.push(`${os}: unexplained skip ${skip.name}`);
     }
     for (const suite of suites) if (!platform.command?.includes(suite)) errors.push(`${os}: omitted ${suite}`);
@@ -194,6 +219,10 @@ test('the committed cache-portability run passed every lifecycle suite on Linux,
   // The recorded platform scope: Linux runs every lifecycle test; macOS skips one Linux-only PID test and
   // Windows skips the POSIX process-group, signal-interruption and symlink tests.
   const bare = evidence.platforms.map(item => item.skips.filter(skip => !skip.reason).length);
+  // PREDICTION for the next hosted run (not yet observed; this committed run stays [0, 1, 19]): bare skips
+  // [0, 0, 5], with 215 tests per OS (three new tests: two 'hard kill' outcomes and the surviving-descendant
+  // lease test). Windows would then skip only the POSIX signal-interruption test, its two interrupt outcomes,
+  // the process-group lease test and the POSIX make/cc test, each with its stated reason in the source.
   assert.deepEqual(bare, [0, 1, 19]);
 });
 
@@ -212,6 +241,7 @@ test('a portability run with a failing, missing, skipped-away or unsuccessful pl
       const linux = e.platforms.find(item => item.os === 'ubuntu-latest');
       linux.skips.push({ name: 'a symlinked profile or deps directory is never followed', reason: '' }); linux.skipped += 1; linux.pass -= 1;
     },
+    'retired skips under another run': e => { e.provenance.runId += 1; },
     'uncounted tests': e => { windows(e).tests += 3; },
     'omitted suite': e => { windows(e).command = windows(e).command.filter(item => item !== 'scripts/build-cache.test.mjs'); },
     'unsuccessful run': e => { e.provenance.conclusion = 'failure'; },
