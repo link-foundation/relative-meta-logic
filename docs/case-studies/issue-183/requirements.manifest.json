@@ -1573,7 +1573,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "7f2138eaa765815c534f23df9c96573f9fe46a2c9a9161ef96ca3b3246aa34c6"
+          "sha256": "5d0be598b8e6aa01d5ccbdeb68b9380d3bb82fadee4d3bff88730b12d256a646"
         }
       ],
       "claimedEvidence": "`rml:structure:1` now carries layout/trivia/token links bound to syntax occurrences and a SHA-256 provenance receipt; `emitRmlExactSource` / `emit_rml_exact_source` rebuild every file of the shared frontend corpus byte-for-byte after the buffer is discarded, and `rmlStageReport` / `rml_stage_report` separate preservation, exact source, parsing, resolution, elaboration, execution and verification. Swapped layout, refusal receipts and tampered provenance are rejected. `No RML elaborator or proof checker runs in this representation; elaboration/verification report not-run`.",
@@ -9814,7 +9814,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "7f2138eaa765815c534f23df9c96573f9fe46a2c9a9161ef96ca3b3246aa34c6"
+          "sha256": "5d0be598b8e6aa01d5ccbdeb68b9380d3bb82fadee4d3bff88730b12d256a646"
         }
       ],
       "claimedEvidence": "Declaration, binder, role and resolution records (bound/global/ambiguous/free) keyed by occurrence address are recomputed and compared on every read by `rmlSemanticIdentities` / `rml_semantic_identities`, so stored identities are never trusted; 11 corpus cases pass and 9 mutations (retargeted binder, forged occurrence, dangling target, contradicted status, unaccounted record, layout/provenance tampering) are rejected. `Resolution covers RML/LiNo binders, not type-checked elaboration of rules, proofs and substitutions`.",
@@ -11492,7 +11492,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "7f2138eaa765815c534f23df9c96573f9fe46a2c9a9161ef96ca3b3246aa34c6"
+          "sha256": "5d0be598b8e6aa01d5ccbdeb68b9380d3bb82fadee4d3bff88730b12d256a646"
         }
       ],
       "claimedEvidence": "`rmlStructureOnly` and typed-link serialization with `checkRmlPlanes` require every link to be accounted for and reachable; exact source is emitted from links alone and stage outcomes are reported separately. `Elaboration and verification stages, and Rust execution evidence pending CI, remain open; full networks parse about 3x slower`.",
@@ -13244,7 +13244,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "7f2138eaa765815c534f23df9c96573f9fe46a2c9a9161ef96ca3b3246aa34c6"
+          "sha256": "5d0be598b8e6aa01d5ccbdeb68b9380d3bb82fadee4d3bff88730b12d256a646"
         },
         {
           "path": "test-corpus/meta-language/four-language-binding-rewrites.json",
@@ -29953,7 +29953,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-upstream-requests.md",
           "role": "implementation",
-          "sha256": "c17309308eaeb7506c3526a179ebd9be64f6ae6e984d011ebb8c31dddd3b65ed"
+          "sha256": "0cbf85b0774a51b916aaf91d648b438761687d9293901edc85ea781310cfea1b"
         }
       ],
       "claimedEvidence": "`js/vendor/meta-language-pr201/` copies 52 files byte-for-byte from meta-language commit `7c4bf8f1`, locked by `upstream-files.json` (path, bytes, sha256) with license, `VENDORED.md` removal criteria and two documented shims; `meta-language-upstream-requests.md` drafts 18 upstream requests to file later. `The copy must be removed once a meta-language release provides these capabilities`.",
@@ -44976,7 +44976,7 @@
         {
           "path": "rust/tests/language_construct_inventory_tests.rs",
           "role": "test",
-          "sha256": "759abbf409ba84b39bb2d4ca6644eabb8782222be908683f082088591e5ba5e6"
+          "sha256": "2b311b76e15cef2b713caaa614e3da2eb3753d316a080298dff1bf0513f24be9"
         },
         {
           "path": "docs/case-studies/issue-183/language-constructs.json",

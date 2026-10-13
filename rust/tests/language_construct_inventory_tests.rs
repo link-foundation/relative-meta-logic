@@ -200,6 +200,7 @@ fn rust_grammar_api_and_parser_reproduce_the_shared_construct_inventory() {
         // Pin that exact divergence so any other difference, or its repair, fails here.
         let comment_divergence: BTreeSet<&str> = match name {
             "Rust" => ["block_comment", "line_comment"].into_iter().collect(),
+            "Rocq" => ["comment"].into_iter().collect(),
             _ => BTreeSet::new(),
         };
         let divergence: BTreeSet<&str> = observed.difference(&exercised).copied().collect();
