@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-rust-implementation-manifest/v1",
   "moduleCount": 48,
-  "linkCount": 299779,
+  "linkCount": 312923,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -296,9 +296,9 @@
     },
     {
       "path": "rust/src/lino_frontend.rs",
-      "sourceSha256": "53a7e459277e2779ec2d604b6e569dfa74ede1abf2c4827c097866a9e17dc54d",
-      "astSha256": "047088ec3f49ee61b9be1a26a033e7a19d90322fb82b9285f780b52c24c651e2",
-      "generatedSha256": "ebd6f090ffaa3d99b221869d5accd0bbfe9f7491fc7372d28054b0c9f5e380b8",
+      "sourceSha256": "cd433e5b2c2f31c658725d8d221a557a2749960c10db966aa0bafff371748a35",
+      "astSha256": "6b5788ae35377cd9c2c980576c3610dc278d0445e63abda2684bb1b3bbafa060",
+      "generatedSha256": "aa623f25f468d4e4c0e0271763f4412a1fba282c1c2f3039adb709052e396603",
       "macroInvocations": 33,
       "verbatimNodes": 0
     },
@@ -320,18 +320,18 @@
     },
     {
       "path": "rust/src/meta_language_structure.rs",
-      "sourceSha256": "45d17ab43c754131678fca94fd01584803df2a02abd0af1fba2a2c61dfe275cc",
-      "astSha256": "6f56d40f9f3a45f285b1c2a28f440709fe9514c7e6503e63945c74cca7e53e52",
-      "generatedSha256": "b5cedaca3f1a9f79e44ce79fb1704abf10f0cf2ce0a4376df5f910224e1bd908",
-      "macroInvocations": 9,
+      "sourceSha256": "7fb154c27c69adb7ff1f5f9284925d5264ef3c3763c19f4ad3615ba36dc788ea",
+      "astSha256": "3b5d1045c75da57aebe8aaecf8426ffd98b25db1ed141e0f3134c045b220009a",
+      "generatedSha256": "3c13ac2a4e75926c16681c65ed31cdd91e565efc824156643a144eb0b18fe527",
+      "macroInvocations": 68,
       "verbatimNodes": 0
     },
     {
       "path": "rust/src/meta_language_support.rs",
-      "sourceSha256": "f3e8eec192dc5d1d1da56ddd4a68269925f498e72a170879830472d694c39289",
-      "astSha256": "bbe15c22e5e4017bf912c845d2006dff32bea3246e52cac2b07b7e88fb1a4d4a",
-      "generatedSha256": "6b3976361de8a0aa9baf41a461cbab77df38d65c2c770505ef02242bfd1df59f",
-      "macroInvocations": 1,
+      "sourceSha256": "e3417bae1ce3f9577b18457a8fdc8459c1babf3de7743e349175e426e87c7ada",
+      "astSha256": "ceb73cb9f6941264e8d13c2fcaf552e990f2a76c61495f034e0909d56c3578f9",
+      "generatedSha256": "08aced619c85398a15b2f787d76dcb635fecd6cd956d2ec18d03a0129452cb33",
+      "macroInvocations": 2,
       "verbatimNodes": 0
     },
     {
@@ -402,8 +402,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveBytes": 1365844,
-  "archiveSha256": "2ec6023efe8a83be5bfe5cba05903fccdd8cd310103cd5d30907b888b3619712",
+  "archiveBytes": 1425500,
+  "archiveSha256": "4d5204c7f059b491cf7a1de098f2deae0feaf4b7ad9b5c6ddf601fb5bb9053d0",
   "toolLockSha256": "acfd9616c8b3e7740701bd61a4981f4029cfbedfdacb884af7900526182df829",
   "toolSources": [
     {

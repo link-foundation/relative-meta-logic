@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
-  "moduleCount": 168,
-  "linkCount": 284757,
+  "moduleCount": 170,
+  "linkCount": 292174,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -44,7 +44,7 @@
         "target": "vscode/src/extension.js"
       }
     ],
-    "staticImportEdges": 558,
+    "staticImportEdges": 569,
     "dynamicImportSites": [
       {
         "from": "experiments/issue-181-meta-language-js-smoke.mjs",
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "119108099fde0185790b65b18e9afc8edaf91271a1b5768ca2ecaa091a9bac15",
-  "archiveBytes": 1731564,
+  "archiveSha256": "6e95b3f4427daaaec1809cc586abd00108cd1840ce3cb5f3dfa988280813f499",
+  "archiveBytes": 1771112,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -526,9 +526,9 @@
     },
     {
       "path": "js/src/rml-certified-translation.mjs",
-      "sourceSha256": "0cb7b7dcfb374642d1a82d784b6095094d124e4e7583d1abac4fcf5d8cafb7a1",
-      "astSha256": "12a2b2e6130fa3de9c502459d8465f82c830bf1b4dc5eda18c5949d7d17dd17a",
-      "generatedSha256": "c8a5906d5456d8a431dafab713b7e9491588eff32e84097d5f5537bdeede55c5"
+      "sourceSha256": "ece4f82265c9593dc7e6bc1f89102f60ac2b835aba5595154ece5795a09692a6",
+      "astSha256": "3537f1ac5d15362671a288049b6be3dca2bb1f8132a6b216bffdc671e4207e1e",
+      "generatedSha256": "c8c7686a039164d7dbbcd4ace9ed9af710e7a7e9b51ce0aab5878fde0c942078"
     },
     {
       "path": "js/src/rml-check.mjs",
@@ -657,6 +657,12 @@
       "generatedSha256": "1b27985f2dbbbda6d28b5aaaa06b7468137eeeac2b7d0a6203f04c34943228e7"
     },
     {
+      "path": "js/src/rml-language-inventory.mjs",
+      "sourceSha256": "0c5e3aa228259e311d998fc19447c57b9cff1f8cdf2bace46e700297d9e735f4",
+      "astSha256": "7edc2564729a3223a391bb257b4854b29e6628780195b5d051e88bb5be29bd89",
+      "generatedSha256": "91eba0a82e5b1a765d63f380a789904a41bac5e76ec74cf18760593a1d3f0c09"
+    },
+    {
       "path": "js/src/rml-linked-program.mjs",
       "sourceSha256": "ddc7597898fc132d50d50347d00a26e8cfe42cfc70ea107a131a7ccd4fc49bbd",
       "astSha256": "215b0029031a03194b80a9d23c74904876d07ba2acf55be2ee36488aa2434fb5",
@@ -700,15 +706,15 @@
     },
     {
       "path": "js/src/rml-meta-language.mjs",
-      "sourceSha256": "3dc5ffc99e8abe276783c29b3194c2f6b648d63f6990113b7aea89f1c22df7af",
-      "astSha256": "2359af772343ca213ffb1cad4da64c814df0700f4c3e942eb5f6be30462908d5",
-      "generatedSha256": "db4742e7c5260410e5fdb0d26e8b39f7c4a7a466b77e8681b4100bf0bb181476"
+      "sourceSha256": "4dc1f335b65aced1cf15eadc178429d50d519ae952d0d0425b8790c79455e86a",
+      "astSha256": "9ca92fed7536e8fe20eb6b0c4c37d9dc653f0783d4dd1313f5b208fbc8801738",
+      "generatedSha256": "32fd46f8c1e7d93ffeb8ad787fd4984c696a62d03ec26bb6fb08fad9e22b847b"
     },
     {
       "path": "js/src/rml-meta-structure.mjs",
-      "sourceSha256": "3e48b184067c44e5dea68916266bcf8a5f587d806d8ed5d498636f37104b7924",
-      "astSha256": "619b6a84523bb24bf8f78b2140e6f2cf2114d46c56e07773ddf476c2349ff6ad",
-      "generatedSha256": "205398f3be9aa1fecdc2bb0d5a4a7df50ea7306fab2b40b88f8783b78293b38d"
+      "sourceSha256": "854cb8d5bb12b696fd744106461cd7520d1b84251cf7d4b6640df25d6f1d3a0f",
+      "astSha256": "0e09bd00e69497a44fe7c245ef6d1124ea9ef6216433b6e22940e2d957dba9ed",
+      "generatedSha256": "2db49011b7013cf03cbac2f4a948e7fbb68765e356a8e128b30f03ac00de09b1"
     },
     {
       "path": "js/src/rml-meta.mjs",
@@ -985,6 +991,12 @@
       "sourceSha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a",
       "astSha256": "840511fae1742868fe9d9a222a4529244ea9e3f79da4c7e64b97ece3d7fcf288",
       "generatedSha256": "c86ab66524597845ebb2c7aac89becb633ee7feafddb5dfd7a08322d435eea2e"
+    },
+    {
+      "path": "scripts/language-construct-inventory.mjs",
+      "sourceSha256": "143c656d36b309b291076d7ae35243a8286aa0fb4f6f2c30f209a37f8003eeeb",
+      "astSha256": "1456ef9809a5f95d202f649633205d8873b7f56c5097270dd42250a1743392ab",
+      "generatedSha256": "7768f2ecb21b4b94048e9199e80098dad8a9dfe526cd9dce71639b6184b01de9"
     },
     {
       "path": "scripts/linked-executable-inventory.mjs",
