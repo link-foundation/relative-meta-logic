@@ -54,6 +54,66 @@ export function constructCorpusPrograms(corpus = readJson(CORPUS_PATH)) {
   return [...programs, ...corpus.programs.map(program => ({ ...program }))];
 }
 
+/** Every reference to `rule` from elsewhere in a native grammar text, by how it is used:
+ * `alias` (renamed to another node kind), `lookahead` (a `(not …)` keyword boundary),
+ * `extra` (an `(extra …)` declaration) or `plain`. */
+export function grammarRuleUses(text, rule) {
+  const uses = [];
+  const reference = new RegExp(`(\\(alias (\\S+) |\\(not )?\\(ref ${rule}\\)`, 'g');
+  for (const line of text.split('\n')) {
+    const owner = line.match(/^\((\S+) ?(\S+)?/);
+    if (!owner || (owner[1] === 'rule' && owner[2] === rule)) continue;
+    for (const match of line.matchAll(reference)) {
+      const from = owner[1] === 'rule' ? owner[2] : owner[1];
+      if (owner[1] === 'extra') uses.push({ kind: 'extra', from });
+      else if (match[2]) uses.push({ kind: 'alias', from, target: match[2] });
+      else if (match[1]) uses.push({ kind: 'lookahead', from });
+      else uses.push({ kind: 'plain', from });
+    }
+  }
+  return uses;
+}
+
+/** Why a receipt's reason holds structurally, or null when it does not. */
+function receiptDetail(reason, uses, receipted) {
+  const unique = values => [...new Set(values)].sort();
+  switch (reason) {
+    case 'unreferenced':
+      return uses.length === 0 ? 'no other grammar rule or declaration references it' : null;
+    case 'alias':
+      return uses.length > 0 && uses.every(use => use.kind === 'alias')
+        ? `every reference renames it to ${unique(uses.map(use => use.target)).join(', ')}` : null;
+    case 'lookahead':
+      return uses.length > 0 && uses.every(use => use.kind === 'lookahead')
+        ? `only a negative lookahead (keyword boundary) in ${unique(uses.map(use => use.from)).length} rules` : null;
+    case 'extra':
+      return uses.some(use => use.kind === 'extra') && uses.every(use => use.kind === 'extra' || (use.kind === 'plain' && receipted.has(use.from)))
+        ? 'an extra: skipped between constructs, never placed in a JavaScript native construct tree' : null;
+    default:
+      return null;
+  }
+}
+
+/** Check each refusal receipt for an unexercised construct: its structural reason must hold in the
+ * grammar text, the construct must stay unexercised, and its probe program must be accepted by the
+ * native grammar without building the construct. */
+export function checkConstructReceipts(grammar, text, kinds, counts, receipts) {
+  const receipted = new Set(receipts.map(receipt => receipt.rule));
+  const rows = [];
+  const problems = [];
+  for (const { rule, reason, probe } of receipts) {
+    if (!kinds[rule]) { problems.push(`${rule}: receipt names no grammar rule`); continue; }
+    if ((counts.get(rule) ?? 0) > 0) problems.push(`${rule}: exercised by the corpus, so its refusal receipt is stale`);
+    const detail = receiptDetail(reason, grammarRuleUses(text, rule), receipted);
+    if (detail === null) problems.push(`${rule}: receipt reason ${reason} does not hold in the grammar`);
+    const seen = constructKinds(grammar, probe);
+    if (!seen) problems.push(`${rule}: receipt probe is refused by the native grammar`);
+    else if (seen.has(rule)) problems.push(`${rule}: receipt probe builds the construct`);
+    rows.push([rule, reason, detail]);
+  }
+  return { rows, problems };
+}
+
 function constructKinds(grammar, source) {
   let tree;
   try { tree = nativeConstructTree(grammar, source); } catch { return null; }
@@ -88,6 +148,9 @@ export function buildLanguageConstructInventory({ classifier = readJson(CLASSIFI
         exercised: members.filter(row => row[2] !== 'silent' && row[4] > 0).length }];
     }));
     const support = languageSupport(language);
+    const receipts = checkConstructReceipts(grammar, text, kinds, counts, (corpus.receipts ?? []).filter(item => item.language === language));
+    const unexercised = observable.filter(row => row[4] === 0).map(row => row[0]);
+    const receipted = new Set(receipts.rows.map(row => row[0]));
     return {
       language, grammar, ruleConceptSha256: ruleConceptFingerprint(rules), grammarTextSha256: sha256(text),
       upstreamDeclaration: { version: support.version, edition: support.edition, sourceBytes: support.sourceBytes,
@@ -97,7 +160,10 @@ export function buildLanguageConstructInventory({ classifier = readJson(CLASSIFI
       exercised: observable.filter(row => row[4] > 0).length,
       programs: programs.filter(item => item.language === language).length,
       refusedPrograms: refused, unexpectedAcceptance: unexpected, unclassified, deadPatterns, byAxis,
-      unexercised: observable.filter(row => row[4] === 0).map(row => row[0]),
+      unexercised,
+      refusalReceipts: receipts.rows,
+      receiptProblems: receipts.problems,
+      unreceipted: unexercised.filter(rule => !receipted.has(rule)),
       constructs: rows,
     };
   });
@@ -106,7 +172,7 @@ export function buildLanguageConstructInventory({ classifier = readJson(CLASSIFI
     metaLanguageRevision: META_LANGUAGE_SOURCE_REVISION,
     classifier: CLASSIFIER_PATH, corpus: CORPUS_PATH,
     columns: ['rule', 'concept', 'ruleKind', 'axis', 'corpusOccurrences'],
-    boundary: 'Classification and native-grammar construct trees only. Exercised means the upstream native grammar built that construct for a corpus program; it does not establish compiler, kernel or runtime acceptance, resolution, elaboration, execution, verification or translation of the construct.',
+    boundary: 'Classification and native-grammar construct trees only. Exercised means the upstream native grammar built that construct for a corpus program; it does not establish compiler, kernel or runtime acceptance, resolution, elaboration, execution, verification or translation of the construct. A refusal receipt records why a native construct tree cannot show a construct (an alias, an extra, a keyword-boundary lookahead or an unreferenced rule), checked against the grammar text with an accepted probe program; it is not coverage of that construct.',
     languages,
   };
 }

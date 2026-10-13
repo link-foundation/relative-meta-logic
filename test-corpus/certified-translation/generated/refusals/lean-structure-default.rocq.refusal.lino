@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Lean)
+    (sha256 0386e59fe4742850145ac0913026f46646e6580a07a6adbca2c614911cade8ed)
+    (bytes 228)
+    (utf16 228))
+  (target (language Rocq) (status not-emitted))
+  (stage rml-lowering)
+  (diagnostic
+    (kind unsupported)
+    (message "structure field default: default field values are outside RML lowering")
+    (span 151 156)
+    (bytes 151 156)
+    (span-sha256 e24b2690069d5c1ad3d3e2ef8b93240403d9d194e23e9f5de3ebaa35fcd0afac))
+  (preserved-source
+    (sha256 0386e59fe4742850145ac0913026f46646e6580a07a6adbca2c614911cade8ed)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 2b13a7cb0e12a3555b9123b973064e95cb120cdd1e31baed9c219f31118907b9))

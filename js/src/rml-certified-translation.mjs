@@ -18,6 +18,8 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { LinkId, LinkNetwork } from '#meta-language';
 import { attachRmlStructure, emitRmlFromStructure, rmlStructuredDocument } from './rml-meta-structure.mjs';
+import { lowerSurface } from './rml-surface-lowering.mjs';
+import { certificateConceptsForm } from './rml-concept-space.mjs';
 import { TranslationError } from '#meta-language-pr201/translation/diagnostics.js';
 import { checkProgram } from '#meta-language-pr201/translation/check.js';
 import { parseJavaScript } from '#meta-language-pr201/translation/javascript.js';
@@ -101,8 +103,11 @@ export function importCertifiedSource(source, language) {
   requireLanguage(language, 'source');
   const text = String(source);
   const fingerprint = sourceFingerprint(text, language);
+  // Frontend spans are in lowered coordinates until mapped back; lowering spans are already original.
+  let lowered = null;
   try {
-    const surface = stage('frontend', () => FRONTENDS[language](text));
+    lowered = stage('rml-lowering', () => lowerSurface(text, language));
+    const surface = stage('frontend', () => FRONTENDS[language](lowered.text));
     const program = stage('checker', () => checkProgram(surface));
     const archive = stage('archive-validation', () => encodeTypedProgramLinks(program));
     const intermediate = archive.network.toLino();
@@ -112,14 +117,28 @@ export function importCertifiedSource(source, language) {
     const emitted = emitRmlFromStructure(rmlNetwork);
     if (emitted !== intermediate) throw new Error('RML structure did not reproduce the typed program links exactly');
     return { status: 'imported', source: fingerprint, sourceText: text, rmlNetwork, root: archive.root.asU64(),
+      lowering: lowered.changed ? { schema: lowered.schema, sha256: sha256(lowered.text), rewrites: lowered.rewrites } : null,
+      mapSpan: lowered.map,
       intermediate: { schema: TYPED_PROGRAM_LINKS_SCHEMA.language, schemaVersion: TYPED_PROGRAM_LINKS_SCHEMA.schemaVersion,
         root: archive.root.asU64(), links: archive.network.links().length, sha256: sha256(emitted) } };
   } catch (error) {
     if (!(error instanceof RefusalSignal)) throw error;
+    const span = error.stage === 'rml-lowering' || !lowered ? error.cause.span : lowered.map(error.cause.span);
     return { status: 'refused', source: fingerprint, sourceText: text, stage: error.stage, diagnostic: {
       kind: error.cause.kind ?? 'invalid-archive', message: error.cause.reason ?? error.cause.message,
-      span: spanRecord(text, error.cause.span) } };
+      span: spanRecord(text, span) } };
   }
+}
+
+/** The certificate section recording every RML surface rewrite, with original spans; absent when nothing was lowered. */
+function loweringForm(result) {
+  if (!result.lowering) return [];
+  return [['lowering', ['schema', result.lowering.schema], ['lowered-sha256', result.lowering.sha256], ['count', String(result.lowering.rewrites.length)],
+    ...result.lowering.rewrites.map(rewrite => {
+      const span = spanRecord(result.sourceText, rewrite);
+      return ['rewrite', ['kind', rewrite.kind], ['subject', rewrite.subject], ['span', String(span.start), String(span.end)],
+        ['bytes', String(span.byteStart), String(span.byteEnd)], ['span-sha256', span.sha256]];
+    })]];
 }
 
 /** Decode the certified program solely from the RML structure network; no source buffer is consulted. */
@@ -350,11 +369,88 @@ function constructorSignature(program, name) {
   return 'constructor';
 }
 
+// Termination evidence. RML re-derives recursion from the decoded intermediate
+// itself: a function is recursive when it calls itself or lies on a call cycle.
+// A directly recursive function outside any cycle terminates when every self
+// call passes, at one fixed parameter position, a variable bound by a
+// constructor or successor pattern of a match on that parameter (or on a
+// subterm of it); the archive's `decreasing` claim must name the same
+// position. Everything else (general and mutual recursion) stays open.
+
+function calledFunctions(expr, found = []) {
+  if (!expr || typeof expr !== 'object') return found;
+  if (Array.isArray(expr)) { for (const item of expr) calledFunctions(item, found); return found; }
+  if (expr.k === 'call' && typeof expr.fn === 'string') found.push(expr.fn);
+  for (const [key, value] of Object.entries(expr)) {
+    if (key === 'type' || key === 'domain' || key === 'from' || key === 'to' || key === 'span') continue;
+    if (value && typeof value === 'object') calledFunctions(value, found);
+  }
+  return found;
+}
+
+function structurallyDecreases(expr, fn, index, name, subterms) {
+  if (!expr || typeof expr !== 'object') return true;
+  if (Array.isArray(expr)) return expr.every(item => structurallyDecreases(item, fn, index, name, subterms));
+  if (expr.k === 'call' && expr.fn === fn) {
+    const argument = expr.args?.[index];
+    if (!(argument?.k === 'var' && subterms.has(argument.name))) return false;
+  }
+  if (expr.k === 'match') {
+    if (!structurallyDecreases(expr.scrutinee, fn, index, name, subterms)) return false;
+    const onParameter = expr.scrutinee?.k === 'var' && (expr.scrutinee.name === name || subterms.has(expr.scrutinee.name));
+    return (expr.cases ?? []).every(kase => {
+      const inner = new Set(subterms);
+      if (onParameter && kase.pattern?.k === 'natSucc') inner.add(kase.pattern.name);
+      if (onParameter && kase.pattern?.k === 'ctor') for (const bind of kase.pattern.binds ?? []) if (bind) inner.add(bind);
+      return structurallyDecreases(kase.body, fn, index, name, inner);
+    });
+  }
+  if (expr.k === 'let') {
+    if (!structurallyDecreases(expr.value, fn, index, name, subterms)) return false;
+    const inner = new Set(subterms); inner.delete(expr.name);
+    if (expr.value?.k === 'var' && subterms.has(expr.value.name)) inner.add(expr.name);
+    return structurallyDecreases(expr.body, fn, index, name, inner);
+  }
+  for (const [key, value] of Object.entries(expr)) {
+    if (key === 'type' || key === 'domain' || key === 'from' || key === 'to' || key === 'span') continue;
+    if (value && typeof value === 'object' && !structurallyDecreases(value, fn, index, name, subterms)) return false;
+  }
+  return true;
+}
+
+function terminationObligations(program) {
+  const functions = [...program.declarations.values()].filter(declaration => declaration.k === 'fn');
+  const graph = new Map(functions.map(declaration => [declaration.fullName, new Set(calledFunctions(declaration.body))]));
+  const reaches = (from, to, seen = new Set()) => {
+    if (from === to) return true;
+    if (seen.has(from)) return false;
+    seen.add(from);
+    return [...(graph.get(from) ?? [])].some(next => reaches(next, to, seen));
+  };
+  const obligations = [];
+  for (const declaration of functions) {
+    const name = declaration.fullName;
+    const direct = graph.get(name).has(name);
+    const cycle = [...graph.get(name)].some(next => next !== name && graph.has(next) && reaches(next, name));
+    if (!direct && !cycle) continue;
+    const index = !cycle ? declaration.params.findIndex((parameter, position) => structurallyDecreases(declaration.body, name, position, parameter.name, new Set())) : -1;
+    const discharged = index >= 0 && declaration.decreasing === index;
+    obligations.push({ id: `termination:${name}`, kind: 'termination', source: name,
+      target: discharged ? `structural:${declaration.params[index].name}` : cycle ? 'mutual-recursion' : 'general-recursion',
+      closed: 'true', status: discharged ? 'discharged' : 'open', by: discharged ? 'rml-structural-decrease' : 'unproved-general-recursion' });
+  }
+  return obligations;
+}
+
 function preservation(sourceLanguage, targetLanguage, observation, obligations, assumptions, program) {
   const pair = [sourceLanguage, targetLanguage];
   const theorems = obligations.filter(item => item.kind === 'theorem' || item.kind === 'assertion');
   const counts = status => theorems.filter(item => item.status === status).length;
   const theoremCount = theorems.length;
+  const termination = obligations.filter(item => item.kind === 'termination');
+  const terminationText = termination.length
+    ? `; ${termination.length} termination obligation(s): ${termination.filter(item => item.status === 'discharged').length} discharged by RML structural decrease, ${termination.filter(item => item.status === 'open').length} open (general or mutual recursion)`
+    : '';
   const types = new Set();
   for (const declaration of program.declarations.values()) {
     for (const parameter of declaration.params ?? []) types.add(typeText(parameter.type));
@@ -371,7 +467,7 @@ function preservation(sourceLanguage, targetLanguage, observation, obligations, 
       pair.some(language => language === 'Lean' || language === 'Rocq') ? 'non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused' : 'no universe hierarchy in either language'],
     ['assumptions', assumptions.length ? 'listed' : 'none', `${assumptions.length} emitter assumption(s), each recorded as an assumed obligation`],
     ['proof-obligations', theoremCount === 0 ? 'none' : counts('open') === 0 && counts('refuted') === 0 ? 'discharged' : 'partially-discharged',
-      `${theoremCount} theorem(s) and assertion(s): ${counts('discharged')} discharged by RML evaluation, ${counts('open')} open, ${counts('refuted')} refuted`],
+      `${theoremCount} theorem(s) and assertion(s): ${counts('discharged')} discharged by RML evaluation, ${counts('open')} open, ${counts('refuted')} refuted${terminationText}`],
   ];
 }
 
@@ -437,10 +533,11 @@ export function translateCertified(source, sourceLanguage, targetLanguage, { imp
   const result = imported ?? importCertifiedSource(source, sourceLanguage);
   if (result.status === 'refused') return refusal(result, targetLanguage, identity);
   const program = decodeCertifiedIntermediate(result.rmlNetwork, result.root);
+  const original = result.mapSpan ?? (span => span);
   let emitted;
   try { emitted = localizeTargetNames(targetLanguage, EMITTERS[targetLanguage](program)); } catch (error) {
     if (!(error instanceof TranslationError)) throw error;
-    return refusal({ ...result, stage: 'emitter', diagnostic: { kind: error.kind, message: error.reason ?? error.message, span: spanRecord(result.sourceText, error.span) } }, targetLanguage, identity);
+    return refusal({ ...result, stage: 'emitter', diagnostic: { kind: error.kind, message: error.reason ?? error.message, span: spanRecord(result.sourceText, original(error.span)) } }, targetLanguage, identity);
   }
   const target = { language: targetLanguage, sha256: sha256(emitted.text), bytes: encoder.encode(emitted.text).length };
   const observation = observeCertifiedProgram(program);
@@ -464,13 +561,14 @@ export function translateCertified(source, sourceLanguage, targetLanguage, { imp
   for (const assumption of emitted.assumptions) {
     obligations.push({ id: `assumption:${assumption.id}`, kind: 'assumption', source: assumption.id, target: assumption.id, closed: 'false', status: 'assumed', by: 'declared-assumption' });
   }
+  obligations.push(...terminationObligations(program));
   obligations.push({ id: 'emitter-faithfulness', kind: 'trust', source: 'intermediate', target: targetLanguage, closed: 'false', status: 'open', by: 'native-oracle-ci' });
   const mapped = new Set(emitted.mappings.map(mapping => mapping.source));
   const losses = [['trivia', 'source comments and layout are not carried; the exact source is identified by its sha256 and spans']];
   for (const mapping of emitted.mappings) if (mapping.source !== mapping.target) losses.push(['renamed', mapping.source, mapping.target]);
   for (const name of program.declarations.keys()) if (!mapped.has(name)) losses.push(['unmapped-declaration', name]);
   const correspondence = emitted.mappings.map(mapping => {
-    const span = spanRecord(result.sourceText, mapping.sourceSpan);
+    const span = spanRecord(result.sourceText, original(mapping.sourceSpan));
     const declaration = program.declarations.get(mapping.source);
     return ['construct', ['kind', mapping.kind], ['source', mapping.source], ['target', mapping.target],
       ['signature', mapping.kind === 'constructor' ? constructorSignature(program, mapping.source) : signature(declaration, mapping)],
@@ -483,8 +581,15 @@ export function translateCertified(source, sourceLanguage, targetLanguage, { imp
     ['intermediate', ['schema', result.intermediate.schema], ['schema-version', String(result.intermediate.schemaVersion)],
       ['source-language', program.sourceLanguage],
       ['root', String(result.intermediate.root)], ['links', String(result.intermediate.links)], ['sha256', result.intermediate.sha256]],
+    ...loweringForm(result),
     ['target', ['language', target.language], ['sha256', target.sha256], ['bytes', String(target.bytes)]],
     ['correspondence', ...correspondence],
+    // Every vocabulary term the certificate uses, bound to its concept in the shared meta-language concept space.
+    certificateConceptsForm({ 'construct-kind': emitted.mappings.map(mapping => mapping.kind),
+      'obligation-kind': obligations.map(item => item.kind), discharge: obligations.map(item => item.by),
+      preservation: PRESERVATION_DIMENSIONS, authority: CERTIFIED_AUTHORITY.map(([grant]) => grant),
+      lowering: result.lowering?.rewrites.map(rewrite => rewrite.kind) ?? [],
+      'lowering-syntax': result.lowering?.rewrites.map(rewrite => rewrite.kind) ?? [] }),
     ['preservation', ...preservation(sourceLanguage, targetLanguage, observation, obligations, emitted.assumptions, program)],
     ['assumptions', ['count', String(emitted.assumptions.length)], ...emitted.assumptions.map(item => ['assumption', item.id, item.statement])],
     ['encodings', ['count', String(emitted.encodings.length)], ...emitted.encodings.map(item => ['encoding', item.id, item.statement])],
@@ -612,7 +717,8 @@ export function checkTranslationCertificate(certificateText, { source, target })
   const [reference] = readLinksDocument(expected.certificate);
   const sectionCodes = { source: 'RML_CERT_SOURCE_HASH', intermediate: 'RML_CERT_INTERMEDIATE', target: 'RML_CERT_TARGET_HASH',
     correspondence: 'RML_CERT_CORRESPONDENCE', preservation: 'RML_CERT_PRESERVATION', assumptions: 'RML_CERT_ASSUMPTIONS',
-    encodings: 'RML_CERT_ENCODINGS', observation: 'RML_CERT_OBSERVATION', verdict: 'RML_CERT_VERDICT', losses: 'RML_CERT_LOSSES' };
+    encodings: 'RML_CERT_ENCODINGS', observation: 'RML_CERT_OBSERVATION', verdict: 'RML_CERT_VERDICT', losses: 'RML_CERT_LOSSES',
+    lowering: 'RML_CERT_LOWERING', concepts: 'RML_CERT_CONCEPTS' };
   for (const [name, code] of Object.entries(sectionCodes)) {
     if (!same(section(form, name), section(reference, name)) && !errors.some(error => error.code === code)) fail(code, `${name} section differs from the RML re-derivation`);
   }

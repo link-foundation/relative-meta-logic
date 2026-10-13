@@ -7,7 +7,9 @@
 //! syntax and canonical digest, authority grants, translator pin, source,
 //! target and intermediate identities, span hashes of every correspondence,
 //! the seven preservation dimensions, the observation digest, the discharge
-//! rules of every obligation and the verdict counts. It never consults a Lean
+//! rules of every obligation, the verdict counts and the concept binding of
+//! every vocabulary term (against the `meta-language` crate's concept records,
+//! the same file the vendored JavaScript runtime reads). It never consults a Lean
 //! or Rocq kernel and never upgrades an oracle result to an RML discharge.
 use crate::lino_frontend::{parse_lino_link_document, ParsedLink};
 use sha2::{Digest, Sha256};
@@ -32,11 +34,51 @@ pub const CERTIFIED_AUTHORITY: &[(&str, &str)] = &[
     ("proof-authority", "rml"),
 ];
 const OBLIGATION_STATUSES: &[&str] = &["discharged", "open", "assumed", "refuted"];
+/// Justifications that never discharge an obligation: native oracles and unproved general recursion.
 const ORACLE_ONLY: &[&str] = &[
     "target-kernel-oracle",
     "bounded-runtime-check-not-proof",
     "native-oracle-ci",
     "unevaluated",
+    "unproved-general-recursion",
+];
+pub const SURFACE_LOWERING_SCHEMA: &str = "rml:surface-lowering:1";
+/// Every rewrite kind `js/src/rml-surface-lowering.mjs` may record in a certificate's lowering section.
+pub const LOWERING_KINDS: &[&str] = &[
+    "rust-monomorphize",
+    "rust-instantiation",
+    "rust-struct",
+    "rust-struct-variant",
+    "rust-struct-literal",
+    "rust-struct-pattern",
+    "rust-tuple-struct",
+    "rust-field-read",
+    "lean-monomorphize",
+    "lean-instantiation",
+    "lean-structure",
+    "lean-structure-instance",
+    "lean-field-read",
+    "rocq-monomorphize",
+    "rocq-instantiation",
+    "rocq-record",
+    "rocq-record-instance",
+    "rocq-projection",
+];
+/// The pipeline stages a first-refusal receipt may name.
+pub const REFUSAL_STAGES: &[&str] = &["rml-lowering", "frontend", "checker", "archive-validation", "emitter"];
+/// The schema of the certified-translation concept space (`js/src/rml-concept-space.mjs`).
+pub const CONCEPT_SPACE_SCHEMA: &str = "rml:certified-concept-space:1";
+/// The namespace of every RML-local concept identity.
+pub const RML_CONCEPT_NAMESPACE: &str = "rml.";
+/// The certificate vocabulary categories, in the order a `concepts` section lists them.
+pub const CONCEPT_CATEGORIES: &[&str] = &[
+    "construct-kind",
+    "obligation-kind",
+    "discharge",
+    "preservation",
+    "authority",
+    "lowering",
+    "lowering-syntax",
 ];
 
 /// A Links value as the certificate reader sees it: an atom or an ordered list.
@@ -306,6 +348,104 @@ fn span_ok(owner: &LinksNode, source: &str, units: &[u16]) -> bool {
         && owner.field("span-sha256") == Some(sha256_hex(text.as_bytes()).as_str())
 }
 
+/// Check the `(lowering …)` section: schema, rewrite count, known kinds and an exact span for every rewrite.
+fn lowering_ok(lowering: &LinksNode, source: &str, units: &[u16]) -> bool {
+    let rewrites: Vec<&LinksNode> = lowering.sections("rewrite").collect();
+    lowering.field("schema") == Some(SURFACE_LOWERING_SCHEMA)
+        && lowering.field("lowered-sha256").is_some_and(|hash| hash.len() == 64)
+        && lowering.field("count") == Some(rewrites.len().to_string().as_str())
+        && !rewrites.is_empty()
+        && rewrites.iter().all(|rewrite| {
+            rewrite.field("kind").is_some_and(|kind| LOWERING_KINDS.contains(&kind))
+                && rewrite.section("span").is_some()
+                && span_ok(rewrite, source, units)
+        })
+}
+
+fn push_term(terms: &mut Vec<(&'static str, String)>, category: &'static str, term: &str) {
+    if !terms.iter().any(|(known, value)| *known == category && value == term) {
+        terms.push((category, term.to_string()));
+    }
+}
+
+/// The vocabulary terms a certificate uses, by category in `CONCEPT_CATEGORIES` order and first use within each.
+pub fn certificate_terms(form: &LinksNode) -> Vec<(&'static str, String)> {
+    let mut terms = Vec::new();
+    let constructs: Vec<&LinksNode> = form
+        .section("correspondence")
+        .map(|node| node.sections("construct").collect())
+        .unwrap_or_default();
+    let obligations: Vec<&LinksNode> = form
+        .section("obligations")
+        .map(|node| node.sections("obligation").collect())
+        .unwrap_or_default();
+    let rewrites: Vec<&LinksNode> = form
+        .section("lowering")
+        .map(|node| node.sections("rewrite").collect())
+        .unwrap_or_default();
+    for construct in &constructs {
+        push_term(&mut terms, "construct-kind", construct.field("kind").unwrap_or(""));
+    }
+    for obligation in &obligations {
+        push_term(&mut terms, "obligation-kind", obligation.field("kind").unwrap_or(""));
+    }
+    for obligation in &obligations {
+        push_term(&mut terms, "discharge", obligation.field("by").unwrap_or(""));
+    }
+    for dimension in PRESERVATION_DIMENSIONS {
+        push_term(&mut terms, "preservation", dimension);
+    }
+    for (grant, _) in CERTIFIED_AUTHORITY {
+        push_term(&mut terms, "authority", grant);
+    }
+    for category in ["lowering", "lowering-syntax"] {
+        for rewrite in &rewrites {
+            push_term(&mut terms, category, rewrite.field("kind").unwrap_or(""));
+        }
+    }
+    terms
+}
+
+/// Check the `(concepts …)` section: it lists exactly the terms the certificate uses, and each is bound to an
+/// exact meta-language concept identity (`origin upstream`, checked against the `meta-language` crate's concept
+/// records) or to an RML-local identity in the `rml.` namespace (`origin rml`).
+fn concepts_ok(form: &LinksNode) -> bool {
+    let Some(concepts) = form.section("concepts") else {
+        return false;
+    };
+    let entries: Vec<&LinksNode> = concepts.sections("concept").collect();
+    let listed: Vec<(String, String)> = entries
+        .iter()
+        .map(|entry| {
+            (
+                entry.field("category").unwrap_or("").to_string(),
+                entry.field("term").unwrap_or("").to_string(),
+            )
+        })
+        .collect();
+    let used: Vec<(String, String)> = certificate_terms(form)
+        .into_iter()
+        .map(|(category, term)| (category.to_string(), term))
+        .collect();
+    concepts.field("schema") == Some(CONCEPT_SPACE_SCHEMA)
+        && concepts
+            .field("sha256")
+            .is_some_and(|hash| hash.len() == 64 && hash.chars().all(|c| c.is_ascii_hexdigit()))
+        && concepts.field("count") == Some(entries.len().to_string().as_str())
+        && listed == used
+        && entries.iter().all(|entry| {
+            let id = entry.field("id").unwrap_or("");
+            match entry.field("origin") {
+                Some("upstream") => {
+                    !id.starts_with(RML_CONCEPT_NAMESPACE)
+                        && meta_language::concept_record(id).is_some_and(|record| record.id == id)
+                }
+                Some("rml") => id.len() > RML_CONCEPT_NAMESPACE.len() && id.starts_with(RML_CONCEPT_NAMESPACE),
+                _ => false,
+            }
+        })
+}
+
 fn source_ok(form: &LinksNode, source: &str) -> bool {
     let Some(section) = form.section("source") else {
         return false;
@@ -403,6 +543,14 @@ pub fn check_certificate_integrity(certificate: &str, inputs: CertificateInputs<
     if constructs.is_empty() || constructs.iter().any(|construct| !span_ok(construct, inputs.source, &units)) {
         reject(&mut errors, "RML_CERT_CORRESPONDENCE", "a correspondence span does not identify the certified source text");
     }
+    if let Some(lowering) = form.section("lowering") {
+        if !lowering_ok(lowering, inputs.source, &units) {
+            reject(&mut errors, "RML_CERT_LOWERING", "a surface rewrite does not identify the certified source text or names an unknown kind");
+        }
+    }
+    if !concepts_ok(&form) {
+        reject(&mut errors, "RML_CERT_CONCEPTS", "the concepts section does not bind exactly the certificate's terms to exact concept identities");
+    }
     let declared: Vec<&str> = form
         .section("preservation")
         .map(|node| node.items()[1..].iter().filter_map(LinksNode::head).collect())
@@ -434,7 +582,9 @@ pub fn check_certificate_integrity(certificate: &str, inputs: CertificateInputs<
             continue;
         };
         counts[index] += 1;
-        let discharged_by_rml = status != "discharged" || (by == "rml-evaluation" && obligation.field("closed") == Some("true"));
+        let closed = obligation.field("closed") == Some("true");
+        let structural = by == "rml-structural-decrease" && obligation.field("kind") == Some("termination");
+        let discharged_by_rml = status != "discharged" || ((by == "rml-evaluation" || structural) && closed);
         let oracle_stays_open = !ORACLE_ONLY.contains(&by) || status == "open";
         let trust_stays_open = obligation.field("id") != Some("emitter-faithfulness") || status == "open";
         if !discharged_by_rml || !oracle_stays_open || !trust_stays_open {
@@ -492,6 +642,9 @@ pub fn check_refusal_integrity(receipt: &str, source: &str, translator_lock_sha2
         || preserved.and_then(|node| node.field("status")) != Some("retained-unchanged")
     {
         reject(&mut errors, "RML_REFUSAL_MISMATCH", "the receipt does not retain this exact source");
+    }
+    if !form.field("stage").is_some_and(|stage| REFUSAL_STAGES.contains(&stage)) {
+        reject(&mut errors, "RML_REFUSAL_MISMATCH", "the receipt names an unknown pipeline stage");
     }
     if form.section("target").and_then(|node| node.field("status")) != Some("not-emitted") {
         reject(&mut errors, "RML_REFUSAL_MISMATCH", "a refusal must not emit a target");

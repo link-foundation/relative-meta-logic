@@ -391,8 +391,20 @@ impl RocqEmitter {
     }
 
     fn translate_inductive(&mut self, node: &Node) -> Result<String, RocqExportError> {
-        let decl = catch_unwind(AssertUnwindSafe(|| parse_inductive_form(node)))
-            .map_err(|payload| RocqExportError::new(panic_payload_message(payload)))?
+        // The declaration parser reports a malformed form by panicking; keep
+        // the default hook from printing it so the command prints one
+        // `Rocq export error:` line, as the JavaScript exporter does.
+        let previous_hook = std::panic::take_hook();
+        std::panic::set_hook(Box::new(|_| {}));
+        let parsed = catch_unwind(AssertUnwindSafe(|| parse_inductive_form(node)));
+        std::panic::set_hook(previous_hook);
+        let decl = parsed
+            .map_err(|payload| {
+                RocqExportError::new(crate::declaration_message(
+                    &panic_payload_message(payload),
+                    "Inductive",
+                ))
+            })?
             .ok_or_else(|| {
                 RocqExportError::new(format!(
                     "unsupported inductive declaration `{}`",

@@ -39,11 +39,12 @@ network no longer matches the certified intermediate hash.
 
 ## Admitted constructs
 
-Wider than the natural-number fragment, as exercised by the eight corpus programs:
+Wider than the natural-number fragment, as exercised by the twelve positive corpus programs:
 
 | Area | Covered in the corpus |
 | --- | --- |
-| Records / inductives | Lean `inductive`, Rocq `Inductive`, Rust `enum` with tuple variants and `Box` recursion, JavaScript JSDoc tagged-union records |
+| Records / inductives | Lean `inductive` and `structure`, Rocq `Inductive` and `Record`, Rust `enum` with tuple and struct variants, named and tuple `struct`s, `Box` recursion, JavaScript JSDoc tagged-union records |
+| Generics | explicitly instantiated Rust `<T>` items and Lean/Rocq `(A : Type)` binders, monomorphized by RML lowering |
 | Pattern matching | Lean equation compiler and `match`, Rocq `match` including nested constructor patterns, Rust `match` with wildcards, JavaScript `switch` and tag tests |
 | Recursion | structural recursion over lists, trees and expression trees; general recursion (`gcd`) with checked arithmetic |
 | Modules | Lean `namespace`, Rocq `Module`, Rust `mod` with `use crate::…`, JavaScript object-literal namespaces |
@@ -51,11 +52,60 @@ Wider than the natural-number fragment, as exercised by the eight corpus program
 | Effects | ordered printing, `assert!`/`assert_eq!`/`node:assert`, checked-overflow and assertion aborts |
 | Proofs | closed theorems (`by decide`, `reflexivity`) and universal theorems (`by simp`, `intros; lia`) as obligations |
 
-Simple parametric polymorphism is **not** genuinely achievable with the pinned
-upstream core: Lean implicit binders, Rust generics, JavaScript functions used at
-two types and parameterised inductives are refused by the vendored frontends, and
-RML records precise refusal receipts instead of inventing a monomorphization
-(draft upstream request 9).
+The pinned upstream frontends refuse records, struct variants and type
+parameters. RML widens the fragment with its own recorded surface lowering
+(below) for Rust structs, Lean structures, Rocq records and **explicitly
+instantiated** generics; four of the twelve positive corpus programs
+(`rust-records`, `rust-generic`, `lean-structure`, `rocq-record`) go through it.
+Inferred polymorphism stays refused: Lean implicit binders, Rust generic calls
+without explicit type arguments, trait bounds, JavaScript functions used at two
+types and universe-polymorphic binders produce precise refusal receipts instead
+of a guessed monomorphization (draft upstream requests 9 and 38–39).
+
+## RML surface lowering (records, structures, explicit generics)
+
+[`js/src/rml-surface-lowering.mjs`](../../../js/src/rml-surface-lowering.mjs)
+runs as stage `rml-lowering` before the vendored frontend. It is a token-level,
+text-to-text pass whose every rewrite is the definitional unfolding of the
+construct it replaces:
+
+- Rust named structs, tuple structs and enum struct variants become tuple
+  variants; struct literals, struct patterns and field reads become constructor
+  applications, tuple patterns and generated accessor calls.
+- Lean `structure` and Rocq `Record` become one-constructor inductives with
+  projection definitions; instances, `s.f` and `e.(f)` become applications.
+- Explicit type parameters (Rust `<T>`, Lean and Rocq `(A : Type)`) are
+  monomorphized per explicit instantiation under fresh mangled names, up to 64
+  copies.
+
+The certificate of a lowered program carries a `lowering` section listing every
+rewrite with its kind, subject and exact original span, and every frontend span
+in correspondences and refusals is mapped back to the original bytes. Anything
+whose unfolding would need inference or change evaluation order (out-of-order
+struct literals, functional update `..base`, ambiguous field reads, trait bounds,
+lifetimes, defaults, universe parameters, dependent record fields, uninstantiated
+generics, name collisions) is refused at `rml-lowering` with its span; the
+corpus pins seven such refusals (`rust-struct-update`, `rust-ambiguous-field`,
+`rust-trait-bound`, `rust-generic-function`, `lean-structure-default`,
+`lean-universe-polymorphism`, `rocq-dependent-record`).
+
+## Shared concept space
+
+[`js/src/rml-concept-space.mjs`](../../../js/src/rml-concept-space.mjs) binds
+every certificate term (construct kinds, obligation kinds, discharge rules,
+preservation dimensions, authority grants, lowering kinds) to exactly one
+concept of the vendored meta-language concept records (the same
+`concept-records.json` the meta-language crate embeds). It reuses an upstream
+record only on an exact identity whose definition is the meaning RML uses (20
+records, e.g. `function`, `program.effects`, `program.macros-and-notation` and
+native-grammar constructs) and mints the other 32 under `rml.`; lowering
+correspondence is decided by upstream `conceptCorrespondence`. Each certificate
+gains a `concepts` section pinning the space digest and the concept of every term
+it uses; the JavaScript checker re-derives it and the Rust mirror checks it
+against the crate's records. The space is committed as
+[`concept-space.json`](../../../test-corpus/certified-translation/generated/concept-space.json)
+and as the link network upstream `insertConceptRecord` builds
+(`concept-space.lino`). The 32 RML-local identities are draft upstream request 41.
 
 ## Translation certificate
 
@@ -95,6 +145,12 @@ RML records precise refusal receipts instead of inventing a monomorphization
 - A **universal** theorem stays `open`. For Lean/Rocq targets its `by` is
   `target-kernel-oracle`; for JavaScript/Rust it is
   `bounded-runtime-check-not-proof`. Neither is ever counted as an RML proof.
+- Every recursive function gets a **termination** obligation. It is discharged
+  (`by rml-structural-decrease`) only when RML's own check finds a structural
+  decrease on a constructor argument and agrees with the archive; general or
+  mutual recursion stays `open` (`unproved-general-recursion`). Rust `u32`
+  structural recursion is refused because the upstream checker and archive
+  disagree on it (draft upstream request 40).
 - `emitter-faithfulness` is always `open` with `by native-oracle-ci`: the
   vendored frontends and emitters are trusted host code, and CI native runs are
   validation evidence, not proof.
@@ -134,13 +190,15 @@ relabel that also rewrites the digest; the JavaScript checker does.
 Unsupported input returns `status: 'refused'`, `targetSource: null`, the exact
 `preservedSource` and a `rml:translation-refusal:1` receipt: the source
 fingerprint, the requested target (`not-emitted`), the stage
-(`frontend`, `checker`, `archive-validation` or `emitter`), the first diagnostic
+(`rml-lowering`, `frontend`, `checker`, `archive-validation` or `emitter`), the first diagnostic
 with its kind, message, UTF-16 and UTF-8 spans and the span's sha256, the
 retained-source hash, the `whole-program` loss and the authority block.
 `checkTranslationRefusal` re-derives the receipt and rejects a stale or tampered
-one. Eleven refusal sources cover classes, polymorphic use, axioms, implicit
-binders, type classes, `Admitted`, `Record`, generics, `macro_rules!`, traits,
-and the upstream checker/archive disagreement on `u32` recursion.
+one. Sixteen refusal sources cover classes, polymorphic use, axioms, implicit
+binders, type classes, universe polymorphism, `Admitted`, generic functions
+without explicit instantiation, `macro_rules!`, traits, the upstream
+checker/archive disagreement on `u32` recursion, and the seven `rml-lowering`
+refusals listed above.
 
 ## Bulk production, receipts and freshness
 
@@ -282,7 +340,7 @@ manually. Locally only the JavaScript part may be run
 ## Verification commands
 
 ```sh
-(cd js && node --test tests/certified-translation.test.mjs)   # 69 tests
+(cd js && node --test tests/certified-translation.test.mjs tests/rml-concept-space.test.mjs)   # 99 + 4 tests
 node scripts/generate-certified-translations.mjs --check
 (cd js && node --test tests/certified-bulk.test.mjs)         # 8 tests, about 90 s
 node scripts/generate-certified-bulk.mjs --check
@@ -294,10 +352,17 @@ node scripts/check-certified-translation-native.mjs --require=JavaScript,Rust,Le
 
 ## Not delivered
 
-- Full-language translation: polymorphism, records/structures, traits/type
+- Full-language translation: inferred polymorphism, records beyond the lowered
+  fragment (functional update, defaults, dependent fields), traits/type
   classes, macros, effects beyond printing and assertions, mutation, ownership
   beyond the immutable value model, imports of external libraries and proof
   terms all remain refusals or open obligations.
+- Termination is discharged only for structural decrease; general and mutual
+  recursion keep an open termination obligation, and no measure or
+  well-founded-relation evidence is accepted yet.
+- The RML surface lowering is RML-side and trusted like any host pass; its
+  rewrites are recorded and span-mapped, not proved equivalent. Upstream
+  record, generic and field-access support (requests 38–39) would replace it.
 - Universal theorems are not proved by RML; behavioral equivalence is certified
   for the observed `main` of each program, not for all inputs.
 - The vendored frontends and emitters remain trusted host code

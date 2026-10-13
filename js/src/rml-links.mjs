@@ -125,9 +125,16 @@ const clamp01 = x => Math.max(0, Math.min(1, x));
 // Round to at most `digits` significant decimal places to eliminate
 // IEEE-754 floating-point artefacts (e.g. 0.1+0.2 → 0.3, not 0.30000000000000004).
 const DECIMAL_PRECISION = 12;
+// Shift a number's decimal point by `places` through its string form. A
+// value JavaScript prints in exponent notation (1e-7, 1e+22) carries its own
+// exponent, which is added to the shift instead of being appended twice.
+function shiftDecimal(x, places) {
+  const [mantissa, exponent = '0'] = String(x).split('e');
+  return +(mantissa + 'e' + (Number(exponent) + places));
+}
 function decRound(x) {
   if (!Number.isFinite(x)) return x;
-  return +(Math.round(x + 'e' + DECIMAL_PRECISION) + 'e-' + DECIMAL_PRECISION);
+  return shiftDecimal(Math.round(shiftDecimal(x, DECIMAL_PRECISION)), -DECIMAL_PRECISION);
 }
 function keyOf(node) {
   if (Array.isArray(node)) return '(' + node.map(keyOf).join(' ') + ')';
@@ -1811,7 +1818,7 @@ function parseRootConstructForm(node) {
 
 function parseFoundationForm(node) {
   if (!Array.isArray(node) || node[0] !== 'foundation' || node.length < 2) {
-    throw new RmlError('E061', 'foundation form must be `(foundation <name> ...)`');
+    throw new RmlError('E061', 'foundation form must be `(foundation <name> …)`');
   }
   const rawName = node[1];
   if (typeof rawName !== 'string' || !rawName) {
@@ -7403,7 +7410,7 @@ function evaluate(code, options) {
             if (traceEnabled && trace) {
               trace.push(new TraceEvent({
                 kind: 'eval-nat',
-                detail: `${formatTraceValue(body[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(', ') || '<none>'}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`,
+                detail: `${keyOf(body[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(', ') || '<none>'}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`,
                 span,
               }));
             }
@@ -7486,7 +7493,7 @@ function evaluate(code, options) {
       if (ns.includes('.')) {
         diagnostics.push(new Diagnostic({
           code: 'E009',
-          message: `Namespace name must not contain '.': "${ns}"`,
+          message: `Invalid namespace name "${ns}"`,
           span,
         }));
       } else {
@@ -7747,7 +7754,7 @@ function evaluate(code, options) {
         if (traceEnabled && trace) {
           trace.push(new TraceEvent({
             kind: 'eval-nat',
-            detail: `${formatTraceValue(form[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(', ') || '<none>'}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`,
+            detail: `${keyOf(form[1])} -> normal-form ${keyOf(normalForm)} -> ${value}; rules-used: ${steps.join(', ') || '<none>'}; host-primitives-used: structural-matcher; renderer: nat-normal-form-to-host-number`,
             span,
           }));
         }
@@ -7934,7 +7941,7 @@ function handleImport(rawTarget, alias, span, importingFile, env, importStack, i
   } catch (err) {
     return new Diagnostic({
       code: 'E007',
-      message: `Failed to read import "${target}": ${err.message}`,
+      message: `Failed to read import "${target}": ${err?.code === 'ENOENT' ? 'file not found' : err.message}`,
       span,
     });
   }
@@ -9042,7 +9049,14 @@ async function runExportCli(args) {
     rendered = out.source;
   } else if (target === 'rocq') {
     const { exportRocq } = await import(new URL('./rml-rocq.mjs', import.meta.url).href);
-    rendered = exportRocq(text, { sourcePath: input });
+    try {
+      rendered = exportRocq(text, { sourcePath: input });
+    } catch (err) {
+      // Same report as `rml export rocq` in Rust: one line, no stack.
+      if (err?.name !== 'RocqExportError') throw err;
+      console.error(`Rocq export error: ${err.message}`);
+      return 1;
+    }
   } else {
     rendered = exportIsabelle(text, {
       file: input,

@@ -13,12 +13,13 @@ import {
   CERTIFIED_EXTENSIONS, CERTIFIED_LANGUAGES, TRANSLATION_RECEIPT_SCHEMA,
   importCertifiedSource, serializeLinks, translateCertified, vendoredTranslatorIdentity, verifyVendoredMetaLanguage,
 } from '../js/src/rml-certified-translation.mjs';
+import { certifiedConceptSpace, conceptSpaceJson, conceptSpaceNetwork } from '../js/src/rml-concept-space.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 export const CORPUS_DIRECTORY = join(root, 'test-corpus/certified-translation');
 export const GENERATED_DIRECTORY = join(CORPUS_DIRECTORY, 'generated');
 const sha256 = value => createHash('sha256').update(value).digest('hex');
-const implementation = ['js/src/rml-certified-translation.mjs',
+const implementation = ['js/src/rml-certified-translation.mjs', 'js/src/rml-surface-lowering.mjs', 'js/src/rml-concept-space.mjs',
   'scripts/generate-certified-translations.mjs', 'js/vendor/meta-language-pr201/upstream-files.json'];
 
 export function readCertifiedCorpus() {
@@ -61,6 +62,11 @@ export function buildCertifiedCorpus() {
       add(`refusals/${item.name}.${target.toLowerCase()}.refusal.lino`, result.receipt, 'refusal');
     }
   }
+  // The concept space every certificate's `concepts` section pins, as JSON (read by the Rust mirror)
+  // and as the meta-language link network meta-language's own insertConceptRecord builds.
+  const space = certifiedConceptSpace();
+  add('concept-space.json', conceptSpaceJson(space), 'concept-space');
+  add('concept-space.lino', conceptSpaceNetwork(space).toLino(), 'concept-network');
   const identity = vendoredTranslatorIdentity();
   const receipt = ['translation-producer-receipt', ['schema', TRANSLATION_RECEIPT_SCHEMA],
     ['translator', ['upstream', identity.upstream], ['commit', identity.commit], ['lock-sha256', identity.lockSha256]],

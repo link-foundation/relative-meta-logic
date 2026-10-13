@@ -1,6 +1,6 @@
 {
  "schema": "rml:construct-corpus:1",
- "description": "Construct-coverage programs for the upstream native JavaScript, Rust, Lean and Rocq grammars. Acceptance means the native grammar builds a construct tree; it is not compiler, kernel or runtime acceptance. Refused programs record exact native-grammar gaps.",
+ "description": "Construct-coverage programs for the upstream native JavaScript, Rust, Lean and Rocq grammars. Acceptance means the native grammar builds a construct tree; it is not compiler, kernel or runtime acceptance. Refused programs record exact native-grammar gaps. Receipts record each construct a native construct tree cannot show, with the structural reason checked against the grammar text and an accepted probe program that does not build it.",
  "files": [
   {
    "language": "JavaScript",
@@ -1137,6 +1137,114 @@
    "accepted": true
   },
   {
+   "language": "Rust",
+   "name": "rust-17: type Borrow = for<'a> fn(&'a u8) -> &'a u8;",
+   "source": "type Borrow = for<'a> fn(&'a u8) -> &'a u8;\nfn build() { let x = Wrapper::<u8> { value: 1 }; }\n",
+   "accepted": true
+  },
+  {
+   "language": "Rust",
+   "name": "rust-18: fn classify(v: i32) -> i32 { match v { -1 => 0, ",
+   "source": "fn classify(v: i32) -> i32 { match v { -1 => 0, Wrapper::<u8> => 1, _ => 2 } }\nfn defaulted<const N: i32 = -1>() {}\n",
+   "accepted": true
+  },
+  {
+   "language": "Rust",
+   "name": "rust-19: --- (cargo-script frontmatter)",
+   "source": "---\n[package]\nname = \"script\"\n---\nfn main() {}\n",
+   "accepted": true
+  },
+  {
+   "language": "Lean",
+   "name": "lean-60: syntax \"repeatAll\" (term \",\")* : term",
+   "source": "syntax \"repeatAll\" (term \",\")* : term\n",
+   "accepted": true
+  },
+  {
+   "language": "Lean",
+   "name": "lean-61: instance : Inhabited Point where",
+   "source": "instance : Inhabited Point where\n  default := origin\n",
+   "accepted": true
+  },
+  {
+   "language": "Lean",
+   "name": "lean-62: def keep (n : Nat) : Nat :=",
+   "source": "def keep (n : Nat) : Nat :=\n  have h : Nat := n\n  h\n",
+   "accepted": true
+  },
+  {
+   "language": "Lean",
+   "name": "lean-63: def firstOr (o : IO (Option Nat)) : Nat := if le",
+   "source": "def firstOr (o : IO (Option Nat)) : Nat := if let some x ← o then x else 0\n",
+   "accepted": true
+  },
+  {
+   "language": "Lean",
+   "name": "lean-64: def swap (p : Option Nat × Nat) : Nat := let (so",
+   "source": "def swap (p : Option Nat × Nat) : Nat := let (some a, b) := p; a\n",
+   "accepted": true
+  },
+  {
+   "language": "Lean",
+   "name": "lean-65: def pairs : IO Unit := do",
+   "source": "def pairs : IO Unit := do\n  let [a, b] := [1, 2] | pure ()\n  pure ()\n",
+   "accepted": true
+  },
+  {
+   "language": "Lean",
+   "name": "lean-66: def check (o : IO (Option Nat)) : IO Unit := do",
+   "source": "def check (o : IO (Option Nat)) : IO Unit := do\n  if let some x ← o then\n    pure ()\n  else\n    pure ()\n",
+   "accepted": true
+  },
+  {
+   "language": "Rocq",
+   "name": "rocq-75: Create HintDb arith discriminated.",
+   "source": "Create HintDb arith discriminated.\nArguments plus (n m)%nat_scope {k}%_type_scope.\nSet Printing Width 0x50.\nSet Printing Depth -3.\n",
+   "accepted": true
+  },
+  {
+   "language": "Rocq",
+   "name": "rocq-76: Inductive tree : Type := Leaf : tree | Node : tr",
+   "source": "Inductive tree : Type := Leaf : tree | Node : tree -> tree -> tree where \"a ++ b\" := (Node a b).\n",
+   "accepted": true
+  },
+  {
+   "language": "Rocq",
+   "name": "rocq-77: Notation \"x <+> y\" := (plus x y) (at level 50, o",
+   "source": "Notation \"x <+> y\" := (plus x y) (at level 50, only printing).\nNotation \"[ x , .. , y ]\" := (cons x .. (cons y nil) ..) (x, y at level 60).\nNotation \"'lam' x , body\" := (fun x => body) (x at level 0 as ident).\n",
+   "accepted": true
+  },
+  {
+   "language": "Rocq",
+   "name": "rocq-78: Lemma used : True.",
+   "source": "Lemma used : True.\nProof using (x + y)*.\nexact I.\nQed.\nLemma without : True.\nProof using -(x).\nexact I.\nQed.\n",
+   "accepted": true
+  },
+  {
+   "language": "Rocq",
+   "name": "rocq-79: Definition cast := rew <- H in x.",
+   "source": "Definition cast := rew <- H in x.\nDefinition pred (n : nat) := match n in nat return nat with 0 => 0 | S m => m end.\nDefinition joined := a +++ b.\n",
+   "accepted": true
+  },
+  {
+   "language": "Rocq",
+   "name": "rocq-80: Ltac twice := let x := eval simpl in (1 + 1) in ",
+   "source": "Ltac twice := let x := eval simpl in (1 + 1) in exact x.\n",
+   "accepted": true
+  },
+  {
+   "language": "Rocq",
+   "name": "rocq-81: Goal True.",
+   "source": "Goal True.\nsplit; [exact I | exact I].\nsetoid_rewrite -> H.\ntauto + auto.\ninduction x with *.\nrefine ?x.\nQed.\n",
+   "accepted": true
+  },
+  {
+   "language": "Rocq",
+   "name": "rocq-82: Definition block := <{ x := 1 ; y := 2 }>.",
+   "source": "Definition block := <{ x := 1 ; y := 2 }>.\nDefinition run := st =[ x := 1 ; y := x + 2 ]=> st'.\n",
+   "accepted": true
+  },
+  {
    "language": "Rocq",
    "name": "rocq-refused: CoFixpoint has no native grammar rule",
    "source": "CoFixpoint ones : Stream nat := Cons 1 ones.\n",
@@ -1153,6 +1261,134 @@
    "name": "lean-refused: structured induction alternatives",
    "source": "theorem a (n : Nat) : n = n := by\n  induction n with\n  | zero => rfl\n  | succ k ih => rfl\n",
    "accepted": false
+  }
+ ],
+ "receipts": [
+  {
+   "language": "JavaScript",
+   "rule": "jsx_identifier",
+   "reason": "alias",
+   "probe": "const a = <my-tag data-x=\"1\"></my-tag>;\n"
+  },
+  {
+   "language": "JavaScript",
+   "rule": "nested_identifier",
+   "reason": "alias",
+   "probe": "const a = <a.b.c></a.b.c>;\n"
+  },
+  {
+   "language": "JavaScript",
+   "rule": "comment",
+   "reason": "extra",
+   "probe": "// line comment\n/* block */ let x = 1;\n"
+  },
+  {
+   "language": "JavaScript",
+   "rule": "decorator_member_expression",
+   "reason": "alias",
+   "probe": "@a.b.c class C { @x.y m() {} }\n"
+  },
+  {
+   "language": "JavaScript",
+   "rule": "decorator_call_expression",
+   "reason": "alias",
+   "probe": "@a.b(1) class C {}\n"
+  },
+  {
+   "language": "JavaScript",
+   "rule": "word_characters",
+   "reason": "lookahead",
+   "probe": "if (ready) { let value = 1; }\n"
+  },
+  {
+   "language": "Rust",
+   "rule": "delimited_token_tree",
+   "reason": "alias",
+   "probe": "#[attr(a, b)] fn f() { m!{a b}; }\n"
+  },
+  {
+   "language": "Rust",
+   "rule": "scoped_type_identifier_in_expression_position",
+   "reason": "alias",
+   "probe": "fn f() { let x = a::B { c: 1 }; }\n"
+  },
+  {
+   "language": "Rust",
+   "rule": "last_match_arm",
+   "reason": "alias",
+   "probe": "fn f(v: u8) { match v { 0 => {} _ => {} } }\n"
+  },
+  {
+   "language": "Rust",
+   "rule": "comment",
+   "reason": "unreferenced",
+   "probe": "fn f() {}\n"
+  },
+  {
+   "language": "Rust",
+   "rule": "line_comment",
+   "reason": "extra",
+   "probe": "// line\nfn f() {}\n"
+  },
+  {
+   "language": "Rust",
+   "rule": "block_comment",
+   "reason": "extra",
+   "probe": "/* block */ fn f() {}\n"
+  },
+  {
+   "language": "Rust",
+   "rule": "word_characters",
+   "reason": "lookahead",
+   "probe": "fn f() { let x = 1; }\n"
+  },
+  {
+   "language": "Lean",
+   "rule": "do_try",
+   "reason": "unreferenced",
+   "probe": "def f : IO Unit := do\n  try\n    pure ()\n  catch e => pure ()\n"
+  },
+  {
+   "language": "Lean",
+   "rule": "do_catch",
+   "reason": "unreferenced",
+   "probe": "def f : IO Unit := do\n  try\n    pure ()\n  catch e => pure ()\n"
+  },
+  {
+   "language": "Lean",
+   "rule": "comment",
+   "reason": "extra",
+   "probe": "-- line\n/- block -/\ndef x := 1\n"
+  },
+  {
+   "language": "Lean",
+   "rule": "word_characters",
+   "reason": "lookahead",
+   "probe": "def x := 1\n"
+  },
+  {
+   "language": "Rocq",
+   "rule": "comment",
+   "reason": "extra",
+   "probe": "(* a comment *)\nDefinition d := 1.\n"
+  },
+  {
+   "language": "Rocq",
+   "rule": "digit",
+   "reason": "unreferenced",
+   "probe": "Definition d := 42.\n"
+  },
+  {
+   "language": "Rocq",
+   "rule": "hexadecimal_digit",
+   "reason": "unreferenced",
+   "probe": "Set Printing Width 0x50.\n"
+  },
+  {
+   "language": "Rocq",
+   "rule": "word_characters",
+   "reason": "lookahead",
+   "probe": "Definition d := 1.\n"
   }
  ]
 }

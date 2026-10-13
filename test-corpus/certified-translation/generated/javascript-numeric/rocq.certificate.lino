@@ -47,6 +47,73 @@
       (span 428 512)
       (bytes 428 512)
       (span-sha256 1e05bb84ae58552626b9de1a4d99e15ce00895e1d4da24fa20a87714ef9beeae)))
+  (concepts
+    (schema "rml:certified-concept-space:1")
+    (sha256 a19088a74dc66124bbae8b9c0888af243714896511a1d84d023e08986489f3e0)
+    (count 19)
+    (concept (category construct-kind) (term function) (id function) (origin upstream))
+    (concept
+      (category obligation-kind)
+      (term assertion)
+      (id rml.certified.runtime-assertion)
+      (origin rml))
+    (concept (category obligation-kind) (term termination) (id rml.certified.termination) (origin rml))
+    (concept (category obligation-kind) (term trust) (id rml.certified.trusted-step) (origin rml))
+    (concept
+      (category discharge)
+      (term rml-evaluation)
+      (id rml.certified.discharge.rml-evaluation)
+      (origin rml))
+    (concept
+      (category discharge)
+      (term unproved-general-recursion)
+      (id rml.certified.discharge.unproved-general-recursion)
+      (origin rml))
+    (concept
+      (category discharge)
+      (term native-oracle-ci)
+      (id rml.certified.discharge.native-oracle-ci)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term behavior)
+      (id rml.certified.preservation.behavior)
+      (origin rml))
+    (concept (category preservation) (term effects) (id program.effects) (origin upstream))
+    (concept
+      (category preservation)
+      (term ownership)
+      (id rml.certified.preservation.ownership)
+      (origin rml))
+    (concept (category preservation) (term types) (id rml.certified.preservation.types) (origin rml))
+    (concept
+      (category preservation)
+      (term universes)
+      (id rml.certified.preservation.universes)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term assumptions)
+      (id rml.certified.preservation.assumptions)
+      (origin rml))
+    (concept
+      (category preservation)
+      (term proof-obligations)
+      (id rml.certified.preservation.proof-obligations)
+      (origin rml))
+    (concept (category authority) (term macros) (id program.macros-and-notation) (origin upstream))
+    (concept (category authority) (term traits) (id rml.certified.authority.traits) (origin rml))
+    (concept (category authority) (term runtime) (id rml.certified.authority.runtime) (origin rml))
+    (concept
+      (category authority)
+      (term external-kernels)
+      (id rml.certified.authority.external-kernels)
+      (origin rml))
+    (concept
+      (category authority)
+      (term proof-authority)
+      (id rml.certified.authority.proof-authority)
+      (origin rml)))
   (preservation
     (behavior certified-observation "the ordered lines main prints, as RML evaluates the certified intermediate; native target runs are CI oracles")
     (effects encoded "printing in order, assertion failures and checked arithmetic aborts; no other effect is representable in the admitted core")
@@ -54,7 +121,7 @@
     (types checked-intermediate "declaration types are the checked intermediate types: float, int; target representations are listed under encodings")
     (universes ground-inductives "non-parameterised inductives in the lowest universe; universe polymorphism and Prop elimination are refused")
     (assumptions none "0 emitter assumption(s), each recorded as an assumed obligation")
-    (proof-obligations discharged "1 theorem(s) and assertion(s): 1 discharged by RML evaluation, 0 open, 0 refuted"))
+    (proof-obligations discharged "1 theorem(s) and assertion(s): 1 discharged by RML evaluation, 0 open, 0 refuted; 2 termination obligation(s): 0 discharged by RML structural decrease, 2 open (general or mutual recursion)"))
   (assumptions (count 0))
   (encodings
     (count 3)
@@ -77,6 +144,22 @@
       (status discharged)
       (by rml-evaluation))
     (obligation
+      (id "termination:numeric.factorial")
+      (kind termination)
+      (source numeric.factorial)
+      (target general-recursion)
+      (closed true)
+      (status open)
+      (by unproved-general-recursion))
+    (obligation
+      (id "termination:power")
+      (kind termination)
+      (source power)
+      (target general-recursion)
+      (closed true)
+      (status open)
+      (by unproved-general-recursion))
+    (obligation
       (id emitter-faithfulness)
       (kind trust)
       (source intermediate)
@@ -84,7 +167,7 @@
       (closed false)
       (status open)
       (by native-oracle-ci)))
-  (verdict (discharged 1) (open 1) (assumed 0) (refuted 0))
+  (verdict (discharged 1) (open 3) (assumed 0) (refuted 0))
   (losses
     (trivia "source comments and layout are not carried; the exact source is identified by its sha256 and spans"))
   (authority
@@ -93,4 +176,4 @@
     (runtime none)
     (external-kernels oracle-only)
     (proof-authority rml))
-  (digest sha256 4d8b3c383fb35526d3e022755a01120b20073636be88cc456b6a4ec85b4f4240))
+  (digest sha256 92795094b91af5e63419b64c88fb7d95f9e23360a9454b4d4cb3586c6216eb73))

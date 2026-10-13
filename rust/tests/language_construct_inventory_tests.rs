@@ -236,3 +236,168 @@ fn an_unclassified_construct_or_a_dead_pattern_is_detected() {
         .iter()
         .all(|rule| !dead.is_match(&rule.rule)));
 }
+
+type RuleUse = (&'static str, String, Option<String>);
+
+/// Every reference to `rule` from elsewhere in a native grammar text, as (kind, from, alias
+/// target); mirrors `grammarRuleUses` in js/src/rml-language-inventory.mjs.
+fn grammar_rule_uses(text: &str, rule: &str) -> Vec<RuleUse> {
+    let reference = Regex::new(&format!(r"(\(alias (\S+) |\(not )?\(ref {rule}\)")).unwrap();
+    let owner_pattern = Regex::new(r"^\((\S+) ?(\S+)?").unwrap();
+    let mut uses = Vec::new();
+    for line in text.split('\n') {
+        let Some(owner) = owner_pattern.captures(line) else {
+            continue;
+        };
+        let head = owner.get(1).unwrap().as_str();
+        let name = owner.get(2).map(|name| name.as_str());
+        if head == "rule" && name == Some(rule) {
+            continue;
+        }
+        let from = if head == "rule" {
+            name.unwrap_or_default().to_string()
+        } else {
+            head.to_string()
+        };
+        for capture in reference.captures_iter(line) {
+            let kind = if head == "extra" {
+                "extra"
+            } else if capture.get(2).is_some() {
+                "alias"
+            } else if capture.get(1).is_some() {
+                "lookahead"
+            } else {
+                "plain"
+            };
+            uses.push((
+                kind,
+                from.clone(),
+                capture.get(2).map(|target| target.as_str().to_string()),
+            ));
+        }
+    }
+    uses
+}
+
+/// Why a receipt's reason holds structurally, or `None`; mirrors `receiptDetail`.
+fn receipt_detail(reason: &str, uses: &[RuleUse], receipted: &BTreeSet<String>) -> Option<String> {
+    match reason {
+        "unreferenced" if uses.is_empty() => {
+            Some("no other grammar rule or declaration references it".to_string())
+        }
+        "alias" if !uses.is_empty() && uses.iter().all(|item| item.0 == "alias") => {
+            let targets: BTreeSet<&str> = uses.iter().filter_map(|item| item.2.as_deref()).collect();
+            Some(format!(
+                "every reference renames it to {}",
+                targets.into_iter().collect::<Vec<_>>().join(", ")
+            ))
+        }
+        "lookahead" if !uses.is_empty() && uses.iter().all(|item| item.0 == "lookahead") => {
+            let owners: BTreeSet<&str> = uses.iter().map(|item| item.1.as_str()).collect();
+            Some(format!(
+                "only a negative lookahead (keyword boundary) in {} rules",
+                owners.len()
+            ))
+        }
+        "extra"
+            if uses.iter().any(|item| item.0 == "extra")
+                && uses.iter().all(|item| {
+                    item.0 == "extra" || (item.0 == "plain" && receipted.contains(&item.1))
+                }) =>
+        {
+            Some(
+                "an extra: skipped between constructs, never placed in a JavaScript native construct tree"
+                    .to_string(),
+            )
+        }
+        _ => None,
+    }
+}
+
+fn tree_has(tree: &ConstructTree, kind: &str) -> bool {
+    tree.kind == kind || tree.children.iter().any(|child| tree_has(child, kind))
+}
+
+#[test]
+fn rust_parser_and_grammar_text_confirm_every_construct_refusal_receipt() {
+    let inventory = json("docs/case-studies/issue-183/language-constructs.json");
+    let corpus = json(inventory["corpus"].as_str().unwrap());
+    let receipts = corpus["receipts"].as_array().unwrap();
+    for language in inventory["languages"].as_array().unwrap() {
+        let name = language["language"].as_str().unwrap();
+        let grammar = language["grammar"].as_str().unwrap();
+        let text = read(&format!(
+            "js/vendor/meta-language/js/src/data/native-grammars/{}.lino",
+            grammar.trim_start_matches("native-")
+        ));
+        let mine: Vec<&Value> = receipts
+            .iter()
+            .filter(|receipt| receipt["language"] == name)
+            .collect();
+        let receipted: BTreeSet<String> = mine
+            .iter()
+            .map(|receipt| receipt["rule"].as_str().unwrap().to_string())
+            .collect();
+        assert_eq!(
+            language["receiptProblems"],
+            Value::Array(Vec::new()),
+            "{name}"
+        );
+        assert_eq!(language["unreceipted"], Value::Array(Vec::new()), "{name}");
+        assert_eq!(
+            language["unexercised"],
+            Value::Array(mine.iter().map(|receipt| receipt["rule"].clone()).collect()),
+            "{name}: every unexercised construct has exactly one receipt, in order"
+        );
+        let rows = language["refusalReceipts"].as_array().unwrap();
+        assert_eq!(rows.len(), mine.len(), "{name}");
+        for (receipt, row) in mine.iter().zip(rows) {
+            let rule = receipt["rule"].as_str().unwrap();
+            let reason = receipt["reason"].as_str().unwrap();
+            let detail = receipt_detail(reason, &grammar_rule_uses(&text, rule), &receipted)
+                .unwrap_or_else(|| panic!("{name}: {rule}: reason {reason} does not hold"));
+            assert_eq!(row[0], rule, "{name}");
+            assert_eq!(row[1], reason, "{name} {rule}");
+            assert_eq!(row[2], detail.as_str(), "{name} {rule}");
+            let probe = receipt["probe"].as_str().unwrap();
+            let tree = native_construct_tree(grammar, probe)
+                .unwrap_or_else(|| panic!("{name}: {rule}: probe refused by the Rust parser"));
+            // The Rust crate keeps comment extras (request 19), so only non-extra receipts
+            // must stay absent from the Rust construct tree of their probe.
+            if reason != "extra" {
+                assert!(
+                    !tree_has(&tree, rule),
+                    "{name}: {rule}: probe builds the construct"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn a_receipt_whose_structural_reason_fails_is_rejected() {
+    let text = read("js/vendor/meta-language/js/src/data/native-grammars/rust.lino");
+    let none = BTreeSet::new();
+    let uses = grammar_rule_uses(&text, "last_match_arm");
+    assert_eq!(
+        uses,
+        vec![(
+            "alias",
+            "match_block".to_string(),
+            Some("match_arm".to_string())
+        )]
+    );
+    assert_eq!(receipt_detail("unreferenced", &uses, &none), None);
+    assert_eq!(receipt_detail("guess", &uses, &none), None);
+    assert_eq!(
+        receipt_detail("alias", &uses, &none).as_deref(),
+        Some("every reference renames it to match_arm")
+    );
+    let plain = grammar_rule_uses(&text, "for_lifetimes");
+    assert_eq!(receipt_detail("alias", &plain, &none), None);
+    assert_eq!(receipt_detail("unreferenced", &plain, &none), None);
+    let comment_owner: BTreeSet<String> = ["comment".to_string()].into_iter().collect();
+    let line = grammar_rule_uses(&text, "line_comment");
+    assert_eq!(receipt_detail("extra", &line, &none), None);
+    assert!(receipt_detail("extra", &line, &comment_owner).is_some());
+}

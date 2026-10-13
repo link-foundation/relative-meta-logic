@@ -38,7 +38,7 @@ export const BULK_SCOPE = Object.freeze([
   { root: 'lib', language: 'Rocq', pattern: /\.v$/u },
 ]);
 export const MIRRORS_FILE = 'test-corpus/certified-translation/mirrors.json';
-const IMPLEMENTATION = ['scripts/generate-certified-bulk.mjs', 'js/src/rml-certified-translation.mjs', 'js/vendor/meta-language-pr201/upstream-files.json', MIRRORS_FILE];
+const IMPLEMENTATION = ['scripts/generate-certified-bulk.mjs', 'js/src/rml-certified-translation.mjs', 'js/src/rml-surface-lowering.mjs', 'js/src/rml-concept-space.mjs', 'js/vendor/meta-language-pr201/upstream-files.json', MIRRORS_FILE];
 
 function listFiles(directory) {
   if (!existsSync(directory)) return [];
