@@ -130,10 +130,13 @@ test('partial evidence writes are completed rather than silently truncating the 
   }
 });
 
-test('an exited command cannot hang on a grandchild holding its output pipes', { skip: process.platform === 'win32' }, async () => {
+// POSIX: the wrapper stops the command's process group when it exits. Windows: the Node command's own libuv
+// kill-on-close job ends the grandchild with it (a non-libuv command's grandchild is outside that job).
+test('an exited command cannot hang on a grandchild holding its output pipes', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rml-resource-descendant-'));
   const marker = path.join(root, 'escaped');
-  const descendant = 'setTimeout(() => require("node:fs").writeFileSync(process.argv[1], "escaped"), 300); setInterval(() => {}, 1000)';
+  // Bounded: an escaped grandchild ends itself, so a regression fails here instead of hanging the suite.
+  const descendant = 'setTimeout(() => require("node:fs").writeFileSync(process.argv[1], "escaped"), 300); setTimeout(() => {}, 5000)';
   const program = `require('node:child_process').spawn(process.execPath, ['-e', ${JSON.stringify(descendant)}, ${JSON.stringify(marker)}], { stdio: ['ignore', 1, 2] }).unref(); process.exit(7);`;
   try {
     const status = await execute([process.execPath, '-e', program], process.env);
