@@ -260,3 +260,54 @@ item uses, not in the item itself.
     that translates a module item by item (admission, dependency closure and
     first refusal per declaration), and a stable machine-readable code on every
     refusal so receipts can aggregate causes without parsing messages.
+38. **Records, struct literals and field access in the frontends.** The PR
+    #201 frontends refuse Rust named and tuple structs, struct variants,
+    struct literals and field reads, Lean `structure` and Rocq `Record`.
+    RML now lowers a bounded fragment itself (`js/src/rml-surface-lowering.mjs`,
+    stage `rml-lowering`) into single-constructor inductives with generated
+    accessors, and must refuse functional update (`..base`), out-of-order
+    literals whose fields have effects, structure defaults, dependent record
+    fields and field reads whose owner is ambiguous without type inference.
+    *Request:* first-class product types in the typed program (declaration,
+    literal, pattern, projection, update), with the field owner resolved by
+    the checker so `x.f` needs no RML-side guess, and `let` struct
+    destructuring.
+39. **Generics with checked instantiation.** RML monomorphizes only explicit
+    instantiations (Rust `f::<T>`, Lean and Rocq `(A : Type)` arguments), up
+    to 64 copies, and refuses generic calls without explicit type arguments,
+    trait bounds, lifetimes and universe-polymorphic binders. *Request:*
+    parametric polymorphism in the typed program with checker-inferred
+    instantiations (or an upstream monomorphization pass that records each
+    instantiation), so certificates can name the instantiation the checker
+    chose instead of one RML derived from the text.
+40. **Termination evidence.** Certificates now carry a termination
+    obligation per recursive function, discharged only by RML's own
+    structural-decrease check agreeing with the archive; general and mutual
+    recursion stay open. The checker and archive also disagree on Rust `u32`
+    structural recursion (`rust-u32-structural-recursion`, refused at
+    `archive-validation`). *Request:* the checker should emit its termination
+    argument (decreasing parameter, or measure and well-founded relation) in
+    the archive, and a `u32`/`Nat` archive encoding that agrees with the
+    checker, so RML can check the argument instead of re-deriving it.
+41. **Concept records for certificate vocabulary.** The certified concept
+    space reuses 20 upstream concept records and mints 32 RML-local ones
+    under `rml.` (obligation kinds, discharge rules, preservation dimensions,
+    authority grants, lowering kinds) because no upstream record has the
+    exact meaning; each carries `rml:*` source aliases. *Request:* upstream
+    records (or an agreed namespace) for translation-certificate concepts,
+    and source aliases for RML terms on the records RML already reuses, so
+    the space can drop its local identities.
+42. **Native construct trees that show aliased, extra and lookahead rules.**
+    21 observable native-grammar rules can never appear in a construct tree
+    (`language-constructs.json`, `refusalReceipts`): rules every reference
+    renames (JavaScript `jsx_identifier`, `nested_identifier`,
+    `decorator_member_expression`, `decorator_call_expression`; Rust
+    `delimited_token_tree`, `scoped_type_identifier_in_expression_position`,
+    `last_match_arm`), comment extras (see request 19), `word_characters`
+    used only as a keyword-boundary lookahead, and rules no other rule
+    references (Rust `comment`, Lean `do_try`/`do_catch`, Rocq `digit`,
+    `hexadecimal_digit`). *Request:* record the source rule of an aliased
+    node in the construct tree, mark lookahead-only and unreferenced rules as
+    non-observable in `nativeGrammarRuleConcepts`, and either reach Lean
+    `do_try`/`do_catch` from `do_element` or remove them, so `try … catch`
+    inside `do` gets its dedicated construct.
