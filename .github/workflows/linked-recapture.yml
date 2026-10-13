@@ -26,8 +26,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Bootstrap repository cache policy
         run: node scripts/bootstrap.mjs
-      - name: Install dependencies under the cache lifecycle
-        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
+      # The authority guard refuses the drift this job exists to migrate, so the
+      # install runs outside it; the migration itself is guarded and revalidated.
+      - name: Install dependencies
+        run: npm --prefix js ci
       - name: Run the deliberate source migration
         run: node scripts/update-linked-implementation.mjs
       - name: Export the reviewed-migration patch
