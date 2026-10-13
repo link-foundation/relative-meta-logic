@@ -4650,11 +4650,56 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`fixed-point-source.lino` and mirrored suites execute load, rebind, reduce, infer, and self-verify; `the real language/foundation operations requested in R99-R120 are outside that closure proof`.",
-      "checks": [],
-      "remainingGap": "`fixed-point-source.lino` and mirrored suites execute load, rebind, reduce, infer, and self-verify; `the real language/foundation operations requested in R99-R120 are outside that closure proof`.",
+      "claimedEvidence": "`fixed-point-source.lino` and mirrored suites execute load, rebind, reduce, infer, and self-verify; Source workflows on the Horn foundation now take no host RML elaboration decision. `The S/K and lambda paths, checker and code generation still use host elaboration`.",
+      "checks": [
+        "horn-rml-elaboration-js"
+      ],
+      "remainingGap": "`fixed-point-source.lino` and mirrored suites execute load, rebind, reduce, infer, and self-verify; Source workflows on the Horn foundation now take no host RML elaboration decision. `The S/K and lambda paths, checker and code generation still use host elaboration`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "linked elaboration builds exactly the host registry programs for the accepted corpus",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "linked elaboration rejects invalid documents for the same reasons as the host registry",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "documents outside the linked form shapes have no linked elaboration",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "source workflows reproduce the shared observations with no host RML elaboration",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "replacing a linked language decision changes execution with every host file unchanged",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "removing a linked language decision removes the elaboration it decided",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "the source-workflow host takes no RML decision and lists every residual host law",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -5622,11 +5667,56 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "Candidate A reports `9/9` closure and the registry loads named examples; `versioned linked foundation packages, comparable peers, and closure of language/foundation operations remain open` (R115-R120, R126, R130).",
-      "checks": [],
-      "remainingGap": "Candidate A reports `9/9` closure and the registry loads named examples; `versioned linked foundation packages, comparable peers, and closure of language/foundation operations remain open` (R115-R120, R126, R130).",
+      "claimedEvidence": "Candidate A reports `9/9` closure and the registry loads named examples; `versioned linked foundation packages, comparable peers, and closure of language/foundation operations remain open` (R115-R120, R126, R130). Two meta-foundations now coexist under one byte-identical upper linked layer. `Product-level self-hosting closure remains open`.",
+      "checks": [
+        "meta-foundation-comparison-js"
+      ],
+      "remainingGap": "Candidate A reports `9/9` closure and the registry loads named examples; `versioned linked foundation packages, comparable peers, and closure of language/foundation operations remain open` (R115-R120, R126, R130). Two meta-foundations now coexist under one byte-identical upper linked layer. `Product-level self-hosting closure remains open`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "two foundations execute one byte-identical upper layer with the same reductions judgements and proofs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "single and reduced-basis law removal reproduces the recorded workload-relative minimality table",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "unknown law names are rejected and the default relation is unchanged",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the S/K laws as linked rules are interpreted on both foundations and a replaced K law changes both",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the quoted linked Horn interpreter runs the linked Link-as-substitution clauses and regenerates its image",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the lock-step criterion separates Horn from S/K but not a renamed S/K re-encoding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the report keeps the full-closure gate open and claims neither ranking nor global minimality",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -7226,11 +7316,57 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The `sharedAddressComposition` audit removes single-link isolation; `structuralApplicationComposition` holds identity, self-incidence, shared address, and recursion while exhibiting a connected composition countermodel; `linkCarriedSelectionAuthority` tests linked asymmetry; and `linkedStructuralAdmissibility` tests exact-cover certificates plus context. The `linkedVerifierStep` probe factors out a local incidence join with a linked trace. Formation admits all `49` ordered address pairs without selecting composition, and the new certificate filter remains externally interpreted. The broader matrix in R127 remains open.",
-      "checks": [],
-      "remainingGap": "The `sharedAddressComposition` audit removes single-link isolation; `structuralApplicationComposition` holds identity, self-incidence, shared address, and recursion while exhibiting a connected composition countermodel; `linkCarriedSelectionAuthority` tests linked asymmetry; and `linkedStructuralAdmissibility` tests exact-cover certificates plus context. The `linkedVerifierStep` probe factors out a local incidence join with a linked trace. Formation admits all `49` ordered address pairs without selecting composition, and the new certificate filter remains externally interpreted. The broader matrix in R127 remains open.",
+      "claimedEvidence": "The `sharedAddressComposition` audit removes single-link isolation; `structuralApplicationComposition` holds identity, self-incidence, shared address, and recursion while exhibiting a connected composition countermodel; `linkCarriedSelectionAuthority` tests linked asymmetry; and `linkedStructuralAdmissibility` tests exact-cover certificates plus context. The `linkedVerifierStep` probe factors out a local incidence join with a linked trace. Formation admits all `49` ordered address pairs without selecting composition, and the new certificate filter remains externally interpreted. The broader matrix in R127 remains open. An exhaustive one-at-a-time assumption-removal matrix with first witness pairs now covers every retained assumption. `Finiteness is not removed and the remaining audit stays open`.",
+      "checks": [
+        "assumption-removal-js",
+        "assumption-removal-rust"
+      ],
+      "remainingGap": "The `sharedAddressComposition` audit removes single-link isolation; `structuralApplicationComposition` holds identity, self-incidence, shared address, and recursion while exhibiting a connected composition countermodel; `linkCarriedSelectionAuthority` tests linked asymmetry; and `linkedStructuralAdmissibility` tests exact-cover certificates plus context. The `linkedVerifierStep` probe factors out a local incidence join with a linked trace. Formation admits all `49` ordered address pairs without selecting composition, and the new certificate filter remains externally interpreted. The broader matrix in R127 remains open. An exhaustive one-at-a-time assumption-removal matrix with first witness pairs now covers every retained assumption. `Finiteness is not removed and the remaining audit stays open`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "the removal matrix is reproduced exactly and starts from the audited base contract",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "each removal identifies or separates exactly the recorded number of classes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "every witness pair is distinct in the base and identified only by its removed assumption",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a single link has no local non-faithfulness and no record-order witness",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "the_removal_matrix_is_reproduced_exactly_and_starts_from_the_audited_base_contract",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "each_removal_identifies_or_separates_exactly_the_recorded_number_of_classes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
+          "polarity": "positive"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -25241,7 +25377,7 @@
     {
       "id": "R127",
       "obligation": "Explicitly enumerate repaired-representation assumptions, their forcing facts, and distinctions lost when each is removed, then add a falsifiable result.",
-      "status": "Open",
+      "status": "Partial — every retained assumption removed with first witness pairs",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -25288,12 +25424,64 @@
           "bodySha256": "5361a046c55e0b0ef94eb026e7a6be53001f2c7aa4bc7dcad61bf3cb44cecad9"
         }
       ],
-      "implementationClaims": [],
-      "claimedEvidence": "`quotientAudit` distinguishes two equivalences, `sharedAddressComposition` removes single-link isolation, `structuralApplicationComposition` varies semantic role and closure assumptions, and the selection/admissibility probes vary incidence, evidence completeness, context, description, and verifier authority with explicit countermodels. The complete assumption-by-assumption removal matrix is still missing.",
-      "checks": [],
-      "remainingGap": "`quotientAudit` distinguishes two equivalences, `sharedAddressComposition` removes single-link isolation, `structuralApplicationComposition` varies semantic role and closure assumptions, and the selection/admissibility probes vary incidence, evidence completeness, context, description, and verifier authority with explicit countermodels. The complete assumption-by-assumption removal matrix is still missing.",
+      "implementationClaims": [
+        {
+          "path": "experiments/assumption-removal/matrix.mjs",
+          "role": "implementation",
+          "sha256": "5ee7a291a2a43f0240ac0b1ac90e905873a2d26a52786e2b035b9ab3d837a6e5"
+        }
+      ],
+      "claimedEvidence": "`experiments/assumption-removal/matrix.mjs` removes each retained assumption of the repaired addressed representation one at a time, reproduces the audited base class counts (2/10/77/799), records how many classes each removal identifies or separates and gives first witness pairs; local non-faithfulness survives every identifying removal. `Finiteness itself is not removed, and no intrinsic forcing fact is claimed`.",
+      "checks": [
+        "assumption-removal-js",
+        "assumption-removal-rust"
+      ],
+      "remainingGap": "`experiments/assumption-removal/matrix.mjs` removes each retained assumption of the repaired addressed representation one at a time, reproduces the audited base class counts (2/10/77/799), records how many classes each removal identifies or separates and gives first witness pairs; local non-faithfulness survives every identifying removal. `Finiteness itself is not removed, and no intrinsic forcing fact is claimed`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "the removal matrix is reproduced exactly and starts from the audited base contract",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "each removal identifies or separates exactly the recorded number of classes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "every witness pair is distinct in the base and identified only by its removed assumption",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a single link has no local non-faithfulness and no record-order witness",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "the_removal_matrix_is_reproduced_exactly_and_starts_from_the_audited_base_contract",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "each_removal_identifies_or_separates_exactly_the_recorded_number_of_classes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
+          "polarity": "positive"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -25434,7 +25622,7 @@
     {
       "id": "R130",
       "obligation": "Run comparable reduction, self-interpretation, and removal experiments for genuinely different candidate foundations before ranking.",
-      "status": "Open — insufficient comparison cohort",
+      "status": "Partial — two comparably reduced foundations compared without ranking",
       "originalWording": [
         {
           "sourceId": "comment-5791257637",
@@ -25453,12 +25641,68 @@
           "bodySha256": "884aba190dcb7a313db7937ddc94212128b99901373d3dcd76891e15653ce3bb"
         }
       ],
-      "implementationClaims": [],
-      "claimedEvidence": "`OPEN_NO_COMPARABLE_ALTERNATIVE` remains the correct v18 result because direct/Horn controls duplicate host semantics and are not reduced/self-hosted peers.",
-      "checks": [],
-      "remainingGap": "`OPEN_NO_COMPARABLE_ALTERNATIVE` remains the correct v18 result because direct/Horn controls duplicate host semantics and are not reduced/self-hosted peers.",
+      "implementationClaims": [
+        {
+          "path": "experiments/foundation-comparison/compare.mjs",
+          "role": "implementation",
+          "sha256": "d2139b225d1553308c4d3e49352f50cb8bbffca08b5d58c14805ad6bf854af16"
+        },
+        {
+          "path": "docs/case-studies/issue-183/meta-foundation-comparison.md",
+          "role": "implementation",
+          "sha256": "6f502c58bd535dc9c73b6369485b7fcc7588bf6518efbe62bfff5fe57f5f8454"
+        }
+      ],
+      "claimedEvidence": "The meta-foundation comparison runs S/K and the Horn link-substitution foundation under one workload and observation contract: preserved reductions, judgements and proofs; workload-relative removal minimality ({S,K}; 7 of 11 Horn laws); self-interpretation, self-description and image regeneration; a traced trust boundary; and a lock-step criterion separating Horn from S/K but not from a renamed S/K. The report claims neither ranking nor global minimality. `The relational-kernel Rust mirrors cannot yet be bound by the gate, and S/K self-generation is not shown`.",
+      "checks": [
+        "meta-foundation-comparison-js"
+      ],
+      "remainingGap": "The meta-foundation comparison runs S/K and the Horn link-substitution foundation under one workload and observation contract: preserved reductions, judgements and proofs; workload-relative removal minimality ({S,K}; 7 of 11 Horn laws); self-interpretation, self-description and image regeneration; a traced trust boundary; and a lock-step criterion separating Horn from S/K but not from a renamed S/K. The report claims neither ranking nor global minimality. `The relational-kernel Rust mirrors cannot yet be bound by the gate, and S/K self-generation is not shown`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "two foundations execute one byte-identical upper layer with the same reductions judgements and proofs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "single and reduced-basis law removal reproduces the recorded workload-relative minimality table",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "unknown law names are rejected and the default relation is unchanged",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the S/K laws as linked rules are interpreted on both foundations and a replaced K law changes both",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the quoted linked Horn interpreter runs the linked Link-as-substitution clauses and regenerates its image",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the lock-step criterion separates Horn from S/K but not a renamed S/K re-encoding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the report keeps the full-closure gate open and claims neither ranking nor global minimality",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -25514,11 +25758,56 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`fixed-point-source.lino` closes the current six-operation bootstrap probe; `whole-product closure` for R101-R126 is not established.",
-      "checks": [],
-      "remainingGap": "`fixed-point-source.lino` closes the current six-operation bootstrap probe; `whole-product closure` for R101-R126 is not established.",
+      "claimedEvidence": "`fixed-point-source.lino` closes the current six-operation bootstrap probe; `whole-product closure` for R101-R126 is not established. Linked Horn elaboration reproduces the host registry on 17 accepted and 12 rejected documents, leaves 4 malformed documents unelaborated, and lists its seven residual host laws exactly. `Elaboration is linked only on the Horn source workflows; typed-recursion sources exceed the step and depth bounds`.",
+      "checks": [
+        "horn-rml-elaboration-js"
+      ],
+      "remainingGap": "`fixed-point-source.lino` closes the current six-operation bootstrap probe; `whole-product closure` for R101-R126 is not established. Linked Horn elaboration reproduces the host registry on 17 accepted and 12 rejected documents, leaves 4 malformed documents unelaborated, and lists its seven residual host laws exactly. `Elaboration is linked only on the Horn source workflows; typed-recursion sources exceed the step and depth bounds`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "linked elaboration builds exactly the host registry programs for the accepted corpus",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "linked elaboration rejects invalid documents for the same reasons as the host registry",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "documents outside the linked form shapes have no linked elaboration",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "source workflows reproduce the shared observations with no host RML elaboration",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "replacing a linked language decision changes execution with every host file unchanged",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "removing a linked language decision removes the elaboration it decided",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "the source-workflow host takes no RML decision and lists every residual host law",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -27321,12 +27610,14 @@
           "sha256": "c0ef3d0ae79b3fc8cbc865ae29930cc00346d975e108d827066f462599e38476"
         }
       ],
-      "claimedEvidence": "Mirrored `sharedAddressComposition` / `shared_address_composition` audits report `LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL` and retain all named restrictions except single-link isolation. At two links, `[[0,1],[2,3]]` and `[[0,2],[2,0]]` share both local single-link descriptors but differ globally: only the latter has a length-two address-incidence cycle. Exhaustive one-reference counts are `2/10/77/799` shared classes versus `2/4/8/16` local products for one through four ordered links. Cross-reference equality plus reference-to-link-address incidence is a complete invariant for all tested shared classes and has a general finite argument. The audit machine-readably separates issue-forced shared equality, renaming-stable distinction, observer-retained order/arity/size, and explicitly unassigned semantics. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately.",
+      "claimedEvidence": "Mirrored `sharedAddressComposition` / `shared_address_composition` audits report `LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL` and retain all named restrictions except single-link isolation. At two links, `[[0,1],[2,3]]` and `[[0,2],[2,0]]` share both local single-link descriptors but differ globally: only the latter has a length-two address-incidence cycle. Exhaustive one-reference counts are `2/10/77/799` shared classes versus `2/4/8/16` local products for one through four ordered links. Cross-reference equality plus reference-to-link-address incidence is a complete invariant for all tested shared classes and has a general finite argument. The audit machine-readably separates issue-forced shared equality, renaming-stable distinction, observer-retained order/arity/size, and explicitly unassigned semantics. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately. Each retained assumption is now varied individually with witness pairs that are distinct in the base and identified only by the removed assumption. `No destination is selected and the remaining assumption audit stays open`.",
       "checks": [
         "structural-foundation-evidence-js",
-        "structural-foundation-evidence-rust"
+        "structural-foundation-evidence-rust",
+        "assumption-removal-js",
+        "assumption-removal-rust"
       ],
-      "remainingGap": "The single-link-isolation removal produces an exact countermodel and exhaustive shared-address invariants, but finite size, ordered records, one reference per link, distinct link identities and equality-only observation remain declared restrictions. This does not complete the original one-at-a-time audit of all remaining assumptions or establish independent link-derived necessity for each.",
+      "remainingGap": "Mirrored `sharedAddressComposition` / `shared_address_composition` audits report `LOCAL_SINGLE_LINK_DESCRIPTOR_NOT_COMPOSITIONALLY_FAITHFUL` and retain all named restrictions except single-link isolation. At two links, `[[0,1],[2,3]]` and `[[0,2],[2,0]]` share both local single-link descriptors but differ globally: only the latter has a length-two address-incidence cycle. Exhaustive one-reference counts are `2/10/77/799` shared classes versus `2/4/8/16` local products for one through four ordered links. Cross-reference equality plus reference-to-link-address incidence is a complete invariant for all tested shared classes and has a general finite argument. The audit machine-readably separates issue-forced shared equality, renaming-stable distinction, observer-retained order/arity/size, and explicitly unassigned semantics. Mirrored requirement-specific `structural-foundation-evidence` tests bind live finite invariants and exact countermodels; full-scope research gaps are recorded separately. Each retained assumption is now varied individually with witness pairs that are distinct in the base and identified only by the removed assumption. `No destination is selected and the remaining assumption audit stays open`.",
       "verificationState": "finite-progress-producer-bound-full-scope-unmet",
       "assertionBindings": [
         {
@@ -27352,6 +27643,48 @@
           "file": "rust/tests/structural_foundation_evidence_tests.rs",
           "name": "r139_rejects_local_descriptor_completeness_and_leaves_retained_assumptions_uneliminated",
           "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "the removal matrix is reproduced exactly and starts from the audited base contract",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "each removal identifies or separates exactly the recorded number of classes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "every witness pair is distinct in the base and identified only by its removed assumption",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-js",
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a single link has no local non-faithfulness and no record-order witness",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "the_removal_matrix_is_reproduced_exactly_and_starts_from_the_audited_base_contract",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "each_removal_identifies_or_separates_exactly_the_recorded_number_of_classes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "assumption-removal-rust",
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
+          "polarity": "positive"
         }
       ],
       "completionBindings": [],
@@ -27609,14 +27942,20 @@
           "path": "rust/src/linked_proof.rs",
           "role": "implementation",
           "sha256": "973a75d1a489cfd33e416cdf76cfc3510db32b5fefb8db885dd0f186d6d42e1a"
+        },
+        {
+          "path": "lib/meta-theory/horn-local-verifier.lino",
+          "role": "implementation",
+          "sha256": "181d3f16a93760ad5a56bd30ef52aec8c67616e044568a1dcd0e1f2b9833f405"
         }
       ],
-      "claimedEvidence": "`proof-verifier.lino` executes an inductive verifier through reusable linked membership/lookup/union/matching/substitution/reachability operations. Public replay reruns a fresh registry and compares request, every linked trace step, terminal result and derived receipt metadata. Shared golden digests and malformed/forged/context-swapped cases cover both runtimes; changing linked verifier rules changes execution. Closed S/K tests disable all six direct-host semantic services and fail when S or K is removed. `Corpus-wide proof elaboration, coinductive/conversion policies, self-authorizing verifier selection and intrinsic authority/ontology closure remain open`.",
+      "claimedEvidence": "`proof-verifier.lino` executes an inductive verifier through reusable linked membership/lookup/union/matching/substitution/reachability operations. Public replay reruns a fresh registry and compares request, every linked trace step, terminal result and derived receipt metadata. Shared golden digests and malformed/forged/context-swapped cases cover both runtimes; changing linked verifier rules changes execution. Closed S/K tests disable all six direct-host semantic services and fail when S or K is removed. The local verifier step runs as linked Horn clauses (`horn-local-verifier.lino`) and reproduces all seven probe cases and traces, with self-application and trace replay tested. `Authority closure remains open`.",
       "checks": [
         "linked-verifier-js",
-        "linked-verifier-rust"
+        "linked-verifier-rust",
+        "verifier-provenance-js"
       ],
-      "remainingGap": "`proof-verifier.lino` executes an inductive verifier through reusable linked membership/lookup/union/matching/substitution/reachability operations. Public replay reruns a fresh registry and compares request, every linked trace step, terminal result and derived receipt metadata. Shared golden digests and malformed/forged/context-swapped cases cover both runtimes; changing linked verifier rules changes execution. Closed S/K tests disable all six direct-host semantic services and fail when S or K is removed. `Corpus-wide proof elaboration, coinductive/conversion policies, self-authorizing verifier selection and intrinsic authority/ontology closure remain open`.",
+      "remainingGap": "`proof-verifier.lino` executes an inductive verifier through reusable linked membership/lookup/union/matching/substitution/reachability operations. Public replay reruns a fresh registry and compares request, every linked trace step, terminal result and derived receipt metadata. Shared golden digests and malformed/forged/context-swapped cases cover both runtimes; changing linked verifier rules changes execution. Closed S/K tests disable all six direct-host semantic services and fail when S or K is removed. The local verifier step runs as linked Horn clauses (`horn-local-verifier.lino`) and reproduces all seven probe cases and traces, with self-application and trace replay tested. `Authority closure remains open`.",
       "verificationState": "live-producer-bound-partial-product-scope",
       "assertionBindings": [
         {
@@ -27942,6 +28281,36 @@
           "file": "rust/tests/linked_proof_tests.rs",
           "name": "forged_replay_metadata_is_bounded_before_comparison",
           "polarity": "negative"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "the linked local verifier reproduces every linkedVerifierStep probe case and trace",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "the removal matrix is reproduced exactly from the linked verifier source",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "each removal changes exactly the cases that depend on the removed operation",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "representation changes separate what follows from the Links from declared readings",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "malformed inputs, stale replacements and unknown laws are rejected",
+          "polarity": "negative"
         }
       ],
       "nativeValidationRequired": true,
@@ -27962,11 +28331,44 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The v12 `linkedVerifierStep` probe shows that reversal of correspondence reading or selection of another present description changes the match on the same records; trace replay and self-application retain host execution. The new `conditionalContinuation` probe confirms renaming and record-reordering stability under its declared criterion and shows reversal changes the continuation. Duplicated and relocated descriptions and a complete removal matrix for the local verifier remain untested.",
-      "checks": [],
-      "remainingGap": "The v12 `linkedVerifierStep` probe shows that reversal of correspondence reading or selection of another present description changes the match on the same records; trace replay and self-application retain host execution. The new `conditionalContinuation` probe confirms renaming and record-reordering stability under its declared criterion and shows reversal changes the continuation. Duplicated and relocated descriptions and a complete removal matrix for the local verifier remain untested.",
+      "claimedEvidence": "The v12 `linkedVerifierStep` probe shows that reversal of correspondence reading or selection of another present description changes the match on the same records; trace replay and self-application retain host execution. The new `conditionalContinuation` probe confirms renaming and record-reordering stability under its declared criterion and shows reversal changes the continuation. Duplicated and relocated descriptions and a complete removal matrix for the local verifier remain untested. A complete removal matrix over 14 cases removes each of 25 clauses, 2 readings, 10 resolver laws and 2 host operations, and varies renaming, record order, slot reversal and duplicated or relocated descriptions; the trace does not follow from the Links alone but needs the declared readings and resolver laws. `The relational-kernel Rust mirror is not yet bindable by the gate`.",
+      "checks": [
+        "verifier-provenance-js"
+      ],
+      "remainingGap": "The v12 `linkedVerifierStep` probe shows that reversal of correspondence reading or selection of another present description changes the match on the same records; trace replay and self-application retain host execution. The new `conditionalContinuation` probe confirms renaming and record-reordering stability under its declared criterion and shows reversal changes the continuation. Duplicated and relocated descriptions and a complete removal matrix for the local verifier remain untested. A complete removal matrix over 14 cases removes each of 25 clauses, 2 readings, 10 resolver laws and 2 host operations, and varies renaming, record order, slot reversal and duplicated or relocated descriptions; the trace does not follow from the Links alone but needs the declared readings and resolver laws. `The relational-kernel Rust mirror is not yet bindable by the gate`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "the linked local verifier reproduces every linkedVerifierStep probe case and trace",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "the removal matrix is reproduced exactly from the linked verifier source",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "each removal changes exactly the cases that depend on the removed operation",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "representation changes separate what follows from the Links from declared readings",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-js",
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "malformed inputs, stale replacements and unknown laws are rejected",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -27992,11 +28394,51 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "Mirrored `conditionalContinuation` / `conditional_continuation` probes report `LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT`. They use `[5,3,4]` to cite `[3,0,1]` then `[4,1,2]`. A generic incidence join reports `[0,2]`; reversing the witness or removing any one of the three records reports none. The result survives bijective renaming and record reordering but reverses under uniform reference-slot reversal. The witness-only structure and its `[7,0,2]` extension satisfy the same join, so the witness does not force creation or authorize the join. Self-applicability and an intrinsic closure principle remain open.",
-      "checks": [],
-      "remainingGap": "Mirrored `conditionalContinuation` / `conditional_continuation` probes report `LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT`. They use `[5,3,4]` to cite `[3,0,1]` then `[4,1,2]`. A generic incidence join reports `[0,2]`; reversing the witness or removing any one of the three records reports none. The result survives bijective renaming and record reordering but reverses under uniform reference-slot reversal. The witness-only structure and its `[7,0,2]` extension satisfy the same join, so the witness does not force creation or authorize the join. Self-applicability and an intrinsic closure principle remain open.",
+      "claimedEvidence": "Mirrored `conditionalContinuation` / `conditional_continuation` probes report `LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT`. They use `[5,3,4]` to cite `[3,0,1]` then `[4,1,2]`. A generic incidence join reports `[0,2]`; reversing the witness or removing any one of the three records reports none. The result survives bijective renaming and record reordering but reverses under uniform reference-slot reversal. The witness-only structure and its `[7,0,2]` extension satisfy the same join, so the witness does not force creation or authorize the join. Self-applicability and an intrinsic closure principle remain open. Applied to all 1855 three-record and 56400 four-record structures, the conditional continuation join satisfies reversal equivariance and monotonicity everywhere, while witness orientation, distinct projections and necessary support fail in 72/4244, 15/689 and 0/103 cases and so belong to the probe chain only. `Intrinsic authority remains open`.",
+      "checks": [
+        "continuation-join-js",
+        "continuation-join-rust"
+      ],
+      "remainingGap": "Mirrored `conditionalContinuation` / `conditional_continuation` probes report `LINKED_WITNESS_CONDITIONALLY_SELECTS_CONTINUATION_WITHOUT_FORCING_IT`. They use `[5,3,4]` to cite `[3,0,1]` then `[4,1,2]`. A generic incidence join reports `[0,2]`; reversing the witness or removing any one of the three records reports none. The result survives bijective renaming and record reordering but reverses under uniform reference-slot reversal. The witness-only structure and its `[7,0,2]` extension satisfy the same join, so the witness does not force creation or authorize the join. Self-applicability and an intrinsic closure principle remain open. Applied to all 1855 three-record and 56400 four-record structures, the conditional continuation join satisfies reversal equivariance and monotonicity everywhere, while witness orientation, distinct projections and necessary support fail in 72/4244, 15/689 and 0/103 cases and so belong to the probe chain only. `Intrinsic authority remains open`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "continuation-join-js",
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "the copied join reproduces the conditionalContinuation probe on its chain",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "continuation-join-js",
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "every three- and four-record structure is classified exactly as recorded",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "continuation-join-js",
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "reversal equivariance and monotonicity hold everywhere; the chain-specific observations do not",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "continuation-join-rust",
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "the_copied_join_reproduces_the_conditional_continuation_probe_on_its_chain",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "continuation-join-rust",
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "every_three_and_four_record_structure_is_classified_exactly_as_recorded",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "continuation-join-rust",
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "counterexample_witnesses_exhibit_their_counterexamples_directly",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -28018,11 +28460,51 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "Mirrored `transitionLawAudit` / `transition_law_audit` tests preserve the chosen readout through a lossless nested incidence encoding. Unordered-witness reading makes forward and reverse witness records identify the same `[0,2]` in this one chain, eliminating witness orientation as necessary here. Two generic output projections over identical records report `[0,2]` and `[2,0]`; adding ordinary `[6,5,5]` changes neither, so it does not choose its own interpretation. The `[4,1,2]` versus `[4,9,2]` countermodel retains premise IDs and witness references but differs in adjacency equality and readout. Removing enumeration leaves candidate discovery undetermined; removing construction leaves no result record. The five stages are recorded separately. These finite examples do not rule out every possible future Links-derived law, and no endogenous law or self-applying closure is established.",
-      "checks": [],
-      "remainingGap": "Mirrored `transitionLawAudit` / `transition_law_audit` tests preserve the chosen readout through a lossless nested incidence encoding. Unordered-witness reading makes forward and reverse witness records identify the same `[0,2]` in this one chain, eliminating witness orientation as necessary here. Two generic output projections over identical records report `[0,2]` and `[2,0]`; adding ordinary `[6,5,5]` changes neither, so it does not choose its own interpretation. The `[4,1,2]` versus `[4,9,2]` countermodel retains premise IDs and witness references but differs in adjacency equality and readout. Removing enumeration leaves candidate discovery undetermined; removing construction leaves no result record. The five stages are recorded separately. These finite examples do not rule out every possible future Links-derived law, and no endogenous law or self-applying closure is established.",
+      "claimedEvidence": "Mirrored `transitionLawAudit` / `transition_law_audit` tests preserve the chosen readout through a lossless nested incidence encoding. Unordered-witness reading makes forward and reverse witness records identify the same `[0,2]` in this one chain, eliminating witness orientation as necessary here. Two generic output projections over identical records report `[0,2]` and `[2,0]`; adding ordinary `[6,5,5]` changes neither, so it does not choose its own interpretation. The `[4,1,2]` versus `[4,9,2]` countermodel retains premise IDs and witness references but differs in adjacency equality and readout. Removing enumeration leaves candidate discovery undetermined; removing construction leaves no result record. The five stages are recorded separately. These finite examples do not rule out every possible future Links-derived law, and no endogenous law or self-applying closure is established. The exhaustive continuation-join classification separates properties that hold on every small structure from properties of the probe chain only. `An endogenous transition law remains open`.",
+      "checks": [
+        "continuation-join-js",
+        "continuation-join-rust"
+      ],
+      "remainingGap": "Mirrored `transitionLawAudit` / `transition_law_audit` tests preserve the chosen readout through a lossless nested incidence encoding. Unordered-witness reading makes forward and reverse witness records identify the same `[0,2]` in this one chain, eliminating witness orientation as necessary here. Two generic output projections over identical records report `[0,2]` and `[2,0]`; adding ordinary `[6,5,5]` changes neither, so it does not choose its own interpretation. The `[4,1,2]` versus `[4,9,2]` countermodel retains premise IDs and witness references but differs in adjacency equality and readout. Removing enumeration leaves candidate discovery undetermined; removing construction leaves no result record. The five stages are recorded separately. These finite examples do not rule out every possible future Links-derived law, and no endogenous law or self-applying closure is established. The exhaustive continuation-join classification separates properties that hold on every small structure from properties of the probe chain only. `An endogenous transition law remains open`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "continuation-join-js",
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "the copied join reproduces the conditionalContinuation probe on its chain",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "continuation-join-js",
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "every three- and four-record structure is classified exactly as recorded",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "continuation-join-js",
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "reversal equivariance and monotonicity hold everywhere; the chain-specific observations do not",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "continuation-join-rust",
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "the_copied_join_reproduces_the_conditional_continuation_probe_on_its_chain",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "continuation-join-rust",
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "every_three_and_four_record_structure_is_classified_exactly_as_recorded",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "continuation-join-rust",
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "counterexample_witnesses_exhibit_their_counterexamples_directly",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -28103,18 +28585,69 @@
           "bodySha256": "884aba190dcb7a313db7937ddc94212128b99901373d3dcd76891e15653ce3bb"
         }
       ],
-      "implementationClaims": [],
-      "claimedEvidence": "Registered here and in the claim boundary below. Its parts are the open or partial rows it gathers: closure covers only the declared bootstrap path (`R55`, `R62`, `R64`, `R132`); `OPEN_NO_COMPARABLE_ALTERNATIVE` leaves one reduced and self-hosted foundation, so no second foundation exists to replace it and no semantic preservation under replacement is shown (`R130`); the full link-executed verifier and authority closure remain open (`R143`); and execution, consequence, and orientation authority remain open (`R71`, `R147`, `R148`). R25, R26, and R53 rebind one unchanged theory across user foundations, which is object-level substitutability and does not replace the meta-foundation below K1. The gate stays open until every criterion has an executable witness for two such foundations.",
-      "checks": [],
-      "remainingGap": "Registered here and in the claim boundary below. Its parts are the open or partial rows it gathers: closure covers only the declared bootstrap path (`R55`, `R62`, `R64`, `R132`); `OPEN_NO_COMPARABLE_ALTERNATIVE` leaves one reduced and self-hosted foundation, so no second foundation exists to replace it and no semantic preservation under replacement is shown (`R130`); the full link-executed verifier and authority closure remain open (`R143`); and execution, consequence, and orientation authority remain open (`R71`, `R147`, `R148`). R25, R26, and R53 rebind one unchanged theory across user foundations, which is object-level substitutability and does not replace the meta-foundation below K1. The gate stays open until every criterion has an executable witness for two such foundations.",
+      "implementationClaims": [
+        {
+          "path": "docs/case-studies/issue-183/meta-foundation-comparison.md",
+          "role": "implementation",
+          "sha256": "6f502c58bd535dc9c73b6369485b7fcc7588bf6518efbe62bfff5fe57f5f8454"
+        }
+      ],
+      "claimedEvidence": "Registered here and in the claim boundary below. Its parts are the open or partial rows it gathers: closure covers only the declared bootstrap path (`R55`, `R62`, `R64`, `R132`); `OPEN_NO_COMPARABLE_ALTERNATIVE` leaves one reduced and self-hosted foundation, so no second foundation exists to replace it and no semantic preservation under replacement is shown (`R130`); the full link-executed verifier and authority closure remain open (`R143`); and execution, consequence, and orientation authority remain open (`R71`, `R147`, `R148`). R25, R26, and R53 rebind one unchanged theory across user foundations, which is object-level substitutability and does not replace the meta-foundation below K1. The gate stays open until every criterion has an executable witness for two such foundations. Two genuinely different, comparably reduced meta-foundations now execute one byte-identical upper layer (`meta-foundation-comparison.md`): S/K and a Horn link-substitution foundation, separated by a lock-step criterion that does not separate a renamed S/K re-encoding. `S/K is still produced by a host compiler, LiNo parsing and codecs remain host code, S/K self-generation is not shown and minimality is relative to this workload, so the gate stays open`.",
+      "checks": [
+        "meta-foundation-comparison-js"
+      ],
+      "remainingGap": "Registered here and in the claim boundary below. Its parts are the open or partial rows it gathers: closure covers only the declared bootstrap path (`R55`, `R62`, `R64`, `R132`); `OPEN_NO_COMPARABLE_ALTERNATIVE` leaves one reduced and self-hosted foundation, so no second foundation exists to replace it and no semantic preservation under replacement is shown (`R130`); the full link-executed verifier and authority closure remain open (`R143`); and execution, consequence, and orientation authority remain open (`R71`, `R147`, `R148`). R25, R26, and R53 rebind one unchanged theory across user foundations, which is object-level substitutability and does not replace the meta-foundation below K1. The gate stays open until every criterion has an executable witness for two such foundations. Two genuinely different, comparably reduced meta-foundations now execute one byte-identical upper layer (`meta-foundation-comparison.md`): S/K and a Horn link-substitution foundation, separated by a lock-step criterion that does not separate a renamed S/K re-encoding. `S/K is still produced by a host compiler, LiNo parsing and codecs remain host code, S/K self-generation is not shown and minimality is relative to this workload, so the gate stays open`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "two foundations execute one byte-identical upper layer with the same reductions judgements and proofs",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "single and reduced-basis law removal reproduces the recorded workload-relative minimality table",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "unknown law names are rejected and the default relation is unchanged",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the S/K laws as linked rules are interpreted on both foundations and a replaced K law changes both",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the quoted linked Horn interpreter runs the linked Link-as-substitution clauses and regenerates its image",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the lock-step criterion separates Horn from S/K but not a renamed S/K re-encoding",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-js",
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the report keeps the full-closure gate open and claims neither ranking nor global minimality",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
       "id": "R150",
       "obligation": "Show that changing the linked definition of a mechanism changes its execution on an unchanged generic runtime without a theory-specific host callback, recursively down to substitution itself, for definitions, substitution, rule selection and application, verification, and the interpretation of those mechanisms.",
-      "status": "Partial — runtime-loaded K0 substitution witness; broader recursive closure open",
+      "status": "Partial — linked D/D′ on three executions down to linked Horn substitution; the resolver unification remains a host law",
       "originalWording": [
         {
           "sourceId": "comment-5836717056",
@@ -28164,14 +28697,31 @@
           "path": "rust/src/linked_program/combinator_kernel.rs",
           "role": "implementation",
           "sha256": "c1ab9deb6210233dc013e889393ff4d7febcea4760f15ce7076169bdab837248"
+        },
+        {
+          "path": "js/src/rml-horn-link-substitution.mjs",
+          "role": "implementation",
+          "sha256": "d3f17fbae39b244a068f34a2ecdea822c64f5f4db3f1980ff80e85418607b5b4"
+        },
+        {
+          "path": "lib/meta-theory/horn-link-substitution.lino",
+          "role": "implementation",
+          "sha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1"
+        },
+        {
+          "path": "docs/case-studies/issue-183/meta-foundation-comparison.md",
+          "role": "implementation",
+          "sha256": "6f502c58bd535dc9c73b6369485b7fcc7588bf6518efbe62bfff5fe57f5f8454"
         }
       ],
-      "claimedEvidence": "The earlier mirrored K1 D/D' witness replaces matching, substitution, selection and verification rules in `universal.lino`. `js/tests/kernel-replacement.test.mjs` and `rust/tests/kernel_replacement_tests.rs` now load the linked `test-corpus/kernel-replacement/mirror-substitution.ski` artifact per registry: replacing recursive K0 substitution changes nested execution on the same host runtime, while concurrent baseline registries retain their behavior. Positive tests compare loaded baseline inference/import/proof results; negative tests reject missing roots, forged references, disabled contractions, invalid basis and resource bounds. `experiments/definition-replacement/k0-replacement.mjs` reproduces the witness. The artifact is still generated from linked source by the existing host compiler; this is not full recursive replacement of typing, elaboration, verification, interpretation and code generation (`R62`, `R149`, `R151`).",
+      "claimedEvidence": "The earlier mirrored K1 D/D' witness replaces matching, substitution, selection and verification rules in `universal.lino`. `js/tests/kernel-replacement.test.mjs` and `rust/tests/kernel_replacement_tests.rs` now load the linked `test-corpus/kernel-replacement/mirror-substitution.ski` artifact per registry: replacing recursive K0 substitution changes nested execution on the same host runtime, while concurrent baseline registries retain their behavior. Positive tests compare loaded baseline inference/import/proof results; negative tests reject missing roots, forged references, disabled contractions, invalid basis and resource bounds. `experiments/definition-replacement/k0-replacement.mjs` reproduces the witness. The artifact is still generated from linked source by the existing host compiler; this is not full recursive replacement of typing, elaboration, verification, interpretation and code generation (`R62`, `R149`, `R151`). On the Horn foundation `fixed-point-source.lino` runs unchanged; five linked mechanism D′ edits change the lambda control, the compiled S/K run and the Horn run identically, two linked Link-as-substitution D′ edits change the shadowed-binder and divergent-argument probes on the unchanged generic resolver, and elaboration D′ edits change execution with no host edit (`horn-link-substitution.lino`, `mechanism-replacement` and `horn-link-substitution` suites). `The generic Horn resolver's own unification and the compiled S/K contractions remain host laws, so substitution is linked only down to that boundary`.",
       "checks": [
         "kernel-replacement-js",
-        "kernel-replacement-rust"
+        "kernel-replacement-rust",
+        "horn-link-substitution-js",
+        "mechanism-replacement-js"
       ],
-      "remainingGap": "The earlier mirrored K1 D/D' witness replaces matching, substitution, selection and verification rules in `universal.lino`. `js/tests/kernel-replacement.test.mjs` and `rust/tests/kernel_replacement_tests.rs` now load the linked `test-corpus/kernel-replacement/mirror-substitution.ski` artifact per registry: replacing recursive K0 substitution changes nested execution on the same host runtime, while concurrent baseline registries retain their behavior. Positive tests compare loaded baseline inference/import/proof results; negative tests reject missing roots, forged references, disabled contractions, invalid basis and resource bounds. `experiments/definition-replacement/k0-replacement.mjs` reproduces the witness. The artifact is still generated from linked source by the existing host compiler; this is not full recursive replacement of typing, elaboration, verification, interpretation and code generation (`R62`, `R149`, `R151`).",
+      "remainingGap": "The earlier mirrored K1 D/D' witness replaces matching, substitution, selection and verification rules in `universal.lino`. `js/tests/kernel-replacement.test.mjs` and `rust/tests/kernel_replacement_tests.rs` now load the linked `test-corpus/kernel-replacement/mirror-substitution.ski` artifact per registry: replacing recursive K0 substitution changes nested execution on the same host runtime, while concurrent baseline registries retain their behavior. Positive tests compare loaded baseline inference/import/proof results; negative tests reject missing roots, forged references, disabled contractions, invalid basis and resource bounds. `experiments/definition-replacement/k0-replacement.mjs` reproduces the witness. The artifact is still generated from linked source by the existing host compiler; this is not full recursive replacement of typing, elaboration, verification, interpretation and code generation (`R62`, `R149`, `R151`). On the Horn foundation `fixed-point-source.lino` runs unchanged; five linked mechanism D′ edits change the lambda control, the compiled S/K run and the Horn run identically, two linked Link-as-substitution D′ edits change the shadowed-binder and divergent-argument probes on the unchanged generic resolver, and elaboration D′ edits change execution with no host edit (`horn-link-substitution.lino`, `mechanism-replacement` and `horn-link-substitution` suites). `The generic Horn resolver's own unification and the compiled S/K contractions remain host laws, so substitution is linked only down to that boundary`.",
       "verificationState": "live-producer-bound-partial-product-scope",
       "assertionBindings": [
         {
@@ -28221,6 +28771,66 @@
           "file": "rust/tests/kernel_replacement_tests.rs",
           "name": "runtime_linked_artifacts_fail_closed_on_missing_roots_forged_references_and_bounds",
           "polarity": "negative"
+        },
+        {
+          "checkId": "horn-link-substitution-js",
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "Horn foundation executes the unchanged lambda-link meta-semantics with the shared observations",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-link-substitution-js",
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "the generic Horn resolver contains none of the linked substitution or workflow predicates",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-link-substitution-js",
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "linked binder resolution and the linked machine obey lexical scope and call by name",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-link-substitution-js",
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "replacing linked Link-as-substitution clauses changes execution on the unchanged resolver",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-link-substitution-js",
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "open probe terms, stale clause edits and removed linked clauses are rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-link-substitution-js",
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "each generic Horn operation is required by the linked substitution workflow",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "mechanism-replacement-js",
+          "file": "js/tests/mechanism-replacement.test.mjs",
+          "name": "each linked mechanism replacement changes execution identically on S/K, Horn and the lambda control",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "mechanism-replacement-js",
+          "file": "js/tests/mechanism-replacement.test.mjs",
+          "name": "mechanism replacements produce the independently predicted observations",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "mechanism-replacement-js",
+          "file": "js/tests/mechanism-replacement.test.mjs",
+          "name": "stale or forged replacement declarations are rejected instead of silently selecting another definition",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "mechanism-replacement-js",
+          "file": "js/tests/mechanism-replacement.test.mjs",
+          "name": "a D-prime kernel and the default kernel stay isolated in one process",
+          "polarity": "negative"
         }
       ],
       "nativeValidationRequired": true,
@@ -28264,13 +28874,63 @@
           "path": "rust/src/check.rs",
           "sha256": "e471121e9bb64238c5699264a87e16857a0ade7fc1cdf5f60ff57132d31851c1",
           "role": "historical-claim"
+        },
+        {
+          "path": "lib/meta-theory/horn-rml-elaboration.lino",
+          "role": "implementation",
+          "sha256": "d18caba5aa911743e39fe2b173b83feeda2c5523df20a88574bdeba3a1d268a6"
         }
       ],
-      "claimedEvidence": "Parsing is a classified non-semantic boundary layer in `js/src/rml-lino-frontend.mjs` and `rust/src/lino_frontend.rs` (`R37`); evaluation and checking of RML documents run in `js/src/rml-check.mjs` and `rust/src/check.rs`; and the two runtimes, the compiled K0 artifact, and every build step are JavaScript, Rust, or their toolchains. No Link-defined compiler, target-machine model, or code generator exists, so `full implementation closure has not been reached`.",
-      "checks": [],
-      "remainingGap": "Parsing is a classified non-semantic boundary layer in `js/src/rml-lino-frontend.mjs` and `rust/src/lino_frontend.rs` (`R37`); evaluation and checking of RML documents run in `js/src/rml-check.mjs` and `rust/src/check.rs`; and the two runtimes, the compiled K0 artifact, and every build step are JavaScript, Rust, or their toolchains. No Link-defined compiler, target-machine model, or code generator exists, so `full implementation closure has not been reached`.",
+      "claimedEvidence": "Parsing is a classified non-semantic boundary layer in `js/src/rml-lino-frontend.mjs` and `rust/src/lino_frontend.rs` (`R37`); evaluation and checking of RML documents run in `js/src/rml-check.mjs` and `rust/src/check.rs`; and the two runtimes, the compiled K0 artifact, and every build step are JavaScript, Rust, or their toolchains. No Link-defined compiler, target-machine model, or code generator exists, so RML elaboration decisions for the Horn source workflows (keywords, the `?` sigil, form shapes and 12 rejection kinds) are now linked Horn clauses in `horn-rml-elaboration.lino`, and replacing one changes execution with every host file unchanged. `The parser, checker, compiler, code generation and the S/K and lambda elaboration paths are still host code`.",
+      "checks": [
+        "horn-rml-elaboration-js"
+      ],
+      "remainingGap": "Parsing is a classified non-semantic boundary layer in `js/src/rml-lino-frontend.mjs` and `rust/src/lino_frontend.rs` (`R37`); evaluation and checking of RML documents run in `js/src/rml-check.mjs` and `rust/src/check.rs`; and the two runtimes, the compiled K0 artifact, and every build step are JavaScript, Rust, or their toolchains. No Link-defined compiler, target-machine model, or code generator exists, so RML elaboration decisions for the Horn source workflows (keywords, the `?` sigil, form shapes and 12 rejection kinds) are now linked Horn clauses in `horn-rml-elaboration.lino`, and replacing one changes execution with every host file unchanged. `The parser, checker, compiler, code generation and the S/K and lambda elaboration paths are still host code`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "linked elaboration builds exactly the host registry programs for the accepted corpus",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "linked elaboration rejects invalid documents for the same reasons as the host registry",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "documents outside the linked form shapes have no linked elaboration",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "source workflows reproduce the shared observations with no host RML elaboration",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "replacing a linked language decision changes execution with every host file unchanged",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "removing a linked language decision removes the elaboration it decided",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "horn-rml-elaboration-js",
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "the source-workflow host takes no RML decision and lists every residual host law",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -30374,7 +31034,7 @@
         {
           "path": "test-corpus/certified-translation/bulk/receipt.lino",
           "role": "implementation",
-          "sha256": "b7ec9384f4e581e1f81c1cd0202b98e420f9504c71ed7e20d53b10775c3634a0"
+          "sha256": "5edd35db6f98722e94bd5e63e798feb786870034dfb710eed8a5b9e67899c83a"
         }
       ],
       "claimedEvidence": "Byte-exact source pins with sha256 and UTF-16/UTF-8 spans, a checked intermediate re-serialized before emission, first-refusal receipts, producer receipts fingerprinting every input/output with a reconstruction recipe, `--check` freshness gates, JavaScript-first local gates and explicit `none` authority for macros/traits/runtime. `scripts/generate-certified-bulk.mjs` translates every top-level item of `js/src` and `rust/src` (closed over same-file dependencies) plus the `lib/` Lean and Rocq modules: 101 files and 2583 items, of which 148 are admitted, 101 lowered into `main` and 2334 refused with exact first-refusal records, giving 416 certified translations; the committed `test-corpus/certified-translation/bulk/receipt.lino` aggregates counts per language and path and refusal causes by site. Fourteen admitted translations match their hand-written mirrors on 50 documented calls; two are recorded as signature-differing. `About 90% of repository items are refused by the current core, and native rustc/Lean/Rocq runs of the bulk targets are not yet performed`.",
@@ -33005,7 +33665,7 @@
         {
           "path": "js/src/rml-horn-resolution.mjs",
           "role": "implementation",
-          "sha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345"
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
         },
         {
           "path": "js/src/rml-js-rename.mjs",
@@ -37397,7 +38057,7 @@
         {
           "path": "js/src/rml-horn-resolution.mjs",
           "role": "implementation",
-          "sha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345"
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
         },
         {
           "path": "js/src/rml-js-rename.mjs",
@@ -38507,7 +39167,7 @@
         {
           "path": "js/src/rml-horn-resolution.mjs",
           "role": "implementation",
-          "sha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345"
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
         },
         {
           "path": "js/src/rml-js-rename.mjs",
@@ -39627,7 +40287,7 @@
         {
           "path": "js/src/rml-horn-resolution.mjs",
           "role": "implementation",
-          "sha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345"
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
         },
         {
           "path": "js/src/rml-js-rename.mjs",
@@ -40732,7 +41392,7 @@
         {
           "path": "js/src/rml-horn-resolution.mjs",
           "role": "implementation",
-          "sha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345"
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
         },
         {
           "path": "js/src/rml-js-rename.mjs",
@@ -41687,7 +42347,7 @@
         {
           "path": "js/src/rml-horn-resolution.mjs",
           "role": "implementation",
-          "sha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345"
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
         },
         {
           "path": "js/src/rml-js-rename.mjs",
@@ -43932,7 +44592,7 @@
         {
           "path": "js/src/rml-horn-resolution.mjs",
           "role": "implementation",
-          "sha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345"
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
         },
         {
           "path": "js/src/rml-js-rename.mjs",
@@ -48329,7 +48989,7 @@
         {
           "path": "test-corpus/certified-translation/bulk/receipt.lino",
           "role": "fixture",
-          "sha256": "b7ec9384f4e581e1f81c1cd0202b98e420f9504c71ed7e20d53b10775c3634a0"
+          "sha256": "5edd35db6f98722e94bd5e63e798feb786870034dfb710eed8a5b9e67899c83a"
         },
         {
           "path": "test-corpus/certified-translation/mirrors.json",
@@ -48380,6 +49040,526 @@
         }
       ],
       "timeoutMs": 1200000
+    },
+    {
+      "id": "horn-link-substitution-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/horn-link-substitution.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/horn-link-substitution.test.mjs",
+          "role": "test",
+          "sha256": "c3a59a86aa00f3d867f3344172e20d085e5c6f7e29f2d66d71486df63a92698e"
+        },
+        {
+          "path": "js/src/rml-horn-link-substitution.mjs",
+          "role": "implementation",
+          "sha256": "d3f17fbae39b244a068f34a2ecdea822c64f5f4db3f1980ff80e85418607b5b4"
+        },
+        {
+          "path": "lib/meta-theory/horn-link-substitution.lino",
+          "role": "implementation",
+          "sha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1"
+        },
+        {
+          "path": "test-corpus/kernel-replacement/link-substitution-replacements.json",
+          "role": "fixture",
+          "sha256": "4ac1c055c98dc9334e9263093146f693b421ae88d5b5afe7284fa641c0e71c64"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "Horn foundation executes the unchanged lambda-link meta-semantics with the shared observations",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "the generic Horn resolver contains none of the linked substitution or workflow predicates",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "linked binder resolution and the linked machine obey lexical scope and call by name",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "replacing linked Link-as-substitution clauses changes execution on the unchanged resolver",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "open probe terms, stale clause edits and removed linked clauses are rejected",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/horn-link-substitution.test.mjs",
+          "name": "each generic Horn operation is required by the linked substitution workflow",
+          "polarity": "positive"
+        }
+      ],
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "mechanism-replacement-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/mechanism-replacement.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/mechanism-replacement.test.mjs",
+          "role": "test",
+          "sha256": "82ec31dd61958a3a1d0e1ca845f3a3d0e4b069a7fe4f5278d875e8f655b2832d"
+        },
+        {
+          "path": "experiments/definition-replacement/mechanism-matrix.mjs",
+          "role": "implementation",
+          "sha256": "68a9225572acee2e2c9e9210d10a0ce0a37e256c0aa0681beeda1e5bff611309"
+        },
+        {
+          "path": "js/src/rml-horn-link-substitution.mjs",
+          "role": "implementation",
+          "sha256": "d3f17fbae39b244a068f34a2ecdea822c64f5f4db3f1980ff80e85418607b5b4"
+        },
+        {
+          "path": "test-corpus/kernel-replacement/mechanism-replacements.json",
+          "role": "fixture",
+          "sha256": "bc1bf20c480e95a1ea5f76fda3a8623a1b72fefe0f1b9e242ef1ada9e79b516f"
+        },
+        {
+          "path": "test-corpus/kernel-replacement/mechanism-observations.json",
+          "role": "fixture",
+          "sha256": "39fd6ff6d53a4afbd8543275f5d784fe00fde09b37b44f1d98b2318a398e716f"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/mechanism-replacement.test.mjs",
+          "name": "each linked mechanism replacement changes execution identically on S/K, Horn and the lambda control",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/mechanism-replacement.test.mjs",
+          "name": "mechanism replacements produce the independently predicted observations",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/mechanism-replacement.test.mjs",
+          "name": "stale or forged replacement declarations are rejected instead of silently selecting another definition",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/mechanism-replacement.test.mjs",
+          "name": "a D-prime kernel and the default kernel stay isolated in one process",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "meta-foundation-comparison-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/meta-foundation-comparison.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/meta-foundation-comparison.test.mjs",
+          "role": "test",
+          "sha256": "0b9015eb5e7a139b782eec7a818169092d9fd5f562b6f39499d326897419d632"
+        },
+        {
+          "path": "experiments/foundation-comparison/compare.mjs",
+          "role": "implementation",
+          "sha256": "d2139b225d1553308c4d3e49352f50cb8bbffca08b5d58c14805ad6bf854af16"
+        },
+        {
+          "path": "js/src/rml-horn-resolution.mjs",
+          "role": "implementation",
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
+        },
+        {
+          "path": "test-corpus/foundation-comparison/report.json",
+          "role": "fixture",
+          "sha256": "87300f6d6a27c50f0471fe01b706487e2ab5a52e98a97d3023f3abe6d6fdd774"
+        },
+        {
+          "path": "test-corpus/foundation-comparison/sk-laws.lino",
+          "role": "fixture",
+          "sha256": "880c4ace197ffac6585b6afa698b9fe6a75f898b3068b2d53906fcc447378208"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "two foundations execute one byte-identical upper layer with the same reductions judgements and proofs",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "single and reduced-basis law removal reproduces the recorded workload-relative minimality table",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "unknown law names are rejected and the default relation is unchanged",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the S/K laws as linked rules are interpreted on both foundations and a replaced K law changes both",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the quoted linked Horn interpreter runs the linked Link-as-substitution clauses and regenerates its image",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the lock-step criterion separates Horn from S/K but not a renamed S/K re-encoding",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/meta-foundation-comparison.test.mjs",
+          "name": "the report keeps the full-closure gate open and claims neither ranking nor global minimality",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "horn-rml-elaboration-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/horn-rml-elaboration.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/horn-rml-elaboration.test.mjs",
+          "role": "test",
+          "sha256": "84103827d45ba17e5de95f9daaa6e7a49b6961d5490456e5ff047ce30cd10c77"
+        },
+        {
+          "path": "lib/meta-theory/horn-rml-elaboration.lino",
+          "role": "implementation",
+          "sha256": "d18caba5aa911743e39fe2b173b83feeda2c5523df20a88574bdeba3a1d268a6"
+        },
+        {
+          "path": "js/src/rml-horn-resolution.mjs",
+          "role": "implementation",
+          "sha256": "15ea520caaf2538d43782f07748e3acbd3fd9e05b7c9a435836b6f68d524851e"
+        },
+        {
+          "path": "test-corpus/kernel-replacement/elaboration-cases.json",
+          "role": "fixture",
+          "sha256": "1d2f573fba04eb6679d87ab8d7053cf9759ca9130e62f11f1617a6906aabdf78"
+        },
+        {
+          "path": "test-corpus/kernel-replacement/elaboration-replacements.json",
+          "role": "fixture",
+          "sha256": "08a19c04755e3d28e36bfe30cd57c12e6ab0c67cf313273ee402ef5f38baf607"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "linked elaboration builds exactly the host registry programs for the accepted corpus",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "linked elaboration rejects invalid documents for the same reasons as the host registry",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "documents outside the linked form shapes have no linked elaboration",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "source workflows reproduce the shared observations with no host RML elaboration",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "replacing a linked language decision changes execution with every host file unchanged",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "removing a linked language decision removes the elaboration it decided",
+          "polarity": "negative"
+        },
+        {
+          "file": "js/tests/horn-rml-elaboration.test.mjs",
+          "name": "the source-workflow host takes no RML decision and lists every residual host law",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "verifier-provenance-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/verifier-provenance.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/verifier-provenance.test.mjs",
+          "role": "test",
+          "sha256": "2e5d2adbe53c4b4f87704c375ef25af788af94e723c57cb9c3f822e834c38389"
+        },
+        {
+          "path": "lib/meta-theory/horn-local-verifier.lino",
+          "role": "implementation",
+          "sha256": "181d3f16a93760ad5a56bd30ef52aec8c67616e044568a1dcd0e1f2b9833f405"
+        },
+        {
+          "path": "experiments/verifier-provenance/removal-matrix.mjs",
+          "role": "implementation",
+          "sha256": "4c904c0b7c12c7f95503131ae8b338d3626aeb37634ee2640a0fe8aa6a620fd2"
+        },
+        {
+          "path": "test-corpus/verifier-provenance/cases.json",
+          "role": "fixture",
+          "sha256": "d8bba77a0fbab7f54664d87e5ae8b3656dd0b179abdefa90761d462c8aba55c1"
+        },
+        {
+          "path": "test-corpus/verifier-provenance/report.json",
+          "role": "fixture",
+          "sha256": "1efffb31bf320a1472dfda0871c2573dd3d2b6d79fcec83838f12eb6a871c4e1"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "the linked local verifier reproduces every linkedVerifierStep probe case and trace",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "the removal matrix is reproduced exactly from the linked verifier source",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "each removal changes exactly the cases that depend on the removed operation",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "representation changes separate what follows from the Links from declared readings",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/verifier-provenance.test.mjs",
+          "name": "malformed inputs, stale replacements and unknown laws are rejected",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "assumption-removal-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/assumption-removal.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/assumption-removal.test.mjs",
+          "role": "test",
+          "sha256": "6d7b83762bfc3f11710e0736cde8cd9ba9d8d78e014be223954cccc63927fe97"
+        },
+        {
+          "path": "experiments/assumption-removal/matrix.mjs",
+          "role": "implementation",
+          "sha256": "5ee7a291a2a43f0240ac0b1ac90e905873a2d26a52786e2b035b9ab3d837a6e5"
+        },
+        {
+          "path": "test-corpus/assumption-removal/report.json",
+          "role": "fixture",
+          "sha256": "b35054d944b5688975c9ab27e128acc0b3e0286beb56ed7bb0066985a23b0f74"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "the removal matrix is reproduced exactly and starts from the audited base contract",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "each removal identifies or separates exactly the recorded number of classes",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "every witness pair is distinct in the base and identified only by its removed assumption",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/assumption-removal.test.mjs",
+          "name": "negative controls: a single link has no local non-faithfulness and no record-order witness",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "continuation-join-js",
+      "kind": "node-test",
+      "testFiles": [
+        "js/tests/continuation-join.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "js/tests/continuation-join.test.mjs",
+          "role": "test",
+          "sha256": "5b104c219a99672ce59118bd0091afd998868741dcb079b78103052cb4fb646b"
+        },
+        {
+          "path": "experiments/continuation-join/exhaustive.mjs",
+          "role": "implementation",
+          "sha256": "f5c60c3e4f364a58cff20c9f92a1a59d8db6f0720010efdcefa0d12b5ef7fa33"
+        },
+        {
+          "path": "test-corpus/continuation-join/report.json",
+          "role": "fixture",
+          "sha256": "68eafd52d581c78659b54becf9d32427155092c06f19c831b346753ff4176651"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "the copied join reproduces the conditionalContinuation probe on its chain",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "every three- and four-record structure is classified exactly as recorded",
+          "polarity": "positive"
+        },
+        {
+          "file": "js/tests/continuation-join.test.mjs",
+          "name": "reversal equivariance and monotonicity hold everywhere; the chain-specific observations do not",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "assumption-removal-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/assumption_removal_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/assumption_removal_tests.rs",
+          "role": "test",
+          "sha256": "67af2ca13331ba9a59d27a1930417ed794dc58f5194d8fa3e2aed929d93a3195"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "experiments/assumption-removal/matrix.mjs",
+          "role": "implementation",
+          "sha256": "5ee7a291a2a43f0240ac0b1ac90e905873a2d26a52786e2b035b9ab3d837a6e5"
+        },
+        {
+          "path": "test-corpus/assumption-removal/report.json",
+          "role": "fixture",
+          "sha256": "b35054d944b5688975c9ab27e128acc0b3e0286beb56ed7bb0066985a23b0f74"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "the_removal_matrix_is_reproduced_exactly_and_starts_from_the_audited_base_contract",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "each_removal_identifies_or_separates_exactly_the_recorded_number_of_classes",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/assumption_removal_tests.rs",
+          "name": "negative_controls_a_single_link_has_no_local_non_faithfulness_and_no_record_order_witness",
+          "polarity": "positive"
+        }
+      ],
+      "testTarget": "assumption_removal_tests",
+      "timeoutMs": 1800000
+    },
+    {
+      "id": "continuation-join-rust",
+      "kind": "cargo-test",
+      "testFiles": [
+        "rust/tests/continuation_join_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/tests/continuation_join_tests.rs",
+          "role": "test",
+          "sha256": "dc408ae49b387d4e38583c55486895be3a3fc1d5c2a38ac5df1f4ea0820e6765"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+        },
+        {
+          "path": "experiments/continuation-join/exhaustive.mjs",
+          "role": "implementation",
+          "sha256": "f5c60c3e4f364a58cff20c9f92a1a59d8db6f0720010efdcefa0d12b5ef7fa33"
+        },
+        {
+          "path": "test-corpus/continuation-join/report.json",
+          "role": "fixture",
+          "sha256": "68eafd52d581c78659b54becf9d32427155092c06f19c831b346753ff4176651"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "the_copied_join_reproduces_the_conditional_continuation_probe_on_its_chain",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "every_three_and_four_record_structure_is_classified_exactly_as_recorded",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/tests/continuation_join_tests.rs",
+          "name": "counterexample_witnesses_exhibit_their_counterexamples_directly",
+          "polarity": "negative"
+        }
+      ],
+      "testTarget": "continuation_join_tests",
+      "timeoutMs": 1800000
     }
   ]
 }

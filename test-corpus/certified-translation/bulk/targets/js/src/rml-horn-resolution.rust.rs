@@ -1,4 +1,4 @@
-// rml-certified-item js/src/rml-horn-resolution.mjs#key@428 target-sha256=1f05a14723b241df6cd4732203ebc0c51a58d115de2303608594c02022249ac0
+// rml-certified-item js/src/rml-horn-resolution.mjs#key@1827 target-sha256=1f05a14723b241df6cd4732203ebc0c51a58d115de2303608594c02022249ac0
 // Translated from JavaScript by meta-language: portable core, Rust target.
 #![allow(unused, unreachable_patterns, non_snake_case, non_camel_case_types, invalid_nan_comparisons)]
 
