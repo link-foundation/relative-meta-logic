@@ -6768,40 +6768,100 @@ fn query_requests_proof(node: &Node) -> bool {
 }
 
 /// Read-only beta-normalization used by equality-layer classification.
-/// Unlike `normalize_term`, this helper only handles the on-the-fly
-/// `(apply (lambda (T x) body) arg)` redex shape and recurses into other
-/// nodes structurally. That keeps it free of `&mut Env` so it can run from
-/// the immutable `build_proof` walker without cloning the environment.
-fn pure_beta_normalize(node: &Node) -> Node {
-    if let Node::List(children) = node {
-        if children.len() == 3 {
-            if let Node::Leaf(head) = &children[0] {
-                if head == "apply" {
-                    let fn_n = pure_beta_normalize(&children[1]);
-                    let arg = pure_beta_normalize(&children[2]);
-                    if let Node::List(fn_children) = &fn_n {
-                        if fn_children.len() == 3 {
-                            if let Node::Leaf(fn_head) = &fn_children[0] {
-                                if fn_head == "lambda" {
-                                    if let Some((param, _)) =
-                                        parse_binding(&fn_children[1])
-                                    {
-                                        let reduced =
-                                            subst(&fn_children[2], &param, &arg);
-                                        return pure_beta_normalize(&reduced);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return Node::List(vec![Node::Leaf("apply".into()), fn_n, arg]);
-                }
+/// It mirrors the JavaScript `normalizeTerm` that `classifyEqualityRule`
+/// runs: `(subst term x replacement)`, `(apply f arg)` with an inline or a
+/// named lambda, and prefix application `(f arg ...)` of an inline or named
+/// lambda, recursing structurally into every other node. It reads the
+/// environment without mutating it, so it can run from the immutable
+/// `build_proof` walker. A non-terminating reduction exhausts the step
+/// budget and yields `None`, which falls through to numeric equality, as
+/// the JavaScript classifier does when its normalization throws.
+fn pure_beta_normalize(node: &Node, env: &Env) -> Option<Node> {
+    let mut budget = PURE_BETA_STEPS;
+    pure_beta_step(node, env, &mut budget, 0)
+}
+
+/// Total reduction steps and nesting depth `pure_beta_normalize` may use.
+const PURE_BETA_STEPS: usize = 10_000;
+const PURE_BETA_DEPTH: usize = 256;
+
+fn pure_beta_lambda(node: &Node, env: &Env) -> Option<(String, Node)> {
+    match node {
+        Node::List(parts) if parts.len() == 3 => match &parts[0] {
+            Node::Leaf(head) if head == "lambda" => {
+                parse_binding(&parts[1]).map(|(param, _)| (param, parts[2].clone()))
+            }
+            _ => None,
+        },
+        Node::Leaf(name) => env
+            .get_lambda(name)
+            .map(|lambda| (lambda.param.clone(), lambda.body.clone())),
+        _ => None,
+    }
+}
+
+fn pure_beta_step(node: &Node, env: &Env, budget: &mut usize, depth: usize) -> Option<Node> {
+    if *budget == 0 || depth > PURE_BETA_DEPTH {
+        return None;
+    }
+    *budget -= 1;
+    let children = match node {
+        Node::List(children) => children,
+        _ => return Some(node.clone()),
+    };
+    if children.is_empty() {
+        return Some(Node::List(vec![]));
+    }
+    let next = depth + 1;
+    if children.len() == 4 {
+        if let (Node::Leaf(head), Node::Leaf(name)) = (&children[0], &children[2]) {
+            if head == "subst" {
+                let term = pure_beta_step(&children[1], env, budget, next)?;
+                let replacement = pure_beta_step(&children[3], env, budget, next)?;
+                return pure_beta_step(&subst(&term, name, &replacement), env, budget, next);
             }
         }
-        let normalized: Vec<Node> = children.iter().map(pure_beta_normalize).collect();
-        return Node::List(normalized);
     }
-    node.clone()
+    if children.len() == 3 {
+        if let Node::Leaf(head) = &children[0] {
+            if head == "apply" {
+                let function = pure_beta_step(&children[1], env, budget, next)?;
+                let argument = pure_beta_step(&children[2], env, budget, next)?;
+                if let Some((param, body)) = pure_beta_lambda(&function, env) {
+                    return pure_beta_step(&subst(&body, &param, &argument), env, budget, next);
+                }
+                return Some(Node::List(vec![
+                    Node::Leaf("apply".into()),
+                    function,
+                    argument,
+                ]));
+            }
+            if head == "lambda" {
+                let normalized = children
+                    .iter()
+                    .map(|child| pure_beta_step(child, env, budget, next))
+                    .collect::<Option<Vec<Node>>>()?;
+                return Some(Node::List(normalized));
+            }
+        }
+    }
+    if children.len() >= 2 {
+        if let Some((param, body)) = pure_beta_lambda(&children[0], env) {
+            let first = pure_beta_step(&children[1], env, budget, next)?;
+            let reduced = subst(&body, &param, &first);
+            if children.len() == 2 {
+                return pure_beta_step(&reduced, env, budget, next);
+            }
+            let mut rest = vec![reduced];
+            rest.extend(children[2..].iter().cloned());
+            return pure_beta_step(&Node::List(rest), env, budget, next);
+        }
+    }
+    let normalized = children
+        .iter()
+        .map(|child| pure_beta_step(child, env, budget, next))
+        .collect::<Option<Vec<Node>>>()?;
+    Some(Node::List(normalized))
 }
 
 fn contains_lambda_or_apply(node: &Node) -> bool {
@@ -6842,14 +6902,14 @@ pub fn classify_equality_rule(l: &Node, r: &Node, op: &str, env: &Env) -> &'stat
     // sides beta-normalize to structurally-identical terms, the equality
     // holds by reduction rather than by raw arithmetic.
     if contains_lambda_or_apply(l) || contains_lambda_or_apply(r) {
-        let ln = pure_beta_normalize(l);
-        let rn = pure_beta_normalize(r);
-        if is_structurally_same(&ln, &rn) && !is_structurally_same(l, r) {
-            return if is_inequality {
-                "definitional-inequality"
-            } else {
-                "definitional-equality"
-            };
+        if let (Some(ln), Some(rn)) = (pure_beta_normalize(l, env), pure_beta_normalize(r, env)) {
+            if is_structurally_same(&ln, &rn) && !is_structurally_same(l, r) {
+                return if is_inequality {
+                    "definitional-inequality"
+                } else {
+                    "definitional-equality"
+                };
+            }
         }
     }
     if is_inequality {
@@ -11316,6 +11376,10 @@ fn define_form(head: &str, rhs: &[Node], env: &mut Env) -> EvalResult {
                 }
             }
         }
+
+        // No supported operator-definition shape matched: report E003 as
+        // the JavaScript evaluator does instead of evaluating to 0.
+        panic!("Unsupported operator definition for \"{}\"", head);
     }
 
     // Lambda definition: (name: lambda (A x) body)
@@ -12655,7 +12719,16 @@ fn handle_import(
         Err(err) => {
             return Some(Diagnostic::new(
                 "E007",
-                format!("Failed to read import \"{}\": {}", cleaned, err),
+                format!(
+                    "Failed to read import \"{}\": {}",
+                    cleaned,
+                    // Host-neutral, so both runtimes print the same E007.
+                    if err.kind() == std::io::ErrorKind::NotFound {
+                        "file not found".to_string()
+                    } else {
+                        err.to_string()
+                    }
+                ),
                 span.clone(),
             ));
         }
@@ -13943,6 +14016,18 @@ fn evaluate_inner(
     }
 }
 
+/// The evaluator raises declaration errors as `<Kind> declaration error:
+/// declaration for "<name>" …`; JavaScript reports the same failure as
+/// `<Kind> declaration for "<name>" …`. Keep the declaration kind so both
+/// runtimes print one diagnostic text.
+pub(crate) fn declaration_message(raw: &str, kind: &str) -> String {
+    let rest = raw.replacen(&format!("{} declaration error: ", kind), "", 1);
+    match rest.strip_prefix("declaration for ") {
+        Some(tail) => format!("{} declaration for {}", kind, tail),
+        None => rest,
+    }
+}
+
 /// Map a panic payload to a diagnostic `(code, message)` pair.  Known panic
 /// messages emitted by the evaluator are mapped to the canonical `E001`/etc.
 /// codes; anything else falls back to `E000`.
@@ -13958,6 +14043,8 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
         ("E001".to_string(), raw_msg)
     } else if raw_msg.starts_with("Unknown aggregator") {
         ("E004".to_string(), raw_msg)
+    } else if raw_msg.starts_with("Unsupported operator definition") {
+        ("E003".to_string(), raw_msg)
     } else if raw_msg.starts_with("Freshness error:") {
         (
             "E010".to_string(),
@@ -13966,7 +14053,7 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
     } else if raw_msg.starts_with("Mode declaration error:") {
         (
             "E030".to_string(),
-            raw_msg.replacen("Mode declaration error: ", "", 1),
+            declaration_message(&raw_msg, "Mode"),
         )
     } else if raw_msg.starts_with("Mode mismatch:") {
         (
@@ -13976,7 +14063,7 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
     } else if raw_msg.starts_with("Relation declaration error:") {
         (
             "E032".to_string(),
-            raw_msg.replacen("Relation declaration error: ", "", 1),
+            declaration_message(&raw_msg, "Relation"),
         )
     } else if raw_msg.starts_with("Totality check error:") {
         (
@@ -13991,7 +14078,7 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
     } else if raw_msg.starts_with("World declaration error:") {
         (
             "E034".to_string(),
-            raw_msg.replacen("World declaration error: ", "", 1),
+            declaration_message(&raw_msg, "World"),
         )
     } else if raw_msg.starts_with("World violation:") {
         (
@@ -14001,7 +14088,7 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
     } else if raw_msg.starts_with("Inductive declaration error:") {
         (
             "E033".to_string(),
-            raw_msg.replacen("Inductive declaration error: ", "", 1),
+            declaration_message(&raw_msg, "Inductive"),
         )
     } else if raw_msg.starts_with("Termination check error:") {
         (
@@ -14011,7 +14098,7 @@ fn decode_panic_payload(payload: &Box<dyn std::any::Any + Send>) -> (String, Str
     } else if raw_msg.starts_with("Coinductive declaration error:") {
         (
             "E036".to_string(),
-            raw_msg.replacen("Coinductive declaration error: ", "", 1),
+            declaration_message(&raw_msg, "Coinductive"),
         )
     } else if raw_msg.starts_with("Normalization error:") {
         (
