@@ -2104,7 +2104,7 @@
         },
         {
           "path": ".github/workflows/formal-corpus.yml",
-          "sha256": "bfc6b387e96e82b22543df91c5cd65731b28cd82ce01d8b9d6c01fbd126d6a5e",
+          "sha256": "12d06888dedd86543482a4037977ae79534d7c71a94472ca8ae5b08546c8bc0e",
           "role": "historical-claim"
         }
       ],
@@ -2396,7 +2396,7 @@
     {
       "id": "R22",
       "obligation": "Use current dependency releases and prepare the next release.",
-      "status": "Partial — current direct releases consumed; release preparation pending",
+      "status": "Partial — all direct dependencies current on 2026-10-13; npm meta-language 1.0.0 absent",
       "originalWording": [
         {
           "sourceId": "pull-184",
@@ -2413,19 +2413,29 @@
       ],
       "implementationClaims": [
         {
+          "path": "docs/DEPENDENCY_AUDIT.md",
+          "role": "implementation",
+          "sha256": "60a333299406efaf537a5c93607e70c74aa30c80c9bac780a30cd2efe014b6ee"
+        },
+        {
+          "path": "docs/case-studies/issue-183/data/dependency-audit-2026-10-13.json",
+          "role": "implementation",
+          "sha256": "6551ea47a6453208fcf7a6530a59dc61c84f71ba01cde3ecd0438e5169306e01"
+        },
+        {
           "path": "js/package.json",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e",
-          "role": "historical-claim"
+          "role": "implementation",
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "rust/Cargo.toml",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58",
-          "role": "historical-claim"
+          "role": "implementation",
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         }
       ],
-      "claimedEvidence": "The dated registry audit now verifies current direct npm and Rust dependencies, including `web-tree-sitter 0.27.1`, `links-notation 0.25.1`, and exact Rust `meta-language 1.0.0`. JavaScript consumes matching official release commit `a79782093cae3b33606483ac9f3e1d05faf36de0`; npm still publishes `meta-language 0.46.0`. Earlier transitive constraints remain separately recorded; matching npm publication and final release preparation are not claimed.",
+      "claimedEvidence": "The dated registry audit now verifies current direct npm and Rust dependencies, including `web-tree-sitter 0.27.1`, `links-notation 0.25.1`, and exact Rust `meta-language 1.0.0`. JavaScript consumes matching official release commit `a79782093cae3b33606483ac9f3e1d05faf36de0`; npm still publishes `meta-language 0.46.0`. Earlier transitive constraints remain separately recorded; matching npm publication and final release preparation are not claimed. The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current. `npm still publishes meta-language 0.46.0 while crates.io has 1.0.0; the repository has no release-notes convention, so release preparation remains open`.",
       "checks": [],
-      "remainingGap": "The 2026-09-25 audit recorded then-latest published dependency releases. The current source integration upgrades LiNo to 0.23.0, Node to 22 and Rust to 1.90, pins official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, and updates both locks. `A fresh all-maintained-dependency registry audit and publishable matching upstream release remain required`; a source pin does not establish new registry delivery.",
+      "remainingGap": "The dated registry audit now verifies current direct npm and Rust dependencies, including `web-tree-sitter 0.27.1`, `links-notation 0.25.1`, and exact Rust `meta-language 1.0.0`. JavaScript consumes matching official release commit `a79782093cae3b33606483ac9f3e1d05faf36de0`; npm still publishes `meta-language 0.46.0`. Earlier transitive constraints remain separately recorded; matching npm publication and final release preparation are not claimed. The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current. `npm still publishes meta-language 0.46.0 while crates.io has 1.0.0; the repository has no release-notes convention, so release preparation remains open`.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [],
       "completionBindings": []
@@ -4053,9 +4063,9 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The current registry audit finds Rust `meta-language 1.0.0` and npm `0.46.0`; RML consumes the published Rust crate and matching immutable JavaScript release source. Both RML runtimes use current `links-notation 0.25.1`. The historical parser findings against `0.20.0` remain documented in upstream issues `links-notation#312-#316`; their source reports and protective front-end tests are preserved. A matching npm release remains pending.",
+      "claimedEvidence": "The current registry audit finds Rust `meta-language 1.0.0` and npm `0.46.0`; RML consumes the published Rust crate and matching immutable JavaScript release source. Both RML runtimes use current `links-notation 0.25.1`. The historical parser findings against `0.20.0` remain documented in upstream issues `links-notation#312-#316`; their source reports and protective front-end tests are preserved. A matching npm release remains pending. Re-audited 2026-10-13: links-notation 0.26.0 is consumed from both registries; meta-language npm remains 0.46.0 while crates.io has 1.0.0. `npm and Rust meta-language streams still diverge upstream`.",
       "checks": [],
-      "remainingGap": "Rust uses `meta-language 0.58.2` while npm exposes only `0.46.0`; upstream issue `link-foundation/meta-language#195` records missing parser/translation delivery and must be consumed and tested before completion. Both runtimes use `links-notation` 0.20.0, the latest release on npm and crates.io; what the LiNo front end works around in it is reported as `link-foundation/links-notation#312` (the JavaScript and Rust parsers read some documents differently) and `link-foundation/links-notation#313` (lines under an indented id lose their names and their own indented lines). Three `links-notation` 0.20.0 problems of the denial-of-service class are filed publicly after the maintainer authorized it (PR comment `5831221597` asked where to send them; reply `5831357798` answered that they could be reported publicly): `link-foundation/links-notation#314` (both ports take time that grows exponentially with parenthesis nesting, and the Rust `parse_lino_to_links` entry point adds quadratic time by deep-copying the subtree once per level), `link-foundation/links-notation#315` (a deeply nested document overflows the Rust stack and aborts the process uncatchably, and neither port enforces the nesting-depth limit it documents), and `link-foundation/links-notation#316` (both ports take quadratic time on a reference that opens with a wide run of quotes); the LiNo front end already caps source size and nesting depth and reads quoted references itself, so both runtimes stay away from these shapes.",
+      "remainingGap": "The current registry audit finds Rust `meta-language 1.0.0` and npm `0.46.0`; RML consumes the published Rust crate and matching immutable JavaScript release source. Both RML runtimes use current `links-notation 0.25.1`. The historical parser findings against `0.20.0` remain documented in upstream issues `links-notation#312-#316`; their source reports and protective front-end tests are preserved. A matching npm release remains pending. Re-audited 2026-10-13: links-notation 0.26.0 is consumed from both registries; meta-language npm remains 0.46.0 while crates.io has 1.0.0. `npm and Rust meta-language streams still diverge upstream`.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [],
       "completionBindings": []
@@ -6755,7 +6765,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -8137,7 +8147,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -9327,16 +9337,16 @@
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         }
       ],
-      "claimedEvidence": "`docs/UPSTREAM_LANGUAGE_SOURCE.md`, the registered `js/vendor/meta-language` gitlink, `js/vendor/meta-language-provenance.json`, both dependency locks and the public `rml-upstream-language`/`upstream_language` adapters consume the same unmodified official commit `a79782093cae3b33606483ac9f3e1d05faf36de0` resolving upstream issue 195. Shared downstream tests execute real four-language grammars, bindings, structured edits, multi-file resolution, snapshots and twelve translator contracts; malformed/capture/missing-context/unsupported cases are checked. Provenance verifies 236 runtime files and bootstrap rejects wrong or dirty source. `Registry publication is separately incomplete in R133; full-language semantic acceptance remains open in R101 and R104–R109`.",
+      "claimedEvidence": "`docs/UPSTREAM_LANGUAGE_SOURCE.md`, the registered `js/vendor/meta-language` gitlink, `js/vendor/meta-language-provenance.json`, both dependency locks and the public `rml-upstream-language`/`upstream_language` adapters consume the same unmodified official commit `a79782093cae3b33606483ac9f3e1d05faf36de0` resolving upstream issue 195. Shared downstream tests execute real four-language grammars, bindings, structured edits, multi-file resolution, snapshots and twelve translator contracts; malformed/capture/missing-context/unsupported cases are checked. Provenance verifies 236 runtime files and bootstrap rejects wrong or dirty source. On 2026-10-13 meta-language issue 195 is closed and PR 196 merged (2026-10-06); v1.0.0 is published to crates.io only and consumed exactly. `npm publication of the matching release remains upstream`.",
       "checks": [
         "upstream-language-js",
         "upstream-language-rust",
         "upstream-source-bootstrap"
       ],
-      "remainingGap": "No remaining gap in consumption of the official implementation resolving upstream issue 195. Both runtime producers and initializer/provenance checks must execute. Full-language semantics and registry release delivery are independently tracked and remain incomplete.",
+      "remainingGap": "`docs/UPSTREAM_LANGUAGE_SOURCE.md`, the registered `js/vendor/meta-language` gitlink, `js/vendor/meta-language-provenance.json`, both dependency locks and the public `rml-upstream-language`/`upstream_language` adapters consume the same unmodified official commit `a79782093cae3b33606483ac9f3e1d05faf36de0` resolving upstream issue 195. Shared downstream tests execute real four-language grammars, bindings, structured edits, multi-file resolution, snapshots and twelve translator contracts; malformed/capture/missing-context/unsupported cases are checked. Provenance verifies 236 runtime files and bootstrap rejects wrong or dirty source. On 2026-10-13 meta-language issue 195 is closed and PR 196 merged (2026-10-06); v1.0.0 is published to crates.io only and consumed exactly. `npm publication of the matching release remains upstream`.",
       "verificationState": "live-producer-bound-official-source-integration",
       "assertionBindings": [
         {
@@ -10277,7 +10287,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -12029,7 +12039,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -13937,7 +13947,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -15897,7 +15907,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -17882,7 +17892,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -23629,7 +23639,7 @@
       "implementationClaims": [
         {
           "path": "js/package.json",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e",
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65",
           "role": "historical-claim"
         },
         {
@@ -23650,7 +23660,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -24840,16 +24850,16 @@
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         }
       ],
-      "claimedEvidence": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release.",
+      "claimedEvidence": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release. The 2026-10-13 registry audit confirms issue 195 closed, PR 196 merged and Rust 1.0.0 consumed; meta-language main is 10 commits past v1.0.0 and unreleased, tracked by upstream #199. `npm still publishes 0.46.0, so matched registry delivery is absent`.",
       "checks": [
         "upstream-language-js",
         "upstream-language-rust",
         "upstream-source-bootstrap"
       ],
-      "remainingGap": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release.",
+      "remainingGap": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release. The 2026-10-13 registry audit confirms issue 195 closed, PR 196 merged and Rust 1.0.0 consumed; meta-language main is 10 commits past v1.0.0 and unreleased, tracked by upstream #199. `npm still publishes 0.46.0, so matched registry delivery is absent`.",
       "verificationState": "live-producer-bound-official-source-integration",
       "assertionBindings": [
         {
@@ -26379,9 +26389,9 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "`.github/workflows/issue-183-acceptance.yml` invokes the real gate. Branch-protection required-check configuration is external and unverified; all open product requirements still block acceptance.",
+      "claimedEvidence": "`.github/workflows/issue-183-acceptance.yml` invokes the real gate. Branch-protection required-check configuration is external and unverified; all open product requirements still block acceptance. `issue-183-acceptance.yml` runs on every PR revision with no path filter or continue-on-error; `gh api` on 2026-10-13 shows `main` has no branch protection or rulesets. `Making the check required is a maintainer repository setting that code cannot establish, and full delivery remains unmet`.",
       "checks": [],
-      "remainingGap": "`.github/workflows/issue-183-acceptance.yml` invokes the real gate. Branch-protection required-check configuration is external and unverified; all open product requirements still block acceptance.",
+      "remainingGap": "`.github/workflows/issue-183-acceptance.yml` invokes the real gate. Branch-protection required-check configuration is external and unverified; all open product requirements still block acceptance. `issue-183-acceptance.yml` runs on every PR revision with no path filter or continue-on-error; `gh api` on 2026-10-13 shows `main` has no branch protection or rulesets. `Making the check required is a maintainer repository setting that code cannot establish, and full delivery remains unmet`.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [],
       "completionBindings": []
@@ -26407,17 +26417,32 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts. Historical prose evidence is not a passing execution receipt; full per-row semantic/native bindings remain incomplete.",
-      "checks": [],
-      "remainingGap": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts. Historical prose evidence is not a passing execution receipt; full per-row semantic/native bindings remain incomplete.",
+      "claimedEvidence": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts. Historical prose evidence is not a passing execution receipt; full per-row semantic/native bindings remain incomplete. `issue-183-producer-mutations.test.mjs` drives the real reviewed proof-substrate and foundation-context producers through the real reporter and gate; a consistent hand-promotion of Partial R118 to Complete is rejected for missing full-scope bindings although its check passes. `Historical Complete rows still need full-scope completion bindings`.",
+      "checks": [
+        "producer-gate-mutations"
+      ],
+      "remainingGap": "`requirements.manifest.json`, `requirements.sources.json`, and `scripts/issue-183-requirements.mjs` enforce identity, provenance, pinned inputs, and live execution receipts. Historical prose evidence is not a passing execution receipt; full per-row semantic/native bindings remain incomplete. `issue-183-producer-mutations.test.mjs` drives the real reviewed proof-substrate and foundation-context producers through the real reporter and gate; a consistent hand-promotion of Partial R118 to Complete is rejected for missing full-scope bindings although its check passes. `Historical Complete rows still need full-scope completion bindings`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "producer-gate-mutations",
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "the unmodified reviewed proof-substrate producer passes every bound assertion",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "producer-gate-mutations",
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "a falsified Complete status on a real partial row is rejected although its executed check passes",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
       "id": "R154",
       "obligation": "Mutation-test the real producer-to-gate pipeline by removing a required test while the suite stays green, suppressing execution callbacks, replacing semantics with placeholders, and falsifying capability or status declarations.",
-      "status": "Partial — gate pipeline tested; whole-product mutation coverage open",
+      "status": "Partial — gate pipeline mutated on real repository producers; corpus-wide product-semantics mutation open",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -26429,11 +26454,44 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "`scripts/issue-183-requirements-gate.test.mjs` drives the actual runner/reporter/gate in isolated behavioral fixtures. These mutations test acceptance infrastructure, not every RML product claim; corpus-wide semantic mutations remain open.",
-      "checks": [],
-      "remainingGap": "`scripts/issue-183-requirements-gate.test.mjs` drives the actual runner/reporter/gate in isolated behavioral fixtures. These mutations test acceptance infrastructure, not every RML product claim; corpus-wide semantic mutations remain open.",
+      "claimedEvidence": "`scripts/issue-183-requirements-gate.test.mjs` drives the actual runner/reporter/gate in isolated behavioral fixtures. These mutations test acceptance infrastructure, not every RML product claim; corpus-wide semantic mutations remain open. The real-producer mutation suite rejects removal of a required real test while ordinary `node --test` stays green, a suppressed callback stream with exit status zero, placeholder cycle-detection semantics and a falsified Complete status. `Mutation of product semantics across the whole corpus remains open`.",
+      "checks": [
+        "producer-gate-mutations"
+      ],
+      "remainingGap": "`scripts/issue-183-requirements-gate.test.mjs` drives the actual runner/reporter/gate in isolated behavioral fixtures. These mutations test acceptance infrastructure, not every RML product claim; corpus-wide semantic mutations remain open. The real-producer mutation suite rejects removal of a required real test while ordinary `node --test` stays green, a suppressed callback stream with exit status zero, placeholder cycle-detection semantics and a falsified Complete status. `Mutation of product semantics across the whole corpus remains open`.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "producer-gate-mutations",
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "the unmodified reviewed proof-substrate producer passes every bound assertion",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "producer-gate-mutations",
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "removing a required real test is rejected while the remaining ordinary suite stays green",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "producer-gate-mutations",
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "suppressing the real test process callback stream is rejected despite exit status zero",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "producer-gate-mutations",
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "replacing real cycle-detection semantics with a placeholder success is rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "producer-gate-mutations",
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "a falsified Complete status on a real partial row is rejected although its executed check passes",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
@@ -26480,17 +26538,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -26779,17 +26837,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -26797,11 +26855,12 @@
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
         }
       ],
-      "claimedEvidence": "`scripts/cache-policy.json` registers Rust targets, JS caches, package consumers, parser/compiler, Lean/Rocq, acceptance/benchmark and container-output classes, including nested generated targets. `scripts/build-cache.mjs --full` removes provably owned outputs; project-owned Docker resources have a separate exact-label lifecycle. `Real Docker/BuildKit cleanup is mock-validated only; preexisting unowned outputs and external targets are deliberately not swept`.",
+      "claimedEvidence": "`scripts/cache-policy.json` registers Rust targets, JS caches, package consumers, parser/compiler, Lean/Rocq, acceptance/benchmark and container-output classes, including nested generated targets. `scripts/build-cache.mjs --full` removes provably owned outputs; project-owned Docker resources have a separate exact-label lifecycle. A fingerprint-aware Cargo superseded-unit sweep (`scripts/cargo-unit-sweep.mjs`) and Windows-safe Docker CLI resolution (`RML_DOCKER_CLI`) extend the covered classes. `A second real Docker teardown in docker.yml after these changes is still required`.",
       "checks": [
-        "build-cache-lifecycle"
+        "build-cache-lifecycle",
+        "cargo-unit-sweep"
       ],
-      "remainingGap": "`scripts/cache-policy.json` registers Rust targets, JS caches, package consumers, parser/compiler, Lean/Rocq, acceptance/benchmark and container-output classes, including nested generated targets. `scripts/build-cache.mjs --full` removes provably owned outputs; project-owned Docker resources have a separate exact-label lifecycle. `Real Docker/BuildKit cleanup is mock-validated only; preexisting unowned outputs and external targets are deliberately not swept`.",
+      "remainingGap": "`scripts/cache-policy.json` registers Rust targets, JS caches, package consumers, parser/compiler, Lean/Rocq, acceptance/benchmark and container-output classes, including nested generated targets. `scripts/build-cache.mjs --full` removes provably owned outputs; project-owned Docker resources have a separate exact-label lifecycle. A fingerprint-aware Cargo superseded-unit sweep (`scripts/cargo-unit-sweep.mjs`) and Windows-safe Docker CLI resolution (`RML_DOCKER_CLI`) extend the covered classes. `A second real Docker teardown in docker.yml after these changes is still required`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -26929,6 +26988,30 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "new lease records its process identity before starting the owned command",
           "polarity": "positive"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "superseded units of referenced kinds are removed while fresh, untouched and uplifted outputs stay",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "only Cargo build, check, test and bench commands receive a non-running reference query",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "a symlinked profile or deps directory is never followed",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "no reported units, a failed query, or a disabled sweep deletes nothing",
+          "polarity": "negative"
         }
       ],
       "completionBindings": []
@@ -26951,17 +27034,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -27250,17 +27333,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -27268,11 +27351,11 @@
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
         }
       ],
-      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup. Behavioral tests cover success/failure/missing commands/interruption/external leases; workflow tests detect disabled lifecycle wiring. `Raw commands outside the documented wrappers are not intercepted; hard kill/host loss requires later safe recovery and real Docker teardown remains unverified`.",
+      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup. Behavioral tests cover success/failure/missing commands/interruption/external leases; workflow tests detect disabled lifecycle wiring. A deferral caused by another tree never aborts a commit (`RML_CACHE_HOOK`), and entry points invoked through a symlinked checkout path no longer exit 0 without executing. `Hard-kill recovery and raw commands outside the wrappers remain uncovered`.",
       "checks": [
         "build-cache-lifecycle"
       ],
-      "remainingGap": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup. Behavioral tests cover success/failure/missing commands/interruption/external leases; workflow tests detect disabled lifecycle wiring. `Raw commands outside the documented wrappers are not intercepted; hard kill/host loss requires later safe recovery and real Docker teardown remains unverified`.",
+      "remainingGap": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup. Behavioral tests cover success/failure/missing commands/interruption/external leases; workflow tests detect disabled lifecycle wiring. A deferral caused by another tree never aborts a commit (`RML_CACHE_HOOK`), and entry points invoked through a symlinked checkout path no longer exit 0 without executing. `Hard-kill recovery and raw commands outside the wrappers remain uncovered`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -27400,6 +27483,12 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "new lease records its process identity before starting the owned command",
           "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "pre-commit continues past a deferral; another worktree's live build does not defer it at all",
+          "polarity": "positive"
         }
       ],
       "completionBindings": []
@@ -27422,17 +27511,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -27440,11 +27529,11 @@
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
         }
       ],
-      "claimedEvidence": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space; cleanup reports logical before/after/reclaimed bytes and rejects protected over-budget output. Tests exercise cross-class budgets, stale/disposable cleanup and full-clean idempotence. `Project BuildKit uses a separate GC cap rather than one combined measured local-plus-daemon budget; this is not a physical filesystem quota`.",
+      "claimedEvidence": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space; cleanup reports logical before/after/reclaimed bytes and rejects protected over-budget output. Tests exercise cross-class budgets, stale/disposable cleanup and full-clean idempotence. Local and Docker usage are combined in one measured budget report. `No physical disk quota is enforced`.",
       "checks": [
         "build-cache-lifecycle"
       ],
-      "remainingGap": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space; cleanup reports logical before/after/reclaimed bytes and rejects protected over-budget output. Tests exercise cross-class budgets, stale/disposable cleanup and full-clean idempotence. `Project BuildKit uses a separate GC cap rather than one combined measured local-plus-daemon budget; this is not a physical filesystem quota`.",
+      "remainingGap": "`scripts/cache-policy.json` defaults local owned output to 1 GiB with 256 MiB pre-run free space; cleanup reports logical before/after/reclaimed bytes and rejects protected over-budget output. Tests exercise cross-class budgets, stale/disposable cleanup and full-clean idempotence. Local and Docker usage are combined in one measured budget report. `No physical disk quota is enforced`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -27579,7 +27668,7 @@
     {
       "id": "R161",
       "obligation": "Bound build/test concurrency, debug and incremental growth; prefer compile-only checks where execution is unnecessary, reuse compatible outputs and bound compiler caches without reducing platform/feature/behavior coverage.",
-      "status": "Partial — bounded profiles/concurrency and reusable warm outputs",
+      "status": "Partial — fingerprint-aware superseded-unit sweep delivered; native measurement pending",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -27594,17 +27683,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -27612,11 +27701,12 @@
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
         }
       ],
-      "claimedEvidence": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. Full JavaScript regression coverage is preserved. `Native clean-rebuild/full-acceptance resource evidence is pending, and no Cargo-fingerprint-aware stale dependency sweeper is claimed`.",
+      "claimedEvidence": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. Full JavaScript regression coverage is preserved. After a successful private Cargo build/check/test/bench the sweep re-queries the same command with JSON messages and removes only superseded units of the same artifact stem; failed queries delete nothing and never change exit status; `RML_CACHE_CARGO_SWEEP=0` is the documented debug override. `Native measurement of the sweep in CI is pending`.",
       "checks": [
-        "build-cache-lifecycle"
+        "build-cache-lifecycle",
+        "cargo-unit-sweep"
       ],
-      "remainingGap": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. Full JavaScript regression coverage is preserved. `Native clean-rebuild/full-acceptance resource evidence is pending, and no Cargo-fingerprint-aware stale dependency sweeper is claimed`.",
+      "remainingGap": "`rust/Cargo.toml`, wrappers and workflow settings bound build/test concurrency, disable development/test debug info and incremental output, apply package-only test opt-level 1 while retaining the full S/K witness, retain compatible owned warm artifacts within budget and avoid unbounded target archives. Full JavaScript regression coverage is preserved. After a successful private Cargo build/check/test/bench the sweep re-queries the same command with JSON messages and removes only superseded units of the same artifact stem; failed queries delete nothing and never change exit status; `RML_CACHE_CARGO_SWEEP=0` is the documented debug override. `Native measurement of the sweep in CI is pending`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -27743,6 +27833,36 @@
           "checkId": "build-cache-lifecycle",
           "file": "scripts/build-cache.test.mjs",
           "name": "new lease records its process identity before starting the owned command",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "superseded units of referenced kinds are removed while fresh, untouched and uplifted outputs stay",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "only Cargo build, check, test and bench commands receive a non-running reference query",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "a symlinked profile or deps directory is never followed",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cargo-unit-sweep",
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "no reported units, a failed query, or a disabled sweep deletes nothing",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a successful private Cargo operation sweeps superseded units and records the result without changing status",
           "polarity": "positive"
         }
       ],
@@ -27766,17 +27886,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -27784,11 +27904,11 @@
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
         }
       ],
-      "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. `New manual writes inside an actively leased generated root cannot be distinguished from producer output; Windows/macOS and real Docker safety are not yet runtime-verified`.",
+      "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. `Process attribution is heuristic: any long-lived process whose working directory is the tree, such as an editor or MCP server, still defers cleanup; remaining OS limits are open`.",
       "checks": [
         "build-cache-lifecycle"
       ],
-      "remainingGap": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. `New manual writes inside an actively leased generated root cannot be distinguished from producer output; Windows/macOS and real Docker safety are not yet runtime-verified`.",
+      "remainingGap": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. `Process attribution is heuristic: any long-lived process whose working directory is the tree, such as an editor or MCP server, still defers cleanup; remaining OS limits are open`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -27915,6 +28035,24 @@
           "checkId": "build-cache-lifecycle",
           "file": "scripts/build-cache.test.mjs",
           "name": "new lease records its process identity before starting the owned command",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a builder inside a nested worktree or repository is attributed to it unless it overlaps this tree's caches",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a worktree nested under the primary checkout owns its caches but cannot claim a worktree nested inside it",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "build-cache-lifecycle",
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a symlinked alias of the worktree root maps custom targets without resolving in-tree links",
           "polarity": "positive"
         }
       ],
@@ -27938,17 +28076,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -27956,11 +28094,12 @@
           "sha256": "af185c59777e062a297269935746e778d0bd863ad61b4c42c09b8d237504acde"
         }
       ],
-      "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. The measured full JavaScript snapshot passed 1717 tests. `Several signal/symlink cases are explicitly skipped on Windows; real Docker and supported-OS runtime coverage remain open`.",
+      "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. The measured full JavaScript snapshot passed 1717 tests. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes without skip patterns. `Real Windows and macOS CI passes of these changes are pending`.",
       "checks": [
-        "build-cache-lifecycle"
+        "build-cache-lifecycle",
+        "cache-tool-availability"
       ],
-      "remainingGap": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. The measured full JavaScript snapshot passed 1717 tests. `Several signal/symlink cases are explicitly skipped on Windows; real Docker and supported-OS runtime coverage remain open`.",
+      "remainingGap": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. The measured full JavaScript snapshot passed 1717 tests. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes without skip patterns. `Real Windows and macOS CI passes of these changes are pending`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -28088,6 +28227,24 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "new lease records its process identity before starting the owned command",
           "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the cross-platform lifecycle job executes every cache lifecycle suite on all supported OSes",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an absent Docker CLI is reported as unavailable and never measured as zero bytes",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "an absent Docker CLI for accounting is reported unavailable and never becomes a passing build",
+          "polarity": "negative"
         }
       ],
       "completionBindings": []
@@ -28110,17 +28267,17 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -28133,11 +28290,11 @@
           "sha256": "7533a51962a848c07fac6dc907314c48454da2bddf6d26bea91e99796ee17863"
         }
       ],
-      "claimedEvidence": "`data/build-cache-measurement.json` records a real spaced-path fixture cycle on Node 24.19.0: JSDoc produced 2,254,547 bytes, full clean reclaimed all bytes to zero, clean rebuild reproduced 2,254,547 bytes, and final clean returned to zero; the full JavaScript suite passed 1717/1717. Commands, logs, scope and six implementation hashes are recorded. `This is not a Rust/Lean/Rocq/Docker or complete issue-183 acceptance cycle; clean native aggregate verification remains pending`.",
+      "claimedEvidence": "`data/build-cache-measurement.json` records a real spaced-path fixture cycle on Node 24.19.0: JSDoc produced 2,254,547 bytes, full clean reclaimed all bytes to zero, clean rebuild reproduced 2,254,547 bytes, and final clean returned to zero; the full JavaScript suite passed 1717/1717. Commands, logs, scope and six implementation hashes are recorded. `measure-build-cache.mjs --native` and a cache-portability job measure a native clean-rebuild cycle and archive the report even on failure; a local spaced-path cycle reproduced 2,526,689 JSDoc bytes after a full clean, but its full suite had one environment failure, so it is not counted as a passing cycle. `The first native CI measurement and a fully passing measured cycle are pending`.",
       "checks": [
         "build-cache-lifecycle"
       ],
-      "remainingGap": "`data/build-cache-measurement.json` records a real spaced-path fixture cycle on Node 24.19.0: JSDoc produced 2,254,547 bytes, full clean reclaimed all bytes to zero, clean rebuild reproduced 2,254,547 bytes, and final clean returned to zero; the full JavaScript suite passed 1717/1717. Commands, logs, scope and six implementation hashes are recorded. `This is not a Rust/Lean/Rocq/Docker or complete issue-183 acceptance cycle; clean native aggregate verification remains pending`.",
+      "remainingGap": "`data/build-cache-measurement.json` records a real spaced-path fixture cycle on Node 24.19.0: JSDoc produced 2,254,547 bytes, full clean reclaimed all bytes to zero, clean rebuild reproduced 2,254,547 bytes, and final clean returned to zero; the full JavaScript suite passed 1717/1717. Commands, logs, scope and six implementation hashes are recorded. `measure-build-cache.mjs --native` and a cache-portability job measure a native clean-rebuild cycle and archive the report even on failure; a local spaced-path cycle reproduced 2,526,689 JSDoc bytes after a full clean, but its full suite had one environment failure, so it is not counted as a passing cycle. `The first native CI measurement and a fully passing measured cycle are pending`.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -30308,12 +30465,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -30323,7 +30480,12 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+        },
+        {
+          "path": "test-corpus/foundations/expected.json",
+          "role": "fixture",
+          "sha256": "099279e228d209a4730f711d007c3b0b3507c877e416d2f3809b081b5076d298"
         }
       ],
       "assertions": [
@@ -30409,12 +30571,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -30512,12 +30674,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -30527,7 +30689,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -30588,12 +30750,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -30696,12 +30858,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -30711,7 +30873,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "test-corpus/reference-sequences/v1.json",
@@ -31177,12 +31339,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "test-corpus/reference-sequences/v1.json",
@@ -31581,12 +31743,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -31596,7 +31758,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -31667,12 +31829,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -31775,12 +31937,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -31790,7 +31952,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -31896,12 +32058,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "test-corpus/meta-language/expansion-cases.json",
@@ -31979,12 +32141,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -31994,7 +32156,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -32140,12 +32302,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -32208,12 +32370,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -32223,7 +32385,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -32309,12 +32471,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -32387,12 +32549,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -32402,7 +32564,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -32468,12 +32630,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -32521,22 +32683,17 @@
         {
           "path": "scripts/build-cache.test.mjs",
           "role": "test",
-          "sha256": "483e38056ce26afb327e865bedcbff65ffb7be5bd34eb60d37cfe1f65ad64d81"
-        },
-        {
-          "path": "scripts/build-cache.mjs",
-          "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "3da7ca00f622d9b3469dfe43755c12813a1ad7b805da6d1ada8078d306c08f7f"
         },
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": "scripts/cargo.mjs",
@@ -32547,6 +32704,11 @@
           "path": "scripts/cache-policy.json",
           "role": "fixture",
           "sha256": "963ffdc0eac46b141a17a92cac09b6e75b4716d7e1bfa9039944b850a511958a"
+        },
+        {
+          "path": "scripts/build-cache.mjs",
+          "role": "implementation",
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         }
       ],
       "assertions": [
@@ -32654,6 +32816,31 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "new lease records its process identity before starting the owned command",
           "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a successful private Cargo operation sweeps superseded units and records the result without changing status",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a symlinked alias of the worktree root maps custom targets without resolving in-tree links",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a worktree nested under the primary checkout owns its caches but cannot claim a worktree nested inside it",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "a builder inside a nested worktree or repository is attributed to it unless it overlaps this tree's caches",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache.test.mjs",
+          "name": "pre-commit continues past a deferral; another worktree's live build does not defer it at all",
+          "polarity": "positive"
         }
       ],
       "timeoutMs": 120000
@@ -32683,12 +32870,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -32698,7 +32885,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -32894,12 +33081,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -32967,12 +33154,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -32982,7 +33169,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -33059,12 +33246,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -33147,12 +33334,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -33162,7 +33349,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -33434,12 +33621,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         }
       ],
       "assertions": [
@@ -33527,7 +33714,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -34717,12 +34904,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": ".gitmodules",
@@ -34908,12 +35095,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "test-corpus/upstream-meta-language/release-regressions.json",
@@ -35001,7 +35188,7 @@
         {
           "path": "scripts/bootstrap.mjs",
           "role": "implementation",
-          "sha256": "e9ebcef455b58bd5ea6507e7a51a285531200ccd05fbc165b6e6ad1040941af2"
+          "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         },
         {
           "path": ".gitmodules",
@@ -35011,7 +35198,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "fixture",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         }
       ],
       "assertions": [
@@ -35068,12 +35255,12 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/src/check.mjs",
@@ -35318,7 +35505,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -35915,12 +36102,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/examples/researcher_workflow.rs",
@@ -36178,12 +36365,12 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/src/check.mjs",
@@ -36428,7 +36615,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -37005,12 +37192,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -37298,12 +37485,12 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/src/check.mjs",
@@ -38120,12 +38307,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -38403,12 +38590,12 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/src/check.mjs",
@@ -39145,12 +39332,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -39358,12 +39545,12 @@
         {
           "path": "js/package-lock.json",
           "role": "implementation",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": "js/package.json",
           "role": "implementation",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/src/check.mjs",
@@ -39608,7 +39795,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/package.json",
@@ -41023,7 +41210,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -41048,7 +41235,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         }
       ],
       "assertions": [
@@ -41106,7 +41293,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -41341,12 +41528,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "implementation",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "implementation",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -41521,7 +41708,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -41546,7 +41733,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         }
       ],
       "assertions": [
@@ -41603,12 +41790,12 @@
         {
           "path": "js/package-lock.json",
           "role": "implementation",
-          "sha256": "e702d21b1cff18c4f1b0e6ddbf4bcb8f543b84663b9e627f0b5966c9319a838d"
+          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
         },
         {
           "path": "js/package.json",
           "role": "implementation",
-          "sha256": "bce223c455b37643e7c1ea5b74e481469a13c94c7c5f47258badc064ea84763e"
+          "sha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65"
         },
         {
           "path": "js/src/check.mjs",
@@ -41853,7 +42040,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "js/vendor/meta-language/js/package.json",
@@ -43268,7 +43455,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -43293,7 +43480,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "test-corpus/foundation-structural-evidence/certificates.json",
@@ -43381,7 +43568,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "a15c9738973429a41c12cc487ce61862d85a8046e790acb098eff6bed4b56f8d"
+          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -43616,12 +43803,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "implementation",
-          "sha256": "3a0513d20608a10d449c39801fc3b77fb0d4ff9b99cabf681579cfd51cdcc64e"
+          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "implementation",
-          "sha256": "c64b99e94755525ceef9de20190c7763e1619dba6bd4c98659aa38486f54bc58"
+          "sha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -43796,7 +43983,7 @@
         {
           "path": "scripts/build-cache.mjs",
           "role": "implementation",
-          "sha256": "54ddce2782dcdc6db98bf52277ee1d3e277ef27b84e9af288dda35cd6a8d892c"
+          "sha256": "7b41f4450671de29b02a9edd3977abf9c383ec64ce508193de053262f7f43409"
         },
         {
           "path": "scripts/cache-policy.json",
@@ -43821,7 +44008,7 @@
         {
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
-          "sha256": "d8000a71b0609eb8c5d5b88e088e55a4958cb03f80b75bcd9ebdb15a18c36555"
+          "sha256": "5d6c5c6e00e2ec6c6ea95a6b467a2a95db0e2a17ad05cd9d5e577a95f8b45200"
         },
         {
           "path": "test-corpus/foundation-structural-evidence/certificates.json",
@@ -44887,6 +45074,167 @@
       ],
       "testTarget": "four_language_binding_rewrites_tests",
       "timeoutMs": 1200000
+    },
+    {
+      "id": "producer-gate-mutations",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/issue-183-producer-mutations.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/issue-183-producer-mutations.test.mjs",
+          "role": "test",
+          "sha256": "86d94933ec372ead8cbd595e3277cacfd477d311730d5f9e05c74ead7cd9c9cb"
+        },
+        {
+          "path": "scripts/issue-183-requirements.mjs",
+          "role": "implementation",
+          "sha256": "1a1b43aee5b0ae75dcb3534fec9722d1903f7082e3a5f4e078aabba7228e763a"
+        },
+        {
+          "path": "scripts/issue-183-requirements-reporter.mjs",
+          "role": "implementation",
+          "sha256": "ede1835560d2adf89480d0a289b3e574fa0b78f59cf9be6c7562f9e0368b0c93"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "the unmodified reviewed proof-substrate producer passes every bound assertion",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "removing a required real test is rejected while the remaining ordinary suite stays green",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "suppressing the real test process callback stream is rejected despite exit status zero",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "replacing real cycle-detection semantics with a placeholder success is rejected",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-producer-mutations.test.mjs",
+          "name": "a falsified Complete status on a real partial row is rejected although its executed check passes",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 900000
+    },
+    {
+      "id": "cargo-unit-sweep",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/cargo-unit-sweep.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/cargo-unit-sweep.test.mjs",
+          "role": "test",
+          "sha256": "61d8c849e9a2316d4840598ef910ca72d79e1753eed9068e0b4c4f43c6c08bfc"
+        },
+        {
+          "path": "scripts/cargo-unit-sweep.mjs",
+          "role": "implementation",
+          "sha256": "202bc18d12960817af4bd71027e4ce97c2fdefb23fb979eab72b1a732f0bb69b"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "superseded units of referenced kinds are removed while fresh, untouched and uplifted outputs stay",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "only Cargo build, check, test and bench commands receive a non-running reference query",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "a symlinked profile or deps directory is never followed",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/cargo-unit-sweep.test.mjs",
+          "name": "no reported units, a failed query, or a disabled sweep deletes nothing",
+          "polarity": "negative"
+        }
+      ]
+    },
+    {
+      "id": "cache-tool-availability",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/docker-cache-budget.test.mjs",
+        "scripts/build-cache-policy.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/docker-cache-budget.test.mjs",
+          "role": "test",
+          "sha256": "4140aa4932f6b65e10f678283319dcddad28d5b590b75f563fc8d7ec07a03329"
+        },
+        {
+          "path": "scripts/build-cache-policy.test.mjs",
+          "role": "test",
+          "sha256": "2aec6463c295920f469d24f69a500d3764bf6c7c58d119d3c725e805b2410428"
+        },
+        {
+          "path": "scripts/docker-cache-budget.mjs",
+          "role": "implementation",
+          "sha256": "24b0b6e86345ebf1ba1e68b2605320ec5d0416a0c4171d4437ff4bee0f04b8a0"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "the cross-platform lifecycle job executes every cache lifecycle suite on all supported OSes",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/docker-cache-budget.test.mjs",
+          "name": "an absent Docker CLI is reported as unavailable and never measured as zero bytes",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "an absent Docker CLI for accounting is reported unavailable and never becomes a passing build",
+          "polarity": "negative"
+        }
+      ]
+    },
+    {
+      "id": "build-output-publication",
+      "kind": "node-test",
+      "testFiles": [
+        "scripts/build-output-publication.test.mjs"
+      ],
+      "files": [
+        {
+          "path": "scripts/build-output-publication.test.mjs",
+          "role": "test",
+          "sha256": "cc68bc11603c1c01cee581b02f824f2b113c0505993e4c9a2db315b5b245b98e"
+        },
+        {
+          "path": "vscode/scripts/copy-server.mjs",
+          "role": "implementation",
+          "sha256": "125f7164e146c3fe86992e8c490b44452d425c2e19e8104537eed884c8188540"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "scripts/build-output-publication.test.mjs",
+          "name": "a generated runtime copy inside the leased scratch stages its server; a forged lease naming it fails closed",
+          "polarity": "negative"
+        }
+      ]
     }
   ]
 }
