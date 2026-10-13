@@ -153,8 +153,10 @@ fn keeps_no_host_language_semantic_description_in_the_runtime() {
     let kernel = std::fs::read_to_string(source_root.join("linked_program/combinator_kernel.rs"))
         .expect("kernel source");
     // The kernel embeds the generated addressed-link artifact rather than a
-    // host-language description of the fixed-point program.
-    assert!(kernel.contains("include_str!(\"../../../lib/meta-theory/fixed-point.ski\")"));
+    // host-language description of the fixed-point program. Generated runtimes
+    // re-emit macro calls with token spacing, so compare without whitespace.
+    let compact: String = kernel.chars().filter(|c| !c.is_whitespace()).collect();
+    assert!(compact.contains("include_str!(\"../../../lib/meta-theory/fixed-point.ski\")"));
     for path in rust_sources(&source_root) {
         let text = std::fs::read_to_string(&path).expect("runtime source");
         assert!(
@@ -162,7 +164,12 @@ fn keeps_no_host_language_semantic_description_in_the_runtime() {
             "{}",
             path.display()
         );
-        assert!(!text.contains("build_source_kernel("), "{}", path.display());
+        let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+        assert!(
+            !compact.contains("build_source_kernel("),
+            "{}",
+            path.display()
+        );
     }
     assert!(LinkedProgramRegistry::from_rml(PROGRAM)
         .unwrap()

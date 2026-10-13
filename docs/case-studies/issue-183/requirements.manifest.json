@@ -38732,7 +38732,7 @@
         {
           "path": "rust/tests/kernel_replacement_tests.rs",
           "role": "test",
-          "sha256": "9607f0019a51276df41fc008dc9d253a662724a7ce92f63c09ba0845a5e2a37e"
+          "sha256": "193c747d5d08d754c07b77423b6d2aa432210651e1a3d0120e20922e3c926aef"
         },
         {
           "path": "lib/meta-theory/fixed-point.ski",
@@ -39258,7 +39258,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "c0118c65c0386dae4a50ee2c5e6988cf5de6b6b806158d55fe0b16b283c80ca5"
+          "sha256": "7a694d09363515c88572de29bcc9360187054cb79048f58623d788560f4b7e35"
         }
       ],
       "assertions": [
