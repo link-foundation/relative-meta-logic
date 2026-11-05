@@ -1,0 +1,10 @@
+{
+  "schema": "rml:structure-expansion-tests:1",
+  "cases": [
+    {"name":"small shared DAG is representable", "depth":4, "fanout":2, "text":"α", "repeat":1, "accepted":true},
+    {"name":"compact exponential DAG exceeds node budget", "depth":24, "fanout":2, "text":"a", "repeat":1, "accepted":false},
+    {"name":"repeated long references exceed text budget", "depth":4, "fanout":2, "text":"α", "repeat":10000, "accepted":false},
+    {"name":"text budget uses UTF16 units in both runtimes", "depth":4, "fanout":2, "text":"𝒙", "repeat":5000, "accepted":false},
+    {"name":"empty references still consume node budget", "depth":24, "fanout":2, "text":"", "repeat":1, "accepted":false}
+  ]
+}

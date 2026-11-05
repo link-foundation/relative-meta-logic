@@ -1,0 +1,50 @@
+-- rml-certified-item rust/src/meta_language_support.rs#RML_META_LANGUAGE@323 target-sha256=843feca586024501a910a8d90e83b3ccbc63632a2fb44f441c73302eee1d976c
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def RML_META_LANGUAGE : String :=
+  "RML"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/meta_language_support.rs#JAVA_SCRIPT_LANGUAGE@366 target-sha256=e0127eb236bdf42bdc1a5005299c291baffb2fd47c52e9023d2b4e911d69c6db
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def JAVA_SCRIPT_LANGUAGE : String :=
+  "JavaScript"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/meta_language_support.rs#SubstitutionSmokeReport@1046 target-sha256=c912da9574ef3ddef50684eb0b8bdbd5bbc2481f0273e25672e1d166fffec93c
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SubstitutionSmokeReport where
+  | SubstitutionSmokeReport (field0 : Nat) (field1 : Bool) : SubstitutionSmokeReport
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/meta_language_support.rs#TruthSmokeReport@1172 target-sha256=80aba56bc57d407f2eb71b9a51281e88f8eb07a1c5422eec93f49d8f0bce858f
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive TruthSmokeReport where
+  | TruthSmokeReport (field0 : String) (field1 : Nat) (field2 : Nat) : TruthSmokeReport
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

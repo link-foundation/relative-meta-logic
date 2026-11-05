@@ -1,0 +1,15 @@
+{
+  "schema": "rml-external-checkouts/v1",
+  "checkouts": [
+    {
+      "path": "upstream-meta-theory",
+      "repository": "link-foundation/meta-theory",
+      "revision": "087f4515d0652925eecc54bcade724445c3978f1"
+    },
+    {
+      "path": "js/vendor/meta-language-pr201",
+      "repository": "link-foundation/meta-language",
+      "revision": "7c4bf8f1e3f88806b09d5210643cc6611d30d1f9"
+    }
+  ]
+}

@@ -57,7 +57,8 @@ node src/rml-meta.mjs ../experiments/metatheorem-plus.lino
 rml-meta ../experiments/metatheorem-plus.lino
 ```
 
-Rust:
+Rust (compiles Rust, which repository policy reserves for hosted CI; see
+[BUILD_CACHE.md](./BUILD_CACHE.md)):
 
 ```sh
 cd rust

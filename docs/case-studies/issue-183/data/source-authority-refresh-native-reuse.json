@@ -1,0 +1,66 @@
+{
+  "schema": "rml-native-input-reuse-check/v1",
+  "previousInputFreeze": "phase27-source-authority-native-inputs.json",
+  "changedInputs": [
+    {
+      "path": "lib/linked-runtime/configuration-manifest.json",
+      "priorSha256": "aed7a6a1d698cf63ca1f5a021c276e2166c76c784327c285fe16cdc7e68289c8",
+      "sha256": "d4d3e45292df2269bfc243216b8546455f59606805c88a71baf51285d381fb46"
+    },
+    {
+      "path": "lib/linked-runtime/configuration.links.json.gz",
+      "priorSha256": "a7060072e6871de792b40b35f6586ec294183851a1bd21d37e0cbf2a00f6bfb4",
+      "sha256": "fd6df89f7cbd9261880413ed30bcdd2ba98341928a8b97beb64d9a4c40c6575b"
+    },
+    {
+      "path": "lib/linked-runtime/implementation.links.json.gz",
+      "priorSha256": "108554411ae356576b7172751d633520eb7ec987fbc240752a88cfd37d0f1196",
+      "sha256": "eaa06c6a49e5b13c9332ef931f1587e7cb3403c89ce9b420e8dbfa830bc86cdf"
+    },
+    {
+      "path": "lib/linked-runtime/manifest.json",
+      "priorSha256": "54ab9e88c3c480aab60d2396974b2997f9060204ff7564872792b898f8badb35",
+      "sha256": "7bad5e108d04f6b6350eead928446343e2831ee43366a2e10af41c9fe9c4cb3a"
+    },
+    {
+      "path": "scripts/check-orientation-independence.mjs",
+      "priorSha256": "8d6a575ed1629c60b7f9a94fca420e2515957e81ec978e3a075930cfd8f315be",
+      "sha256": "9d52cd5c3a98d317ad0e632efe319b3b624bd84fd7e21c4398d566ae47a20e02"
+    },
+    {
+      "path": "test-corpus/orientation-independence/OrientationIndependence.lean",
+      "priorSha256": "19bb48646cff735dfbf629ae5afec30e292e88655fbf0e78e50fcb75844cce6d",
+      "sha256": "2728113d0332f4a7eb5ccc35d043044f0a5f8b940846be6d094d5145bc32126d"
+    },
+    {
+      "path": "test-corpus/orientation-independence/OrientationIndependence.v",
+      "priorSha256": "75a1e362db2e48296d5e53f3414e24d481d49d6517ab1307dca876ba9f6b7e15",
+      "sha256": "9e4e5ddc7af370c35e729e52eff72a4440b4c6af76e4b8c1622810faf2fc80b8"
+    },
+    {
+      "path": "test-corpus/orientation-independence/verification.json",
+      "priorSha256": "df6fabe7c85da5c9df877eee01fd756ae9e5a5e32558829d77b5d08be032355d",
+      "sha256": "2c7c3e103a83ff28951f501653a0b85ae34f36c5548954c1308976712797e689"
+    }
+  ],
+  "unchangedFiles": 414,
+  "rustArchiveUnchanged": true,
+  "rustManifestUnchanged": true,
+  "nativeReexecutionRequired": false,
+  "reason": "Changes are the public JavaScript orientation checker, three new generic JavaScript generators, their new source data, and source/configuration graphs. All Rust owned sources, Rust syntax graph, target ABI code/model, core proof/parser/K0 implementation and their executed native input programs remain byte-identical.",
+  "unchangedPriorJavaScriptModules": 154,
+  "changedJavaScriptModules": [
+    "scripts/check-orientation-independence.mjs"
+  ],
+  "newJavaScriptModules": [
+    "scripts/formal-collections-cases.mjs",
+    "scripts/formal-recursion-cases.mjs",
+    "scripts/generate-formal-recursion.mjs"
+  ],
+  "unchangedPriorConfigurationFiles": 139,
+  "newConfigurationFiles": [
+    "lib/meta-theory/formal-collections.lino",
+    "lib/meta-theory/formal-definition-context.lino",
+    "lib/meta-theory/formal-recursion.lino"
+  ]
+}

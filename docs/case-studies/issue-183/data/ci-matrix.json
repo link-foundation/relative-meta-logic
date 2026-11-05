@@ -1,0 +1,594 @@
+{
+ "schema": "rml-ci-matrix/v1",
+ "provenance": {
+  "repository": "link-foundation/relative-meta-logic",
+  "headSha": "525e4847a5a5bf35c45f6cfce152ce5f77af4c60",
+  "event": "pull_request",
+  "committedAt": "2026-10-13T16:20:55Z",
+  "recordedAt": "2026-10-13T17:58:56.858Z"
+ },
+ "workflows": [
+  {
+   "workflow": ".github/workflows/api-docs.yml",
+   "name": "api-docs",
+   "runId": 38429795307,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "5818b5eaa0534b5e8d184d62514f3c6053204f1af403b5afd09224fc1017281d",
+   "jobs": [
+    {
+     "name": "build",
+     "jobId": 115408653701,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 14,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    },
+    {
+     "name": "deploy",
+     "jobId": 115409812446,
+     "conclusion": "skipped",
+     "runner": "ubuntu-latest",
+     "steps": 0,
+     "failedSteps": [],
+     "versions": {}
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/bootstrap.yml",
+   "name": "bootstrap",
+   "runId": 38429794875,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "7acbf61d3e52e270dc81257beaf88ac747789bb9c228d4b209b93226f6f53e96",
+   "jobs": [
+    {
+     "name": "encoded-rml-corpus",
+     "jobId": 115408651768,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 13,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/cache-candidate-validation.yml",
+   "name": "cache-candidate-validation",
+   "runId": 38429795057,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "a4612d3f693cf5235ce1860367e93984d41e9ace57f0bdfe31d505c053992839",
+   "jobs": [
+    {
+     "name": "Proposed cache repair only (windows-latest)",
+     "jobId": 115408652092,
+     "conclusion": "success",
+     "runner": "windows-latest",
+     "steps": 15,
+     "failedSteps": [],
+     "versions": {
+      "runner": "windows-2025-vs2026",
+      "runnerImageVersion": "20260925.250.1"
+     }
+    },
+    {
+     "name": "Proposed cache repair only (macos-latest)",
+     "jobId": 115408652535,
+     "conclusion": "success",
+     "runner": "macos-latest",
+     "steps": 15,
+     "failedSteps": [],
+     "versions": {
+      "runner": "macos-26-arm64",
+      "runnerImageVersion": "20260907.0351.1",
+      "node": "22.23.2"
+     }
+    },
+    {
+     "name": "Proposed cache repair only (ubuntu-latest)",
+     "jobId": 115408652645,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 15,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/cache-portability.yml",
+   "name": "cache-portability",
+   "runId": 38429794746,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "cb3f5e1cc30c19ab37339de7758a001be853b5081dc87f622965024cdae41393",
+   "jobs": [
+    {
+     "name": "Cache lifecycle (windows-latest)",
+     "jobId": 115408651745,
+     "conclusion": "success",
+     "runner": "windows-latest",
+     "steps": 10,
+     "failedSteps": [],
+     "versions": {
+      "runner": "windows-2025-vs2026",
+      "runnerImageVersion": "20260925.250.1"
+     }
+    },
+    {
+     "name": "Measured native clean-rebuild cycle",
+     "jobId": 115408652038,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 14,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)"
+     }
+    },
+    {
+     "name": "Cache lifecycle (ubuntu-latest)",
+     "jobId": 115408652099,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 10,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    },
+    {
+     "name": "Cache lifecycle (macos-latest)",
+     "jobId": 115408652121,
+     "conclusion": "success",
+     "runner": "macos-latest",
+     "steps": 10,
+     "failedSteps": [],
+     "versions": {
+      "runner": "macos-26-arm64",
+      "runnerImageVersion": "20260907.0351.1",
+      "node": "22.23.2"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/docker.yml",
+   "name": "docker",
+   "runId": 38429794806,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "66ca45c55cb7b8bf8d6b6c89dada458424a561749e8dd909b0195040612be7ae",
+   "jobs": [
+    {
+     "name": "build-images",
+     "jobId": 115408650963,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 10,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/formal-corpus.yml",
+   "name": "formal-corpus",
+   "runId": 38429795313,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "bb006fae6b5aa47a8170544eb822799550f97234e1f8c7bbb9a8a57134e75616",
+   "jobs": [
+    {
+     "name": "Rocq build",
+     "jobId": 115408653130,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 14,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)",
+      "rocqImage": "rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782",
+      "rocq": "9.3.0"
+     }
+    },
+    {
+     "name": "Lean build",
+     "jobId": 115408653654,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 16,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)",
+      "lean": "4.34.1"
+     }
+    },
+    {
+     "name": "Linked semantic-source parity",
+     "jobId": 115408653767,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 13,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    },
+    {
+     "name": "Isabelle exact-reference compiler controls",
+     "jobId": 115408654248,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 11,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/issue-183-acceptance.yml",
+   "name": "issue-183-acceptance",
+   "runId": 38429795043,
+   "attempt": 1,
+   "conclusion": "failure",
+   "logSha256": "441b5740c51515b24a26de8b1adebddbd62c6d9b597f30e8405adf089166a247",
+   "jobs": [
+    {
+     "name": "Issue 183 complete delivery",
+     "jobId": 115408652669,
+     "conclusion": "failure",
+     "runner": "ubuntu-latest",
+     "steps": 12,
+     "failedSteps": [
+      "Enforce complete execution-backed delivery"
+     ],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)"
+     }
+    }
+   ],
+   "acceptance": {
+    "unfinished": [
+     "R11",
+     "R12",
+     "R18",
+     "R21",
+     "R22",
+     "R38",
+     "R47",
+     "R49",
+     "R51",
+     "R52",
+     "R55",
+     "R56",
+     "R62",
+     "R63",
+     "R64",
+     "R66",
+     "R71",
+     "R73",
+     "R74",
+     "R97",
+     "R98",
+     "R101",
+     "R103",
+     "R104",
+     "R105",
+     "R106",
+     "R107",
+     "R108",
+     "R109",
+     "R111",
+     "R114",
+     "R120",
+     "R122",
+     "R123",
+     "R130",
+     "R132",
+     "R133",
+     "R134",
+     "R135",
+     "R137",
+     "R139",
+     "R140",
+     "R141",
+     "R142",
+     "R143",
+     "R144",
+     "R145",
+     "R146",
+     "R147",
+     "R148",
+     "R149",
+     "R150",
+     "R151",
+     "R152",
+     "R153",
+     "R154",
+     "R155",
+     "R162",
+     "R163",
+     "R165",
+     "R166",
+     "R167",
+     "R168"
+    ],
+    "otherFailures": []
+   }
+  },
+  {
+   "workflow": ".github/workflows/linked-implementation.yml",
+   "name": "linked-implementation",
+   "runId": 38429794767,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "17f99c998d8ced00b2272207550b39fd44cb7df390e047cd4218ee718a0445fa",
+   "jobs": [
+    {
+     "name": "Source-free linked implementation",
+     "jobId": 115408650575,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 16,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/linked-target.yml",
+   "name": "linked-target",
+   "runId": 38429795219,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "44d4f57c39498ee75a74fa62dc6386e84e8ff56acb185fa7993325ee6a3e6705",
+   "jobs": [
+    {
+     "name": "Link model to native RML observations",
+     "jobId": 115408652805,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 16,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/lint-english.yml",
+   "name": "lint-english",
+   "runId": 38429794833,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "b29df09da864d02d4bf2cb62b517dcff779d99620494557f65de87d8884d8b17",
+   "jobs": [
+    {
+     "name": "lint-english",
+     "jobId": 115408650964,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 11,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/orientation-proofs.yml",
+   "name": "orientation-proofs",
+   "runId": 38429794763,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "23b9d67ab9b13021ef772a8749d7760a8a52accb00b226a38b4a44aaa7f0b211",
+   "jobs": [
+    {
+     "name": "Rocq orientation and consequence proofs",
+     "jobId": 115408650902,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 10,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rocqImage": "rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782",
+      "rocq": "9.3.0"
+     }
+    },
+    {
+     "name": "Lean orientation and consequence proofs",
+     "jobId": 115408651320,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 11,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/parity.yml",
+   "name": "parity",
+   "runId": 38429795263,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "0b536c31c0e4c326af741e8e76f8aaf75e300a91371f88a8ac05d01017c4768a",
+   "jobs": [
+    {
+     "name": "test-corpus",
+     "jobId": 115408653226,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 12,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/relational-kernel.yml",
+   "name": "relational-kernel",
+   "runId": 38429795040,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "5459d03cd208f3a159676f88529cbc074e27a82cb0f805175e9ba0dea1a3c551",
+   "jobs": [
+    {
+     "name": "source-defined-horn",
+     "jobId": 115408654334,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 13,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "24.21.0",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/tests.yml",
+   "name": "tests",
+   "runId": 38429795172,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "881a14f0ba9620fd702ffe0b1b22d5cf628ff4d0cc2406d96548bbc87e84e855",
+   "jobs": [
+    {
+     "name": "Rust (cargo test)",
+     "jobId": 115408653082,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 11,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)"
+     }
+    },
+    {
+     "name": "JS (node --test)",
+     "jobId": 115408653387,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 13,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3"
+     }
+    }
+   ]
+  },
+  {
+   "workflow": ".github/workflows/translation-native.yml",
+   "name": "translation-native",
+   "runId": 38429795039,
+   "attempt": 1,
+   "conclusion": "success",
+   "logSha256": "90a2e6dec14cc0796de980649a5090c48b36aa1e348c33637ac833ef4beb6b96",
+   "jobs": [
+    {
+     "name": "Native translation observations (JavaScript, Rust, Lean)",
+     "jobId": 115408652827,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 14,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)",
+      "lean": "4.34.1"
+     }
+    },
+    {
+     "name": "Native translation observations (Rocq)",
+     "jobId": 115408652947,
+     "conclusion": "success",
+     "runner": "ubuntu-latest",
+     "steps": 11,
+     "failedSteps": [],
+     "versions": {
+      "runner": "ubuntu-24.04",
+      "runnerImageVersion": "20261004.327.1",
+      "node": "22.23.3",
+      "rocqImage": "rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782",
+      "rocq": "9.3.0"
+     }
+    }
+   ]
+  }
+ ]
+}

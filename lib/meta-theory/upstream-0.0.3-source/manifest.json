@@ -1,0 +1,165 @@
+{
+  "schema": "rml-upstream-raw-source/v1",
+  "repository": "https://github.com/link-foundation/meta-theory",
+  "revision": "087f4515d0652925eecc54bcade724445c3978f1",
+  "sourceRoot": "drafts/0.0.3/src",
+  "formalModules": 18,
+  "projectConfigurations": 3,
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 1211,
+      "sha256": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e",
+      "gitBlob": "fdddb29aa445bf3d6a5d843d6dd77e10a9f99657",
+      "role": "license"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/MetaDefinitions.lean",
+      "bytes": 7827,
+      "sha256": "f5e3bb6487508501cc33ab9897aaf9b59a3e7e4d915efb6f0c16cfff58f725d7",
+      "gitBlob": "0cdcaf2964a68b43b27e81b5e0f65051d60de9ea",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/NetworkConversions.lean",
+      "bytes": 8809,
+      "sha256": "0d759f372c8458f8bfe45a98ed9bdf99fc5329cfd9d4785e30ede7904c202f86",
+      "gitBlob": "dbc9969cf9bdd4970be7c1f7c928eb19f070c06e",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/NetworkDefinitions.lean",
+      "bytes": 5197,
+      "sha256": "a95ba9c1e09b0e36bb4f01f0daa1ea8e1db8872133e74939b9d2d51541de0037",
+      "gitBlob": "911fa4400673c55fe19b398fd26df04e4224cce5",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/NetworkEquivalence.lean",
+      "bytes": 1614,
+      "sha256": "1666f2ba6e217fea3fb72db88410aad15acf853681344f02162de0d4cf348ae8",
+      "gitBlob": "6264d3859e6ce4e7f9ccf459f649bfc412d108dd",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/NetworkExamples.lean",
+      "bytes": 7162,
+      "sha256": "1ad764d600484cd2de63dc7471990629ed6e27386cb74328cd9d589824b83fbb",
+      "gitBlob": "4840818ae6747f14a1a22adb77b73ddd6ddad09f",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/NetworkLemmas.lean",
+      "bytes": 4923,
+      "sha256": "8eddf04cc37236776a3dbe88897b0bc10e0f43d5ac0abd0d36900bee72de5133",
+      "gitBlob": "844a8d221e62d36990ce2f99635b100973f3e65a",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/SequenceDefinitions.lean",
+      "bytes": 8778,
+      "sha256": "957d04f74f8a88f1817ba338c600f87bdb8668104474e262bec9214d9744c483",
+      "gitBlob": "c726bd43a62ab29e7bbb331dd1f12afc2bdf230b",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/SetDefinitions.lean",
+      "bytes": 3827,
+      "sha256": "f778edd8bbc396522b089defeb7aa3556285157edf97dd8eb2a3448c38123b4c",
+      "gitBlob": "db100b6091ab378852295ac1644f8a1bc007530c",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/SetSequenceEquivalence.lean",
+      "bytes": 5926,
+      "sha256": "0a32ecc5cbd9002e4482e824d4ce453d324209d4c825b110bf50fb0f562a4fda",
+      "gitBlob": "198160fdbc3f592e84f4ed79fabe0d83164711cb",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/lakefile.lean",
+      "bytes": 387,
+      "sha256": "03889bdff5070b7b2a20c0ecdc7c8962f704ba246bed70f33b45b550ccf2ed09",
+      "gitBlob": "5edda1803717c0e9b0a6baee0ba95dfc92975a07",
+      "role": "native-project-configuration"
+    },
+    {
+      "path": "drafts/0.0.3/src/lean/lean-toolchain",
+      "bytes": 25,
+      "sha256": "db7bb24b756d745bbde83fe92718b51bd3625dae3701ba0f598d0eedcd3f3028",
+      "gitBlob": "4c685fa085fa1c66103533e992fc82c014a12142",
+      "role": "native-project-configuration"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/MetaDefinitions.v",
+      "bytes": 9010,
+      "sha256": "58eff4bde25acb5c49d10ce1e33b4a2279a8f204b28619261d22e480d9c8b93a",
+      "gitBlob": "71b80c788d489f139e1e80786e90c12a5a094e25",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/NetworkConversions.v",
+      "bytes": 9479,
+      "sha256": "7fd8da910e85125e5a533ad18570ca309bf99b6fc7170ff3442e935d3aeb9b0a",
+      "gitBlob": "505c26fdc234a280f7cbd221a53e83ec678b9a99",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/NetworkDefinitions.v",
+      "bytes": 5600,
+      "sha256": "d03a173ffeed6734bc64deca73ff1b036d3fe2df5b3519c4c53a747080bb6ccd",
+      "gitBlob": "01eafe01a728ec2174b5c88150a355c2437d8b0c",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/NetworkEquivalence.v",
+      "bytes": 1740,
+      "sha256": "fbc715e07d5506a5e453e027295a4071fa608b3706139354351951a894747424",
+      "gitBlob": "2f4bd2e237fa68773bd618f152931603faf99435",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/NetworkExamples.v",
+      "bytes": 8247,
+      "sha256": "b87ad9f6ebec28ee98edf1a81e7b8feb358bfa2c3df0dab009715f382f940726",
+      "gitBlob": "43b2620d26d8ac72c8a273f4358def3a5b9367a7",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/NetworkLemmas.v",
+      "bytes": 5172,
+      "sha256": "2507e90a95fb8c057f087f0682c461a493d439572ddadb1616ff000c65cf29e7",
+      "gitBlob": "fe12d9efc1ffa052d425dbe4dcb8c0a7be1fdc46",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/SequenceDefinitions.v",
+      "bytes": 9620,
+      "sha256": "87fe0efe8568c1a04a6bd1b3266b9dce2a863d42d7b074f264ac8f5b6227c43c",
+      "gitBlob": "fde567c0dbe936d6176b1cd4c47350bd312d6850",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/SetDefinitions.v",
+      "bytes": 4249,
+      "sha256": "323c08f53f1bbfc536813d5a2fe3158e3a9f6c751ad8201716b35ea64958b23d",
+      "gitBlob": "f46f622a32c3b710fee2482b3d8116cc77adf89f",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/SetSequenceEquivalence.v",
+      "bytes": 11312,
+      "sha256": "55a973838df073c2a38170dd812f5314f06aea71ca64ce49b3bbd094cc67f9c8",
+      "gitBlob": "6438d985c5c6c16d28fdd95b0dd1c3bc82dccef6",
+      "role": "formal-source"
+    },
+    {
+      "path": "drafts/0.0.3/src/rocq/_CoqProject",
+      "bytes": 193,
+      "sha256": "5a22e1221c1ff1dc050f67baf7ac3db8e4c7eb220ca0573f1262263dae12bb02",
+      "gitBlob": "42222c0550b637626d924612e0664c05579f9bcf",
+      "role": "native-project-configuration"
+    }
+  ],
+  "scope": "Original bytes, comments, whitespace, source layout, configurations and license. This archive is not semantic elaboration or proof replay."
+}

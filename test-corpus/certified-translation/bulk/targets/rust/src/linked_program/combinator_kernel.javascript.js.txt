@@ -1,0 +1,52 @@
+// rml-certified-item rust/src/linked_program/combinator_kernel.rs#DEFAULT_MAX_CONTRACTIONS@436 target-sha256=6031489197bb1f0c9334a287395e150b31adf8579ef45b972894f960d4d8b746
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function DEFAULT_MAX_CONTRACTIONS() {
+  return 100000000n;
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_program/combinator_kernel.rs#CONTRACTION_LIMIT_PREFIX@500 target-sha256=4a3387e4f02f40cb0386a86c5889cae51b9895988041322c3aececaffd37bba1
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function CONTRACTION_LIMIT_PREFIX() {
+  return "combinator contraction limit ";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_program/combinator_kernel.rs#is_contraction_limit@805 target-sha256=2054d9764457508bb9ad916ea628d2ade6ea6c32a30e75712b8f8775cc49749f
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function CONTRACTION_LIMIT_PREFIX() {
+  return "combinator contraction limit ";
+}
+
+function is_contraction_limit(message) {
+  return message.startsWith(CONTRACTION_LIMIT_PREFIX());
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_program/combinator_kernel.rs#KernelSourceSummary@1442 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();

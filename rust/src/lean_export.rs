@@ -3,9 +3,7 @@
 //! The exporter translates declaration syntax into a Lean-checkable artifact
 //! and rejects probabilistic forms instead of assigning them a Lean meaning.
 
-use crate::{
-    compute_form_spans, is_num, key_of, parse_lino, parse_one, tokenize_one, Diagnostic, Node, Span,
-};
+use crate::{is_num, key_of, read_lino_forms, Diagnostic, Node, Span};
 use std::collections::{HashMap, HashSet};
 
 const HEADER: &[&str] = &[
@@ -30,71 +28,14 @@ struct Binding {
 #[derive(Debug, Default)]
 struct ExportCtx {
     types: HashMap<String, Node>,
+    noncomputable: HashSet<String>,
     lines: Vec<String>,
     blocks: Vec<String>,
 }
 
 /// Convert an RML identifier to a Lean-safe identifier.
 pub fn lean_ident(raw: &str) -> String {
-    if raw == "_" {
-        return "_".to_string();
-    }
-    let mut out: String = raw
-        .chars()
-        .map(|c| {
-            if c.is_ascii_alphanumeric() || c == '_' {
-                c
-            } else {
-                '_'
-            }
-        })
-        .collect();
-    if out.is_empty() {
-        out = "rml".to_string();
-    }
-    if !out
-        .chars()
-        .next()
-        .map(|c| c.is_ascii_alphabetic() || c == '_')
-        .unwrap_or(false)
-    {
-        out = format!("rml_{}", out);
-    }
-    if reserved().contains(out.as_str()) {
-        out = format!("rml_{}", out);
-    }
-    out
-}
-
-fn reserved() -> HashSet<&'static str> {
-    [
-        "Type",
-        "Prop",
-        "Sort",
-        "axiom",
-        "def",
-        "fun",
-        "inductive",
-        "where",
-        "match",
-        "with",
-        "let",
-        "in",
-        "if",
-        "then",
-        "else",
-        "forall",
-        "by",
-        "theorem",
-        "example",
-        "namespace",
-        "open",
-        "import",
-        "true",
-        "false",
-    ]
-    .into_iter()
-    .collect()
+    format!("rml_ref_{}", raw.bytes().map(|byte| format!("{byte:02x}")).collect::<String>())
 }
 
 fn probabilistic_heads() -> HashSet<&'static str> {
@@ -107,19 +48,6 @@ fn probabilistic_heads() -> HashSet<&'static str> {
 
 fn diagnostic(message: impl Into<String>, span: &Span) -> Diagnostic {
     Diagnostic::new("E050", message, span.clone())
-}
-
-fn parse_forms(text: &str) -> Result<Vec<Node>, String> {
-    let mut out = Vec::new();
-    for link in parse_lino(text) {
-        let trimmed = link.trim();
-        if trimmed.starts_with("(# ") {
-            continue;
-        }
-        let toks = tokenize_one(&link);
-        out.push(parse_one(&toks)?);
-    }
-    Ok(out)
 }
 
 fn unwrap_form(mut form: Node) -> Node {
@@ -148,43 +76,8 @@ fn list(node: &Node) -> Option<&[Node]> {
 }
 
 fn parse_binding_node(binding: &Node) -> Option<Binding> {
-    let children = list(binding)?;
-    if children.len() != 2 {
-        return None;
-    }
-    if let Some(s) = leaf(&children[0]) {
-        if let Some(name) = s.strip_suffix(':') {
-            return Some(Binding {
-                param_name: name.to_string(),
-                param_type: children[1].clone(),
-            });
-        }
-    }
-    if let (Some(type_name), Some(var_name)) = (leaf(&children[0]), leaf(&children[1])) {
-        if type_name
-            .chars()
-            .next()
-            .map(|c| c.is_uppercase())
-            .unwrap_or(false)
-            && !var_name.ends_with(':')
-        {
-            return Some(Binding {
-                param_name: var_name.to_string(),
-                param_type: Node::Leaf(type_name.to_string()),
-            });
-        }
-    }
-    if matches!(children[0], Node::List(_)) {
-        if let Some(var_name) = leaf(&children[1]) {
-            if !var_name.ends_with(':') {
-                return Some(Binding {
-                    param_name: var_name.to_string(),
-                    param_type: children[0].clone(),
-                });
-            }
-        }
-    }
-    None
+    let (param_name, type_key) = crate::parse_binding(binding)?;
+    Some(Binding { param_name, param_type: crate::type_key_to_node(&type_key) })
 }
 
 fn subst_node(node: &Node, name: &str, replacement: &Node) -> Node {
@@ -449,8 +342,29 @@ fn infer_type(node: &Node, ctx: &ExportCtx, bindings: &HashMap<String, Node>) ->
     }
 }
 
-fn declare_type(ctx: &mut ExportCtx, name: &str, typ: Node) {
+fn declare_type(ctx: &mut ExportCtx, name: &str, typ: Node) -> Result<(), String> {
+    if matches!(name, "Type" | "Prop") { return Err(format!("Lean export cannot redeclare builtin {name}")); }
     ctx.types.insert(name.to_string(), typ);
+    Ok(())
+}
+
+// Keep data axioms and their dependent definitions explicit in Lean, while
+// preserving computable lambdas that only use local parameters.
+fn depends_on_noncomputable(node: &Node, ctx: &ExportCtx, bound: &HashSet<String>) -> bool {
+    match node {
+        Node::Leaf(name) => !bound.contains(name) && ctx.noncomputable.contains(name),
+        Node::List(children) => {
+            if children.len() == 3 && leaf(&children[0]) == Some("lambda") {
+                if let Some(binding) = parse_binding_node(&children[1]) {
+                    let mut next = bound.clone();
+                    next.insert(binding.param_name);
+                    return depends_on_noncomputable(&children[2], ctx, &next);
+                }
+            }
+            if matches!(children.first().and_then(leaf), Some("Type" | "Prop" | "Pi" | "forall")) { return false; }
+            children.iter().any(|child| depends_on_noncomputable(child, ctx, bound))
+        }
+    }
 }
 
 fn export_definition(form: &[Node], ctx: &mut ExportCtx, span: &Span) -> Result<(), String> {
@@ -460,7 +374,7 @@ fn export_definition(form: &[Node], ctx: &mut ExportCtx, span: &Span) -> Result<
             key_of(&Node::List(form.to_vec()))
         ));
     };
-    let head = raw_head.trim_end_matches(':');
+    let head = raw_head.strip_suffix(':').unwrap_or(raw_head);
     let rhs = &form[1..];
     if head == "range" || head == "valence" {
         return Err(format!(
@@ -485,7 +399,8 @@ fn export_definition(form: &[Node], ctx: &mut ExportCtx, span: &Span) -> Result<
 
     if rhs.len() == 2 && leaf(&rhs[1]) == Some(head) {
         let type_node = rhs[0].clone();
-        declare_type(ctx, head, type_node.clone());
+        declare_type(ctx, head, type_node.clone())?;
+        ctx.noncomputable.insert(head.to_string());
         ctx.lines.push(format!(
             "axiom {} : {}",
             lean_ident(head),
@@ -496,7 +411,8 @@ fn export_definition(form: &[Node], ctx: &mut ExportCtx, span: &Span) -> Result<
 
     if rhs.len() == 1 && matches!(rhs[0], Node::List(_)) {
         let type_node = rhs[0].clone();
-        declare_type(ctx, head, type_node.clone());
+        declare_type(ctx, head, type_node.clone())?;
+        ctx.noncomputable.insert(head.to_string());
         ctx.lines.push(format!(
             "axiom {} : {}",
             lean_ident(head),
@@ -519,11 +435,14 @@ fn export_definition(form: &[Node], ctx: &mut ExportCtx, span: &Span) -> Result<
         })?;
         let type_node = infer_type(&lambda_node, ctx, &HashMap::new())
             .ok_or_else(|| format!("Lean export could not infer a Lean type for `{}`", head))?;
-        declare_type(ctx, head, type_node.clone());
+        declare_type(ctx, head, type_node.clone())?;
+        let noncomputable = depends_on_noncomputable(&lambda_node, ctx, &HashSet::new());
+        if noncomputable { ctx.noncomputable.insert(head.to_string()); }
         let param = lean_ident(&binding.param_name);
         let scope = with_scope(&HashMap::new(), &binding.param_name, &param);
         ctx.lines.push(format!(
-            "def {} : {} := fun {} => {}",
+            "{}def {} : {} := fun {} => {}",
+            if noncomputable { "noncomputable " } else { "" },
             lean_ident(head),
             type_to_lean(&type_node, ctx, &HashMap::new(), span)?,
             param,
@@ -552,7 +471,7 @@ fn export_inductive(form: &[Node], ctx: &mut ExportCtx, span: &Span) -> Result<(
             Node::Leaf("Type".to_string()),
             Node::Leaf("0".to_string()),
         ]),
-    );
+    )?;
     let mut lines = vec![format!(
         "inductive {} : Type 0 where",
         lean_ident(type_name)
@@ -571,7 +490,7 @@ fn export_inductive(form: &[Node], ctx: &mut ExportCtx, span: &Span) -> Result<(
             ));
         }
         if let Some(ctor_name) = leaf(&parts[1]) {
-            declare_type(ctx, ctor_name, Node::Leaf(type_name.to_string()));
+            declare_type(ctx, ctor_name, Node::Leaf(type_name.to_string()))?;
             lines.push(format!(
                 "  | {} : {}",
                 lean_ident(ctor_name),
@@ -583,7 +502,7 @@ fn export_inductive(form: &[Node], ctx: &mut ExportCtx, span: &Span) -> Result<(
             if body.len() == 2 {
                 if let Some(ctor_name) = leaf(&body[0]) {
                     let ctor_type = body[1].clone();
-                    declare_type(ctx, ctor_name, ctor_type.clone());
+                    declare_type(ctx, ctor_name, ctor_type.clone())?;
                     lines.push(format!(
                         "  | {} : {}",
                         lean_ident(ctor_name),
@@ -649,27 +568,18 @@ fn export_form(form: Node, ctx: &mut ExportCtx, span: &Span) -> Result<(), Strin
 
 /// Export the supported typed RML fragment to Lean 4 source.
 pub fn export_lean(text: &str, file: Option<&str>) -> LeanExportResult {
-    let spans = compute_form_spans(text, file);
-    let forms = match parse_forms(text) {
+    let forms = match read_lino_forms(text, file) {
         Ok(forms) => forms,
-        Err(e) => {
+        Err(diagnostic) => {
             return LeanExportResult {
                 source: String::new(),
-                diagnostics: vec![Diagnostic::new(
-                    "E006",
-                    format!("LiNo parse failure: {}", e),
-                    Span::new(file.map(|s| s.to_string()), 1, 1, 0),
-                )],
+                diagnostics: vec![diagnostic],
             };
         }
     };
     let mut ctx = ExportCtx::default();
     let mut diagnostics = Vec::new();
-    for (idx, form) in forms.into_iter().enumerate() {
-        let span = spans
-            .get(idx)
-            .cloned()
-            .unwrap_or_else(|| Span::new(file.map(|s| s.to_string()), 1, 1, 0));
+    for (form, span) in forms {
         if let Err(message) = export_form(form, &mut ctx, &span) {
             diagnostics.push(diagnostic(message, &span));
         }

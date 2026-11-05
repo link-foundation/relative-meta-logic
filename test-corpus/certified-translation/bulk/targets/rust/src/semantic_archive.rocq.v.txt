@@ -1,0 +1,18 @@
+(* rml-certified-item rust/src/semantic_archive.rs#ArchiveLimits@331 target-sha256=6ded8e1caf75d62e228d20a7d3503a4ffc3f4696a09fb4e55794c3fa62ac2b69 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive ArchiveLimits : Type :=
+| ArchiveLimits_2 : N -> N -> N -> ArchiveLimits.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

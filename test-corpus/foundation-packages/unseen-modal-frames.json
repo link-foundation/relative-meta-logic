@@ -1,0 +1,58 @@
+{
+  "schema": "rml-unseen-foundation-fixture/v1",
+  "description": "A modal accessibility logic that no host source names. Version 1 has no frame condition and an inductive cycle policy, version 2 adds a transitive frame condition, and version 3 keeps version 1's rules with a guarded-coinductive policy. Versions 2 and 3 import version 1's programs and its unchanged lab-frame theory by explicit aliases.",
+  "instance": "study-lab",
+  "packages": [
+    { "name": "modal-frames", "version": "1", "source": "unseen-modal-frames-1.lino", "imports": [] },
+    { "name": "modal-frames", "version": "2", "source": "unseen-modal-frames-2.lino", "imports": [
+      { "name": "modal-frames", "version": "1", "program": "frame-rules", "alias": "k-frame" },
+      { "name": "modal-frames", "version": "1", "program": "modal-negation", "alias": "k-negation" },
+      { "name": "modal-frames", "version": "1", "program": "modal-abbreviations", "alias": "k-abbreviations" },
+      { "name": "modal-frames", "version": "1", "program": "lab-frame", "alias": "shared-frame" }
+    ] },
+    { "name": "modal-frames", "version": "3", "source": "unseen-modal-frames-3.lino", "imports": [
+      { "name": "modal-frames", "version": "1", "program": "frame-rules", "alias": "k-frame" },
+      { "name": "modal-frames", "version": "1", "program": "modal-negation", "alias": "k-negation" },
+      { "name": "modal-frames", "version": "1", "program": "modal-abbreviations", "alias": "k-abbreviations" },
+      { "name": "modal-frames", "version": "1", "program": "lab-frame", "alias": "shared-frame" }
+    ] }
+  ],
+  "queries": [
+    { "name": "lab-reaches-dry", "query": ["forces-at", "w-lab", ["pos-dia", "sample-dry"]],
+      "statuses": ["proved", "proved", "proved"], "outcomes": ["proved", "proved", "proved"] },
+    { "name": "home-reaches-dry", "query": ["forces-at", "w-home", ["pos-dia", "sample-dry"]],
+      "statuses": ["unknown", "proved", "unknown"], "outcomes": ["unknown", "proved", "unknown"] },
+    { "name": "field-dead-end", "query": ["forces-at", "w-field", ["pos-dia", "sample-dry"]],
+      "statuses": ["refuted", "refuted", "refuted"], "outcomes": ["refuted", "refuted", "refuted"] },
+    { "name": "ghost-contradiction", "query": ["forces-at", "w-ghost", ["pos-dia", "sample-dry"]],
+      "statuses": ["contradictory", "contradictory", "contradictory"], "outcomes": ["contradictory", "contradictory", "contradictory"] },
+    { "name": "orbit-dry-path", "query": ["forces-at", "w-orbit", ["along-path", "sample-dry"]],
+      "statuses": ["unknown", "unknown", "proved"], "outcomes": ["unknown", "unknown", "proved"] },
+    { "name": "lab-wet-by-box", "query": ["forces-at", "w-lab", "sample-wet"],
+      "statuses": ["proved", "proved", "proved"], "outcomes": ["proved", "proved", "proved"] },
+    { "name": "abbreviated-query", "query": ["forces-at", "w-home", ["strict-arrow", "sample-wet", "sample-dry"]],
+      "statuses": ["unknown", "unknown", "unknown"], "outcomes": ["unknown", "unknown", "unknown"] },
+    { "name": "outside-signature", "query": ["unrelated-form", "x"],
+      "statuses": ["unsupported", "unsupported", "unsupported"], "outcomes": ["unsupported", "unsupported", "unsupported"] },
+    { "name": "wild-under-assumptions", "query": ["forces-at", "w-home", ["pos-dia", "sample-wild"]],
+      "assumptions": [["valuation-holds", "w-lab", "sample-wild"], ["modal-atom", "sample-wild"], ["dead-end", "w-unused"]],
+      "used": [["valuation-holds", "w-lab", "sample-wild"], ["modal-atom", "sample-wild"]],
+      "statuses": ["proved", "proved", "proved"], "outcomes": ["assumption-dependent", "assumption-dependent", "assumption-dependent"] },
+    { "name": "field-contradiction-under-assumption", "query": ["forces-at", "w-field", ["pos-dia", "sample-dry"]],
+      "assumptions": [["acc-arrow", "w-field", "w-orbit"]],
+      "used": [["acc-arrow", "w-field", "w-orbit"]],
+      "statuses": ["contradictory", "contradictory", "contradictory"], "outcomes": ["assumption-dependent", "assumption-dependent", "assumption-dependent"] },
+    { "name": "bounded-search", "query": ["forces-at", "w-home", ["pos-dia", "sample-dry"]], "maxFacts": 2,
+      "statuses": ["exhausted", "exhausted", "exhausted"], "outcomes": ["exhausted", "exhausted", "exhausted"] }
+  ],
+  "executions": [
+    { "name": "unfold-strict-arrow", "term": ["strict-arrow", "sample-wet", "sample-dry"],
+      "status": "normal", "outcome": "computed",
+      "output": ["nec-box", ["alt-or", ["alt-not", "sample-wet"], "sample-dry"]] },
+    { "name": "mirror-cycle", "term": ["mirror-pair", "sample-wet", "sample-dry"],
+      "status": "unsupported", "outcome": "unsupported", "reason": "rewrite-cycle" },
+    { "name": "step-bound", "term": ["strict-arrow", ["strict-arrow", "sample-wet", "sample-dry"], "sample-dry"], "maxSteps": 1,
+      "status": "exhausted", "outcome": "exhausted", "reason": "rewrite-limit" }
+  ],
+  "outcomeKinds": ["proved", "refuted", "contradictory", "assumption-dependent", "unknown", "exhausted", "unsupported", "computed"]
+}

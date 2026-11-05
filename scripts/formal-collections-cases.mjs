@@ -1,0 +1,44 @@
+/** Generic collection/case obligations, shared without native prover authority. */
+const n = value => value ? ['fs-successor', n(value - 1)] : ['fs-zero'];
+const nv = value => value ? ['fs-v-successor', nv(value - 1)] : 'fs-v-zero';
+const list = values => values.reduceRight((tail, value) => ['fs-cons', value, tail], ['fs-nil']);
+const lv = values => values.reduceRight((tail, value) => ['fs-v-cons', value, tail], 'fs-v-nil');
+const variable = at => ['fs-variable', at ? ['fs-index-next', 'fs-index-zero'] : 'fs-index-zero'];
+const nat = ['fs-nat-type'], natList = ['fs-list-type', nat];
+const nil = ['fs-ascribe', ['fs-nil'], natList];
+const infer = term => ['fs-infer', term, 'fs-empty', 'fs-empty'];
+const check = (term, type) => ['fs-check', term, type, 'fs-empty', 'fs-empty'];
+const inferred = body => ['fs-lambda-inferred', body];
+const ok = (type, value) => ['fs-ok', type, value];
+const goodNat = inferred(variable(0));
+const goodList = inferred(inferred(variable(1)));
+export function collectionCases() {
+  const cases = [];
+  const add = (name, request, expected) => cases.push({ name, request, accepted: expected !== undefined, ...(expected === undefined ? {} : { expected }) });
+  add('typed empty list ascription', infer(nil), ok(['fs-t-list', 'fs-t-nat'], 'fs-v-nil'));
+  add('invalid empty list ascription', infer(['fs-ascribe', ['fs-nil'], nat]));
+  add('pair first', infer(['fs-first', ['fs-pair', n(2), ['fs-true']]]), ok('fs-t-nat', nv(2)));
+  add('pair second', infer(['fs-second', ['fs-pair', n(2), ['fs-true']]]), ok('fs-t-bool', 'fs-v-true'));
+  add('non-pair projection', infer(['fs-first', n(1)]));
+  add('natural addition', infer(['fs-add', n(2), n(3)]), ok('fs-t-nat', nv(5)));
+  add('addition rejects Boolean', infer(['fs-add', ['fs-true'], n(0)]));
+  add('list append', infer(['fs-append', list([n(1)]), list([n(2), n(3)])]), ok(['fs-t-list', 'fs-t-nat'], lv([nv(1), nv(2), nv(3)])));
+  add('list append rejects mixed elements', infer(['fs-append', list([n(1)]), list([['fs-true']])]));
+  add('conditional true', check(['fs-if', ['fs-true'], n(1), n(2)], 'fs-t-nat'), ok('fs-t-nat', nv(1)));
+  add('conditional false', check(['fs-if', ['fs-false'], n(1), n(2)], 'fs-t-nat'), ok('fs-t-nat', nv(2)));
+  add('conditional checks inactive false branch', check(['fs-if', ['fs-true'], n(1), ['fs-true']], 'fs-t-nat'));
+  add('conditional checks inactive true branch', check(['fs-if', ['fs-false'], ['fs-true'], n(1)], 'fs-t-nat'));
+  add('conditional rejects non-Boolean guard', check(['fs-if', n(0), n(1), n(2)], 'fs-t-nat'));
+  add('natural zero case', infer(['fs-nat-case', nat, n(0), n(4), goodNat]), ok('fs-t-nat', nv(4)));
+  add('natural successor predecessor', infer(['fs-nat-case', nat, n(3), n(4), goodNat]), ok('fs-t-nat', nv(2)));
+  add('natural case checks unused step', infer(['fs-nat-case', nat, n(0), n(4), inferred(['fs-true'])]));
+  add('natural case checks unused base', infer(['fs-nat-case', nat, n(1), ['fs-true'], goodNat]));
+  add('natural case rejects target type', infer(['fs-nat-case', nat, ['fs-true'], n(4), goodNat]));
+  add('list nil case', infer(['fs-list-case', nat, nil, n(4), goodList]), ok('fs-t-nat', nv(4)));
+  add('list cons binder order', infer(['fs-list-case', nat, list([n(3)]), n(4), goodList]), ok('fs-t-nat', nv(3)));
+  add('list case checks unused cons', infer(['fs-list-case', nat, nil, n(4), inferred(inferred(['fs-true']))]));
+  add('list case checks unused nil', infer(['fs-list-case', nat, list([n(3)]), ['fs-true'], goodList]));
+  add('list case rejects reversed binder selection', infer(['fs-list-case', nat, nil, n(4), inferred(inferred(variable(0)))]));
+  add('list case rejects target type', infer(['fs-list-case', nat, n(0), n(4), goodList]));
+  return { schema: 'rml-formal-collections/v1', fullCorpusVerified: false, cases };
+}

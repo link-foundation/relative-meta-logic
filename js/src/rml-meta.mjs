@@ -13,6 +13,7 @@
 // with a counter-witness drawn from the underlying checkers.
 
 import fs from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import {
   evaluate,
   Env,
@@ -179,7 +180,7 @@ function main(argv) {
   return 1;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exit(main(process.argv));
 }
 

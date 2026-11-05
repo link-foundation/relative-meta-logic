@@ -1,0 +1,8 @@
+diff --git a/rust/src/lib.rs b/rust/src/lib.rs
+--- a/rust/src/lib.rs
++++ b/rust/src/lib.rs
+@@ -14108 +14108,4 @@
+ pub mod upstream_language;
++
++#[path = "../control-flow/src/control_flow.rs"]
++pub mod control_flow;

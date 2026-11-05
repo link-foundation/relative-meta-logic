@@ -1,0 +1,45 @@
+{
+  "schema": "rml-linked-elaboration-cases/v1",
+  "description": "Documents whose elaboration is decided by lib/meta-theory/horn-rml-elaboration.lino. Accepted documents must elaborate to exactly the programs the host registry builds; rejected documents must carry the listed linked reason and detail while the host registry rejects them with the listed message fragment; documents with no linked elaboration have no answer at all.",
+  "accepted": [
+    "test-corpus/lambda-kernel/workload.lino",
+    "test-corpus/relational-kernel/workload.lino",
+    "test-corpus/relational-kernel/fairness.lino",
+    "test-corpus/foundation-comparison/sk-laws.lino",
+    "test-corpus/foundation-packages/version-one.lino",
+    "test-corpus/foundation-packages/version-two.lino",
+    "test-corpus/researcher-workflow/theory.lino",
+    "test-corpus/researcher-workflow/foundation-one.lino",
+    "test-corpus/researcher-workflow/foundation-two.lino",
+    "test-corpus/foundations/confidence-context.lino",
+    "test-corpus/foundations/foundation-context.lino",
+    "test-corpus/semantic-archive/universe-contracts.lino",
+    "lib/meta-theory/formal-propositions.lino",
+    "lib/meta-theory/formal-definition-context.lino",
+    "lib/foundations/confidence.lino"
+  ],
+  "inline": [
+    {"name": "rewrite clauses in either order", "source": "(linked-program a)\n(linked-rewrite a r (to (y ?x)) (from (x ?x)))\n(linked-rewrite a s (from (z ?x)) (to (w ?x)))"},
+    {"name": "sigil alone and other forms", "source": "(linked-program a)\n(note ignored)\n(linked-rewrite a r (from (? ?x)) (to (?x ?)))"}
+  ],
+  "rejected": [
+    {"name": "unknown owner", "source": "(linked-program a)\n(linked-rewrite b r (from x) (to y))", "reason": "unknown-program", "detail": "b", "host": "references unknown linked-program b"},
+    {"name": "duplicate program", "source": "(linked-program a)\n(linked-program a)", "reason": "duplicate-program", "detail": "a", "host": "duplicate linked-program a"},
+    {"name": "unbound replacement variable", "source": "(linked-program a)\n(linked-rewrite a r (from (x ?x)) (to (y ?y)))", "reason": "unbound-variable", "detail": "y", "host": "has unbound variable ?y"},
+    {"name": "variable in a fact", "source": "(linked-program a)\n(linked-fact a f (judgement (holds ?x)))", "reason": "fact-variable", "detail": "x", "host": "cannot contain variables"},
+    {"name": "duplicate rewrite", "source": "(linked-program a)\n(linked-rewrite a r (from x) (to y))\n(linked-rewrite a r (from z) (to y))", "reason": "duplicate-item", "detail": "r", "host": "duplicate linked-rewrite a.r"},
+    {"name": "unknown dependency", "source": "(linked-program a (uses b))", "reason": "unknown-dependency", "detail": "b", "host": "uses unknown program b"},
+    {"name": "import cycle", "source": "(linked-program a (uses b))\n(linked-program b (uses a))", "reason": "import-cycle", "detail": "a", "host": "import cycle at a"},
+    {"name": "repeated dependency", "source": "(linked-program b)\n(linked-program a (uses b) (uses b))", "reason": "repeated-dependency", "detail": "b", "host": "repeats dependency b"},
+    {"name": "repeated rebind source", "source": "(linked-program b)\n(linked-program a (uses b (rebind x y) (rebind x z)))", "reason": "repeated-rebind", "detail": "x", "host": "repeats rebind source x"},
+    {"name": "rebound pattern variable", "source": "(linked-program b)\n(linked-program a (uses b (rebind ?x y)))", "reason": "rebind-variable", "detail": "?x", "host": "cannot rebind pattern variables"},
+    {"name": "unbound conclusion variable", "source": "(linked-program a)\n(linked-inference a i (premise (p ?x)) (conclusion (q ?y)))", "reason": "unbound-variable", "detail": "y", "host": "has unbound variable ?y"},
+    {"name": "inference without premise", "source": "(linked-program a)\n(linked-inference a i (conclusion (q y)))", "reason": "missing-premise", "detail": "i", "host": "requires at least one premise"}
+  ],
+  "unelaborated": [
+    {"name": "rewrite without replacement", "source": "(linked-program a)\n(linked-rewrite a r (from x))", "host": "requires a program, name, from, and to"},
+    {"name": "unsupported program clause", "source": "(linked-program a (imports b))\n(linked-program b)", "host": "only supports (uses program (rebind from to) ...) clauses"},
+    {"name": "repeated conclusion", "source": "(linked-program a)\n(linked-inference a i (premise (p ?x)) (conclusion (q ?x)) (conclusion (r ?x)))", "host": "repeats its conclusion"},
+    {"name": "fact without judgement clause", "source": "(linked-program a)\n(linked-fact a f (holds x))", "host": "requires (judgement value)"}
+  ]
+}

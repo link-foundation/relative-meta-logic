@@ -1,0 +1,38 @@
+-- rml-certified-item rust/src/formal_corpus.rs#SCHEMA@327 target-sha256=d8743fa6f59c07ba0616b76a279a6de5a52589ca8df0eadaa623d4060a91a058
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def SCHEMA : String :=
+  "linked-source-v1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/formal_corpus.rs#FormalToken@369 target-sha256=2546043d0f1d45e5b07f712cd900867fbed871f1bfc1bf81b9bc43c847a7f2de
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive FormalToken where
+  | FormalToken (field0 : String) (field1 : String) : FormalToken
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/formal_corpus.rs#Contract@1635 target-sha256=6f5a1e530256e5405edcf7298f6aa6f0117d560f287ff9c050552d5c4455d344
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive Contract where
+  | Contract (field0 : String) (field1 : String) (field2 : String) (field3 : String) (field4 : Nat) (field5 : Nat) (field6 : Nat) (field7 : Nat) (field8 : String) : Contract
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

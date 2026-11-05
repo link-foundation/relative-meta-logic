@@ -1,0 +1,271 @@
+{
+  "schema": "rml-integrated-source-authority-validation/v1",
+  "createdAt": "2026-10-08T05:08:21.355236+00:00",
+  "baseRevision": "7c529314a5ec1840eb4bcd2f21305421986cbc82",
+  "baseTree": "c7353d335790a10c0acb327570abb5d7cb37f8b3",
+  "scope": "Local integrated source authority, control-flow, dependency, target ABI and executable-inventory additions over the exact published identity/native tree. No remote publication.",
+  "tools": {
+    "node": "v24.19.0",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)"
+  },
+  "currentTree": {
+    "schema": "rml-current-linked-implementation/v1",
+    "currentTreeConsistent": true,
+    "implementations": [
+      {
+        "manifest": "lib/linked-runtime/manifest.json",
+        "modules": 155,
+        "archiveSha256": "108554411ae356576b7172751d633520eb7ec987fbc240752a88cfd37d0f1196"
+      },
+      {
+        "manifest": "lib/linked-runtime/rust-manifest.json",
+        "modules": 47,
+        "archiveSha256": "d0a0c3189d032b12d6e194f468925dc086ea2b064d961e9efd901e8504574d8e"
+      }
+    ],
+    "configuration": {
+      "files": 139,
+      "providers": 912,
+      "currentTreeConsistent": true
+    }
+  },
+  "javascript": {
+    "ordinarySuite": {
+      "passed": 2240,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "durationMs": 622886.348559,
+      "command": "npm --prefix js test"
+    },
+    "focusedSuite": {
+      "passed": 234,
+      "failed": 0,
+      "durationMs": 79420.24321,
+      "overlapsOrdinarySuite": true
+    },
+    "candidateValidator": {
+      "passed": 9,
+      "failed": 0,
+      "command": "node scripts/run-with-cache.mjs -- node --test .github/candidates/cache-portability/validate.test.mjs"
+    },
+    "apiDocumentation": {
+      "passed": true,
+      "command": "node scripts/run-with-cache.mjs -- npm --prefix js run docs -- --destination ../_site/api/js"
+    }
+  },
+  "nativeCargoAttempt": {
+    "aggregatePassed": false,
+    "status": "interrupted for disk reserve; not a passing aggregate",
+    "sessionExitCode": 130,
+    "baselineKernelReplacementAssertionsPassed": 4,
+    "baselineParserAssertionsPassed": 11,
+    "baselineAuthorityAssertionPassed": 1,
+    "sharedProofCorpusAssertionPassed": 1,
+    "sourceFreeCompanionsCompiled": [
+      "rust/control-flow",
+      "rust/linked-target",
+      "rust/relational-kernel"
+    ],
+    "controlFlowAssertionsPassed": 8,
+    "relationalAssertionsPassedBeforeInterruption": 13,
+    "unfinishedTest": "actual_quoted_horn_image_preserves_the_entire_six_capability_workload",
+    "cleanup": "Outer session interrupt did not release its newly created lease. The lease and all protected outputs are preserved; this run is not counted as a successful cleanup."
+  },
+  "nativeContinuation": {
+    "schema": "rml-source-free-direct-rustc-validation/v1",
+    "mode": "Freshly compile emitted owned source using read-only SHA-frozen generic rlibs; no Cargo resolution or provider rebuild",
+    "sourceModules": 47,
+    "archiveSha256": "d0a0c3189d032b12d6e194f468925dc086ea2b064d961e9efd901e8504574d8e",
+    "inputFreezeSha256": "4bee50bc5778d4dfd9296e37b18d4f193f40750b8d72a85fcda4217d98a7cf9f",
+    "genericInputManifestSha256": "857f7e349ad9653a240630b5532a2e8be1ff19161f3d4d33b52b7db53c5a0c48",
+    "seedHelperSha256": "05e71c9e5d8e260f8250bee91548b945260a3fd7d6ec7ebe636b0bcaaf9fe5d1",
+    "regeneratedHelperSha256": "17ce6e5273f8bf9e8956f22195016f8ffcebf41a09b1f97df6a62d34074473df",
+    "parserMutation": true,
+    "verifierMutation": true,
+    "generatorFixedPoint": true,
+    "syntaxRegressions": 4,
+    "sourceInputsUnchanged": true,
+    "genericInputsUnchanged": true,
+    "receipts": [
+      {
+        "variant": "baseline",
+        "runtimeSha256": "12844a4a25b1be4a7f0a36955f91388bdfe3f7e6b4631e2e349c36359c93fc87",
+        "testSha256": "b1b97e9cf57e65258791e98043e2f7ac2daa8b3a80a7db8d3c967eed4cd02d56",
+        "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+      },
+      {
+        "variant": "parser",
+        "runtimeSha256": "eaa8622d639ffe49243ccb5ff559e2889d2ccf2d006efc7fcb257a1350dc3e93",
+        "testSha256": "0c53757a84cd11d7c425ea609ae19f1e3d24247f2aee597eddeb827e11ef5576",
+        "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+      },
+      {
+        "variant": "verifier",
+        "runtimeSha256": "596dbf46ceda0bbd16e1f34a21de165657bdedc341cadbe0f121d76cac2919ef",
+        "testSha256": "0433bb10c6b0144ed5d22bb6c3a6b412991cdd0a4fa4cea420e876609f936a5e",
+        "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+      }
+    ],
+    "fullCargoAggregatePassed": false,
+    "fullCompilerCorrectness": false
+  },
+  "abi": {
+    "schema": "rml-linked-target-witness/v1",
+    "sourceFree": true,
+    "proofCases": 34,
+    "exactReceiptByteComparisons": 34,
+    "crossPortReplays": 34,
+    "parserCases": 4,
+    "strictNativeFrames": 4,
+    "corruptNativeFramesRejected": 5,
+    "forgedReceiptRejected": true,
+    "resourceExhaustionIsError": true,
+    "independentModelInterpreter": true,
+    "regeneratedLayoutChangesBytes": true,
+    "regeneratedVerdictChangesExecution": true,
+    "regeneratedParserChangesObservation": true,
+    "nativeArtifactHashes": [
+      "e88003d78407044f39ce9bf96c98753ea8627f0a3a3351c52afb8133a3a4e849",
+      "090ae8161c0e2edd82192ff4d37586140f1f2ba89bfaec219c142c6a8c52d150",
+      "47ec954f38e5eb0957965fe3222f3d9372640555f578d3a6ea38337646016077",
+      "0ea63597c56e220c557d491e42eebf689c088f62642cfca8364af045f99be9b3"
+    ],
+    "genericGeneratorHashes": [
+      [
+        "scripts/linked-target-abi.mjs",
+        "cdfc5b52894140aabc143c30124915ab8bac5c19c59fff3bd8d5a524d4a419ac"
+      ],
+      [
+        "scripts/linked-target-rust-codegen.mjs",
+        "f12ec61cdee49ad21d0ebd12fded4e288c0dd9b0671a568be9a2d32c7b1073aa"
+      ]
+    ],
+    "fullCompilerCorrectness": false,
+    "physicalIsaModel": false,
+    "compilationMode": "direct-rustc with frozen read-only generic dependency artifacts",
+    "inputFreezeSha256": "4bee50bc5778d4dfd9296e37b18d4f193f40750b8d72a85fcda4217d98a7cf9f",
+    "genericInputManifestSha256": "857f7e349ad9653a240630b5532a2e8be1ff19161f3d4d33b52b7db53c5a0c48",
+    "sourceInputsUnchanged": true,
+    "genericInputsUnchanged": true
+  },
+  "nativeContinuationLifecycle": {
+    "exitCode": 0,
+    "leaseReleased": true,
+    "ownedCleanup": {
+      "beforeBytes": 79078530,
+      "afterBytes": 0,
+      "reclaimedBytes": 79078530,
+      "budgetBytes": 1073741824,
+      "budgetSatisfied": true
+    },
+    "internalAbortRelay": {
+      "deadlineMinutes": 40,
+      "minimumFreeBytes": 268435456,
+      "controls": "Checks a task-owned abort file and disk reserve; terminates its child process group and returns to the live owner wrapper for cleanup."
+    }
+  },
+  "historicalReceiptsPreserved": true,
+  "ordinaryGatesRetained": true,
+  "fullImplementationClosure": false,
+  "fullCompilerCorrectness": false,
+  "physicalIsaModel": false,
+  "remainingScope": [
+    "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
+    "minimal bootstrap and independently comparable foundations",
+    "full issue-183 acceptance remains a separate open gate"
+  ],
+  "evidence": [
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/abi-result.json",
+      "sha256": "9ff9ea0f108a0043743d1c1f2c3150c6ccdc603f24260bf956b524232e0b4dbe",
+      "bytes": 1502
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/deadline-relay.py",
+      "sha256": "3a833ba764c7472ae5b05b995ae4ac1db5690ec472207eb96ddce3dd5a0b1a3d",
+      "bytes": 1327
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/direct-compilation-receipts.jsonl",
+      "sha256": "950b98bb5a83dd3dd05637394c3df0c46012f08ff5d22e83a2810eca7caa9389",
+      "bytes": 28466
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/direct-rustc-builder.py",
+      "sha256": "f60d232cc8b223fc48f2add8ea02f6e0206ed57d32f13e4b9f4b4124109fbae4",
+      "bytes": 4539
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/generic-inputs.json",
+      "sha256": "857f7e349ad9653a240630b5532a2e8be1ff19161f3d4d33b52b7db53c5a0c48",
+      "bytes": 99028
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/harness-inputs.json",
+      "sha256": "3e5065bbc91513ac119e3191fcb96bafac6cc2394ff0b6bc98ed45d4f2c3f59d",
+      "bytes": 1495
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/native-result.json",
+      "sha256": "7569af2455d7596b7ac20e04ca3716539a0999f77f6a1daa3b75393385e0c3c3",
+      "bytes": 1907
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/tool-versions.json",
+      "sha256": "0a27ce3a6d4da09518ff896ff368a644b1a69ba3da427d523737cf89a026d5df",
+      "bytes": 125
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-direct-rustc/verify-direct-native.mjs",
+      "sha256": "0d83d8c89b1191167f8378a9b58d13a827c0f5ed6dff829c254ecc3c7fe8f7be",
+      "bytes": 8678
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-api-docs.log",
+      "sha256": "4f22ec015ef7cf32071c66c7d13f635acedc2806651eb6ad8866342eda524893",
+      "bytes": 455
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-baseline.json",
+      "sha256": "4a54402c4ba05b1be768b37a66c93ece5b97a4dda260976bcd8b830c00e878af",
+      "bytes": 303
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-candidate-javascript.log",
+      "sha256": "904117e5213444fe41995d22ec7319a146195a8b8940941a368e7ca0f19a60c9",
+      "bytes": 1221
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-cargo-interrupted.log",
+      "sha256": "79a08eebd125d0c46e3589bbc70dad3722fc19a3a620840d35ac909bff7e9f7a",
+      "bytes": 92483
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-direct-cleanup.log",
+      "sha256": "f062f131b3a8897809e7470679eb89581040af5c12cfc4a5a7adf5973357f3b6",
+      "bytes": 114
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-direct-native.log",
+      "sha256": "412f89d976d4b2cc8b7c6ac5602c8f1aa9d1c8026738c4f20fb59a22bdb97651",
+      "bytes": 9150
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-focused-javascript.log",
+      "sha256": "28d358c1e81d83f3992d62fd5c8c2226bd71b94567c04c68832e3a9b616a3d6b",
+      "bytes": 19764
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-full-javascript.log",
+      "sha256": "45ddd26af83ffbff362c452f0e8ae077263d700d03281cde6bf56bad5271e2ff",
+      "bytes": 186350
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/source-authority-integrated-native-inputs.json",
+      "sha256": "4bee50bc5778d4dfd9296e37b18d4f193f40750b8d72a85fcda4217d98a7cf9f",
+      "bytes": 74826
+    }
+  ]
+}

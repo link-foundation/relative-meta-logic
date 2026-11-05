@@ -1,0 +1,211 @@
+{
+  "schema": "rml-linked-proof-observations/v1",
+  "requestSha256": "2fe7ba218017963cc398759ca49f1987a9773335bc9a6f4bd2f19329a7aa6d8e",
+  "traceSha256": "c2614585a00248dcfdc245b3cd8f3f2247fe05b713d4d8779c2a74b8028d114b",
+  "cases": [
+    {
+      "name": "valid-modus-ponens",
+      "accepted": true,
+      "steps": 261,
+      "resultSha256": "74d2b05e21bf6b1f10f4788dca2e58bcd019e9d63a6040cc2ce55a61386bd8e2"
+    },
+    {
+      "name": "missing-premise-node",
+      "accepted": false,
+      "steps": 49,
+      "resultSha256": "ba9cd94c05f938feba654c462395736f8cb8f8c335d1d5303f37fcc87cc5bf8c"
+    },
+    {
+      "name": "missing-premise-reference",
+      "accepted": false,
+      "steps": 119,
+      "resultSha256": "3a271116a002bf11448a9762f871131b7660803c3a9bc241552822a337025d8a"
+    },
+    {
+      "name": "extra-premise-reference",
+      "accepted": false,
+      "steps": 218,
+      "resultSha256": "3a271116a002bf11448a9762f871131b7660803c3a9bc241552822a337025d8a"
+    },
+    {
+      "name": "unknown-premise-reference",
+      "accepted": false,
+      "steps": 56,
+      "resultSha256": "ba9cd94c05f938feba654c462395736f8cb8f8c335d1d5303f37fcc87cc5bf8c"
+    },
+    {
+      "name": "unknown-rule",
+      "accepted": false,
+      "steps": 45,
+      "resultSha256": "af59d42ebd27417c9141017ee1855485273388ce9bc7e54dd2c3217e4eef76c9"
+    },
+    {
+      "name": "duplicate-node",
+      "accepted": false,
+      "steps": 37,
+      "resultSha256": "9da6e5b7736bf48954321eb3c94f3e00a87e79b23ea9cba1fa1b27332247a49c"
+    },
+    {
+      "name": "duplicate-rule",
+      "accepted": false,
+      "steps": 22,
+      "resultSha256": "a6c2fe6490cf7946a872b60abcc971dd65432d817e6d8e8343ee5bd1febb32ad"
+    },
+    {
+      "name": "forged-leaf-conclusion",
+      "accepted": false,
+      "steps": 80,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "forged-root-conclusion",
+      "accepted": false,
+      "steps": 247,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "forged-goal",
+      "accepted": false,
+      "steps": 1,
+      "resultSha256": "226e439a7c285edf1043bd07c401f8ba29ee62aa0565d6ec2e6b05259f32b0e9"
+    },
+    {
+      "name": "swapped-context",
+      "accepted": false,
+      "steps": 1,
+      "resultSha256": "226e439a7c285edf1043bd07c401f8ba29ee62aa0565d6ec2e6b05259f32b0e9"
+    },
+    {
+      "name": "context-body-change",
+      "accepted": false,
+      "steps": 1,
+      "resultSha256": "226e439a7c285edf1043bd07c401f8ba29ee62aa0565d6ec2e6b05259f32b0e9"
+    },
+    {
+      "name": "forged-rule-body",
+      "accepted": false,
+      "steps": 80,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "forged-rule-binder",
+      "accepted": false,
+      "steps": 244,
+      "resultSha256": "d414c9e013ea9adb0e01c344a8d6c8f1b5da312b83434788a43a86f1349f1d88"
+    },
+    {
+      "name": "conflicting-premise-variable",
+      "accepted": false,
+      "steps": 185,
+      "resultSha256": "0a995b3d1bb5328c1d8db6c0e45b7282711764e9f14788c3f7c66467482a9328"
+    },
+    {
+      "name": "forged-binding",
+      "accepted": false,
+      "steps": 247,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "missing-binding",
+      "accepted": false,
+      "steps": 245,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "extra-binding",
+      "accepted": false,
+      "steps": 249,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "reordered-bindings",
+      "accepted": false,
+      "steps": 247,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "missing-dependency",
+      "accepted": false,
+      "steps": 247,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "extra-dependency",
+      "accepted": false,
+      "steps": 247,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "duplicate-dependency",
+      "accepted": false,
+      "steps": 247,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "reordered-dependencies",
+      "accepted": false,
+      "steps": 247,
+      "resultSha256": "9a1483383d2fc345c7be8c93971c1656df98b5f25baa30afc6d6f5a71a2210a5"
+    },
+    {
+      "name": "forged-root-dependencies",
+      "accepted": false,
+      "steps": 247,
+      "resultSha256": "a11e7d5a9c85c88ad0581db11b5c8a0498a65e289a72d73abf92e717004299fa"
+    },
+    {
+      "name": "circular-proof",
+      "accepted": false,
+      "steps": 50,
+      "resultSha256": "754f4967ff5192fa519e725b5e75f35c6d7abb37fda5e30c7f2e249d9cbde3d8"
+    },
+    {
+      "name": "indirect-circular-proof",
+      "accepted": false,
+      "steps": 65,
+      "resultSha256": "754f4967ff5192fa519e725b5e75f35c6d7abb37fda5e30c7f2e249d9cbde3d8"
+    },
+    {
+      "name": "unreachable-node",
+      "accepted": false,
+      "steps": 261,
+      "resultSha256": "80a83d4affe0f4834e955001a92c8818a03374d78fca5b8963ca62cdf39b5872"
+    },
+    {
+      "name": "malformed-node",
+      "accepted": false,
+      "steps": 19,
+      "resultSha256": "601f0ac6f1b56f0d7693d899dc71b5d7f2d5a7bd30cb246366fe1cb073d92ad4"
+    },
+    {
+      "name": "malformed-rule",
+      "accepted": false,
+      "steps": 3,
+      "resultSha256": "87dd1646fa2b483a44d74506beb166964cfc746357aac271b17905232d443c2a"
+    },
+    {
+      "name": "node-order-independent",
+      "accepted": true,
+      "steps": 261,
+      "resultSha256": "74d2b05e21bf6b1f10f4788dca2e58bcd019e9d63a6040cc2ce55a61386bd8e2"
+    },
+    {
+      "name": "rule-order-independent",
+      "accepted": true,
+      "steps": 261,
+      "resultSha256": "5f39f15aa47e52def241d48355cb8cca1dbf6fd861e7740865660b1660bba8a2"
+    },
+    {
+      "name": "shared-premise-dag",
+      "accepted": true,
+      "steps": 207,
+      "resultSha256": "5ee4464ec6caa79eb39ec55f036626dc0b80e2b526bd55a9f1703070ad2a0b78"
+    },
+    {
+      "name": "quoted-executable-looking-data",
+      "accepted": true,
+      "steps": 73,
+      "resultSha256": "6abfe0b334ce1aa86dd34de89c69a7934a879f3168b14af77627ae54c5363106"
+    }
+  ]
+}

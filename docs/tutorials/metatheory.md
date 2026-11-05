@@ -91,7 +91,8 @@ cd js
 node src/rml-meta.mjs ../experiments/metatheorem-plus.lino
 ```
 
-The Rust CLI:
+The Rust CLI (compiles Rust, which repository policy reserves for hosted CI;
+see [BUILD_CACHE.md](../BUILD_CACHE.md)):
 
 ```bash
 cd rust

@@ -1,0 +1,90 @@
+build-cache: before=2495434 after=2495434 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget
+✔ collection kernel: typed empty list ascription (3.511548ms)
+✔ collection kernel: invalid empty list ascription (0.950031ms)
+✔ collection kernel: pair first (2.00566ms)
+✔ collection kernel: pair second (3.715044ms)
+✔ collection kernel: non-pair projection (0.823881ms)
+✔ collection kernel: natural addition (8.469003ms)
+✔ collection kernel: addition rejects Boolean (2.24407ms)
+✔ collection kernel: list append (24.072339ms)
+✔ collection kernel: list append rejects mixed elements (4.538815ms)
+✔ collection kernel: conditional true (5.61845ms)
+✔ collection kernel: conditional false (5.108232ms)
+✔ collection kernel: conditional checks inactive false branch (3.003974ms)
+✔ collection kernel: conditional checks inactive true branch (2.976081ms)
+✔ collection kernel: conditional rejects non-Boolean guard (5.002973ms)
+✔ collection kernel: natural zero case (10.967566ms)
+✔ collection kernel: natural successor predecessor (14.777042ms)
+✔ collection kernel: natural case checks unused step (8.862165ms)
+✔ collection kernel: natural case checks unused base (6.44191ms)
+✔ collection kernel: natural case rejects target type (1.927433ms)
+✔ collection kernel: list nil case (23.30965ms)
+✔ collection kernel: list cons binder order (38.557511ms)
+✔ collection kernel: list case checks unused cons (19.074854ms)
+✔ collection kernel: list case checks unused nil (25.555522ms)
+✔ collection kernel: list case rejects reversed binder selection (21.180209ms)
+✔ collection kernel: list case rejects target type (1.332246ms)
+✔ closed function formation returns the original body with no abstract captured values (46.348143ms)
+✔ execution uses actual checked values after hypothetical formation (31.262366ms)
+✔ formation still rejects an incorrectly typed body, argument, binder, and conclusion (32.642864ms)
+✔ a missing imported function cannot become a typing hypothesis (9.894861ms)
+✔ non-lambda inputs cannot expose temporary neutral global values (1.108119ms)
+✔ type constructors retain their actual checked value in the formation context (39.301501ms)
+✔ dependent function and universe globals remain transparent (3.000628ms)
+✔ structural recursor shared fixtures are reproducible (2.631553ms)
+✔ typed structural recursion: nat-zero-checks-both-branches (387.456274ms)
+✔ typed structural recursion: nat-successors-use-induction-hypothesis (1281.149068ms)
+✔ typed structural recursion: nat-annotated-step-binders (530.46476ms)
+✔ typed structural recursion: nat-dependent-vector-concrete (1516.213668ms)
+✔ typed structural recursion: nat-dependent-vector-symbolic (1053.775913ms)
+✔ typed structural recursion: nat-motive-captures-outer-index (1198.422721ms)
+✔ typed structural recursion: nat-mutated-motive-value (6.969816ms)
+✔ typed structural recursion: nat-mutated-motive-domain (5.18654ms)
+✔ typed structural recursion: nat-mutated-base-on-zero (11.604103ms)
+✔ typed structural recursion: nat-mutated-step-on-zero (353.909697ms)
+✔ typed structural recursion: nat-mutated-step-annotation (124.716642ms)
+✔ typed structural recursion: nat-mutated-target (2.31759ms)
+✔ typed structural recursion: nat-mutated-vector-base-index (38.672504ms)
+✔ typed structural recursion: nat-mutated-vector-step-index (637.743356ms)
+✔ typed structural recursion: nat-mutated-induction-dependency (584.772756ms)
+✔ typed structural recursion: nat-mutated-missing-global-dependency (385.684264ms)
+✔ typed structural recursion: nat-mutated-global-dependency-type (527.602277ms)
+✔ typed structural recursion: nat-mutated-step-on-symbolic-target (546.684271ms)
+✔ typed structural recursion: list-nil-checks-both-branches (2093.421243ms)
+✔ typed structural recursion: list-cons-use-induction-hypothesis (5163.01289ms)
+✔ typed structural recursion: list-symbolic-preserves-checked-branches (2715.982898ms)
+✔ typed structural recursion: list-dependent-vector-symbolic (4317.143884ms)
+✔ typed structural recursion: list-dependent-vector-concrete (5108.284234ms)
+✔ typed structural recursion: list-offset-parameter-changes-recursive-call (11822.603877ms)
+✔ typed structural recursion: list-mutated-motive-value-on-nil (9.132122ms)
+✔ typed structural recursion: list-mutated-motive-domain (4.966219ms)
+✔ typed structural recursion: list-mutated-base-on-nil (16.805501ms)
+✔ typed structural recursion: list-mutated-step-on-nil (1925.017688ms)
+✔ typed structural recursion: list-mutated-head-type (465.573191ms)
+✔ typed structural recursion: list-mutated-tail-type (930.572937ms)
+✔ typed structural recursion: list-mutated-induction-hypothesis-type (1497.287971ms)
+✔ typed structural recursion: list-mutated-vector-base-index (63.449205ms)
+✔ typed structural recursion: list-mutated-vector-step-index (3104.879142ms)
+✔ typed structural recursion: list-mutated-induction-dependency (2985.525952ms)
+✔ typed structural recursion: list-mutated-step-on-symbolic-target (2922.32417ms)
+✔ typed structural recursion: list-mutated-target (1.037683ms)
+✔ typed structural recursion: list-untyped-nil-does-not-guess-element (0.912875ms)
+ℹ tests 70
+ℹ suites 0
+ℹ pass 70
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 56025.204675
+{
+  "schema": "rml-refreshed-generated-authority-checks/v1",
+  "sourceFree": true,
+  "ownedJavaScriptModules": 158,
+  "genericRecursionFixtureGenerationExact": true,
+  "generatedGenericAssertions": 70,
+  "orientationTheoremInventory": 42,
+  "orientationRecordedSourceHashesMatch": true,
+  "nativeKernelsReexecuted": false
+}
+build-cache: before=2495434 after=2495434 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget

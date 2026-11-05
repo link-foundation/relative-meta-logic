@@ -1,0 +1,412 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+// Generated from Syn 3.0.6 official schema; see PATCHES.md.
+use crate::*;
+#[doc = " An adapter for [`enum@syn::AttrStyle`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AttrStyle {
+    Outer,
+    Inner,
+}
+#[doc = " An adapter for [`enum@syn::BinOp`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum BinOp {
+    #[serde(rename = "+")]
+    Add,
+    #[serde(rename = "-")]
+    Sub,
+    #[serde(rename = "*")]
+    Mul,
+    #[serde(rename = "/")]
+    Div,
+    #[serde(rename = "%")]
+    Rem,
+    #[serde(rename = "&&")]
+    And,
+    #[serde(rename = "||")]
+    Or,
+    #[serde(rename = "^")]
+    BitXor,
+    #[serde(rename = "&")]
+    BitAnd,
+    #[serde(rename = "|")]
+    BitOr,
+    #[serde(rename = "<<")]
+    Shl,
+    #[serde(rename = ">>")]
+    Shr,
+    #[serde(rename = "==")]
+    Eq,
+    #[serde(rename = "<")]
+    Lt,
+    #[serde(rename = "<=")]
+    Le,
+    #[serde(rename = "!=")]
+    Ne,
+    #[serde(rename = ">=")]
+    Ge,
+    #[serde(rename = ">")]
+    Gt,
+    #[serde(rename = "+=")]
+    AddAssign,
+    #[serde(rename = "-=")]
+    SubAssign,
+    #[serde(rename = "*=")]
+    MulAssign,
+    #[serde(rename = "/=")]
+    DivAssign,
+    #[serde(rename = "%=")]
+    RemAssign,
+    #[serde(rename = "^=")]
+    BitXorAssign,
+    #[serde(rename = "&=")]
+    BitAndAssign,
+    #[serde(rename = "|=")]
+    BitOrAssign,
+    #[serde(rename = "<<=")]
+    ShlAssign,
+    #[serde(rename = ">>=")]
+    ShrAssign,
+}
+#[doc = " An adapter for [`enum@syn::CapturedParam`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum CapturedParam {
+    Lifetime(Lifetime),
+    Ident(Ident),
+}
+#[doc = " An adapter for [`enum@syn::Expr`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum Expr {
+    Array(ExprArray),
+    Assign(ExprAssign),
+    Async(ExprAsync),
+    Await(ExprAwait),
+    Binary(ExprBinary),
+    Block(ExprBlock),
+    Break(ExprBreak),
+    Call(ExprCall),
+    Cast(ExprCast),
+    Closure(ExprClosure),
+    Const(ExprConst),
+    Continue(ExprContinue),
+    Field(ExprField),
+    ForLoop(ExprForLoop),
+    Group(ExprGroup),
+    If(ExprIf),
+    Index(ExprIndex),
+    Infer(ExprInfer),
+    Let(ExprLet),
+    Lit(ExprLit),
+    Loop(ExprLoop),
+    Macro(ExprMacro),
+    Match(ExprMatch),
+    MethodCall(ExprMethodCall),
+    Paren(ExprParen),
+    Path(ExprPath),
+    Range(ExprRange),
+    RawAddr(ExprRawAddr),
+    Reference(ExprReference),
+    Repeat(ExprRepeat),
+    Return(ExprReturn),
+    Struct(ExprStruct),
+    Try(ExprTry),
+    TryBlock(ExprTryBlock),
+    Tuple(ExprTuple),
+    Unary(ExprUnary),
+    Unsafe(ExprUnsafe),
+    Verbatim(TokenStream),
+    While(ExprWhile),
+    Yield(ExprYield),
+}
+#[doc = " An adapter for [`enum@syn::Fields`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Fields {
+    Named(FieldsNamed),
+    Unnamed(FieldsUnnamed),
+    Unit,
+}
+#[doc = " An adapter for [`enum@syn::FnArg`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FnArg {
+    Receiver(Receiver),
+    Typed(PatType),
+}
+#[doc = " An adapter for [`enum@syn::ForeignItem`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum ForeignItem {
+    Fn(ForeignItemFn),
+    Static(ForeignItemStatic),
+    Type(ForeignItemType),
+    Macro(ForeignItemMacro),
+    Verbatim(TokenStream),
+}
+#[doc = " An adapter for [`enum@syn::GenericArgument`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum GenericArgument {
+    Lifetime(Lifetime),
+    Type(Type),
+    Const(Expr),
+    AssocType(AssocType),
+    AssocConst(AssocConst),
+    Constraint(Constraint),
+}
+#[doc = " An adapter for [`enum@syn::GenericParam`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GenericParam {
+    Lifetime(LifetimeParam),
+    Type(TypeParam),
+    Const(ConstParam),
+}
+#[doc = " An adapter for [`enum@syn::ImplItem`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum ImplItem {
+    Const(ImplItemConst),
+    Fn(ImplItemFn),
+    Type(ImplItemType),
+    Macro(ImplItemMacro),
+    Verbatim(TokenStream),
+}
+#[doc = " An adapter for [`enum@syn::Item`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum Item {
+    Const(ItemConst),
+    Enum(ItemEnum),
+    ExternCrate(ItemExternCrate),
+    Fn(ItemFn),
+    ForeignMod(ItemForeignMod),
+    Impl(ItemImpl),
+    Macro(ItemMacro),
+    Mod(ItemMod),
+    Static(ItemStatic),
+    Struct(ItemStruct),
+    Trait(ItemTrait),
+    TraitAlias(ItemTraitAlias),
+    Type(ItemType),
+    Union(ItemUnion),
+    Use(ItemUse),
+    Verbatim(TokenStream),
+}
+#[doc = " An adapter for [`enum@syn::Lit`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum Lit {
+    Str(LitStr),
+    ByteStr(LitByteStr),
+    CStr(LitCStr),
+    Byte(LitByte),
+    Char(LitChar),
+    Int(LitInt),
+    Float(LitFloat),
+    Bool(LitBool),
+    Verbatim(Literal),
+}
+#[doc = " An adapter for [`enum@syn::MacroDelimiter`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MacroDelimiter {
+    Paren,
+    Brace,
+    Bracket,
+}
+#[doc = " An adapter for [`enum@syn::Member`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Member {
+    #[serde(rename = "ident")]
+    Named(Ident),
+    #[serde(rename = "index")]
+    Unnamed(Index),
+}
+#[doc = " An adapter for [`enum@syn::Meta`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Meta {
+    Path(Path),
+    List(MetaList),
+    NameValue(MetaNameValue),
+}
+#[doc = " An adapter for [`enum@syn::Pat`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum Pat {
+    Const(ExprConst),
+    Guard(PatGuard),
+    Ident(PatIdent),
+    Lit(ExprLit),
+    Macro(ExprMacro),
+    Or(PatOr),
+    Paren(PatParen),
+    Path(ExprPath),
+    Range(ExprRange),
+    Reference(PatReference),
+    Rest(PatRest),
+    Slice(PatSlice),
+    Struct(PatStruct),
+    Tuple(PatTuple),
+    TupleStruct(PatTupleStruct),
+    Type(PatType),
+    Verbatim(TokenStream),
+    #[serde(rename = "_")]
+    Wild(PatWild),
+}
+#[doc = " An adapter for [`enum@syn::PathArguments`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PathArguments {
+    None,
+    AngleBracketed(AngleBracketedGenericArguments),
+    Parenthesized(ParenthesizedGenericArguments),
+}
+#[doc = " An adapter for [`enum@syn::PointerMutability`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PointerMutability {
+    Const,
+    Mut,
+}
+#[doc = " An adapter for [`enum@syn::RangeLimits`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RangeLimits {
+    #[serde(rename = "..")]
+    HalfOpen,
+    #[serde(rename = "..=")]
+    Closed,
+}
+#[doc = " An adapter for [`enum@syn::ReceiverKind`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum ReceiverKind {
+    Value,
+    Reference(Option<Lifetime>, bool),
+    Typed(Box<Type>),
+}
+#[doc = " An adapter for [`enum@syn::Safety`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Safety {
+    Safe,
+    Unsafe,
+    Default,
+}
+#[doc = " An adapter for [`enum@syn::StaticMutability`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum StaticMutability {
+    #[serde(rename = "mut")]
+    Mut,
+    None,
+}
+#[doc = " An adapter for [`enum@syn::TraitItem`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum TraitItem {
+    Const(TraitItemConst),
+    Fn(TraitItemFn),
+    Type(TraitItemType),
+    Macro(TraitItemMacro),
+    Verbatim(TokenStream),
+}
+#[doc = " An adapter for [`enum@syn::Type`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum Type {
+    Array(TypeArray),
+    FnPtr(TypeFnPtr),
+    Group(TypeGroup),
+    ImplTrait(TypeImplTrait),
+    #[serde(rename = "_")]
+    Infer(TypeInfer),
+    Macro(TypeMacro),
+    #[serde(rename = "!")]
+    Never(TypeNever),
+    Paren(TypeParen),
+    Path(TypePath),
+    Ptr(TypePtr),
+    Reference(TypeReference),
+    Slice(TypeSlice),
+    TraitObject(TypeTraitObject),
+    Tuple(TypeTuple),
+    Verbatim(TokenStream),
+}
+#[doc = " An adapter for [`enum@syn::TypeParamBound`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum TypeParamBound {
+    Trait(TraitBound),
+    Lifetime(Lifetime),
+    PreciseCapture(PreciseCapture),
+    Verbatim(TokenStream),
+}
+#[doc = " An adapter for [`enum@syn::UnOp`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum UnOp {
+    #[serde(rename = "*")]
+    Deref,
+    #[serde(rename = "!")]
+    Not,
+    #[serde(rename = "-")]
+    Neg,
+}
+#[doc = " An adapter for [`enum@syn::UseTree`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UseTree {
+    Path(UsePath),
+    #[serde(rename = "ident")]
+    Name(UseName),
+    Rename(UseRename),
+    #[serde(rename = "*")]
+    Glob,
+    Group(UseGroup),
+}
+#[doc = " An adapter for [`enum@syn::Visibility`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Visibility {
+    #[serde(rename = "pub")]
+    Public,
+    Restricted(VisRestricted),
+    Inherited,
+}
+#[doc = " An adapter for [`enum@syn::WhereClausePlacement`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum WhereClausePlacement {
+    Early,
+    Late,
+}
+#[doc = " An adapter for [`enum@syn::WherePredicate`]."]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum WherePredicate {
+    Lifetime(PredicateLifetime),
+    Type(PredicateType),
+}

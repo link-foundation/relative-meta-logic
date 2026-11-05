@@ -1,0 +1,39 @@
+{
+  "schema": "rml-linked-target-witness/v1",
+  "sourceFree": true,
+  "proofCases": 34,
+  "exactReceiptByteComparisons": 34,
+  "crossPortReplays": 34,
+  "parserCases": 4,
+  "strictNativeFrames": 4,
+  "corruptNativeFramesRejected": 5,
+  "forgedReceiptRejected": true,
+  "resourceExhaustionIsError": true,
+  "independentModelInterpreter": true,
+  "regeneratedLayoutChangesBytes": true,
+  "regeneratedVerdictChangesExecution": true,
+  "regeneratedParserChangesObservation": true,
+  "nativeArtifactHashes": [
+    "e88003d78407044f39ce9bf96c98753ea8627f0a3a3351c52afb8133a3a4e849",
+    "090ae8161c0e2edd82192ff4d37586140f1f2ba89bfaec219c142c6a8c52d150",
+    "47ec954f38e5eb0957965fe3222f3d9372640555f578d3a6ea38337646016077",
+    "0ea63597c56e220c557d491e42eebf689c088f62642cfca8364af045f99be9b3"
+  ],
+  "genericGeneratorHashes": [
+    [
+      "scripts/linked-target-abi.mjs",
+      "cdfc5b52894140aabc143c30124915ab8bac5c19c59fff3bd8d5a524d4a419ac"
+    ],
+    [
+      "scripts/linked-target-rust-codegen.mjs",
+      "f12ec61cdee49ad21d0ebd12fded4e288c0dd9b0671a568be9a2d32c7b1073aa"
+    ]
+  ],
+  "fullCompilerCorrectness": false,
+  "physicalIsaModel": false,
+  "compilationMode": "direct-rustc with frozen read-only generic dependency artifacts",
+  "inputFreezeSha256": "4bee50bc5778d4dfd9296e37b18d4f193f40750b8d72a85fcda4217d98a7cf9f",
+  "genericInputManifestSha256": "857f7e349ad9653a240630b5532a2e8be1ff19161f3d4d33b52b7db53c5a0c48",
+  "sourceInputsUnchanged": true,
+  "genericInputsUnchanged": true
+}

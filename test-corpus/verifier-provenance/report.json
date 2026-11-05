@@ -1,0 +1,1455 @@
+{
+ "schema": "rml-local-verifier-provenance/v1",
+ "verifierSource": "lib/meta-theory/horn-local-verifier.lino",
+ "probe": "rml-foundation-search.mjs linkedVerifierStep (cases 1-7 reproduced exactly)",
+ "cases": [
+  "complete-local-match",
+  "missing-description-record",
+  "missing-mapping",
+  "duplicate-mapping",
+  "reversed-concrete-record",
+  "two-concrete-records",
+  "self-application",
+  "renamed-complete-local-match",
+  "reordered-two-concrete-records",
+  "slot-reversed-complete-local-match",
+  "duplicated-description",
+  "relocated-description",
+  "relocated-description-stale-mapping",
+  "trace-replay"
+ ],
+ "baselineTraces": {
+  "complete-local-match": [
+   [
+    200,
+    40,
+    3
+   ],
+   [
+    201,
+    200,
+    50
+   ],
+   [
+    202,
+    200,
+    51
+   ],
+   [
+    203,
+    200,
+    52
+   ]
+  ],
+  "missing-description-record": [],
+  "missing-mapping": [],
+  "duplicate-mapping": [
+   [
+    200,
+    40,
+    3
+   ],
+   [
+    201,
+    200,
+    50
+   ],
+   [
+    202,
+    200,
+    51
+   ],
+   [
+    203,
+    200,
+    52
+   ],
+   [
+    210,
+    40,
+    3
+   ],
+   [
+    211,
+    210,
+    50
+   ],
+   [
+    212,
+    210,
+    53
+   ],
+   [
+    213,
+    210,
+    52
+   ]
+  ],
+  "reversed-concrete-record": [],
+  "two-concrete-records": [
+   [
+    200,
+    40,
+    3
+   ],
+   [
+    201,
+    200,
+    50
+   ],
+   [
+    202,
+    200,
+    51
+   ],
+   [
+    203,
+    200,
+    52
+   ],
+   [
+    210,
+    40,
+    7
+   ],
+   [
+    211,
+    210,
+    54
+   ],
+   [
+    212,
+    210,
+    51
+   ],
+   [
+    213,
+    210,
+    52
+   ]
+  ],
+  "self-application": [
+   [
+    200,
+    40,
+    40
+   ],
+   [
+    201,
+    200,
+    50
+   ],
+   [
+    202,
+    200,
+    51
+   ],
+   [
+    203,
+    200,
+    52
+   ]
+  ],
+  "renamed-complete-local-match": [
+   [
+    200,
+    1120,
+    1009
+   ],
+   [
+    201,
+    200,
+    1150
+   ],
+   [
+    202,
+    200,
+    1153
+   ],
+   [
+    203,
+    200,
+    1156
+   ]
+  ],
+  "reordered-two-concrete-records": [
+   [
+    200,
+    40,
+    7
+   ],
+   [
+    201,
+    200,
+    54
+   ],
+   [
+    202,
+    200,
+    51
+   ],
+   [
+    203,
+    200,
+    52
+   ],
+   [
+    210,
+    40,
+    3
+   ],
+   [
+    211,
+    210,
+    50
+   ],
+   [
+    212,
+    210,
+    51
+   ],
+   [
+    213,
+    210,
+    52
+   ]
+  ],
+  "slot-reversed-complete-local-match": [],
+  "duplicated-description": [
+   [
+    200,
+    40,
+    3
+   ],
+   [
+    201,
+    200,
+    50
+   ],
+   [
+    202,
+    200,
+    51
+   ],
+   [
+    203,
+    200,
+    52
+   ]
+  ],
+  "relocated-description": [
+   [
+    200,
+    45,
+    3
+   ],
+   [
+    201,
+    200,
+    50
+   ],
+   [
+    202,
+    200,
+    51
+   ],
+   [
+    203,
+    200,
+    52
+   ]
+  ],
+  "relocated-description-stale-mapping": [],
+  "trace-replay": [
+   [
+    200,
+    200,
+    200
+   ],
+   [
+    201,
+    200,
+    801
+   ],
+   [
+    202,
+    200,
+    802
+   ],
+   [
+    203,
+    200,
+    803
+   ]
+  ]
+ },
+ "rows": [
+  {
+   "kind": "baseline",
+   "id": "none",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-empty",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-empty-zero",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-empty-one",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-zero-empty",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "reordered-two-concrete-records"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-one-empty",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-zero-one",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "reordered-two-concrete-records"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-one-zero",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "reordered-two-concrete-records"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-zero",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "code-one",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "all-yes",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "all-first-no",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "reordered-two-concrete-records"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "all-second-no",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "linked-clause",
+   "id": "all-third-no",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "linked-clause",
+   "id": "present-end",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "linked-clause",
+   "id": "present-next",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "present-yes",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "present-no",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "reordered-two-concrete-records"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "record-equal",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "record-here",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "record-later",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "corresponds-forward",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "local-match",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "description-match",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "candidate-here",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "linked-clause",
+   "id": "candidate-later",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ONE",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "ONE",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "two-concrete-records",
+    "reordered-two-concrete-records"
+   ]
+  },
+  {
+   "kind": "linked-replacement",
+   "id": "reversed-reading",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ONE",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "slot-reversed-complete-local-match",
+    "duplicated-description",
+    "relocated-description"
+   ]
+  },
+  {
+   "kind": "linked-replacement",
+   "id": "presence-as-proof-multiplicity",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "MANY",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "duplicated-description"
+   ]
+  },
+  {
+   "kind": "resolver-law",
+   "id": "follow-bindings",
+   "cells": {
+    "complete-local-match": "INVALID",
+    "missing-description-record": "INVALID",
+    "missing-mapping": "INVALID",
+    "duplicate-mapping": "INVALID",
+    "reversed-concrete-record": "INVALID",
+    "two-concrete-records": "INVALID",
+    "self-application": "INVALID",
+    "renamed-complete-local-match": "INVALID",
+    "reordered-two-concrete-records": "INVALID",
+    "slot-reversed-complete-local-match": "INVALID",
+    "duplicated-description": "INVALID",
+    "relocated-description": "INVALID",
+    "relocated-description-stale-mapping": "INVALID",
+    "trace-replay": "INVALID"
+   },
+   "changed": [
+    "complete-local-match",
+    "missing-description-record",
+    "missing-mapping",
+    "duplicate-mapping",
+    "reversed-concrete-record",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "slot-reversed-complete-local-match",
+    "duplicated-description",
+    "relocated-description",
+    "relocated-description-stale-mapping",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "resolver-law",
+   "id": "atom-identity",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "resolver-law",
+   "id": "constructor-decomposition",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "resolver-law",
+   "id": "variable-orientation",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "resolver-law",
+   "id": "occurs-check",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "resolver-law",
+   "id": "branch-local-undo",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description"
+   ]
+  },
+  {
+   "kind": "resolver-law",
+   "id": "standardize-apart",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ZERO",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ZERO"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description",
+    "trace-replay"
+   ]
+  },
+  {
+   "kind": "resolver-law",
+   "id": "backtracking",
+   "cells": {
+    "complete-local-match": "ZERO",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ZERO",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ZERO",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ZERO",
+    "reordered-two-concrete-records": "ZERO",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ZERO",
+    "relocated-description": "ZERO",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "complete-local-match",
+    "duplicate-mapping",
+    "two-concrete-records",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "duplicated-description",
+    "relocated-description"
+   ]
+  },
+  {
+   "kind": "resolver-law",
+   "id": "leftmost-goal-selection",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": []
+  },
+  {
+   "kind": "resolver-law",
+   "id": "source-clause-order",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "MANY*",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "MANY*",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "MANY*",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "duplicate-mapping",
+    "two-concrete-records",
+    "reordered-two-concrete-records"
+   ]
+  },
+  {
+   "kind": "host-operation",
+   "id": "exhaustive-answer-enumeration",
+   "cells": {
+    "complete-local-match": "ONE",
+    "missing-description-record": "ZERO",
+    "missing-mapping": "ZERO",
+    "duplicate-mapping": "ONE",
+    "reversed-concrete-record": "ZERO",
+    "two-concrete-records": "ONE",
+    "self-application": "ONE",
+    "renamed-complete-local-match": "ONE",
+    "reordered-two-concrete-records": "ONE",
+    "slot-reversed-complete-local-match": "ZERO",
+    "duplicated-description": "ONE",
+    "relocated-description": "ONE",
+    "relocated-description-stale-mapping": "ZERO",
+    "trace-replay": "ONE"
+   },
+   "changed": [
+    "duplicate-mapping",
+    "two-concrete-records",
+    "reordered-two-concrete-records"
+   ]
+  },
+  {
+   "kind": "host-operation",
+   "id": "injective-address-codec",
+   "cells": {
+    "complete-local-match": "MANY",
+    "missing-description-record": "MANY",
+    "missing-mapping": "MANY",
+    "duplicate-mapping": "MANY*",
+    "reversed-concrete-record": "MANY",
+    "two-concrete-records": "MANY*",
+    "self-application": "MANY",
+    "renamed-complete-local-match": "MANY",
+    "reordered-two-concrete-records": "MANY*",
+    "slot-reversed-complete-local-match": "MANY",
+    "duplicated-description": "MANY",
+    "relocated-description": "MANY",
+    "relocated-description-stale-mapping": "MANY",
+    "trace-replay": "MANY"
+   },
+   "changed": [
+    "complete-local-match",
+    "missing-description-record",
+    "missing-mapping",
+    "duplicate-mapping",
+    "reversed-concrete-record",
+    "two-concrete-records",
+    "self-application",
+    "renamed-complete-local-match",
+    "reordered-two-concrete-records",
+    "slot-reversed-complete-local-match",
+    "duplicated-description",
+    "relocated-description",
+    "relocated-description-stale-mapping",
+    "trace-replay"
+   ]
+  }
+ ],
+ "necessary": {
+  "linkedClauses": [
+   "code-empty",
+   "code-zero-empty",
+   "code-zero-one",
+   "code-one-zero",
+   "code-zero",
+   "code-one",
+   "all-yes",
+   "all-first-no",
+   "present-next",
+   "present-yes",
+   "present-no",
+   "record-equal",
+   "record-here",
+   "record-later",
+   "corresponds-forward",
+   "local-match",
+   "description-match",
+   "candidate-here",
+   "candidate-later"
+  ],
+  "readingReplacements": [
+   "reversed-reading",
+   "presence-as-proof-multiplicity"
+  ],
+  "resolverLaws": [
+   "follow-bindings",
+   "atom-identity",
+   "constructor-decomposition",
+   "variable-orientation",
+   "branch-local-undo",
+   "standardize-apart",
+   "backtracking",
+   "source-clause-order"
+  ],
+  "hostOperations": [
+   "exhaustive-answer-enumeration",
+   "injective-address-codec"
+  ]
+ },
+ "noCaseChanged": {
+  "linkedClauses": [
+   "code-empty-zero",
+   "code-empty-one",
+   "code-one-empty",
+   "all-second-no",
+   "all-third-no",
+   "present-end"
+  ],
+  "readingReplacements": [],
+  "resolverLaws": [
+   "occurs-check",
+   "leftmost-goal-selection"
+  ],
+  "hostOperations": []
+ },
+ "representation": {
+  "renamingPreservesTraceUpToRenaming": true,
+  "recordOrderPreservesMatchSet": true,
+  "recordOrderPreservesTraceSequence": false,
+  "slotReversalForwardReading": "ZERO",
+  "slotReversalReversedReading": "ONE",
+  "duplicatedDescriptionSetPresence": "ONE",
+  "duplicatedDescriptionProofMultiplicity": "MANY",
+  "relocatedDescriptionWithMovedMapping": "ONE",
+  "relocatedDescriptionWithStaleMapping": "ZERO",
+  "traceReplayBySameJoin": "ONE"
+ },
+ "residualHostOperations": [
+  "encoding addresses as binary codes and records as cons lists (injectivity is required)",
+  "enumerating all answers up to the declared bound",
+  "classifying the answer count as ZERO, ONE or MANY",
+  "allocating trace addresses 200 + 10 * match index and publishing trace records",
+  "the generic Horn resolver laws listed under resolverLaws"
+ ],
+ "status": "LOCAL_TRACE_FOLLOWS_FROM_LINKS_ONLY_WITH_DECLARED_READINGS_AND_RESOLVER_LAWS",
+ "claimBoundary": "Every verifier decision except the listed host operations is a removable linked clause, and the matrix records which clause, reading and resolver law each case depends on. Two declared readings (correspondence orientation and presence multiplicity) change the trace on the same Links, so the trace does not follow from the input Links alone; this finite matrix neither authorizes a reading nor closes the authority boundary.",
+ "probeCases": 7
+}

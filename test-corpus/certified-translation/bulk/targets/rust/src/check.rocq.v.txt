@@ -1,0 +1,18 @@
+(* rml-certified-item rust/src/check.rs#CheckOk@585 target-sha256=94610ba392f5f7a6139a12f3eafe07098df125b6579238f0934504e826dce178 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Inductive CheckOk : Type :=
+| CheckOk_2 : string -> string -> CheckOk.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

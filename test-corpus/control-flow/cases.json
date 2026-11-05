@@ -1,0 +1,3357 @@
+{
+  "schema": "rml-control-flow-corpus/v1",
+  "cases": [
+    {
+      "name": "loop-state-output",
+      "sources": {
+        "main": "export function sum(n) { let s = 0; for (let i = 0; i < n; i++) { if (i === 2) { continue; } s += i; } console.log(s); return s; }"
+      },
+      "entry": "main.sum",
+      "signatures": {
+        "main.sum": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": [
+            "output"
+          ]
+        }
+      },
+      "arguments": [
+        6
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "sum"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "sum",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [
+              "output"
+            ],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "bool"
+              ],
+              [
+                "r8",
+                "int"
+              ],
+              [
+                "r9",
+                "int"
+              ],
+              [
+                "r10",
+                "bool"
+              ],
+              [
+                "r11",
+                "int"
+              ],
+              [
+                "r12",
+                "int"
+              ],
+              [
+                "r13",
+                "int"
+              ],
+              [
+                "r14",
+                "int"
+              ],
+              [
+                "r15",
+                "int"
+              ],
+              [
+                "r16",
+                "int"
+              ],
+              [
+                "r17",
+                "int"
+              ],
+              [
+                "r18",
+                "int"
+              ],
+              [
+                "r19",
+                "unit"
+              ],
+              [
+                "r20",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "const",
+                    "r1",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r1"
+                  ],
+                  [
+                    "const",
+                    "r3",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r3"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b1"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "copy",
+                    "r5",
+                    "r4"
+                  ],
+                  [
+                    "copy",
+                    "r6",
+                    "r0"
+                  ],
+                  [
+                    "lt",
+                    "r7",
+                    "r5",
+                    "r6"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r7",
+                  "b2",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [
+                  [
+                    "copy",
+                    "r8",
+                    "r4"
+                  ],
+                  [
+                    "const",
+                    "r9",
+                    2
+                  ],
+                  [
+                    "eq",
+                    "r10",
+                    "r8",
+                    "r9"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r10",
+                  "b5",
+                  "b6"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r18",
+                    "r2"
+                  ],
+                  [
+                    "emit",
+                    "r18"
+                  ],
+                  [
+                    "const",
+                    "r19",
+                    null
+                  ],
+                  [
+                    "copy",
+                    "r20",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r20"
+                ]
+              },
+              {
+                "id": "b4",
+                "instructions": [
+                  [
+                    "copy",
+                    "r15",
+                    "r4"
+                  ],
+                  [
+                    "const",
+                    "r16",
+                    1
+                  ],
+                  [
+                    "add",
+                    "r17",
+                    "r15",
+                    "r16"
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r17"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b1"
+                ]
+              },
+              {
+                "id": "b5",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b4"
+                ]
+              },
+              {
+                "id": "b6",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b7"
+                ]
+              },
+              {
+                "id": "b7",
+                "instructions": [
+                  [
+                    "copy",
+                    "r11",
+                    "r2"
+                  ],
+                  [
+                    "copy",
+                    "r12",
+                    "r4"
+                  ],
+                  [
+                    "add",
+                    "r13",
+                    "r11",
+                    "r12"
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r13"
+                  ],
+                  [
+                    "copy",
+                    "r14",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b4"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.sum"
+      },
+      "rml": "(control-flow-v1 (entry main.sum) (modules (module main (imports) (exports sum))) (function main sum (parameters (r0 int)) (result int) (effects output) (locals (r1 int) (r2 int) (r3 int) (r4 int) (r5 int) (r6 int) (r7 bool) (r8 int) (r9 int) (r10 bool) (r11 int) (r12 int) (r13 int) (r14 int) (r15 int) (r16 int) (r17 int) (r18 int) (r19 unit) (r20 int)) (entry b0) (blocks (block b0 (instructions (const r1 0) (copy r2 r1) (const r3 0) (copy r4 r3)) (jump b1)) (block b1 (instructions (copy r5 r4) (copy r6 r0) (lt r7 r5 r6)) (branch r7 b2 b3)) (block b2 (instructions (copy r8 r4) (const r9 2) (eq r10 r8 r9)) (branch r10 b5 b6)) (block b3 (instructions (copy r18 r2) (emit r18) (const r19 unit) (copy r20 r2)) (return r20)) (block b4 (instructions (copy r15 r4) (const r16 1) (add r17 r15 r16) (copy r4 r17)) (jump b1)) (block b5 (instructions) (jump b4)) (block b6 (instructions) (jump b7)) (block b7 (instructions (copy r11 r2) (copy r12 r4) (add r13 r11 r12) (copy r2 r13) (copy r14 r2)) (jump b4)))))",
+      "expected": {
+        "status": "returned",
+        "value": 13,
+        "effects": [
+          13
+        ],
+        "steps": 128,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "mutual-recursion",
+      "sources": {
+        "main": "export function even(n) { if (n === 0) { return true; } return odd(n - 1); } function odd(n) { if (n === 0) { return false; } return even(n - 1); }"
+      },
+      "entry": "main.even",
+      "signatures": {
+        "main.even": {
+          "parameters": [
+            "int"
+          ],
+          "result": "bool",
+          "effects": []
+        },
+        "main.odd": {
+          "parameters": [
+            "int"
+          ],
+          "result": "bool",
+          "effects": []
+        }
+      },
+      "arguments": [
+        127
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "even"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "even",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "bool"
+              ],
+              [
+                "r4",
+                "bool"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "bool"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    0
+                  ],
+                  [
+                    "eq",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r3",
+                  "b1",
+                  "b2"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "const",
+                    "r4",
+                    true
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r4"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r5",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r6",
+                    1
+                  ],
+                  [
+                    "sub",
+                    "r7",
+                    "r5",
+                    "r6"
+                  ],
+                  [
+                    "call",
+                    "r8",
+                    "main.odd",
+                    "r7"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r8"
+                ]
+              }
+            ]
+          },
+          {
+            "module": "main",
+            "name": "odd",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "bool"
+              ],
+              [
+                "r4",
+                "bool"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "bool"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    0
+                  ],
+                  [
+                    "eq",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r3",
+                  "b1",
+                  "b2"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "const",
+                    "r4",
+                    false
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r4"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r5",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r6",
+                    1
+                  ],
+                  [
+                    "sub",
+                    "r7",
+                    "r5",
+                    "r6"
+                  ],
+                  [
+                    "call",
+                    "r8",
+                    "main.even",
+                    "r7"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r8"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.even"
+      },
+      "rml": "(control-flow-v1 (entry main.even) (modules (module main (imports) (exports even))) (function main even (parameters (r0 int)) (result bool) (effects) (locals (r1 int) (r2 int) (r3 bool) (r4 bool) (r5 int) (r6 int) (r7 int) (r8 bool)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (const r2 0) (eq r3 r1 r2)) (branch r3 b1 b2)) (block b1 (instructions (const r4 true)) (return r4)) (block b2 (instructions) (jump b3)) (block b3 (instructions (copy r5 r0) (const r6 1) (sub r7 r5 r6) (call r8 main.odd r7)) (return r8)))) (function main odd (parameters (r0 int)) (result bool) (effects) (locals (r1 int) (r2 int) (r3 bool) (r4 bool) (r5 int) (r6 int) (r7 int) (r8 bool)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (const r2 0) (eq r3 r1 r2)) (branch r3 b1 b2)) (block b1 (instructions (const r4 false)) (return r4)) (block b2 (instructions) (jump b3)) (block b3 (instructions (copy r5 r0) (const r6 1) (sub r7 r5 r6) (call r8 main.even r7)) (return r8)))))",
+      "expected": {
+        "status": "returned",
+        "value": false,
+        "effects": [],
+        "steps": 1276,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "module-alias-and-effects",
+      "sources": {
+        "math": "export function increment(x) { console.log(x); return x + 1; }",
+        "main": "import { increment as step } from \"./math.js\"; export function calculate(n) { return step(step(n)); }"
+      },
+      "dependencies": {
+        "main": {
+          "./math.js": "math"
+        }
+      },
+      "entry": "main.calculate",
+      "signatures": {
+        "main.calculate": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": [
+            "output"
+          ]
+        },
+        "math.increment": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": [
+            "output"
+          ]
+        }
+      },
+      "arguments": [
+        40
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "math",
+            "imports": [],
+            "exports": [
+              "increment"
+            ]
+          },
+          {
+            "id": "main",
+            "imports": [
+              [
+                "step",
+                "math.increment"
+              ]
+            ],
+            "exports": [
+              "calculate"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "math",
+            "name": "increment",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [
+              "output"
+            ],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "unit"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "emit",
+                    "r1"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    null
+                  ],
+                  [
+                    "copy",
+                    "r3",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r4",
+                    1
+                  ],
+                  [
+                    "add",
+                    "r5",
+                    "r3",
+                    "r4"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r5"
+                ]
+              }
+            ]
+          },
+          {
+            "module": "main",
+            "name": "calculate",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [
+              "output"
+            ],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "call",
+                    "r2",
+                    "math.increment",
+                    "r1"
+                  ],
+                  [
+                    "call",
+                    "r3",
+                    "math.increment",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r3"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.calculate"
+      },
+      "rml": "(control-flow-v1 (entry main.calculate) (modules (module math (imports) (exports increment)) (module main (imports (step math.increment)) (exports calculate))) (function math increment (parameters (r0 int)) (result int) (effects output) (locals (r1 int) (r2 unit) (r3 int) (r4 int) (r5 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (emit r1) (const r2 unit) (copy r3 r0) (const r4 1) (add r5 r3 r4)) (return r5)))) (function main calculate (parameters (r0 int)) (result int) (effects output) (locals (r1 int) (r2 int) (r3 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (call r2 math.increment r1) (call r3 math.increment r2)) (return r3)))))",
+      "expected": {
+        "status": "returned",
+        "value": 42,
+        "effects": [
+          40,
+          41
+        ],
+        "steps": 18,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "lexical-shadowing",
+      "sources": {
+        "main": "export function pick(n) { let x = n; { const x = 9; console.log(x); } return x; }"
+      },
+      "entry": "main.pick",
+      "signatures": {
+        "main.pick": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": [
+            "output"
+          ]
+        }
+      },
+      "arguments": [
+        5
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "pick"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "pick",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [
+              "output"
+            ],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "unit"
+              ],
+              [
+                "r7",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r1"
+                  ],
+                  [
+                    "const",
+                    "r3",
+                    9
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r3"
+                  ],
+                  [
+                    "copy",
+                    "r5",
+                    "r4"
+                  ],
+                  [
+                    "emit",
+                    "r5"
+                  ],
+                  [
+                    "const",
+                    "r6",
+                    null
+                  ],
+                  [
+                    "copy",
+                    "r7",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r7"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.pick"
+      },
+      "rml": "(control-flow-v1 (entry main.pick) (modules (module main (imports) (exports pick))) (function main pick (parameters (r0 int)) (result int) (effects output) (locals (r1 int) (r2 int) (r3 int) (r4 int) (r5 int) (r6 unit) (r7 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (copy r2 r1) (const r3 9) (copy r4 r3) (copy r5 r4) (emit r5) (const r6 unit) (copy r7 r2)) (return r7)))))",
+      "expected": {
+        "status": "returned",
+        "value": 5,
+        "effects": [
+          9
+        ],
+        "steps": 9,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "short-circuit-effects",
+      "sources": {
+        "main": "function positive(n) { console.log(n); return 0 < n; } export function choose(n) { return (n < 0) && positive(n); }"
+      },
+      "entry": "main.choose",
+      "signatures": {
+        "main.positive": {
+          "parameters": [
+            "int"
+          ],
+          "result": "bool",
+          "effects": [
+            "output"
+          ]
+        },
+        "main.choose": {
+          "parameters": [
+            "int"
+          ],
+          "result": "bool",
+          "effects": [
+            "output"
+          ]
+        }
+      },
+      "arguments": [
+        1
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "choose"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "positive",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "bool",
+            "effects": [
+              "output"
+            ],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "unit"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "bool"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "emit",
+                    "r1"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    null
+                  ],
+                  [
+                    "const",
+                    "r3",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r0"
+                  ],
+                  [
+                    "lt",
+                    "r5",
+                    "r3",
+                    "r4"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r5"
+                ]
+              }
+            ]
+          },
+          {
+            "module": "main",
+            "name": "choose",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "bool",
+            "effects": [
+              "output"
+            ],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "bool"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "bool"
+              ],
+              [
+                "r6",
+                "bool"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    0
+                  ],
+                  [
+                    "lt",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r3",
+                  "b1",
+                  "b2"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "copy",
+                    "r4",
+                    "r0"
+                  ],
+                  [
+                    "call",
+                    "r5",
+                    "main.positive",
+                    "r4"
+                  ],
+                  [
+                    "copy",
+                    "r6",
+                    "r5"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [
+                  [
+                    "copy",
+                    "r6",
+                    "r3"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [],
+                "terminator": [
+                  "return",
+                  "r6"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.choose"
+      },
+      "rml": "(control-flow-v1 (entry main.choose) (modules (module main (imports) (exports choose))) (function main positive (parameters (r0 int)) (result bool) (effects output) (locals (r1 int) (r2 unit) (r3 int) (r4 int) (r5 bool)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (emit r1) (const r2 unit) (const r3 0) (copy r4 r0) (lt r5 r3 r4)) (return r5)))) (function main choose (parameters (r0 int)) (result bool) (effects output) (locals (r1 int) (r2 int) (r3 bool) (r4 int) (r5 bool) (r6 bool)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (const r2 0) (lt r3 r1 r2)) (branch r3 b1 b2)) (block b1 (instructions (copy r4 r0) (call r5 main.positive r4) (copy r6 r5)) (jump b3)) (block b2 (instructions (copy r6 r3)) (jump b3)) (block b3 (instructions) (return r6)))))",
+      "expected": {
+        "status": "returned",
+        "value": false,
+        "effects": [],
+        "steps": 7,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "evaluation-order",
+      "sources": {
+        "main": "export function order(n) { let x = n; return x + (x = 7); }"
+      },
+      "entry": "main.order",
+      "signatures": {
+        "main.order": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": []
+        }
+      },
+      "arguments": [
+        2
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "order"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "order",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r1"
+                  ],
+                  [
+                    "copy",
+                    "r3",
+                    "r2"
+                  ],
+                  [
+                    "const",
+                    "r4",
+                    7
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r4"
+                  ],
+                  [
+                    "copy",
+                    "r5",
+                    "r2"
+                  ],
+                  [
+                    "add",
+                    "r6",
+                    "r3",
+                    "r5"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r6"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.order"
+      },
+      "rml": "(control-flow-v1 (entry main.order) (modules (module main (imports) (exports order))) (function main order (parameters (r0 int)) (result int) (effects) (locals (r1 int) (r2 int) (r3 int) (r4 int) (r5 int) (r6 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (copy r2 r1) (copy r3 r2) (const r4 7) (copy r2 r4) (copy r5 r2) (add r6 r3 r5)) (return r6)))))",
+      "expected": {
+        "status": "returned",
+        "value": 9,
+        "effects": [],
+        "steps": 8,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "assignment-result-snapshot",
+      "sources": {
+        "main": "export function order(n) { let x = n; return (x = 4) + (x = 7); }"
+      },
+      "entry": "main.order",
+      "signatures": {
+        "main.order": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": []
+        }
+      },
+      "arguments": [
+        2
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "order"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "order",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r1"
+                  ],
+                  [
+                    "const",
+                    "r3",
+                    4
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r3"
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r2"
+                  ],
+                  [
+                    "const",
+                    "r5",
+                    7
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r5"
+                  ],
+                  [
+                    "copy",
+                    "r6",
+                    "r2"
+                  ],
+                  [
+                    "add",
+                    "r7",
+                    "r4",
+                    "r6"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r7"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.order"
+      },
+      "rml": "(control-flow-v1 (entry main.order) (modules (module main (imports) (exports order))) (function main order (parameters (r0 int)) (result int) (effects) (locals (r1 int) (r2 int) (r3 int) (r4 int) (r5 int) (r6 int) (r7 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (copy r2 r1) (const r3 4) (copy r2 r3) (copy r4 r2) (const r5 7) (copy r2 r5) (copy r6 r2) (add r7 r4 r6)) (return r7)))))",
+      "expected": {
+        "status": "returned",
+        "value": 11,
+        "effects": [],
+        "steps": 10,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "break-and-reassignment",
+      "sources": {
+        "main": "export function loop(n) { let x = 0; while (x < n) { x++; if (x === 3) { break; } } return x; }"
+      },
+      "entry": "main.loop",
+      "signatures": {
+        "main.loop": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": []
+        }
+      },
+      "arguments": [
+        100
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "loop"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "loop",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "bool"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "int"
+              ],
+              [
+                "r9",
+                "int"
+              ],
+              [
+                "r10",
+                "int"
+              ],
+              [
+                "r11",
+                "bool"
+              ],
+              [
+                "r12",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "const",
+                    "r1",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r1"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b1"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "copy",
+                    "r3",
+                    "r2"
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r0"
+                  ],
+                  [
+                    "lt",
+                    "r5",
+                    "r3",
+                    "r4"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r5",
+                  "b2",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [
+                  [
+                    "copy",
+                    "r6",
+                    "r2"
+                  ],
+                  [
+                    "const",
+                    "r7",
+                    1
+                  ],
+                  [
+                    "add",
+                    "r8",
+                    "r6",
+                    "r7"
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r8"
+                  ],
+                  [
+                    "copy",
+                    "r9",
+                    "r2"
+                  ],
+                  [
+                    "const",
+                    "r10",
+                    3
+                  ],
+                  [
+                    "eq",
+                    "r11",
+                    "r9",
+                    "r10"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r11",
+                  "b4",
+                  "b5"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r12",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r12"
+                ]
+              },
+              {
+                "id": "b4",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b5",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b6"
+                ]
+              },
+              {
+                "id": "b6",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b1"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.loop"
+      },
+      "rml": "(control-flow-v1 (entry main.loop) (modules (module main (imports) (exports loop))) (function main loop (parameters (r0 int)) (result int) (effects) (locals (r1 int) (r2 int) (r3 int) (r4 int) (r5 bool) (r6 int) (r7 int) (r8 int) (r9 int) (r10 int) (r11 bool) (r12 int)) (entry b0) (blocks (block b0 (instructions (const r1 0) (copy r2 r1)) (jump b1)) (block b1 (instructions (copy r3 r2) (copy r4 r0) (lt r5 r3 r4)) (branch r5 b2 b3)) (block b2 (instructions (copy r6 r2) (const r7 1) (add r8 r6 r7) (copy r2 r8) (copy r9 r2) (const r10 3) (eq r11 r9 r10)) (branch r11 b4 b5)) (block b3 (instructions (copy r12 r2)) (return r12)) (block b4 (instructions) (jump b3)) (block b5 (instructions) (jump b6)) (block b6 (instructions) (jump b1)))))",
+      "expected": {
+        "status": "returned",
+        "value": 3,
+        "effects": [],
+        "steps": 46,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "negative-and-conditional",
+      "sources": {
+        "main": "export function choose(n) { return (n < 0) ? n * -2 : n - 3; }"
+      },
+      "entry": "main.choose",
+      "signatures": {
+        "main.choose": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": []
+        }
+      },
+      "arguments": [
+        -17
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "choose"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "choose",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "bool"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "int"
+              ],
+              [
+                "r9",
+                "int"
+              ],
+              [
+                "r10",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    0
+                  ],
+                  [
+                    "lt",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r3",
+                  "b1",
+                  "b2"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "copy",
+                    "r4",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r5",
+                    -2
+                  ],
+                  [
+                    "mul",
+                    "r6",
+                    "r4",
+                    "r5"
+                  ],
+                  [
+                    "copy",
+                    "r7",
+                    "r6"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [
+                  [
+                    "copy",
+                    "r8",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r9",
+                    3
+                  ],
+                  [
+                    "sub",
+                    "r10",
+                    "r8",
+                    "r9"
+                  ],
+                  [
+                    "copy",
+                    "r7",
+                    "r10"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [],
+                "terminator": [
+                  "return",
+                  "r7"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.choose"
+      },
+      "rml": "(control-flow-v1 (entry main.choose) (modules (module main (imports) (exports choose))) (function main choose (parameters (r0 int)) (result int) (effects) (locals (r1 int) (r2 int) (r3 bool) (r4 int) (r5 int) (r6 int) (r7 int) (r8 int) (r9 int) (r10 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (const r2 0) (lt r3 r1 r2)) (branch r3 b1 b2)) (block b1 (instructions (copy r4 r0) (const r5 -2) (mul r6 r4 r5) (copy r7 r6)) (jump b3)) (block b2 (instructions (copy r8 r0) (const r9 3) (sub r10 r8 r9) (copy r7 r10)) (jump b3)) (block b3 (instructions) (return r7)))))",
+      "expected": {
+        "status": "returned",
+        "value": 34,
+        "effects": [],
+        "steps": 10,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "recursive-output-trace",
+      "sources": {
+        "main": "export function down(n) { console.log(n); if (n === 0) { return 0; } return down(n - 1); }"
+      },
+      "entry": "main.down",
+      "signatures": {
+        "main.down": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": [
+            "output"
+          ]
+        }
+      },
+      "arguments": [
+        4
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "down"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "down",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [
+              "output"
+            ],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "unit"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "bool"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "int"
+              ],
+              [
+                "r9",
+                "int"
+              ],
+              [
+                "r10",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "emit",
+                    "r1"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    null
+                  ],
+                  [
+                    "copy",
+                    "r3",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r4",
+                    0
+                  ],
+                  [
+                    "eq",
+                    "r5",
+                    "r3",
+                    "r4"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r5",
+                  "b1",
+                  "b2"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "const",
+                    "r6",
+                    0
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r6"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r7",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r8",
+                    1
+                  ],
+                  [
+                    "sub",
+                    "r9",
+                    "r7",
+                    "r8"
+                  ],
+                  [
+                    "call",
+                    "r10",
+                    "main.down",
+                    "r9"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r10"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.down"
+      },
+      "rml": "(control-flow-v1 (entry main.down) (modules (module main (imports) (exports down))) (function main down (parameters (r0 int)) (result int) (effects output) (locals (r1 int) (r2 unit) (r3 int) (r4 int) (r5 bool) (r6 int) (r7 int) (r8 int) (r9 int) (r10 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (emit r1) (const r2 unit) (copy r3 r0) (const r4 0) (eq r5 r3 r4)) (branch r5 b1 b2)) (block b1 (instructions (const r6 0)) (return r6)) (block b2 (instructions) (jump b3)) (block b3 (instructions (copy r7 r0) (const r8 1) (sub r9 r7 r8) (call r10 main.down r9)) (return r10)))))",
+      "expected": {
+        "status": "returned",
+        "value": 0,
+        "effects": [
+          4,
+          3,
+          2,
+          1,
+          0
+        ],
+        "steps": 61,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "fuel-is-not-divergence",
+      "sources": {
+        "main": "export function forever(n) { return forever(n + 1); }"
+      },
+      "entry": "main.forever",
+      "signatures": {
+        "main.forever": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": []
+        }
+      },
+      "arguments": [
+        0
+      ],
+      "fuel": 31,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "forever"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "forever",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    1
+                  ],
+                  [
+                    "add",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ],
+                  [
+                    "call",
+                    "r4",
+                    "main.forever",
+                    "r3"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r4"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.forever"
+      },
+      "rml": "(control-flow-v1 (entry main.forever) (modules (module main (imports) (exports forever))) (function main forever (parameters (r0 int)) (result int) (effects) (locals (r1 int) (r2 int) (r3 int) (r4 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (const r2 1) (add r3 r1 r2) (call r4 main.forever r3)) (return r4)))))",
+      "expected": {
+        "status": "fuel-exhausted",
+        "value": null,
+        "effects": [],
+        "steps": 31,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "checked-overflow",
+      "sources": {
+        "main": "export function large(n) { return n * n; }"
+      },
+      "entry": "main.large",
+      "signatures": {
+        "main.large": {
+          "parameters": [
+            "int"
+          ],
+          "result": "int",
+          "effects": []
+        }
+      },
+      "arguments": [
+        9007199254740991
+      ],
+      "fuel": 10000,
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "large"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "large",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r0"
+                  ],
+                  [
+                    "mul",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r3"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.large"
+      },
+      "rml": "(control-flow-v1 (entry main.large) (modules (module main (imports) (exports large))) (function main large (parameters (r0 int)) (result int) (effects) (locals (r1 int) (r2 int) (r3 int)) (entry b0) (blocks (block b0 (instructions (copy r1 r0) (copy r2 r0) (mul r3 r1 r2)) (return r3)))))",
+      "expected": {
+        "status": "domain-error",
+        "value": null,
+        "effects": [],
+        "steps": 3,
+        "diagnostic": "INTEGER_OVERFLOW"
+      }
+    }
+  ],
+  "negativeCases": [
+    {
+      "name": "duplicate-register",
+      "code": "BINDING",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ],
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unresolved-call",
+      "code": "BINDING",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "call",
+                    "v",
+                    "m.missing",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "uninitialized",
+      "code": "UNINITIALIZED",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "type-confusion",
+      "code": "TYPE",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "const",
+                    "v",
+                    true
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unresolved-branch",
+      "code": "BINDING",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "missing"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "undeclared-output",
+      "code": "EFFECT",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ],
+                  [
+                    "emit",
+                    "v"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown-operation",
+      "code": "UNSUPPORTED",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "delete",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "hidden-proof-field",
+      "code": "SCHEMA",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ],
+        "proof": "trusted"
+      }
+    },
+    {
+      "name": "dangling-export",
+      "code": "BINDING",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "missing"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown-result-type",
+      "code": "TYPE",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "proof",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "overflowing-literal",
+      "code": "TYPE",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "const",
+                    "v",
+                    9007199254740992
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unreachable-block",
+      "code": "UNREACHABLE",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              },
+              {
+                "id": "dead",
+                "instructions": [],
+                "terminator": [
+                  "return",
+                  "n"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "undeclared-branch-type",
+      "code": "TYPE",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "n",
+                  "entry",
+                  "entry"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-parameter-types",
+      "code": "BINDING",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-call-arguments",
+      "code": "BINDING",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "call",
+                    "v",
+                    "m.f"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate-exports",
+      "code": "BINDING",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f",
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-effect",
+      "code": "EFFECT",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [
+              "filesystem"
+            ],
+            "locals": [
+              [
+                "v",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "oversized-name",
+      "code": "BINDING",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "m",
+            "imports": [],
+            "exports": [
+              "f"
+            ]
+          }
+        ],
+        "entry": "m.f",
+        "functions": [
+          {
+            "module": "m",
+            "name": "f",
+            "parameters": [
+              [
+                "n",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "v",
+                    "n"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "v"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

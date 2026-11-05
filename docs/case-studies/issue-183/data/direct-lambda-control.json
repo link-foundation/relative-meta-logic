@@ -1,0 +1,534 @@
+{
+  "schema": "rml-lambda-source-control-comparison/v1",
+  "runtime": {
+    "language": "JavaScript",
+    "node": "v24.19.0"
+  },
+  "inputs": {
+    "lib/meta-theory/fixed-point-source.lino": "5428d711d66b409fc9f0257675d280c75d6718f522a59eadafbcc8398ba44bbe",
+    "test-corpus/lambda-kernel/mirror-substitution.lino": "29341631f6744e0d07ae26723c8f8f8549df2c9d66df16a5349e92597e9eb05b",
+    "test-corpus/lambda-kernel/workload.lino": "ad43d815f5542ae17bef47312e216931d5e6fef45e6b1f042c0dba76bdac067d",
+    "test-corpus/lambda-kernel/cases.json": "b7a06593688b3963eea40390668e0ce317883528de1703f307bcc4062d8d51aa",
+    "js/src/rml-lambda-kernel.mjs": "1ac98238347307194e7b4c5d011b813ea6bbda8d363ee570db29e5b14207f894",
+    "js/src/rml-combinator-kernel.mjs": "fc2021953741507187f10d21eefb43922feade6a57af79e004cbc19edb739ca2",
+    "rust/src/lambda_kernel.rs": "55aaf3e03c6d569d83dbeeff0d2ecb385839efa61367d585eff7fb4f7da9c75e"
+  },
+  "classification": "LAMBDA_SEMANTICS_IMPLEMENTATION_CONTROL",
+  "sameObservations": true,
+  "lambda": {
+    "observations": {
+      "reductions": [
+        {
+          "name": "repeated binding",
+          "term": [
+            "equal",
+            "λ"
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "repeated"
+            }
+          ]
+        },
+        {
+          "name": "unequal repeated binding",
+          "term": [
+            "same",
+            "a",
+            "b"
+          ],
+          "trace": []
+        },
+        {
+          "name": "ordered rule choice",
+          "term": [
+            "selected",
+            "first",
+            "a"
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "first"
+            }
+          ]
+        },
+        {
+          "name": "nested left traversal",
+          "term": [
+            "outer",
+            [
+              "selected",
+              "first",
+              "a"
+            ],
+            [
+              "selected",
+              "first",
+              "b"
+            ]
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "first"
+            },
+            {
+              "program": "rules",
+              "name": "first"
+            }
+          ]
+        },
+        {
+          "name": "recursive substitution",
+          "term": [
+            "pair",
+            [
+              "nested",
+              "value"
+            ],
+            "done"
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "nested"
+            }
+          ]
+        },
+        {
+          "name": "import rebinding",
+          "term": [
+            "pair",
+            [
+              "nested",
+              "value"
+            ],
+            "done"
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "nested"
+            }
+          ]
+        }
+      ],
+      "derivations": [
+        {
+          "judgement": [
+            "arrived",
+            "seed"
+          ],
+          "proof": {
+            "judgement": [
+              "arrived",
+              "seed"
+            ],
+            "program": "evidence",
+            "rule": "extend",
+            "premises": [
+              {
+                "judgement": [
+                  "ready",
+                  "seed"
+                ],
+                "program": "evidence",
+                "rule": "seed",
+                "premises": []
+              }
+            ]
+          }
+        },
+        {
+          "judgement": [
+            "finished",
+            "seed"
+          ],
+          "proof": {
+            "judgement": [
+              "finished",
+              "seed"
+            ],
+            "program": "evidence",
+            "rule": "finish",
+            "premises": [
+              {
+                "judgement": [
+                  "arrived",
+                  "seed"
+                ],
+                "program": "evidence",
+                "rule": "extend",
+                "premises": [
+                  {
+                    "judgement": [
+                      "ready",
+                      "seed"
+                    ],
+                    "program": "evidence",
+                    "rule": "seed",
+                    "premises": []
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "proof": {
+        "judgement": [
+          "finished",
+          "seed"
+        ],
+        "program": "evidence",
+        "rule": "finish",
+        "premises": [
+          {
+            "judgement": [
+              "arrived",
+              "seed"
+            ],
+            "program": "evidence",
+            "rule": "extend",
+            "premises": [
+              {
+                "judgement": [
+                  "ready",
+                  "seed"
+                ],
+                "program": "evidence",
+                "rule": "seed",
+                "premises": []
+              }
+            ]
+          }
+        ]
+      },
+      "absentProof": null,
+      "known": 3,
+      "fixedPoint": true
+    },
+    "observedOperations": [
+      "lambda-bind-argument",
+      "lambda-enter-closure",
+      "lambda-push-argument",
+      "lambda-reify-head",
+      "lambda-resolve-variable"
+    ],
+    "linkedCapabilities": [
+      "import-and-rebinding",
+      "inference-saturation",
+      "matching",
+      "result-verification",
+      "rule-selection-and-traversal",
+      "substitution"
+    ],
+    "transitionCount": 788435
+  },
+  "sk": {
+    "observations": {
+      "reductions": [
+        {
+          "name": "repeated binding",
+          "term": [
+            "equal",
+            "λ"
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "repeated"
+            }
+          ]
+        },
+        {
+          "name": "unequal repeated binding",
+          "term": [
+            "same",
+            "a",
+            "b"
+          ],
+          "trace": []
+        },
+        {
+          "name": "ordered rule choice",
+          "term": [
+            "selected",
+            "first",
+            "a"
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "first"
+            }
+          ]
+        },
+        {
+          "name": "nested left traversal",
+          "term": [
+            "outer",
+            [
+              "selected",
+              "first",
+              "a"
+            ],
+            [
+              "selected",
+              "first",
+              "b"
+            ]
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "first"
+            },
+            {
+              "program": "rules",
+              "name": "first"
+            }
+          ]
+        },
+        {
+          "name": "recursive substitution",
+          "term": [
+            "pair",
+            [
+              "nested",
+              "value"
+            ],
+            "done"
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "nested"
+            }
+          ]
+        },
+        {
+          "name": "import rebinding",
+          "term": [
+            "pair",
+            [
+              "nested",
+              "value"
+            ],
+            "done"
+          ],
+          "trace": [
+            {
+              "program": "rules",
+              "name": "nested"
+            }
+          ]
+        }
+      ],
+      "derivations": [
+        {
+          "judgement": [
+            "arrived",
+            "seed"
+          ],
+          "proof": {
+            "judgement": [
+              "arrived",
+              "seed"
+            ],
+            "program": "evidence",
+            "rule": "extend",
+            "premises": [
+              {
+                "judgement": [
+                  "ready",
+                  "seed"
+                ],
+                "program": "evidence",
+                "rule": "seed",
+                "premises": []
+              }
+            ]
+          }
+        },
+        {
+          "judgement": [
+            "finished",
+            "seed"
+          ],
+          "proof": {
+            "judgement": [
+              "finished",
+              "seed"
+            ],
+            "program": "evidence",
+            "rule": "finish",
+            "premises": [
+              {
+                "judgement": [
+                  "arrived",
+                  "seed"
+                ],
+                "program": "evidence",
+                "rule": "extend",
+                "premises": [
+                  {
+                    "judgement": [
+                      "ready",
+                      "seed"
+                    ],
+                    "program": "evidence",
+                    "rule": "seed",
+                    "premises": []
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "proof": {
+        "judgement": [
+          "finished",
+          "seed"
+        ],
+        "program": "evidence",
+        "rule": "finish",
+        "premises": [
+          {
+            "judgement": [
+              "arrived",
+              "seed"
+            ],
+            "program": "evidence",
+            "rule": "extend",
+            "premises": [
+              {
+                "judgement": [
+                  "ready",
+                  "seed"
+                ],
+                "program": "evidence",
+                "rule": "seed",
+                "premises": []
+              }
+            ]
+          }
+        ]
+      },
+      "absentProof": null,
+      "known": 3,
+      "fixedPoint": true
+    },
+    "observedOperations": [
+      "contract-k-link",
+      "contract-s-link"
+    ],
+    "linkedCapabilities": [
+      "import-and-rebinding",
+      "inference-saturation",
+      "matching",
+      "result-verification",
+      "rule-selection-and-traversal",
+      "substitution"
+    ],
+    "transitionCount": 1657075
+  },
+  "replacement": {
+    "baseline": [
+      "pair",
+      [
+        "nested",
+        "value"
+      ],
+      "done"
+    ],
+    "changed": [
+      "done",
+      [
+        "value",
+        "nested"
+      ],
+      "pair"
+    ],
+    "executionInvokesBracketCompiler": false,
+    "hostMachineChanged": false
+  },
+  "removals": [
+    {
+      "operation": "lambda-push-argument",
+      "failed": true,
+      "reason": "disabled host semantic operation lambda-push-argument",
+      "classification": "NECESSARY_IMPLEMENTATION_BRANCH_NOT_PROVED_INDEPENDENT_PRIMITIVE"
+    },
+    {
+      "operation": "lambda-bind-argument",
+      "failed": true,
+      "reason": "disabled host semantic operation lambda-bind-argument",
+      "classification": "NECESSARY_IMPLEMENTATION_BRANCH_NOT_PROVED_INDEPENDENT_PRIMITIVE"
+    },
+    {
+      "operation": "lambda-resolve-variable",
+      "failed": true,
+      "reason": "disabled host semantic operation lambda-resolve-variable",
+      "classification": "NECESSARY_IMPLEMENTATION_BRANCH_NOT_PROVED_INDEPENDENT_PRIMITIVE"
+    },
+    {
+      "operation": "lambda-enter-closure",
+      "failed": true,
+      "reason": "disabled host semantic operation lambda-enter-closure",
+      "classification": "NECESSARY_IMPLEMENTATION_BRANCH_NOT_PROVED_INDEPENDENT_PRIMITIVE"
+    },
+    {
+      "operation": "lambda-reify-head",
+      "failed": true,
+      "reason": "disabled host semantic operation lambda-reify-head",
+      "classification": "NECESSARY_IMPLEMENTATION_BRANCH_NOT_PROVED_INDEPENDENT_PRIMITIVE"
+    }
+  ],
+  "trust": {
+    "schema": "rml-lambda-machine-trust/v1",
+    "classification": "LAMBDA_SEMANTICS_IMPLEMENTATION_CONTROL",
+    "genuinelyDifferentFoundationEstablished": false,
+    "minimalityEstablished": false,
+    "fullImplementationClosure": false,
+    "machineOperations": [
+      "lambda-push-argument",
+      "lambda-bind-argument",
+      "lambda-resolve-variable",
+      "lambda-enter-closure",
+      "lambda-reify-head"
+    ],
+    "externalSemanticServices": [
+      "call-by-name left-head application order and argument closure capture",
+      "lexical lambda binding by persistent environment extension",
+      "nearest-binding variable-name equality and environment lookup",
+      "restoration of captured lexical environments",
+      "weak-head result reification and neutral marker application"
+    ],
+    "externalBoundaryServices": [
+      "LiNo parsing, addressed DAG resolution, closed-root validation and source limits",
+      "program validation and pattern-variable elaboration (leading question mark)",
+      "Scott/UTF-8 input encoding and checked output/proof decoding",
+      "host public-call orchestration, stopping policy and resource limits",
+      "host memory allocation, JavaScript runtime/compiler and physical processor"
+    ],
+    "linkedCapabilities": [
+      "matching",
+      "substitution",
+      "rule-selection-and-traversal",
+      "import-and-rebinding",
+      "inference-saturation",
+      "result-verification"
+    ],
+    "caveat": "Necessary machine branches are not proved independent primitives. The same lambda semantics underlie the S/K compiler; no foundation ranking follows."
+  },
+  "comparisonLimits": [
+    "Lambda transition counts and S/K contraction counts measure different machine steps and cannot rank semantic minimality.",
+    "The upper program and lambda calculus semantics are shared; this is not the genuinely different foundation required by R130/R149.",
+    "Self-description/interpretation/generation, language coverage, and compiler-to-CPU closure are not established by this control."
+  ],
+  "requirementsCompleted": []
+}

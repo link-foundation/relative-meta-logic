@@ -186,6 +186,17 @@ describe('lintFile() — end-to-end on inline sources', () => {
     assert.deepStrictEqual(lintSource(src, 'inline.lino', allow), []);
   });
 
+  it('preserves externally defined identifiers in an allowed manifest file', () => {
+    const src = `(definition ReferenceListToDupletList)\n`;
+    const allow = {
+      identifiers: new Set(),
+      identifierFiles: new Set(['upstream.lino']),
+      links: new Set(),
+    };
+    assert.deepStrictEqual(lintSource(src, 'upstream.lino', allow), []);
+    assert.strictEqual(lintSource(src, 'other.lino', allow).length, 1);
+  });
+
   it('reports parse errors instead of crashing', () => {
     const src = `(a: a is a\n`;
     const violations = lintSource(src);
@@ -198,6 +209,7 @@ describe('loadAllowlist()', () => {
   it('returns an empty allow-list when no path is provided', () => {
     const a = loadAllowlist(null);
     assert.strictEqual(a.identifiers.size, 0);
+    assert.strictEqual(a.identifierFiles.size, 0);
     assert.strictEqual(a.links.size, 0);
   });
 
@@ -206,11 +218,13 @@ describe('loadAllowlist()', () => {
     const file = path.join(tmp, 'allowlist.json');
     fs.writeFileSync(file, JSON.stringify({
       identifiers: ['foo_bar'],
+      identifierFiles: ['upstream.lino'],
       links: ['demo.lino:1'],
     }));
     try {
       const a = loadAllowlist(file);
       assert.ok(a.identifiers.has('foo_bar'));
+      assert.ok(a.identifierFiles.has('upstream.lino'));
       assert.ok(a.links.has('demo.lino:1'));
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });

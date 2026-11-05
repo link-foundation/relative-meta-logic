@@ -1,0 +1,211 @@
+{
+  "schema": "rml:portable-natural-tests:1",
+  "sources": {
+    "JavaScript": "// Pure natural arithmetic; all effects/proofs remain outside this fragment.\nfunction rml_square(x) { return x * x; }\nfunction rml_mix(x, y) { return x <= y ? rml_square(x) + y : rml_square(y) + x; }\nfunction rml_guard(x, y) { return x === y ? 0 : x < y ? rml_mix(x, y) + 1 : rml_mix(y, x) * 2; }\n",
+    "Rust": "fn rml_square(x: u64) -> u64 { (x * x) }\nfn rml_mix(x: u64, y: u64) -> u64 { (if (x <= y) { (rml_square(x) + y) } else { (rml_square(y) + x) }) }\nfn rml_guard(x: u64, y: u64) -> u64 { (if (x == y) { 0 } else { (if (x < y) { (rml_mix(x, y) + 1) } else { (rml_mix(y, x) * 2) }) }) }\n",
+    "Lean": "def rml_square (x : Nat) : Nat := (x * x)\ndef rml_mix (x : Nat) (y : Nat) : Nat := (if (x <= y) then ((rml_square (x)) + y) else ((rml_square (y)) + x))\ndef rml_guard (x : Nat) (y : Nat) : Nat := (if (x = y) then 0 else (if (x < y) then ((rml_mix (x) (y)) + 1) else ((rml_mix (y) (x)) * 2)))\n",
+    "Rocq": "Require Import Arith.\nDefinition rml_square (x : nat) : nat := (x * x).\nDefinition rml_mix (x : nat) (y : nat) : nat := (if (x <=? y) then ((rml_square (x)) + y) else ((rml_square (y)) + x)).\nDefinition rml_guard (x : nat) (y : nat) : nat := (if (x =? y) then 0 else (if (x <? y) then ((rml_mix (x) (y)) + 1) else ((rml_mix (y) (x)) * 2))).\n"
+  },
+  "vectors": [
+    {
+      "function": "rml_guard",
+      "arguments": [
+        0,
+        0
+      ],
+      "expected": "0"
+    },
+    {
+      "function": "rml_guard",
+      "arguments": [
+        1,
+        0
+      ],
+      "expected": "2"
+    },
+    {
+      "function": "rml_guard",
+      "arguments": [
+        0,
+        1
+      ],
+      "expected": "2"
+    },
+    {
+      "function": "rml_guard",
+      "arguments": [
+        3,
+        5
+      ],
+      "expected": "15"
+    },
+    {
+      "function": "rml_guard",
+      "arguments": [
+        5,
+        3
+      ],
+      "expected": "28"
+    },
+    {
+      "function": "rml_guard",
+      "arguments": [
+        4,
+        4
+      ],
+      "expected": "0"
+    },
+    {
+      "function": "rml_guard",
+      "arguments": [
+        40,
+        2
+      ],
+      "expected": "88"
+    },
+    {
+      "function": "rml_guard",
+      "arguments": [
+        65535,
+        1
+      ],
+      "expected": "131072"
+    }
+  ],
+  "negatives": [
+    {
+      "name": "effects must not disappear",
+      "language": "JavaScript",
+      "source": "let counter = 0; function f(x) { counter += 1; return x; }"
+    },
+    {
+      "name": "strings and coercion",
+      "language": "JavaScript",
+      "source": "function f(x) { return x + \"1\"; }"
+    },
+    {
+      "name": "recursion remains an obligation",
+      "language": "JavaScript",
+      "source": "function f(x) { return f(x); }"
+    },
+    {
+      "name": "unresolved variable",
+      "language": "Rust",
+      "source": "fn f(x: u64) -> u64 { x + missing }"
+    },
+    {
+      "name": "Rust ownership not erased",
+      "language": "Rust",
+      "source": "fn f(x: Box<u64>) -> u64 { *x }"
+    },
+    {
+      "name": "Lean proof not relabelled",
+      "language": "Lean",
+      "source": "axiom impossible : False\ntheorem bad : False := impossible\n"
+    },
+    {
+      "name": "Rocq admission not invented",
+      "language": "Rocq",
+      "source": "Axiom impossible : False.\nTheorem bad : False. Admitted.\n"
+    },
+    {
+      "name": "numeric literal out of contract",
+      "language": "JavaScript",
+      "source": "function f(x) { return 9007199254740992 + x; }"
+    },
+    {
+      "name": "arity mismatch",
+      "language": "JavaScript",
+      "source": "function f(x) { return x; } function g(y) { return f(y, y); }"
+    },
+    {
+      "name": "type mismatch",
+      "language": "JavaScript",
+      "source": "function f(x) { return x < 2; }"
+    },
+    {
+      "name": "syntax trailing data",
+      "language": "Rust",
+      "source": "fn f(x: u64) -> u64 { x } unexpected"
+    },
+    {
+      "name": "JavaScript return ASI changes result",
+      "language": "JavaScript",
+      "source": "function f(x) { return\nx; }"
+    },
+    {
+      "name": "JavaScript return ASI inside block comment",
+      "language": "JavaScript",
+      "source": "function f(x) { return /*\n*/ x; }"
+    },
+    {
+      "name": "JavaScript Unicode line ending cannot hide effects",
+      "language": "JavaScript",
+      "source": "function f(x) { return x; } // comment\u2028console.log(1);"
+    },
+    {
+      "name": "Lean application is left associative",
+      "language": "Lean",
+      "source": "def ident (x : Nat) : Nat := x\ndef twice (x : Nat) : Nat := ident ident x\n"
+    },
+    {
+      "name": "Rocq application is left associative",
+      "language": "Rocq",
+      "source": "Definition ident (x : nat) : nat := x.\nDefinition twice (x : nat) : nat := ident ident x.\n"
+    },
+    {
+      "name": "deep unparenthesized application rejected",
+      "language": "Lean",
+      "source": "def ident (x : Nat) : Nat := x\ndef deep (x : Nat) : Nat := ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident ident x\n"
+    },
+    {
+      "name": "Rust block-expression parsing is not silently changed",
+      "language": "Rust",
+      "source": "fn f(x: u64, y: u64) -> u64 { if x < y { x } else { y } + 1 }"
+    },
+    {
+      "name": "graph encoding depth limit remains a preserved obligation",
+      "language": "JavaScript",
+      "source": "function f(x) { return 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1; }"
+    }
+  ],
+  "targets": {
+    "JavaScript": "function rml_square(x) { return (x * x); }\nfunction rml_mix(x, y) { return ((x <= y) ? (rml_square(x) + y) : (rml_square(y) + x)); }\nfunction rml_guard(x, y) { return ((x === y) ? 0 : ((x < y) ? (rml_mix(x, y) + 1) : (rml_mix(y, x) * 2))); }\n",
+    "Rust": "fn rml_square(x: u64) -> u64 { (x * x) }\nfn rml_mix(x: u64, y: u64) -> u64 { (if (x <= y) { (rml_square(x) + y) } else { (rml_square(y) + x) }) }\nfn rml_guard(x: u64, y: u64) -> u64 { (if (x == y) { 0 } else { (if (x < y) { (rml_mix(x, y) + 1) } else { (rml_mix(y, x) * 2) }) }) }\n",
+    "Lean": "def rml_square (x : Nat) : Nat := (x * x)\ndef rml_mix (x : Nat) (y : Nat) : Nat := (if (x <= y) then ((rml_square (x)) + y) else ((rml_square (y)) + x))\ndef rml_guard (x : Nat) (y : Nat) : Nat := (if (x = y) then 0 else (if (x < y) then ((rml_mix (x) (y)) + 1) else ((rml_mix (y) (x)) * 2)))\n",
+    "Rocq": "Require Import Arith.\nDefinition rml_square (x : nat) : nat := (x * x).\nDefinition rml_mix (x : nat) (y : nat) : nat := (if (x <=? y) then ((rml_square (x)) + y) else ((rml_square (y)) + x)).\nDefinition rml_guard (x : nat) (y : nat) : nat := (if (x =? y) then 0 else (if (x <? y) then ((rml_mix (x) (y)) + 1) else ((rml_mix (y) (x)) * 2))).\n"
+  },
+  "contract": {
+    "schema": "rml:portable-natural:1",
+    "values": "natural numbers, 0 through 9007199254740991",
+    "representations": {
+      "JavaScript": "Number safe nonnegative integer, not BigInt",
+      "Rust": "u64",
+      "Lean": "Nat",
+      "Rocq": "nat"
+    },
+    "observations": "return value of named pure functions on valid arguments",
+    "assumptions": [
+      "Every argument and arithmetic intermediate is an integer in the declared value range",
+      "Functions are called in an environment without conflicting target declarations",
+      "Resource exhaustion, stack limits, timing, and memory usage are outside the observations"
+    ],
+    "preserves": [
+      "function arity",
+      "lexical parameter binding",
+      "pure calls",
+      "conditional branch selection",
+      "natural-number results within bounds"
+    ],
+    "excludes": [
+      "effects",
+      "modules",
+      "ownership",
+      "recursion",
+      "proofs",
+      "axioms",
+      "universes",
+      "full-language grammar"
+    ]
+  }
+}

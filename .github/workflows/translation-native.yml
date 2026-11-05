@@ -1,0 +1,127 @@
+name: translation-native
+
+# Native-validity oracles for the portable-natural fragment and the certified
+# four-language translation corpus. Node, rustc, Lean and Rocq are oracles only:
+# their acceptance never discharges an RML certificate obligation.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/translation-native.yml'
+      - 'js/src/rml-certified-translation.mjs'
+      - 'js/src/rml-portable-natural.mjs'
+      - 'js/src/rml-meta-structure.mjs'
+      - 'js/src/rml-lino-frontend.mjs'
+      - 'js/vendor/meta-language-pr201/**'
+      - 'js/package.json'
+      - 'scripts/check-certified-translation-native.mjs'
+      - 'scripts/generate-certified-translations.mjs'
+      - 'scripts/check-portable-native.mjs'
+      - 'scripts/install-rocq-kernel.sh'
+      - 'test-corpus/certified-translation/**'
+      - 'test-corpus/portable-natural/**'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: translation-native-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compilers:
+    name: Native translation observations (JavaScript, Rust, Lean)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Install locked JavaScript dependencies
+        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
+      - name: Install official Lean 4.34.1 toolchain
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:v4.34.1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Reject stale certified translations before running oracles
+        run: node scripts/generate-certified-translations.mjs --check
+      - name: Observe portable-natural and certified targets natively
+        env:
+          ELAN_TOOLCHAIN: leanprover/lean4:v4.34.1
+        run: |
+          node scripts/run-with-cache.mjs --cache .rml-cache/compiler --class compiler --isolate-output .rml-cache/compiler --archive "{output}/translation-native" -- bash -euo pipefail -c '
+            mkdir -p "$RML_CACHE_OUTPUT_DIR/translation-native"
+            rustc --version
+            lean --version
+            node scripts/check-portable-native.mjs --require=JavaScript,Rust,Lean > "$RML_CACHE_OUTPUT_DIR/translation-native/portable-native.json"
+            node scripts/check-certified-translation-native.mjs --languages=JavaScript,Rust,Lean --require=JavaScript,Rust,Lean --output="$RML_CACHE_OUTPUT_DIR/translation-native/certified-native.json"
+          '
+      - name: Archive native observations before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-native-compilers-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full
+
+  rocq:
+    name: Native translation observations (Rocq)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Install repository build lifecycle
+        run: node scripts/bootstrap.mjs
+      - name: Install locked JavaScript dependencies
+        run: node scripts/run-with-cache.mjs -- npm --prefix js ci
+      - name: Check every Rocq target with the pinned stable Rocq kernel
+        run: |
+          node scripts/run-with-cache.mjs --cache .rml-cache/compiler --class compiler --isolate-output .rml-cache/compiler --archive "{output}/translation-native" -- bash -euo pipefail -c '
+            export RML_NATIVE_OUTPUT="$RML_CACHE_OUTPUT_DIR/translation-native"
+            mkdir -p "$RML_NATIVE_OUTPUT"
+            runner_owner="$(id -u):$(id -g)"
+            trap "sudo chown -R $runner_owner \"$RML_NATIVE_OUTPUT\"" EXIT
+            sudo chown -R 1000:1000 "$RML_NATIVE_OUTPUT"
+            bash docker/run-owned.sh --init \
+              --volume "$PWD:/rml:ro" \
+              --volume "$(command -v node):/usr/local/bin/node:ro" \
+              --volume "$RML_NATIVE_OUTPUT:/out" \
+              --workdir /rml \
+              rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782 /bin/bash --login -ec \
+              "bash /rml/scripts/install-rocq-kernel.sh; eval \$(opam env); node /rml/scripts/check-portable-native.mjs --require=Rocq > /out/portable-native-rocq.json; node /rml/scripts/check-certified-translation-native.mjs --languages=Rocq --require=Rocq --output=/out/certified-native-rocq.json"
+          '
+      - name: Archive native observations before teardown
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-native-rocq-${{ github.run_attempt }}
+          path: |
+            .rml-cache/evidence/**
+            .rml-cache/reports/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Tear down repository-owned build caches
+        if: always()
+        run: node scripts/build-cache.mjs --full

@@ -191,6 +191,25 @@ fn rejects_too_many_proofs_for_program() {
     assert!(!r.is_ok());
 }
 
+#[test]
+fn reports_a_source_that_is_not_lino_against_its_role_and_position() {
+    let r = check_program("(? (1 + 2)", "(by sum (by literal 1) (by literal 2))");
+    assert!(r.ok.is_empty());
+    assert_eq!(r.errors.len(), 1);
+    assert_eq!(r.errors[0].path, vec!["program".to_string()]);
+    assert_eq!(
+        r.errors[0].message,
+        "LiNo parse failure: unexpected end of input at 1:11"
+    );
+    let r = check_program("(? (1 + 2))", "(by sum (by literal 1) (by literal 2)))");
+    assert_eq!(r.errors.len(), 1);
+    assert_eq!(r.errors[0].path, vec!["proofs".to_string()]);
+    assert_eq!(
+        r.errors[0].message,
+        "LiNo parse failure: unexpected \")\" at 1:39"
+    );
+}
+
 // ===== Composite chains =====
 
 #[test]

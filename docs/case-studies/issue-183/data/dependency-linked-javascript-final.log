@@ -1,0 +1,24 @@
+✔ the ordinary test suite rejects current-checkout source or provider drift (1516.075437ms)
+✔ the configuration graph supplies real build settings and direct linked library inputs (705.010557ms)
+✔ configuration refuses omitted providers and escaping output paths (828.900263ms)
+✔ ordinary-build guard rejects added host modules and changed dependency settings (5804.940052ms)
+✔ linked implementation manifest pins structured ASTs and generated artifacts for the complete snapshot inventory (1001.780882ms)
+✔ Babel 8 BigInt literals preserve exact values through structured Links and generation (14.934518ms)
+✔ graph serialization stores only Links and preserves values including Unicode, negative zero, and prototype-like keys (0.558771ms)
+✔ graph restoration refuses missing, cyclic, malformed and exponentially expanding syntax (19.364379ms)
+✔ source-free generation executes the real LiNo parser, formal terms, proof verifier and K0 compiler (18283.6701ms)
+✔ replacing parser and elaboration AST Links changes behavior on the unchanged generator and runtime substrate (3633.601501ms)
+✔ replacing verifier and bracket compiler AST Links changes semantic decisions without callbacks (4057.622828ms)
+✔ the archive generates its own codec and generator and reaches an exact second-generation fixed point (5076.541063ms)
+✔ consistency rejects omitted modules and host-only semantic edits instead of silently capturing them (5080.884707ms)
+✔ Rust implementation archive contains typed syntax for every pinned runtime and companion module (334.402668ms)
+✔ Rust authority can be edited structurally and restored with no source buffer (1490.937768ms)
+✔ Rust archive refuses a path escape instead of writing outside its generated tree (1090.330643ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38154.107444

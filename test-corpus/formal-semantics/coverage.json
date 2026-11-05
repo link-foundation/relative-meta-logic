@@ -1,0 +1,1287 @@
+{
+  "schema": "rml-formal-semantics/v1",
+  "corpusFingerprint": "f85e7951384dbb639725eb021419982d367f5e1eeef2c5528602a4e35d8af0b9",
+  "kernelHash": "d2db860e3be5e2ba309674b273aa8c5df6ef69421cb7cce6cf1954b4b08be502",
+  "fullCorpusVerified": false,
+  "declarationCount": 229,
+  "checkedDefinitions": 38,
+  "replayedProofs": 2,
+  "upstreamAdmissions": 4,
+  "declarations": [
+    {
+      "address": "rml.formal.lean.MetaDefinitions.MakeMetaReferenceSpace",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Option"
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.MetaDuplet",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.MetaDefinitions.MetaReference"
+      ],
+      "steps": 8
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.MetaNetwork",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.MetaDefinitions.MetaDuplet",
+        "rml.formal.lean.MetaDefinitions.MetaReference"
+      ],
+      "steps": 9
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.MetaNetworkList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.MetaDefinitions.MetaDuplet"
+      ],
+      "steps": 6
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.MetaNetworkToDupletList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.MetaDefinitions.MetaNetworkList",
+        "rml.formal.lean.NetworkDefinitions.NetworkDupletList"
+      ],
+      "steps": 28
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.MetaReference",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "steps": 2
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.MetaReferenceSpace",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.SetDefinitions.LinkSet"
+      ],
+      "steps": 2
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.exampleMetaNetwork",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.MetaDefinitions.MetaNetworkList"
+      ],
+      "steps": 58
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.makeMetaReferenceSpace_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.meta_network_is_duplet_network",
+      "status": "conversion-proof-replayed",
+      "dependencies": [
+        "rml.formal.lean.MetaDefinitions.MetaNetworkList",
+        "rml.formal.lean.MetaDefinitions.MetaNetworkToDupletList"
+      ],
+      "steps": 32
+    },
+    {
+      "address": "rml.formal.lean.MetaDefinitions.meta_reference_space_elements_valid",
+      "status": "unsupported",
+      "reason": "proof needs an unsupported tactic or term"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.AddReferenceListListToDupletList",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.AddReferenceListToDupletList",
+      "status": "unsupported",
+      "reason": "unsupported trailing token ++"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListBehead",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListBeheadReferenceList",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListOffsetReferenceList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.DupletListOffsetReferenceList_"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListOffsetReferenceList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListReadReferenceList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.DupletListToReferenceList_"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListToReferenceList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.DupletListReadReferenceList"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListToReferenceListList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.DupletListToReferenceListList_"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListToReferenceListList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.DupletListToReferenceList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.ReferenceListFunctionToTupleFunction",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.ReferenceListListToDupletList",
+      "status": "unsupported",
+      "reason": "unsupported expression token |"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.ReferenceListListToTupleList",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.ReferenceListToDupletList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.ReferenceListToDupletList_"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.ReferenceListToDupletList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.ReferenceListToTupleOfReferences",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency match"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.ReferenceListToTupleOfReferencesOption",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Option"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.TupleFunctionToReferenceListFunction",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.TupleListToDupletList",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.TupleListToReferenceListList",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkConversions.TupleOfReferencesToReferenceList",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.AnyNetwork",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.AnyNetwork.isWellFormed",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Bool"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.AnyNetwork.size",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency net.tuples.length"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.Duplet",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "steps": 6
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.DupletDefault",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Duplet",
+        "rml.formal.lean.NetworkDefinitions.ReferenceDefault"
+      ],
+      "steps": 16
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.Link",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkDupletFunction",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Duplet",
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "steps": 7
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkDupletList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Duplet"
+      ],
+      "steps": 5
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkOfAllNetworks",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkDefinitions.AnyNetwork"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkOfAllNetworksList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkDefinitions.AnyNetwork"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkReferenceListFunction",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.NetworkDefinitions.ReferenceList"
+      ],
+      "steps": 7
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkReferenceListList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.ReferenceList"
+      ],
+      "steps": 4
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkTupleFunction",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.NetworkTupleList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.Reference",
+      "status": "definition-checked",
+      "dependencies": [],
+      "steps": 1
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.ReferenceDefault",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "steps": 7
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.ReferenceList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "steps": 4
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.TupleOfReferences",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Vector"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.TupleOfReferencesDefault",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Vector.replicate"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.emptyNetwork",
+      "status": "unsupported",
+      "reason": "unsupported expression token ⟨"
+    },
+    {
+      "address": "rml.formal.lean.NetworkDefinitions.exampleAnyNetwork",
+      "status": "unsupported",
+      "reason": "unsupported expression token ⟨"
+    },
+    {
+      "address": "rml.formal.lean.NetworkEquivalence.DupletFunctionEquivalence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.lean.NetworkEquivalence.DupletListEquivalence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.lean.NetworkEquivalence.TupleFunctionEquivalence",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkEquivalence.TupleListEquivalence",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.complexExampleNetwork",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency fun"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.exampleTuple0",
+      "status": "unsupported",
+      "reason": "unsupported expression token #"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.exampleTuple1",
+      "status": "unsupported",
+      "reason": "unsupported expression token #"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.exampleTuple4",
+      "status": "unsupported",
+      "reason": "unsupported expression token #"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.nestedPair0",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.TupleOfReferencesToReferenceList"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.nestedPair1",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.TupleOfReferencesToReferenceList"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.nestedPair4",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.TupleOfReferencesToReferenceList"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.resultTuplesNetwork",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.DupletListToReferenceListList"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.testDupletList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.ReferenceListListToDupletList"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.testPairsNetwork",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency fun"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.testReferenceListList",
+      "status": "unsupported",
+      "reason": "formal natural must be an integer from 0 through 512"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.testTupleList",
+      "status": "unsupported",
+      "reason": "unsupported expression token #"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.testTuplesNetwork",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.ReferenceListFunctionToTupleFunction"
+    },
+    {
+      "address": "rml.formal.lean.NetworkExamples.testTuplesToDupletList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.lean.NetworkConversions.TupleListToDupletList"
+    },
+    {
+      "address": "rml.formal.lean.NetworkLemmas.ReferenceListDimensionPreserved",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency np.length"
+    },
+    {
+      "address": "rml.formal.lean.NetworkLemmas.ReferenceListToTupleOfReferencesInverse",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency some"
+    },
+    {
+      "address": "rml.formal.lean.NetworkLemmas.TupleFunctionEquivalenceAfterTransforms",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.NetworkLemmas.TupleOfReferencesDimensionPreserved",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.LinkSequence",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "steps": 2
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.LinkTree",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.ListToBalancedTree",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.ListToLeftStaircase",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Option"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.ListToLeftStaircase_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.ListToRightStaircase",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.ListToSequence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Option"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.ReadSequence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency anet.length"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.ReadSequence_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.TreeToDupletList",
+      "status": "unsupported",
+      "reason": "unsupported trailing token ."
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.TreeToDupletList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.TreeToList",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.TreeToSequence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency match"
+    },
+    {
+      "address": "rml.formal.lean.SequenceDefinitions.listGetD",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SetDefinitions.InSetTree",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.lean.SetDefinitions.IsSubsetTree",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.lean.SetDefinitions.IsValidSetTree",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.lean.SetDefinitions.LinkSet",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Reference"
+      ],
+      "steps": 2
+    },
+    {
+      "address": "rml.formal.lean.SetDefinitions.ListToSet",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Option"
+    },
+    {
+      "address": "rml.formal.lean.SetDefinitions.ListToSet_elements_valid",
+      "status": "unsupported",
+      "reason": "proof needs an unsupported tactic or term"
+    },
+    {
+      "address": "rml.formal.lean.SetDefinitions.ListToSet_membership",
+      "status": "unsupported",
+      "reason": "unsupported trailing token ∈"
+    },
+    {
+      "address": "rml.formal.lean.SetDefinitions.SingletonSet",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.lean.NetworkDefinitions.Reference",
+        "rml.formal.lean.SetDefinitions.LinkSet"
+      ],
+      "steps": 21
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.IsOrderedUniqueSequence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.NoDuplicates",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.StrictlyAscending",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.insertSorted",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.insertSorted_preserves_ascending",
+      "status": "upstream-admitted",
+      "reason": "upstream admission is not proof evidence"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.mem_insertSorted",
+      "status": "upstream-admitted",
+      "reason": "upstream admission is not proof evidence"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.mem_toOrderedUnique",
+      "status": "upstream-admitted",
+      "reason": "upstream admission is not proof evidence"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.ordered_unique_has_no_dup",
+      "status": "unsupported",
+      "reason": "only explicit tactic proofs are supported"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.set_sequence_equivalence",
+      "status": "unsupported",
+      "reason": "unsupported expression token ∃"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.strictly_ascending_implies_no_dup",
+      "status": "upstream-admitted",
+      "reason": "upstream admission is not proof evidence"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique_is_ascending",
+      "status": "unsupported",
+      "reason": "proof needs an unsupported tactic or term"
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.MakeMetaReferenceSpace",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency option"
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.MetaDuplet",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.MetaDefinitions.MetaReference"
+      ],
+      "steps": 8
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.MetaNetwork",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.MetaDefinitions.MetaDuplet",
+        "rml.formal.rocq.MetaDefinitions.MetaReference"
+      ],
+      "steps": 9
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.MetaNetworkList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.MetaDefinitions.MetaDuplet"
+      ],
+      "steps": 6
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.MetaNetworkToDupletList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.MetaDefinitions.MetaNetworkList",
+        "rml.formal.rocq.NetworkDefinitions.NetworkDupletList"
+      ],
+      "steps": 28
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.MetaReference",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "steps": 2
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.MetaReferenceSpace",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.SetDefinitions.LinkSet"
+      ],
+      "steps": 2
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.exampleMetaNetwork",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.MetaDefinitions.MetaNetworkList"
+      ],
+      "steps": 58
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.makeMetaReferenceSpace_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.meta_network_is_duplet_network",
+      "status": "conversion-proof-replayed",
+      "dependencies": [
+        "rml.formal.rocq.MetaDefinitions.MetaNetworkList",
+        "rml.formal.rocq.MetaDefinitions.MetaNetworkToDupletList"
+      ],
+      "steps": 32
+    },
+    {
+      "address": "rml.formal.rocq.MetaDefinitions.meta_reference_space_elements_valid",
+      "status": "unsupported",
+      "reason": "proof needs an unsupported tactic or term"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.AddReferenceListListToDupletList",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.AddReferenceListToDupletList",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency app"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListBehead",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListBeheadReferenceList",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListOffsetReferenceList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.DupletListOffsetReferenceList_"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListOffsetReferenceList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListReadReferenceList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.DupletListToReferenceList_"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListToReferenceList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.DupletListReadReferenceList"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListToReferenceListList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.DupletListToReferenceListList_"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListToReferenceListList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.DupletListToReferenceList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.ReferenceListFunctionToTupleFunction",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.ReferenceListListToDupletList",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency match"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.ReferenceListListToTupleList",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.ReferenceListToDupletList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.ReferenceListToDupletList_"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.ReferenceListToDupletList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.ReferenceListToTupleOfReferences",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency match"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.ReferenceListToTupleOfReferencesOption",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.TupleFunctionToReferenceListFunction",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.TupleListToDupletList",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.TupleListToReferenceListList",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkConversions.TupleOfReferencesToReferenceList",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.AnyNetwork",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.Duplet",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "steps": 6
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.DupletDefault",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Duplet",
+        "rml.formal.rocq.NetworkDefinitions.ReferenceDefault"
+      ],
+      "steps": 16
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.Link",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkDupletFunction",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Duplet",
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "steps": 7
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkDupletList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Duplet"
+      ],
+      "steps": 5
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkOfAllNetworks",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkDefinitions.AnyNetwork"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkOfAllNetworksList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkDefinitions.AnyNetwork"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkReferenceListFunction",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.NetworkDefinitions.ReferenceList"
+      ],
+      "steps": 7
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkReferenceListList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.ReferenceList"
+      ],
+      "steps": 4
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkTupleFunction",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.NetworkTupleList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.Reference",
+      "status": "definition-checked",
+      "dependencies": [],
+      "steps": 1
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.ReferenceDefault",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "steps": 7
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.ReferenceList",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "steps": 4
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.TupleOfReferences",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency t"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.TupleOfReferencesDefault",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Vector.const"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.anyNetworkIsWellFormed",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency bool"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.anyNetworkSize",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency length"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.emptyNetwork",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency mkAnyNetwork"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkDefinitions.exampleAnyNetwork",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency mkAnyNetwork"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkEquivalence.DupletFunctionEquivalence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkEquivalence.DupletListEquivalence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkEquivalence.TupleFunctionEquivalence",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkEquivalence.TupleListEquivalence",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.complexExampleNetwork",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency fun"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.exampleTuple0",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.exampleTuple1",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.exampleTuple4",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkDefinitions.TupleOfReferences"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.nestedPair0",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.TupleOfReferencesToReferenceList"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.nestedPair1",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.TupleOfReferencesToReferenceList"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.nestedPair4",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.TupleOfReferencesToReferenceList"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.resultTuplesNetwork",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.DupletListToReferenceListList"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.testDupletList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.ReferenceListListToDupletList"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.testPairsNetwork",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency fun"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.testReferenceListList",
+      "status": "unsupported",
+      "reason": "unsupported expression token {"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.testTupleList",
+      "status": "unsupported",
+      "reason": "unsupported expression token {"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.testTuplesNetwork",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.ReferenceListFunctionToTupleFunction"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkExamples.testTuplesToDupletList",
+      "status": "unresolved",
+      "reason": "unchecked definition dependency rml.formal.rocq.NetworkConversions.TupleListToDupletList"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkLemmas.ReferenceListDimensionPreserved",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency length"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkLemmas.ReferenceListToTupleOfReferencesInverse",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkLemmas.TupleFunctionEquivalenceAfterTransforms",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.NetworkLemmas.TupleOfReferencesDimensionPreserved",
+      "status": "unsupported",
+      "reason": "implicit binder elaboration is outside this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.LinkSequence",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "steps": 2
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.LinkTree",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.ListToBalancedTree",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency option"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.ListToBalancedTree_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.ListToLeftStaircase",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency option"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.ListToLeftStaircase_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.ListToRightStaircase",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.ListToSequence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency option"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.ReadSequence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency S"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.ReadSequence_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.TreeToDupletList",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency fst"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.TreeToDupletList_",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.TreeToList",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.TreeToSequence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency match"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.balanced_1234",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency match"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.left_1234",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency match"
+    },
+    {
+      "address": "rml.formal.rocq.SequenceDefinitions.right_1234",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency match"
+    },
+    {
+      "address": "rml.formal.rocq.SetDefinitions.InSetTree",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.rocq.SetDefinitions.IsSubsetTree",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.rocq.SetDefinitions.IsValidSetTree",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.rocq.SetDefinitions.LinkSet",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Reference"
+      ],
+      "steps": 2
+    },
+    {
+      "address": "rml.formal.rocq.SetDefinitions.ListToSet",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency option"
+    },
+    {
+      "address": "rml.formal.rocq.SetDefinitions.ListToSet_elements_valid",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetDefinitions.ListToSet_membership",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency In"
+    },
+    {
+      "address": "rml.formal.rocq.SetDefinitions.SingletonSet",
+      "status": "definition-checked",
+      "dependencies": [
+        "rml.formal.rocq.NetworkDefinitions.Reference",
+        "rml.formal.rocq.SetDefinitions.LinkSet"
+      ],
+      "steps": 21
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.IsOrderedUniqueSequence",
+      "status": "unsupported",
+      "reason": "unresolved or ambiguous dependency Prop"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.NoDuplicates",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.StrictlyAscending",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.insertSorted",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.insertSorted_head_cases",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.insertSorted_non_empty",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.insertSorted_preserves_ascending",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.mem_insertSorted",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.mem_toOrderedUnique",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.ordered_unique_has_no_dup",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.set_sequence_equivalence",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.strictly_ascending_all_greater",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.strictly_ascending_cons",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.strictly_ascending_head",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.strictly_ascending_implies_no_dup",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.strictly_ascending_tail",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique",
+      "status": "unsupported",
+      "reason": "recursive definitions and datatype declarations need a larger kernel"
+    },
+    {
+      "address": "rml.formal.rocq.SetSequenceEquivalence.toOrderedUnique_is_ascending",
+      "status": "unsupported",
+      "reason": "forall requires explicitly typed binders in this fragment"
+    }
+  ]
+}

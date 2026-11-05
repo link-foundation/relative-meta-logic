@@ -1,0 +1,6 @@
+# A versioned foundation and an instance over closure-programs.lino.
+(linked-foundation closure-logic (version 1)
+  (inference closure-rules) (reduction closure-computation)
+  (cycle-policy inductive))
+(linked-instance closure-study
+  (theory closure-theory) (foundation closure-logic (version 1)))

@@ -1,0 +1,26 @@
+{
+  "schema": "rml-linked-elaboration-replacements/v1",
+  "description": "D to D' edits of RML language decisions. Each edit changes only lib/meta-theory/horn-rml-elaboration.lino; no host file changes. The workload edit spells the same document in the replaced language, which must reproduce the baseline observations, while the unedited workload must change exactly the listed observations.",
+  "replacements": [
+    {
+      "id": "pattern-variable-sigil",
+      "decision": "which leading byte marks a pattern variable",
+      "replace": [[
+        "(variable-sigil (zero (zero (one (one (one (one (one (one end))))))))))",
+        "(variable-sigil (zero (zero (one (zero (zero (one (zero (zero end))))))))))"
+      ]],
+      "workloadEdit": [["?", "$"]],
+      "originalWorkloadChanges": ["reduction:repeated binding", "reduction:ordered rule choice", "reduction:nested left traversal", "reduction:recursive substitution", "reduction:import rebinding", "derivations", "proof", "known"]
+    },
+    {
+      "id": "rewrite-keyword",
+      "decision": "which head atom declares a rewrite",
+      "replace": [[
+        "(spell (cons (byte zero one one zero one one zero zero) (cons (byte zero one one zero one zero zero one) (cons (byte zero one one zero one one one zero) (cons (byte zero one one zero one zero one one) (cons (byte zero one one zero zero one zero one) (cons (byte zero one one zero zero one zero zero) (cons (byte zero zero one zero one one zero one) (cons (byte zero one one one zero zero one zero) (cons (byte zero one one zero zero one zero one) (cons (byte zero one one one zero one one one) (cons (byte zero one one one zero zero one zero) (cons (byte zero one one zero one zero zero one) (cons (byte zero one one one zero one zero zero) (cons (byte zero one one zero zero one zero one) end)))))))))))))) ?bits))",
+        "(spell (cons (byte zero one one one zero zero one zero) (cons (byte zero one one zero zero one zero one) (cons (byte zero one one one zero one one one) (cons (byte zero one one one zero zero one zero) (cons (byte zero one one zero one zero zero one) (cons (byte zero one one one zero one zero zero) (cons (byte zero one one zero zero one zero one) (cons (byte zero zero one zero one one zero one) (cons (byte zero one one one zero zero one zero) (cons (byte zero one one one zero one zero one) (cons (byte zero one one zero one one zero zero) (cons (byte zero one one zero zero one zero one) end)))))))))))) ?bits))"
+      ]],
+      "workloadEdit": [["(linked-rewrite ", "(rewrite-rule "]],
+      "originalWorkloadChanges": ["reduction:repeated binding", "reduction:ordered rule choice", "reduction:nested left traversal", "reduction:recursive substitution", "reduction:import rebinding"]
+    }
+  ]
+}

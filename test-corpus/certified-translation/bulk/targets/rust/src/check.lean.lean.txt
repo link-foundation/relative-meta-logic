@@ -1,0 +1,13 @@
+-- rml-certified-item rust/src/check.rs#CheckOk@585 target-sha256=56fa8bed434eb6f2f962c3514b7b6fd428230f45cf72498dcfc20ff40ff07004
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive CheckOk where
+  | CheckOk (field0 : String) (field1 : String) : CheckOk
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

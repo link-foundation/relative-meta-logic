@@ -1,0 +1,30 @@
+# These are explicit relative universe policies, not consequences of graph cycles.
+(linked-program hierarchy)
+(linked-inference hierarchy declared-level
+  (premise (higher ?lower ?upper))
+  (conclusion (has-type ?lower ?upper)))
+(linked-program stratified-contract)
+(linked-fact stratified-contract obligation
+  (judgement (soundness-obligation check-level-well-foundedness)))
+(linked-program recursive-contract)
+(linked-fact recursive-contract explicit-self-universe
+  (judgement (has-type Type Type)))
+(linked-fact recursive-contract obligation
+  (judgement (soundness-obligation consistency-unestablished)))
+(linked-program shared-universe-theory)
+(linked-fact shared-universe-theory next-level
+  (judgement (higher Type U1)))
+(linked-foundation universe-contract (version stratified)
+  (inference hierarchy) (axioms stratified-contract)
+  (signature (higher ?lower ?upper) (has-type ?term ?type)
+    (soundness-obligation ?obligation) (soundness ?status))
+  (cycle-policy inductive))
+(linked-foundation universe-contract (version recursive)
+  (inference hierarchy) (axioms recursive-contract)
+  (signature (higher ?lower ?upper) (has-type ?term ?type)
+    (soundness-obligation ?obligation) (soundness ?status))
+  (cycle-policy inductive))
+(linked-instance stratified-universes
+  (theory shared-universe-theory) (foundation universe-contract (version stratified)))
+(linked-instance recursive-universes
+  (theory shared-universe-theory) (foundation universe-contract (version recursive)))

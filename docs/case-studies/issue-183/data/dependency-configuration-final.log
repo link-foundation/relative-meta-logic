@@ -1,0 +1,12 @@
+✔ the ordinary test suite rejects current-checkout source or provider drift (1618.148945ms)
+✔ the configuration graph supplies real build settings and direct linked library inputs (662.452243ms)
+✔ configuration refuses omitted providers and escaping output paths (827.220609ms)
+✔ ordinary-build guard rejects added host modules and changed dependency settings (5768.372107ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9364.33763

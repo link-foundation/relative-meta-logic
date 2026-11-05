@@ -66,6 +66,13 @@ describe('runTactics applies link tactics to proof states', () => {
     assert.deepStrictEqual(out.state.proof.map(keyOf), ['(reflexivity)']);
   });
 
+  it('rejects tactic text that is not LiNo instead of running part of it', () => {
+    assert.throws(
+      () => runTactics(state('(a = a)'), '(reflexivity) (symmetry'),
+      { name: 'LinoParseError', message: 'LiNo parse failure: unexpected end of input' },
+    );
+  });
+
   it('transforms equality goals with symmetry and transitivity', () => {
     const out = runTactics(state('(a = c)'), [
       link('(symmetry)'),
@@ -212,9 +219,9 @@ describe('runTactics applies link tactics to proof states', () => {
       ],
     });
 
-    assert.match(tptp, /fof\(rml_context_1, axiom, \(!\[X\] : \(p\(X\)\)\)\)\./);
-    assert.match(tptp, /fof\(rml_context_2, axiom, \(thing\(a\)\)\)\./);
-    assert.match(tptp, /fof\(rml_goal, conjecture, \(p\(a\)\)\)\./);
+    assert.match(tptp, /fof\(rml_context_1, axiom, \(!\[V_rml_hex_78\] : \(rml_hex_50\(V_rml_hex_78\)\)\)\)\./);
+    assert.match(tptp, /fof\(rml_context_2, axiom, \(rml_hex_5468696e67\(a\)\)\)\./);
+    assert.match(tptp, /fof\(rml_goal, conjecture, \(rml_hex_50\(a\)\)\)\./);
   });
 
   it('parses SZS statuses from ATP output', () => {

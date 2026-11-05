@@ -1,0 +1,48 @@
+{
+  "schema": "rml-linked-mechanism-replacements/v1",
+  "source": "lib/meta-theory/fixed-point-source.lino",
+  "sourceNodeCount": 1446,
+  "claim": "Each replacement edits only the authoritative linked lambda-source definition D to D'. Hosts, generic machines, the upper RML workload and requests stay unchanged.",
+  "replacements": [
+    {
+      "id": "matching-ignores-repeated-binding",
+      "level": "matching",
+      "definition": "MATCH: a repeated pattern variable already bound to a value",
+      "description": "D compares the earlier binding with the candidate; D' keeps the earlier bindings without comparing.",
+      "replace": [["n753", "(lambda previous n752)", "(lambda previous n750)"]],
+      "add": []
+    },
+    {
+      "id": "substitution-reverses-lists",
+      "level": "substitution",
+      "definition": "SUBSTITUTE_LIST: recursive list substitution (node n880)",
+      "description": "D prepends each substituted head; D' appends it after the substituted tail.",
+      "replace": [["n880", "(application n878 n879)", "(application n1448 n1447)"]],
+      "add": [["n1446", "(application rCONS n877)"], ["n1447", "(application n1446 rNIL)"], ["n1448", "(application rAPPEND n879)"]]
+    },
+    {
+      "id": "selection-prefers-later-rule",
+      "level": "rule-selection-and-application",
+      "definition": "SELECT_NAMED_RULE: what happens after a rule matches and its replacement is substituted",
+      "description": "D applies the first matching rule; D' applies a later applicable rule when one exists and falls back to the current rule.",
+      "replace": [["n940", "(lambda bindings n939)", "(lambda bindings n1447)"]],
+      "add": [["n1446", "(application n923 n939)"], ["n1447", "(application n1446 n228)"]]
+    },
+    {
+      "id": "definition-rebinding-reversed",
+      "level": "definition-import-and-rebinding",
+      "definition": "FIND_REBINDING: how an imported definition's name is rebound",
+      "description": "D maps a rebinding's source name to its target; D' swaps the two binder roles, so lookup maps target to source.",
+      "replace": [["n370", "(lambda to n369)", "(lambda from n369)"], ["n371", "(lambda from n370)", "(lambda to n370)"]],
+      "add": []
+    },
+    {
+      "id": "verification-accepts-first-known",
+      "level": "verification",
+      "definition": "FIND_KNOWN_PROOF: exact normalized judgement lookup",
+      "description": "D returns a proof only for an equal known judgement; D' returns the first known proof without comparing.",
+      "replace": [["n1436", "(lambda proof n1435)", "(lambda proof n1428)"]],
+      "add": []
+    }
+  ]
+}

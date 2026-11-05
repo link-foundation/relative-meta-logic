@@ -1,0 +1,73 @@
+{
+  "schema": "rml-formal-propositions-checkpoint/v1",
+  "baseRevision": "23ccbb80a8f6a6ceaac377a229e0c51f5c003e6c",
+  "fullCorpusVerified": false,
+  "propositionTruthVerified": false,
+  "files": [
+    {
+      "path": "docs/FORMAL_PROPOSITIONS.md",
+      "sha256": "aac02fc562fc184db9d3f881bf6ae2af38698a59eb226b281288f078b57235c6",
+      "bytes": 4155
+    },
+    {
+      "path": "js/src/rml-formal-propositions-parser.mjs",
+      "sha256": "d4d2d2613a927bf8099ee6d79251d47f6ef3750b2e815e74f9f98ccde298db29",
+      "bytes": 6187
+    },
+    {
+      "path": "js/src/rml-formal-propositions.mjs",
+      "sha256": "af7b59920c4e16f78df10f2c29f7f531e21bf4510f8482bca87358941e1095b4",
+      "bytes": 9979
+    },
+    {
+      "path": "js/tests/formal-propositions-primitives.test.mjs",
+      "sha256": "7449494b9ffd35d746426f5e3437ca6417fdf944cd371354829e64e29950fd12",
+      "bytes": 6197
+    },
+    {
+      "path": "js/tests/formal-propositions.test.mjs",
+      "sha256": "8a9d53ff5cb47911c52764172fc353b7d1ce006248a36359bd44e9efab9f1c63",
+      "bytes": 3860
+    },
+    {
+      "path": "lib/meta-theory/formal-propositions.lino",
+      "sha256": "afadcb802357fed83e2a06e0e3165032ac93d7fd14b6f81e8662122b0515fb00",
+      "bytes": 3290
+    },
+    {
+      "path": "rust/tests/formal_propositions_tests.rs",
+      "sha256": "a69be64e863b9c803b23ac6b548d10c7d04e9b76e2256a73e276582d211583dd",
+      "bytes": 7416
+    },
+    {
+      "path": "scripts/formal-propositions-cases.mjs",
+      "sha256": "5a8cb25d2b10ace613d48e33f246ac62a36c762540d06435619f5cb6396f5f08",
+      "bytes": 6683
+    },
+    {
+      "path": "scripts/formal-propositions-freeze.test.mjs",
+      "sha256": "c66e5f4c6f5b96189a24306fd0270dde13451e8bd17275f884151494f241e6f0",
+      "bytes": 1611
+    },
+    {
+      "path": "scripts/formal-propositions.test.mjs",
+      "sha256": "7d538ddabe2ce6fc19b65992a782fe7fc27b93ca408631e96a50b7f6dabb66c4",
+      "bytes": 2557
+    },
+    {
+      "path": "scripts/generate-formal-propositions.mjs",
+      "sha256": "29822f548415f7e3749d3b0da7eba329383daf8254961c715c04f02162a34d1b",
+      "bytes": 4749
+    },
+    {
+      "path": "test-corpus/formal-propositions/cases.json",
+      "sha256": "644bbd23c383960aa609552a1b3839d220869d8217be2003a7c25f77bb1c68d2",
+      "bytes": 372169
+    },
+    {
+      "path": "test-corpus/formal-propositions/coverage.json",
+      "sha256": "bf01f59e827c5b72c771f6bc3e9727dd40eb2b2d02b486be8c168dc29944695e",
+      "bytes": 51199
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+(* rml-certified-item rust/src/spec_certificates.rs#SPEC_CERTIFICATE_SCHEMA@1081 target-sha256=9aa0c75124aa25805017e4c17428c6896413ea58e83280e6bff8077131a80d7c *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition SPEC_CERTIFICATE_SCHEMA : string :=
+  "rml-spec-certificate/v1"%string.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/spec_certificates.rs#SPEC_MAX_STEPS@1443 target-sha256=659859d12fd0cc15ce1416943f88af4b0dc8cdde18a047182d68143292834836 *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition SPEC_MAX_STEPS : N :=
+  5000000%N.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.
+(* rml-certified-item rust/src/spec_certificates.rs#VERIFIER_STEPS@1488 target-sha256=dc530798f1216165141f4bb264fe2cf70a9eb37ee8055d1e29fbc9da70349bdf *)
+(* Translated from Rust by meta-language: portable core, Rocq target. *)
+From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
+
+Ltac ml_N_norm := repeat first
+  [ rewrite N.pred_succ
+  | rewrite (proj2 (N.eqb_neq (N.succ _) 0) (N.neq_succ_0 _))
+  | rewrite N.eqb_refl ].
+Ltac ml_obligation := intros; repeat match goal with H : N.eqb _ _ = false |- _ => apply N.eqb_neq in H end; lia.
+Ltac ml_close := first [reflexivity | lia | nia | congruence].
+
+Definition VERIFIER_STEPS : N :=
+  2000000%N.
+
+Definition main : list string :=
+  nil.
+
+Eval vm_compute in main.

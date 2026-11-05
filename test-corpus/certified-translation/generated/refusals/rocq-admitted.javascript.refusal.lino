@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rocq)
+    (sha256 61ae8ae0e0fc257c7d49dbbcc04cad2a6a2ea4f48f780454ea26f80861828b48)
+    (bytes 283)
+    (utf16 283))
+  (target (language JavaScript) (status not-emitted))
+  (stage frontend)
+  (diagnostic
+    (kind unsupported)
+    (message "Rocq Admitted: incomplete proofs cannot be translated")
+    (span 234 242)
+    (bytes 234 242)
+    (span-sha256 2ffe01d265d045e45fdc5b8969b295db3f659c6d22ebc09e91c13805b59f0caf))
+  (preserved-source
+    (sha256 61ae8ae0e0fc257c7d49dbbcc04cad2a6a2ea4f48f780454ea26f80861828b48)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 326933e84a2211fe9d50564c468a8456bc9be4c6a23b16070b1a410ba542e9ef))

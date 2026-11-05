@@ -418,9 +418,12 @@ This is inspired by the research paper ["A Type Theory for Probabilistic and Bay
 
 ---
 
-### Option D: Links-Native Type Theory (Maximally Associative)
+### Option D: Links-Represented Type Theory (Maximally Associative)
 
-**Approach:** Define types and terms purely as links in an associative network, without any special syntax. This is the most faithful to Links Theory.
+**Approach:** Represent types and terms as links in an associative network,
+without special surface syntax. This describes an experimental representation;
+it does not establish that the imported type-theoretic categories are intrinsic
+to links.
 
 In this approach, the entire type system is encoded as an associative network of doublets and triplets:
 
@@ -547,7 +550,7 @@ Once the basic type system works, extend it with ADL's probabilistic semantics:
 
 This would be a genuine research contribution.
 
-### Phase 3: Option D (Links-Native) — The Meta-Theory
+### Phase 3: Option D (Links-Represented) — The Meta-Theory
 
 Finally, show that the type system itself can be described as a network of links:
 

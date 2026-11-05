@@ -135,9 +135,13 @@ Every release should complete this checklist:
 1. Confirm JavaScript and Rust manifests use the intended same version.
 2. Update the package lockfile when the JavaScript manifest changes.
 3. Run the JavaScript test suite: `cd js && npm test`.
-4. Run the Rust test suite: `cd rust && cargo test`.
+4. Confirm the Rust test suite passed on hosted CI (the `tests` workflow runs
+   `cargo test --all-targets`). Rust is compiled only on hosted CI; locally,
+   `node scripts/cargo.mjs test --all-targets --manifest-path rust/Cargo.toml`
+   refuses unless `RML_ALLOW_LOCAL_RUST=1` is set.
 5. Build or check generated API documentation when public APIs changed:
-   `cd js && npm run docs` and `cargo doc --manifest-path rust/Cargo.toml`.
+   `cd js && npm run docs`, and the `api-docs` workflow for
+   `cargo doc --manifest-path rust/Cargo.toml`.
 6. Update README or docs for any user-visible behavior, API, CLI, diagnostic,
    or release-process change.
 7. Write release notes that call out additions, fixes, deprecations, and any

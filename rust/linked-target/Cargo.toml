@@ -1,0 +1,25 @@
+[package]
+name = "rml-linked-target"
+version = "0.1.0"
+edition = "2021"
+license = "Unlicense"
+publish = false
+description = "Executable Link-defined portable RML target ABI"
+
+[dependencies]
+rml = { package = "relative-meta-logic", path = ".." }
+serde_json = "1.0.151"
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false
+
+[profile.dev.package.relative-meta-logic]
+opt-level = 1
+
+[profile.test.package.relative-meta-logic]
+opt-level = 1

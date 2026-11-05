@@ -1,0 +1,102 @@
+-- rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_PROGRAM@420 target-sha256=17f41b10c8c2c5dd2c2573096572ae103ee11f13a5790b551548ea1cca49b474
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def LINKED_PROOF_PROGRAM : String :=
+  "linked-proof-verifier"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_NATURAL_PROGRAM@607 target-sha256=8a4a44201bd70abb81acf037be50653b90b39eaa56250d9856d34a931fad5022
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def LINKED_PROOF_NATURAL_PROGRAM : String :=
+  "linked-proof-verifier-natural"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_SCHEMA@687 target-sha256=1802c9e257e5f1abe44ddcdf9a89ba7f928b5fca4a9cd16e43e33698c0e617a9
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def LINKED_PROOF_SCHEMA : String :=
+  "rml-linked-proof-replay/v1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_proof.rs#MAX_LINKED_PROOF_DEPTH@968 target-sha256=d19d6b972171c72e4fc69827c6504edf3bb33d83d8bdee8f9f90228908e456f2
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def MAX_LINKED_PROOF_DEPTH : Nat :=
+  (256 : Nat)
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_proof.rs#LinkedProofLimits@1167 target-sha256=fb23d799480e2d9d51fd7523d1b57469ac8fb5da4bb02a5682624fd9a9cd6f91
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkedProofLimits where
+  | LinkedProofLimits (field0 : Nat) (field1 : Nat) (field2 : Nat) : LinkedProofLimits
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_proof.rs#LinkedProofOptions@7480 target-sha256=4511377a81626c3d72c16aceac3e4b8d418839b4a0dfac66c1eb14c50633babf
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkedProofLimits where
+  | LinkedProofLimits (field0 : Nat) (field1 : Nat) (field2 : Nat) : LinkedProofLimits
+  deriving Repr, DecidableEq, Inhabited
+
+inductive LinkedProofOptions where
+  | LinkedProofOptions (field0 : String) (field1 : Nat) (field2 : LinkedProofLimits) (field3 : LinkedProofLimits) : LinkedProofOptions
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_OUTCOME_SCHEMA@11504 target-sha256=954644a671783897a0f6249cc2b2467f51652847ded1d215fc800564cc4cb931
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def LINKED_PROOF_OUTCOME_SCHEMA : String :=
+  "rml-foundation-outcome/v1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_CHECK_SCHEMA@11579 target-sha256=347c792c6df7c66839092a7ea02a2271166aaa17cc471363916e98ebd54fe106
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def LINKED_PROOF_CHECK_SCHEMA : String :=
+  "rml-linked-proof-check/v1"
+
+def main : IO Unit := do
+  pure ()

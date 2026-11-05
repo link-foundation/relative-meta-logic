@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Temporary validation of the proposed cache portability repair only. Passing does not validate the unpatched published runtime or satisfy issue-183 completion.",
+  "baselineCommit": "90fc2853bbf58655f489312ad21b9471fbe4c1c9",
+  "baselineTree": "7fdce075ddc5b85c9a4e9babee595c1b7de26cbc",
+  "reviewedRepairCommit": "ccb28815aaadab39d5b5e2d9604f18833b89572e",
+  "patchFile": "repair.patch",
+  "patchSha256": "de1dcec0cbe96b46e6e75e033c645d62131cd0ba78aba5cfd32a9f3686017e5e",
+  "additivePackagePaths": [
+    ".github/workflows/cache-candidate-validation.yml",
+    ".github/candidates/cache-portability/manifest.json",
+    ".github/candidates/cache-portability/repair.patch",
+    ".github/candidates/cache-portability/validate.mjs",
+    ".github/candidates/cache-portability/validate.test.mjs"
+  ],
+  "files": [
+    {
+      "path": "docker/ci-build.sh",
+      "beforeSha256": "eefcd492d3c77893daf8ec587a6b82de172f476ad8b171075f63320ba0ba3f08",
+      "afterSha256": "a952bcd8fd2bedaa064e04078bb49eee4ed69f555fb288bdd52893da42bd36c6"
+    },
+    {
+      "path": "scripts/build-cache.mjs",
+      "beforeSha256": "ad302914489149c5420ad49d0f3e7877b97c3462ca6abf3b37ca85e1cdc52130",
+      "afterSha256": "e542d9dc5fb082199705e621003760619bdcd4b292e38150d76d66a24c260522"
+    },
+    {
+      "path": "scripts/build-cache-windows.ps1",
+      "beforeSha256": null,
+      "afterSha256": "b2c328b3a6b70315b13af564d4be6e731e51a2704090fab2ca1993f898576ec2"
+    },
+    {
+      "path": "scripts/build-cache.test.mjs",
+      "beforeSha256": "c49a7f342c4d8f64834664914b37fb096496e00812fbfed75e3a89e7771a28d0",
+      "afterSha256": "5e92c3ee225526402959de3497c1834067021d240ce91a6d768034036bf76dfb"
+    },
+    {
+      "path": "scripts/build-cache-policy.test.mjs",
+      "beforeSha256": "e90fa22bff49760b41fa71e855219129d02875e356e50b5376001df40658535c",
+      "afterSha256": "d7d0540c63f469a9bc0bd8749b2fecb7fbe52084c3226ec630b73f624b7cc8e2"
+    }
+  ],
+  "candidateTree": "513d0969ef266c72410e66725560fc4d0d8c903a"
+}

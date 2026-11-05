@@ -1,0 +1,4 @@
+(linked-program fair)
+(linked-fact fair seed (judgement (n z)))
+(linked-inference fair grow (premise (n ?x)) (conclusion (n (s ?x))))
+(linked-inference fair mark (premise (n ?x)) (conclusion (m ?x)))

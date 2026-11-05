@@ -1,14 +1,27 @@
 .git
-.github
 node_modules
 **/node_modules
 target
 **/target
-docs
-vscode
-experiments
-**/experiments
 *.log
 .env
 .env.*
 .DS_Store
+
+# Never send local cache state, evidence, or generated docs to a builder.
+.rml-cache
+_site
+**/coverage
+**/.nyc_output
+**/dist
+upstream-meta-theory
+
+# Only the pinned upstream JavaScript runtime belongs in the build context.
+**/.git
+js/vendor/meta-language/*
+!js/vendor/meta-language/js
+!js/vendor/meta-language/LICENSE
+js/vendor/meta-language/js/*
+!js/vendor/meta-language/js/src
+!js/vendor/meta-language/js/package.json
+!js/vendor/meta-language/js/README.md

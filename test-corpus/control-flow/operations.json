@@ -1,0 +1,973 @@
+{
+  "schema": "rml-control-flow-operations/v1",
+  "cases": [
+    {
+      "name": "add-positive",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "add",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        4,
+        7
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": 11,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "sub-negative",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "sub",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        4,
+        7
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": -3,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "mul-negative",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "mul",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        -4,
+        7
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": -28,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "div-negative",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "div",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        -7,
+        2
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": -3,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "mod-negative",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "mod",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        -7,
+        2
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": -1,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "less-negative",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "bool"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "lt",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        -7,
+        2
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": true,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "less-equal-reflexive",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "bool"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "le",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        2,
+        2
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": true,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "equality-bool",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "bool"
+              ],
+              [
+                "p1",
+                "bool"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "bool"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "eq",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        false,
+        true
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": false,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "and-bools",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "bool"
+              ],
+              [
+                "p1",
+                "bool"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "bool"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "and",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        true,
+        false
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": false,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "or-bools",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "bool"
+              ],
+              [
+                "p1",
+                "bool"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "bool"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "or",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        true,
+        false
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": true,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "not-bool",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "bool"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "bool"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "not",
+                    "result",
+                    "p0"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        false
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": true,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "copy-unit",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "unit"
+              ]
+            ],
+            "result": "unit",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "unit"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "copy",
+                    "result",
+                    "p0"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        null
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "returned",
+        "value": null,
+        "effects": [],
+        "steps": 2,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "division-by-zero",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "div",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        7,
+        0
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "domain-error",
+        "value": null,
+        "effects": [],
+        "steps": 1,
+        "diagnostic": "DIVISION_BY_ZERO"
+      }
+    },
+    {
+      "name": "modulo-by-zero",
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "operation",
+            "imports": [],
+            "exports": [
+              "apply"
+            ]
+          }
+        ],
+        "entry": "operation.apply",
+        "functions": [
+          {
+            "module": "operation",
+            "name": "apply",
+            "parameters": [
+              [
+                "p0",
+                "int"
+              ],
+              [
+                "p1",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "result",
+                "int"
+              ]
+            ],
+            "entry": "entry",
+            "blocks": [
+              {
+                "id": "entry",
+                "instructions": [
+                  [
+                    "mod",
+                    "result",
+                    "p0",
+                    "p1"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "result"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        7,
+        0
+      ],
+      "fuel": 10,
+      "expected": {
+        "status": "domain-error",
+        "value": null,
+        "effects": [],
+        "steps": 1,
+        "diagnostic": "DIVISION_BY_ZERO"
+      }
+    }
+  ]
+}

@@ -1,0 +1,236 @@
+{
+ "schema": "rml-cache-portability-ci/v1",
+ "provenance": {
+  "workflow": "cache-portability",
+  "runId": 38429794746,
+  "headSha": "525e4847a5a5bf35c45f6cfce152ce5f77af4c60",
+  "event": "pull_request",
+  "conclusion": "success"
+ },
+ "platforms": [
+  {
+   "os": "ubuntu-latest",
+   "jobId": 115408652099,
+   "jobConclusion": "success",
+   "teardownConclusion": "success",
+   "artifactId": 11830059037,
+   "artifactDigest": "sha256:bded4cd28d48d3ba4363e993f21a539097819e65b7a4b1a4c1736888290bd414",
+   "command": [
+    "node",
+    "--test",
+    "--test-concurrency=2",
+    "scripts/build-cache.test.mjs",
+    "scripts/build-cache-policy.test.mjs",
+    "scripts/build-cache-ci-evidence.test.mjs",
+    "scripts/build-cache-nested.test.mjs",
+    "scripts/build-vsix-output.test.mjs",
+    "scripts/docker-cache-budget.test.mjs",
+    "scripts/build-resource-monitor.test.mjs",
+    "scripts/build-output-publication.test.mjs",
+    "scripts/ci-source-context.test.mjs",
+    "scripts/cargo-unit-sweep.test.mjs"
+   ],
+   "exitCode": 0,
+   "timestamp": "2026-10-13T16:25:14.914Z",
+   "tests": 212,
+   "pass": 210,
+   "fail": 0,
+   "cancelled": 0,
+   "skipped": 2,
+   "todo": 0,
+   "skips": [
+    {
+     "name": "real JSDoc builds, repeats, and fully cleans only registered generated output",
+     "reason": "JSDoc development dependency is not installed"
+    },
+    {
+     "name": "installed VSCE packages a real archive that survives bounded cleanup and is reclaimed by full cleanup",
+     "reason": "VSCE development dependency is not installed"
+    }
+   ],
+   "failed": [],
+   "lastCleanup": {
+    "mode": "bounded",
+    "afterBytes": 0,
+    "budgetSatisfied": true,
+    "externalBytes": 0
+   }
+  },
+  {
+   "os": "macos-latest",
+   "jobId": 115408652121,
+   "jobConclusion": "success",
+   "teardownConclusion": "success",
+   "artifactId": 11830651893,
+   "artifactDigest": "sha256:9bb15d8920ac1c46aa408bfe2dd3071cba5ad3813a281d3c10cb48eb3bccd879",
+   "command": [
+    "node",
+    "--test",
+    "--test-concurrency=2",
+    "scripts/build-cache.test.mjs",
+    "scripts/build-cache-policy.test.mjs",
+    "scripts/build-cache-ci-evidence.test.mjs",
+    "scripts/build-cache-nested.test.mjs",
+    "scripts/build-vsix-output.test.mjs",
+    "scripts/docker-cache-budget.test.mjs",
+    "scripts/build-resource-monitor.test.mjs",
+    "scripts/build-output-publication.test.mjs",
+    "scripts/ci-source-context.test.mjs",
+    "scripts/cargo-unit-sweep.test.mjs"
+   ],
+   "exitCode": 0,
+   "timestamp": "2026-10-13T16:28:34.410Z",
+   "tests": 212,
+   "pass": 209,
+   "fail": 0,
+   "cancelled": 0,
+   "skipped": 3,
+   "todo": 0,
+   "skips": [
+    {
+     "name": "matching token and colliding live PID never borrow a foreign namespace lease",
+     "reason": ""
+    },
+    {
+     "name": "real JSDoc builds, repeats, and fully cleans only registered generated output",
+     "reason": "JSDoc development dependency is not installed"
+    },
+    {
+     "name": "installed VSCE packages a real archive that survives bounded cleanup and is reclaimed by full cleanup",
+     "reason": "VSCE development dependency is not installed"
+    }
+   ],
+   "failed": [],
+   "lastCleanup": {
+    "mode": "bounded",
+    "afterBytes": 0,
+    "budgetSatisfied": true,
+    "externalBytes": 0
+   }
+  },
+  {
+   "os": "windows-latest",
+   "jobId": 115408651745,
+   "jobConclusion": "success",
+   "teardownConclusion": "success",
+   "artifactId": 11831225232,
+   "artifactDigest": "sha256:5139aaab3a4fef076f5bf475ac33df52ea3e748d98c333ed00e421e0c80e5271",
+   "command": [
+    "node",
+    "--test",
+    "--test-concurrency=2",
+    "scripts/build-cache.test.mjs",
+    "scripts/build-cache-policy.test.mjs",
+    "scripts/build-cache-ci-evidence.test.mjs",
+    "scripts/build-cache-nested.test.mjs",
+    "scripts/build-vsix-output.test.mjs",
+    "scripts/docker-cache-budget.test.mjs",
+    "scripts/build-resource-monitor.test.mjs",
+    "scripts/build-output-publication.test.mjs",
+    "scripts/ci-source-context.test.mjs",
+    "scripts/cargo-unit-sweep.test.mjs"
+   ],
+   "exitCode": 0,
+   "timestamp": "2026-10-13T16:27:11.702Z",
+   "tests": 212,
+   "pass": 191,
+   "fail": 0,
+   "cancelled": 0,
+   "skipped": 21,
+   "todo": 0,
+   "skips": [
+    {
+     "name": "cargo entry point nested in an outer operation owns and reuses isolated compiler output",
+     "reason": ""
+    },
+    {
+     "name": "archive placeholder rejects a report symlink and retains evidence without following it",
+     "reason": ""
+    },
+    {
+     "name": "acceptance parity builds and consumes the same active private Cargo target while shared output stays protected",
+     "reason": ""
+    },
+    {
+     "name": "acceptance parity rejects a missing private target before invoking Cargo",
+     "reason": ""
+    },
+    {
+     "name": "acceptance parity rejects a stale private target before invoking Cargo",
+     "reason": ""
+    },
+    {
+     "name": "acceptance Cargo producers inherit one private target for the complete outer operation",
+     "reason": ""
+    },
+    {
+     "name": "a successful private Cargo operation sweeps superseded units and records the result without changing status",
+     "reason": ""
+    },
+    {
+     "name": "a symlinked alias of the worktree root maps custom targets without resolving in-tree links",
+     "reason": ""
+    },
+    {
+     "name": "active parallel wrapper holds lease; interruption stops child then cleans and keeps logs",
+     "reason": ""
+    },
+    {
+     "name": "hook and report state symlinks are rejected without modifying their target",
+     "reason": ""
+    },
+    {
+     "name": "missing Node is an explicit hook failure instead of silently disabling cleanup",
+     "reason": ""
+    },
+    {
+     "name": "matching token and colliding live PID never borrow a foreign namespace lease",
+     "reason": ""
+    },
+    {
+     "name": "concurrent user files and edits survive interrupt with explicit producer receipts",
+     "reason": ""
+    },
+    {
+     "name": "a real native make/compiler operation reuses its private compiled artifact",
+     "reason": ""
+    },
+    {
+     "name": "concurrent writes to the prior private target survive interrupt of the next producer",
+     "reason": ""
+    },
+    {
+     "name": "an ancestor symlink substitution cannot redirect deletion into outside data",
+     "reason": ""
+    },
+    {
+     "name": "a killed build whose process group still runs, or an interrupted recovery, keeps its lease",
+     "reason": ""
+    },
+    {
+     "name": "real JSDoc builds, repeats, and fully cleans only registered generated output",
+     "reason": "JSDoc development dependency is not installed"
+    },
+    {
+     "name": "an exited command cannot hang on a grandchild holding its output pipes",
+     "reason": ""
+    },
+    {
+     "name": "installed VSCE packages a real archive that survives bounded cleanup and is reclaimed by full cleanup",
+     "reason": "VSCE development dependency is not installed"
+    },
+    {
+     "name": "a symlinked profile or deps directory is never followed",
+     "reason": ""
+    }
+   ],
+   "failed": [],
+   "lastCleanup": {
+    "mode": "bounded",
+    "afterBytes": 0,
+    "budgetSatisfied": true,
+    "externalBytes": 0
+   }
+  }
+ ]
+}

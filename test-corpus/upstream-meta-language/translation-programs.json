@@ -1,0 +1,11 @@
+{
+  "schema": "rml-upstream-translations/v1",
+  "observation": "One printed line: 7. These downstream tests verify grammar and contract dispatch, not native proof of arbitrary semantic preservation.",
+  "sources": {
+    "JavaScript": "console.log(7);\n",
+    "Rust": "fn main() { println!(\"7\"); }\n",
+    "Lean": "def main : IO Unit := do\n  IO.println \"7\"\n",
+    "Rocq": "From Stdlib Require Import List String.\nImport ListNotations.\nOpen Scope string_scope.\nDefinition main : list string := [\"7\"].\nEval vm_compute in main.\n"
+  },
+  "unsupported": "export const endpoint = await fetch(\"https://example.test/data\");\n"
+}

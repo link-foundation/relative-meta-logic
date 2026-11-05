@@ -1,0 +1,31 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> relative-meta-logic@0.1.0 pretest
+> npm run copy-server
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> relative-meta-logic@0.1.0 copy-server
+> node ../scripts/run-with-cache.mjs -- node scripts/copy-server.mjs
+
+Copied 44 RML language server source files to server.
+
+> relative-meta-logic@0.1.0 test
+> node ../scripts/run-with-cache.mjs -- node --test --test-concurrency=2 test/*.test.mjs
+
+▶ VS Code extension manifest
+  ✔ contributes the lino language, grammar, language config, and LSP activation (0.794076ms)
+  ✔ ships syntax highlighting rules for LiNo comments, definitions, keywords, and strings (0.290497ms)
+✔ VS Code extension manifest (1.967603ms)
+▶ VS Code extension LSP integration
+  ✔ resolves an executable command for the bundled or checkout language server (0.756129ms)
+  ✔ starts the resolved LSP and receives diagnostics and completions for .lino text (94.953503ms)
+✔ VS Code extension LSP integration (96.695035ms)
+ℹ tests 4
+ℹ suites 2
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 168.610882

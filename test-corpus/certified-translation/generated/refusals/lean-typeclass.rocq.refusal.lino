@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Lean)
+    (sha256 c9d6251bb3ca60c9988f3c5d45aa3a9ec4a7cc1a125dec522f6ae3c830b10656)
+    (bytes 237)
+    (utf16 233))
+  (target (language Rocq) (status not-emitted))
+  (stage frontend)
+  (diagnostic
+    (kind unsupported)
+    (message "Lean class declaration: outside the portable core")
+    (span 83 88)
+    (bytes 83 88)
+    (span-sha256 0889113e04d3203f0c401c17c0fd8b352b740dc607433779d3edcaa13320b001))
+  (preserved-source
+    (sha256 c9d6251bb3ca60c9988f3c5d45aa3a9ec4a7cc1a125dec522f6ae3c830b10656)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 68dce13ba9496dc0c5796b25e235f399c2e2f4c90c2a560aa3259dd7fda54747))

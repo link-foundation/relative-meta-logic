@@ -1,0 +1,3524 @@
+{
+  "schema": "rml-meta-theory-specification-cases/v1",
+  "specificationHashes": {
+    "type-specification": "f21893a0379e10979d6d1f7d988c44c4f0527c595c8d212dd97d057ca9e44e93",
+    "graph-specification": "63eb123f36139d050579e64af2846f190fa65d41beede0cccca549ac04883762",
+    "relational-algebra-specification": "02c7f388f3b02fd009c4657c8630958ecfc6adfcc6c362905e56a4551f0c9349"
+  },
+  "cases": [
+    {
+      "program": "type-specification",
+      "id": "is-type-product",
+      "operator": "ty-is-type",
+      "polarity": "positive",
+      "request": [
+        "ty-is-type",
+        [
+          "ty-product",
+          "ty-nat",
+          [
+            "ty-arrow",
+            "ty-bool",
+            "ty-unit"
+          ]
+        ]
+      ],
+      "expected": "ty-yes",
+      "steps": 7
+    },
+    {
+      "program": "type-specification",
+      "id": "context-invalid-type",
+      "operator": "ty-context-ok",
+      "polarity": "negative",
+      "request": [
+        "ty-context-ok",
+        [
+          "ty-extend",
+          "x",
+          "ty-bogus",
+          "ty-empty"
+        ]
+      ],
+      "expected": "ty-no",
+      "steps": 3
+    },
+    {
+      "program": "type-specification",
+      "id": "lookup-shadowing",
+      "operator": "ty-lookup",
+      "polarity": "positive",
+      "request": [
+        "ty-lookup",
+        [
+          "ty-extend",
+          "x",
+          "ty-nat",
+          [
+            "ty-extend",
+            "x",
+            "ty-bool",
+            "ty-empty"
+          ]
+        ],
+        "x"
+      ],
+      "expected": [
+        "ty-ok",
+        "ty-nat"
+      ],
+      "steps": 1
+    },
+    {
+      "program": "type-specification",
+      "id": "infer-twice",
+      "operator": "ty-infer",
+      "polarity": "positive",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-lam",
+          "f",
+          [
+            "ty-arrow",
+            "ty-nat",
+            "ty-nat"
+          ],
+          [
+            "tm-lam",
+            "x",
+            "ty-nat",
+            [
+              "tm-app",
+              [
+                "tm-var",
+                "f"
+              ],
+              [
+                "tm-app",
+                [
+                  "tm-var",
+                  "f"
+                ],
+                [
+                  "tm-var",
+                  "x"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "expected": [
+        "ty-ok",
+        [
+          "ty-arrow",
+          [
+            "ty-arrow",
+            "ty-nat",
+            "ty-nat"
+          ],
+          [
+            "ty-arrow",
+            "ty-nat",
+            "ty-nat"
+          ]
+        ]
+      ],
+      "steps": 21
+    },
+    {
+      "program": "type-specification",
+      "id": "infer-swap",
+      "operator": "ty-infer",
+      "polarity": "positive",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-app",
+          [
+            "tm-lam",
+            "p",
+            [
+              "ty-product",
+              "ty-nat",
+              "ty-bool"
+            ],
+            [
+              "tm-pair",
+              [
+                "tm-snd",
+                [
+                  "tm-var",
+                  "p"
+                ]
+              ],
+              [
+                "tm-fst",
+                [
+                  "tm-var",
+                  "p"
+                ]
+              ]
+            ]
+          ],
+          [
+            "tm-pair",
+            "tm-zero",
+            "tm-true"
+          ]
+        ]
+      ],
+      "expected": [
+        "ty-ok",
+        [
+          "ty-product",
+          "ty-bool",
+          "ty-nat"
+        ]
+      ],
+      "steps": 22
+    },
+    {
+      "program": "type-specification",
+      "id": "infer-conditional",
+      "operator": "ty-infer",
+      "polarity": "positive",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-if",
+          [
+            "tm-iszero",
+            "tm-zero"
+          ],
+          [
+            "tm-pair",
+            "tm-unit",
+            "tm-zero"
+          ],
+          [
+            "tm-pair",
+            "tm-unit",
+            [
+              "tm-succ",
+              "tm-zero"
+            ]
+          ]
+        ]
+      ],
+      "expected": [
+        "ty-ok",
+        [
+          "ty-product",
+          "ty-unit",
+          "ty-nat"
+        ]
+      ],
+      "steps": 15
+    },
+    {
+      "program": "type-specification",
+      "id": "infer-in-context",
+      "operator": "ty-infer",
+      "polarity": "positive",
+      "request": [
+        "ty-infer",
+        [
+          "ty-extend",
+          "f",
+          [
+            "ty-arrow",
+            "ty-nat",
+            "ty-bool"
+          ],
+          "ty-empty"
+        ],
+        [
+          "tm-app",
+          [
+            "tm-var",
+            "f"
+          ],
+          "tm-zero"
+        ]
+      ],
+      "expected": [
+        "ty-ok",
+        "ty-bool"
+      ],
+      "steps": 5
+    },
+    {
+      "program": "type-specification",
+      "id": "ill-typed-not-a-function",
+      "operator": "ty-infer",
+      "polarity": "negative",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-app",
+          "tm-zero",
+          "tm-true"
+        ]
+      ],
+      "expected": [
+        "ty-error",
+        "not-a-function"
+      ],
+      "steps": 4
+    },
+    {
+      "program": "type-specification",
+      "id": "ill-typed-argument",
+      "operator": "ty-infer",
+      "polarity": "negative",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-app",
+          [
+            "tm-lam",
+            "x",
+            "ty-nat",
+            [
+              "tm-succ",
+              [
+                "tm-var",
+                "x"
+              ]
+            ]
+          ],
+          "tm-true"
+        ]
+      ],
+      "expected": [
+        "ty-error",
+        "argument-mismatch"
+      ],
+      "steps": 10
+    },
+    {
+      "program": "type-specification",
+      "id": "ill-typed-unbound",
+      "operator": "ty-infer",
+      "polarity": "negative",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-var",
+          "y"
+        ]
+      ],
+      "expected": [
+        "ty-error",
+        "unbound-variable"
+      ],
+      "steps": 2
+    },
+    {
+      "program": "type-specification",
+      "id": "ill-typed-branches",
+      "operator": "ty-infer",
+      "polarity": "negative",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-if",
+          "tm-true",
+          "tm-zero",
+          "tm-unit"
+        ]
+      ],
+      "expected": [
+        "ty-error",
+        "branch-mismatch"
+      ],
+      "steps": 5
+    },
+    {
+      "program": "type-specification",
+      "id": "ill-typed-condition",
+      "operator": "ty-infer",
+      "polarity": "negative",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-if",
+          "tm-zero",
+          "tm-zero",
+          "tm-zero"
+        ]
+      ],
+      "expected": [
+        "ty-error",
+        "expected-bool"
+      ],
+      "steps": 5
+    },
+    {
+      "program": "type-specification",
+      "id": "ill-typed-projection",
+      "operator": "ty-infer",
+      "polarity": "negative",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-fst",
+          "tm-zero"
+        ]
+      ],
+      "expected": [
+        "ty-error",
+        "not-a-pair"
+      ],
+      "steps": 3
+    },
+    {
+      "program": "type-specification",
+      "id": "ill-typed-successor",
+      "operator": "ty-infer",
+      "polarity": "negative",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-succ",
+          "tm-true"
+        ]
+      ],
+      "expected": [
+        "ty-error",
+        "expected-nat"
+      ],
+      "steps": 3
+    },
+    {
+      "program": "type-specification",
+      "id": "ill-typed-annotation",
+      "operator": "ty-infer",
+      "polarity": "negative",
+      "request": [
+        "ty-infer",
+        "ty-empty",
+        [
+          "tm-lam",
+          "x",
+          "ty-bogus",
+          [
+            "tm-var",
+            "x"
+          ]
+        ]
+      ],
+      "expected": [
+        "ty-error",
+        "invalid-type"
+      ],
+      "steps": 3
+    },
+    {
+      "program": "type-specification",
+      "id": "check-twice-successor",
+      "operator": "ty-check",
+      "polarity": "positive",
+      "request": [
+        "ty-check",
+        "ty-empty",
+        [
+          "tm-app",
+          [
+            "tm-app",
+            [
+              "tm-lam",
+              "f",
+              [
+                "ty-arrow",
+                "ty-nat",
+                "ty-nat"
+              ],
+              [
+                "tm-lam",
+                "x",
+                "ty-nat",
+                [
+                  "tm-app",
+                  [
+                    "tm-var",
+                    "f"
+                  ],
+                  [
+                    "tm-app",
+                    [
+                      "tm-var",
+                      "f"
+                    ],
+                    [
+                      "tm-var",
+                      "x"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "tm-lam",
+              "n",
+              "ty-nat",
+              [
+                "tm-succ",
+                [
+                  "tm-var",
+                  "n"
+                ]
+              ]
+            ]
+          ],
+          "tm-zero"
+        ],
+        "ty-nat"
+      ],
+      "expected": "ty-yes",
+      "steps": 35
+    },
+    {
+      "program": "type-specification",
+      "id": "check-wrong-type",
+      "operator": "ty-check",
+      "polarity": "negative",
+      "request": [
+        "ty-check",
+        "ty-empty",
+        [
+          "tm-app",
+          [
+            "tm-app",
+            [
+              "tm-lam",
+              "f",
+              [
+                "ty-arrow",
+                "ty-nat",
+                "ty-nat"
+              ],
+              [
+                "tm-lam",
+                "x",
+                "ty-nat",
+                [
+                  "tm-app",
+                  [
+                    "tm-var",
+                    "f"
+                  ],
+                  [
+                    "tm-app",
+                    [
+                      "tm-var",
+                      "f"
+                    ],
+                    [
+                      "tm-var",
+                      "x"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "tm-lam",
+              "n",
+              "ty-nat",
+              [
+                "tm-succ",
+                [
+                  "tm-var",
+                  "n"
+                ]
+              ]
+            ]
+          ],
+          "tm-zero"
+        ],
+        "ty-bool"
+      ],
+      "expected": "ty-no",
+      "steps": 35
+    },
+    {
+      "program": "type-specification",
+      "id": "value-pair",
+      "operator": "ty-value-p",
+      "polarity": "positive",
+      "request": [
+        "ty-value-p",
+        [
+          "tm-pair",
+          "tm-zero",
+          [
+            "tm-succ",
+            "tm-zero"
+          ]
+        ]
+      ],
+      "expected": "ty-yes",
+      "steps": 5
+    },
+    {
+      "program": "type-specification",
+      "id": "value-application",
+      "operator": "ty-value-p",
+      "polarity": "negative",
+      "request": [
+        "ty-value-p",
+        [
+          "tm-app",
+          [
+            "tm-var",
+            "f"
+          ],
+          "tm-zero"
+        ]
+      ],
+      "expected": "ty-no",
+      "steps": 1
+    },
+    {
+      "program": "type-specification",
+      "id": "subst-pair",
+      "operator": "ty-subst",
+      "polarity": "positive",
+      "request": [
+        "ty-subst",
+        "x",
+        "tm-zero",
+        [
+          "tm-pair",
+          [
+            "tm-var",
+            "x"
+          ],
+          [
+            "tm-var",
+            "y"
+          ]
+        ]
+      ],
+      "expected": [
+        "ty-subst-done",
+        [
+          "tm-pair",
+          "tm-zero",
+          [
+            "tm-var",
+            "y"
+          ]
+        ]
+      ],
+      "steps": 4
+    },
+    {
+      "program": "type-specification",
+      "id": "subst-shadowed",
+      "operator": "ty-subst",
+      "polarity": "positive",
+      "request": [
+        "ty-subst",
+        "x",
+        "tm-zero",
+        [
+          "tm-lam",
+          "x",
+          "ty-nat",
+          [
+            "tm-var",
+            "x"
+          ]
+        ]
+      ],
+      "expected": [
+        "ty-subst-done",
+        [
+          "tm-lam",
+          "x",
+          "ty-nat",
+          [
+            "tm-var",
+            "x"
+          ]
+        ]
+      ],
+      "steps": 1
+    },
+    {
+      "program": "type-specification",
+      "id": "step-swap",
+      "operator": "ty-step",
+      "polarity": "positive",
+      "request": [
+        "ty-step",
+        [
+          "tm-app",
+          [
+            "tm-lam",
+            "p",
+            [
+              "ty-product",
+              "ty-nat",
+              "ty-bool"
+            ],
+            [
+              "tm-pair",
+              [
+                "tm-snd",
+                [
+                  "tm-var",
+                  "p"
+                ]
+              ],
+              [
+                "tm-fst",
+                [
+                  "tm-var",
+                  "p"
+                ]
+              ]
+            ]
+          ],
+          [
+            "tm-pair",
+            "tm-zero",
+            "tm-true"
+          ]
+        ]
+      ],
+      "expected": [
+        "ty-stepped",
+        [
+          "tm-pair",
+          [
+            "tm-snd",
+            [
+              "tm-pair",
+              "tm-zero",
+              "tm-true"
+            ]
+          ],
+          [
+            "tm-fst",
+            [
+              "tm-pair",
+              "tm-zero",
+              "tm-true"
+            ]
+          ]
+        ]
+      ],
+      "steps": 17
+    },
+    {
+      "program": "type-specification",
+      "id": "eval-twice-successor",
+      "operator": "ty-eval",
+      "polarity": "positive",
+      "request": [
+        "ty-eval",
+        [
+          "tm-app",
+          [
+            "tm-app",
+            [
+              "tm-lam",
+              "f",
+              [
+                "ty-arrow",
+                "ty-nat",
+                "ty-nat"
+              ],
+              [
+                "tm-lam",
+                "x",
+                "ty-nat",
+                [
+                  "tm-app",
+                  [
+                    "tm-var",
+                    "f"
+                  ],
+                  [
+                    "tm-app",
+                    [
+                      "tm-var",
+                      "f"
+                    ],
+                    [
+                      "tm-var",
+                      "x"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "tm-lam",
+              "n",
+              "ty-nat",
+              [
+                "tm-succ",
+                [
+                  "tm-var",
+                  "n"
+                ]
+              ]
+            ]
+          ],
+          "tm-zero"
+        ]
+      ],
+      "expected": [
+        "ty-value",
+        [
+          "tm-succ",
+          [
+            "tm-succ",
+            "tm-zero"
+          ]
+        ]
+      ],
+      "steps": 79
+    },
+    {
+      "program": "type-specification",
+      "id": "eval-conditional",
+      "operator": "ty-eval",
+      "polarity": "positive",
+      "request": [
+        "ty-eval",
+        [
+          "tm-if",
+          [
+            "tm-iszero",
+            "tm-zero"
+          ],
+          [
+            "tm-pair",
+            "tm-unit",
+            "tm-zero"
+          ],
+          [
+            "tm-pair",
+            "tm-unit",
+            [
+              "tm-succ",
+              "tm-zero"
+            ]
+          ]
+        ]
+      ],
+      "expected": [
+        "ty-value",
+        [
+          "tm-pair",
+          "tm-unit",
+          "tm-zero"
+        ]
+      ],
+      "steps": 19
+    },
+    {
+      "program": "type-specification",
+      "id": "eval-stuck",
+      "operator": "ty-eval",
+      "polarity": "negative",
+      "request": [
+        "ty-eval",
+        [
+          "tm-app",
+          "tm-zero",
+          "tm-true"
+        ]
+      ],
+      "expected": [
+        "ty-stuck-at",
+        [
+          "tm-app",
+          "tm-zero",
+          "tm-true"
+        ]
+      ],
+      "steps": 7
+    },
+    {
+      "program": "graph-specification",
+      "id": "well-formed-dag",
+      "operator": "gr-well-formed",
+      "polarity": "positive",
+      "request": [
+        "gr-well-formed",
+        [
+          "gr-named",
+          "dag"
+        ]
+      ],
+      "expected": "gr-yes",
+      "steps": 47
+    },
+    {
+      "program": "graph-specification",
+      "id": "malformed-edge",
+      "operator": "gr-well-formed",
+      "polarity": "negative",
+      "request": [
+        "gr-well-formed",
+        [
+          "gr-graph",
+          [
+            "gr-cons",
+            "a",
+            "gr-nil"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "a",
+              "z"
+            ],
+            "gr-nil"
+          ]
+        ]
+      ],
+      "expected": "gr-no",
+      "steps": 7
+    },
+    {
+      "program": "graph-specification",
+      "id": "has-vertex",
+      "operator": "gr-has-vertex",
+      "polarity": "positive",
+      "request": [
+        "gr-has-vertex",
+        [
+          "gr-named",
+          "dag"
+        ],
+        "e"
+      ],
+      "expected": "gr-yes",
+      "steps": 7
+    },
+    {
+      "program": "graph-specification",
+      "id": "missing-vertex",
+      "operator": "gr-has-vertex",
+      "polarity": "negative",
+      "request": [
+        "gr-has-vertex",
+        [
+          "gr-named",
+          "dag"
+        ],
+        "z"
+      ],
+      "expected": "gr-no",
+      "steps": 8
+    },
+    {
+      "program": "graph-specification",
+      "id": "has-edge",
+      "operator": "gr-has-edge",
+      "polarity": "positive",
+      "request": [
+        "gr-has-edge",
+        [
+          "gr-named",
+          "dag"
+        ],
+        "a",
+        "b"
+      ],
+      "expected": "gr-yes",
+      "steps": 3
+    },
+    {
+      "program": "graph-specification",
+      "id": "reverse-edge",
+      "operator": "gr-has-edge",
+      "polarity": "negative",
+      "request": [
+        "gr-has-edge",
+        [
+          "gr-named",
+          "dag"
+        ],
+        "b",
+        "a"
+      ],
+      "expected": "gr-no",
+      "steps": 8
+    },
+    {
+      "program": "graph-specification",
+      "id": "successors",
+      "operator": "gr-successors",
+      "polarity": "positive",
+      "request": [
+        "gr-successors",
+        [
+          "gr-named",
+          "dag"
+        ],
+        "a"
+      ],
+      "expected": [
+        "gr-cons",
+        "b",
+        [
+          "gr-cons",
+          "c",
+          "gr-nil"
+        ]
+      ],
+      "steps": 8
+    },
+    {
+      "program": "graph-specification",
+      "id": "adjacency",
+      "operator": "gr-adjacency",
+      "polarity": "positive",
+      "request": [
+        "gr-adjacency",
+        [
+          "gr-named",
+          "dag"
+        ]
+      ],
+      "expected": [
+        "gr-cons",
+        [
+          "gr-adjacent",
+          "a",
+          [
+            "gr-cons",
+            "b",
+            [
+              "gr-cons",
+              "c",
+              "gr-nil"
+            ]
+          ]
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-adjacent",
+            "b",
+            [
+              "gr-cons",
+              "d",
+              "gr-nil"
+            ]
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-adjacent",
+              "c",
+              [
+                "gr-cons",
+                "d",
+                "gr-nil"
+              ]
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-adjacent",
+                "d",
+                [
+                  "gr-cons",
+                  "e",
+                  "gr-nil"
+                ]
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-adjacent",
+                  "e",
+                  "gr-nil"
+                ],
+                "gr-nil"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 38
+    },
+    {
+      "program": "graph-specification",
+      "id": "step-from-empty",
+      "operator": "gr-step",
+      "polarity": "positive",
+      "request": [
+        "gr-step",
+        [
+          "gr-named",
+          "dag"
+        ],
+        "gr-nil"
+      ],
+      "expected": [
+        "gr-cons",
+        [
+          "gr-edge",
+          "a",
+          "b"
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-edge",
+            "a",
+            "c"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "b",
+              "d"
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-edge",
+                "c",
+                "d"
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-edge",
+                  "d",
+                  "e"
+                ],
+                "gr-nil"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 4
+    },
+    {
+      "program": "graph-specification",
+      "id": "closure-dag",
+      "operator": "gr-closure",
+      "polarity": "positive",
+      "request": [
+        "gr-closure",
+        [
+          "gr-named",
+          "dag"
+        ]
+      ],
+      "expected": [
+        "gr-cons",
+        [
+          "gr-edge",
+          "c",
+          "e"
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-edge",
+            "b",
+            "e"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "a",
+              "d"
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-edge",
+                "a",
+                "e"
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-edge",
+                  "a",
+                  "b"
+                ],
+                [
+                  "gr-cons",
+                  [
+                    "gr-edge",
+                    "a",
+                    "c"
+                  ],
+                  [
+                    "gr-cons",
+                    [
+                      "gr-edge",
+                      "b",
+                      "d"
+                    ],
+                    [
+                      "gr-cons",
+                      [
+                        "gr-edge",
+                        "c",
+                        "d"
+                      ],
+                      [
+                        "gr-cons",
+                        [
+                          "gr-edge",
+                          "d",
+                          "e"
+                        ],
+                        "gr-nil"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 492
+    },
+    {
+      "program": "graph-specification",
+      "id": "closure-cycle",
+      "operator": "gr-closure",
+      "polarity": "positive",
+      "request": [
+        "gr-closure",
+        [
+          "gr-named",
+          "cycle"
+        ]
+      ],
+      "expected": [
+        "gr-cons",
+        [
+          "gr-edge",
+          "c",
+          "b"
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-edge",
+            "b",
+            "d"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "b",
+              "a"
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-edge",
+                "a",
+                "c"
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-edge",
+                  "a",
+                  "d"
+                ],
+                [
+                  "gr-cons",
+                  [
+                    "gr-edge",
+                    "a",
+                    "a"
+                  ],
+                  [
+                    "gr-cons",
+                    [
+                      "gr-edge",
+                      "b",
+                      "b"
+                    ],
+                    [
+                      "gr-cons",
+                      [
+                        "gr-edge",
+                        "c",
+                        "c"
+                      ],
+                      [
+                        "gr-cons",
+                        [
+                          "gr-edge",
+                          "a",
+                          "b"
+                        ],
+                        [
+                          "gr-cons",
+                          [
+                            "gr-edge",
+                            "b",
+                            "c"
+                          ],
+                          [
+                            "gr-cons",
+                            [
+                              "gr-edge",
+                              "c",
+                              "a"
+                            ],
+                            [
+                              "gr-cons",
+                              [
+                                "gr-edge",
+                                "c",
+                                "d"
+                              ],
+                              "gr-nil"
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 672
+    },
+    {
+      "program": "graph-specification",
+      "id": "reachable",
+      "operator": "gr-reachable",
+      "polarity": "positive",
+      "request": [
+        "gr-reachable",
+        [
+          "gr-named",
+          "dag"
+        ],
+        "a",
+        "e"
+      ],
+      "expected": "gr-yes",
+      "steps": 497
+    },
+    {
+      "program": "graph-specification",
+      "id": "unreachable",
+      "operator": "gr-reachable",
+      "polarity": "negative",
+      "request": [
+        "gr-reachable",
+        [
+          "gr-named",
+          "dag"
+        ],
+        "e",
+        "a"
+      ],
+      "expected": "gr-no",
+      "steps": 503
+    },
+    {
+      "program": "graph-specification",
+      "id": "reachable-loop",
+      "operator": "gr-reachable",
+      "polarity": "positive",
+      "request": [
+        "gr-reachable",
+        [
+          "gr-named",
+          "cycle"
+        ],
+        "a",
+        "a"
+      ],
+      "expected": "gr-yes",
+      "steps": 679
+    },
+    {
+      "program": "graph-specification",
+      "id": "acyclic-dag",
+      "operator": "gr-acyclic",
+      "polarity": "positive",
+      "request": [
+        "gr-acyclic",
+        [
+          "gr-named",
+          "dag"
+        ]
+      ],
+      "expected": "gr-yes",
+      "steps": 579
+    },
+    {
+      "program": "graph-specification",
+      "id": "cyclic-graph-rejected",
+      "operator": "gr-acyclic",
+      "polarity": "negative",
+      "request": [
+        "gr-acyclic",
+        [
+          "gr-named",
+          "cycle"
+        ]
+      ],
+      "expected": "gr-no",
+      "steps": 708
+    },
+    {
+      "program": "graph-specification",
+      "id": "path",
+      "operator": "gr-is-path",
+      "polarity": "positive",
+      "request": [
+        "gr-is-path",
+        [
+          "gr-named",
+          "dag"
+        ],
+        [
+          "gr-cons",
+          "a",
+          [
+            "gr-cons",
+            "b",
+            [
+              "gr-cons",
+              "d",
+              [
+                "gr-cons",
+                "e",
+                "gr-nil"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "expected": "gr-yes",
+      "steps": 22
+    },
+    {
+      "program": "graph-specification",
+      "id": "not-a-path",
+      "operator": "gr-is-path",
+      "polarity": "negative",
+      "request": [
+        "gr-is-path",
+        [
+          "gr-named",
+          "dag"
+        ],
+        [
+          "gr-cons",
+          "a",
+          [
+            "gr-cons",
+            "d",
+            "gr-nil"
+          ]
+        ]
+      ],
+      "expected": "gr-no",
+      "steps": 9
+    },
+    {
+      "program": "graph-specification",
+      "id": "path-ends",
+      "operator": "gr-path-ends",
+      "polarity": "positive",
+      "request": [
+        "gr-path-ends",
+        [
+          "gr-cons",
+          "a",
+          [
+            "gr-cons",
+            "c",
+            [
+              "gr-cons",
+              "d",
+              [
+                "gr-cons",
+                "e",
+                "gr-nil"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "expected": [
+        "gr-ends",
+        "a",
+        "e"
+      ],
+      "steps": 4
+    },
+    {
+      "program": "graph-specification",
+      "id": "closure-is-fixed",
+      "operator": "gr-is-fixed-point",
+      "polarity": "positive",
+      "request": [
+        "gr-closure-is-fixed",
+        [
+          "gr-named",
+          "dag"
+        ]
+      ],
+      "expected": "gr-yes",
+      "steps": 785
+    },
+    {
+      "program": "graph-specification",
+      "id": "edges-not-fixed",
+      "operator": "gr-is-fixed-point",
+      "polarity": "negative",
+      "request": [
+        "gr-is-fixed-point",
+        [
+          "gr-named",
+          "dag"
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-edge",
+            "a",
+            "b"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "a",
+              "c"
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-edge",
+                "b",
+                "d"
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-edge",
+                  "c",
+                  "d"
+                ],
+                [
+                  "gr-cons",
+                  [
+                    "gr-edge",
+                    "d",
+                    "e"
+                  ],
+                  "gr-nil"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "expected": "gr-no",
+      "steps": 118
+    },
+    {
+      "program": "graph-specification",
+      "id": "prefixed-point",
+      "operator": "gr-is-prefixed-point",
+      "polarity": "positive",
+      "request": [
+        "gr-is-prefixed-point",
+        [
+          "gr-named",
+          "dag"
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-edge",
+            "a",
+            "b"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "a",
+              "c"
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-edge",
+                "a",
+                "d"
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-edge",
+                  "a",
+                  "e"
+                ],
+                [
+                  "gr-cons",
+                  [
+                    "gr-edge",
+                    "b",
+                    "c"
+                  ],
+                  [
+                    "gr-cons",
+                    [
+                      "gr-edge",
+                      "b",
+                      "d"
+                    ],
+                    [
+                      "gr-cons",
+                      [
+                        "gr-edge",
+                        "b",
+                        "e"
+                      ],
+                      [
+                        "gr-cons",
+                        [
+                          "gr-edge",
+                          "c",
+                          "d"
+                        ],
+                        [
+                          "gr-cons",
+                          [
+                            "gr-edge",
+                            "c",
+                            "e"
+                          ],
+                          [
+                            "gr-cons",
+                            [
+                              "gr-edge",
+                              "d",
+                              "e"
+                            ],
+                            "gr-nil"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "expected": "gr-yes",
+      "steps": 208
+    },
+    {
+      "program": "graph-specification",
+      "id": "edges-not-prefixed",
+      "operator": "gr-is-prefixed-point",
+      "polarity": "negative",
+      "request": [
+        "gr-is-prefixed-point",
+        [
+          "gr-named",
+          "dag"
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-edge",
+            "a",
+            "b"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "a",
+              "c"
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-edge",
+                "b",
+                "d"
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-edge",
+                  "c",
+                  "d"
+                ],
+                [
+                  "gr-cons",
+                  [
+                    "gr-edge",
+                    "d",
+                    "e"
+                  ],
+                  "gr-nil"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "expected": "gr-no",
+      "steps": 87
+    },
+    {
+      "program": "graph-specification",
+      "id": "closure-below-prefixed",
+      "operator": "gr-subset",
+      "polarity": "positive",
+      "request": [
+        "gr-closure-within",
+        [
+          "gr-named",
+          "dag"
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-edge",
+            "a",
+            "b"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "a",
+              "c"
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-edge",
+                "a",
+                "d"
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-edge",
+                  "a",
+                  "e"
+                ],
+                [
+                  "gr-cons",
+                  [
+                    "gr-edge",
+                    "b",
+                    "c"
+                  ],
+                  [
+                    "gr-cons",
+                    [
+                      "gr-edge",
+                      "b",
+                      "d"
+                    ],
+                    [
+                      "gr-cons",
+                      [
+                        "gr-edge",
+                        "b",
+                        "e"
+                      ],
+                      [
+                        "gr-cons",
+                        [
+                          "gr-edge",
+                          "c",
+                          "d"
+                        ],
+                        [
+                          "gr-cons",
+                          [
+                            "gr-edge",
+                            "c",
+                            "e"
+                          ],
+                          [
+                            "gr-cons",
+                            [
+                              "gr-edge",
+                              "d",
+                              "e"
+                            ],
+                            "gr-nil"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "expected": "gr-yes",
+      "steps": 562
+    },
+    {
+      "program": "graph-specification",
+      "id": "closure-not-below-edges",
+      "operator": "gr-subset",
+      "polarity": "negative",
+      "request": [
+        "gr-closure-within",
+        [
+          "gr-named",
+          "dag"
+        ],
+        [
+          "gr-cons",
+          [
+            "gr-edge",
+            "a",
+            "b"
+          ],
+          [
+            "gr-cons",
+            [
+              "gr-edge",
+              "a",
+              "c"
+            ],
+            [
+              "gr-cons",
+              [
+                "gr-edge",
+                "b",
+                "d"
+              ],
+              [
+                "gr-cons",
+                [
+                  "gr-edge",
+                  "c",
+                  "d"
+                ],
+                [
+                  "gr-cons",
+                  [
+                    "gr-edge",
+                    "d",
+                    "e"
+                  ],
+                  "gr-nil"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "expected": "gr-no",
+      "steps": 501
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "named",
+      "operator": "ra-named",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-named",
+          "employees"
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            [
+              "ra-cons",
+              "dept",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "alice"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "dept",
+                  "d1"
+                ],
+                "ra-nil"
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "bob"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "dept",
+                    "d2"
+                  ],
+                  "ra-nil"
+                ]
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "name",
+                    "carol"
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "dept",
+                      "d1"
+                    ],
+                    "ra-nil"
+                  ]
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "name",
+                      "dave"
+                    ],
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "dept",
+                        "d3"
+                      ],
+                      "ra-nil"
+                    ]
+                  ],
+                  "ra-nil"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 158
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "select",
+      "operator": "ra-select",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-select",
+          [
+            "ra-p-eq",
+            "dept",
+            "d1"
+          ],
+          [
+            "ra-named",
+            "employees"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            [
+              "ra-cons",
+              "dept",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "carol"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "dept",
+                  "d1"
+                ],
+                "ra-nil"
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "alice"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "dept",
+                    "d1"
+                  ],
+                  "ra-nil"
+                ]
+              ],
+              "ra-nil"
+            ]
+          ]
+        ]
+      ],
+      "steps": 190
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "select-compound",
+      "operator": "ra-select",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-select",
+          [
+            "ra-p-or",
+            [
+              "ra-p-eq",
+              "dept",
+              "d2"
+            ],
+            [
+              "ra-p-and",
+              [
+                "ra-p-eq",
+                "name",
+                "dave"
+              ],
+              [
+                "ra-p-not",
+                [
+                  "ra-p-same",
+                  "name",
+                  "dept"
+                ]
+              ]
+            ]
+          ],
+          [
+            "ra-named",
+            "employees"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            [
+              "ra-cons",
+              "dept",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "dave"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "dept",
+                  "d3"
+                ],
+                "ra-nil"
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "bob"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "dept",
+                    "d2"
+                  ],
+                  "ra-nil"
+                ]
+              ],
+              "ra-nil"
+            ]
+          ]
+        ]
+      ],
+      "steps": 232
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "project",
+      "operator": "ra-project",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-project",
+          [
+            "ra-cons",
+            "dept",
+            "ra-nil"
+          ],
+          [
+            "ra-named",
+            "employees"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "dept",
+            "ra-nil"
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "dept",
+                "d3"
+              ],
+              "ra-nil"
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "dept",
+                  "d2"
+                ],
+                "ra-nil"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "dept",
+                    "d1"
+                  ],
+                  "ra-nil"
+                ],
+                "ra-nil"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 253
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "join",
+      "operator": "ra-join",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-join",
+          [
+            "ra-named",
+            "employees"
+          ],
+          [
+            "ra-named",
+            "departments"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            [
+              "ra-cons",
+              "dept",
+              [
+                "ra-cons",
+                "city",
+                "ra-nil"
+              ]
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "city",
+                "berlin"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "dave"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "dept",
+                    "d3"
+                  ],
+                  "ra-nil"
+                ]
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "city",
+                  "berlin"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "name",
+                    "carol"
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "dept",
+                      "d1"
+                    ],
+                    "ra-nil"
+                  ]
+                ]
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "city",
+                    "paris"
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "name",
+                      "bob"
+                    ],
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "dept",
+                        "d2"
+                      ],
+                      "ra-nil"
+                    ]
+                  ]
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "city",
+                      "berlin"
+                    ],
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "name",
+                        "alice"
+                      ],
+                      [
+                        "ra-cons",
+                        [
+                          "ra-field",
+                          "dept",
+                          "d1"
+                        ],
+                        "ra-nil"
+                      ]
+                    ]
+                  ],
+                  "ra-nil"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 607
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "join-without-shared-attributes",
+      "operator": "ra-join",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-join",
+          [
+            "ra-named",
+            "managers"
+          ],
+          [
+            "ra-named",
+            "cities"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "dept",
+            [
+              "ra-cons",
+              "name",
+              [
+                "ra-cons",
+                "country",
+                [
+                  "ra-cons",
+                  "city",
+                  "ra-nil"
+                ]
+              ]
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "country",
+                "it"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "city",
+                  "rome"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "dept",
+                    "d2"
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "name",
+                      "erin"
+                    ],
+                    "ra-nil"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "country",
+                  "fr"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "city",
+                    "paris"
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "dept",
+                      "d2"
+                    ],
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "name",
+                        "erin"
+                      ],
+                      "ra-nil"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "country",
+                    "de"
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "city",
+                      "berlin"
+                    ],
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "dept",
+                        "d2"
+                      ],
+                      [
+                        "ra-cons",
+                        [
+                          "ra-field",
+                          "name",
+                          "erin"
+                        ],
+                        "ra-nil"
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "country",
+                      "it"
+                    ],
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "city",
+                        "rome"
+                      ],
+                      [
+                        "ra-cons",
+                        [
+                          "ra-field",
+                          "dept",
+                          "d1"
+                        ],
+                        [
+                          "ra-cons",
+                          [
+                            "ra-field",
+                            "name",
+                            "alice"
+                          ],
+                          "ra-nil"
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "country",
+                        "fr"
+                      ],
+                      [
+                        "ra-cons",
+                        [
+                          "ra-field",
+                          "city",
+                          "paris"
+                        ],
+                        [
+                          "ra-cons",
+                          [
+                            "ra-field",
+                            "dept",
+                            "d1"
+                          ],
+                          [
+                            "ra-cons",
+                            [
+                              "ra-field",
+                              "name",
+                              "alice"
+                            ],
+                            "ra-nil"
+                          ]
+                        ]
+                      ]
+                    ],
+                    [
+                      "ra-cons",
+                      [
+                        "ra-cons",
+                        [
+                          "ra-field",
+                          "country",
+                          "de"
+                        ],
+                        [
+                          "ra-cons",
+                          [
+                            "ra-field",
+                            "city",
+                            "berlin"
+                          ],
+                          [
+                            "ra-cons",
+                            [
+                              "ra-field",
+                              "dept",
+                              "d1"
+                            ],
+                            [
+                              "ra-cons",
+                              [
+                                "ra-field",
+                                "name",
+                                "alice"
+                              ],
+                              "ra-nil"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "ra-nil"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 535
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "union",
+      "operator": "ra-union",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-union",
+          [
+            "ra-named",
+            "employees"
+          ],
+          [
+            "ra-named",
+            "contractors"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            [
+              "ra-cons",
+              "dept",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "dave"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "dept",
+                  "d3"
+                ],
+                "ra-nil"
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "bob"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "dept",
+                    "d2"
+                  ],
+                  "ra-nil"
+                ]
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "name",
+                    "alice"
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "dept",
+                      "d1"
+                    ],
+                    "ra-nil"
+                  ]
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "name",
+                      "frank"
+                    ],
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "dept",
+                        "d3"
+                      ],
+                      "ra-nil"
+                    ]
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-cons",
+                      [
+                        "ra-field",
+                        "name",
+                        "carol"
+                      ],
+                      [
+                        "ra-cons",
+                        [
+                          "ra-field",
+                          "dept",
+                          "d1"
+                        ],
+                        "ra-nil"
+                      ]
+                    ],
+                    "ra-nil"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 408
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "difference",
+      "operator": "ra-difference",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-difference",
+          [
+            "ra-named",
+            "employees"
+          ],
+          [
+            "ra-named",
+            "contractors"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            [
+              "ra-cons",
+              "dept",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "dave"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "dept",
+                  "d3"
+                ],
+                "ra-nil"
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "bob"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "dept",
+                    "d2"
+                  ],
+                  "ra-nil"
+                ]
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "name",
+                    "alice"
+                  ],
+                  [
+                    "ra-cons",
+                    [
+                      "ra-field",
+                      "dept",
+                      "d1"
+                    ],
+                    "ra-nil"
+                  ]
+                ],
+                "ra-nil"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 363
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "rename",
+      "operator": "ra-rename",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-rename",
+          "dept",
+          "division",
+          [
+            "ra-named",
+            "managers"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            [
+              "ra-cons",
+              "division",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "erin"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "division",
+                  "d2"
+                ],
+                "ra-nil"
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "alice"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "division",
+                    "d1"
+                  ],
+                  "ra-nil"
+                ]
+              ],
+              "ra-nil"
+            ]
+          ]
+        ]
+      ],
+      "steps": 110
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "literal",
+      "operator": "ra-relation",
+      "polarity": "positive",
+      "request": [
+        "ra-eval",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            "ra-nil"
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "zoe"
+              ],
+              "ra-nil"
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "yan"
+                ],
+                "ra-nil"
+              ],
+              "ra-nil"
+            ]
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-ok",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            "ra-nil"
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "zoe"
+              ],
+              "ra-nil"
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "name",
+                  "yan"
+                ],
+                "ra-nil"
+              ],
+              "ra-nil"
+            ]
+          ]
+        ]
+      ],
+      "steps": 52
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "schema-mismatched-union",
+      "operator": "ra-union",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-union",
+          [
+            "ra-named",
+            "employees"
+          ],
+          [
+            "ra-named",
+            "departments"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "schema-mismatch"
+      ],
+      "steps": 326
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "schema-mismatched-difference",
+      "operator": "ra-difference",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-difference",
+          [
+            "ra-named",
+            "departments"
+          ],
+          [
+            "ra-named",
+            "cities"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "schema-mismatch"
+      ],
+      "steps": 291
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "project-unknown-attribute",
+      "operator": "ra-project",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-project",
+          [
+            "ra-cons",
+            "salary",
+            "ra-nil"
+          ],
+          [
+            "ra-named",
+            "employees"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "unknown-attribute"
+      ],
+      "steps": 172
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "select-unknown-attribute",
+      "operator": "ra-select",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-select",
+          [
+            "ra-p-eq",
+            "salary",
+            "high"
+          ],
+          [
+            "ra-named",
+            "employees"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "unknown-attribute"
+      ],
+      "steps": 165
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "rename-clash",
+      "operator": "ra-rename",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-rename",
+          "name",
+          "dept",
+          [
+            "ra-named",
+            "employees"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "attribute-clash"
+      ],
+      "steps": 164
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "rename-unknown-attribute",
+      "operator": "ra-rename",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-rename",
+          "salary",
+          "pay",
+          [
+            "ra-named",
+            "employees"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "unknown-attribute"
+      ],
+      "steps": 164
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "unknown-relation",
+      "operator": "ra-named",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-named",
+          "payroll"
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "unknown-relation"
+      ],
+      "steps": 3
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "error-propagates-through-join",
+      "operator": "ra-join",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-join",
+          [
+            "ra-named",
+            "employees"
+          ],
+          [
+            "ra-named",
+            "payroll"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "unknown-relation"
+      ],
+      "steps": 163
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "malformed-literal",
+      "operator": "ra-relation",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "name",
+            [
+              "ra-cons",
+              "dept",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "name",
+                "zoe"
+              ],
+              "ra-nil"
+            ],
+            "ra-nil"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "malformed-relation"
+      ],
+      "steps": 38
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "unknown-expression",
+      "operator": "ra-eval",
+      "polarity": "negative",
+      "request": [
+        "ra-eval",
+        [
+          "ra-product",
+          [
+            "ra-named",
+            "employees"
+          ],
+          [
+            "ra-named",
+            "cities"
+          ]
+        ]
+      ],
+      "expected": [
+        "ra-error",
+        "unknown-expression"
+      ],
+      "steps": 1
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "same-relation-reordered",
+      "operator": "ra-same-relation",
+      "polarity": "positive",
+      "request": [
+        "ra-same-relation",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "a",
+            [
+              "ra-cons",
+              "b",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "a",
+                "1"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "b",
+                  "2"
+                ],
+                "ra-nil"
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "a",
+                  "3"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "b",
+                    "4"
+                  ],
+                  "ra-nil"
+                ]
+              ],
+              "ra-nil"
+            ]
+          ]
+        ],
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "b",
+            [
+              "ra-cons",
+              "a",
+              "ra-nil"
+            ]
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "b",
+                "4"
+              ],
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "a",
+                  "3"
+                ],
+                "ra-nil"
+              ]
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "b",
+                  "2"
+                ],
+                [
+                  "ra-cons",
+                  [
+                    "ra-field",
+                    "a",
+                    "1"
+                  ],
+                  "ra-nil"
+                ]
+              ],
+              "ra-nil"
+            ]
+          ]
+        ]
+      ],
+      "expected": "ra-yes",
+      "steps": 129
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "same-relation-different",
+      "operator": "ra-same-relation",
+      "polarity": "negative",
+      "request": [
+        "ra-same-relation",
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "a",
+            "ra-nil"
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "a",
+                "1"
+              ],
+              "ra-nil"
+            ],
+            "ra-nil"
+          ]
+        ],
+        [
+          "ra-relation",
+          [
+            "ra-cons",
+            "a",
+            "ra-nil"
+          ],
+          [
+            "ra-cons",
+            [
+              "ra-cons",
+              [
+                "ra-field",
+                "a",
+                "1"
+              ],
+              "ra-nil"
+            ],
+            [
+              "ra-cons",
+              [
+                "ra-cons",
+                [
+                  "ra-field",
+                  "a",
+                  "2"
+                ],
+                "ra-nil"
+              ],
+              "ra-nil"
+            ]
+          ]
+        ]
+      ],
+      "expected": "ra-no",
+      "steps": 53
+    },
+    {
+      "program": "relational-algebra-specification",
+      "id": "law-instance",
+      "operator": "ra-law-instance",
+      "polarity": "positive",
+      "request": [
+        "spec-theorem",
+        "select-distributes-over-union"
+      ],
+      "expected": [
+        "spec-statement",
+        [
+          "ra-equal-relations",
+          [
+            "ra-select",
+            [
+              "ra-p-eq",
+              "dept",
+              "d1"
+            ],
+            [
+              "ra-union",
+              [
+                "ra-named",
+                "employees"
+              ],
+              [
+                "ra-named",
+                "contractors"
+              ]
+            ]
+          ],
+          [
+            "ra-union",
+            [
+              "ra-select",
+              [
+                "ra-p-eq",
+                "dept",
+                "d1"
+              ],
+              [
+                "ra-named",
+                "employees"
+              ]
+            ],
+            [
+              "ra-select",
+              [
+                "ra-p-eq",
+                "dept",
+                "d1"
+              ],
+              [
+                "ra-named",
+                "contractors"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "steps": 35
+    }
+  ]
+}

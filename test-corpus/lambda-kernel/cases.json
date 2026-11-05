@@ -1,0 +1,21 @@
+{
+  "schema": "rml-lambda-source-control-workload/v1",
+  "reductions": [
+    {"name":"repeated binding", "program":"rules", "input":["same","λ","λ"], "output":["equal","λ"]},
+    {"name":"unequal repeated binding", "program":"rules", "input":["same","a","b"], "output":["same","a","b"]},
+    {"name":"ordered rule choice", "program":"rules", "input":["choose","a"], "output":["selected","first","a"]},
+    {"name":"nested left traversal", "program":"rules", "input":["outer",["choose","a"],["choose","b"]], "output":["outer",["selected","first","a"],["selected","first","b"]]},
+    {"name":"recursive substitution", "program":"rules", "input":["input","value"], "output":["pair",["nested","value"],"done"]},
+    {"name":"import rebinding", "program":"imported", "input":["renamed","value"], "output":["pair",["nested","value"],"done"]}
+  ],
+  "program":"proof",
+  "goal":["finished","seed"],
+  "absentGoal":["finished","missing"],
+  "proof": {
+    "judgement":["finished","seed"], "program":"evidence", "rule":"finish", "premises":[
+      {"judgement":["arrived","seed"], "program":"evidence", "rule":"extend", "premises":[
+        {"judgement":["ready","seed"], "program":"evidence", "rule":"seed", "premises":[]}
+      ]}
+    ]
+  }
+}

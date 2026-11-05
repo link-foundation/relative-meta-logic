@@ -1,0 +1,47 @@
+{
+  "schema": "rml-linked-dispatch-test-fixture/v1",
+  "purpose": "Source-independent generic direct-reducer equivalence workload; no source-language acceptance or proof-authority claim.",
+  "baseCommit": "53242b60d0ebddf653255ad99787fe586aa1a018",
+  "cases": {
+    "path": "typed-recursion-cases.json",
+    "bytes": 61015,
+    "sha256": "29644998407428c1da2703689b7f3f96e86a7a97aa4f9742ae6e9853b2a3c37c",
+    "generator": "scripts/formal-recursion-cases.mjs",
+    "generatorSha256": "9c839d6a38deff219471f54181dd1bd58589e3b1ee024d5cf710fdb72d937fda",
+    "construction": "Pure hand-authored Nat/List obligations with no imports or filesystem reads; generation was verified byte-for-byte before freezing.",
+    "count": 37
+  },
+  "source": {
+    "path": "typed-recursion-source.lino",
+    "sha256": "311269a14ed9530ddbb71d10e06db7c75899cba36c2f70c63434c2f35afbae0f",
+    "construction": "Original linked rule modules joined with one formal-recursion-replay program importing them in recorded order.",
+    "inputs": [
+      {
+        "path": "lib/meta-theory/formal-recursion.lino",
+        "sha256": "60bdd1ca8e9e654d985618402643ea7918817623ed375b39394060115a45a1c6",
+        "bytes": 12262,
+        "sameAsBaseCommit": false
+      },
+      {
+        "path": "lib/meta-theory/formal-indexed.lino",
+        "sha256": "919a552c3aca9a5a110a3c2df90c95c6635fe981ad8cf1f4c0e6fad8ec6caab6",
+        "bytes": 7818,
+        "sameAsBaseCommit": true
+      },
+      {
+        "path": "lib/meta-theory/formal-records.lino",
+        "sha256": "0f7890a9d8b4c78aaf52c5dc9f2ce5c40e5e66a28c64ccd096e1b8790c873115",
+        "bytes": 16204,
+        "sameAsBaseCommit": true
+      },
+      {
+        "path": "lib/meta-theory/formal-semantics.lino",
+        "sha256": "86d1204af0c03a2f8f211468e782fe0a09680db3b574f99fb719bd956ca6d678",
+        "bytes": 10103,
+        "sameAsBaseCommit": true
+      }
+    ]
+  },
+  "expectedFullTraceSteps": 9392,
+  "scope": "This frozen test data is separate from the source-language recursive corpus and contains no source declaration archive."
+}

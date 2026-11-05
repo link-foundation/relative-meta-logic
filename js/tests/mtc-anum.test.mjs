@@ -20,7 +20,7 @@ import {
   formatFoundationReport,
   encodeAnum,
   decodeAnum,
-  parseLino,
+  parseLinoForms,
 } from '../src/rml-links.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -112,7 +112,8 @@ describe('mtc-anum experimental foundation', () => {
   });
 
   it('round-trips a real parsed link form', () => {
-    const parsed = parseLino('(? (1 + 2))')[0];
+    const parsed = parseLinoForms('(? (1 + 2))')[0];
+    assert.deepStrictEqual(parsed, ['?', ['1', '+', '2']]);
     const enc = encodeAnum(parsed);
     assert.match(enc, /^[\[\]01]+$/);
     assert.deepStrictEqual(decodeAnum(enc), parsed);
@@ -158,7 +159,7 @@ describe('mtc-anum experimental foundation', () => {
       ['a', 'b'],
       ['lambda', ['x'], ['+', 'x', '1']],
       ['frame', ['pair', '∞', ['frame', '∞']]],
-      parseLino('(check-proof t)')[0],
+      parseLinoForms('(check-proof t)')[0],
     ];
     for (const x of samples) {
       const a = encodeAnum(x);

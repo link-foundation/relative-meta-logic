@@ -179,9 +179,9 @@ fn builds_stream_corec_with_standard_coiteration_principle() {
     assert_eq!(
         key_of(&corec),
         "(Pi ((Type 0) _state_type) \
-         (Pi ((Pi (_state_type _state) \
-         (Pi (Natural head) (Pi (_state_type tail) Stream))) case_cons) \
-         (Pi (_state_type _seed) Stream)))"
+         (Pi ((Pi (_state: _state_type) \
+         (Pi (Natural head) (Pi (tail: _state_type) Stream))) case_cons) \
+         (Pi (_seed: _state_type) Stream)))"
     );
 }
 
