@@ -11,8 +11,11 @@ This extension adds editor support for Relative Meta Logic `.lino` files:
 cd vscode
 npm install
 npm run package
-code --install-extension relative-meta-logic.vsix
+code --install-extension relative-meta-logic-vscode.vsix
 ```
+
+The extension's npm manifest is named `relative-meta-logic-vscode` and is
+private, so it never collides with the `relative-meta-logic` library on npm.
 
 The VSIX bundles the JavaScript language server sources from `../js/src` at
 package time. In a repository checkout, the extension falls back to that local

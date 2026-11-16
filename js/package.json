@@ -10,6 +10,10 @@
     "rml-meta": "src/rml-meta.mjs",
     "rml-lsp": "src/rml-lsp.mjs"
   },
+  "files": [
+    "src/",
+    "README.md"
+  ],
   "scripts": {
     "test": "node --test tests/ ../scripts/",
     "test:bootstrap": "node --test --test-name-pattern \"replays self corpus\" tests/self-evaluator.test.mjs",
@@ -32,6 +36,15 @@
   ],
   "author": "",
   "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/link-foundation/relative-meta-logic.git",
+    "directory": "js"
+  },
+  "bugs": {
+    "url": "https://github.com/link-foundation/relative-meta-logic/issues"
+  },
+  "homepage": "https://github.com/link-foundation/relative-meta-logic#readme",
   "dependencies": {
     "links-notation": "^0.13.0",
     "meta-language": "^0.46.0"
@@ -42,5 +55,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

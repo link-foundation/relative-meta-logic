@@ -1,0 +1,125 @@
+name: release
+
+# The single npm release workflow for the `relative-meta-logic` library in
+# js/ (issue #189). npm trusted publishing (OIDC) binds exactly one workflow
+# file per package, so every npm release must go through this file, and the
+# package's trusted publisher on npmjs.com must point at
+# link-foundation/relative-meta-logic -> .github/workflows/release.yml.
+#
+# A release happens whenever js/package.json on main carries a version that is
+# not on npm yet: bump "version" in js/package.json and merge. Pull requests
+# only run `npm publish --dry-run` so packaging problems surface before merge.
+#
+# The VS Code extension in vscode/ is a private package
+# (`relative-meta-logic-vscode`) and is never published to npm.
+# crates.io publishing of rust/ is tracked in issue #188 and deliberately not
+# part of this workflow.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/release.yml'
+      - 'js/**'
+      - 'scripts/npm-release.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/release.yml'
+      - 'js/**'
+      - 'scripts/npm-release.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  npm:
+    name: npm (relative-meta-logic)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # create the js-v<version> tag and GitHub release
+      id-token: write # npm trusted publishing (OIDC) and provenance
+    env:
+      # Set to 1 to print every npm command issued by scripts/npm-release.mjs.
+      RML_RELEASE_DEBUG: '0'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          # npm trusted publishing needs npm >= 11.5.1; Node 24 ships npm 11.
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: js/package-lock.json
+
+      - name: Ensure npm supports trusted publishing
+        run: |
+          npm --version
+          if ! node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)' "$(npm --version)"; then
+            npm install -g npm@^11.5.1
+            npm --version
+          fi
+
+      - name: Install JavaScript dependencies
+        working-directory: js
+        run: npm ci
+
+      - name: Run full JS test suite
+        working-directory: js
+        run: npm test
+
+      - name: Check package contents (dry run)
+        working-directory: js
+        run: npm publish --dry-run --access public
+
+      - name: Check whether this version is already on npm
+        id: check
+        run: node scripts/npm-release.mjs check
+
+      - name: Configure bootstrap npm token (first publish only)
+        # Trusted publishing cannot create a package that does not exist yet.
+        # Only for that very first publish, a short-lived NPM_TOKEN secret may
+        # be provided; delete it once the trusted publisher is configured.
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.check.outputs.should_publish == 'true'
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then
+            echo "::warning::NPM_TOKEN is set; it is only needed for the first publish. Delete it after configuring trusted publishing."
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$RUNNER_TEMP/.npmrc"
+            echo "NPM_CONFIG_USERCONFIG=$RUNNER_TEMP/.npmrc" >> "$GITHUB_ENV"
+          else
+            echo "No NPM_TOKEN secret; publishing through npm trusted publishing (OIDC)."
+          fi
+
+      - name: Publish to npm with trusted publishing
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.check.outputs.should_publish == 'true'
+        run: node scripts/npm-release.mjs publish
+
+      - name: Verify the published version
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.check.outputs.should_publish == 'true'
+        run: node scripts/npm-release.mjs verify
+
+      - name: Create GitHub release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.check.outputs.should_publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.check.outputs.tag }}
+          NAME: ${{ steps.check.outputs.name }}
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub release $TAG already exists."
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "$NAME $VERSION (npm)" \
+              --notes "Published [$NAME@$VERSION](https://www.npmjs.com/package/$NAME/v/$VERSION) to npm through trusted publishing."
+          fi

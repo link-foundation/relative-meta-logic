@@ -1,8 +1,9 @@
 {
-  "name": "relative-meta-logic",
+  "name": "relative-meta-logic-vscode",
   "displayName": "Relative Meta Logic",
   "description": "VS Code language support for Relative Meta Logic .lino files.",
   "version": "0.1.0",
+  "private": true,
   "publisher": "link-foundation",
   "license": "Unlicense",
   "repository": {
@@ -78,7 +79,7 @@
     "pretest": "npm run copy-server",
     "test": "node --test test/*.test.mjs",
     "vscode:prepublish": "npm run copy-server",
-    "package": "npm run copy-server && vsce package --out relative-meta-logic.vsix"
+    "package": "npm run copy-server && vsce package --out relative-meta-logic-vscode.vsix"
   },
   "dependencies": {
     "links-notation": "^0.13.0",

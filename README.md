@@ -95,6 +95,12 @@ node src/rml-links.mjs ../examples/demo.lino
 node src/rml-links.mjs export lean ../examples/lean-export-basic.lino -o out.lean
 ```
 
+The library is also published to npm as
+[`relative-meta-logic`](https://www.npmjs.com/package/relative-meta-logic)
+(`npm install relative-meta-logic`), which provides the `rml`, `rml-check`,
+`rml-meta`, and `rml-lsp` commands. Releases are automated; see
+[`docs/RELEASING.md`](./docs/RELEASING.md).
+
 Editor integration is available through the stdio language server; see
 [`docs/LANGUAGE_SERVER.md`](./docs/LANGUAGE_SERVER.md) for Neovim and Helix
 setup, and [`vscode/`](./vscode/) for an installable VS Code extension with
