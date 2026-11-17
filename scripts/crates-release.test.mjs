@@ -143,12 +143,14 @@ describe('crates.io release helpers', { timeout: 10000 }, () => {
   it('polls until the exact version is visible, with finite attempts and no real delays', async () => {
     let calls = 0;
     let sleeps = 0;
+    const messages = [];
     await verify(name, version, { attempts: 3, delayMs: 15,
-      lookup: async () => ++calls === 3,
+      lookup: async () => ++calls === 3, log: message => messages.push(message),
       sleep: async ms => { assert.equal(ms, 15); sleeps += 1; },
     });
     assert.equal(calls, 3);
     assert.equal(sleeps, 2);
+    assert.deepEqual(messages, [`Verified ${name}@${version} on crates.io.`]);
     calls = 0;
     await assert.rejects(verify(name, version, { attempts: 2,
       lookup: async () => { calls += 1; return false; }, sleep: async () => {},

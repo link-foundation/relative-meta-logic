@@ -5,7 +5,6 @@ edition = "2021"
 description = "A prototype for logic framework that can reason about anything relative to given probability of input statements"
 license = "Unlicense"
 repository = "https://github.com/link-foundation/relative-meta-logic"
-homepage = "https://github.com/link-foundation/relative-meta-logic"
 documentation = "https://docs.rs/relative-meta-logic"
 readme = "README.md"
 # Repository integration tests use ../examples and ../lib. Ship only runtime

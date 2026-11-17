@@ -65,11 +65,11 @@ export function assertReleaseContext(env = process.env) {
 
 export async function verify(name, version, {
   attempts = 10, delayMs = 15000, lookup = isPublished,
-  sleep = ms => new Promise(resolve => setTimeout(resolve, ms)),
+  sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), log = console.log,
 } = {}) {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     if (await lookup(name, version)) {
-      console.log(`Verified ${name}@${version} on crates.io.`);
+      log(`Verified ${name}@${version} on crates.io.`);
       return;
     }
     if (attempt < attempts) await sleep(delayMs);

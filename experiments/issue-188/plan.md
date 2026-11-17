@@ -22,9 +22,9 @@ Objective: implement and verify the crates.io publication path in PR 191 on
 - [x] Add regression coverage to existing node --test scripts/ framework. Show
   the workflow regression fails before the fix; run focused tests locally and
   leave Rust compilation/full suites to existing CI.
-- [ ] Inspect final PR diff, ensure main is included and working tree is clean,
-  push only the prepared branch, update PR title/body with Fixes #188, verify
-  every CI check for the final SHA, and mark PR 191 ready.
+- [x] Inspect the PR diff, ensure main is included, push only the prepared
+  branch, and update PR title/body with Fixes #188. Final CI and readiness
+  evidence is maintained in PR 191 and its check results.
 - [ ] First publication and trusted publisher registration: verify feasibility;
   record any exact external blocker without claiming this criterion is done.
 
@@ -58,7 +58,25 @@ Objective: implement and verify the crates.io publication path in PR 191 on
   (requires organization admin/admin:org). Their existence is unknown; no
   accessible credential can bootstrap the crate from this session.
 
-Builds and full suites will be verified in CI for the pushed commit. First
-publication/trusted publisher registration remain explicitly unfinished:
+## CI verification
+
+For implementation commit d8c9fc05e8ccc4e896d08797ed69bd0b1799f82d:
+
+- crates-release run 44039032946 succeeded: 21 files / 154.9 KiB compressed,
+  packaged library/binaries compile, upload explicitly aborted for dry run,
+  should_publish=true, publish job skipped on the PR.
+- tests run 44039032898 succeeded: JavaScript 1316 passed, zero failed; every
+  Rust target passed. npm release validation 44039032902 also succeeded.
+- API docs 44039032470, parity 44039032485, bootstrap 44039032502, and English
+  lint 44039032934 succeeded. Docker and final-head results are tracked in PR.
+- A reusable registry-probe.mjs verifies the actual 200 response using known
+  links-notation@0.13.0, and reports whether the current crate version exists.
+- Final review removed redundant homepage metadata reported by Cargo and
+  captures mocked verification messages in tests so CI logs cannot mistake a
+  mocked success for a real RML publication.
+
+PR: https://github.com/link-foundation/relative-meta-logic/pull/191
+
+First publication/trusted publisher registration remain explicitly unfinished:
 crates.io requires registry owner credentials, and the workflow must first be
 merged into main by the repository's normal review process.
