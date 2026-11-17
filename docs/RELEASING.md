@@ -11,7 +11,8 @@ using [npm trusted publishing](https://docs.npmjs.com/trusted-publishers)
 To release a new version:
 
 1. Bump `"version"` in [`js/package.json`](../js/package.json) (and the
-   matching `version` entries in `js/package-lock.json`) in a pull request.
+   matching `version` entries in `js/package-lock.json`) and the Rust manifest
+   and lockfile in a pull request, keeping both implementations aligned.
 2. Merge it into `main`.
 
 On every push to `main` that touches `js/`, the workflow runs the JS test
@@ -61,6 +62,74 @@ be published to npm or collide with the library. It is distributed as a VSIX
 
 ## crates.io
 
-Publishing the Rust crate in [`rust/`](../rust/) to crates.io is tracked in
-[issue #188](https://github.com/link-foundation/relative-meta-logic/issues/188)
-and is intentionally not part of the npm release workflow.
+The Rust library (`rml`) and the `rml`, `rml-check`, and `rml-meta` binaries
+are intended for crates.io as `relative-meta-logic`. The separate
+[crates-release.yml](../.github/workflows/crates-release.yml) workflow handles
+Rust releases; npm keeps its existing `release.yml` identity.
+
+To release, bump `version` in `rust/Cargo.toml` and the crate's entry in
+`rust/Cargo.lock`, together with the matching JavaScript manifest/lockfile
+versions, and merge the PR into `main`. Changes to `rust/`, the release helper,
+this guide, or the workflow trigger validation; a manual run on `main` can
+retry a failed release without another version bump.
+
+On pull requests, CI runs the release regression tests and
+`cargo publish --dry-run --locked`. This builds the packaged library and all
+three binaries without uploading anything or requesting credentials. The full
+Rust suite remains in `tests.yml`. Repository integration tests and examples
+that depend on parent directories are excluded from the crate archive.
+
+On `main`, the helper checks the exact version on crates.io and skips versions
+that already exist (including yanked versions). Any registry error other than
+404 fails the check. For a new version, the publishing job:
+
+1. Requests a short-lived OIDC token with the commit-pinned
+   [`rust-lang/crates-io-auth-action`](https://github.com/rust-lang/crates-io-auth-action).
+   The job has `id-token: write`; authentication has `continue-on-error: true`.
+2. Supplies `CARGO_REGISTRY_TOKEN` to `cargo publish --locked` using exactly
+   `${{ steps.crates_auth.outputs.token || secrets.CARGO_REGISTRY_TOKEN || secrets.CARGO_TOKEN }}`.
+   OIDC takes precedence over both optional secrets. The action revokes its
+   temporary token at job completion.
+3. Polls crates.io for the exact published version with bounded retries.
+
+Set `RML_RELEASE_DEBUG=1` to log registry lookup URLs. Credentials are never
+printed by the helper. Publishing is guarded both by the workflow and helper
+so that it only runs for `push` or `workflow_dispatch` on `main`.
+
+### First publication and trusted publisher setup
+
+A new crate must be published once before its owner can attach a trusted
+publisher. After merging the workflow, run from a checkout of `main` as the
+intended crates.io owner:
+
+```sh
+package-registry-manager setup --repository . --registry crates-io --execute
+```
+
+This bootstraps with a short-lived crate-scoped token, registers the trusted
+publisher, and revokes and verifies that temporary bootstrap token. This
+command requires crates.io account credentials; GitHub access alone does not
+grant registry access.
+
+Alternatively, provide a short-lived crate-scoped `CARGO_REGISTRY_TOKEN`
+(or `CARGO_TOKEN`) Actions secret and run `crates-release` on `main`. After the
+first publication, open
+[the crate settings](https://crates.io/crates/relative-meta-logic/settings) as a
+crate owner and add the GitHub Actions trusted publisher with:
+
+- Organization/owner: `link-foundation`
+- Repository: `relative-meta-logic`
+- Workflow filename: `crates-release.yml`
+- Environment: leave empty (the workflow does not use a deployment environment)
+
+Keep existing fallback secrets, per the
+[issue #188 policy update](https://github.com/link-foundation/relative-meta-logic/issues/188#issuecomment-6150027498).
+They remain optional once OIDC works. Do not confuse the temporary bootstrap
+token, which is revoked, with separately managed fallback secrets.
+
+If neither OIDC nor a fallback secret is usable, the publishing job on `main`
+fails with these setup steps. PR validation needs no secrets and still passes.
+Workflow readiness does not prove the first upload or trust registration:
+confirm the crate is visible on crates.io and an OIDC release succeeds after
+owner setup. Then `cargo install relative-meta-logic --locked` installs the
+CLIs, or `cargo add relative-meta-logic` adds the library (imported as `rml`).

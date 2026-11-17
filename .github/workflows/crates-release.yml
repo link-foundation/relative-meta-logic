@@ -1,0 +1,90 @@
+name: crates-release
+
+# Rust publication is separate from npm's release.yml. Register this exact
+# filename as the crates.io trusted publisher; see docs/RELEASING.md.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/crates-release.yml'
+      - 'rust/**'
+      - 'scripts/crates-release*'
+      - 'docs/RELEASING.md'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/crates-release.yml'
+      - 'rust/**'
+      - 'scripts/crates-release*'
+      - 'docs/RELEASING.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crates-release-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    name: Rust package (dry run)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      should_publish: ${{ steps.check.outputs.should_publish }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Test release helper and policy
+        run: node --test scripts/crates-release.test.mjs
+      # Builds the packaged library and all three binaries. Full language tests
+      # run in tests.yml; no credentials or OIDC permissions are needed here.
+      - name: Verify crates.io package (dry run)
+        working-directory: rust
+        run: cargo publish --dry-run --locked
+      - name: Check whether this version is already on crates.io
+        id: check
+        run: node scripts/crates-release.mjs check
+
+  publish:
+    name: crates.io (relative-meta-logic)
+    needs: validate
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      needs.validate.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Authenticate with crates.io (trusted publishing)
+        id: crates_auth
+        uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
+        continue-on-error: true
+      - name: Publish to crates.io (OIDC first, token fallback)
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.crates_auth.outputs.token || secrets.CARGO_REGISTRY_TOKEN || secrets.CARGO_TOKEN }}
+        run: node scripts/crates-release.mjs publish
+      - name: Verify registry visibility
+        run: node scripts/crates-release.mjs verify

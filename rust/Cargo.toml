@@ -1,9 +1,15 @@
 [package]
 name = "relative-meta-logic"
-version = "0.19.0"
+version = "0.19.1"
 edition = "2021"
 description = "A prototype for logic framework that can reason about anything relative to given probability of input statements"
 license = "Unlicense"
+repository = "https://github.com/link-foundation/relative-meta-logic"
+documentation = "https://docs.rs/relative-meta-logic"
+readme = "README.md"
+# Repository integration tests use ../examples and ../lib. Ship only runtime
+# sources; cargo publish --dry-run verifies the self-contained crate in CI.
+include = ["src/**", "Cargo.toml", "Cargo.lock", "README.md"]
 
 [[bin]]
 name = "rml"
