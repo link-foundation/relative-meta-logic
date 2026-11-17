@@ -4,8 +4,8 @@
 // Used by `.github/workflows/release.yml`, the single workflow file that is
 // registered as the npm trusted publisher for the package. npm trusted
 // publishing (OIDC) binds one workflow file per package, so every npm release
-// must go through that workflow. crates.io publishing is tracked separately
-// in issue #188 and is intentionally not handled here.
+// must go through that workflow. crates.io publishing uses the separate
+// crates-release.yml workflow (issue #188) and is not handled here.
 //
 // Subcommands:
 //   check   Decide whether js/package.json's version still needs publishing.

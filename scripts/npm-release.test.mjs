@@ -119,9 +119,9 @@ describe('npm release workflow (issue #189)', () => {
     assert.match(releaseWorkflow, /npm install -g npm@\^11\.5\.1/);
   });
 
-  it('leaves crates.io publishing to issue #188', () => {
+  it('keeps crates.io publication in the separate crates-release workflow', () => {
     assert.doesNotMatch(releaseWorkflow, /cargo publish/);
-    assert.match(releaseWorkflow, /#188/);
+    assert.match(releaseWorkflow, /crates-release\.yml/);
   });
 });
 

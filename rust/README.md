@@ -6,6 +6,19 @@ Rust implementation of the Relative Meta-Logic (RML) framework.
 
 - [Rust](https://rustup.rs/) (edition 2021)
 
+## Installing from crates.io
+
+After the [first publication](../docs/RELEASING.md#first-publication-and-trusted-publisher-setup),
+install the CLI tools with:
+
+```bash
+cargo install relative-meta-logic --locked
+```
+
+For library use, run `cargo add relative-meta-logic`; the Rust library is named
+`rml`, so imports use `use rml::...`. Source builds remain available below.
+See [Releasing](../docs/RELEASING.md#cratesio) for OIDC setup and token fallback.
+
 ## Building
 
 ```bash

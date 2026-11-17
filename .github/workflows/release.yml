@@ -12,8 +12,8 @@ name: release
 #
 # The VS Code extension in vscode/ is a private package
 # (`relative-meta-logic-vscode`) and is never published to npm.
-# crates.io publishing of rust/ is tracked in issue #188 and deliberately not
-# part of this workflow.
+# crates.io publishing of rust/ (issue #188) uses crates-release.yml; npm
+# keeps its existing trusted publisher identity in this workflow.
 
 on:
   pull_request:
