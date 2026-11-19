@@ -95,14 +95,21 @@ describe('workspace npm manifests (issue #189)', () => {
 });
 
 describe('npm release workflow (issue #189)', () => {
-  it('is the only workflow that publishes to npm', () => {
+  it('publishes only from the reviewed release workflows', () => {
     const publishers = fs.readdirSync(workflowsDir)
       .filter(name => /\.ya?ml$/.test(name))
       .filter(name => {
         const text = fs.readFileSync(path.join(workflowsDir, name), 'utf8');
         return /npm publish(?! --dry-run)|npm-release\.mjs publish/.test(text);
       });
-    assert.deepStrictEqual(publishers, [WORKFLOW_FILE]);
+    assert.deepStrictEqual(publishers.sort(), [WORKFLOW_FILE, 'crates-release.yml'].sort());
+  });
+
+  it('keeps the npm job in the crates release workflow main-only and OIDC-capable', () => {
+    const cratesRelease = fs.readFileSync(path.join(workflowsDir, 'crates-release.yml'), 'utf8');
+    assert.match(cratesRelease, /id-token: write/);
+    assert.match(cratesRelease, /npm publish --provenance --access public/);
+    assert.match(cratesRelease, /github\.ref == format\('refs\/heads\/\{0\}', github\.event\.repository\.default_branch\)/);
   });
 
   it('publishes through trusted publishing from main only', () => {

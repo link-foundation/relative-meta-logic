@@ -88,3 +88,68 @@ jobs:
         run: node scripts/crates-release.mjs publish
       - name: Verify registry visibility
         run: node scripts/crates-release.mjs verify
+
+  prm-publish-npm-1:
+    if: (github.event_name == 'release' || ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)))
+    concurrency:
+      group: prm-publish-npm-1-${{ github.ref }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: 'js'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: npm install --global npm@^11
+      - run: npm install
+      - run: npm run build --if-present
+      - name: Check exact registry version
+        id: version-check
+        run: |
+          python3 - <<'PY'
+          import json, os, time, tomllib, urllib.request, urllib.error, urllib.parse
+          metadata = json.load(open("package.json"))
+          name, version = metadata["name"], metadata["version"]
+          expected = os.environ.get("RELEASE_VERSION", "").removeprefix("v")
+          if expected and version != expected: raise SystemExit("Checkout version does not match release output")
+          url = "https://registry.npmjs.org/" + urllib.parse.quote(name, safe="") + "/" + version + "?_=" + str(time.time_ns())
+          request = urllib.request.Request(url, headers={"Cache-Control": "no-cache, no-store", "User-Agent": "package-registry-manager", "Accept": "application/json"})
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  json.load(response)
+              publish = False
+          except urllib.error.HTTPError as error:
+              if error.code != 404: raise
+              publish = True
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write("publish=" + str(publish).lower() + "\n")
+          PY
+      - run: npm publish --provenance --access public
+        if: steps.version-check.outputs.publish == 'true'
+        id: prm_oidc_1
+        continue-on-error: true
+        name: Publish through OIDC
+        env:
+          NODE_AUTH_TOKEN: ''
+          NPM_TOKEN: ''
+          NPM_AUTH_TOKEN: ''
+          NPM_CONFIG_PROVENANCE: 'true'
+
+      - run: npm publish --provenance --access public
+        name: Publish with token fallback
+        if: steps.prm_oidc_1.outcome == 'failure'
+        id: prm_oidc_1_fallback
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || secrets.NODE_AUTH_TOKEN || secrets.NPM_AUTH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN || secrets.NODE_AUTH_TOKEN || secrets.NPM_AUTH_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || secrets.NODE_AUTH_TOKEN || secrets.NPM_AUTH_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
