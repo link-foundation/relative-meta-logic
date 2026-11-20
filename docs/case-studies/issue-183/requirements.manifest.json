@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "d64c4c0aa3ea13a64f6c1b10d23fc360807b709741b7245f7516ea1c20a873c5"
+    "sha256": "89ff886880fde42364ff07301084ac9992cd48e6ebf7a88cec51e87ea439f43f"
   },
   "requirements": [
     {
@@ -7897,11 +7897,11 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "The original-text snapshot covers all 205 conversation comments through `6138933223`, with issue and PR bodies, review submissions, inline comments and thread state pinned in `requirements.live-sources.json`; the paginated live scan was repeated on 2026-10-13 after the PR description update, and the acceptance gate rejects any new, edited or deleted source until it is reviewed. `Every later comment still requires a new reviewed snapshot`.",
+      "claimedEvidence": "The original-text archive includes all 210 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. Each later change requires a reviewed snapshot.",
       "checks": [
         "requirements-live-sources"
       ],
-      "remainingGap": "The original-text snapshot covers all 205 conversation comments through `6138933223`, with issue and PR bodies, review submissions, inline comments and thread state pinned in `requirements.live-sources.json`; the paginated live scan was repeated on 2026-10-13 after the PR description update, and the acceptance gate rejects any new, edited or deleted source until it is reviewed. `Every later comment still requires a new reviewed snapshot`.",
+      "remainingGap": "The original-text archive includes all 210 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. Each later change requires a reviewed snapshot.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -13017,11 +13017,11 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "`requirements.sources.json` preserves all 205 conversation comments and both PR-description snapshots, and R165–R169 register the 2026-10-13 maintainer instructions verbatim from comment `6138933223`; the paginated live-source inventory was refreshed on 2026-10-13 at the iteration head. `A rescan is still required at the final commit of the PR`.",
+      "claimedEvidence": "The November 20 scan reconciled all 210 PR conversation comments and the current PR description with the exact-text archive. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
       "checks": [
         "requirements-live-sources"
       ],
-      "remainingGap": "`requirements.sources.json` preserves all 205 conversation comments and both PR-description snapshots, and R165–R169 register the 2026-10-13 maintainer instructions verbatim from comment `6138933223`; the paginated live-source inventory was refreshed on 2026-10-13 at the iteration head. `A rescan is still required at the final commit of the PR`.",
+      "remainingGap": "The November 20 scan reconciled all 210 PR conversation comments and the current PR description with the exact-text archive. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -41606,11 +41606,11 @@
           "sha256": "e0b93e0f0974157cd133f3efa78d86e66e218f5714ab16793cf9e12d0c02f2cd"
         }
       ],
-      "claimedEvidence": "`.github/workflows/linked-recapture.yml` compiles Rust and regenerates certified translation receipts. The tests workflow owns the full runtime suites. The npm workflow runs focused release policy and tarball checks. The repository-wide hosted matrix and the package dry runs still need exact-head verification.",
+      "claimedEvidence": "The hosted recapture run `44725491734` rebuilt linked configuration from the source migration. At `0e6d8ee`, hosted npm release `44723437506`, Cargo release `44723437472`, and the companion Rust suite `44723437397` passed. Local verification used focused JavaScript tests and Cargo metadata. The repository-wide hosted matrix and both dry runs still require verification at the final delivery commit.",
       "checks": [
         "linked-recapture-policy"
       ],
-      "remainingGap": "`.github/workflows/linked-recapture.yml` compiles Rust and regenerates certified translation receipts. The tests workflow owns the full runtime suites. The npm workflow runs focused release policy and tarball checks. The repository-wide hosted matrix and the package dry runs still need exact-head verification.",
+      "remainingGap": "The hosted recapture run `44725491734` rebuilt linked configuration from the source migration. At `0e6d8ee`, hosted npm release `44723437506`, Cargo release `44723437472`, and the companion Rust suite `44723437397` passed. Local verification used focused JavaScript tests and Cargo metadata. The repository-wide hosted matrix and both dry runs still require verification at the final delivery commit.",
       "verificationState": "live-producer-bound-progress-only",
       "assertionBindings": [
         {
@@ -42571,7 +42571,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "d64c4c0aa3ea13a64f6c1b10d23fc360807b709741b7245f7516ea1c20a873c5"
+          "sha256": "89ff886880fde42364ff07301084ac9992cd48e6ebf7a88cec51e87ea439f43f"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -46489,12 +46489,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -46851,12 +46851,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -47599,12 +47599,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -47941,12 +47941,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -48714,12 +48714,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -49056,12 +49056,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -49819,12 +49819,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -50081,12 +50081,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -51954,12 +51954,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -52277,12 +52277,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -54199,12 +54199,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -54552,12 +54552,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
+          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
+          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -60268,7 +60268,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "ff72cfd0c207540348eaab3f3924e183e8449811f6e1b8110d34570e427533c4"
+          "sha256": "5040998ed9ec0d2f45e2fecea7bf30144e357e1adaa176666887d4c72772e074"
         }
       ],
       "assertions": [

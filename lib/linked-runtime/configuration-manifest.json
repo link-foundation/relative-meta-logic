@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b",
-  "archiveBytes": 806571,
+  "archiveSha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb",
+  "archiveBytes": 806667,
   "linkCount": 14648,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
@@ -72,8 +72,8 @@
     },
     {
       "path": ".github/workflows/issue-183-acceptance.yml",
-      "sourceSha256": "7fedc7756ca902172c311dd5046f285643c6419d0a7e1c0d4d73f3f614859b26",
-      "generatedSha256": "7fedc7756ca902172c311dd5046f285643c6419d0a7e1c0d4d73f3f614859b26"
+      "sourceSha256": "fed22cbc2b26d671805ee1012e0df757399e8a42e70a0b596751a9f192879e23",
+      "generatedSha256": "fed22cbc2b26d671805ee1012e0df757399e8a42e70a0b596751a9f192879e23"
     },
     {
       "path": ".github/workflows/linked-implementation.yml",
