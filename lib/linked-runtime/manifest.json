@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
   "moduleCount": 196,
-  "linkCount": 372834,
+  "linkCount": 372952,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "18148ab2d7c117ebdf493a1298c750b2ef3d817c689d565b909a661bc9a7d713",
-  "archiveBytes": 2204548,
+  "archiveSha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48",
+  "archiveBytes": 2205410,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -1102,9 +1102,9 @@
     },
     {
       "path": "scripts/issue-183-pr-body.mjs",
-      "sourceSha256": "039bd54adf5b2106491671490e78beb2684e880c2af523e3c90ab7cc7a36e03e",
-      "astSha256": "fb83886058b7efa2a2e58f76870cc53edf5fe5ee55eff7489981f5005d0882d7",
-      "generatedSha256": "2cc7f27f759c79b24640c3634052f721496e214b354224ff46ce653071686213"
+      "sourceSha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752",
+      "astSha256": "418a4f7b6e804776500edb95e16e61e2134e6d2d488b3b0d3e8e45a0435c3113",
+      "generatedSha256": "c19a240efcb120347345885ad1808e6513b5774bc4166992c75f0579516c62ae"
     },
     {
       "path": "scripts/issue-183-requirements-live-sources.mjs",
@@ -1120,9 +1120,9 @@
     },
     {
       "path": "scripts/issue-183-requirements.mjs",
-      "sourceSha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396",
-      "astSha256": "508ad15916a6058434bd89819c1f0650150f518c92027ca92d874690c9165437",
-      "generatedSha256": "e4a32049639d7974223c3bd89f66cbcb7acc76aa5fc4571439021dece2cfb438"
+      "sourceSha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8",
+      "astSha256": "1d0090c7f747a54894a402707ee08db1514e5324bf6ed09f610e79d49439b748",
+      "generatedSha256": "b8ffee73e104b0bee9baa640cf22dbdf6c29207eef70dea3624314946f3f7c3d"
     },
     {
       "path": "scripts/language-construct-inventory.mjs",

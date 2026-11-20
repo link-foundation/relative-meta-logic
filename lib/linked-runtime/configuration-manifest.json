@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "b6ba15ea8e1f922e8e9182a50ecfb7b1fbb9939b766b40e83934c624087041f5",
-  "archiveBytes": 806138,
+  "archiveSha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c",
+  "archiveBytes": 806340,
   "linkCount": 14648,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
@@ -72,8 +72,8 @@
     },
     {
       "path": ".github/workflows/issue-183-acceptance.yml",
-      "sourceSha256": "10c1e2cef23a986bff6236fb94cf63319aacdf5a18b652b0c49552fdc2093159",
-      "generatedSha256": "10c1e2cef23a986bff6236fb94cf63319aacdf5a18b652b0c49552fdc2093159"
+      "sourceSha256": "7fedc7756ca902172c311dd5046f285643c6419d0a7e1c0d4d73f3f614859b26",
+      "generatedSha256": "7fedc7756ca902172c311dd5046f285643c6419d0a7e1c0d4d73f3f614859b26"
     },
     {
       "path": ".github/workflows/linked-implementation.yml",
@@ -112,8 +112,8 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "sourceSha256": "abb28dcb3987a02cad256a5059646d7a5c88c0be676a1c9d6c98475d7a537c16",
-      "generatedSha256": "abb28dcb3987a02cad256a5059646d7a5c88c0be676a1c9d6c98475d7a537c16"
+      "sourceSha256": "828c9aa542b4e9603436a5621c14bfce485d6ae6bf79bdaa2f82e6b9bbd6997c",
+      "generatedSha256": "828c9aa542b4e9603436a5621c14bfce485d6ae6bf79bdaa2f82e6b9bbd6997c"
     },
     {
       "path": ".github/workflows/tests.yml",
