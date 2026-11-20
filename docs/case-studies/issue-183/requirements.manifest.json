@@ -3479,7 +3479,7 @@
           "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         }
       ],
-      "claimedEvidence": "The dependency audit records Links Notation 0.31.8 for JavaScript, Rust and the editor extension, and retains the October archive of other dependency selections. The release manifests prepare version 0.39.0, with npm and Cargo dry runs on hosted CI. Rust uses the official meta-language 1.0.0 crate and JavaScript consumes its matching immutable source because npm still publishes 0.46.0. The November audit records newer major JavaScript tooling releases and the newer regex crate whose compatibility is still open.",
+      "claimedEvidence": "`docs/DEPENDENCY_AUDIT.md` records Links Notation 0.31.8 for JavaScript, Rust and the editor extension, and retains the October archive of other dependency selections. `js/package.json` and `rust/Cargo.toml` prepare version 0.39.0, with npm and Cargo dry runs on hosted CI. Rust uses the official meta-language 1.0.0 crate and JavaScript consumes its matching immutable source because npm still publishes 0.46.0. The November audit records newer major JavaScript tooling releases and the newer regex crate whose compatibility is still open.",
       "checks": [
         "dependency-audit"
       ],
