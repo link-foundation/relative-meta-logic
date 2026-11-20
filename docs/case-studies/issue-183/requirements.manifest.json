@@ -3461,7 +3461,7 @@
         {
           "path": "docs/DEPENDENCY_AUDIT.md",
           "role": "implementation",
-          "sha256": "9f308f1399d940cb2e128630526e4b79f88bf5dbaf13bbef929761e39449d9fb"
+          "sha256": "76fc20a7a9d783a67c9f5480dd67995361cace07ba1ea084fd107ff271d5ddf9"
         },
         {
           "path": "docs/case-studies/issue-183/data/dependency-audit-2026-10-13.json",
@@ -41686,7 +41686,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -41895,7 +41895,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -42568,7 +42568,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -42762,7 +42762,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -42966,7 +42966,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -43195,7 +43195,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -43374,7 +43374,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -43740,7 +43740,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -44024,7 +44024,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -44204,7 +44204,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -45774,7 +45774,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -46120,7 +46120,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": "js/package.json",
@@ -47230,7 +47230,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": "js/package.json",
@@ -48350,7 +48350,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": "js/package.json",
@@ -49455,7 +49455,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": "js/package.json",
@@ -50410,7 +50410,7 @@
         {
           "path": "js/package-lock.json",
           "role": "implementation",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": "js/package.json",
@@ -52655,7 +52655,7 @@
         {
           "path": "js/package-lock.json",
           "role": "implementation",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": "js/package.json",
@@ -58199,7 +58199,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -58534,7 +58534,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -59056,7 +59056,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -59153,7 +59153,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -59503,7 +59503,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -59610,7 +59610,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -59769,7 +59769,7 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": ".gitmodules",
@@ -60749,7 +60749,7 @@
         {
           "path": "js/package-lock.json",
           "role": "fixture",
-          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
+          "sha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284"
         },
         {
           "path": "vscode/package-lock.json",

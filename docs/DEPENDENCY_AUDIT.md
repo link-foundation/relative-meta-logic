@@ -146,3 +146,6 @@ The [registry and lock record](case-studies/issue-183/data/links-notation-audit-
 supplements the October audit. Newer releases of Babel, web-tree-sitter, the VS
 Code client and packager, and regex were observed and still need separate
 compatibility validation. npm meta-language remains at 0.46.0.
+
+The JavaScript lock also updates JSDoc's Markdown parser to markdown-it
+14.3.3. The registry audit reported zero advisories after a clean install.
