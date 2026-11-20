@@ -8,6 +8,10 @@ the typed layers ([FORMAL_SEMANTICS](FORMAL_SEMANTICS.md),
 Those layers type-check definitions; this one runs them and checks proofs. It
 does not ask Lean or Rocq for anything.
 
+The Lean and Rocq source trees were compared at the corpus pin and upstream
+revision `d5923a7d`. Both tree IDs match at the two revisions, so the existing
+corpus still covers the current upstream formal sources.
+
 | Stage | Result | Evidence |
 | --- | --- | --- |
 | Native elaboration | 229 of 229 declarations; all 197 commands | `test-corpus/meta-theory-native/coverage.json` |

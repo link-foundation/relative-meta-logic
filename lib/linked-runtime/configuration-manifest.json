@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "6f57fa7f5078f3fb86206a6a85f81c9163eb138f524e3e4a37c0d5ef0eec596b",
-  "archiveBytes": 805945,
+  "archiveSha256": "51c0687e20ff0a0a591471fb102783f2cf7a4f9e57637c06d8b1ec11d859b374",
+  "archiveBytes": 806082,
   "linkCount": 14646,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
@@ -57,8 +57,8 @@
     },
     {
       "path": ".github/workflows/crates-release.yml",
-      "sourceSha256": "fcf1fcc5b45e65abab709ccea029e1dd40df2aba3532dbafcc717f6b2dd7a39f",
-      "generatedSha256": "fcf1fcc5b45e65abab709ccea029e1dd40df2aba3532dbafcc717f6b2dd7a39f"
+      "sourceSha256": "0769f22c1be2246fd107e44a0b35be2b8cfcbbcbdbbf9720be1970afad23d7b6",
+      "generatedSha256": "0769f22c1be2246fd107e44a0b35be2b8cfcbbcbdbbf9720be1970afad23d7b6"
     },
     {
       "path": ".github/workflows/docker.yml",
@@ -112,8 +112,8 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "sourceSha256": "6303be8415da4f7f11a973fbe678d1169e08ab705d747d1398afed6ba1fe6ff9",
-      "generatedSha256": "6303be8415da4f7f11a973fbe678d1169e08ab705d747d1398afed6ba1fe6ff9"
+      "sourceSha256": "abb28dcb3987a02cad256a5059646d7a5c88c0be676a1c9d6c98475d7a537c16",
+      "generatedSha256": "abb28dcb3987a02cad256a5059646d7a5c88c0be676a1c9d6c98475d7a537c16"
     },
     {
       "path": ".github/workflows/tests.yml",

@@ -41,7 +41,7 @@ for (const filename of workflows) {
 // A raw producer outside the wrapper writes outputs no receipt owns. Steps not
 // entering run-with-cache may reach npm scripts only when those scripts wrap
 // themselves or produce nothing (reports, checks and dependency installs).
-const producer = /\b(?:cargo (?:build|test|doc|bench|check|clippy|run|install|rustc)|lake (?:build|exe)|rocq makefile|coqc\s|make -f|docker (?:build|buildx|run|compose (?:up|build|run)))\b|\bnode --test\b|scripts\/build-(?:docs|playground|vsix)\b/;
+const producer = /\b(?:cargo (?:build|test|doc|bench|check|clippy|run|install|rustc|publish)|lake (?:build|exe)|rocq makefile|coqc\s|make -f|docker (?:build|buildx|run|compose (?:up|build|run)))\b|\bnode --test\b|scripts\/build-(?:docs|playground|vsix)\b/;
 const packageScripts = directory => {
   const file = join(root, directory, 'package.json');
   return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')).scripts ?? {} : null;
@@ -83,7 +83,7 @@ for (const filename of workflows) {
 test('the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones', () => {
   const scripts = () => ({ test: 'node ../scripts/run-with-cache.mjs -- node --test tests/*.test.mjs', raw: 'node --test tests/*.test.mjs', report: 'node ../scripts/report-bootstrap-metrics.mjs' });
   const step = body => `      - name: fixture\n        working-directory: js\n        run: ${body}\n`;
-  for (const body of ['cargo check --manifest-path rust/Cargo.toml', 'cargo clippy --all-targets', 'docker buildx build .', 'node --test scripts/x.test.mjs', 'npm run raw', 'npm run missing', 'lake build']) {
+  for (const body of ['cargo check --manifest-path rust/Cargo.toml', 'cargo clippy --all-targets', 'cargo publish --dry-run', 'docker buildx build .', 'node --test scripts/x.test.mjs', 'npm run raw', 'npm run missing', 'lake build']) {
     assert.notDeepEqual(unwrappedProducers(step(body), scripts), [], body);
   }
   for (const body of ['npm test', 'npm run report', 'node scripts/run-with-cache.mjs -- cargo test', 'cargo --version', 'node scripts/build-cache.mjs --full']) {
