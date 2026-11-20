@@ -18,10 +18,11 @@ const clone = value => JSON.parse(JSON.stringify(value));
 const bare = range => String(range).replace(/^[\^~=]/, '');
 
 test('reports a missing upstream npm release on PRs and requires publication on main', () => {
-  const lookup = (name, version) => {
+  const lookup = (name, version, options) => {
     const upstream = JSON.parse(read('js/vendor/meta-language/js/package.json'));
     assert.equal(name, upstream.name);
     assert.equal(version, upstream.version);
+    assert.deepEqual(options, { registry: 'https://registry.npmjs.org', preferOnline: true });
     return false;
   };
   const pull = checkMetaLanguageNpmDelivery({ event: 'pull_request', lookup });

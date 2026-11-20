@@ -9,7 +9,7 @@
   },
   "pullRequest": {
     "id": "184",
-    "bodySha256": "812b51640709fb1b505e049bca266e11f694e751f3bcaf0870ba950d1b252c4e",
+    "bodySha256": "9ec59fca96baba6e80063357687b63f4ed6823a2bbcf7f00dd707e61183eef92",
     "author": "konard",
     "url": "https://github.com/link-foundation/relative-meta-logic/pull/184"
   },
@@ -1310,6 +1310,24 @@
       "bodySha256": "589a78c176d29682c253b15ced7059dc96013f780321f419d4f122504474415f",
       "author": "konard",
       "url": "https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-7044223358"
+    },
+    {
+      "id": "7044521503",
+      "bodySha256": "045b8604dc97e6990cac865ea0988701a12b87650540b8be96e86cd6ee7ea290",
+      "author": "konard",
+      "url": "https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-7044521503"
+    },
+    {
+      "id": "7044602655",
+      "bodySha256": "d8863067332c0903a362ca06e700eb4bf5334245fc8f8bc44d6bf51329881dee",
+      "author": "konard",
+      "url": "https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-7044602655"
+    },
+    {
+      "id": "7045896884",
+      "bodySha256": "e061de3a6536b7ca486158b8f7e2cfb2570be166e0172229080d98c878f6f67c",
+      "author": "konard",
+      "url": "https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-7045896884"
     }
   ],
   "reviews": [],

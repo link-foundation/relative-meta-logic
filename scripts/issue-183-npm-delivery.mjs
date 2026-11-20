@@ -2,10 +2,12 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isPublished, LIBRARY_DIR, readLibraryManifest } from './npm-release.mjs';
 
+const PUBLIC_REGISTRY = 'https://registry.npmjs.org';
+
 export function checkMetaLanguageNpmDelivery({ event = process.env.GITHUB_EVENT_NAME, lookup = isPublished } = {}) {
   const { name, version } = readLibraryManifest(path.join(LIBRARY_DIR, 'vendor/meta-language/js'));
   const spec = `${name}@${version}`;
-  if (lookup(name, version)) {
+  if (lookup(name, version, { registry: PUBLIC_REGISTRY, preferOnline: true })) {
     return { passed: true, message: `${spec} is available on npm.` };
   }
 

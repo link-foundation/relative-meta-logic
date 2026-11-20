@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
   "moduleCount": 197,
-  "linkCount": 373698,
+  "linkCount": 373765,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6",
-  "archiveBytes": 2209367,
+  "archiveSha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c",
+  "archiveBytes": 2209784,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -1102,9 +1102,9 @@
     },
     {
       "path": "scripts/issue-183-npm-delivery.mjs",
-      "sourceSha256": "e4d978d2a8a50b59feed0af63cc16f0f9ab0942e56852f6e98f73e1d5f57e113",
-      "astSha256": "20218d16016b64dfe5044fb13a25407e910a54aa71753bcdc247fe430fc7e816",
-      "generatedSha256": "1a9482945ac244fc7d72b92a3f5a5ebaa6178fbeb7c8e0e8fc49102014305c10"
+      "sourceSha256": "5e3ed7f1e5dd3fcb963163c5815e95f17579fc3a9af147e1f37e70dd7145c71a",
+      "astSha256": "8ff61b4d0cc7933390a6d67870d1f905708327a052f2b37ce5b42497e2a59a0e",
+      "generatedSha256": "013a4763b71f2e0d73ff0525f79278dad9edadb28dd5145645e9bf62996b7d8f"
     },
     {
       "path": "scripts/issue-183-pr-body.mjs",
@@ -1198,9 +1198,9 @@
     },
     {
       "path": "scripts/npm-release.mjs",
-      "sourceSha256": "db6cc765ab2795efdba06655ea6d3bb153333f9ffd1c5789f9d77ab76bce4490",
-      "astSha256": "f33f2bcc652dcbf2bf040db3fd0bde15211dd5c055ece8c7d4969c8b089e34c3",
-      "generatedSha256": "9e1970d9f7b5e8c5687846084206b6972002454f3d28bd776558c54857e79ac5"
+      "sourceSha256": "327ffbaca2b2cd3797cd6078119a22270291584d835a1d03e7c296311cd57752",
+      "astSha256": "4057c02bd9935a6e8f50fb7eed4f95e3cffcc470f88341105fc3d6f5fadeed93",
+      "generatedSha256": "9f3c95ca1cb5a0e3fa3490b3bacdb726a8e4a862315bdeecced5cf6b7612aa15"
     },
     {
       "path": "scripts/publish-cache-output.mjs",
