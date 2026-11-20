@@ -13017,11 +13017,11 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The November 20 scan reconciled all 210 PR conversation comments and the current PR description with the exact-text archive. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
+      "claimedEvidence": "The November 20 scan reconciled all 210 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
       "checks": [
         "requirements-live-sources"
       ],
-      "remainingGap": "The November 20 scan reconciled all 210 PR conversation comments and the current PR description with the exact-text archive. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
+      "remainingGap": "The November 20 scan reconciled all 210 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
