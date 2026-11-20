@@ -14,7 +14,8 @@ cd js
 node src/rml-links.mjs export rocq ../examples/dependent-types.lino -o dependent_types.v
 ```
 
-Rust:
+Rust (compiles Rust, which repository policy reserves for hosted CI; see
+[BUILD_CACHE.md](./BUILD_CACHE.md)):
 
 ```sh
 cd rust

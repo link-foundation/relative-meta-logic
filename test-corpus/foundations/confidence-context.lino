@@ -1,0 +1,13 @@
+# Dependencies and the observation source identities are ordinary links.
+# Observation values and independence are deliberately supplied per query.
+(linked-program instrument-study)
+(linked-fact instrument-study both-measurements
+  (judgement (joint combined left right)))
+(linked-fact instrument-study cyclic-dependency
+  (judgement (joint circular circular left)))
+(linked-instance minimum-confidence-study
+  (theory instrument-study)
+  (foundation confidence-estimation (version 1)))
+(linked-instance independent-confidence-study
+  (theory instrument-study)
+  (foundation confidence-estimation (version 2)))

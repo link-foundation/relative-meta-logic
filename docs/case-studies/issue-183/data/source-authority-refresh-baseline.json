@@ -1,0 +1,9 @@
+{
+  "schema": "rml-source-authority-baseline/v1",
+  "baseRevision": "78f6204b103ba3d76660369033d2b35cb82e327a",
+  "baseTree": "6e7652432602a917cdc09a6e1827484458355d2f",
+  "reconstructedFrom": "c7353d335790a10c0acb327570abb5d7cb37f8b3",
+  "verifiedOverlayFiles": 20,
+  "exactPublicTreeVerified": true,
+  "publicOrientationHead": "36e7635622b0386b2f7d1c1f9465993bef2b784d"
+}

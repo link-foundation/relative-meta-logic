@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language JavaScript)
+    (sha256 b074bf29b12513d4a78e0d5315628b345be712530a987a8d7684ab06a8a9dac9)
+    (bytes 264)
+    (utf16 264))
+  (target (language Lean) (status not-emitted))
+  (stage frontend)
+  (diagnostic
+    (kind unsupported)
+    (message "top-level class statement: the top level prints with console.log, binds with const or let, assigns, branches with if, loops and asserts")
+    (span 90 95)
+    (bytes 90 95)
+    (span-sha256 0889113e04d3203f0c401c17c0fd8b352b740dc607433779d3edcaa13320b001))
+  (preserved-source
+    (sha256 b074bf29b12513d4a78e0d5315628b345be712530a987a8d7684ab06a8a9dac9)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 c6201466fec406a373633e5cc301a0b08fc84848dafe2e5f90d5cf1a40ac3e14))

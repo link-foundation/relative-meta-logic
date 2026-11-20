@@ -1,0 +1,223 @@
+{
+  "schema": "rml-relational-companion-delivery/v1",
+  "testedBaseRevision": "b561767d6c104bcb222ac8e5530a728f791326fe",
+  "sourceSha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1",
+  "validation": {
+    "javascript": {
+      "passed": 24,
+      "failed": 0,
+      "skipped": 0,
+      "log": "docs/case-studies/issue-183/data/relational-javascript-validation.log"
+    },
+    "companionRust": {
+      "passed": 24,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0,
+      "allTargets": true,
+      "rootCrateUnchanged": true,
+      "log": "docs/case-studies/issue-183/data/relational-companion-validation.log"
+    },
+    "tools": {
+      "node": "24.19.0",
+      "rustc": "1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "1.99.0 (5f94df478 2026-08-27)"
+    },
+    "remoteWorkflowVerified": false
+  },
+  "commands": {
+    "javascript": "node scripts/run-with-cache.mjs -- node --test --test-concurrency=1 js/tests/relational-*.test.mjs",
+    "rust": "node scripts/run-with-cache.mjs --cache rust/relational-kernel/target --class rust -- cargo test --manifest-path rust/relational-kernel/Cargo.toml --all-targets --locked -j 2 -- --test-threads=1"
+  },
+  "scope": {
+    "commonSixCapabilityDirectAndQuotedCohorts": true,
+    "independentCrossRuntimeReplay": true,
+    "sourceReplacement": true,
+    "productiveRuleRotationPrefix": true,
+    "generalPreservationProved": false,
+    "independentPrimitiveMinimalityEstablished": false,
+    "fullImplementationClosure": false
+  },
+  "evidenceNotes": [
+    "The companion package does not require modifying rust/src/lib.rs; parser/compiler-to-CPU closure remains open.",
+    "The optional comparison-report refresh was interrupted after validation; its output files are excluded rather than reported as complete.",
+    "An earlier probe and the interrupted report-refresh probe have unknown foreign-realm leases and were preserved without cleanup claims."
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/relational-kernel.yml",
+      "sha256": "07a43d189c08dc87f4cf2d69ea1077e5c0d638d8fcddae91c65ad678ab2ad301",
+      "bytes": 1646
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/relational-companion-validation.log",
+      "sha256": "092fdd1d0993b0b8f51426269e8319b02055da8f60a590b645856e86a1524c76",
+      "bytes": 9012
+    },
+    {
+      "path": "docs/case-studies/issue-183/data/relational-javascript-validation.log",
+      "sha256": "a63aa37a501f800ec3a79a7e25a426fe9f18eee47eda756e7f430cf91487f382",
+      "bytes": 7037
+    },
+    {
+      "path": "docs/case-studies/issue-183/relational-source-kernel.md",
+      "sha256": "28d1c59892589311ddfe184e2f3f32be966c36aae0af30269d2872d28464885c",
+      "bytes": 10585
+    },
+    {
+      "path": "experiments/relational-kernel/compare.mjs",
+      "sha256": "384c94ba064b7b20ba35e1ec1ed20610c828f8628b5eb62a19c09115dc70d242",
+      "bytes": 3440
+    },
+    {
+      "path": "experiments/relational-kernel/emit-receipt.mjs",
+      "sha256": "f862e072db479f23ea788ee72276dd10495a2f74721a812fa30d6621183f2e51",
+      "bytes": 707
+    },
+    {
+      "path": "experiments/relational-kernel/self-cohort.mjs",
+      "sha256": "0b82e9cbe7a063bc50f55b9561f0cfb4bc75191c43f9eba6f0eea68241da4ea7",
+      "bytes": 2916
+    },
+    {
+      "path": "js/src/rml-horn-resolution.mjs",
+      "sha256": "4ad37130ab79eb5cec78be117a74a16c07ae52f45ae1ecd82fe624a3ff3ff345",
+      "bytes": 14094
+    },
+    {
+      "path": "js/src/rml-relational-kernel.mjs",
+      "sha256": "492fac07f3442935430cf8d4952e6f576901f8cda346f003f7e7e5823380c9fc",
+      "bytes": 12183
+    },
+    {
+      "path": "js/tests/relational-kernel.test.mjs",
+      "sha256": "000fdc6c2bd116058089e96dfa3dcb48c77b62edfd68cc8f97ecd8329924a65f",
+      "bytes": 10288
+    },
+    {
+      "path": "js/tests/relational-protocol.test.mjs",
+      "sha256": "714d1c6fb76357d5dcecf7293398efde31562f0c8cf9a3938f7f2659969551d4",
+      "bytes": 2080
+    },
+    {
+      "path": "js/tests/relational-receipts.test.mjs",
+      "sha256": "35f0e6c8de20b29d392005f1064d9f21ee7e325dd2d10ecf629f65359a937cad",
+      "bytes": 1163
+    },
+    {
+      "path": "js/tests/relational-replacement-self.test.mjs",
+      "sha256": "5612f4dd7c8280fe06ddee1d61530566264bfac6f96c0f579e42e9c8bf941eba",
+      "bytes": 2275
+    },
+    {
+      "path": "js/tests/relational-scheduling.test.mjs",
+      "sha256": "a29e5b8bc2804486a61b334ea8a5d933e74b5e47da31a1e24ae741d61bd58797",
+      "bytes": 2293
+    },
+    {
+      "path": "js/tests/relational-self-cohort.test.mjs",
+      "sha256": "5cc9a5077b783e9dc049f5c9194e310e949dde4602e06355417914bb2421b1af",
+      "bytes": 726
+    },
+    {
+      "path": "lib/meta-theory/relational-kernel.lino",
+      "sha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1",
+      "bytes": 29758
+    },
+    {
+      "path": "rust/relational-kernel/Cargo.lock",
+      "sha256": "aea537684f16cab6597663fd96c7fac99ae99b228380abcac38e4cee12d2db4a",
+      "bytes": 38634
+    },
+    {
+      "path": "rust/relational-kernel/Cargo.toml",
+      "sha256": "8cc3c88a8fbd3e834dc1e070c00cd17304cacc8d73b966a0f11479052e924564",
+      "bytes": 707
+    },
+    {
+      "path": "rust/relational-kernel/README.md",
+      "sha256": "f6f4df12fa9b4fe31c601a09346f97e6db3ae85fef001331f9a33d098b4a03ae",
+      "bytes": 954
+    },
+    {
+      "path": "rust/relational-kernel/examples/relational_kernel_receipt.rs",
+      "sha256": "8ed022b24ce75089e89ff9336c57a5232d0d0b8ca0761454baee72f81bbf0b12",
+      "bytes": 1955
+    },
+    {
+      "path": "rust/relational-kernel/src/horn_resolution.rs",
+      "sha256": "14f93a7b13ddc0f0c6d10a5365d3000feab56c85ef6989c0a95f87f9b1927fea",
+      "bytes": 24785
+    },
+    {
+      "path": "rust/relational-kernel/src/lib.rs",
+      "sha256": "acbd54ca910fc51156c3c1f4755377efffbc5ca1b12069746b642ef1ca7c3c9a",
+      "bytes": 292
+    },
+    {
+      "path": "rust/relational-kernel/src/relational_kernel.rs",
+      "sha256": "300e01be02aed1d17062ea453237b9f07f00c90146ee8e053dfdea62b1b7d793",
+      "bytes": 24146
+    },
+    {
+      "path": "rust/relational-kernel/tests/relational_kernel_tests.rs",
+      "sha256": "9d3d03288a9f5d302cae2d202b51ce14779ebc44a7e96b5155f3f987d129e2a7",
+      "bytes": 20152
+    },
+    {
+      "path": "rust/relational-kernel/tests/relational_protocol_tests.rs",
+      "sha256": "e940afc13affd9c5bfec78442d7b6fcc70ea55b921ff113c302c3ad3e73324c1",
+      "bytes": 2983
+    },
+    {
+      "path": "rust/relational-kernel/tests/relational_receipt_tests.rs",
+      "sha256": "8cf3ff8b4bc6595c9852b55408036508768f0d3069e36f4c2bf3a82bbeffac83",
+      "bytes": 2068
+    },
+    {
+      "path": "rust/relational-kernel/tests/relational_replacement_self_tests.rs",
+      "sha256": "406091e3b7e8c7d83c2798f2ac766e91ba86d6323591cafc246e3fee63248a1b",
+      "bytes": 4321
+    },
+    {
+      "path": "rust/relational-kernel/tests/relational_scheduling_tests.rs",
+      "sha256": "582be4fb5a705797226b2fdef5ae3868e7b4610c0ccb01d1b2d0c6a166630ef7",
+      "bytes": 3289
+    },
+    {
+      "path": "test-corpus/relational-kernel/branch-cases.json",
+      "sha256": "1e20d9e0ffb8a1395fe5aba81c3339559a5704f80441857c95b76b8fc61103c8",
+      "bytes": 8902
+    },
+    {
+      "path": "test-corpus/relational-kernel/cases.json",
+      "sha256": "0674be03a8d8047ce6b974cdc86ed2e191da3925d55a1d7bd6e6f1398ac6a056",
+      "bytes": 1235
+    },
+    {
+      "path": "test-corpus/relational-kernel/fairness.lino",
+      "sha256": "04a4fea12b02ec2d308e2c598d23d666701221487692c983e0d0529da69c4ba8",
+      "bytes": 200
+    },
+    {
+      "path": "test-corpus/relational-kernel/host-laws.json",
+      "sha256": "a56a3fd2300b6be0a7d1f7818a23657c2a6b397d467e61b7cfc693e148113a19",
+      "bytes": 3265
+    },
+    {
+      "path": "test-corpus/relational-kernel/js-receipt.json",
+      "sha256": "ddca3e10f674ed644e913a3a0c856ea089bedca6f1623eaff09bbd63c47729f9",
+      "bytes": 71159
+    },
+    {
+      "path": "test-corpus/relational-kernel/rust-receipt.json",
+      "sha256": "733250d605602bb42372c40d057c3771f9c84fa1ebffa8dc65212da2c6ec0696",
+      "bytes": 71153
+    },
+    {
+      "path": "test-corpus/relational-kernel/workload.lino",
+      "sha256": "25d0f35b18dc3e222e9cdf6b062f7173b54754eac6c4c719ffd8cbfb4d37696e",
+      "bytes": 784
+    }
+  ]
+}

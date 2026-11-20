@@ -1,0 +1,196 @@
+{
+ "schema": "rml-continuation-join-exhaustive/v1",
+ "join": "conditionalContinuations of rml-foundation-search.mjs: distinct records P and Q with P.second = Q.first and a third record referencing P.address then Q.address; output [P.first, Q.second]",
+ "domain": "every ordered addressed binary structure with distinct record addresses, up to address renaming and record order",
+ "singleChainObservations": {
+  "reverseProjectionGivesAnotherPair": "R146: [0,2] versus [2,0] on the probe chain",
+  "witnessOrientationDispensable": "R146: forward and reverse witnesses give the same [0,2] on the probe chain",
+  "removingAnySupportingRecordRemovesThePair": "R145: removing any one of the three records reports none",
+  "witnessConditionHoldsWithTheResultRecord": "R145: the witness-only structure and its [7,0,2] extension satisfy the same join",
+  "uniformSlotReversalReversesTheContinuation": "R145: reversing every slot gives [2,0]"
+ },
+ "rows": [
+  {
+   "records": 3,
+   "classes": 1855,
+   "nonEmptyJoin": 75,
+   "projectionsDiffer": 60,
+   "projectionsAgreeNonEmpty": 15,
+   "uniformReversalSwapsEveryPairFailures": 0,
+   "unorderedWitnessChangesJoin": 72,
+   "conclusionAlreadyRecorded": 32,
+   "selfPairs": 17,
+   "extensionLosesAPair": 0,
+   "pairsWithRedundantSupport": 0,
+   "outputPairs": 83,
+   "firstWitnesses": {
+    "projectionsAgree": [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      1
+     ]
+    ],
+    "unorderedWitnessChanges": [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      1
+     ],
+     [
+      2,
+      1,
+      0
+     ]
+    ],
+    "conclusionAlreadyRecorded": [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      1
+     ]
+    ],
+    "redundantSupport": null
+   }
+  },
+  {
+   "records": 4,
+   "classes": 56400,
+   "nonEmptyJoin": 4429,
+   "projectionsDiffer": 3740,
+   "projectionsAgreeNonEmpty": 689,
+   "uniformReversalSwapsEveryPairFailures": 0,
+   "unorderedWitnessChangesJoin": 4244,
+   "conclusionAlreadyRecorded": 1584,
+   "selfPairs": 777,
+   "extensionLosesAPair": 0,
+   "pairsWithRedundantSupport": 103,
+   "outputPairs": 4786,
+   "firstWitnesses": {
+    "projectionsAgree": [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      0
+     ],
+     [
+      3,
+      0,
+      1
+     ]
+    ],
+    "unorderedWitnessChanges": [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      1
+     ],
+     [
+      3,
+      2,
+      0
+     ]
+    ],
+    "conclusionAlreadyRecorded": [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      0
+     ],
+     [
+      3,
+      0,
+      1
+     ]
+    ],
+    "redundantSupport": [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      1
+     ],
+     [
+      3,
+      0,
+      1
+     ]
+    ]
+   }
+  }
+ ],
+ "results": {
+  "uniformSlotReversalReversesEveryContinuation": true,
+  "joinIsMonotoneUnderAddingTheResultRecord": true,
+  "witnessOrientationDispensableInGeneral": false,
+  "projectionsAlwaysDifferWhenNonEmpty": false,
+  "supportingRecordsAlwaysIndividuallyNecessary": false,
+  "resultRecordCanAlreadyBePresent": true
+ },
+ "status": "SINGLE_CHAIN_OBSERVATIONS_SEPARATED_INTO_GENERAL_AND_CHAIN_SPECIFIC",
+ "claimBoundary": "Exhaustive for three and four records only. Reversal equivariance and monotonicity hold at every tested structure (the join is a positive existential query, so monotonicity holds at every width). Witness orientation, distinct projections and individually necessary support are properties of the probe chain, not of the join. No result makes the join intrinsic, authorizes a projection, or derives consequence."
+}

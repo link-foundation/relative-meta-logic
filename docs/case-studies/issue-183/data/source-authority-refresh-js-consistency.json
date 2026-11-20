@@ -1,0 +1,134 @@
+{
+  "schema": "rml-linked-implementation-check/v1",
+  "moduleCount": 158,
+  "linkCount": 260325,
+  "sourceArtifactConsistency": true,
+  "compiledFromStructuredLinks": true,
+  "fullImplementationClosure": false,
+  "executableInventory": {
+    "discovery": "repository-wide executable and public-entrypoint scan",
+    "entrypoints": [
+      {
+        "from": "docs/playground/index.html",
+        "role": "browser-script",
+        "target": "docs/playground/app.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-bin",
+        "target": "js/src/rml-check.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-bin",
+        "target": "js/src/rml-links.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-bin",
+        "target": "js/src/rml-lsp.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-bin",
+        "target": "js/src/rml-meta.mjs"
+      },
+      {
+        "from": "js/package.json",
+        "role": "npm-main",
+        "target": "js/src/rml-links.mjs"
+      },
+      {
+        "from": "vscode/package.json",
+        "role": "npm-main",
+        "target": "vscode/src/extension.js"
+      }
+    ],
+    "staticImportEdges": 489,
+    "dynamicImportSites": [
+      {
+        "from": "experiments/issue-181-meta-language-js-smoke.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/issue-181-meta-language-js-smoke.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/lino-frontend/deep-documents.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/lino-frontend/depth-cost.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/lino-frontend/quote-reading.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "experiments/lino-frontend/upstream.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "js/src/rml-links.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "js/src/rml-links.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "js/src/rml-links.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/control-flow/verify-native.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/run-with-cache.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      },
+      {
+        "from": "scripts/verify-linked-target.mjs",
+        "expression": "ImportExpression"
+      }
+    ]
+  },
+  "residualTrust": [
+    "ordered addressed-Link codec and archive validation",
+    "generic ECMAScript AST generator and source loader",
+    "Babel parser for migration and consistency checks only",
+    "ECMAScript and Node runtime semantics, standard library and external dependencies",
+    "V8 compiler, target-machine lowering, operating system and physical processor"
+  ],
+  "remainingScope": [
+    "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
+    "minimal bootstrap and independently comparable foundations"
+  ]
+}

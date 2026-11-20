@@ -1,0 +1,3261 @@
+{
+  "schema": "rml-control-flow-rust-syntax/v1",
+  "ast": "Syn 3.0.6 / Syn-serde 0.3.2+rml.syn3 owned syntax",
+  "cases": [
+    {
+      "name": "rust-loop-output",
+      "source": "pub fn sum(n: i64) -> i64 { let mut s = 0; for i in 0..n { if i == 2 { continue; } s += i; } println!(\"{}\", s); s }",
+      "entry": "sum",
+      "arguments": [
+        6
+      ],
+      "effects": [
+        "output"
+      ],
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "sum",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "let": {
+                          "init": {
+                            "expr": {
+                              "lit": {
+                                "int": "0"
+                              }
+                            }
+                          },
+                          "modifiers": {},
+                          "pat": {
+                            "ident": {
+                              "ident": "s",
+                              "mut": true
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "expr": [
+                          {
+                            "for_loop": {
+                              "body": [
+                                {
+                                  "expr": [
+                                    {
+                                      "if": {
+                                        "cond": {
+                                          "binary": {
+                                            "left": {
+                                              "path": {
+                                                "segments": [
+                                                  {
+                                                    "ident": "i"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "op": "==",
+                                            "right": {
+                                              "lit": {
+                                                "int": "2"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "then_branch": [
+                                          {
+                                            "expr": [
+                                              {
+                                                "continue": {}
+                                              },
+                                              true
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    false
+                                  ]
+                                },
+                                {
+                                  "expr": [
+                                    {
+                                      "binary": {
+                                        "left": {
+                                          "path": {
+                                            "segments": [
+                                              {
+                                                "ident": "s"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "op": "+=",
+                                        "right": {
+                                          "path": {
+                                            "segments": [
+                                              {
+                                                "ident": "i"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    true
+                                  ]
+                                }
+                              ],
+                              "expr": {
+                                "range": {
+                                  "end": {
+                                    "path": {
+                                      "segments": [
+                                        {
+                                          "ident": "n"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "limits": "..",
+                                  "start": {
+                                    "lit": {
+                                      "int": "0"
+                                    }
+                                  }
+                                }
+                              },
+                              "pat": {
+                                "ident": {
+                                  "ident": "i"
+                                }
+                              }
+                            }
+                          },
+                          false
+                        ]
+                      },
+                      {
+                        "macro": {
+                          "delimiter": "paren",
+                          "path": {
+                            "segments": [
+                              {
+                                "ident": "println"
+                              }
+                            ]
+                          },
+                          "semi_token": true,
+                          "tokens": [
+                            {
+                              "lit": "\"{}\""
+                            },
+                            {
+                              "punct": {
+                                "op": ",",
+                                "spacing": "alone"
+                              }
+                            },
+                            {
+                              "ident": "s"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "s"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.sum",
+        "effects": {
+          "main.sum": [
+            "output"
+          ]
+        }
+      },
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "sum"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "sum",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [
+              "output"
+            ],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "int"
+              ],
+              [
+                "r9",
+                "int"
+              ],
+              [
+                "r10",
+                "int"
+              ],
+              [
+                "r11",
+                "bool"
+              ],
+              [
+                "r12",
+                "int"
+              ],
+              [
+                "r13",
+                "int"
+              ],
+              [
+                "r14",
+                "int"
+              ],
+              [
+                "r15",
+                "int"
+              ],
+              [
+                "r16",
+                "bool"
+              ],
+              [
+                "r17",
+                "int"
+              ],
+              [
+                "r18",
+                "int"
+              ],
+              [
+                "r19",
+                "int"
+              ],
+              [
+                "r20",
+                "int"
+              ],
+              [
+                "r21",
+                "int"
+              ],
+              [
+                "r22",
+                "int"
+              ],
+              [
+                "r23",
+                "int"
+              ],
+              [
+                "r24",
+                "int"
+              ],
+              [
+                "r25",
+                "unit"
+              ],
+              [
+                "r26",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "const",
+                    "r1",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r1"
+                  ],
+                  [
+                    "const",
+                    "r3",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r3"
+                  ],
+                  [
+                    "copy",
+                    "r5",
+                    "r0"
+                  ],
+                  [
+                    "copy",
+                    "r6",
+                    "r5"
+                  ],
+                  [
+                    "copy",
+                    "r7",
+                    "r4"
+                  ],
+                  [
+                    "copy",
+                    "r8",
+                    "r7"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b1"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "copy",
+                    "r9",
+                    "r8"
+                  ],
+                  [
+                    "copy",
+                    "r10",
+                    "r6"
+                  ],
+                  [
+                    "lt",
+                    "r11",
+                    "r9",
+                    "r10"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r11",
+                  "b2",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [
+                  [
+                    "copy",
+                    "r12",
+                    "r8"
+                  ],
+                  [
+                    "copy",
+                    "r13",
+                    "r12"
+                  ],
+                  [
+                    "copy",
+                    "r14",
+                    "r13"
+                  ],
+                  [
+                    "const",
+                    "r15",
+                    2
+                  ],
+                  [
+                    "eq",
+                    "r16",
+                    "r14",
+                    "r15"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r16",
+                  "b5",
+                  "b6"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r24",
+                    "r2"
+                  ],
+                  [
+                    "emit",
+                    "r24"
+                  ],
+                  [
+                    "const",
+                    "r25",
+                    null
+                  ],
+                  [
+                    "copy",
+                    "r26",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r26"
+                ]
+              },
+              {
+                "id": "b4",
+                "instructions": [
+                  [
+                    "copy",
+                    "r21",
+                    "r8"
+                  ],
+                  [
+                    "const",
+                    "r22",
+                    1
+                  ],
+                  [
+                    "add",
+                    "r23",
+                    "r21",
+                    "r22"
+                  ],
+                  [
+                    "copy",
+                    "r8",
+                    "r23"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b1"
+                ]
+              },
+              {
+                "id": "b5",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b4"
+                ]
+              },
+              {
+                "id": "b6",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b7"
+                ]
+              },
+              {
+                "id": "b7",
+                "instructions": [
+                  [
+                    "copy",
+                    "r17",
+                    "r2"
+                  ],
+                  [
+                    "copy",
+                    "r18",
+                    "r13"
+                  ],
+                  [
+                    "add",
+                    "r19",
+                    "r17",
+                    "r18"
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r19"
+                  ],
+                  [
+                    "copy",
+                    "r20",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b4"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.sum"
+      },
+      "expected": {
+        "status": "returned",
+        "value": 13,
+        "effects": [
+          13
+        ],
+        "steps": 144,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "rust-same-scope-shadowing",
+      "source": "pub fn choose(n: i64) -> i64 { let n = n + 1; let n = n * 2; n }",
+      "entry": "choose",
+      "arguments": [
+        5
+      ],
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "choose",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "let": {
+                          "init": {
+                            "expr": {
+                              "binary": {
+                                "left": {
+                                  "path": {
+                                    "segments": [
+                                      {
+                                        "ident": "n"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "op": "+",
+                                "right": {
+                                  "lit": {
+                                    "int": "1"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "modifiers": {},
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "let": {
+                          "init": {
+                            "expr": {
+                              "binary": {
+                                "left": {
+                                  "path": {
+                                    "segments": [
+                                      {
+                                        "ident": "n"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "op": "*",
+                                "right": {
+                                  "lit": {
+                                    "int": "2"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "modifiers": {},
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.choose",
+        "effects": {
+          "main.choose": []
+        }
+      },
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "choose"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "choose",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "int"
+              ],
+              [
+                "r9",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    1
+                  ],
+                  [
+                    "add",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r3"
+                  ],
+                  [
+                    "copy",
+                    "r5",
+                    "r4"
+                  ],
+                  [
+                    "const",
+                    "r6",
+                    2
+                  ],
+                  [
+                    "mul",
+                    "r7",
+                    "r5",
+                    "r6"
+                  ],
+                  [
+                    "copy",
+                    "r8",
+                    "r7"
+                  ],
+                  [
+                    "copy",
+                    "r9",
+                    "r8"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r9"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.choose"
+      },
+      "expected": {
+        "status": "returned",
+        "value": 12,
+        "effects": [],
+        "steps": 10,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "rust-range-snapshot",
+      "source": "pub fn sum(mut n: i64) -> i64 { let mut s = 0; for i in 0..n { n = 0; s += i; } s }",
+      "entry": "sum",
+      "arguments": [
+        5
+      ],
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "sum",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n",
+                              "mut": true
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "let": {
+                          "init": {
+                            "expr": {
+                              "lit": {
+                                "int": "0"
+                              }
+                            }
+                          },
+                          "modifiers": {},
+                          "pat": {
+                            "ident": {
+                              "ident": "s",
+                              "mut": true
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "expr": [
+                          {
+                            "for_loop": {
+                              "body": [
+                                {
+                                  "expr": [
+                                    {
+                                      "assign": {
+                                        "left": {
+                                          "path": {
+                                            "segments": [
+                                              {
+                                                "ident": "n"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "right": {
+                                          "lit": {
+                                            "int": "0"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    true
+                                  ]
+                                },
+                                {
+                                  "expr": [
+                                    {
+                                      "binary": {
+                                        "left": {
+                                          "path": {
+                                            "segments": [
+                                              {
+                                                "ident": "s"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "op": "+=",
+                                        "right": {
+                                          "path": {
+                                            "segments": [
+                                              {
+                                                "ident": "i"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    true
+                                  ]
+                                }
+                              ],
+                              "expr": {
+                                "range": {
+                                  "end": {
+                                    "path": {
+                                      "segments": [
+                                        {
+                                          "ident": "n"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "limits": "..",
+                                  "start": {
+                                    "lit": {
+                                      "int": "0"
+                                    }
+                                  }
+                                }
+                              },
+                              "pat": {
+                                "ident": {
+                                  "ident": "i"
+                                }
+                              }
+                            }
+                          },
+                          false
+                        ]
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "s"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.sum",
+        "effects": {
+          "main.sum": []
+        }
+      },
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "sum"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "sum",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "int"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "int"
+              ],
+              [
+                "r9",
+                "int"
+              ],
+              [
+                "r10",
+                "int"
+              ],
+              [
+                "r11",
+                "bool"
+              ],
+              [
+                "r12",
+                "int"
+              ],
+              [
+                "r13",
+                "int"
+              ],
+              [
+                "r14",
+                "int"
+              ],
+              [
+                "r15",
+                "int"
+              ],
+              [
+                "r16",
+                "int"
+              ],
+              [
+                "r17",
+                "int"
+              ],
+              [
+                "r18",
+                "int"
+              ],
+              [
+                "r19",
+                "int"
+              ],
+              [
+                "r20",
+                "int"
+              ],
+              [
+                "r21",
+                "int"
+              ],
+              [
+                "r22",
+                "int"
+              ],
+              [
+                "r23",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "const",
+                    "r1",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r1"
+                  ],
+                  [
+                    "const",
+                    "r3",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r4",
+                    "r3"
+                  ],
+                  [
+                    "copy",
+                    "r5",
+                    "r0"
+                  ],
+                  [
+                    "copy",
+                    "r6",
+                    "r5"
+                  ],
+                  [
+                    "copy",
+                    "r7",
+                    "r4"
+                  ],
+                  [
+                    "copy",
+                    "r8",
+                    "r7"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b1"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "copy",
+                    "r9",
+                    "r8"
+                  ],
+                  [
+                    "copy",
+                    "r10",
+                    "r6"
+                  ],
+                  [
+                    "lt",
+                    "r11",
+                    "r9",
+                    "r10"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r11",
+                  "b2",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [
+                  [
+                    "copy",
+                    "r12",
+                    "r8"
+                  ],
+                  [
+                    "copy",
+                    "r13",
+                    "r12"
+                  ],
+                  [
+                    "const",
+                    "r14",
+                    0
+                  ],
+                  [
+                    "copy",
+                    "r0",
+                    "r14"
+                  ],
+                  [
+                    "copy",
+                    "r15",
+                    "r0"
+                  ],
+                  [
+                    "copy",
+                    "r16",
+                    "r2"
+                  ],
+                  [
+                    "copy",
+                    "r17",
+                    "r13"
+                  ],
+                  [
+                    "add",
+                    "r18",
+                    "r16",
+                    "r17"
+                  ],
+                  [
+                    "copy",
+                    "r2",
+                    "r18"
+                  ],
+                  [
+                    "copy",
+                    "r19",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b4"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r23",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r23"
+                ]
+              },
+              {
+                "id": "b4",
+                "instructions": [
+                  [
+                    "copy",
+                    "r20",
+                    "r8"
+                  ],
+                  [
+                    "const",
+                    "r21",
+                    1
+                  ],
+                  [
+                    "add",
+                    "r22",
+                    "r20",
+                    "r21"
+                  ],
+                  [
+                    "copy",
+                    "r8",
+                    "r22"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b1"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.sum"
+      },
+      "expected": {
+        "status": "returned",
+        "value": 10,
+        "effects": [],
+        "steps": 115,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "rust-mutual-recursion",
+      "source": "pub fn even(n: i64) -> bool { if n == 0 { return true; } odd(n - 1) } fn odd(n: i64) -> bool { if n == 0 { return false; } even(n - 1) }",
+      "entry": "even",
+      "arguments": [
+        31
+      ],
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "even",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "bool"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "if": {
+                              "cond": {
+                                "binary": {
+                                  "left": {
+                                    "path": {
+                                      "segments": [
+                                        {
+                                          "ident": "n"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "op": "==",
+                                  "right": {
+                                    "lit": {
+                                      "int": "0"
+                                    }
+                                  }
+                                }
+                              },
+                              "then_branch": [
+                                {
+                                  "expr": [
+                                    {
+                                      "return": {
+                                        "expr": {
+                                          "lit": {
+                                            "bool": true
+                                          }
+                                        }
+                                      }
+                                    },
+                                    true
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      },
+                      {
+                        "expr": [
+                          {
+                            "call": {
+                              "args": [
+                                {
+                                  "binary": {
+                                    "left": {
+                                      "path": {
+                                        "segments": [
+                                          {
+                                            "ident": "n"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "op": "-",
+                                    "right": {
+                                      "lit": {
+                                        "int": "1"
+                                      }
+                                    }
+                                  }
+                                }
+                              ],
+                              "func": {
+                                "path": {
+                                  "segments": [
+                                    {
+                                      "ident": "odd"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                },
+                {
+                  "fn": {
+                    "ident": "odd",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "bool"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "if": {
+                              "cond": {
+                                "binary": {
+                                  "left": {
+                                    "path": {
+                                      "segments": [
+                                        {
+                                          "ident": "n"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "op": "==",
+                                  "right": {
+                                    "lit": {
+                                      "int": "0"
+                                    }
+                                  }
+                                }
+                              },
+                              "then_branch": [
+                                {
+                                  "expr": [
+                                    {
+                                      "return": {
+                                        "expr": {
+                                          "lit": {
+                                            "bool": false
+                                          }
+                                        }
+                                      }
+                                    },
+                                    true
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      },
+                      {
+                        "expr": [
+                          {
+                            "call": {
+                              "args": [
+                                {
+                                  "binary": {
+                                    "left": {
+                                      "path": {
+                                        "segments": [
+                                          {
+                                            "ident": "n"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "op": "-",
+                                    "right": {
+                                      "lit": {
+                                        "int": "1"
+                                      }
+                                    }
+                                  }
+                                }
+                              ],
+                              "func": {
+                                "path": {
+                                  "segments": [
+                                    {
+                                      "ident": "even"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.even",
+        "effects": {
+          "main.even": []
+        }
+      },
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "even"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "even",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "bool"
+              ],
+              [
+                "r4",
+                "bool"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "bool"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    0
+                  ],
+                  [
+                    "eq",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r3",
+                  "b1",
+                  "b2"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "const",
+                    "r4",
+                    true
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r4"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r5",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r6",
+                    1
+                  ],
+                  [
+                    "sub",
+                    "r7",
+                    "r5",
+                    "r6"
+                  ],
+                  [
+                    "call",
+                    "r8",
+                    "main.odd",
+                    "r7"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r8"
+                ]
+              }
+            ]
+          },
+          {
+            "module": "main",
+            "name": "odd",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "bool",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "bool"
+              ],
+              [
+                "r4",
+                "bool"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "bool"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    0
+                  ],
+                  [
+                    "eq",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r3",
+                  "b1",
+                  "b2"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "const",
+                    "r4",
+                    false
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r4"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r5",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r6",
+                    1
+                  ],
+                  [
+                    "sub",
+                    "r7",
+                    "r5",
+                    "r6"
+                  ],
+                  [
+                    "call",
+                    "r8",
+                    "main.even",
+                    "r7"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r8"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.even"
+      },
+      "expected": {
+        "status": "returned",
+        "value": false,
+        "effects": [],
+        "steps": 316,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "rust-conditional",
+      "source": "pub fn sign(n: i64) -> i64 { let x = if n < 0 { -1 } else { 1 }; x }",
+      "entry": "sign",
+      "arguments": [
+        -4
+      ],
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "sign",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "let": {
+                          "init": {
+                            "expr": {
+                              "if": {
+                                "cond": {
+                                  "binary": {
+                                    "left": {
+                                      "path": {
+                                        "segments": [
+                                          {
+                                            "ident": "n"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "op": "<",
+                                    "right": {
+                                      "lit": {
+                                        "int": "0"
+                                      }
+                                    }
+                                  }
+                                },
+                                "else_branch": {
+                                  "block": {
+                                    "stmts": [
+                                      {
+                                        "expr": [
+                                          {
+                                            "lit": {
+                                              "int": "1"
+                                            }
+                                          },
+                                          false
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                "then_branch": [
+                                  {
+                                    "expr": [
+                                      {
+                                        "unary": {
+                                          "expr": {
+                                            "lit": {
+                                              "int": "1"
+                                            }
+                                          },
+                                          "op": "-"
+                                        }
+                                      },
+                                      false
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "modifiers": {},
+                          "pat": {
+                            "ident": {
+                              "ident": "x"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "x"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.sign",
+        "effects": {
+          "main.sign": []
+        }
+      },
+      "program": {
+        "schema": "rml-control-flow/v1",
+        "modules": [
+          {
+            "id": "main",
+            "imports": [],
+            "exports": [
+              "sign"
+            ]
+          }
+        ],
+        "functions": [
+          {
+            "module": "main",
+            "name": "sign",
+            "parameters": [
+              [
+                "r0",
+                "int"
+              ]
+            ],
+            "result": "int",
+            "effects": [],
+            "locals": [
+              [
+                "r1",
+                "int"
+              ],
+              [
+                "r2",
+                "int"
+              ],
+              [
+                "r3",
+                "bool"
+              ],
+              [
+                "r4",
+                "int"
+              ],
+              [
+                "r5",
+                "int"
+              ],
+              [
+                "r6",
+                "int"
+              ],
+              [
+                "r7",
+                "int"
+              ],
+              [
+                "r8",
+                "int"
+              ]
+            ],
+            "entry": "b0",
+            "blocks": [
+              {
+                "id": "b0",
+                "instructions": [
+                  [
+                    "copy",
+                    "r1",
+                    "r0"
+                  ],
+                  [
+                    "const",
+                    "r2",
+                    0
+                  ],
+                  [
+                    "lt",
+                    "r3",
+                    "r1",
+                    "r2"
+                  ]
+                ],
+                "terminator": [
+                  "branch",
+                  "r3",
+                  "b1",
+                  "b2"
+                ]
+              },
+              {
+                "id": "b1",
+                "instructions": [
+                  [
+                    "const",
+                    "r4",
+                    -1
+                  ],
+                  [
+                    "copy",
+                    "r5",
+                    "r4"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b2",
+                "instructions": [
+                  [
+                    "const",
+                    "r6",
+                    1
+                  ],
+                  [
+                    "copy",
+                    "r5",
+                    "r6"
+                  ]
+                ],
+                "terminator": [
+                  "jump",
+                  "b3"
+                ]
+              },
+              {
+                "id": "b3",
+                "instructions": [
+                  [
+                    "copy",
+                    "r7",
+                    "r5"
+                  ],
+                  [
+                    "copy",
+                    "r8",
+                    "r7"
+                  ]
+                ],
+                "terminator": [
+                  "return",
+                  "r8"
+                ]
+              }
+            ]
+          }
+        ],
+        "entry": "main.sign"
+      },
+      "expected": {
+        "status": "returned",
+        "value": -1,
+        "effects": [],
+        "steps": 10,
+        "diagnostic": null
+      }
+    },
+    {
+      "name": "rust-immutable-assignment",
+      "source": "pub fn wrong(n: i64) -> i64 { let x = n; x = 4; x }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "BINDING",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "let": {
+                          "init": {
+                            "expr": {
+                              "path": {
+                                "segments": [
+                                  {
+                                    "ident": "n"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "modifiers": {},
+                          "pat": {
+                            "ident": {
+                              "ident": "x"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "expr": [
+                          {
+                            "assign": {
+                              "left": {
+                                "path": {
+                                  "segments": [
+                                    {
+                                      "ident": "x"
+                                    }
+                                  ]
+                                }
+                              },
+                              "right": {
+                                "lit": {
+                                  "int": "4"
+                                }
+                              }
+                            }
+                          },
+                          true
+                        ]
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "x"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-immutable-parameter",
+      "source": "pub fn wrong(n: i64) -> i64 { n = 4; n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "BINDING",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "assign": {
+                              "left": {
+                                "path": {
+                                  "segments": [
+                                    {
+                                      "ident": "n"
+                                    }
+                                  ]
+                                }
+                              },
+                              "right": {
+                                "lit": {
+                                  "int": "4"
+                                }
+                              }
+                            }
+                          },
+                          true
+                        ]
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-immutable-loop-binding",
+      "source": "pub fn wrong(n: i64) -> i64 { for i in 0..n { i = 0; } n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "BINDING",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "for_loop": {
+                              "body": [
+                                {
+                                  "expr": [
+                                    {
+                                      "assign": {
+                                        "left": {
+                                          "path": {
+                                            "segments": [
+                                              {
+                                                "ident": "i"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "right": {
+                                          "lit": {
+                                            "int": "0"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    true
+                                  ]
+                                }
+                              ],
+                              "expr": {
+                                "range": {
+                                  "end": {
+                                    "path": {
+                                      "segments": [
+                                        {
+                                          "ident": "n"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "limits": "..",
+                                  "start": {
+                                    "lit": {
+                                      "int": "0"
+                                    }
+                                  }
+                                }
+                              },
+                              "pat": {
+                                "ident": {
+                                  "ident": "i"
+                                }
+                              }
+                            }
+                          },
+                          false
+                        ]
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-borrow-obligation",
+      "source": "pub fn wrong(n: &i64) -> i64 { *n }",
+      "entry": "wrong",
+      "arguments": [],
+      "code": "OWNERSHIP_OBLIGATION",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "reference": {
+                              "elem": {
+                                "path": {
+                                  "segments": [
+                                    {
+                                      "ident": "i64"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "unary": {
+                              "expr": {
+                                "path": {
+                                  "segments": [
+                                    {
+                                      "ident": "n"
+                                    }
+                                  ]
+                                }
+                              },
+                              "op": "*"
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-unsafe-obligation",
+      "source": "pub unsafe fn wrong(n: i64) -> i64 { n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "UNSUPPORTED",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "unsafe",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-async-obligation",
+      "source": "pub async fn wrong(n: i64) -> i64 { n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "UNSUPPORTED",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "async": true,
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-generic-obligation",
+      "source": "pub fn wrong<T>(n: i64) -> i64 { n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "UNSUPPORTED",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "generics": {
+                      "params": [
+                        {
+                          "type": {
+                            "ident": "T"
+                          }
+                        }
+                      ]
+                    },
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-const-obligation",
+      "source": "pub const fn wrong(n: i64) -> i64 { n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "UNSUPPORTED",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "const": true,
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-abi-obligation",
+      "source": "pub extern \"C\" fn wrong(n: i64) -> i64 { n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "UNSUPPORTED",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "abi": {
+                      "name": "\"C\""
+                    },
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-macro-obligation",
+      "source": "pub fn wrong(n: i64) -> i64 { assert!(n == 0); n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "EFFECT_OBLIGATION",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "macro": {
+                          "delimiter": "paren",
+                          "path": {
+                            "segments": [
+                              {
+                                "ident": "assert"
+                              }
+                            ]
+                          },
+                          "semi_token": true,
+                          "tokens": [
+                            {
+                              "ident": "n"
+                            },
+                            {
+                              "punct": {
+                                "op": "=",
+                                "spacing": "joint"
+                              }
+                            },
+                            {
+                              "punct": {
+                                "op": "=",
+                                "spacing": "alone"
+                              }
+                            },
+                            {
+                              "lit": "0"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    },
+    {
+      "name": "rust-undeclared-output",
+      "source": "pub fn wrong(n: i64) -> i64 { println!(\"{}\", n); n }",
+      "entry": "wrong",
+      "arguments": [
+        0
+      ],
+      "code": "EFFECT",
+      "project": {
+        "modules": [
+          {
+            "id": "main",
+            "ast": {
+              "items": [
+                {
+                  "fn": {
+                    "ident": "wrong",
+                    "inputs": [
+                      {
+                        "typed": {
+                          "pat": {
+                            "ident": {
+                              "ident": "n"
+                            }
+                          },
+                          "ty": {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "i64"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "modifiers": {},
+                    "output": {
+                      "path": {
+                        "segments": [
+                          {
+                            "ident": "i64"
+                          }
+                        ]
+                      }
+                    },
+                    "safety": "default",
+                    "stmts": [
+                      {
+                        "macro": {
+                          "delimiter": "paren",
+                          "path": {
+                            "segments": [
+                              {
+                                "ident": "println"
+                              }
+                            ]
+                          },
+                          "semi_token": true,
+                          "tokens": [
+                            {
+                              "lit": "\"{}\""
+                            },
+                            {
+                              "punct": {
+                                "op": ",",
+                                "spacing": "alone"
+                              }
+                            },
+                            {
+                              "ident": "n"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "expr": [
+                          {
+                            "path": {
+                              "segments": [
+                                {
+                                  "ident": "n"
+                                }
+                              ]
+                            }
+                          },
+                          false
+                        ]
+                      }
+                    ],
+                    "vis": "pub"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "entry": "main.wrong",
+        "effects": {
+          "main.wrong": []
+        }
+      }
+    }
+  ]
+}

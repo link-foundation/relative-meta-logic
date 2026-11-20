@@ -1,0 +1,38 @@
+{
+  "schema": "rml-source-free-direct-rustc-validation/v1",
+  "mode": "Freshly compile emitted owned source using read-only SHA-frozen generic rlibs; no Cargo resolution or provider rebuild",
+  "sourceModules": 47,
+  "archiveSha256": "d0a0c3189d032b12d6e194f468925dc086ea2b064d961e9efd901e8504574d8e",
+  "inputFreezeSha256": "4bee50bc5778d4dfd9296e37b18d4f193f40750b8d72a85fcda4217d98a7cf9f",
+  "genericInputManifestSha256": "857f7e349ad9653a240630b5532a2e8be1ff19161f3d4d33b52b7db53c5a0c48",
+  "seedHelperSha256": "05e71c9e5d8e260f8250bee91548b945260a3fd7d6ec7ebe636b0bcaaf9fe5d1",
+  "regeneratedHelperSha256": "17ce6e5273f8bf9e8956f22195016f8ffcebf41a09b1f97df6a62d34074473df",
+  "parserMutation": true,
+  "verifierMutation": true,
+  "generatorFixedPoint": true,
+  "syntaxRegressions": 4,
+  "sourceInputsUnchanged": true,
+  "genericInputsUnchanged": true,
+  "receipts": [
+    {
+      "variant": "baseline",
+      "runtimeSha256": "12844a4a25b1be4a7f0a36955f91388bdfe3f7e6b4631e2e349c36359c93fc87",
+      "testSha256": "b1b97e9cf57e65258791e98043e2f7ac2daa8b3a80a7db8d3c967eed4cd02d56",
+      "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+    },
+    {
+      "variant": "parser",
+      "runtimeSha256": "eaa8622d639ffe49243ccb5ff559e2889d2ccf2d006efc7fcb257a1350dc3e93",
+      "testSha256": "0c53757a84cd11d7c425ea609ae19f1e3d24247f2aee597eddeb827e11ef5576",
+      "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+    },
+    {
+      "variant": "verifier",
+      "runtimeSha256": "596dbf46ceda0bbd16e1f34a21de165657bdedc341cadbe0f121d76cac2919ef",
+      "testSha256": "0433bb10c6b0144ed5d22bb6c3a6b412991cdd0a4fa4cea420e876609f936a5e",
+      "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+    }
+  ],
+  "fullCargoAggregatePassed": false,
+  "fullCompilerCorrectness": false
+}

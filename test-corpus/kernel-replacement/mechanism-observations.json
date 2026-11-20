@@ -1,0 +1,1136 @@
+{
+ "schema": "rml-linked-mechanism-observations/v1",
+ "producedBy": "experiments/definition-replacement/mechanism-matrix.mjs (lambda, compiled S/K and Horn link-substitution executions agreed)",
+ "baseline": {
+  "reductions": [
+   {
+    "name": "repeated binding",
+    "term": [
+     "equal",
+     "λ"
+    ],
+    "trace": [
+     {
+      "program": "rules",
+      "name": "repeated"
+     }
+    ]
+   },
+   {
+    "name": "unequal repeated binding",
+    "term": [
+     "same",
+     "a",
+     "b"
+    ],
+    "trace": []
+   },
+   {
+    "name": "ordered rule choice",
+    "term": [
+     "selected",
+     "first",
+     "a"
+    ],
+    "trace": [
+     {
+      "program": "rules",
+      "name": "first"
+     }
+    ]
+   },
+   {
+    "name": "nested left traversal",
+    "term": [
+     "outer",
+     [
+      "selected",
+      "first",
+      "a"
+     ],
+     [
+      "selected",
+      "first",
+      "b"
+     ]
+    ],
+    "trace": [
+     {
+      "program": "rules",
+      "name": "first"
+     },
+     {
+      "program": "rules",
+      "name": "first"
+     }
+    ]
+   },
+   {
+    "name": "recursive substitution",
+    "term": [
+     "pair",
+     [
+      "nested",
+      "value"
+     ],
+     "done"
+    ],
+    "trace": [
+     {
+      "program": "rules",
+      "name": "nested"
+     }
+    ]
+   },
+   {
+    "name": "import rebinding",
+    "term": [
+     "pair",
+     [
+      "nested",
+      "value"
+     ],
+     "done"
+    ],
+    "trace": [
+     {
+      "program": "rules",
+      "name": "nested"
+     }
+    ]
+   }
+  ],
+  "derivations": [
+   {
+    "judgement": [
+     "arrived",
+     "seed"
+    ],
+    "proof": {
+     "judgement": [
+      "arrived",
+      "seed"
+     ],
+     "program": "evidence",
+     "rule": "extend",
+     "premises": [
+      {
+       "judgement": [
+        "ready",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "seed",
+       "premises": []
+      }
+     ]
+    }
+   },
+   {
+    "judgement": [
+     "finished",
+     "seed"
+    ],
+    "proof": {
+     "judgement": [
+      "finished",
+      "seed"
+     ],
+     "program": "evidence",
+     "rule": "finish",
+     "premises": [
+      {
+       "judgement": [
+        "arrived",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "ready",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "proof": {
+   "judgement": [
+    "finished",
+    "seed"
+   ],
+   "program": "evidence",
+   "rule": "finish",
+   "premises": [
+    {
+     "judgement": [
+      "arrived",
+      "seed"
+     ],
+     "program": "evidence",
+     "rule": "extend",
+     "premises": [
+      {
+       "judgement": [
+        "ready",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "seed",
+       "premises": []
+      }
+     ]
+    }
+   ]
+  },
+  "absentProof": null,
+  "known": 3,
+  "fixedPoint": true
+ },
+ "rows": [
+  {
+   "id": "matching-ignores-repeated-binding",
+   "level": "matching",
+   "changed": [
+    "reduction:unequal repeated binding"
+   ],
+   "observations": {
+    "reductions": [
+     {
+      "name": "repeated binding",
+      "term": [
+       "equal",
+       "λ"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "repeated"
+       }
+      ]
+     },
+     {
+      "name": "unequal repeated binding",
+      "term": [
+       "equal",
+       "a"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "repeated"
+       }
+      ]
+     },
+     {
+      "name": "ordered rule choice",
+      "term": [
+       "selected",
+       "first",
+       "a"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "first"
+       }
+      ]
+     },
+     {
+      "name": "nested left traversal",
+      "term": [
+       "outer",
+       [
+        "selected",
+        "first",
+        "a"
+       ],
+       [
+        "selected",
+        "first",
+        "b"
+       ]
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "first"
+       },
+       {
+        "program": "rules",
+        "name": "first"
+       }
+      ]
+     },
+     {
+      "name": "recursive substitution",
+      "term": [
+       "pair",
+       [
+        "nested",
+        "value"
+       ],
+       "done"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     },
+     {
+      "name": "import rebinding",
+      "term": [
+       "pair",
+       [
+        "nested",
+        "value"
+       ],
+       "done"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     }
+    ],
+    "derivations": [
+     {
+      "judgement": [
+       "arrived",
+       "seed"
+      ],
+      "proof": {
+       "judgement": [
+        "arrived",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "ready",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     },
+     {
+      "judgement": [
+       "finished",
+       "seed"
+      ],
+      "proof": {
+       "judgement": [
+        "finished",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "finish",
+       "premises": [
+        {
+         "judgement": [
+          "arrived",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "extend",
+         "premises": [
+          {
+           "judgement": [
+            "ready",
+            "seed"
+           ],
+           "program": "evidence",
+           "rule": "seed",
+           "premises": []
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ],
+    "proof": {
+     "judgement": [
+      "finished",
+      "seed"
+     ],
+     "program": "evidence",
+     "rule": "finish",
+     "premises": [
+      {
+       "judgement": [
+        "arrived",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "ready",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     ]
+    },
+    "absentProof": null,
+    "known": 3,
+    "fixedPoint": true
+   }
+  },
+  {
+   "id": "substitution-reverses-lists",
+   "level": "substitution",
+   "changed": [
+    "reduction:repeated binding",
+    "reduction:ordered rule choice",
+    "reduction:nested left traversal",
+    "reduction:recursive substitution",
+    "reduction:import rebinding",
+    "derivations",
+    "proof",
+    "known"
+   ],
+   "observations": {
+    "reductions": [
+     {
+      "name": "repeated binding",
+      "term": [
+       "λ",
+       "equal"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "repeated"
+       }
+      ]
+     },
+     {
+      "name": "unequal repeated binding",
+      "term": [
+       "same",
+       "a",
+       "b"
+      ],
+      "trace": []
+     },
+     {
+      "name": "ordered rule choice",
+      "term": [
+       "a",
+       "first",
+       "selected"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "first"
+       }
+      ]
+     },
+     {
+      "name": "nested left traversal",
+      "term": [
+       "outer",
+       [
+        "a",
+        "first",
+        "selected"
+       ],
+       [
+        "b",
+        "first",
+        "selected"
+       ]
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "first"
+       },
+       {
+        "program": "rules",
+        "name": "first"
+       }
+      ]
+     },
+     {
+      "name": "recursive substitution",
+      "term": [
+       "done",
+       [
+        "value",
+        "nested"
+       ],
+       "pair"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     },
+     {
+      "name": "import rebinding",
+      "term": [
+       "done",
+       [
+        "value",
+        "nested"
+       ],
+       "pair"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     }
+    ],
+    "derivations": [
+     {
+      "judgement": [
+       "seed",
+       "arrived"
+      ],
+      "proof": {
+       "judgement": [
+        "seed",
+        "arrived"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "ready",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     }
+    ],
+    "proof": null,
+    "absentProof": null,
+    "known": 2,
+    "fixedPoint": true
+   }
+  },
+  {
+   "id": "selection-prefers-later-rule",
+   "level": "rule-selection-and-application",
+   "changed": [
+    "reduction:ordered rule choice",
+    "reduction:nested left traversal"
+   ],
+   "observations": {
+    "reductions": [
+     {
+      "name": "repeated binding",
+      "term": [
+       "equal",
+       "λ"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "repeated"
+       }
+      ]
+     },
+     {
+      "name": "unequal repeated binding",
+      "term": [
+       "same",
+       "a",
+       "b"
+      ],
+      "trace": []
+     },
+     {
+      "name": "ordered rule choice",
+      "term": [
+       "selected",
+       "second",
+       "a"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "second"
+       }
+      ]
+     },
+     {
+      "name": "nested left traversal",
+      "term": [
+       "outer",
+       [
+        "selected",
+        "second",
+        "a"
+       ],
+       [
+        "selected",
+        "second",
+        "b"
+       ]
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "second"
+       },
+       {
+        "program": "rules",
+        "name": "second"
+       }
+      ]
+     },
+     {
+      "name": "recursive substitution",
+      "term": [
+       "pair",
+       [
+        "nested",
+        "value"
+       ],
+       "done"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     },
+     {
+      "name": "import rebinding",
+      "term": [
+       "pair",
+       [
+        "nested",
+        "value"
+       ],
+       "done"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     }
+    ],
+    "derivations": [
+     {
+      "judgement": [
+       "arrived",
+       "seed"
+      ],
+      "proof": {
+       "judgement": [
+        "arrived",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "ready",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     },
+     {
+      "judgement": [
+       "finished",
+       "seed"
+      ],
+      "proof": {
+       "judgement": [
+        "finished",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "finish",
+       "premises": [
+        {
+         "judgement": [
+          "arrived",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "extend",
+         "premises": [
+          {
+           "judgement": [
+            "ready",
+            "seed"
+           ],
+           "program": "evidence",
+           "rule": "seed",
+           "premises": []
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ],
+    "proof": {
+     "judgement": [
+      "finished",
+      "seed"
+     ],
+     "program": "evidence",
+     "rule": "finish",
+     "premises": [
+      {
+       "judgement": [
+        "arrived",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "ready",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     ]
+    },
+    "absentProof": null,
+    "known": 3,
+    "fixedPoint": true
+   }
+  },
+  {
+   "id": "definition-rebinding-reversed",
+   "level": "definition-import-and-rebinding",
+   "changed": [
+    "reduction:import rebinding",
+    "derivations",
+    "proof"
+   ],
+   "observations": {
+    "reductions": [
+     {
+      "name": "repeated binding",
+      "term": [
+       "equal",
+       "λ"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "repeated"
+       }
+      ]
+     },
+     {
+      "name": "unequal repeated binding",
+      "term": [
+       "same",
+       "a",
+       "b"
+      ],
+      "trace": []
+     },
+     {
+      "name": "ordered rule choice",
+      "term": [
+       "selected",
+       "first",
+       "a"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "first"
+       }
+      ]
+     },
+     {
+      "name": "nested left traversal",
+      "term": [
+       "outer",
+       [
+        "selected",
+        "first",
+        "a"
+       ],
+       [
+        "selected",
+        "first",
+        "b"
+       ]
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "first"
+       },
+       {
+        "program": "rules",
+        "name": "first"
+       }
+      ]
+     },
+     {
+      "name": "recursive substitution",
+      "term": [
+       "pair",
+       [
+        "nested",
+        "value"
+       ],
+       "done"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     },
+     {
+      "name": "import rebinding",
+      "term": [
+       "renamed",
+       "value"
+      ],
+      "trace": []
+     }
+    ],
+    "derivations": [
+     {
+      "judgement": [
+       "reached",
+       "seed"
+      ],
+      "proof": {
+       "judgement": [
+        "reached",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "holds",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     },
+     {
+      "judgement": [
+       "finished",
+       "seed"
+      ],
+      "proof": {
+       "judgement": [
+        "finished",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "finish",
+       "premises": [
+        {
+         "judgement": [
+          "reached",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "extend",
+         "premises": [
+          {
+           "judgement": [
+            "holds",
+            "seed"
+           ],
+           "program": "evidence",
+           "rule": "seed",
+           "premises": []
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ],
+    "proof": {
+     "judgement": [
+      "finished",
+      "seed"
+     ],
+     "program": "evidence",
+     "rule": "finish",
+     "premises": [
+      {
+       "judgement": [
+        "reached",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "holds",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     ]
+    },
+    "absentProof": null,
+    "known": 3,
+    "fixedPoint": true
+   }
+  },
+  {
+   "id": "verification-accepts-first-known",
+   "level": "verification",
+   "changed": [
+    "proof",
+    "absentProof"
+   ],
+   "observations": {
+    "reductions": [
+     {
+      "name": "repeated binding",
+      "term": [
+       "equal",
+       "λ"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "repeated"
+       }
+      ]
+     },
+     {
+      "name": "unequal repeated binding",
+      "term": [
+       "same",
+       "a",
+       "b"
+      ],
+      "trace": []
+     },
+     {
+      "name": "ordered rule choice",
+      "term": [
+       "selected",
+       "first",
+       "a"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "first"
+       }
+      ]
+     },
+     {
+      "name": "nested left traversal",
+      "term": [
+       "outer",
+       [
+        "selected",
+        "first",
+        "a"
+       ],
+       [
+        "selected",
+        "first",
+        "b"
+       ]
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "first"
+       },
+       {
+        "program": "rules",
+        "name": "first"
+       }
+      ]
+     },
+     {
+      "name": "recursive substitution",
+      "term": [
+       "pair",
+       [
+        "nested",
+        "value"
+       ],
+       "done"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     },
+     {
+      "name": "import rebinding",
+      "term": [
+       "pair",
+       [
+        "nested",
+        "value"
+       ],
+       "done"
+      ],
+      "trace": [
+       {
+        "program": "rules",
+        "name": "nested"
+       }
+      ]
+     }
+    ],
+    "derivations": [
+     {
+      "judgement": [
+       "arrived",
+       "seed"
+      ],
+      "proof": {
+       "judgement": [
+        "arrived",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "extend",
+       "premises": [
+        {
+         "judgement": [
+          "ready",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "seed",
+         "premises": []
+        }
+       ]
+      }
+     },
+     {
+      "judgement": [
+       "finished",
+       "seed"
+      ],
+      "proof": {
+       "judgement": [
+        "finished",
+        "seed"
+       ],
+       "program": "evidence",
+       "rule": "finish",
+       "premises": [
+        {
+         "judgement": [
+          "arrived",
+          "seed"
+         ],
+         "program": "evidence",
+         "rule": "extend",
+         "premises": [
+          {
+           "judgement": [
+            "ready",
+            "seed"
+           ],
+           "program": "evidence",
+           "rule": "seed",
+           "premises": []
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ],
+    "proof": {
+     "judgement": [
+      "ready",
+      "seed"
+     ],
+     "program": "evidence",
+     "rule": "seed",
+     "premises": []
+    },
+    "absentProof": {
+     "judgement": [
+      "ready",
+      "seed"
+     ],
+     "program": "evidence",
+     "rule": "seed",
+     "premises": []
+    },
+    "known": 3,
+    "fixedPoint": true
+   }
+  }
+ ]
+}

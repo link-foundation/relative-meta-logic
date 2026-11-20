@@ -1,0 +1,14 @@
+# Independent semantic completeness contract for the pinned corpus.
+# The fingerprint covers every typed source token, declaration range, proof
+# status, recursion marker, and dependency link. Candidate data cannot change
+# this contract or authorize an altered declaration body or proof object.
+
+(formal-corpus-contract meta-theory-0.0.3
+  (upstream link-foundation/meta-theory)
+  (revision 087f4515d0652925eecc54bcade724445c3978f1)
+  (schema linked-source-v1)
+  (module-count 18)
+  (declaration-count 229)
+  (semantic-token-count 8815)
+  (dependency-count 510)
+  (sha256 f85e7951384dbb639725eb021419982d367f5e1eeef2c5528602a4e35d8af0b9))

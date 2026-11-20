@@ -1,0 +1,39 @@
+// rml-certified-item rust/src/spec_certificates.rs#SPEC_CERTIFICATE_SCHEMA@1081 target-sha256=3e4173ec27ceb8a9809d1c7efae34a7492cdf22f6733d6f735f141fd466e6f1e
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function SPEC_CERTIFICATE_SCHEMA() {
+  return "rml-spec-certificate/v1";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/spec_certificates.rs#SPEC_MAX_STEPS@1443 target-sha256=93d21af810b1dbac021231aaedfefb84a02284940cb2a339c56b143f73892fee
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function SPEC_MAX_STEPS() {
+  return 5000000n;
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/spec_certificates.rs#VERIFIER_STEPS@1488 target-sha256=2fedfa82393bbaba0cbd0c719154b64b46d8261bbedbd56a8a1dc390d4ec8004
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function VERIFIER_STEPS() {
+  return 2000000n;
+}
+
+function main() {
+
+}
+
+main();

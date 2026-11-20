@@ -1,0 +1,9 @@
+(linked-foundation modal-frames (version 3)
+  (inference k-frame)
+  (proof k-negation)
+  (reduction k-abbreviations)
+  (signature
+    (forces-at ?w ?phi) (blocks-at ?w ?phi) (acc-arrow ?u ?v)
+    (valuation-holds ?w ?p) (dead-end ?w) (modal-atom ?p))
+  (cycle-policy guarded-coinductive (guard k-frame path-step)))
+(linked-instance study-lab (theory shared-frame) (foundation modal-frames (version 3)))

@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "repository": "link-foundation/relative-meta-logic",
+    "workflow": ".github/workflows/docker.yml",
+    "job": "build-images",
+    "runId": 38417088168,
+    "headSha": "70f91bb5",
+    "artifact": "cache-diagnostics-docker-1",
+    "artifactId": 11824743350,
+    "condensed": "Docker budget and cleanup reports copied unchanged; the absolute runner root is kept as recorded."
+  },
+  "lifecycle": {
+    "build_exit": "0",
+    "cleanup_exit": "0",
+    "builder": "rml-5cce97073218-38417088168-1"
+  },
+  "commandEvidence": [
+    {
+      "command": [
+        "bash",
+        "docker/ci-build.sh"
+      ],
+      "exitCode": 0,
+      "timestamp": "2026-10-13T14:55:31.342Z"
+    }
+  ],
+  "teardownStep": {
+    "command": "node scripts/build-cache.mjs --full",
+    "output": "build-cache: before=0 after=0 reclaimed=0 budget=1073741824 bytes; 1 protected paths; within budget",
+    "conclusion": "success"
+  },
+  "reports": {
+    "docker-budget-rml-5cce97073218-38417088168-1.json": {
+      "version": 1,
+      "metric": "conservative-logical-bytes-including-shared-layers",
+      "resourceKind": "buildx",
+      "name": "rml-5cce97073218-38417088168-1",
+      "localBytes": 624,
+      "budgetBytes": 1073741824,
+      "dockerBytes": 3015355031,
+      "beforeBytes": 3015355655,
+      "afterBytes": 624,
+      "reclaimedBytes": 3015355031,
+      "budgetSatisfied": true,
+      "timestamp": "2026-10-13T14:55:25.651Z",
+      "cleanupExitCode": 0,
+      "resourcesRemoved": true,
+      "remainingDockerBytes": 0,
+      "localCleanupRequired": false,
+      "finalBudgetEnforcement": "outer-wrapper-postflight"
+    },
+    "docker-budget-rml-owned-38417088168-1791903166-3363.json": {
+      "version": 1,
+      "metric": "conservative-logical-bytes-including-shared-layers",
+      "resourceKind": "docker-container",
+      "name": "rml-owned-38417088168-1791903166-3363",
+      "localBytes": 617,
+      "budgetBytes": 1073741824,
+      "dockerBytes": 587275667,
+      "beforeBytes": 587276284,
+      "afterBytes": 587276284,
+      "reclaimedBytes": 0,
+      "budgetSatisfied": true,
+      "timestamp": "2026-10-13T14:52:47.917Z",
+      "cleanupExitCode": 0,
+      "resourcesRemoved": true,
+      "remainingDockerBytes": 587275667,
+      "localCleanupRequired": false,
+      "finalBudgetEnforcement": "outer-wrapper-postflight"
+    },
+    "docker-budget-rml-owned-38417088168-1791903323-10787.json": {
+      "version": 1,
+      "metric": "conservative-logical-bytes-including-shared-layers",
+      "resourceKind": "docker-container",
+      "name": "rml-owned-38417088168-1791903323-10787",
+      "localBytes": 688,
+      "budgetBytes": 1073741824,
+      "dockerBytes": 3015355031,
+      "beforeBytes": 3015355719,
+      "afterBytes": 3015355719,
+      "reclaimedBytes": 0,
+      "budgetSatisfied": false,
+      "timestamp": "2026-10-13T14:55:24.785Z",
+      "cleanupExitCode": 0,
+      "resourcesRemoved": true,
+      "remainingDockerBytes": 3015355031,
+      "localCleanupRequired": false,
+      "finalBudgetEnforcement": "outer-wrapper-postflight"
+    },
+    "last-cleanup.json": {
+      "version": 1,
+      "root": "/home/runner/work/relative-meta-logic/relative-meta-logic",
+      "mode": "bounded",
+      "beforeBytes": 624,
+      "afterBytes": 0,
+      "reclaimedBytes": 624,
+      "budgetBytes": 1073741824,
+      "budgetSatisfied": true,
+      "localBeforeBytes": 624,
+      "localAfterBytes": 0,
+      "externalBytes": 0,
+      "externalResources": [],
+      "removed": [
+        ".rml-cache/scratch/.rml-producer-fJ7fay/docker-rml-5cce97073218-38417088168-1-PRapnC/buildkitd.toml",
+        ".rml-cache/scratch/.rml-producer-fJ7fay/docker-rml-5cce97073218-38417088168-1-PRapnC/js.iid",
+        ".rml-cache/scratch/.rml-producer-fJ7fay/docker-rml-5cce97073218-38417088168-1-PRapnC/rust.iid"
+      ],
+      "protected": [
+        {
+          "path": "vscode/server/.gitignore",
+          "reason": "tracked"
+        }
+      ],
+      "classes": [
+        "rust",
+        "javascript",
+        "package",
+        "parser",
+        "compiler",
+        "lean",
+        "rocq",
+        "acceptance",
+        "benchmark",
+        "container"
+      ],
+      "timestamp": "2026-10-13T14:55:31.363Z"
+    }
+  }
+}

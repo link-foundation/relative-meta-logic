@@ -32,8 +32,9 @@ Then run any tutorial example from the repository root:
 node js/src/rml-links.mjs examples/classical-logic.lino
 ```
 
-For parity with the Rust implementation, run the same file through the Rust
-CLI:
+For parity with the Rust implementation, the same file runs through the Rust
+CLI. Repository policy compiles Rust only on hosted CI, so outside CI this is a
+deliberate local exception (see [`../BUILD_CACHE.md`](../BUILD_CACHE.md)):
 
 ```bash
 cargo run --manifest-path rust/Cargo.toml -- examples/classical-logic.lino

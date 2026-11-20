@@ -1,0 +1,29 @@
+{
+  "schema": "rml:portable-native-toolchain-provenance:1",
+  "image": "rocq/rocq-prover:9.1",
+  "imageManifestDigest": "sha256:9a1e969649a3cc3c6f310d5be5a842e2187384560337c6c0807aba9f8565efba",
+  "imageConfigDigest": "sha256:68c2b82465b98676f9272ce9a90e959e69f455dda0bf0696a03dbe40857b8980",
+  "imageProvider": "The Rocq Development Team",
+  "officialImageDocumentation": "https://github.com/rocq-community/docker-rocq",
+  "registry": "https://registry-1.docker.io/v2/rocq/rocq-prover/",
+  "rocqVersion": "9.1.1",
+  "ocamlVersion": "4.14.2+flambda",
+  "stdlibVersion": "9.0.0",
+  "imageBuildDate": "2026-08-28T15:29:16Z",
+  "extractedLayer": {
+    "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+    "size": 636883380,
+    "digest": "sha256:e791a3d23be242996e17f9f2da9ceaa493db402350d82a2112d539b008ef4a73"
+  },
+  "extraction": "Only regular bin/lib/share files under home/rocq/.opam/4.14.2+flambda were extracted into a new task-local directory after full digest verification; absolute paths, dot-dot traversal, symlinks, hardlinks and special files were refused. No Docker daemon or global installation was used.",
+  "runtimeEnvironment": [
+    "ROCQ=<task-local-switch>/bin/rocq",
+    "OCAMLFIND_CONF=<task-local-switch>/lib/findlib.conf",
+    "OCAMLPATH=<task-local-switch>/lib"
+  ],
+  "nativeCompilerInvocation": [
+    "$ROCQ",
+    "compile",
+    "<generated-file.v>"
+  ]
+}

@@ -1,0 +1,96 @@
+// rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_PROGRAM@420 target-sha256=ad00ecb71160d7862b16771c9affe85ca49d53044dfcf7513cf85bcc50cbe46f
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function LINKED_PROOF_PROGRAM() {
+  return "linked-proof-verifier";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_NATURAL_PROGRAM@607 target-sha256=cd1b474af80c5e23f3f84171364c9336a6d6d36b8a15e5ab4a77fa26d2fbde4b
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function LINKED_PROOF_NATURAL_PROGRAM() {
+  return "linked-proof-verifier-natural";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_SCHEMA@687 target-sha256=780c7b8f7639bbb6f0c88bf187d008f48539c482161bf37daacc61abce8b8e67
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function LINKED_PROOF_SCHEMA() {
+  return "rml-linked-proof-replay/v1";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_proof.rs#MAX_LINKED_PROOF_DEPTH@968 target-sha256=98cea7227852ad905bfbddb09cf22519be6625eeabfc4e19cd55669296519a5c
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function MAX_LINKED_PROOF_DEPTH() {
+  return 256n;
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_proof.rs#LinkedProofLimits@1167 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_proof.rs#LinkedProofOptions@7480 target-sha256=1a6d7a9d6350a2a4ef447d87dc6e6cee93505199b50ffd817dcca1bae775aada
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_OUTCOME_SCHEMA@11504 target-sha256=39bc4ed4b93a9c7711bd8c7b39cb3b440e329ffd3da2c042342b394849632e4a
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function LINKED_PROOF_OUTCOME_SCHEMA() {
+  return "rml-foundation-outcome/v1";
+}
+
+function main() {
+
+}
+
+main();
+// rml-certified-item rust/src/linked_proof.rs#LINKED_PROOF_CHECK_SCHEMA@11579 target-sha256=498255780ddcac66b62032faab5eafc4c47fd47bf9c4454993eef34361824c39
+// Translated from Rust by meta-language: portable core, JavaScript target.
+'use strict';
+
+function LINKED_PROOF_CHECK_SCHEMA() {
+  return "rml-linked-proof-check/v1";
+}
+
+function main() {
+
+}
+
+main();

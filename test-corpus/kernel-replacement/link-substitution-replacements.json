@@ -1,0 +1,33 @@
+{
+  "schema": "rml-horn-link-substitution-replacements/v1",
+  "source": "lib/meta-theory/horn-link-substitution.lino",
+  "claim": "Each replacement edits only the linked Horn definition of Link-as-substitution. The generic Horn resolver, the lambda-link meta-semantics and every request stay unchanged.",
+  "probes": [
+    {"name": "lexical capture", "term": [[{"lambda": "x", "body": {"lambda": "y", "body": {"variable": "x"}}}, "outer"], "inner"]},
+    {"name": "shadowed binder", "term": [[{"lambda": "x", "body": {"lambda": "x", "body": {"variable": "x"}}}, "outer"], "inner"]},
+    {"name": "unused divergent argument", "term": [[{"lambda": "x", "body": {"lambda": "y", "body": {"variable": "x"}}}, "kept"], [{"lambda": "z", "body": [{"variable": "z"}, {"variable": "z"}]}, {"lambda": "z", "body": [{"variable": "z"}, {"variable": "z"}]}]]}
+  ],
+  "baseline": {"lexical capture": "outer", "shadowed binder": "inner", "unused divergent argument": "kept"},
+  "replacements": [
+    {
+      "id": "binder-resolution-outermost",
+      "level": "link-substitution-binder-resolution",
+      "description": "D resolves a variable to its nearest enclosing binder; D' resolves it to the outermost binder with the same name.",
+      "replace": [[
+        "(horn-clause scope-here (scope-choice yes ?name ?scope zero))",
+        "(horn-clause scope-here (scope-choice yes ?name ?scope ?index)\n  (shadowed ?name ?scope ?outer) (outermost-choice ?outer ?name ?scope ?index))\n(horn-clause shadowed-end (shadowed ?name end no))\n(horn-clause shadowed-next (shadowed ?name (cons ?bound ?scope) ?result)\n  (code-equal ?name ?bound ?same) (shadowed-choice ?same ?name ?scope ?result))\n(horn-clause shadowed-yes (shadowed-choice yes ?name ?scope yes))\n(horn-clause shadowed-no (shadowed-choice no ?name ?scope ?result) (shadowed ?name ?scope ?result))\n(horn-clause outermost-here (outermost-choice no ?name ?scope zero))\n(horn-clause outermost-outer (outermost-choice yes ?name ?scope (successor ?index)) (scope-index ?name ?scope ?index))"
+      ]],
+      "probes": {"lexical capture": "outer", "shadowed binder": "outer", "unused divergent argument": "kept"}
+    },
+    {
+      "id": "substitution-eager-argument",
+      "level": "link-substitution-environment-binding",
+      "description": "D binds an unevaluated argument closure (call by name); D' first evaluates the argument to weak head form, so an unused divergent argument no longer gets discarded.",
+      "replace": [[
+        "(horn-clause machine-bind (whnf (lam ?body) ?environment (cons ?argument ?stack) ?output)\n  (whnf ?body (cons ?argument ?environment) ?stack ?output))",
+        "(horn-clause machine-bind (whnf (lam ?body) ?environment (cons ?argument ?stack) ?output)\n  (enter ?argument end ?forced) (whnf ?body (cons ?argument ?environment) ?stack ?output))"
+      ]],
+      "probes": {"lexical capture": "outer", "shadowed binder": "inner", "unused divergent argument": "bound-exceeded"}
+    }
+  ]
+}

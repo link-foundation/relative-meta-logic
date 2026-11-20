@@ -1,0 +1,23 @@
+{
+  "schema": "rml-bootstrap-boundary-audit-cases/v1",
+  "scope": "Current selected K0 report integrity, not discovery of arbitrary host semantics or a proof of irreducibility.",
+  "operations": ["contract-s-link", "contract-k-link", "parse-linked-forms", "enforce-cycle-and-resource-bounds"],
+  "cases": [
+    {"id": "missing_primitive_reasons", "name": "rejects missing primitive reasons for every declared boundary operation", "error": "has no primitive reason"},
+    {"id": "missing_dependency_targets", "name": "rejects missing trust graph dependency targets", "error": "trust graph node matching has unknown dependency missing-dependency"},
+    {"id": "dependency_cycles", "name": "rejects trust graph dependency cycles including bootstrap nodes", "error": "trust graph dependency cycle"},
+    {"id": "unterminated_public_paths", "name": "rejects public paths with a branch that does not terminate in K0", "error": "does not terminate in K0"},
+    {"id": "forged_primitive_reasons", "name": "rejects a nonprimitive terminal despite a forged primitive reason", "error": "trust graph path matching does not terminate in K0"},
+    {"id": "missing_public_paths", "name": "rejects an omitted public bootstrap path", "error": "missing public bootstrap path load-linked-program"},
+    {"id": "missing_boundary_nodes", "name": "rejects a declared boundary operation missing from the trust graph", "error": "host semantic operation contract-s-link has no trust graph node"},
+    {"id": "unreported_operations", "name": "rejects an implemented operation absent from the supplied report", "error": "unreported host semantic operation hidden-object-evaluator"},
+    {"id": "unimplemented_operations", "name": "rejects a reported operation absent from the independent implementation list", "error": "reported host semantic operation contract-s-link is not implemented"},
+    {"id": "unsupported_irreducibility", "name": "rejects irreducibility claims with or without a written criterion", "error": "current bootstrap report does not establish irreducibility"},
+    {"id": "missing_criterion", "name": "rejects a current boundary report without a fixed-point criterion", "error": "bootstrap report is missing its fixed-point criterion"},
+    {"id": "missing_experiments", "name": "rejects a boundary operation without a minimization experiment", "error": "host semantic operation contract-s-link has no minimization experiment"},
+    {"id": "duplicate_nodes", "name": "rejects duplicate trust graph node identities", "error": "duplicate trust graph node contract-s-link"},
+    {"id": "duplicate_operations", "name": "rejects duplicate report and implementation operation identities", "error": "duplicate host semantic operation"},
+    {"id": "unreported_bootstrap_nodes", "name": "rejects a bootstrap graph node absent from the boundary inventory", "error": "unreported bootstrap operation hidden-object-evaluator"},
+    {"id": "unsupported_scope", "name": "rejects a report from an unsupported bootstrap scope", "error": "unsupported bootstrap report scope"}
+  ]
+}

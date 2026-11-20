@@ -1,0 +1,16 @@
+{
+  "schema":"rml-horn-host-laws/v1",
+  "claim":"Explicit first-order laws with independent behavioral controls; this is not a proof of an independent minimal basis.",
+  "laws":[
+    {"id":"constructor-identity-and-decomposition","operation":"horn-unify","rule":"Equal atoms agree; equal-arity lists generate corresponding child equations; differing atoms, constructors or arities clash.","status":"DECLARED_EXTERNAL","controls":["repeated binding","unequal repeated binding","constructor arity mismatch"]},
+    {"id":"finite-tree-variable-elimination","operation":"horn-unify","rule":"A free variable may be consistently bound to a term only when the variable does not occur in that term after dereferencing.","status":"DECLARED_EXTERNAL","controls":["occurs cycle","cycle behind alias bindings","ground shortcut rollback"]},
+    {"id":"variable-dereference-and-substitution","operation":"horn-unify","rule":"Resolve existing variable bindings and preserve their identity across all equations of the same clause instance.","status":"DECLARED_EXTERNAL","controls":["repeated variables","bound alias normalization","immutable caller data"]},
+    {"id":"standardize-apart","operation":"horn-freshen-clause","rule":"Every attempted clause use receives a fresh variable scope; repeated occurrences within that head and body share the same cells.","status":"DECLARED_EXTERNAL","controls":["two-edge path","multiple answers with disjoint scopes"]},
+    {"id":"ordered-sld-resolution","operation":"horn-resolve-goal","rule":"Unify the leftmost goal with a fresh clause head and replace it by that clause's ordered premises; explore further source clauses after failure.","status":"DECLARED_EXTERNAL","controls":["all premises required","clause priority","branch rollback","exhausted negative result"]},
+    {"id":"answer-projection","operation":"horn-project-answer","rule":"Observe the instantiated query after all remaining goals have been discharged.","status":"BOUNDARY_SERVICE_NOT_INDEPENDENT_PRIMITIVE","controls":["ground answer","full RML proof tree","independent certificate replay"]},
+    {"id":"symmetric-variable-orientation","operation":"horn-unify","rule":"An equation with a free variable on the right can be oriented to put it on the left.","status":"DERIVABLE_BY_SYMMETRY_NOT_INDEPENDENT_PRIMITIVE","controls":["variable on both sides"]},
+    {"id":"indexing-ground-normalization-and-conditional-trailing","operation":"horn-resolve-goal","rule":"Conservative head filtering, immutable ground-term normalization and conditional undo logging preserve the same unification and ordered resolution relation.","status":"REPRESENTATION_OPTIMIZATION_NOT_LOGICAL_PRIMITIVE","controls":["same ordered answers","occurs rejection","fallback after binding","input mutation isolation","certificate replay"]}
+  ],
+  "minimalityGap":"Removing each operation group blocks the workload, but the groups contain several laws and some are derivable or administrative. No independent residual-law minimality or information-content comparison with the S/K equations is established.",
+  "scopeGap":"The generic host unifier and SLD dispatcher are still an external boundary, even though a replaceable linked unifier and dispatcher interpret the upper source image above them."
+}

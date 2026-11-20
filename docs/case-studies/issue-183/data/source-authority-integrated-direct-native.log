@@ -1,0 +1,113 @@
+build-cache: before=0 after=0 reclaimed=0 budget=1073741824 bytes; 0 protected paths; within budget
+DIRECT NATIVE: frozen source 4bee50bc5778d4dfd9296e37b18d4f193f40750b8d72a85fcda4217d98a7cf9f, 422 owned/input files; 394 read-only generic artifacts
+DIRECT RUSTC ["rustc", "--edition=2021", "--crate-name", "rml", "/workspace/shared/phase27-source-native-verification/.rml-cache/scratch/1791435665011-6/direct-source-8yrIbT/rust/src/lib.rs", "--crate-type", "rlib", "-C", "opt-level=1", "-C", "debuginfo=0", "-C", "codegen-units=2", "-A", "unused_parens", "-L", "dependency=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps", "-o", "/workspace/shared/phase27-source-native-verification/.rml-cache/direct-native/debug/librml.rlib", "--extern", "regex=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libregex-cf0e37c22c5fe3e4.rlib", "--extern", "sha2=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libsha2-a0f5cbc43b976f6f.rlib", "--extern", "serde_json=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libserde_json-177e0628965415a7.rlib", "--extern", "meta_language=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libmeta_language-19a6a982628fc9ef.rlib", "--extern", "links_notation=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/liblinks_notation-1389879c90d66f98.rlib"]
+
+running 1 test
+test source_free_rust_authority_changes_parser_and_verifier ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+
+DIRECT RUSTC ["rustc", "--edition=2021", "--crate-name", "rml", "/workspace/shared/phase27-source-native-verification/.rml-cache/scratch/1791435665011-6/direct-source-8yrIbT/rust/src/lib.rs", "--crate-type", "rlib", "-C", "opt-level=1", "-C", "debuginfo=0", "-C", "codegen-units=2", "-A", "unused_parens", "-L", "dependency=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps", "-o", "/workspace/shared/phase27-source-native-verification/.rml-cache/direct-native/debug/librml.rlib", "--extern", "regex=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libregex-cf0e37c22c5fe3e4.rlib", "--extern", "sha2=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libsha2-a0f5cbc43b976f6f.rlib", "--extern", "serde_json=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libserde_json-177e0628965415a7.rlib", "--extern", "meta_language=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libmeta_language-19a6a982628fc9ef.rlib", "--extern", "links_notation=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/liblinks_notation-1389879c90d66f98.rlib"]
+
+running 1 test
+test source_free_rust_authority_changes_parser_and_verifier ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+DIRECT RUSTC ["rustc", "--edition=2021", "--crate-name", "rml", "/workspace/shared/phase27-source-native-verification/.rml-cache/scratch/1791435665011-6/direct-source-8yrIbT/rust/src/lib.rs", "--crate-type", "rlib", "-C", "opt-level=1", "-C", "debuginfo=0", "-C", "codegen-units=2", "-A", "unused_parens", "-L", "dependency=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps", "-o", "/workspace/shared/phase27-source-native-verification/.rml-cache/direct-native/debug/librml.rlib", "--extern", "regex=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libregex-cf0e37c22c5fe3e4.rlib", "--extern", "sha2=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libsha2-a0f5cbc43b976f6f.rlib", "--extern", "serde_json=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libserde_json-177e0628965415a7.rlib", "--extern", "meta_language=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/libmeta_language-19a6a982628fc9ef.rlib", "--extern", "links_notation=/workspace/shared/rml-native-owned-replay-final/rust/target/debug/deps/liblinks_notation-1389879c90d66f98.rlib"]
+
+running 1 test
+test source_free_rust_authority_changes_parser_and_verifier ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+DIRECT RUSTC ["rustc", "--edition=2021", "--crate-name", "rml_linked_rust_ast", "/workspace/shared/phase27-source-native-verification/.rml-cache/scratch/1791435665011-6/direct-source-8yrIbT/scripts/linked-runtime-rust/src/main.rs", "--crate-type", "bin", "-C", "opt-level=1", "-C", "debuginfo=0", "-C", "codegen-units=2", "-A", "unused_parens", "-L", "dependency=/workspace/shared/rml-dependency-refresh/.rml-cache/dependency-helper/debug/deps", "-o", "/workspace/shared/phase27-source-native-verification/.rml-cache/direct-native/debug/rml-linked-rust-ast", "--extern", "syn=/workspace/shared/rml-dependency-refresh/.rml-cache/dependency-helper/debug/deps/libsyn-5d3fc521e1fc0af4.rlib", "--extern", "syn_serde=/workspace/shared/rml-dependency-refresh/.rml-cache/dependency-helper/debug/deps/libsyn_serde-cfd4c4bee24b0c7d.rlib", "--extern", "quote=/workspace/shared/rml-dependency-refresh/.rml-cache/dependency-helper/debug/deps/libquote-196664802a4d6bb6.rlib", "--extern", "serde_json=/workspace/shared/rml-dependency-refresh/.rml-cache/dependency-helper/debug/deps/libserde_json-177e0628965415a7.rlib"]
+
+running 1 test
+test syn3_syntax_preserves_native_observations ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+{
+  "schema": "rml-source-free-direct-rustc-validation/v1",
+  "mode": "Freshly compile emitted owned source using read-only SHA-frozen generic rlibs; no Cargo resolution or provider rebuild",
+  "sourceModules": 47,
+  "archiveSha256": "d0a0c3189d032b12d6e194f468925dc086ea2b064d961e9efd901e8504574d8e",
+  "inputFreezeSha256": "4bee50bc5778d4dfd9296e37b18d4f193f40750b8d72a85fcda4217d98a7cf9f",
+  "genericInputManifestSha256": "857f7e349ad9653a240630b5532a2e8be1ff19161f3d4d33b52b7db53c5a0c48",
+  "seedHelperSha256": "05e71c9e5d8e260f8250bee91548b945260a3fd7d6ec7ebe636b0bcaaf9fe5d1",
+  "regeneratedHelperSha256": "17ce6e5273f8bf9e8956f22195016f8ffcebf41a09b1f97df6a62d34074473df",
+  "parserMutation": true,
+  "verifierMutation": true,
+  "generatorFixedPoint": true,
+  "syntaxRegressions": 4,
+  "sourceInputsUnchanged": true,
+  "genericInputsUnchanged": true,
+  "receipts": [
+    {
+      "variant": "baseline",
+      "runtimeSha256": "12844a4a25b1be4a7f0a36955f91388bdfe3f7e6b4631e2e349c36359c93fc87",
+      "testSha256": "b1b97e9cf57e65258791e98043e2f7ac2daa8b3a80a7db8d3c967eed4cd02d56",
+      "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+    },
+    {
+      "variant": "parser",
+      "runtimeSha256": "eaa8622d639ffe49243ccb5ff559e2889d2ccf2d006efc7fcb257a1350dc3e93",
+      "testSha256": "0c53757a84cd11d7c425ea609ae19f1e3d24247f2aee597eddeb827e11ef5576",
+      "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+    },
+    {
+      "variant": "verifier",
+      "runtimeSha256": "596dbf46ceda0bbd16e1f34a21de165657bdedc341cadbe0f121d76cac2919ef",
+      "testSha256": "0433bb10c6b0144ed5d22bb6c3a6b412991cdd0a4fa4cea420e876609f936a5e",
+      "assertionSourceSha256": "18315a39bbd065b5148b1e327e0ec5ac81bd47d22457d3b52aa16eebc578ac4e"
+    }
+  ],
+  "fullCargoAggregatePassed": false,
+  "fullCompilerCorrectness": false
+}
+Exact model/JavaScript/native receipt bytes: 8/34
+Exact model/JavaScript/native receipt bytes: 16/34
+Exact model/JavaScript/native receipt bytes: 24/34
+Exact model/JavaScript/native receipt bytes: 32/34
+Exact model/JavaScript/native receipt bytes: 34/34
+Independent cross-port replay: 8/34
+Independent cross-port replay: 16/34
+Independent cross-port replay: 24/34
+Independent cross-port replay: 32/34
+Independent cross-port replay: 34/34
+{
+  "schema": "rml-linked-target-witness/v1",
+  "sourceFree": true,
+  "proofCases": 34,
+  "exactReceiptByteComparisons": 34,
+  "crossPortReplays": 34,
+  "parserCases": 4,
+  "strictNativeFrames": 4,
+  "corruptNativeFramesRejected": 5,
+  "forgedReceiptRejected": true,
+  "resourceExhaustionIsError": true,
+  "independentModelInterpreter": true,
+  "regeneratedLayoutChangesBytes": true,
+  "regeneratedVerdictChangesExecution": true,
+  "regeneratedParserChangesObservation": true,
+  "nativeArtifactHashes": [
+    "e88003d78407044f39ce9bf96c98753ea8627f0a3a3351c52afb8133a3a4e849",
+    "090ae8161c0e2edd82192ff4d37586140f1f2ba89bfaec219c142c6a8c52d150",
+    "47ec954f38e5eb0957965fe3222f3d9372640555f578d3a6ea38337646016077",
+    "0ea63597c56e220c557d491e42eebf689c088f62642cfca8364af045f99be9b3"
+  ],
+  "genericGeneratorHashes": [
+    [
+      "scripts/linked-target-abi.mjs",
+      "cdfc5b52894140aabc143c30124915ab8bac5c19c59fff3bd8d5a524d4a419ac"
+    ],
+    [
+      "scripts/linked-target-rust-codegen.mjs",
+      "f12ec61cdee49ad21d0ebd12fded4e288c0dd9b0671a568be9a2d32c7b1073aa"
+    ]
+  ],
+  "fullCompilerCorrectness": false,
+  "physicalIsaModel": false
+}
+build-cache: before=79078530 after=79078530 reclaimed=0 budget=1073741824 bytes; 0 protected paths; within budget

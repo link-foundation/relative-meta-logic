@@ -120,10 +120,22 @@ describe('npm release workflow (issue #189)', () => {
     const publishStep = releaseWorkflow.slice(releaseWorkflow.indexOf('- name: Publish to npm'));
     assert.match(publishStep.split(/\n\s+- name:/)[0], /github\.ref == 'refs\/heads\/main'/);
     assert.match(publishStep, /github\.event_name != 'pull_request'/);
+    assert.match(releaseWorkflow, /- name: Report why this pull request skips publication\s+if: github\.event_name == 'pull_request' && steps\.check\.outputs\.should_publish == 'true'[\s\S]*?requires the npm trusted publisher on main/);
   });
 
   it('upgrades npm when it is older than 11.5.1 (the first OIDC-capable release)', () => {
     assert.match(releaseWorkflow, /npm install -g npm@\^11\.5\.1/);
+  });
+
+  it('validates package contents even when npm already serves this version', () => {
+    const registryCheck = releaseWorkflow.indexOf('run: node scripts/npm-release.mjs check');
+    const publishDryRun = releaseWorkflow.indexOf('npm publish --dry-run');
+    assert.ok(registryCheck >= 0 && registryCheck < publishDryRun);
+    const remainingSteps = releaseWorkflow.slice(registryCheck).split(/\n\s+- name: /);
+    const unpublished = remainingSteps.find(step => step.includes('npm publish --dry-run'));
+    const published = remainingSteps.find(step => step.includes('npm pack --dry-run'));
+    assert.match(unpublished, /if: steps\.check\.outputs\.should_publish == 'true'/);
+    assert.match(published, /if: steps\.check\.outputs\.should_publish == 'false'/);
   });
 
   it('keeps crates.io publication in the separate crates-release workflow', () => {

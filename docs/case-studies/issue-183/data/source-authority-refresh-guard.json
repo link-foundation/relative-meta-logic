@@ -1,0 +1,21 @@
+{
+  "schema": "rml-current-linked-implementation/v1",
+  "currentTreeConsistent": true,
+  "implementations": [
+    {
+      "manifest": "lib/linked-runtime/manifest.json",
+      "modules": 158,
+      "archiveSha256": "eaa06c6a49e5b13c9332ef931f1587e7cb3403c89ce9b420e8dbfa830bc86cdf"
+    },
+    {
+      "manifest": "lib/linked-runtime/rust-manifest.json",
+      "modules": 47,
+      "archiveSha256": "d0a0c3189d032b12d6e194f468925dc086ea2b064d961e9efd901e8504574d8e"
+    }
+  ],
+  "configuration": {
+    "files": 142,
+    "providers": 912,
+    "currentTreeConsistent": true
+  }
+}

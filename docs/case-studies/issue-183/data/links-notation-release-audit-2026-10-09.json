@@ -1,0 +1,16 @@
+{
+  "schema": "rml-links-notation-release-audit/v1",
+  "checkedAt": "2026-10-09T05:47:53.848897+00:00",
+  "provenance": "reconstructed implementation; registry payload bytes freshly fetched",
+  "npm": {
+    "version": "0.25.1",
+    "sourceRevision": "9e476ce86bb26b690974607eccfaabb77f649ac1",
+    "integrity": "sha512-5SILcnFGCJ8WQ1JMZKTDkf+cNndckly80ZqkOLug41WD15H5RWvstxH3nc/7BngzhxgnCeAUUEGnvZR0LW9+IA=="
+  },
+  "crate": {
+    "version": "0.25.1",
+    "checksum": "e9f8ae3a1596073a2a25a3fa014b42a11c2cbda6eccd0654418244215653c073",
+    "rustVersion": "1.87"
+  },
+  "transitiveMetaLanguageRustLinksNotation": "0.22.0"
+}

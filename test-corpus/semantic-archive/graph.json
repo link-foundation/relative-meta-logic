@@ -1,0 +1,108 @@
+{
+  "roots": [
+    "foundation",
+    "proof",
+    "类型\n:🌍"
+  ],
+  "snapshot": {
+    "links": [
+      {
+        "address": "ontology",
+        "source": "ontology",
+        "target": "ontology"
+      },
+      {
+        "address": "address",
+        "source": "ontology",
+        "target": "address"
+      },
+      {
+        "address": "type",
+        "source": "ontology",
+        "target": "type"
+      },
+      {
+        "address": "value",
+        "source": "type",
+        "target": "value"
+      },
+      {
+        "address": "term",
+        "source": "value",
+        "target": "term"
+      },
+      {
+        "address": "rule",
+        "source": "term",
+        "target": "substitution"
+      },
+      {
+        "address": "substitution",
+        "source": "term",
+        "target": "judgement"
+      },
+      {
+        "address": "judgement",
+        "source": "term",
+        "target": "proof"
+      },
+      {
+        "address": "proof",
+        "source": "rule",
+        "target": "judgement"
+      },
+      {
+        "address": "foundation",
+        "source": "ontology",
+        "target": "rule"
+      },
+      {
+        "address": "contract",
+        "source": "foundation",
+        "target": "obligation"
+      },
+      {
+        "address": "obligation",
+        "source": "obligation",
+        "target": "obligation"
+      },
+      {
+        "address": "类型\n:🌍",
+        "source": "类型\n:🌍",
+        "target": "类型\n:🌍"
+      },
+      {
+        "address": "﻿leading",
+        "source": "﻿leading",
+        "target": "﻿leading"
+      },
+      {
+        "address": "nul\u0000id",
+        "source": "nul\u0000id",
+        "target": "nul\u0000id"
+      }
+    ],
+    "typeFacts": [
+      {
+        "address": "tf.rule",
+        "subject": "rule",
+        "type": "type"
+      },
+      {
+        "address": "tf.proof",
+        "subject": "proof",
+        "type": "type"
+      },
+      {
+        "address": "tf.ontology",
+        "subject": "ontology",
+        "type": "type"
+      },
+      {
+        "address": "tf.meta",
+        "subject": "tf.rule",
+        "type": "type"
+      }
+    ]
+  }
+}

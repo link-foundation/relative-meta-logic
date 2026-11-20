@@ -178,4 +178,54 @@ describe('rml-lsp stdio server', () => {
     assert.strictEqual(shutdown.result, null);
     client.notify('exit', null);
   });
+
+  it('places LiNo parse failures and definitions at UTF-16 positions', async t => {
+    const client = new LspClient();
+    t.after(() => client.close());
+
+    const init = await client.request('initialize', {
+      processId: process.pid,
+      rootUri: pathToFileURL(path.resolve('..')).href,
+      capabilities: {},
+    });
+    assert.ifError(init.error);
+    client.notify('initialized', {});
+
+    // RML spans count code points; LSP counts UTF-16 code units, so the
+    // emoji before the stray `)` moves it one character to the right.
+    const uri = 'file:///workspace/emoji.lino';
+    client.notify('textDocument/didOpen', {
+      textDocument: { uri, languageId: 'lino', version: 1, text: '(\u{1F600} a))\n' },
+    });
+    const bad = await client.waitForNotification('textDocument/publishDiagnostics', p =>
+      p.uri === uri && p.diagnostics.length === 1);
+    assert.strictEqual(bad.params.diagnostics[0].code, 'E006');
+    assert.strictEqual(bad.params.diagnostics[0].message, 'LiNo parse failure: unexpected ")"');
+    assert.deepStrictEqual(bad.params.diagnostics[0].range, {
+      start: { line: 0, character: 6 },
+      end: { line: 0, character: 7 },
+    });
+
+    // The front end drops a leading byte order mark before it counts columns.
+    client.notify('textDocument/didChange', {
+      textDocument: { uri, version: 2 },
+      contentChanges: [{
+        text: '\uFEFF(\u{1F600}x: a is a)\n(? (\u{1F600}x = \u{1F600}x))\n',
+      }],
+    });
+    await client.waitForNotification('textDocument/publishDiagnostics', p =>
+      p.uri === uri && p.diagnostics.length === 0);
+    const definition = await client.request('textDocument/definition', {
+      textDocument: { uri },
+      position: { line: 1, character: 5 },
+    });
+    assert.deepStrictEqual(definition.result.range, {
+      start: { line: 0, character: 2 },
+      end: { line: 0, character: 5 },
+    });
+
+    const shutdown = await client.request('shutdown', null);
+    assert.strictEqual(shutdown.result, null);
+    client.notify('exit', null);
+  });
 });

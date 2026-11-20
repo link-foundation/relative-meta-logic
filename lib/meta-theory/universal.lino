@@ -1,0 +1,526 @@
+# Executable formal semantics represented as links.
+#
+# Every object-language operation below is consumed by the same generic
+# structural rewrite and inference machine.  Program names select link data;
+# they do not select JavaScript or Rust callbacks.
+
+(namespace universal-meta-theory)
+
+# The minimal link substrate.  A link is an addressed ordered pair and may
+# contain its own address in either position.
+
+(linked-program links-meta-theory)
+
+(linked-rewrite links-meta-theory link-source
+  (from (source (at ?address (link ?source ?target))))
+  (to ?source))
+
+(linked-rewrite links-meta-theory link-target
+  (from (target (at ?address (link ?source ?target))))
+  (to ?target))
+
+(linked-rewrite links-meta-theory link-address
+  (from (address (at ?address (link ?source ?target))))
+  (to ?address))
+
+# K1 is a links-defined meta-interpreter above the generated closed S/K kernel.
+# The host contracts only S and K; matching, substitution, traversal, imports,
+# inference, and verification are closed linked terms. This representation is
+# not claimed to be mathematically irreducible (iota is a one-rule equivalent).
+# Object patterns use (meta-variable name), so their variables are data rather
+# than the ?variables consumed by K0. The rules below define environment
+# lookup, repeated-variable matching, substitution, rule selection,
+# application, and positive result verification as ordinary links.
+
+(linked-program links-meta-foundation
+  (uses links-meta-theory))
+
+(linked-rewrite links-meta-foundation lookup-binding-head
+  (from
+    (lookup-binding ?name (binding ?name ?value ?remaining-bindings)))
+  (to (binding-found ?value)))
+
+(linked-rewrite links-meta-foundation lookup-binding-tail
+  (from
+    (lookup-binding ?name (binding ?other-name ?value ?remaining-bindings)))
+  (to (lookup-binding ?name ?remaining-bindings)))
+
+(linked-rewrite links-meta-foundation lookup-binding-empty
+  (from (lookup-binding ?name (no-bindings)))
+  (to binding-not-found))
+
+(linked-rewrite links-meta-foundation match-variable-reference
+  (from (meta-match (meta-variable ?name) ?candidate ?bindings))
+  (to
+    (match-variable
+      (lookup-binding ?name ?bindings)
+      ?name
+      ?candidate
+      ?bindings)))
+
+(linked-rewrite links-meta-foundation match-unbound-variable
+  (from
+    (match-variable binding-not-found ?name ?candidate ?bindings))
+  (to
+    (match-ok (binding ?name ?candidate ?bindings))))
+
+(linked-rewrite links-meta-foundation match-repeated-variable
+  (from
+    (match-variable (binding-found ?candidate) ?name ?candidate ?bindings))
+  (to (match-ok ?bindings)))
+
+(linked-rewrite links-meta-foundation reject-conflicting-variable
+  (from
+    (match-variable (binding-found ?previous) ?name ?candidate ?bindings))
+  (to match-failed))
+
+(linked-rewrite links-meta-foundation match-identical-atoms
+  (from (meta-match (atom ?value) (atom ?value) ?bindings))
+  (to (match-ok ?bindings)))
+
+(linked-rewrite links-meta-foundation reject-distinct-atoms
+  (from (meta-match (atom ?left) (atom ?right) ?bindings))
+  (to match-failed))
+
+(linked-rewrite links-meta-foundation match-pairs
+  (from
+    (meta-match
+      (pair ?left-pattern ?right-pattern)
+      (pair ?left-candidate ?right-candidate)
+      ?bindings))
+  (to
+    (match-pair-right
+      (meta-match ?left-pattern ?left-candidate ?bindings)
+      ?right-pattern
+      ?right-candidate)))
+
+(linked-rewrite links-meta-foundation match-pair-right-success
+  (from
+    (match-pair-right
+      (match-ok ?bindings)
+      ?right-pattern
+      ?right-candidate))
+  (to (meta-match ?right-pattern ?right-candidate ?bindings)))
+
+(linked-rewrite links-meta-foundation match-pair-right-failure
+  (from
+    (match-pair-right match-failed ?right-pattern ?right-candidate))
+  (to match-failed))
+
+(linked-rewrite links-meta-foundation reject-structural-mismatch
+  (from (meta-match ?pattern ?candidate ?bindings))
+  (to match-failed))
+
+(linked-rewrite links-meta-foundation substitute-variable-reference
+  (from (meta-substitute (meta-variable ?name) ?bindings))
+  (to
+    (substitute-variable (lookup-binding ?name ?bindings) ?name)))
+
+(linked-rewrite links-meta-foundation substitute-bound-variable
+  (from (substitute-variable (binding-found ?value) ?name))
+  (to ?value))
+
+(linked-rewrite links-meta-foundation reject-unbound-substitution
+  (from (substitute-variable binding-not-found ?name))
+  (to (unbound-meta-variable ?name)))
+
+(linked-rewrite links-meta-foundation substitute-atom
+  (from (meta-substitute (atom ?value) ?bindings))
+  (to (atom ?value)))
+
+(linked-rewrite links-meta-foundation substitute-pair
+  (from
+    (meta-substitute (pair ?left ?right) ?bindings))
+  (to
+    (pair
+      (meta-substitute ?left ?bindings)
+      (meta-substitute ?right ?bindings))))
+
+(linked-rewrite links-meta-foundation apply-object-rule
+  (from
+    (meta-apply (rewrite ?pattern ?replacement) ?candidate))
+  (to
+    (finish-meta-apply
+      (meta-match ?pattern ?candidate (no-bindings))
+      ?replacement)))
+
+(linked-rewrite links-meta-foundation finish-object-rule-success
+  (from
+    (finish-meta-apply (match-ok ?bindings) ?replacement))
+  (to
+    (rewrite-result (meta-substitute ?replacement ?bindings))))
+
+(linked-rewrite links-meta-foundation finish-object-rule-failure
+  (from
+    (finish-meta-apply match-failed ?replacement))
+  (to rewrite-miss))
+
+(linked-rewrite links-meta-foundation select-first-object-rule
+  (from
+    (meta-rewrite (rules ?rule ?remaining-rules) ?candidate))
+  (to
+    (select-meta-rewrite
+      (meta-apply ?rule ?candidate)
+      ?remaining-rules
+      ?candidate)))
+
+(linked-rewrite links-meta-foundation select-successful-object-rule
+  (from
+    (select-meta-rewrite
+      (rewrite-result ?result)
+      ?remaining-rules
+      ?candidate))
+  (to ?result))
+
+(linked-rewrite links-meta-foundation select-next-object-rule
+  (from
+    (select-meta-rewrite rewrite-miss ?remaining-rules ?candidate))
+  (to (meta-rewrite ?remaining-rules ?candidate)))
+
+(linked-rewrite links-meta-foundation no-object-rule-applies
+  (from (meta-rewrite (no-rules) ?candidate))
+  (to ?candidate))
+
+(linked-rewrite links-meta-foundation verify-object-result
+  (from (meta-verify ?result ?result))
+  (to verified))
+
+# A de Bruijn lambda calculus. Binding, environments, substitution, and beta
+# reduction are rules in this program. The generic evaluator knows none of
+# these constructors. Closures retain lexical environments, so nested binders
+# are capture-safe without host-language substitution.
+
+(linked-program lambda-calculus
+  (uses links-meta-theory))
+
+(linked-rewrite lambda-calculus evaluate-free
+  (from (evaluate (free ?name) ?environment))
+  (to (free ?name)))
+
+(linked-rewrite lambda-calculus evaluate-bound-zero
+  (from (evaluate (bound zero) (bind ?value ?environment)))
+  (to ?value))
+
+(linked-rewrite lambda-calculus evaluate-bound-successor
+  (from
+    (evaluate (bound (successor ?index)) (bind ?value ?environment)))
+  (to (evaluate (bound ?index) ?environment)))
+
+(linked-rewrite lambda-calculus evaluate-lambda
+  (from (evaluate (lambda ?body) ?environment))
+  (to (closure ?body ?environment)))
+
+(linked-rewrite lambda-calculus evaluate-application
+  (from (evaluate (apply ?function ?argument) ?environment))
+  (to
+    (invoke
+      (evaluate ?function ?environment)
+      (evaluate ?argument ?environment))))
+
+(linked-rewrite lambda-calculus invoke-closure
+  (from (invoke (closure ?body ?environment) ?argument))
+  (to (evaluate ?body (bind ?argument ?environment))))
+
+(linked-rewrite lambda-calculus substitute-bound-variable
+  (from (substitute ?body ?argument))
+  (to (evaluate ?body (bind ?argument empty-environment))))
+
+(linked-rewrite lambda-calculus beta-reduction
+  (from (beta (lambda ?body) ?argument))
+  (to (substitute ?body ?argument)))
+
+# S and K form a universal combinatory basis. These two rules establish that
+# computations do not require a newly hard-coded host operation per theory.
+
+(linked-program combinatory-logic)
+
+(linked-rewrite combinatory-logic k-reduction
+  (from (apply (apply K ?x) ?y))
+  (to ?x))
+
+(linked-rewrite combinatory-logic s-reduction
+  (from (apply (apply (apply S ?x) ?y) ?z))
+  (to (apply (apply ?x ?z) (apply ?y ?z))))
+
+# Constructive finite sets. Lists are link-shaped cons cells; membership,
+# insertion, union, subset, and extensional equality are definitions rather
+# than host collection operations. Repeated pattern variables express exact
+# address equality, and ordered rule priority supplies the unequal fallback.
+
+(linked-program set-theory
+  (uses links-meta-theory))
+
+(linked-rewrite set-theory boolean-and-false
+  (from (boolean-and false ?right))
+  (to false))
+
+(linked-rewrite set-theory boolean-and-true
+  (from (boolean-and true ?right))
+  (to ?right))
+
+(linked-rewrite set-theory member-head
+  (from (member ?element (cons ?element ?tail)))
+  (to true))
+
+(linked-rewrite set-theory member-tail
+  (from (member ?element (cons ?other ?tail)))
+  (to (member ?element ?tail)))
+
+(linked-rewrite set-theory member-empty
+  (from (member ?element (empty)))
+  (to false))
+
+(linked-rewrite set-theory insert
+  (from (insert ?element ?set))
+  (to (insert-if (member ?element ?set) ?element ?set)))
+
+(linked-rewrite set-theory insert-existing
+  (from (insert-if true ?element ?set))
+  (to ?set))
+
+(linked-rewrite set-theory insert-new
+  (from (insert-if false ?element ?set))
+  (to (cons ?element ?set)))
+
+(linked-rewrite set-theory subset-empty
+  (from (subset (empty) ?right))
+  (to true))
+
+(linked-rewrite set-theory subset-cons
+  (from (subset (cons ?head ?tail) ?right))
+  (to
+    (boolean-and
+      (member ?head ?right)
+      (subset ?tail ?right))))
+
+(linked-rewrite set-theory extensional-set-equality
+  (from (set-equal ?left ?right))
+  (to
+    (boolean-and
+      (subset ?left ?right)
+      (subset ?right ?left))))
+
+(linked-rewrite set-theory union-empty
+  (from (set-union (empty) ?right))
+  (to ?right))
+
+(linked-rewrite set-theory union-cons
+  (from (set-union (cons ?head ?tail) ?right))
+  (to (set-union ?tail (insert ?head ?right))))
+
+(linked-rewrite set-theory pairing
+  (from (set-pair ?left ?right))
+  (to
+    (insert ?left (insert ?right (empty)))))
+
+(linked-rewrite set-theory intersection-empty
+  (from (set-intersection (empty) ?right))
+  (to (empty)))
+
+(linked-rewrite set-theory intersection-cons
+  (from (set-intersection (cons ?head ?tail) ?right))
+  (to
+    (intersection-if
+      (member ?head ?right)
+      ?head
+      (set-intersection ?tail ?right))))
+
+(linked-rewrite set-theory intersection-include
+  (from (intersection-if true ?head ?tail))
+  (to (insert ?head ?tail)))
+
+(linked-rewrite set-theory intersection-exclude
+  (from (intersection-if false ?head ?tail))
+  (to ?tail))
+
+(linked-rewrite set-theory replacement-empty
+  (from (set-image ?constructor (empty)))
+  (to (empty)))
+
+(linked-rewrite set-theory replacement-cons
+  (from (set-image ?constructor (cons ?head ?tail)))
+  (to
+    (insert
+      (image ?constructor ?head)
+      (set-image ?constructor ?tail))))
+
+(linked-rewrite set-theory canonicalize-set
+  (from (canonical-set ?set))
+  (to (set-union ?set (empty))))
+
+# The set rules above are written once. These two imports instantiate that
+# unchanged theory over distinct constructor vocabularies: a conventional
+# sequence presentation and an associative Links presentation.
+
+(linked-program traditional-sequence-foundation)
+
+(linked-program associative-links-foundation
+  (uses links-meta-theory))
+
+(linked-program set-theory-over-traditional-sequences
+  (uses set-theory
+    (rebind cons sequence-cons)
+    (rebind empty sequence-empty))
+  (uses traditional-sequence-foundation))
+
+(linked-program set-theory-over-associative-links
+  (uses set-theory
+    (rebind cons link-cons)
+    (rebind empty link-empty))
+  (uses associative-links-foundation))
+
+# Graph reachability is the least closure of edges under these two inference
+# links. Saturation is finite under the caller's explicit resource bounds.
+
+(linked-program graph-theory
+  (uses set-theory))
+
+(linked-inference graph-theory edge-is-reachable
+  (premise (edge ?source ?target))
+  (conclusion (reachable ?source ?target)))
+
+(linked-inference graph-theory transitive-reachability
+  (premise (reachable ?source ?middle))
+  (premise (edge ?middle ?target))
+  (conclusion (reachable ?source ?target)))
+
+(linked-inference graph-theory endpoint-closure
+  (premise (vertex ?graph ?source))
+  (premise (vertex ?graph ?target))
+  (conclusion (valid-edge ?graph ?source ?target)))
+
+(linked-inference graph-theory edge-typing
+  (premise (valid-edge ?graph ?source ?target))
+  (conclusion
+    (has-edge-type ?graph ?source ?target
+      (Pair (Vertex ?graph) (Vertex ?graph)))))
+
+# Binary relations are typed links. Converse and composition are inference
+# rules, while finite union and intersection reuse set definitions.
+
+(linked-program relational-algebra
+  (uses set-theory))
+
+(linked-inference relational-algebra converse
+  (premise (relates ?relation ?left ?right))
+  (conclusion (relates (converse ?relation) ?right ?left)))
+
+(linked-inference relational-algebra composition
+  (premise (relates ?left-relation ?left ?middle))
+  (premise (relates ?right-relation ?middle ?right))
+  (conclusion
+    (relates (compose ?left-relation ?right-relation) ?left ?right)))
+
+(linked-inference relational-algebra domain-codomain-closure
+  (premise (member-of ?left (domain ?relation)))
+  (premise (member-of ?right (codomain ?relation)))
+  (conclusion (valid-pair ?relation ?left ?right)))
+
+(linked-inference relational-algebra union-left
+  (premise (relates ?left-relation ?left ?right))
+  (premise (relation ?right-relation))
+  (conclusion
+    (relates (relation-union ?left-relation ?right-relation) ?left ?right)))
+
+(linked-inference relational-algebra union-right
+  (premise (relation ?left-relation))
+  (premise (relates ?right-relation ?left ?right))
+  (conclusion
+    (relates (relation-union ?left-relation ?right-relation) ?left ?right)))
+
+(linked-inference relational-algebra intersection
+  (premise (relates ?left-relation ?left ?right))
+  (premise (relates ?right-relation ?left ?right))
+  (conclusion
+    (relates
+      (relation-intersection ?left-relation ?right-relation)
+      ?left
+      ?right)))
+
+(linked-inference relational-algebra pair-typing
+  (premise (valid-pair ?relation ?left ?right))
+  (conclusion
+    (has-pair-type ?relation ?left ?right
+      (Pair (Domain ?relation) (Codomain ?relation)))))
+
+# A small dependent type kernel expressed as judgements. Users can replace or
+# extend these facts and rules to construct another logic. The default fragment
+# includes universes, Pi formation, lambda introduction, application, and beta
+# conversion without dispatching to an external prover.
+
+(linked-program dependent-type-theory
+  (uses lambda-calculus))
+
+(linked-fact dependent-type-theory type-zero
+  (judgement (has-type Type0 Type1)))
+
+(linked-fact dependent-type-theory natural-type
+  (judgement (has-type Nat Type0)))
+
+(linked-fact dependent-type-theory natural-zero
+  (judgement (has-type zero Nat)))
+
+(linked-fact dependent-type-theory identity-function
+  (judgement
+    (has-type (lambda Nat (bound zero)) (Pi Nat Nat))))
+
+(linked-rewrite dependent-type-theory compatible-identical-types
+  (from (type-compatible ?type ?type))
+  (to true))
+
+(linked-rewrite dependent-type-theory incompatible-types
+  (from (type-compatible ?expected ?actual))
+  (to false))
+
+(linked-inference dependent-type-theory pi-formation
+  (premise (has-type ?domain Type0))
+  (premise (has-type ?codomain Type0))
+  (conclusion (has-type (Pi ?domain ?codomain) Type0)))
+
+(linked-inference dependent-type-theory application-elimination
+  (premise (has-type ?function (Pi ?domain ?codomain)))
+  (premise (has-type ?argument ?domain))
+  (conclusion
+    (has-type (apply ?function ?argument) ?codomain)))
+
+(linked-inference dependent-type-theory beta-conversion
+  (premise (has-type (apply (lambda ?domain ?body) ?argument) ?type))
+  (conclusion
+    (has-type (beta (lambda ?body) ?argument) ?type)))
+
+# Default Boolean logic and unary natural confidence values. They demonstrate
+# that truth and confidence combination are selected by linked definitions;
+# another program may choose different rules without changing either runtime.
+
+(linked-program relative-meta-logic
+  (uses combinatory-logic))
+
+(linked-rewrite relative-meta-logic negate-true
+  (from (negate true))
+  (to false))
+
+(linked-rewrite relative-meta-logic negate-false
+  (from (negate false))
+  (to true))
+
+(linked-rewrite relative-meta-logic conjunction-false
+  (from (conjunction false ?right))
+  (to false))
+
+(linked-rewrite relative-meta-logic conjunction-true
+  (from (conjunction true ?right))
+  (to ?right))
+
+(linked-rewrite relative-meta-logic confidence-minimum-zero
+  (from (confidence-minimum zero ?right))
+  (to zero))
+
+(linked-rewrite relative-meta-logic confidence-minimum-right-zero
+  (from (confidence-minimum (successor ?left) zero))
+  (to zero))
+
+(linked-rewrite relative-meta-logic confidence-minimum-successors
+  (from
+    (confidence-minimum (successor ?left) (successor ?right)))
+  (to
+    (successor (confidence-minimum ?left ?right))))

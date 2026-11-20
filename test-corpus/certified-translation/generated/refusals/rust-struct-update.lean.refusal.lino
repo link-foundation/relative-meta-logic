@@ -1,0 +1,33 @@
+(translation-refusal
+  (schema "rml:translation-refusal:1")
+  (translator
+    (name rml-certified-translation)
+    (upstream "https://github.com/link-foundation/meta-language")
+    (pull-request 201)
+    (commit 7c4bf8f1e3f88806b09d5210643cc6611d30d1f9)
+    (lock-sha256 9806f3956904e40a539cf0211978b26167f70e30b71095bf2b51f927a19f17f7))
+  (source
+    (language Rust)
+    (sha256 08db06d3615fb5c97dc2acc773eeefbe61f33fe379b973bd11517fdcb19766e5)
+    (bytes 305)
+    (utf16 305))
+  (target (language Lean) (status not-emitted))
+  (stage rml-lowering)
+  (diagnostic
+    (kind unsupported)
+    (message "functional record update: struct update syntax copies fields RML would have to name; list every field")
+    (span 252 260)
+    (bytes 252 260)
+    (span-sha256 74bdb1e2908a52712af0fb72b8ccda2c06774e70ab2be2d5a3bb0ee64fe09e34))
+  (preserved-source
+    (sha256 08db06d3615fb5c97dc2acc773eeefbe61f33fe379b973bd11517fdcb19766e5)
+    (status retained-unchanged))
+  (losses
+    (whole-program "no target is emitted and no behavior, type or proof claim is made; the first refusal is reported and later constructs were not examined"))
+  (authority
+    (macros none)
+    (traits none)
+    (runtime none)
+    (external-kernels oracle-only)
+    (proof-authority rml))
+  (digest sha256 cee7db1f4cb42f35ecf6638560ef4553aa412a3bcc519c48225ee4fef9772a3e))

@@ -1,0 +1,12 @@
+{
+  "schema": "rml-syn3-bootstrap-validation/v1",
+  "node": "v24.19.0",
+  "sourceFreeHelperBuild": true,
+  "generatorFixedPointModules": 37,
+  "independentSyntaxRoundTrips": 7,
+  "nativeSyntaxAssertions": 5,
+  "reservedFrontmatterRejected": true,
+  "seedHelperSha256": "05e71c9e5d8e260f8250bee91548b945260a3fd7d6ec7ebe636b0bcaaf9fe5d1",
+  "generatedHelperSha256": "00bf79ffdc3282269f9257a7258227c10802d5765de29e39c8fcc28c81222e27",
+  "wholeNativeSuite": false
+}

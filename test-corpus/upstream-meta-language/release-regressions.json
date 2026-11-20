@@ -1,0 +1,63 @@
+{
+  "schema": "rml-upstream-release-regressions/v1",
+  "release": "1.0.0",
+  "supported": [
+    {
+      "name": "omitted default arguments",
+      "source": "function label(name, suffix = 'ok', depth = 2) { return `${name}:${suffix}:${depth}`; }\nconsole.log('%s', label('a'), label('b', 'x'), label('c', 'y', 3));\n",
+      "targets": [
+        "Rust",
+        "Lean",
+        "Rocq"
+      ],
+      "rustIncludes": [
+        "crate::label(String::from(\"a\"), String::from(\"ok\"), 2f64)",
+        "crate::label(String::from(\"b\"), String::from(\"x\"), 2f64)"
+      ]
+    },
+    {
+      "name": "default references use declaration scope",
+      "source": "function base() { return 7; }\nfunction chosen(value = base()) { return value; }\nfunction caller(base) { return chosen(); }\nconsole.log(caller(99));\n",
+      "targets": [
+        "Rust",
+        "Lean",
+        "Rocq"
+      ],
+      "rustIncludes": [
+        "crate::chosen(crate::base())"
+      ]
+    },
+    {
+      "name": "Unicode escape decoding",
+      "source": "console.log('%s', '\\ud83d\\ude00\\u{e9}\\u00e9');\n",
+      "targets": [
+        "Rust"
+      ],
+      "rustIncludes": [
+        "😀éé"
+      ]
+    }
+  ],
+  "refused": [
+    {
+      "name": "lone UTF-16 surrogate",
+      "source": "console.log('%s', '\\ud83d');\n",
+      "reason": "scalar values only"
+    },
+    {
+      "name": "parameter after default",
+      "source": "function f(a = 1, b) { return b; }\n",
+      "reason": "parameter b after a default"
+    },
+    {
+      "name": "default reading another parameter",
+      "source": "function f(a, b = a) { return b; }\nconsole.log(f(1));\n",
+      "reason": "default reading parameter a"
+    },
+    {
+      "name": "constant reassignment",
+      "source": "const c = 1n;\nc = 2n;\n",
+      "reason": "assignment of constant c"
+    }
+  ]
+}

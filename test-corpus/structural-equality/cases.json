@@ -1,0 +1,26 @@
+{
+  "equalities": [
+    { "name": "same atom", "left": "a", "right": "a", "same": true },
+    { "name": "same singleton", "left": ["a"], "right": ["a"], "same": true },
+    { "name": "same empty list", "left": [], "right": [], "same": true },
+    { "name": "same nested list", "left": ["a", [], ["b"]], "right": ["a", [], ["b"]], "same": true },
+    { "name": "same punctuation atom", "left": "(a, b)", "right": "(a, b)", "same": true },
+    { "name": "atom versus singleton", "left": "a", "right": ["a"], "same": false },
+    { "name": "nested singleton versus atom", "left": ["a"], "right": [["a"]], "same": false },
+    { "name": "empty atom versus empty list", "left": "", "right": [], "same": false },
+    { "name": "comma atom versus list", "left": "a,b", "right": ["a", "b"], "same": false },
+    { "name": "comma atom versus nested list", "left": "a,b", "right": [["a"], ["b"]], "same": false },
+    { "name": "nested shape mismatch", "left": ["x", "a"], "right": ["x", ["a"]], "same": false },
+    { "name": "parenthesized atom versus list", "left": "(a)", "right": ["a"], "same": false },
+    { "name": "space atom versus two atoms", "left": ["a b"], "right": ["a", "b"], "same": false },
+    { "name": "distinct atom", "left": "a", "right": "b", "same": false }
+  ],
+  "displayCollisions": [
+    { "name": "parenthesized atom", "left": "(a)", "right": ["a"] },
+    { "name": "empty parenthesized atom", "left": "()", "right": [] },
+    { "name": "nested parenthesized atom", "left": ["(a)"], "right": [["a"]] },
+    { "name": "space atom", "left": ["a b"], "right": ["a", "b"] },
+    { "name": "empty atom in singleton", "left": [""], "right": [] },
+    { "name": "unicode space atom", "left": ["α β"], "right": ["α", "β"] }
+  ]
+}

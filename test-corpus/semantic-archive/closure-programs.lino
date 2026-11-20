@@ -1,0 +1,13 @@
+# Ordinary linked programs projected into one closed semantic links network.
+(linked-program closure-rules)
+(linked-inference closure-rules admission
+  (premise (input ?x)) (conclusion (accepted ?x)))
+(linked-inference closure-rules publication
+  (premise (accepted ?x)) (conclusion (publishable ?x)))
+(linked-program closure-computation)
+(linked-rewrite closure-computation length-empty (from (length nil)) (to z))
+(linked-rewrite closure-computation length-step
+  (from (length (cons ?head ?tail))) (to (s (length ?tail))))
+(linked-program closure-theory (uses closure-rules (rebind unused-name renamed-name)))
+(linked-fact closure-theory submitted (judgement (input specimen)))
+(linked-fact closure-theory archived (judgement (input archive)))

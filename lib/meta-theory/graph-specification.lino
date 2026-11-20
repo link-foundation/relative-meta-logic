@@ -1,0 +1,260 @@
+# Source specification of finite directed graphs, as links.
+#
+# A graph is (gr-graph VERTICES EDGES): VERTICES is a list of vertex links and
+# EDGES a list of (gr-edge SOURCE TARGET) links, both built from
+# (gr-cons HEAD TAIL) and gr-nil and read as finite sets. A binary relation on
+# vertices is an edge list. (gr-named NAME) names a graph defined below.
+#
+# Operations, all executed by the generic linked reducer:
+#   (gr-well-formed G)            every edge endpoint is a vertex
+#   (gr-has-vertex G v)           gr-yes or gr-no
+#   (gr-has-edge G a b)           gr-yes or gr-no
+#   (gr-edge-list G)              the edge list
+#   (gr-successors G v)           adjacency of one vertex
+#   (gr-adjacency G)              (gr-adjacent v SUCCESSORS) for every vertex
+#   (gr-step G R)                 F(R) = E ∪ (R ; E), the monotone closure step
+#   (gr-closure G)                transitive closure as the least fixed point of
+#                                 F, by Kleene iteration from the empty relation
+#   (gr-reachable G a b)          (a, b) is in the closure: a nonempty path
+#   (gr-is-path G VERTICES)       consecutive vertices are joined by edges
+#   (gr-path-ends VERTICES)       (gr-ends FIRST LAST)
+#   (gr-acyclic G)                no vertex reaches itself
+#   (gr-is-fixed-point G R)       F(R) = R as sets
+#   (gr-is-prefixed-point G R)    F(R) ⊆ R
+#   (gr-subset R S)               set inclusion of edge lists
+#   (gr-closure-is-fixed G)       the closure is a fixed point of F
+#   (gr-closure-within G R)       the closure is included in R
+#
+# Reachability is also given inductively by the proof rules returned by
+# (spec-proof-rules); certificates derive it edge by edge.
+
+(linked-program graph-specification)
+
+(linked-rewrite graph-specification and-yes
+  (from (gr-and gr-yes ?right)) (to ?right))
+(linked-rewrite graph-specification and-no
+  (from (gr-and gr-no ?right)) (to gr-no))
+(linked-rewrite graph-specification not-yes
+  (from (gr-not gr-yes)) (to gr-no))
+(linked-rewrite graph-specification not-no
+  (from (gr-not gr-no)) (to gr-yes))
+
+# Finite sets as lists. Elements are always finished links here.
+(linked-rewrite graph-specification member-head
+  (from (gr-member ?item (gr-cons ?item ?rest))) (to gr-yes))
+(linked-rewrite graph-specification member-tail
+  (from (gr-member ?item (gr-cons ?other ?rest))) (to (gr-member ?item ?rest)))
+(linked-rewrite graph-specification member-empty
+  (from (gr-member ?item gr-nil)) (to gr-no))
+(linked-rewrite graph-specification subset-empty
+  (from (gr-subset gr-nil ?right)) (to gr-yes))
+(linked-rewrite graph-specification subset-cons
+  (from (gr-subset (gr-cons ?head ?tail) ?right))
+  (to (gr-and (gr-member ?head ?right) (gr-subset ?tail ?right))))
+(linked-rewrite graph-specification union-empty
+  (from (gr-union gr-nil ?right)) (to ?right))
+(linked-rewrite graph-specification union-cons
+  (from (gr-union (gr-cons ?head ?tail) ?right))
+  (to (gr-union-if (gr-member ?head ?right) ?head ?tail ?right)))
+(linked-rewrite graph-specification union-present
+  (from (gr-union-if gr-yes ?head ?tail ?right)) (to (gr-union ?tail ?right)))
+(linked-rewrite graph-specification union-absent
+  (from (gr-union-if gr-no ?head ?tail ?right)) (to (gr-union ?tail (gr-cons ?head ?right))))
+(linked-rewrite graph-specification append-empty
+  (from (gr-append gr-nil ?right)) (to ?right))
+(linked-rewrite graph-specification append-cons
+  (from (gr-append (gr-cons ?head ?tail) ?right)) (to (gr-cons ?head (gr-append ?tail ?right))))
+# Force a list to finished data before it is shared: (gr-list LIST).
+(linked-rewrite graph-specification force-empty
+  (from (gr-force gr-nil)) (to (gr-list gr-nil)))
+(linked-rewrite graph-specification force-cons
+  (from (gr-force (gr-cons ?head ?tail))) (to (gr-force-cons ?head (gr-force ?tail))))
+(linked-rewrite graph-specification force-rebuild
+  (from (gr-force-cons ?head (gr-list ?tail))) (to (gr-list (gr-cons ?head ?tail))))
+
+# Graph structure.
+(linked-rewrite graph-specification has-vertex
+  (from (gr-has-vertex (gr-graph ?vertices ?edges) ?vertex)) (to (gr-member ?vertex ?vertices)))
+(linked-rewrite graph-specification has-edge
+  (from (gr-has-edge (gr-graph ?vertices ?edges) ?source ?target)) (to (gr-member (gr-edge ?source ?target) ?edges)))
+(linked-rewrite graph-specification edge-list
+  (from (gr-edge-list (gr-graph ?vertices ?edges))) (to ?edges))
+(linked-rewrite graph-specification vertex-list
+  (from (gr-vertex-list (gr-graph ?vertices ?edges))) (to ?vertices))
+(linked-rewrite graph-specification well-formed
+  (from (gr-well-formed (gr-graph ?vertices ?edges))) (to (gr-edges-within ?vertices ?edges)))
+(linked-rewrite graph-specification edges-within-empty
+  (from (gr-edges-within ?vertices gr-nil)) (to gr-yes))
+(linked-rewrite graph-specification edges-within-cons
+  (from (gr-edges-within ?vertices (gr-cons (gr-edge ?source ?target) ?rest)))
+  (to (gr-and (gr-member ?source ?vertices) (gr-and (gr-member ?target ?vertices) (gr-edges-within ?vertices ?rest)))))
+(linked-rewrite graph-specification edges-within-malformed
+  (from (gr-edges-within ?vertices (gr-cons ?other ?rest))) (to gr-no))
+
+(linked-rewrite graph-specification successors
+  (from (gr-successors (gr-graph ?vertices ?edges) ?vertex)) (to (gr-successors-of ?vertex ?edges)))
+(linked-rewrite graph-specification successors-empty
+  (from (gr-successors-of ?vertex gr-nil)) (to gr-nil))
+(linked-rewrite graph-specification successors-edge
+  (from (gr-successors-of ?vertex (gr-cons (gr-edge ?vertex ?target) ?rest)))
+  (to (gr-cons ?target (gr-successors-of ?vertex ?rest))))
+(linked-rewrite graph-specification successors-other
+  (from (gr-successors-of ?vertex (gr-cons ?other ?rest))) (to (gr-successors-of ?vertex ?rest)))
+(linked-rewrite graph-specification adjacency
+  (from (gr-adjacency (gr-graph ?vertices ?edges))) (to (gr-adjacency-of ?vertices ?edges)))
+(linked-rewrite graph-specification adjacency-empty
+  (from (gr-adjacency-of gr-nil ?edges)) (to gr-nil))
+(linked-rewrite graph-specification adjacency-cons
+  (from (gr-adjacency-of (gr-cons ?vertex ?rest) ?edges))
+  (to (gr-cons (gr-adjacent ?vertex (gr-successors-of ?vertex ?edges)) (gr-adjacency-of ?rest ?edges))))
+
+# Relational composition R ; E and the closure step F(R) = E ∪ (R ; E).
+(linked-rewrite graph-specification compose-empty
+  (from (gr-compose gr-nil ?edges)) (to gr-nil))
+(linked-rewrite graph-specification compose-cons
+  (from (gr-compose (gr-cons (gr-edge ?source ?middle) ?rest) ?edges))
+  (to (gr-append (gr-extend-from ?source ?middle ?edges) (gr-compose ?rest ?edges))))
+(linked-rewrite graph-specification extend-empty
+  (from (gr-extend-from ?source ?middle gr-nil)) (to gr-nil))
+(linked-rewrite graph-specification extend-edge
+  (from (gr-extend-from ?source ?middle (gr-cons (gr-edge ?middle ?target) ?rest)))
+  (to (gr-cons (gr-edge ?source ?target) (gr-extend-from ?source ?middle ?rest))))
+(linked-rewrite graph-specification extend-other
+  (from (gr-extend-from ?source ?middle (gr-cons ?other ?rest))) (to (gr-extend-from ?source ?middle ?rest)))
+(linked-rewrite graph-specification step
+  (from (gr-step (gr-graph ?vertices ?edges) ?relation)) (to (gr-union (gr-compose ?relation ?edges) ?edges)))
+
+# Least fixed point by Kleene iteration from the empty relation. F is monotone
+# and every iterate is below the next, so the first iterate R with F(R) ⊆ R is
+# the least fixed point.
+(linked-rewrite graph-specification closure
+  (from (gr-closure (gr-graph ?vertices ?edges))) (to (gr-lfp (gr-graph ?vertices ?edges) gr-nil)))
+(linked-rewrite graph-specification lfp
+  (from (gr-lfp ?graph ?relation)) (to (gr-lfp-next ?graph ?relation (gr-force (gr-step ?graph ?relation)))))
+(linked-rewrite graph-specification lfp-next
+  (from (gr-lfp-next ?graph ?relation (gr-list ?next)))
+  (to (gr-lfp-check (gr-subset ?next ?relation) ?graph ?relation ?next)))
+(linked-rewrite graph-specification lfp-fixed
+  (from (gr-lfp-check gr-yes ?graph ?relation ?next)) (to ?relation))
+(linked-rewrite graph-specification lfp-continue
+  (from (gr-lfp-check gr-no ?graph ?relation ?next)) (to (gr-lfp ?graph ?next)))
+
+(linked-rewrite graph-specification reachable
+  (from (gr-reachable (gr-graph ?vertices ?edges) ?source ?target))
+  (to (gr-member (gr-edge ?source ?target) (gr-closure (gr-graph ?vertices ?edges)))))
+(linked-rewrite graph-specification fixed-point
+  (from (gr-is-fixed-point (gr-graph ?vertices ?edges) ?relation))
+  (to (gr-fixed-ready (gr-graph ?vertices ?edges) (gr-force ?relation))))
+(linked-rewrite graph-specification fixed-point-ready
+  (from (gr-fixed-ready ?graph (gr-list ?relation))) (to (gr-fixed-with ?relation (gr-force (gr-step ?graph ?relation)))))
+(linked-rewrite graph-specification fixed-point-with
+  (from (gr-fixed-with ?relation (gr-list ?next))) (to (gr-and (gr-subset ?next ?relation) (gr-subset ?relation ?next))))
+(linked-rewrite graph-specification closure-is-fixed
+  (from (gr-closure-is-fixed ?graph)) (to (gr-is-fixed-point ?graph (gr-closure ?graph))))
+(linked-rewrite graph-specification closure-within
+  (from (gr-closure-within ?graph ?relation)) (to (gr-subset (gr-closure ?graph) ?relation)))
+(linked-rewrite graph-specification prefixed-point
+  (from (gr-is-prefixed-point (gr-graph ?vertices ?edges) ?relation))
+  (to (gr-subset (gr-step (gr-graph ?vertices ?edges) ?relation) ?relation)))
+
+(linked-rewrite graph-specification path-single
+  (from (gr-is-path (gr-graph ?vertices ?edges) (gr-cons ?vertex gr-nil))) (to (gr-member ?vertex ?vertices)))
+(linked-rewrite graph-specification path-step
+  (from (gr-is-path (gr-graph ?vertices ?edges) (gr-cons ?source (gr-cons ?target ?rest))))
+  (to (gr-and (gr-member (gr-edge ?source ?target) ?edges) (gr-is-path (gr-graph ?vertices ?edges) (gr-cons ?target ?rest)))))
+(linked-rewrite graph-specification path-empty
+  (from (gr-is-path (gr-graph ?vertices ?edges) gr-nil)) (to gr-no))
+(linked-rewrite graph-specification path-ends
+  (from (gr-path-ends (gr-cons ?first ?rest))) (to (gr-ends-from ?first ?rest)))
+(linked-rewrite graph-specification path-ends-last
+  (from (gr-ends-from ?first (gr-cons ?last gr-nil))) (to (gr-ends ?first ?last)))
+(linked-rewrite graph-specification path-ends-next
+  (from (gr-ends-from ?first (gr-cons ?middle ?rest))) (to (gr-ends-from ?first ?rest)))
+
+(linked-rewrite graph-specification acyclic
+  (from (gr-acyclic (gr-graph ?vertices ?edges)))
+  (to (gr-acyclic-with ?vertices (gr-force (gr-closure (gr-graph ?vertices ?edges))))))
+(linked-rewrite graph-specification acyclic-with
+  (from (gr-acyclic-with ?vertices (gr-list ?closure))) (to (gr-no-loops ?vertices ?closure)))
+(linked-rewrite graph-specification no-loops-empty
+  (from (gr-no-loops gr-nil ?closure)) (to gr-yes))
+(linked-rewrite graph-specification no-loops-cons
+  (from (gr-no-loops (gr-cons ?vertex ?rest) ?closure))
+  (to (gr-and (gr-not (gr-member (gr-edge ?vertex ?vertex) ?closure)) (gr-no-loops ?rest ?closure))))
+
+# Named graphs: a diamond-shaped DAG with a tail, and a graph with a cycle.
+(linked-rewrite graph-specification graph-dag
+  (from (gr-named dag))
+  (to (gr-graph
+        (gr-cons a (gr-cons b (gr-cons c (gr-cons d (gr-cons e gr-nil)))))
+        (gr-cons (gr-edge a b) (gr-cons (gr-edge a c) (gr-cons (gr-edge b d)
+          (gr-cons (gr-edge c d) (gr-cons (gr-edge d e) gr-nil))))))))
+(linked-rewrite graph-specification graph-cycle
+  (from (gr-named cycle))
+  (to (gr-graph
+        (gr-cons a (gr-cons b (gr-cons c (gr-cons d gr-nil))))
+        (gr-cons (gr-edge a b) (gr-cons (gr-edge b c) (gr-cons (gr-edge c a) (gr-cons (gr-edge c d) gr-nil)))))))
+
+(linked-rewrite graph-specification theorems
+  (from (spec-theorems))
+  (to (spec-list reach-transitive-dag reach-transitive-cycle closure-fixed-point closure-least
+        path-reaches reach-agrees-with-closure dag-acyclic)))
+(linked-rewrite graph-specification theorem-reach-transitive-dag
+  (from (spec-theorem reach-transitive-dag)) (to (spec-statement (gr-transitive-at (gr-named dag) a b e))))
+(linked-rewrite graph-specification theorem-reach-transitive-cycle
+  (from (spec-theorem reach-transitive-cycle)) (to (spec-statement (gr-transitive-at (gr-named cycle) b a d))))
+(linked-rewrite graph-specification theorem-closure-fixed-point
+  (from (spec-theorem closure-fixed-point)) (to (spec-statement (gr-closure-fixed (gr-named dag)))))
+(linked-rewrite graph-specification theorem-closure-least
+  (from (spec-theorem closure-least))
+  (to (spec-statement (gr-closure-below (gr-named dag)
+        (gr-cons (gr-edge a b) (gr-cons (gr-edge a c) (gr-cons (gr-edge a d) (gr-cons (gr-edge a e)
+          (gr-cons (gr-edge b c) (gr-cons (gr-edge b d) (gr-cons (gr-edge b e) (gr-cons (gr-edge c d)
+            (gr-cons (gr-edge c e) (gr-cons (gr-edge d e) gr-nil))))))))))))))
+(linked-rewrite graph-specification theorem-path-reaches
+  (from (spec-theorem path-reaches))
+  (to (spec-statement (gr-path-reaches (gr-named dag) (gr-cons a (gr-cons c (gr-cons d (gr-cons e gr-nil))))))))
+(linked-rewrite graph-specification theorem-reach-agrees
+  (from (spec-theorem reach-agrees-with-closure)) (to (spec-statement (gr-reach-computed (gr-named dag) a e))))
+(linked-rewrite graph-specification theorem-dag-acyclic
+  (from (spec-theorem dag-acyclic)) (to (spec-statement (gr-dag (gr-named dag)))))
+
+# Proof rules for certificates. (evaluates (spec-call F ARGUMENTS...) V)
+# premises are facts the trusted checker re-executes as (F ARGUMENTS...) in
+# this program; spec-call keeps the call inert while the rules are read.
+# Every other premise is derived.
+(linked-rewrite graph-specification proof-rules
+  (from (spec-proof-rules))
+  (to (spec-rules
+    (rule reach-edge
+      ((evaluates (spec-call gr-has-edge (variable g) (variable x) (variable y)) gr-yes))
+      (gr-reach (variable g) (variable x) (variable y)))
+    (rule reach-step
+      ((evaluates (spec-call gr-has-edge (variable g) (variable x) (variable y)) gr-yes)
+       (gr-reach (variable g) (variable y) (variable z)))
+      (gr-reach (variable g) (variable x) (variable z)))
+    (rule transitive-at
+      ((gr-reach (variable g) (variable x) (variable y))
+       (gr-reach (variable g) (variable y) (variable z))
+       (gr-reach (variable g) (variable x) (variable z)))
+      (gr-transitive-at (variable g) (variable x) (variable y) (variable z)))
+    (rule closure-fixed
+      ((evaluates (spec-call gr-closure-is-fixed (variable g)) gr-yes))
+      (gr-closure-fixed (variable g)))
+    (rule closure-below
+      ((evaluates (spec-call gr-is-prefixed-point (variable g) (variable p)) gr-yes)
+       (evaluates (spec-call gr-closure-within (variable g) (variable p)) gr-yes))
+      (gr-closure-below (variable g) (variable p)))
+    (rule path-reaches
+      ((evaluates (spec-call gr-is-path (variable g) (variable p)) gr-yes)
+       (evaluates (spec-call gr-path-ends (variable p)) (gr-ends (variable x) (variable y)))
+       (gr-reach (variable g) (variable x) (variable y)))
+      (gr-path-reaches (variable g) (variable p)))
+    (rule reach-computed
+      ((gr-reach (variable g) (variable x) (variable y))
+       (evaluates (spec-call gr-reachable (variable g) (variable x) (variable y)) gr-yes))
+      (gr-reach-computed (variable g) (variable x) (variable y)))
+    (rule dag
+      ((evaluates (spec-call gr-well-formed (variable g)) gr-yes)
+       (evaluates (spec-call gr-acyclic (variable g)) gr-yes))
+      (gr-dag (variable g))))))

@@ -1,0 +1,6 @@
+# The two S/K contraction laws as ordinary linked rewrite rules.
+# On the closed S/K foundation this program interprets that foundation's own
+# primitive steps above it; on the Horn foundation it interprets S/K as data.
+(linked-program sk)
+(linked-rewrite sk s (from (((S ?x) ?y) ?z)) (to ((?x ?z) (?y ?z))))
+(linked-rewrite sk k (from ((K ?x) ?y)) (to ?x))

@@ -1,0 +1,106 @@
+-- rml-certified-item rust/src/theory_network.rs#EMPTY_SEQUENCE@716 target-sha256=5e731301ab77f6c7f2b5c125639e923884424efdb332c11ac77a4e2014c07582
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def EMPTY_SEQUENCE : String :=
+  "rml.sequence.empty"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/theory_network.rs#Theory@772 target-sha256=65558d43b2753df1058c02096f1dcddf61286a915a36d1107620afe3e7676308
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive Theory where
+  | Theory (field0 : String) (field1 : String) : Theory
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/theory_network.rs#TheoryDefinition@881 target-sha256=62081401f3fc3886c17bedde8ef28d9677a8854d28404cc0eb4ca50afd4b3797
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive TheoryDefinition where
+  | TheoryDefinition (field0 : String) (field1 : String) (field2 : String) (field3 : String) : TheoryDefinition
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/theory_network.rs#TheoryWitness@1048 target-sha256=233c06e1b5b52a3a4ad56f4bbc5ca285bfcfbf545d796229cd75429c0749ba0c
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive TheoryWitness where
+  | TheoryWitness (field0 : String) (field1 : String) (field2 : String) (field3 : String) : TheoryWitness
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/theory_network.rs#TheoryTerm@1744 target-sha256=5e6abc3a5b306a775ab19577b1967a83afb0b1f1907c0415f31ac9c13023e61e
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive TheoryTerm where
+  | TheoryTerm (field0 : String) (field1 : String) (field2 : String) : TheoryTerm
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/theory_network.rs#LinkNode@36752 target-sha256=8afab9ffd9c23ff7f72f0d40e529641a73e1a4879cc4906b080255d55e37ee29
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive LinkNode where
+  | LinkNode (field0 : String) (field1 : String) : LinkNode
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/theory_network.rs#SequenceLayout@48851 target-sha256=a1d00a553881cb1b755613d3b8ab1d0c3e7fa134578df0286553d3cbbff334eb
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SequenceLayout where
+  | Balanced : SequenceLayout
+  | Left : SequenceLayout
+  | Right : SequenceLayout
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/theory_network.rs#SequenceTree@48960 target-sha256=b0330977a08099141eebe9bcb17615c18329f41281dd87aabf137252b753b668
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive SequenceTree where
+  | Leaf (field0 : String) : SequenceTree
+  | Branch (field0 : SequenceTree) (field1 : SequenceTree) : SequenceTree
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

@@ -1,0 +1,2 @@
+(template (twice x) (x and x))
+(? (twice))

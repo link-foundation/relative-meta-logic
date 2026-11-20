@@ -1,0 +1,182 @@
+{
+ "schema": "rml-finiteness-removal/v1",
+ "assumption": "finite ordered link records",
+ "provenance": "OBSERVER_RESTRICTION",
+ "removal": "finitely presented infinite one-slot structures are admitted",
+ "forcingFact": "every self-embedding of a finite structure is onto, so deleting a link is observable",
+ "finiteControl": [
+  {
+   "links": 1,
+   "structures": 2,
+   "selfEmbeddings": 2,
+   "nonSurjectiveSelfEmbeddings": 0,
+   "invisibleDeletions": 0
+  },
+  {
+   "links": 2,
+   "structures": 10,
+   "selfEmbeddings": 14,
+   "nonSurjectiveSelfEmbeddings": 0,
+   "invisibleDeletions": 0
+  },
+  {
+   "links": 3,
+   "structures": 77,
+   "selfEmbeddings": 120,
+   "nonSurjectiveSelfEmbeddings": 0,
+   "invisibleDeletions": 0
+  },
+  {
+   "links": 4,
+   "structures": 799,
+   "selfEmbeddings": 1464,
+   "nonSurjectiveSelfEmbeddings": 0,
+   "invisibleDeletions": 0
+  }
+ ],
+ "infinite": [
+  {
+   "id": "forward-ray",
+   "start": 0,
+   "step": 1,
+   "certificate": {
+    "map": "x -> x + 1",
+    "injective": true,
+    "recordsCommute": true,
+    "imageRecordStart": 1,
+    "imageAddressStart": 1,
+    "tailAddressStart": 1,
+    "surjective": false,
+    "identifiesWithProperSubstructure": true
+   },
+   "prefix": {
+    "bound": 32,
+    "holds": true,
+    "failure": null
+   },
+   "invariants": {
+    "atoms": 0,
+    "unreferencedLinks": 1
+   },
+   "firstDeletionInvariants": [
+    {
+     "deleted": 0,
+     "atoms": 0,
+     "unreferencedLinks": 1
+    },
+    {
+     "deleted": 1,
+     "atoms": 1,
+     "unreferencedLinks": 2
+    },
+    {
+     "deleted": 2,
+     "atoms": 1,
+     "unreferencedLinks": 2
+    }
+   ],
+   "invisibleDeletions": [
+    0
+   ],
+   "everyWindowStable": true
+  },
+  {
+   "id": "backward-ray",
+   "start": 1,
+   "step": -1,
+   "certificate": {
+    "map": "x -> x + 1",
+    "injective": true,
+    "recordsCommute": true,
+    "imageRecordStart": 2,
+    "imageAddressStart": 1,
+    "tailAddressStart": 1,
+    "surjective": false,
+    "identifiesWithProperSubstructure": true
+   },
+   "prefix": {
+    "bound": 32,
+    "holds": true,
+    "failure": null
+   },
+   "invariants": {
+    "atoms": 1,
+    "unreferencedLinks": 0
+   },
+   "firstDeletionInvariants": [
+    {
+     "deleted": 1,
+     "atoms": 1,
+     "unreferencedLinks": 0
+    },
+    {
+     "deleted": 2,
+     "atoms": 2,
+     "unreferencedLinks": 1
+    },
+    {
+     "deleted": 3,
+     "atoms": 2,
+     "unreferencedLinks": 1
+    }
+   ],
+   "invisibleDeletions": [
+    1
+   ],
+   "everyWindowStable": true
+  },
+  {
+   "id": "two-sided-line",
+   "start": null,
+   "step": 1,
+   "certificate": {
+    "map": "x -> x + 1",
+    "injective": true,
+    "recordsCommute": true,
+    "imageRecordStart": null,
+    "imageAddressStart": null,
+    "tailAddressStart": null,
+    "surjective": true,
+    "identifiesWithProperSubstructure": false
+   },
+   "prefix": {
+    "bound": 32,
+    "holds": true,
+    "failure": null
+   },
+   "invariants": {
+    "atoms": 0,
+    "unreferencedLinks": 0
+   },
+   "firstDeletionInvariants": [
+    {
+     "deleted": -24,
+     "atoms": 1,
+     "unreferencedLinks": 1
+    },
+    {
+     "deleted": -23,
+     "atoms": 1,
+     "unreferencedLinks": 1
+    },
+    {
+     "deleted": -22,
+     "atoms": 1,
+     "unreferencedLinks": 1
+    }
+   ],
+   "invisibleDeletions": [],
+   "everyWindowStable": true
+  }
+ ],
+ "results": {
+  "finiteStructuresHaveOnlySurjectiveSelfEmbeddings": true,
+  "finiteControlReproducesAuditedBaseCounts": true,
+  "everyRayIsIdentifiedWithItsTail": true,
+  "onlyTheFirstLinkOfARayIsInvisible": true,
+  "theTwoSidedLineHasNoInvisibleDeletion": true,
+  "bothSlotOrientationsBehaveAlike": true
+ },
+ "status": "FINITENESS_REMOVED_FOR_AFFINE_ONE_SLOT_STRUCTURES",
+ "claimBoundary": "The finite control is exhaustive up to 4 links. The shift certificate is symbolic for every record of each listed affine structure; the prefix check covers windows up to 32 records and the deletion invariants cover the first 24 deletions, which the invariant windows show to be uniform beyond the start. Removing finiteness identifies a ray with a proper substructure; this is not a claim that finiteness is intrinsic or eliminable for links in general."
+}

@@ -1,0 +1,427 @@
+{
+  "schema": "rml-horn-branch-controls/v1",
+  "cases": [
+    {
+      "name": "branch-scope-0",
+      "source": "(horn-clause fact-0 (edge a b))\n(horn-clause fact-1 (edge a c))\n(horn-clause fact-2 (edge b a))\n(horn-clause fact-3 (edge c b))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "a",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "a"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-1",
+      "source": "(horn-clause fact-0 (edge a c))\n(horn-clause fact-1 (edge b b))\n(horn-clause fact-2 (edge c a))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-2",
+      "source": "(horn-clause fact-0 (edge a a))\n(horn-clause fact-1 (edge b c))\n(horn-clause fact-2 (edge c b))\n(horn-clause fact-3 (edge c c))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "b"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-3",
+      "source": "(horn-clause fact-0 (edge a b))\n(horn-clause fact-1 (edge b a))\n(horn-clause fact-2 (edge b b))\n(horn-clause fact-3 (edge c a))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "a",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "a"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "c",
+          "b"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-4",
+      "source": "(horn-clause fact-0 (edge a c))\n(horn-clause fact-1 (edge b c))\n(horn-clause fact-2 (edge c c))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "c"
+        ],
+        [
+          "path",
+          "b",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-5",
+      "source": "(horn-clause fact-0 (edge a a))\n(horn-clause fact-1 (edge b a))\n(horn-clause fact-2 (edge c a))\n(horn-clause fact-3 (edge c b))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "b",
+          "a"
+        ],
+        [
+          "path",
+          "c",
+          "a"
+        ],
+        [
+          "path",
+          "c",
+          "a"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-6",
+      "source": "(horn-clause fact-0 (edge a a))\n(horn-clause fact-1 (edge a b))\n(horn-clause fact-2 (edge b b))\n(horn-clause fact-3 (edge b c))\n(horn-clause fact-4 (edge c c))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "a",
+          "b"
+        ],
+        [
+          "path",
+          "a",
+          "b"
+        ],
+        [
+          "path",
+          "a",
+          "c"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "c"
+        ],
+        [
+          "path",
+          "b",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-7",
+      "source": "(horn-clause fact-0 (edge a b))\n(horn-clause fact-1 (edge a c))\n(horn-clause fact-2 (edge b a))\n(horn-clause fact-3 (edge c b))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "a",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "a"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-8",
+      "source": "(horn-clause fact-0 (edge a c))\n(horn-clause fact-1 (edge b b))\n(horn-clause fact-2 (edge c a))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-9",
+      "source": "(horn-clause fact-0 (edge a a))\n(horn-clause fact-1 (edge b c))\n(horn-clause fact-2 (edge c b))\n(horn-clause fact-3 (edge c c))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "b"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-10",
+      "source": "(horn-clause fact-0 (edge a b))\n(horn-clause fact-1 (edge b a))\n(horn-clause fact-2 (edge b b))\n(horn-clause fact-3 (edge c a))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "a"
+        ],
+        [
+          "path",
+          "a",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "b",
+          "a"
+        ],
+        [
+          "path",
+          "b",
+          "b"
+        ],
+        [
+          "path",
+          "c",
+          "b"
+        ]
+      ]
+    },
+    {
+      "name": "branch-scope-11",
+      "source": "(horn-clause fact-0 (edge a c))\n(horn-clause fact-1 (edge b c))\n(horn-clause fact-2 (edge c c))\n(horn-clause failed-first (path ?x ?z) (edge ?x ?z) (missing ?z))\n(horn-clause path (path ?x ?z) (edge ?x ?y) (edge ?y ?z))",
+      "query": [
+        "path",
+        "?x",
+        "?z"
+      ],
+      "answers": [
+        [
+          "path",
+          "a",
+          "c"
+        ],
+        [
+          "path",
+          "b",
+          "c"
+        ],
+        [
+          "path",
+          "c",
+          "c"
+        ]
+      ]
+    }
+  ]
+}

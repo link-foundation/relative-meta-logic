@@ -1,0 +1,52 @@
+# The local verifier step of rml-foundation-search.mjs (linkedVerifierStep) as
+# Horn clauses. A description record and a concrete record commute through
+# three correspondence witnesses; every record is an ordinary addressed triple
+# (rec ADDRESS FIRST SECOND) whose addresses are binary codes. Presence of the
+# description, enumeration of concrete records and witnesses, the reading
+# orientation of a correspondence and the candidate filter are clauses here,
+# so removing or replacing one is an edit of this file, not of a host branch.
+
+# Binary code equality with an explicit no-branch.
+(horn-clause code-empty (code-equal end end yes))
+(horn-clause code-empty-zero (code-equal end (zero ?tail) no))
+(horn-clause code-empty-one (code-equal end (one ?tail) no))
+(horn-clause code-zero-empty (code-equal (zero ?tail) end no))
+(horn-clause code-one-empty (code-equal (one ?tail) end no))
+(horn-clause code-zero-one (code-equal (zero ?a) (one ?b) no))
+(horn-clause code-one-zero (code-equal (one ?a) (zero ?b) no))
+(horn-clause code-zero (code-equal (zero ?a) (zero ?b) ?result) (code-equal ?a ?b ?result))
+(horn-clause code-one (code-equal (one ?a) (one ?b) ?result) (code-equal ?a ?b ?result))
+(horn-clause all-yes (all-yes yes yes yes yes))
+(horn-clause all-first-no (all-yes no ?second ?third no))
+(horn-clause all-second-no (all-yes yes no ?third no))
+(horn-clause all-third-no (all-yes yes yes no no))
+
+# Presence is set membership: a duplicated record is present once.
+(horn-clause present-end (present ?record end no))
+(horn-clause present-next (present ?record (cons ?other ?rest) ?answer)
+  (record-equal ?record ?other ?same) (present-choice ?same ?record ?rest ?answer))
+(horn-clause present-yes (present-choice yes ?record ?rest yes))
+(horn-clause present-no (present-choice no ?record ?rest ?answer) (present ?record ?rest ?answer))
+(horn-clause record-equal (record-equal (rec ?a ?b ?c) (rec ?x ?y ?z) ?same)
+  (code-equal ?a ?x ?first) (code-equal ?b ?y ?second) (code-equal ?c ?z ?third)
+  (all-yes ?first ?second ?third ?same))
+
+# Enumeration in record order; each occurrence is a separate answer.
+(horn-clause record-here (record-in ?record (cons ?record ?rest)))
+(horn-clause record-later (record-in ?record (cons ?other ?rest)) (record-in ?record ?rest))
+
+# A correspondence witness read from its first slot to its second.
+(horn-clause corresponds-forward (corresponds ?mappings ?source ?target ?witness)
+  (record-in (rec ?witness ?source ?target) ?mappings))
+
+# The local join: the present description, a concrete candidate record, and
+# one witness for its address and for each of its two references.
+(horn-clause local-match (local-match ?description ?mappings ?records ?candidates ?match)
+  (present ?description ?records yes) (description-match ?description ?mappings ?records ?candidates ?match))
+(horn-clause description-match (description-match (rec ?d0 ?d1 ?d2) ?mappings ?records ?candidates
+  (match ?d0 ?concrete (cons ?w0 (cons ?w1 (cons ?w2 end)))))
+  (record-in (rec ?concrete ?c1 ?c2) ?records) (candidate ?concrete ?candidates)
+  (corresponds ?mappings ?d0 ?concrete ?w0) (corresponds ?mappings ?d1 ?c1 ?w1)
+  (corresponds ?mappings ?d2 ?c2 ?w2))
+(horn-clause candidate-here (candidate ?address (cons ?address ?rest)))
+(horn-clause candidate-later (candidate ?address (cons ?other ?rest)) (candidate ?address ?rest))

@@ -9,43 +9,40 @@ This document describes the internal architecture of **Relative Meta-Logic (RML,
 ├── ARCHITECTURE.md          # This file
 ├── README.md                # Project overview, syntax, and examples
 ├── LICENSE                  # Unlicense (public domain)
-├── examples/                # Shared .lino knowledge bases (run by both langs)
-│   ├── README.md
+├── examples/                # Shared .lino knowledge bases (run by both langs) and Node .mjs workflows
 │   ├── expected.lino        # Canonical outputs both implementations must match (Links Notation)
-│   ├── classical-logic.lino
-│   ├── propositional-logic.lino
-│   ├── fuzzy-logic.lino
-│   ├── ternary-kleene.lino
-│   ├── belnap-four-valued.lino
-│   ├── liar-paradox.lino
-│   ├── liar-paradox-balanced.lino
-│   ├── bayesian-inference.lino
-│   ├── bayesian-network.lino
-│   ├── markov-chain.lino
-│   ├── markov-network.lino
-│   ├── self-reasoning.lino
-│   ├── dependent-types.lino
-│   ├── demo.lino
-│   └── flipped-axioms.lino
+│   └── *.lino, *.mjs        # See examples/README.md
+├── lib/                     # Shared .lino libraries (classical, modal, set-theory, self, meta-theory, …)
+│   └── meta-theory/         # Linked meta-theory programs, proof verifiers and specifications
+├── test-corpus/             # Shared regression inputs and generated fixtures (both runtimes)
+├── docs/                    # Reference documentation, tutorials and case studies
+├── scripts/                 # Node generators, freshness gates, CI checks and the build-cache runner
 ├── js/                      # JavaScript implementation
 │   ├── package.json
 │   ├── src/
-│   │   └── rml-links.mjs    # Core implementation
-│   └── tests/
-│       ├── rml-links.test.mjs
-│       └── shared-examples.test.mjs   # Runs every /examples/*.lino file
-└── rust/                    # Rust implementation
-    ├── Cargo.toml
-    ├── Cargo.lock
-    ├── src/
-    │   ├── lib.rs           # Core implementation
-    │   └── main.rs          # CLI entry point
-    └── tests/
-        ├── rml_tests.rs
-        └── shared_examples.rs         # Runs every /examples/*.lino file
+│   │   ├── rml-links.mjs          # Core evaluator, CLI and library exports
+│   │   ├── rml-lino-frontend.mjs  # Shared LiNo front end (source to link strings)
+│   │   ├── rml-check.mjs, rml-meta.mjs, rml-lsp.mjs  # rml-check, rml-meta and LSP entry points
+│   │   └── rml-*.mjs, cst*.mjs    # Meta-theory, linked program, translation and export modules
+│   ├── vendor/              # Pinned meta-language submodule and the vendored PR #201 copy
+│   └── tests/               # *.test.mjs, including shared-examples.test.mjs
+├── rust/                    # Rust implementation
+│   ├── Cargo.toml
+│   ├── src/
+│   │   ├── lib.rs           # Core implementation
+│   │   ├── lino_frontend.rs # Shared LiNo front end (source to link strings)
+│   │   ├── main.rs          # CLI entry point (bin/rml-check.rs, bin/rml-meta.rs for the others)
+│   │   └── *.rs             # Rust counterparts of most JavaScript modules
+│   └── tests/               # *_tests.rs, including shared_examples.rs
+├── docker/                  # Container images for both implementations
+└── vscode/                  # VS Code extension
 ```
 
-Both implementations are equivalent: they pass the same 122 tests and produce identical results for all inputs.
+Both implementations are kept equivalent. Most test files have a counterpart in the other language
+(for example `js/tests/diagnostics.test.mjs` and `rust/tests/diagnostics_tests.rs`), both suites run
+every file in `examples/` and `test-corpus/` against the same expected output, and the `parity`
+workflow runs both command-line tools on each `test-corpus/*.lino` file and fails if the exit status,
+stdout, or stderr differ.
 
 ## Processing Pipeline
 
@@ -59,18 +56,58 @@ LiNo text → Parse → AST → Evaluate → Results
 
 **Input:** Raw text in LiNo (Links Notation) format.
 
-**Output:** A list of link strings, where each link is a top-level parenthesized expression.
+**Output:** A list of link strings, where each link is a top-level parenthesized expression,
+together with the position each one starts at.
 
-- **JavaScript:** Uses the official [`links-notation`](https://www.npmjs.com/package/links-notation) parser.
-- **Rust:** Uses the official [`links-notation`](https://crates.io/crates/links-notation) crate.
+Both runtimes read source through the same front end, `js/src/rml-lino-frontend.mjs` and
+`rust/src/lino_frontend.rs`, which wraps the official
+[`links-notation`](https://www.npmjs.com/package/links-notation) parser
+([crate](https://crates.io/crates/links-notation)) in the same steps:
 
-Lines starting with `#` are treated as comments and skipped.
+1. **Normalize:** drop a leading byte order mark; CRLF and a lone CR each become LF.
+2. **Prepare:** one pass that knows about quotes blanks comments, joins the lines of a
+   parenthesized form that spans several lines, records where each logical line starts, and reads
+   every reference that starts with a quote: a quoted reference, the empty reference, or, where
+   the quote opens no quoted reference, the ordinary reference it starts. A line whose first
+   character other than a space or a tab is `#` is a comment, and so is a `#` after a `)` and one
+   or more spaces or tabs, up to the end of the line. A `#` or a parenthesis inside a quoted
+   reference is text. Nesting deeper than 64 levels and source longer than 10485760 UTF-16 code
+   units are refused here, before the parser runs.
+3. **Parse:** the `links-notation` parser reads the prepared text, in which each reference that
+   starts with a quote is a token that stands for what step 2 read, one piece at a time: a group
+   whose parentheses nest two deep is parsed on its own, and the text around it holds a
+   placeholder in its place. Each top-level link is formatted back to a link string, and comment
+   links such as `(# note)` are left out. Two repairs work around `links-notation` 0.20. A line
+   under an indented id keeps its name, so `a:` over `b: c` reads as `(a: (b: c))`; an indented
+   id among those lines takes in the lines under it, so `a:` over `b:` over `c` reads the same,
+   as the hierarchical nesting of the `links-notation` grammar does; and any other line indented
+   under such a line is refused instead of dropped. Both `links-notation` parsers drop those
+   names and lines (link-foundation/links-notation#313). The Rust parser also does not see a
+   last line that holds only spaces and tabs, which the Rust `links-notation` parser reads as the
+   indentation of a line that never comes and the JavaScript one as trailing space
+   (link-foundation/links-notation#312). Both issues were closed upstream on 2026-09-25, and the
+   JavaScript parser of `links-notation` 0.26.0 now nests these lines itself; the repairs stay
+   until the Rust crate's behavior is confirmed on CI.
+
+`links-notation` 0.20 backtracks without memoizing and looks for the end of a quoted reference one
+character at a time. On its own it takes time that grows exponentially with how deeply groups nest
+(in Rust, where a group is left unclosed, fails, or has a value after it) and with the square of
+the length of a wide unclosed quote. The front end reads quotes itself, in time that grows with
+the length of the source times its logarithm, and hands the parser no piece whose parentheses nest
+more than two levels deep. Both test suites read twelve sources built to be slow, from groups
+nested 64 deep to fifty thousand quoted references on one line, each within five seconds.
+
+The read is all or nothing. Text that is not LiNo stops it with `E006` at the position of the
+failure, and a form that is LiNo but that the next stage cannot read stops it with `E002`; in both
+cases no form runs. Each form's span starts at the first character other than a space or a tab on
+the line it starts on, and columns count Unicode code points. See
+[docs/DIAGNOSTICS.md](./docs/DIAGNOSTICS.md) for the messages.
 
 ### Stage 2: Tokenization and AST Construction
 
 Each link string goes through two sub-steps:
 
-1. **Tokenize** (`tokenize_one` / `tokenizeOne`): Splits a link string into tokens (parentheses and words). Also strips inline comments (everything after `#`) and balances parentheses after stripping.
+1. **Tokenize** (`tokenize_one` / `tokenizeOne`): Splits a link string into tokens (parentheses and words). It also removes everything from a `#` to the end of the link string and balances parentheses after that, which is why a quoted reference holding `#`, a space, or a parenthesis does not survive this step: such a form stops the read with `E002`.
 
 2. **Parse** (`parse_one` / `parseOne`): Converts the token list into an AST (Abstract Syntax Tree). The AST is a recursive structure:
    - **Leaf nodes:** Strings (symbols, numbers, operators).
@@ -155,6 +192,203 @@ For consumers that start from a selected natural-language interpretation rather 
 | `evaluateFormalization(formalization)` | `evaluate_formalization(&formalization)` | Deterministically evaluate executable formalizations and preserve partial results for unsupported or underspecified claims. |
 
 The adapter currently supports explicit arithmetic equality and arithmetic value questions, plus direct LiNo/RML expressions. Real-world claims such as `moon orbits the Sun` remain non-computable until a caller provides selected entities, relations, evidence sources, and a formal shape.
+
+### Executable Theory Network
+
+Both runtimes expose a `TheoryNetwork` reader for the shared
+[`lib/meta-theory/core.lino`](./lib/meta-theory/core.lino) network and
+independently selected
+[`lib/meta-theory/foundation.lino`](./lib/meta-theory/foundation.lino) trust
+profile. The reader round-trips both through `meta-language` and validates
+generic `theory`, `term`, `implementation`, `witness`, and `definition` forms.
+A definition link is
+admitted only when its implementation manifest matches the proposed
+subject/foundation pair and its contract's exact kind and obligation set; all
+operations pass runtime conformance checks; its proof object replays; and the
+checked conclusion exactly matches that link. Rules, axioms, implementation contracts,
+and expected judgements come only from the trust profile; a candidate theory
+cannot authorize itself. The network then resolves or
+translates theory-local terms through shared concept addresses and performs
+cycle-safe shortest definition-chain searches.
+
+The executable meta-theory has an explicit
+`S/K -> closed linked terms -> K1 -> F -> T` structure. `K0` is the residual
+two-equation S/K machine reached by the minimization loop. Matching,
+substitution, ordered traversal, import rebinding, inference saturation, and
+result verification are closed combinator roots in one generated DAG shared
+by both runtimes; none has a second host implementation. Text parsing and
+resource/cycle enforcement remain visible boundary layers, but cannot create
+a semantic result. The mirrored public report includes a machine-readable
+dependency/trust graph, a structural reason for every boundary operation, and
+the experiment performed for all four semantic and non-semantic boundary
+operations. Its audit fails closed on an unreported operation or a path that
+does not terminate at an explicit boundary node. The boundary is not claimed
+to be globally irreducible.
+
+`bootstrapMetricsReport` / `bootstrap_metrics_report` runs the same acceptance
+probe with each actual operation disabled. S and K are experimentally
+necessary relative to the checked-in representation and probe; parsing and
+bounds remain `UNKNOWN` non-semantic boundary operations. The measured
+semantic surface falls from eight operations to two (`2/8`), all six named
+semantic capabilities execute above that basis (`6/6`), and host/linked
+semantic duplication is zero. Runtime hooks cover 4/4 observed semantic paths
+and 10/10 path/operation segments; the audit requires zero undocumented
+observations. The report names iota as an equivalent one-rule re-encoding and
+therefore does not turn the scoped fault-injection result into a global
+minimality claim. See
+[`docs/case-studies/issue-183/bootstrap-metrics.md`](./docs/case-studies/issue-183/bootstrap-metrics.md).
+
+The bootstrap result is also tested against two genuinely different
+transition mechanisms. `ExecutionBasis` selects closed S/K contraction,
+direct structural rewriting, or monotone Horn saturation without changing
+object-theory names. All three execute the same load/import/rebind/match/
+substitute/rewrite/infer/verify/self-interpret workload, a two-counter-machine
+witness, and four language semantic cores. Their representation, authority,
+formation/control boundaries, residual operations, removal outcomes, and
+runtime trust coverage are published in the
+[architecture-neutral foundation search](./docs/case-studies/issue-183/foundation-search.md).
+The search admits only fully self-hosted, zero-duplication implementations to
+its ranking cohort. Direct and Horn execution remain useful controls, but are
+excluded, leaving too few peers to select a winner. A two-model witness over
+one tagged ordered-link host value shows only that the selected representation
+does not choose between two tested functions. The report marks passivity,
+external transition, ordered endpoints, and structure/transformation
+separation as assumptions; it does not infer link ontology from them. The
+failed zero-transition experiment is likewise scoped to the current passive
+host model and finite workload.
+
+The v14 ontology investigation is separate from execution comparison. Its
+finite experiment quotients two unlabelled reference occurrences by every
+occurrence permutation and reference renaming. Equality coincidence is
+complete for that contract; no invariant singleton selects source or target,
+identity and swap are both equivariant, and reification is
+representation-dependent under the tested projection. These results constrain
+claims but supply no execution law and do not make the contract exhaustive of
+links. Without adding a primitive, widths one through four derive 1, 2, 3,
+and 5 multiplicity classes, proving that fixed binary width loses information.
+A conditional second equivalence then yields 33 joint classes and 5–9
+refinements per reference-only fibre. The singleton-orbit histogram is
+20/5/7/1 classes with 0/1/2/4 singleton orbits, so only five classes select
+exactly one occurrence orbit. Provenance separates 7 base-forced, 5
+refinement-present, 1 interaction-only, and 20 symmetric classes; four base
+fibres admit both outcomes, while only `[3,1]` forces one. Across all 255
+base/candidate pairs at widths one through four, every one of the 73 candidates
+that preserves all base symmetries also preserves the base occurrence orbits.
+The interaction-only conditional breaks a relabelling that fixes its base, so
+its distinction requires information not derived from that base. The second
+relation remains `CONDITIONAL_REFINEMENT_PROBE_NOT_DERIVED`, not an ontological
+commitment.
+
+Before quotienting ordered reference slots, the addressable audit separately
+records a Boolean self-incidence mask. All `2/4/8/16` masks occur at widths
+one through four. The mask is invariant under address renaming and equivariant
+under slot permutation; together with the reference-equality matrix it
+classifies the tested ordered address/equality patterns. This preserves the
+possible slot distinction without claiming that slot identity or an endpoint
+role is intrinsic.
+
+That local ordered descriptor is not compositionally faithful. With two,
+three, and four ordered one-reference links, it collapses `10/77/799`
+shared-address classes to `4/8/16` local products. An external-reference pair
+and a two-link incidence cycle are the minimal concrete countermodel. Adding
+cross-reference equality and reference-to-link-address incidence completely
+classifies the tested shared-address contract. This retains record order and
+one reference slot as observer choices and assigns no endpoint, dependency,
+transition, or execution semantics to incidence.
+
+The v11 structural application/composition probe then keeps mathematical
+implication separate from binary link notation. The recursive candidates
+`[[3,0,1],[4,3,2]]` and `[[3,1,2],[4,0,3]]` differ under the retained ordered
+slots but coincide after uniform slot reversal and address renaming; that
+equivalence remains conditional because slot permutation is not derived. A
+connected countermodel `[[3,0,1],[4,1,2],[5,2,0],[6,6,3]]` keeps the `P`/`Q`
+link identities distinct from the pairwise-distinct `K`/`A`/`B` addresses and
+contains self-incidence, shared address, recursive reference, and the reverse
+pair `[2,0]`, but not proposed `[0,2]`. Adding `[7,0,2]` preserves every
+premise, while formation admits all 49 ordered pairs over the seven existing
+addresses. Raw structure therefore neither recovers function/application
+roles nor supplies a composition-selection or execution law.
+
+The same v11 report tests whether the missing selection authority can itself
+be carried by an ordinary link. Adding `[9,7,7]` to duplicate candidates
+`[7,0,2]` and `[8,0,2]` breaks their swap symmetry, but makes both singleton
+subsets invariant. Referenced and unreferenced readings are equally
+renaming-equivariant; removal, replacement, duplication, forgery, context
+relocation, and recursive authority variants do not determine authenticity,
+polarity, activation, or execution. Thus linked incidence can make a choice
+structurally expressible without forcing its authoritative interpretation.
+
+A further exact-cover certificate probe reconstructs candidates from ordinary
+description, mapping, and context-incidence records. It conditionally rejects
+missing, duplicated, foreign, and wrong evidence and observes
+`ZERO`/`ONE`/`MANY`, while a locally isomorphic second candidate remains
+admissible. The finite verifier and experimental record roles are observer
+contracts, not authority derived from the tested links.
+
+The v11 local-verifier probe now uses a reusable incidence join for each
+described record and emits a four-link trace for each match. Trace replay and
+self-application demonstrate structural inspectability, while record
+iteration, position access, equality, counting, and choice of description and
+mapping orientation remain host or observer operations.
+
+Link ontology, primitive categories, the structure/transformation
+relation, intrinsic semantic authority, and comparative minimality therefore
+remain `UNRESOLVED` under `OPEN_INDEPENDENT_INVESTIGATION`. A/B/C are
+`EXECUTABLE_CONTROLS_ONLY`, do not constrain that search, and do not select a
+target architecture. Imported semantic vocabulary remains experimental rather
+than foundational fact.
+
+The `links-meta-foundation` program is the links-defined `K1` interpreter for
+object-encoded matching, substitution, rule application, and verification.
+It executes an encoded copy of its own repeated-variable matching rule and
+must agree with direct execution through the closed combinator kernel,
+providing a non-trivial self-interpretation witness. Import-level `rebind`
+clauses instantiate one unchanged theory over different foundation
+vocabularies and compose through transitive imports.
+
+`MembershipSetStore` supplies addressed membership links and finite
+extensional equality plus finite subset, pairing, union, separation, and
+replacement. `DoubletSequenceStore` supplies finite nested sequences, canonical
+or order-preserving sets, and potentially infinite right-spine sequences.
+Finite encoders support balanced, left, and right doublet trees. Cyclic sequence
+observation requires an explicit item bound and reports observed direct or
+indirect cycles. The unconstrained substrate is `LinkNetwork`;
+`TypedLinkNetwork` checks endpoint types; `LinkGraph` is a
+vertex-set-constrained subset with typed edges and reachability; and
+`FiniteRelation` supplies typed converse, union, intersection, and composition.
+The format, upstream 0.0.3 mapping, and verification boundary are documented in
+[`docs/META_THEORY.md`](./docs/META_THEORY.md).
+
+### Source Specifications
+
+[`lib/meta-theory/type-specification.lino`](./lib/meta-theory/type-specification.lino),
+[`graph-specification.lino`](./lib/meta-theory/graph-specification.lino), and
+[`relational-algebra-specification.lino`](./lib/meta-theory/relational-algebra-specification.lino)
+are ordinary linked programs: a simply typed calculus with base, function, and
+product types; finite directed graphs with transitive closure as a least fixed
+point; and Codd's six relational-algebra operators with 16 laws stated as data.
+Both runtimes execute them, and `js/src/rml-spec-certificates.mjs` (producer and
+checker) and `rust/src/spec_certificates.rs` (checker) check their theorem
+certificates with the linked natural-deduction verifier. Certificates and laws
+cover named instances only, plus bounded exhaustive checks in the JavaScript
+tests; universal proofs and richer type systems (polymorphism, recursion, sums,
+dependent types) are open. See
+[`docs/case-studies/issue-183/meta-theory-specifications.md`](./docs/case-studies/issue-183/meta-theory-specifications.md).
+
+### Certified Translation
+
+`js/src/rml-certified-translation.mjs` translates a checked fragment of
+JavaScript, Rust, Lean, and Rocq through the vendored meta-language PR #201
+frontends, a source-free typed program stored as an RML structure network, and
+the vendored emitters. Each translation carries a Links certificate that the
+RML checker re-derives without a Lean or Rocq kernel; unsupported input yields a
+first-refusal receipt naming its stage (`rml-lowering`, `frontend`, `checker`,
+`archive-validation`, or `emitter`). `js/src/rml-surface-lowering.mjs` lowers
+records, structures, explicitly instantiated generics, and Rocq 9 constructor
+parameter wildcards before the frontend. `rust/src/certified_translation.rs`
+checks certificate integrity only. Universal theorems, general recursion, and
+emitter faithfulness stay open obligations. See
+[`docs/case-studies/issue-183/certified-translation.md`](./docs/case-studies/issue-183/certified-translation.md).
 
 ### Program Extraction
 
@@ -335,17 +569,17 @@ Operators are redefinable at runtime via LiNo syntax:
 
 1. **No operator precedence:** All grouping is explicit via parentheses. This keeps the parser minimal and unambiguous.
 
-2. **Decimal rounding over arbitrary precision:** Using 12-digit decimal rounding instead of arbitrary-precision decimal libraries. This is sufficient for logic/probability use cases and keeps both implementations dependency-free (Rust has zero external dependencies; JavaScript uses only the LiNo parser).
+2. **Decimal rounding over arbitrary precision:** Using 12-digit decimal rounding instead of arbitrary-precision decimal libraries. This is sufficient for logic/probability use cases and keeps numeric code free of extra libraries. The Rust runtime dependencies are `links-notation`, `meta-language`, `sha2`, `serde_json` and `regex`. The JavaScript package depends on `links-notation`, `events` and `web-tree-sitter`, and reaches `meta-language` through the pinned `js/vendor/meta-language` submodule (`#meta-language`) and the temporarily vendored PR #201 copy (`#meta-language-pr201/*`, see [VENDORED.md](./js/vendor/meta-language-pr201/VENDORED.md)).
 
 3. **Arithmetic is unclamped:** Arithmetic results are not restricted to the logic range `[lo, hi]`. Clamping only happens when results enter the logical domain (queries, logical operators). This allows natural arithmetic while preserving logic semantics.
 
-4. **Equivalent dual implementations:** JavaScript and Rust implementations are kept in sync with identical test suites (122 tests each), ensuring behavioral equivalence.
+4. **Equivalent dual implementations:** JavaScript and Rust implementations are kept in sync with mirrored test suites, shared example and corpus files, and the `parity` workflow that compares both command-line tools.
 
 5. **Redefinable operators:** All operators can be redefined at runtime, enabling exploration of different logical semantics within the same framework.
 
 ## Testing
 
-Both implementations share 122 identical tests organized in these categories:
+Both suites cover the same ground; the original shared tests fall into these categories, and later features add their own test files in both languages:
 
 - **Tokenization** (4 tests): Simple/nested links, inline comments, paren balancing
 - **Parsing** (3 tests): Simple/nested/deeply nested AST construction
@@ -359,6 +593,13 @@ Both implementations share 122 identical tests organized in these categories:
 
 Run tests:
 ```bash
-cd js && npm test       # JavaScript
-cd rust && cargo test   # Rust
+cd js && npm test                                          # JavaScript
+node scripts/cargo.mjs test --manifest-path rust/Cargo.toml   # Rust (hosted CI only)
 ```
+
+Rust is compiled and tested only on hosted CI (`CI=true` or
+`GITHUB_ACTIONS=true`). Outside CI, `scripts/cargo.mjs` and
+`scripts/run-with-cache.mjs -- cargo …` refuse compiling subcommands with exit code 97 (`scripts/local-rust-policy.mjs`), and local
+verification uses the JavaScript implementation; `cargo fmt` stays available.
+`RML_ALLOW_LOCAL_RUST=1` is the explicit per-invocation override. See
+[docs/BUILD_CACHE.md](./docs/BUILD_CACHE.md).

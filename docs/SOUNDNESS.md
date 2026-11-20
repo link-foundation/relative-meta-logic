@@ -167,7 +167,8 @@ node js/src/rml-check.mjs program.lino proofs.lino
 cargo run --manifest-path rust/Cargo.toml --bin rml-check -- program.lino proofs.lino
 ```
 
-On success, both CLIs print:
+The Rust command compiles Rust, which repository policy reserves for hosted CI
+(see [BUILD_CACHE.md](./BUILD_CACHE.md)). On success, both CLIs print:
 
 ```text
 OK: N derivations replayed.

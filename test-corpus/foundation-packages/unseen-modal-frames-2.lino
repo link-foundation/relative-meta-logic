@@ -1,0 +1,14 @@
+(linked-program transitive-frames (uses k-frame))
+(linked-inference transitive-frames acc-compose
+  (premise (acc-arrow ?u ?v))
+  (premise (acc-arrow ?v ?x))
+  (conclusion (acc-arrow ?u ?x)))
+(linked-foundation modal-frames (version 2)
+  (inference transitive-frames)
+  (proof k-negation)
+  (reduction k-abbreviations)
+  (signature
+    (forces-at ?w ?phi) (blocks-at ?w ?phi) (acc-arrow ?u ?v)
+    (valuation-holds ?w ?p) (dead-end ?w) (modal-atom ?p))
+  (cycle-policy inductive))
+(linked-instance study-lab (theory shared-frame) (foundation modal-frames (version 2)))

@@ -1,0 +1,1519 @@
+{
+  "schema": "rml:certified-concept-space:1",
+  "upstream": {
+    "package": "meta-language",
+    "file": "js/vendor/meta-language/js/src/data/concept-records.json",
+    "records": 1499,
+    "sha256": "d67b888c74c67a2b53b89f1e8e1aa1eec28f628a8d512284d1c36dd22b10b89b"
+  },
+  "records": [
+    {
+      "id": "function",
+      "phrase": "function",
+      "role": "concept",
+      "definition": "Reusable computation with parameters and a result boundary.",
+      "constraints": [
+        "The structural concept is independent of any one programming language.",
+        "Every language syntax that expresses it is a syntax alias of the concept."
+      ],
+      "sourceAliases": [
+        {
+          "source": "Rust",
+          "name": "fn"
+        },
+        {
+          "source": "Python",
+          "name": "def"
+        },
+        {
+          "source": "JavaScript",
+          "name": "function"
+        },
+        {
+          "source": "C",
+          "name": "function"
+        },
+        {
+          "source": "C++",
+          "name": "function"
+        },
+        {
+          "source": "C#",
+          "name": "method"
+        },
+        {
+          "source": "Java",
+          "name": "method"
+        },
+        {
+          "source": "Visual Basic",
+          "name": "Function"
+        },
+        {
+          "source": "R",
+          "name": "function"
+        },
+        {
+          "source": "sql-ansi",
+          "name": "CREATE FUNCTION"
+        },
+        {
+          "source": "Delphi/Object Pascal",
+          "name": "function"
+        },
+        {
+          "source": "rml:construct-kind",
+          "name": "function"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.enumeration-variant",
+      "phrase": "enumeration variant",
+      "role": "concept",
+      "definition": "A rule for an enumeration variant, the construct the upstream grammar names enum_variant.",
+      "constraints": [
+        "Only the native Rust grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rust",
+          "name": "enumeration_variant"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rust-struct-variant"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.explicit-binder",
+      "phrase": "explicit binder",
+      "role": "concept",
+      "definition": "A rule for an explicit binder, the construct the upstream grammar names explicit_binder.",
+      "constraints": [
+        "Only the native Lean grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:lean",
+          "name": "explicit_binder"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "lean-monomorphize"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.field-expression",
+      "phrase": "field expression",
+      "role": "concept",
+      "definition": "A rule for a field expression, the construct the upstream grammar names field_expression.",
+      "constraints": [
+        "Native grammars share this concept only where the construct means the same in each language.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:c",
+          "name": "field_expression"
+        },
+        {
+          "source": "native:rust",
+          "name": "field_expression"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rust-field-read"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.function-application",
+      "phrase": "function application",
+      "role": "concept",
+      "definition": "A rule for a function application, the construct the upstream grammar names application.",
+      "constraints": [
+        "Native grammars share this concept only where the construct means the same in each language.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:lean",
+          "name": "application"
+        },
+        {
+          "source": "native:rocq",
+          "name": "application"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "lean-instantiation"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rocq-instantiation"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.ordered-field-declaration-list",
+      "phrase": "ordered field declaration list",
+      "role": "concept",
+      "definition": "A rule for an ordered field declaration list, the construct the upstream grammar names ordered_field_declaration_list.",
+      "constraints": [
+        "Only the native Rust grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rust",
+          "name": "ordered_field_declaration_list"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rust-tuple-struct"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.projection",
+      "phrase": "projection",
+      "role": "concept",
+      "definition": "A rule for a projection, the construct the upstream grammar names projection.",
+      "constraints": [
+        "Only the native Lean grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:lean",
+          "name": "projection"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "lean-field-read"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.projection-term",
+      "phrase": "projection term",
+      "role": "concept",
+      "definition": "A rule for a projection term, the construct the upstream grammar names projection_term.",
+      "constraints": [
+        "Only the native Rocq grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rocq",
+          "name": "projection_term"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rocq-projection"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.record-command",
+      "phrase": "record command",
+      "role": "concept",
+      "definition": "A rule for a record command, the construct the upstream grammar names record_command.",
+      "constraints": [
+        "Only the native Rocq grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rocq",
+          "name": "record_command"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rocq-record"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.record-fields-literal",
+      "phrase": "record fields literal",
+      "role": "concept",
+      "definition": "A rule for a record fields literal, the construct the upstream grammar names record_fields_literal.",
+      "constraints": [
+        "Only the native Rocq grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rocq",
+          "name": "record_fields_literal"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rocq-record-instance"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.single-binder",
+      "phrase": "single binder",
+      "role": "concept",
+      "definition": "A rule for a single binder, the construct the upstream grammar names binder.",
+      "constraints": [
+        "Only the native Rocq grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rocq",
+          "name": "binder"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rocq-monomorphize"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.structure",
+      "phrase": "structure",
+      "role": "concept",
+      "definition": "A rule for a structure, the construct the upstream grammar names structure.",
+      "constraints": [
+        "Only the native Lean grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:lean",
+          "name": "structure"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "lean-structure"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.structure-expression",
+      "phrase": "structure expression",
+      "role": "concept",
+      "definition": "A rule for a structure expression, the construct the upstream grammar names struct_expression.",
+      "constraints": [
+        "Native grammars share this concept only where the construct means the same in each language.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rust",
+          "name": "structure_expression"
+        },
+        {
+          "source": "native:solidity",
+          "name": "structure_expression"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rust-struct-literal"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.structure-instance",
+      "phrase": "structure instance",
+      "role": "concept",
+      "definition": "A rule for a structure instance, the construct the upstream grammar names structure_instance.",
+      "constraints": [
+        "Only the native Lean grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:lean",
+          "name": "structure_instance"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "lean-structure-instance"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.structure-item",
+      "phrase": "structure item",
+      "role": "concept",
+      "definition": "A rule for a structure item, the construct the upstream grammar names struct_item.",
+      "constraints": [
+        "Only the native Rust grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rust",
+          "name": "structure_item"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rust-struct"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.structure-pattern",
+      "phrase": "structure pattern",
+      "role": "concept",
+      "definition": "A rule for a structure pattern, the construct the upstream grammar names struct_pattern.",
+      "constraints": [
+        "Only the native Rust grammar defines this construct.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:rust",
+          "name": "structure_pattern"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rust-struct-pattern"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "grammar.type-argument-list",
+      "phrase": "type argument list",
+      "role": "concept",
+      "definition": "A rule for a type argument list, the construct the upstream grammar names type_arguments.",
+      "constraints": [
+        "Native grammars share this concept only where the construct means the same in each language.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:go",
+          "name": "type_arguments"
+        },
+        {
+          "source": "native:java",
+          "name": "type_arguments"
+        },
+        {
+          "source": "native:rust",
+          "name": "type_arguments"
+        },
+        {
+          "source": "native:tsx",
+          "name": "type_arguments"
+        },
+        {
+          "source": "native:typescript",
+          "name": "type_arguments"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rust-instantiation"
+        }
+      ],
+      "formerNames": [],
+      "distinctFrom": [
+        {
+          "id": "grammar.type-parameter-list",
+          "reason": "A type argument list gives the types a generic use supplies, while a type parameter list declares the names a generic item takes."
+        }
+      ]
+    },
+    {
+      "id": "grammar.type-parameter-list",
+      "phrase": "type parameter list",
+      "role": "concept",
+      "definition": "A rule for a type parameter list, the construct the upstream grammar names type_parameters.",
+      "constraints": [
+        "Native grammars share this concept only where the construct means the same in each language.",
+        "js/scripts/import-native-grammars.mjs generates this record from the rule names of the imported grammars."
+      ],
+      "sourceAliases": [
+        {
+          "source": "native:go",
+          "name": "type_parameter_list"
+        },
+        {
+          "source": "native:java",
+          "name": "type_parameters"
+        },
+        {
+          "source": "native:rust",
+          "name": "type_parameters"
+        },
+        {
+          "source": "native:tsx",
+          "name": "type_parameters"
+        },
+        {
+          "source": "native:typescript",
+          "name": "type_parameters"
+        },
+        {
+          "source": "rml:lowering-syntax",
+          "name": "rust-monomorphize"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "program.effects",
+      "phrase": "effects",
+      "role": "concept",
+      "definition": "The side effects a program performs, such as input, output and mutation.",
+      "constraints": [
+        "Each language frontend reports evidence for this construct or states why it is unavailable."
+      ],
+      "sourceAliases": [
+        {
+          "source": "Lean",
+          "name": "IO"
+        },
+        {
+          "source": "JavaScript",
+          "name": "await"
+        },
+        {
+          "source": "rml:preservation",
+          "name": "effects"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "program.macros-and-notation",
+      "phrase": "macros and notation",
+      "role": "concept",
+      "definition": "The macros and custom notation a program defines or uses.",
+      "constraints": [
+        "Each language frontend reports evidence for this construct or states why it is unavailable."
+      ],
+      "sourceAliases": [
+        {
+          "source": "Rust",
+          "name": "macro_rules!"
+        },
+        {
+          "source": "Lean",
+          "name": "notation"
+        },
+        {
+          "source": "Rocq",
+          "name": "Notation"
+        },
+        {
+          "source": "rml:authority",
+          "name": "macros"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.data-type",
+      "phrase": "data type",
+      "role": "concept",
+      "definition": "A closed algebraic data type: finitely many constructors with fixed field types, possibly recursive.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists.",
+        "Records, structures and struct variants reach a certificate as data types after RML surface lowering."
+      ],
+      "sourceAliases": [
+        {
+          "source": "Rust",
+          "name": "enum"
+        },
+        {
+          "source": "Lean",
+          "name": "inductive"
+        },
+        {
+          "source": "Rocq",
+          "name": "Inductive"
+        },
+        {
+          "source": "rml:construct-kind",
+          "name": "data"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.data-constructor",
+      "phrase": "data constructor",
+      "role": "concept",
+      "definition": "One constructor of a closed algebraic data type, applied to exactly its fields.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:construct-kind",
+          "name": "constructor"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.theorem",
+      "phrase": "theorem",
+      "role": "concept",
+      "definition": "A named proposition that a certificate either discharges by RML evaluation or keeps as an open obligation.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists.",
+        "A theorem is never discharged by a target kernel; kernels are oracles."
+      ],
+      "sourceAliases": [
+        {
+          "source": "Lean",
+          "name": "theorem"
+        },
+        {
+          "source": "Rocq",
+          "name": "Theorem"
+        },
+        {
+          "source": "rml:construct-kind",
+          "name": "theorem"
+        },
+        {
+          "source": "rml:obligation-kind",
+          "name": "theorem"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.runtime-assertion",
+      "phrase": "runtime assertion",
+      "role": "concept",
+      "definition": "A closed condition main checks while it runs; RML discharges it by running main or refutes it when main aborts on it.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "Rust",
+          "name": "assert!"
+        },
+        {
+          "source": "rml:obligation-kind",
+          "name": "assertion"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.emitter-assumption",
+      "phrase": "emitter assumption",
+      "role": "concept",
+      "definition": "A statement an emitter relies on that the certificate lists and never discharges.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:obligation-kind",
+          "name": "assumption"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.termination",
+      "phrase": "termination",
+      "role": "concept",
+      "definition": "The obligation that every call of a recursive function returns.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists.",
+        "Discharged only by an RML structural-decrease derivation that agrees with the archive."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:obligation-kind",
+          "name": "termination"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.trusted-step",
+      "phrase": "trusted step",
+      "role": "concept",
+      "definition": "A step of the translation that is trusted host code, recorded as an open obligation instead of hidden.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:obligation-kind",
+          "name": "trust"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.discharge.rml-evaluation",
+      "phrase": "discharge by RML evaluation",
+      "role": "concept",
+      "definition": "A closed goal is decided by RML evaluating the certified intermediate program.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:discharge",
+          "name": "rml-evaluation"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.discharge.rml-structural-decrease",
+      "phrase": "discharge by RML structural decrease",
+      "role": "concept",
+      "definition": "Termination follows from a parameter that RML finds structurally smaller on every recursive call, as the archive also records.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:discharge",
+          "name": "rml-structural-decrease"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.discharge.unevaluated",
+      "phrase": "unevaluated goal",
+      "role": "concept",
+      "definition": "A closed goal that RML has not evaluated, so it stays open.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:discharge",
+          "name": "unevaluated"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.discharge.target-kernel-oracle",
+      "phrase": "target kernel oracle",
+      "role": "concept",
+      "definition": "A goal left to a target proof kernel, whose acceptance is oracle evidence and never an RML discharge.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:discharge",
+          "name": "target-kernel-oracle"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.discharge.bounded-runtime-check",
+      "phrase": "bounded runtime check",
+      "role": "concept",
+      "definition": "A goal checked by running a bounded executable test, which is not a proof.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:discharge",
+          "name": "bounded-runtime-check-not-proof"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.discharge.declared-assumption",
+      "phrase": "declared assumption",
+      "role": "concept",
+      "definition": "An obligation that holds by assumption and is listed as assumed.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:discharge",
+          "name": "declared-assumption"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.discharge.unproved-general-recursion",
+      "phrase": "unproved general recursion",
+      "role": "concept",
+      "definition": "Recursion without a structurally decreasing parameter, or through a call cycle, whose termination is not proved.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:discharge",
+          "name": "unproved-general-recursion"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.discharge.native-oracle-ci",
+      "phrase": "native oracle in continuous integration",
+      "role": "concept",
+      "definition": "A goal observed by native toolchains in continuous integration, which is oracle evidence only.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:discharge",
+          "name": "native-oracle-ci"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.preservation.behavior",
+      "phrase": "behavior",
+      "role": "concept",
+      "definition": "The ordered observable output of a program and whether it completes or aborts.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:preservation",
+          "name": "behavior"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.preservation.ownership",
+      "phrase": "ownership",
+      "role": "concept",
+      "definition": "The discipline that governs who owns, borrows and drops a value.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:preservation",
+          "name": "ownership"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.preservation.types",
+      "phrase": "types",
+      "role": "concept",
+      "definition": "The types a program declares and checks.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists.",
+        "meta-language program.types-and-universes joins types with universes; RML keeps the two dimensions distinct, so neither reuses it."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:preservation",
+          "name": "types"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.preservation.universes",
+      "phrase": "universes",
+      "role": "concept",
+      "definition": "The universe hierarchy the declared types live in.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists.",
+        "meta-language program.types-and-universes joins types with universes; RML keeps the two dimensions distinct, so neither reuses it."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:preservation",
+          "name": "universes"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.preservation.assumptions",
+      "phrase": "assumptions",
+      "role": "concept",
+      "definition": "The statements a translation relies on without proving them.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:preservation",
+          "name": "assumptions"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.preservation.proof-obligations",
+      "phrase": "proof obligations",
+      "role": "concept",
+      "definition": "The goals a translation must discharge, with their discharge status.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists.",
+        "meta-language program.proof-terms-and-tactics names the proofs a program writes, not the goals a translation owes."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:preservation",
+          "name": "proof-obligations"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.authority.traits",
+      "phrase": "traits",
+      "role": "concept",
+      "definition": "Type classes and traits that select an implementation by type.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:authority",
+          "name": "traits"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.authority.runtime",
+      "phrase": "runtime",
+      "role": "concept",
+      "definition": "Host runtime code outside the certified program.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:authority",
+          "name": "runtime"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.authority.external-kernels",
+      "phrase": "external kernels",
+      "role": "concept",
+      "definition": "Proof kernels and compilers outside RML.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:authority",
+          "name": "external-kernels"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.certified.authority.proof-authority",
+      "phrase": "proof authority",
+      "role": "concept",
+      "definition": "The checker whose verdict discharges an obligation.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:authority",
+          "name": "proof-authority"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.lowering.record-type",
+      "phrase": "record type",
+      "role": "concept",
+      "definition": "A product type with named or positional fields, lowered to a single-constructor data type with one accessor per field read.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists.",
+        "A Rust struct or tuple struct, a Lean structure and a Rocq record share this concept."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:lowering",
+          "name": "rust-struct"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "rust-tuple-struct"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "lean-structure"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "rocq-record"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.lowering.record-construction",
+      "phrase": "record construction",
+      "role": "concept",
+      "definition": "A value of a record type written with its fields, lowered to the constructor applied to the fields in declaration order.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:lowering",
+          "name": "rust-struct-literal"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "lean-structure-instance"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "rocq-record-instance"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.lowering.field-projection",
+      "phrase": "field projection",
+      "role": "concept",
+      "definition": "The read of one field of a record value, lowered to a call of a generated accessor.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:lowering",
+          "name": "rust-field-read"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "lean-field-read"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "rocq-projection"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.lowering.record-pattern",
+      "phrase": "record pattern",
+      "role": "concept",
+      "definition": "A pattern that names fields of a record, lowered to a positional constructor pattern with wildcards for omitted fields.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:lowering",
+          "name": "rust-struct-pattern"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.lowering.named-field-constructor",
+      "phrase": "named field constructor",
+      "role": "concept",
+      "definition": "A constructor of a data type whose fields are named, lowered to a positional constructor.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:lowering",
+          "name": "rust-struct-variant"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.lowering.type-parameter-monomorphization",
+      "phrase": "type parameter monomorphization",
+      "role": "concept",
+      "definition": "A declaration with explicit type parameters, copied once per explicit instantiation under a fresh name.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists.",
+        "Only explicit instantiations are monomorphized; inference, bounds and universe parameters are refused."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:lowering",
+          "name": "rust-monomorphize"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "lean-monomorphize"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "rocq-monomorphize"
+        }
+      ],
+      "formerNames": []
+    },
+    {
+      "id": "rml.lowering.explicit-type-instantiation",
+      "phrase": "explicit type instantiation",
+      "role": "concept",
+      "definition": "A use of a generic declaration with its type arguments written out, lowered to the monomorphized copy.",
+      "constraints": [
+        "No meta-language concept record has this exact meaning; RML mints it under the rml namespace until an upstream record exists."
+      ],
+      "sourceAliases": [
+        {
+          "source": "rml:lowering",
+          "name": "rust-instantiation"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "lean-instantiation"
+        },
+        {
+          "source": "rml:lowering",
+          "name": "rocq-instantiation"
+        }
+      ],
+      "formerNames": []
+    }
+  ],
+  "bindings": [
+    {
+      "category": "construct-kind",
+      "term": "function",
+      "concept": "function",
+      "origin": "upstream"
+    },
+    {
+      "category": "construct-kind",
+      "term": "data",
+      "concept": "rml.certified.data-type",
+      "origin": "rml"
+    },
+    {
+      "category": "construct-kind",
+      "term": "constructor",
+      "concept": "rml.certified.data-constructor",
+      "origin": "rml"
+    },
+    {
+      "category": "construct-kind",
+      "term": "theorem",
+      "concept": "rml.certified.theorem",
+      "origin": "rml"
+    },
+    {
+      "category": "obligation-kind",
+      "term": "assertion",
+      "concept": "rml.certified.runtime-assertion",
+      "origin": "rml"
+    },
+    {
+      "category": "obligation-kind",
+      "term": "theorem",
+      "concept": "rml.certified.theorem",
+      "origin": "rml"
+    },
+    {
+      "category": "obligation-kind",
+      "term": "assumption",
+      "concept": "rml.certified.emitter-assumption",
+      "origin": "rml"
+    },
+    {
+      "category": "obligation-kind",
+      "term": "termination",
+      "concept": "rml.certified.termination",
+      "origin": "rml"
+    },
+    {
+      "category": "obligation-kind",
+      "term": "trust",
+      "concept": "rml.certified.trusted-step",
+      "origin": "rml"
+    },
+    {
+      "category": "discharge",
+      "term": "rml-evaluation",
+      "concept": "rml.certified.discharge.rml-evaluation",
+      "origin": "rml"
+    },
+    {
+      "category": "discharge",
+      "term": "rml-structural-decrease",
+      "concept": "rml.certified.discharge.rml-structural-decrease",
+      "origin": "rml"
+    },
+    {
+      "category": "discharge",
+      "term": "unevaluated",
+      "concept": "rml.certified.discharge.unevaluated",
+      "origin": "rml"
+    },
+    {
+      "category": "discharge",
+      "term": "target-kernel-oracle",
+      "concept": "rml.certified.discharge.target-kernel-oracle",
+      "origin": "rml"
+    },
+    {
+      "category": "discharge",
+      "term": "bounded-runtime-check-not-proof",
+      "concept": "rml.certified.discharge.bounded-runtime-check",
+      "origin": "rml"
+    },
+    {
+      "category": "discharge",
+      "term": "declared-assumption",
+      "concept": "rml.certified.discharge.declared-assumption",
+      "origin": "rml"
+    },
+    {
+      "category": "discharge",
+      "term": "unproved-general-recursion",
+      "concept": "rml.certified.discharge.unproved-general-recursion",
+      "origin": "rml"
+    },
+    {
+      "category": "discharge",
+      "term": "native-oracle-ci",
+      "concept": "rml.certified.discharge.native-oracle-ci",
+      "origin": "rml"
+    },
+    {
+      "category": "preservation",
+      "term": "behavior",
+      "concept": "rml.certified.preservation.behavior",
+      "origin": "rml"
+    },
+    {
+      "category": "preservation",
+      "term": "effects",
+      "concept": "program.effects",
+      "origin": "upstream"
+    },
+    {
+      "category": "preservation",
+      "term": "ownership",
+      "concept": "rml.certified.preservation.ownership",
+      "origin": "rml"
+    },
+    {
+      "category": "preservation",
+      "term": "types",
+      "concept": "rml.certified.preservation.types",
+      "origin": "rml"
+    },
+    {
+      "category": "preservation",
+      "term": "universes",
+      "concept": "rml.certified.preservation.universes",
+      "origin": "rml"
+    },
+    {
+      "category": "preservation",
+      "term": "assumptions",
+      "concept": "rml.certified.preservation.assumptions",
+      "origin": "rml"
+    },
+    {
+      "category": "preservation",
+      "term": "proof-obligations",
+      "concept": "rml.certified.preservation.proof-obligations",
+      "origin": "rml"
+    },
+    {
+      "category": "authority",
+      "term": "macros",
+      "concept": "program.macros-and-notation",
+      "origin": "upstream"
+    },
+    {
+      "category": "authority",
+      "term": "traits",
+      "concept": "rml.certified.authority.traits",
+      "origin": "rml"
+    },
+    {
+      "category": "authority",
+      "term": "runtime",
+      "concept": "rml.certified.authority.runtime",
+      "origin": "rml"
+    },
+    {
+      "category": "authority",
+      "term": "external-kernels",
+      "concept": "rml.certified.authority.external-kernels",
+      "origin": "rml"
+    },
+    {
+      "category": "authority",
+      "term": "proof-authority",
+      "concept": "rml.certified.authority.proof-authority",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rust-monomorphize",
+      "concept": "rml.lowering.type-parameter-monomorphization",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rust-instantiation",
+      "concept": "rml.lowering.explicit-type-instantiation",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rust-struct",
+      "concept": "rml.lowering.record-type",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rust-struct-variant",
+      "concept": "rml.lowering.named-field-constructor",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rust-struct-literal",
+      "concept": "rml.lowering.record-construction",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rust-struct-pattern",
+      "concept": "rml.lowering.record-pattern",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rust-tuple-struct",
+      "concept": "rml.lowering.record-type",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rust-field-read",
+      "concept": "rml.lowering.field-projection",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "lean-monomorphize",
+      "concept": "rml.lowering.type-parameter-monomorphization",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "lean-instantiation",
+      "concept": "rml.lowering.explicit-type-instantiation",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "lean-structure",
+      "concept": "rml.lowering.record-type",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "lean-structure-instance",
+      "concept": "rml.lowering.record-construction",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "lean-field-read",
+      "concept": "rml.lowering.field-projection",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rocq-monomorphize",
+      "concept": "rml.lowering.type-parameter-monomorphization",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rocq-instantiation",
+      "concept": "rml.lowering.explicit-type-instantiation",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rocq-record",
+      "concept": "rml.lowering.record-type",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rocq-record-instance",
+      "concept": "rml.lowering.record-construction",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering",
+      "term": "rocq-projection",
+      "concept": "rml.lowering.field-projection",
+      "origin": "rml"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rust-monomorphize",
+      "concept": "grammar.type-parameter-list",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rust-instantiation",
+      "concept": "grammar.type-argument-list",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rust-struct",
+      "concept": "grammar.structure-item",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rust-struct-variant",
+      "concept": "grammar.enumeration-variant",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rust-struct-literal",
+      "concept": "grammar.structure-expression",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rust-struct-pattern",
+      "concept": "grammar.structure-pattern",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rust-tuple-struct",
+      "concept": "grammar.ordered-field-declaration-list",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rust-field-read",
+      "concept": "grammar.field-expression",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "lean-monomorphize",
+      "concept": "grammar.explicit-binder",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "lean-instantiation",
+      "concept": "grammar.function-application",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "lean-structure",
+      "concept": "grammar.structure",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "lean-structure-instance",
+      "concept": "grammar.structure-instance",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "lean-field-read",
+      "concept": "grammar.projection",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rocq-monomorphize",
+      "concept": "grammar.single-binder",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rocq-instantiation",
+      "concept": "grammar.function-application",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rocq-record",
+      "concept": "grammar.record-command",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rocq-record-instance",
+      "concept": "grammar.record-fields-literal",
+      "origin": "upstream"
+    },
+    {
+      "category": "lowering-syntax",
+      "term": "rocq-projection",
+      "concept": "grammar.projection-term",
+      "origin": "upstream"
+    }
+  ]
+}

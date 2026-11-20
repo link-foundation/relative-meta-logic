@@ -1,0 +1,4 @@
+(eval-nat zero)
+(eval-nat (succ zero))
+(eval-nat (add (succ zero) (succ zero)))
+(eval-nat (mul (succ (succ zero)) (succ zero)))

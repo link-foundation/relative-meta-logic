@@ -76,8 +76,11 @@ export function interpretViewResult({ status, stdout, output }, version) {
   throw new Error(`npm view failed with status ${status}:\n${output.trim()}`);
 }
 
-export function isPublished(name, version) {
-  return interpretViewResult(runNpm(['view', `${name}@${version}`, 'version', '--json']), version);
+export function isPublished(name, version, { registry, preferOnline = false } = {}) {
+  const args = ['view', `${name}@${version}`, 'version', '--json'];
+  if (registry) args.push('--registry', registry);
+  if (preferOnline) args.push('--prefer-online');
+  return interpretViewResult(runNpm(args), version);
 }
 
 // Classify a failed `npm publish` so the log says exactly what to do.

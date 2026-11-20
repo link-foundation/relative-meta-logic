@@ -1,0 +1,225 @@
+{
+  "schema": "rml-meta-theory-workflow/v1",
+  "corpus": {
+    "declarations": 229,
+    "fingerprint": "f85e7951384dbb639725eb021419982d367f5e1eeef2c5528602a4e35d8af0b9"
+  },
+  "map": {
+    "declarations": 229,
+    "commands": 197,
+    "row": {
+      "address": "rml.formal.lean.SetSequenceEquivalence.toOrderedUnique",
+      "typedElaboration": "unsupported",
+      "nativeElaboration": "elaborated",
+      "dependencyCheck": "exact",
+      "nativeExecution": "ablation-witnessed",
+      "proof": "not-applicable"
+    }
+  },
+  "upstreamCommand": {
+    "id": "rml.formal.lean.NetworkExamples#command-17",
+    "value": "[(121, 1), (21, 2), (1343, 2)]",
+    "matchesRecordedCase": true,
+    "counterpart": "rml.formal.rocq.NetworkExamples#command-26",
+    "counterpartValue": "[(121, 1); (21, 2); (1343, 2)]",
+    "counterpartAgrees": true
+  },
+  "newData": [
+    {
+      "language": "lean",
+      "definition": "toOrderedUnique",
+      "input": [
+        3,
+        1,
+        2,
+        3
+      ],
+      "value": "[1, 2, 3]"
+    },
+    {
+      "language": "lean",
+      "definition": "IsOrderedUniqueSequence",
+      "input": [
+        1,
+        2,
+        3
+      ],
+      "value": "true"
+    },
+    {
+      "language": "lean",
+      "definition": "IsOrderedUniqueSequence",
+      "input": [
+        2,
+        1
+      ],
+      "value": "false"
+    },
+    {
+      "language": "rocq",
+      "definition": "toOrderedUnique",
+      "input": [
+        3,
+        1,
+        2,
+        3
+      ],
+      "value": "[1; 2; 3]"
+    },
+    {
+      "language": "rocq",
+      "definition": "IsOrderedUniqueSequence",
+      "input": [
+        1,
+        2,
+        3
+      ],
+      "value": "true"
+    },
+    {
+      "language": "rocq",
+      "definition": "IsOrderedUniqueSequence",
+      "input": [
+        2,
+        1
+      ],
+      "value": "false"
+    }
+  ],
+  "certificate": {
+    "theorem": "rml.formal.lean.SetSequenceEquivalence.set_sequence_equivalence",
+    "accepted": true,
+    "chain": "relative",
+    "relativeTo": [
+      "rml.formal.lean.SetSequenceEquivalence.insertSorted_preserves_ascending (admitted)",
+      "rml.formal.lean.SetSequenceEquivalence.mem_toOrderedUnique (admitted)"
+    ],
+    "forgedConclusionAccepted": false
+  },
+  "unseenLogic": {
+    "query": "home-reaches-dry",
+    "answers": [
+      {
+        "version": "1",
+        "status": "unknown",
+        "outcome": "unknown",
+        "replayAccepted": true
+      },
+      {
+        "version": "2",
+        "status": "proved",
+        "outcome": "proved",
+        "replayAccepted": true
+      },
+      {
+        "version": "3",
+        "status": "unknown",
+        "outcome": "unknown",
+        "replayAccepted": true
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "program": "type-specification",
+      "cases": 25,
+      "negativeCases": 12,
+      "casesReproduced": 25,
+      "theorems": [
+        "typing-twice",
+        "preservation-swap",
+        "preservation-conditional",
+        "evaluation-twice-successor",
+        "progress-swap"
+      ],
+      "certified": [
+        "typing-twice",
+        "preservation-swap",
+        "preservation-conditional",
+        "evaluation-twice-successor",
+        "progress-swap"
+      ],
+      "sample": {
+        "theorem": "preservation-swap",
+        "statement": "(ty-preserved (tm-app (tm-lam p (ty-product ty-nat ty-bool) (tm-pair (tm-snd (tm-var p)) (tm-fst (tm-var p)))) (tm-pair tm-zero tm-true)) (tm-pair (tm-snd (tm-pair tm-zero tm-true)) (tm-fst (tm-pair tm-zero tm-true))) (ty-product ty-bool ty-nat))"
+      },
+      "mutatedCertificateAccepted": false
+    },
+    {
+      "program": "graph-specification",
+      "cases": 25,
+      "negativeCases": 9,
+      "casesReproduced": 25,
+      "theorems": [
+        "reach-transitive-dag",
+        "reach-transitive-cycle",
+        "closure-fixed-point",
+        "closure-least",
+        "path-reaches",
+        "reach-agrees-with-closure",
+        "dag-acyclic"
+      ],
+      "certified": [
+        "reach-transitive-dag",
+        "reach-transitive-cycle",
+        "closure-fixed-point",
+        "closure-least",
+        "path-reaches",
+        "reach-agrees-with-closure",
+        "dag-acyclic"
+      ],
+      "sample": {
+        "theorem": "reach-transitive-cycle",
+        "statement": "(gr-transitive-at (gr-graph (gr-cons a (gr-cons b (gr-cons c (gr-cons d gr-nil)))) (gr-cons (gr-edge a b) (gr-cons (gr-edge b c) (gr-cons (gr-edge c a) (gr-cons (gr-edge c d) gr-nil))))) b a d)"
+      },
+      "mutatedCertificateAccepted": false
+    },
+    {
+      "program": "relational-algebra-specification",
+      "cases": 23,
+      "negativeCases": 11,
+      "casesReproduced": 23,
+      "theorems": [
+        "union-commutative",
+        "union-associative",
+        "union-idempotent",
+        "join-commutative",
+        "join-associative",
+        "join-idempotent",
+        "select-distributes-over-union",
+        "select-distributes-over-difference",
+        "select-cascade",
+        "select-commutes",
+        "select-pushdown-join",
+        "project-distributes-over-union",
+        "project-cascade",
+        "difference-self",
+        "rename-inverse",
+        "join-distributes-over-union"
+      ],
+      "certified": [
+        "union-commutative",
+        "union-associative",
+        "union-idempotent",
+        "join-commutative",
+        "join-associative",
+        "join-idempotent",
+        "select-distributes-over-union",
+        "select-distributes-over-difference",
+        "select-cascade",
+        "select-commutes",
+        "select-pushdown-join",
+        "project-distributes-over-union",
+        "project-cascade",
+        "difference-self",
+        "rename-inverse",
+        "join-distributes-over-union"
+      ],
+      "sample": {
+        "theorem": "join-associative",
+        "statement": "(ra-equal-relations (ra-join (ra-join (ra-named employees) (ra-named departments)) (ra-named cities)) (ra-join (ra-named employees) (ra-join (ra-named departments) (ra-named cities))))"
+      },
+      "mutatedCertificateAccepted": false
+    }
+  ]
+}

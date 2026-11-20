@@ -1,0 +1,73 @@
+-- rml-certified-item rust/src/certified_translation.rs#CERTIFIED_TRANSLATION_SCHEMA@1034 target-sha256=61db95e8e649386d6a46c5a9a931200b78ee17b67538690514e2c411e8656e0a
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def CERTIFIED_TRANSLATION_SCHEMA : String :=
+  "rml:translation-certificate:1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/certified_translation.rs#TRANSLATION_REFUSAL_SCHEMA@1114 target-sha256=ec636cf79dbf7598b86e4399a52adedebd6cc1efec51503c662b57ff77939eec
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def TRANSLATION_REFUSAL_SCHEMA : String :=
+  "rml:translation-refusal:1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/certified_translation.rs#SURFACE_LOWERING_SCHEMA@2009 target-sha256=862f3ea71cbcbfdddac922a4223f72e856f4019d36dffab31ecd3f647defb721
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def SURFACE_LOWERING_SCHEMA : String :=
+  "rml:surface-lowering:1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/certified_translation.rs#CONCEPT_SPACE_SCHEMA@2932 target-sha256=9f436e5b8762d3a788d272300c86964338d62c9f6aac8686def4bfb34261ffab
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def CONCEPT_SPACE_SCHEMA : String :=
+  "rml:certified-concept-space:1"
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/certified_translation.rs#RML_CONCEPT_NAMESPACE@3059 target-sha256=00d21d8a1690913795782f455dc68e083cc495f6e9bfafc8c9b1f058fd38ff83
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+def RML_CONCEPT_NAMESPACE : String :=
+  "rml."
+
+def main : IO Unit := do
+  pure ()
+-- rml-certified-item rust/src/certified_translation.rs#CertificateError@4832 target-sha256=0a07c2ffc31b71e1844cb1252ef8d7eb6dbc8c1b53b26c292258c92edfb9a786
+-- Translated from Rust by meta-language: portable core, Lean target.
+-- Source binders are kept even where unused or named like a constructor, and proof hints are shared by every closing tactic.
+set_option linter.unusedVariables false
+set_option linter.unusedSimpArgs false
+set_option linter.constructorNameAsVariable false
+
+inductive CertificateError where
+  | CertificateError (field0 : String) (field1 : String) : CertificateError
+  deriving Repr, DecidableEq, Inhabited
+
+def main : IO Unit := do
+  pure ()

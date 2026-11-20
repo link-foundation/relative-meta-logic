@@ -1,0 +1,88 @@
+{
+  "schema": "rml-linked-target-validation/v1",
+  "baseRevision": "24ad4965efea139846cc9b01d8d8f57b55faf27f",
+  "requiredAuthoritySnapshot": "corrected 48-file linked-implementation checkpoint",
+  "sourceScope": "15 additive target source/workflow/documentation files plus six coherently recaptured implementation/configuration artifacts",
+  "currentTree": {
+    "schema": "rml-current-linked-implementation/v1",
+    "currentTreeConsistent": true,
+    "implementations": [
+      {
+        "manifest": "lib/linked-runtime/manifest.json",
+        "modules": 82,
+        "archiveSha256": "468794f9732248eef085c7848bed764a549dbb3dfe1f0d20bd8a79055347b464"
+      },
+      {
+        "manifest": "lib/linked-runtime/rust-manifest.json",
+        "modules": 37,
+        "archiveSha256": "6416d05cde2270fe6c67b7b64c7238da7768aa22da56eb488f91f92033420249"
+      }
+    ],
+    "configuration": {
+      "files": 111,
+      "providers": 577,
+      "currentTreeConsistent": true
+    }
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)"
+  },
+  "nodeTests": {
+    "passed": 54,
+    "failed": 0,
+    "skipped": 0,
+    "command": "node --test scripts/build-cache-policy.test.mjs scripts/linked-runtime.test.mjs scripts/linked-rust-runtime.test.mjs scripts/linked-implementation-configuration.test.mjs scripts/linked-target-abi.test.mjs .github/candidates/cache-portability/validate.test.mjs"
+  },
+  "native": {
+    "schema": "rml-linked-target-witness/v1",
+    "sourceFree": true,
+    "proofCases": 34,
+    "exactReceiptByteComparisons": 34,
+    "crossPortReplays": 34,
+    "parserCases": 4,
+    "strictNativeFrames": 4,
+    "corruptNativeFramesRejected": 5,
+    "forgedReceiptRejected": true,
+    "resourceExhaustionIsError": true,
+    "independentModelInterpreter": true,
+    "regeneratedLayoutChangesBytes": true,
+    "regeneratedVerdictChangesExecution": true,
+    "regeneratedParserChangesObservation": true,
+    "nativeArtifactHashes": [
+      "d30dd06129b881d8a99a2c5e21f65b0c3039ebc2465cb14e020d07b0fae44e15",
+      "345773bfe201676acd702a098471b88e416c7198c22eb4c238e195c3a646726f",
+      "d25658bc61159c462b098cee0ce60368bc9a419c196a9079a23fa4bd9427b76f",
+      "e10fcfce8dbd98e2f307e0b874bfa450475425ba5126b992cfda4f94af172de1"
+    ],
+    "genericGeneratorHashes": [
+      [
+        "scripts/linked-target-abi.mjs",
+        "cdfc5b52894140aabc143c30124915ab8bac5c19c59fff3bd8d5a524d4a419ac"
+      ],
+      [
+        "scripts/linked-target-rust-codegen.mjs",
+        "f12ec61cdee49ad21d0ebd12fded4e288c0dd9b0671a568be9a2d32c7b1073aa"
+      ]
+    ],
+    "fullCompilerCorrectness": false,
+    "physicalIsaModel": false
+  },
+  "nativeArtifactOrder": [
+    "baseline",
+    "changed layout",
+    "changed executable verdict",
+    "changed parser source AST"
+  ],
+  "targetModelSha256": "43657dd2533c9d091334a954a92b83b46a04e5c82ba181d4632bd3595ca27381",
+  "nativeCommand": "node scripts/run-with-cache.mjs --cache .rml-cache/target-abi -- node scripts/verify-linked-target.mjs GENERIC_RUST_SYNTAX_HELPER .rml-cache/target-abi",
+  "cleanup": "build-cache: before=1073582057 after=6 reclaimed=1073582051 budget=1073741824 bytes; 2 protected paths; within budget",
+  "limitations": [
+    "This is a portable term/proof memory ABI, not a model of V8 object or Rust enum memory layout.",
+    "The common domain has scalar Unicode text, finite ordered trees, nonempty leaves and explicit resource limits.",
+    "Receipt observations cover all 34 shared proof cases; parser observations cover four cases, not all possible programs.",
+    "A universal compiler-correctness theorem, physical instruction semantics, and minimal generic bootstrap are not claimed.",
+    "Final repository integration requires explicit recapture of every newly added or changed owned runtime/configuration file."
+  ],
+  "fullR151Closure": false
+}
