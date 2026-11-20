@@ -1,6 +1,6 @@
 {
   "schema": "rml-issue-183-sources/v1",
-  "snapshotAt": "2026-11-20T10:26:40Z",
+  "snapshotAt": "2026-11-20T10:28:30Z",
   "conversationCutoff": "2026-11-20T10:22:36Z",
   "latestCommentId": "7033234799",
   "conversationCount": 210,
@@ -3296,7 +3296,19 @@
       "bodySha256": "087f179854f2d130824aa44bebfb47302560b1521bc1b8a13581f77cf05b4ae6",
       "requirementIds": [],
       "title": "Execute, translate, and verify linked meta-theory in RML"
+    },
+    {
+      "id": "pull-184@0a45ee95d4c5",
+      "url": "https://github.com/link-foundation/relative-meta-logic/pull/184",
+      "author": "konard",
+      "createdAt": "2026-09-20T14:32:54Z",
+      "updatedAt": "2026-11-20T10:28:27Z",
+      "classification": "implementation-report-or-automation",
+      "originalText": "## Status\n\nThis draft advances #183. The [requirement ledger](https://github.com/link-foundation/relative-meta-logic/blob/issue-183-7fedfddffe9c/docs/case-studies/issue-183/requirements.md) records the original wording, review feedback, executable evidence, and remaining gaps. The delivery gate checks the current source inventory and requires both positive and negative evidence for each requirement.\n\n## Implementation\n\n- Both runtimes execute linked definitions for Links, finite sets, types, graphs, and relational algebra. Addressed links support recursive sequences, and set operations check extensional equality.\n- The pinned meta-theory draft elaborates 229 declarations and 197 commands into native RML. All 90 evaluations produce values, and the linked verifier certifies 17 of 36 theorems. Lean and Rocq serve as external conformance oracles.\n- The certified translation fragment covers all 12 directed paths among JavaScript, Rust, Lean, and Rocq. It carries exact source provenance and explicit refusals, with checked certificates for admitted translations.\n- S/K and Horn execute the same upper linked layer in the comparative foundation witness. The branch includes linked elaboration experiments, authority and orientation countermodels, and replayable structural evidence.\n\n## November 20 update\n\n- Merged current `main`, preserving the npm and crates.io release workflows, the higher branch version, and cache-managed VSIX packaging.\n- Fixed a regression that compared archived CI evidence with the current requirement ledger and workflow inventory. The historical matrix now validates against its original commit, and the live delivery gate remains authoritative for the current branch.\n- Adapted the release pipeline so npm checks the tarball on a supported Node version and the crates.io dry run can compile with the packaged theory inputs. Rust compilation, linked recapture, and bulk regeneration run on hosted CI.\n- Updated Links Notation to 0.31.8 for npm, Cargo, and the editor tooling. The npm and Cargo archives identify the same upstream commit. Hosted recapture rebuilt the linked implementation archives and the playground runtime.\n- Registered the maintainer's November resource-minimization and bulk-drafting instructions.\n\n## CI follow-up\n\nThe acceptance workflow now reads the current PR description with a read-only token. A queued event that carries an outdated closing directive can no longer fail the metadata producer once the live description has been corrected. A live closing directive still fails the check, and the gate still requires live evidence for every delivery requirement.\n\nTo reproduce the metadata regression, use an event payload with a closing directive and a current PR description without one. Run `node --test scripts/issue-183-requirements.test.mjs` for this case and its inverse.\n\n### npm publisher on main\n\nThe historical main runs for `0.19.0` and `0.19.1` failed with `ENEEDAUTH`. npm now serves `0.19.1`. This PR runs the package dry run and logs why it skips publication. If npm rejects the OIDC identity for a future release, an npm owner should open the access settings for `relative-meta-logic` and configure a GitHub Actions trusted publisher for owner `link-foundation`, repository `relative-meta-logic`, workflow `release.yml`, and no environment, with publishing enabled. Then rerun the release workflow on `main`. The publish step exits with these instructions when authentication fails.\n\n## Remaining delivery gates\n\nFull native corpus proof replay, production-language semantics and translation, Link-driven parser, compiler and code generation, intrinsic authority and ontology, and verification of the complete delivery matrix remain open. Registry parity requires a meta-language maintainer with npm publish access to publish the JavaScript package from the official v1.0.0 release source to the npm registry and make it the latest release. The official source pin continues to supply the implementation while publication is pending. The ledger records the evidence and outstanding work for each requirement.\n\nTo reproduce the CI matrix regression, run `node --test scripts/ci-matrix-evidence.test.mjs`. To check packaged inputs, run `RML_CHECK_NPM_TARBALL=1 node --test scripts/release-assets.test.mjs scripts/npm-release.test.mjs scripts/crates-release.test.mjs` from an initialized checkout. The release workflows run the npm and Cargo dry runs.\n\nAdvances #183\n",
+      "bodySha256": "0a45ee95d4c563cc0921fa755453aea084fe11d90b25dd482abded833958fae8",
+      "requirementIds": [],
+      "title": "Execute, translate, and verify linked meta-theory in RML"
     }
   ],
-  "currentPrBodySourceId": "pull-184@087f179854f2"
+  "currentPrBodySourceId": "pull-184@0a45ee95d4c5"
 }

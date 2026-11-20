@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "b5ddcc29629373f95576a34c4a01609f843d6c7f924fed33ad31bcc2b1d837c0"
+    "sha256": "94ea1e051598de11acf07787ae9a28a71b68cef57ba808f3f61d6de35a8192d7"
   },
   "requirements": [
     {
@@ -41514,7 +41514,7 @@
         {
           "path": ".github/workflows/release.yml",
           "role": "implementation",
-          "sha256": "abb28dcb3987a02cad256a5059646d7a5c88c0be676a1c9d6c98475d7a537c16"
+          "sha256": "828c9aa542b4e9603436a5621c14bfce485d6ae6bf79bdaa2f82e6b9bbd6997c"
         },
         {
           "path": ".github/workflows/crates-release.yml",
@@ -42497,7 +42497,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "b5ddcc29629373f95576a34c4a01609f843d6c7f924fed33ad31bcc2b1d837c0"
+          "sha256": "94ea1e051598de11acf07787ae9a28a71b68cef57ba808f3f61d6de35a8192d7"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -60036,7 +60036,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "8d173c8555f5ea85e128256487beb6d44e27ce93fb9c10c416fee1795ce9ed2a"
+          "sha256": "8ec3483ada4138a2aef062b525687f2f4876adde371d5b302895ca6dad6ad196"
         }
       ],
       "assertions": [

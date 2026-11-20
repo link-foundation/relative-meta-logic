@@ -120,6 +120,7 @@ describe('npm release workflow (issue #189)', () => {
     const publishStep = releaseWorkflow.slice(releaseWorkflow.indexOf('- name: Publish to npm'));
     assert.match(publishStep.split(/\n\s+- name:/)[0], /github\.ref == 'refs\/heads\/main'/);
     assert.match(publishStep, /github\.event_name != 'pull_request'/);
+    assert.match(releaseWorkflow, /- name: Report why this pull request skips publication\s+if: github\.event_name == 'pull_request' && steps\.check\.outputs\.should_publish == 'true'[\s\S]*?requires the npm trusted publisher on main/);
   });
 
   it('upgrades npm when it is older than 11.5.1 (the first OIDC-capable release)', () => {
