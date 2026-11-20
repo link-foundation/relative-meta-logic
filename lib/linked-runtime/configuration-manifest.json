@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb",
-  "archiveBytes": 806667,
+  "archiveSha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6",
+  "archiveBytes": 806759,
   "linkCount": 14648,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
@@ -117,8 +117,8 @@
     },
     {
       "path": ".github/workflows/tests.yml",
-      "sourceSha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f",
-      "generatedSha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
+      "sourceSha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2",
+      "generatedSha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2"
     },
     {
       "path": ".github/workflows/translation-native.yml",

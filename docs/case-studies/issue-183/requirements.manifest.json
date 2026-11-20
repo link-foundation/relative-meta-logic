@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "c1f50cc03c84b70325a3a01fac2dbfa8a82b07d841b89cc8da13533343e4bccc"
+    "sha256": "acb3da8af45816bb85a93cf7848176303f7ff8dac9713085de8c9abb3582f1a2"
   },
   "requirements": [
     {
@@ -37504,9 +37504,19 @@
           "path": "scripts/run-with-cache.mjs",
           "role": "implementation",
           "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
+        },
+        {
+          "path": "scripts/measure-build-cache.mjs",
+          "role": "implementation",
+          "sha256": "6fc6d8723b94aff24bbb787f37c1d95f3df741c30c9bb6e21db31355bb6c5e74"
+        },
+        {
+          "path": "scripts/measurement-source.mjs",
+          "role": "implementation",
+          "sha256": "9a64f035271d7434d603a44806a761002d4ba2a4b03a6ada28fdd9180ff1046d"
         }
       ],
-      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup. The acceptance and runtime test steps replace the runner shell with the cache wrapper so cancellation reaches the process that owns the lease and child group. The JavaScript CI step executes the same command as `npm test`.",
+      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup. The acceptance and runtime test steps replace the runner shell with the cache wrapper so cancellation reaches the process that owns the lease and child group. The JavaScript CI step executes the same command as `npm test`. The measured cycle forwards runner cancellation to its active phase, waits for it to exit, and saves a failed measurement report before removing the fixture.",
       "checks": [
         "build-cache-lifecycle",
         "cache-tool-availability"
@@ -37723,6 +37733,18 @@
           "file": "scripts/build-cache-policy.test.mjs",
           "name": "runtime CI delivers cancellation directly to the full test suite cache wrappers",
           "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "measured CI delivers cancellation directly to the measurement",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "an interrupted measurement waits for its active phase and archives failure before fixture teardown",
+          "polarity": "positive"
         }
       ],
       "completionBindings": [
@@ -37772,6 +37794,18 @@
           "checkId": "cache-tool-availability",
           "file": "scripts/build-cache-policy.test.mjs",
           "name": "runtime CI delivers cancellation directly to the full test suite cache wrappers",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "measured CI delivers cancellation directly to the measurement",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "an interrupted measurement waits for its active phase and archives failure before fixture teardown",
           "polarity": "positive"
         }
       ]
@@ -38910,7 +38944,7 @@
         {
           "path": "scripts/measure-build-cache.mjs",
           "role": "implementation",
-          "sha256": "68cdb2ae2a2192838e83443fb71323832db57f5bd0cc8f2d14a254ea8edeb4d8"
+          "sha256": "6fc6d8723b94aff24bbb787f37c1d95f3df741c30c9bb6e21db31355bb6c5e74"
         }
       ],
       "claimedEvidence": "`docs/case-studies/issue-183/data/build-cache-measurement-native.json` condenses the native CI cycle of `scripts/measure-build-cache.mjs --native` (run 38417088378, artifact 11828243230, full-report SHA-256 recorded): the first JSDoc and complete Rust test-target builds produced 961,813,632 bytes, full clean reclaimed every byte to zero, the clean rebuild and verification reproduced exactly 961,813,632 bytes, and final clean returned to zero. After the clean, the full JavaScript suite passed (2804 pass, 0 fail, 1 skipped of 2805), the full Rust suite passed 1244 tests in 110 suites and the available native oracles (rustc 1.99.0, Lean 4.34.1) passed. `scripts/build-cache-ci-evidence.test.mjs` rejects failed, forged, incomplete or unprovenanced measurements. The scope excludes Rocq oracles, Docker and full acceptance, which their own workflows measure; the earlier JSDoc cycle in `data/build-cache-measurement.json` is kept.",
@@ -42583,7 +42617,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "c1f50cc03c84b70325a3a01fac2dbfa8a82b07d841b89cc8da13533343e4bccc"
+          "sha256": "acb3da8af45816bb85a93cf7848176303f7ff8dac9713085de8c9abb3582f1a2"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -46501,12 +46535,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -46863,12 +46897,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -47611,12 +47645,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -47953,12 +47987,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -48726,12 +48760,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -49068,12 +49102,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -49831,12 +49865,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -50093,12 +50127,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -51966,12 +52000,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -52289,12 +52323,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -54211,12 +54245,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -54564,12 +54598,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "e4ade898237439c54cf95ee7c6e8c5a6f012298570ce092533f83c501b1c4673"
+          "sha256": "79bbdd8ecd51092558b28c12b9a77b499163a1dbaefb7d2f178d19d1373c52ca"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "7137e9b8b3083c6e1c46dad83eaaa10b043d7e2ce5a511e81c7574f3b6b546fb"
+          "sha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -56330,7 +56364,7 @@
         {
           "path": "scripts/build-cache-policy.test.mjs",
           "role": "test",
-          "sha256": "366c7e5b6c02d24c1037980829fe4f5c2f75438d1937429c2824d9639cc523f3"
+          "sha256": "36c2bd893a6410309ea787075f6bbe85460899f721cb1e3cf496328fdfed003c"
         },
         {
           "path": "scripts/docker-cache-budget.mjs",
@@ -56340,7 +56374,7 @@
         {
           "path": ".github/workflows/cache-portability.yml",
           "role": "fixture",
-          "sha256": "796e6e532982fa2241dbccb5ada96f65957edb82f9283bf17b38d4468a6b8cd3"
+          "sha256": "b8073b0913f45f97c753a4d6a384b25b0900a3a865d30deed67e86305464d693"
         },
         {
           "path": ".github/workflows/docker.yml",
@@ -56351,6 +56385,16 @@
           "path": ".github/workflows/tests.yml",
           "role": "fixture",
           "sha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2"
+        },
+        {
+          "path": "scripts/measure-build-cache.mjs",
+          "role": "implementation",
+          "sha256": "6fc6d8723b94aff24bbb787f37c1d95f3df741c30c9bb6e21db31355bb6c5e74"
+        },
+        {
+          "path": "scripts/measurement-source.mjs",
+          "role": "implementation",
+          "sha256": "9a64f035271d7434d603a44806a761002d4ba2a4b03a6ada28fdd9180ff1046d"
         }
       ],
       "assertions": [
@@ -56407,6 +56451,16 @@
         {
           "file": "scripts/build-cache-policy.test.mjs",
           "name": "runtime CI delivers cancellation directly to the full test suite cache wrappers",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "measured CI delivers cancellation directly to the measurement",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "an interrupted measurement waits for its active phase and archives failure before fixture teardown",
           "polarity": "positive"
         }
       ]
@@ -60128,7 +60182,7 @@
         {
           "path": "scripts/measure-build-cache.mjs",
           "role": "implementation",
-          "sha256": "68cdb2ae2a2192838e83443fb71323832db57f5bd0cc8f2d14a254ea8edeb4d8"
+          "sha256": "6fc6d8723b94aff24bbb787f37c1d95f3df741c30c9bb6e21db31355bb6c5e74"
         },
         {
           "path": "scripts/build-cache.mjs",
@@ -60285,7 +60339,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "f80085f82507a0ae17a84f4c234d7f8275685d71f1efefff80922e3f062290a3"
+          "sha256": "65248ac6d3f141a4a2a4fcb07d577e5e1f5dfe151678ec644e94801fb96762d8"
         }
       ],
       "assertions": [

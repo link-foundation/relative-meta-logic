@@ -4,7 +4,9 @@ import { existsSync, readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFil
 import { tmpdir } from 'node:os';
 import { join, dirname, delimiter } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const read = p => readFileSync(join(root, p), 'utf8');
@@ -98,6 +100,58 @@ test('runtime CI delivers cancellation directly to the full test suite cache wra
   const command = step => step?.match(/^        run: (.+)$/m)?.[1];
   assert.equal(command(js), `exec ${packageScripts('js').test}`);
   assert.equal(command(rust), 'exec node ../scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --all-targets');
+});
+
+test('measured CI delivers cancellation directly to the measurement', () => {
+  const step = jobs(read('.github/workflows/cache-portability.yml')).flatMap(steps).find(step => /Measure build, full clean, clean rebuild and full verification/.test(step));
+  assert.match(step, /^        run: exec node scripts\/measure-build-cache\.mjs .+ --native --oracles=Rust,Lean$/m);
+});
+
+test('an interrupted measurement waits for its active phase and archives failure before fixture teardown', { skip: process.platform === 'win32' }, async () => {
+  const temp = mkdtempSync(join(tmpdir(), 'rml measurement cancellation '));
+  const stub = join(temp, 'source');
+  const report = join(temp, 'report.json');
+  const ready = join(temp, 'ready');
+  const trace = join(temp, 'trace');
+  try {
+    mkdirSync(join(stub, 'scripts'), { recursive: true });
+    mkdirSync(join(stub, 'js/node_modules'), { recursive: true });
+    for (const name of ['measure-build-cache.mjs', 'measurement-source.mjs']) copyFileSync(join(root, 'scripts', name), join(stub, 'scripts', name));
+    writeFileSync(join(stub, 'scripts/bootstrap.mjs'), `
+      import fs from 'node:fs';
+      const deadline = setTimeout(() => process.exit(2), 4000);
+      process.on('SIGTERM', () => {
+        clearTimeout(deadline);
+        setTimeout(() => {
+          fs.writeFileSync(process.env.RML_MEASUREMENT_TRACE, process.cwd());
+          console.error('active phase settled');
+          process.exitCode = 143;
+        }, 30);
+      });
+      fs.writeFileSync(process.env.RML_MEASUREMENT_READY, process.cwd());
+    `);
+    assert.equal(spawnSync('git', ['init', '-q', stub]).status, 0);
+    const child = spawn(process.execPath, [join(stub, 'scripts/measure-build-cache.mjs'), report], {
+      cwd: stub,
+      env: { ...process.env, TMPDIR: temp, RML_MEASUREMENT_READY: ready, RML_MEASUREMENT_TRACE: trace },
+      stdio: 'ignore',
+    });
+    const closed = once(child, 'close');
+    for (let attempt = 0; attempt < 100 && !existsSync(ready) && child.exitCode === null; attempt++) await delay(20);
+    const started = existsSync(ready);
+    child.kill('SIGTERM');
+    assert.deepEqual(await closed, [143, null]);
+    assert.ok(started, 'the measurement phase never started');
+    const artifact = JSON.parse(readFileSync(report, 'utf8'));
+    assert.equal(artifact.failed, true);
+    assert.match(artifact.error, /interrupted by SIGTERM during bootstrap fresh fixture/);
+    assert.equal(artifact.results[0].exitCode, 143);
+    assert.match(artifact.results[0].stderr, /active phase settled/);
+    assert.equal(readFileSync(trace, 'utf8'), readFileSync(ready, 'utf8'));
+    assert.equal(existsSync(readFileSync(trace, 'utf8')), false);
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
 });
 
 test('the cross-platform lifecycle job executes every cache lifecycle suite on all supported OSes', () => {
