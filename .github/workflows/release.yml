@@ -8,7 +8,7 @@ name: release
 #
 # A release happens whenever js/package.json on main carries a version that is
 # not on npm yet: bump "version" in js/package.json and merge. Pull requests
-# only run `npm publish --dry-run` so packaging problems surface before merge.
+# run package dry runs so packaging problems surface before merge.
 #
 # The VS Code extension in vscode/ is a private package
 # (`relative-meta-logic-vscode`) and is never published to npm.
@@ -86,13 +86,19 @@ jobs:
             npm --version
           fi
 
-      - name: Check package contents (dry run)
-        working-directory: js
-        run: node ../scripts/run-with-cache.mjs -- npm publish --dry-run --access public
-
       - name: Check whether this version is already on npm
         id: check
         run: node scripts/npm-release.mjs check
+
+      - name: Check package contents before publishing
+        if: steps.check.outputs.should_publish == 'true'
+        working-directory: js
+        run: node ../scripts/run-with-cache.mjs -- npm publish --dry-run --access public
+
+      - name: Check package contents for an already published version
+        if: steps.check.outputs.should_publish == 'false'
+        working-directory: js
+        run: node ../scripts/run-with-cache.mjs -- npm pack --dry-run
 
       - name: Report why this pull request skips publication
         if: github.event_name == 'pull_request' && steps.check.outputs.should_publish == 'true'
