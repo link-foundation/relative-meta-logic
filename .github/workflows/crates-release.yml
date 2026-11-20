@@ -46,8 +46,8 @@ jobs:
           node-version: '20'
       - name: Test release helper and policy
         run: node --test scripts/crates-release.test.mjs
-      # Builds the packaged library and all three binaries. Full language tests
-      # run in tests.yml; no credentials or OIDC permissions are needed here.
+      # Builds the packaged library and every binary. The full language suites
+      # run in tests.yml.
       - name: Verify crates.io package (dry run)
         working-directory: rust
         run: cargo publish --dry-run --locked
@@ -108,7 +108,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
       - run: npm install --global npm@^11
       - run: npm install
       - run: npm run build --if-present

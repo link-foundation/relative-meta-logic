@@ -8,7 +8,8 @@ const read = path => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'ut
 const workflow = read('.github/workflows/linked-recapture.yml');
 
 test('the hosted recapture workflow runs the source migration and uploads a reviewable patch', () => {
-  assert.match(workflow, /branches: \['recapture\/\*\*'\]/);
+  assert.match(workflow, /branches: \['recapture\/\*\*', 'issue-183-7fedfddffe9c'\]/);
+  assert.match(workflow, /contains\(github\.event\.head_commit\.message, '\[recapture\]'\)/);
   assert.match(workflow, /run: node scripts\/update-linked-implementation\.mjs/);
   assert.match(workflow, /git diff --cached --binary > \.rml-cache\/evidence\/recapture\/linked-recapture\.patch/);
   assert.match(workflow, /uses: actions\/upload-artifact@/);

@@ -12,7 +12,7 @@ use crate::{parse_lino, parse_one, tokenize_one, Node};
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, OnceLock};
 
-pub const SOURCE: &str = include_str!("../../lib/meta-theory/fixed-point-source.lino");
+pub const SOURCE: &str = include_str!("meta-theory/fixed-point-source.lino");
 pub const DEFAULT_MAX_TRANSITIONS: usize = 100_000_000;
 const CONTRACTION_LIMIT_PREFIX: &str = "lambda transition limit ";
 pub const MACHINE_OPERATIONS: &[&str] = &[

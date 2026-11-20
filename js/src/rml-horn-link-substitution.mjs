@@ -22,12 +22,12 @@ import {
 } from './rml-relational-kernel.mjs';
 
 export const HORN_LINK_SUBSTITUTION_SOURCE = readFileSync(
-  new URL('../../lib/meta-theory/horn-link-substitution.lino', import.meta.url),
+  new URL('./meta-theory/horn-link-substitution.lino', import.meta.url),
   'utf8',
 );
 /** RML elaboration (keywords, sigil, validation, source workflows) as Horn clauses. */
 export const HORN_RML_ELABORATION_SOURCE = readFileSync(
-  new URL('../../lib/meta-theory/horn-rml-elaboration.lino', import.meta.url),
+  new URL('./meta-theory/horn-rml-elaboration.lino', import.meta.url),
   'utf8',
 );
 /** RML decisions that the source workflows take from horn-rml-elaboration.lino. */

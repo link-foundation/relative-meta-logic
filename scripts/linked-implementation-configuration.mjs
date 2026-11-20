@@ -16,6 +16,7 @@ const manifestPath = 'lib/linked-runtime/configuration-manifest.json';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const configurationFile = path => /^(js\/(package(?:-lock)?\.json|vendor\/meta-language-provenance\.json)|rust\/(?:[A-Za-z0-9_-]+\/)*Cargo\.(toml|lock)|scripts\/linked-runtime-rust\/Cargo\.(toml|lock)|scripts\/cache-policy\.json|\.gitmodules|rust-toolchain(?:\.toml)?)$/.test(path);
 const libraryFile = path => !isJavaScriptImplementationPath(path) && !isRustImplementationPath(path) && path.startsWith('lib/') && (!path.startsWith('lib/linked-runtime/') || path.endsWith('.lino'));
+const packagedLibrary = path => /^(?:js|rust)\/src\/meta-theory\/[a-z-]+\.(?:lino|ski)$/.test(path);
 const providerFile = path => /^scripts\/[A-Za-z0-9_/-]+\.ps1$/.test(path) || path.startsWith('scripts/linked-runtime-rust/vendor/') || (path.startsWith('.github/candidates/') && (!path.endsWith('.mjs') || path.endsWith('.test.mjs')));
 const workflowFile = path => /^\.github\/workflows\/[A-Za-z0-9_-]+\.ya?ml$/.test(path);
 const allowed = path => safeImplementationPath(path) && ((!isJavaScriptImplementationPath(path) && !isRustImplementationPath(path)) || providerFile(path) || isGenericExecutableProvider(path));
@@ -34,6 +35,8 @@ export function implementationConfigurationInventory(root = repositoryRoot) {
   }
   for (const path of ['js/package.json', 'js/package-lock.json', 'js/vendor/meta-language-provenance.json', '.gitmodules', 'rust-toolchain', 'rust-toolchain.toml', 'scripts/cache-policy.json', 'scripts/external-checkouts.json', '.gitattributes', '.dockerignore', 'scripts/linked-runtime-rust/Cargo.toml', 'scripts/linked-runtime-rust/Cargo.lock']) if (existsSync(resolve(root, path))) paths.add(path);
   visit('rust', configurationFile);
+  visit('rust/src/meta-theory', packagedLibrary);
+  visit('js/src/meta-theory', packagedLibrary);
   visit('lib', libraryFile);
   visit('scripts', providerFile);
   visit('.github/candidates', providerFile);

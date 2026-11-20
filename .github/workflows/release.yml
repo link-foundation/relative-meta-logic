@@ -53,27 +53,23 @@ jobs:
         with:
           persist-credentials: false
 
-      # The test suite runs on Node 20, like the `tests` workflow: `npm test`
-      # passes directories to `node --test`, which newer Node releases treat
-      # as module paths instead of expanding them.
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-          cache: npm
-          cache-dependency-path: js/package-lock.json
-
-      - name: Install JavaScript dependencies
-        working-directory: js
-        run: npm ci
-
-      - name: Run full JS test suite
-        working-directory: js
-        run: npm test
+          submodules: recursive
 
       # npm trusted publishing needs npm >= 11.5.1; Node 24 ships npm 11.
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
+          cache: npm
+          cache-dependency-path: js/package-lock.json
+
+      - name: Install JavaScript dependencies
+        working-directory: js
+        run: node ../scripts/run-with-cache.mjs -- npm ci
+
+      - name: Check release policy and packaged inputs
+        env:
+          RML_CHECK_NPM_TARBALL: '1'
+        run: node --test scripts/npm-release.test.mjs scripts/release-assets.test.mjs
 
       - name: Ensure npm supports trusted publishing
         run: |
@@ -85,7 +81,7 @@ jobs:
 
       - name: Check package contents (dry run)
         working-directory: js
-        run: npm publish --dry-run --access public
+        run: node ../scripts/run-with-cache.mjs -- npm publish --dry-run --access public
 
       - name: Check whether this version is already on npm
         id: check

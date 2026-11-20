@@ -3,8 +3,8 @@ use crate::Node;
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, OnceLock};
 
-const ARTIFACT: &str = include_str!("../../../lib/meta-theory/fixed-point.ski");
-const SOURCE: &str = include_str!("../../../lib/meta-theory/fixed-point-source.lino");
+const ARTIFACT: &str = include_str!("../meta-theory/fixed-point.ski");
+const SOURCE: &str = crate::lambda_kernel::SOURCE;
 /// Contractions one kernel call may perform unless its caller sets a budget.
 pub(super) const DEFAULT_MAX_CONTRACTIONS: usize = 100_000_000;
 const CONTRACTION_LIMIT_PREFIX: &str = "combinator contraction limit ";

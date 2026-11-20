@@ -1,11 +1,12 @@
 name: linked-recapture
 
 # Deliberate source migration on a hosted runner, so contributors never build the
-# Rust syntax helper locally. Push the tree to a `recapture/**` branch, then apply
-# the uploaded patch after reviewing it; nothing is committed automatically.
+# Rust syntax helper locally. Review and apply the patch uploaded by this job.
+# A commit marked [recapture] on the issue branch can also request a patch
+# when the workflow has not landed on the default branch yet.
 on:
   push:
-    branches: ['recapture/**']
+    branches: ['recapture/**', 'issue-183-7fedfddffe9c']
   workflow_dispatch:
 
 permissions:
@@ -14,6 +15,10 @@ permissions:
 jobs:
   recapture:
     name: Recapture linked implementation
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.ref, 'refs/heads/recapture/') ||
+      contains(github.event.head_commit.message, '[recapture]')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -30,6 +35,10 @@ jobs:
       # install runs outside it; the migration itself is guarded and revalidated.
       - name: Install dependencies
         run: npm --prefix js ci
+      - name: Regenerate certified bulk translation receipts
+        run: |
+          node scripts/sync-release-assets.mjs
+          node scripts/generate-certified-bulk.mjs
       - name: Run the deliberate source migration
         run: node scripts/update-linked-implementation.mjs
       - name: Export the reviewed-migration patch
