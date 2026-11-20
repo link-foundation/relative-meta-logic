@@ -197,9 +197,15 @@ export function executeIssue183Check(root, check) {
   const result = spawnSync(command[0], command.slice(1), { cwd: root, env: environment, encoding: 'utf8', timeout: check.timeoutMs ?? 120000, maxBuffer: 32 * 1024 * 1024 });
   const evidence = { id: check.id, command, cwd: root, startedAt, finishedAt: new Date().toISOString(), node: process.version, exitCode: result.status, signal: result.signal, inputPins: check.files, stdout: result.stdout ?? '', stderr: result.stderr ?? '', passed: false, assertions: [] };
   try {
-    requireThat(!result.error && result.status === 0 && !result.signal, `${check.id} execution failed: ${result.error?.message ?? result.stderr ?? result.status}`);
+    const failure = result.error?.message || evidence.stderr.trim() ||
+      (result.signal ? `signal ${result.signal}` : `exit status ${result.status}`);
+    requireThat(!result.error && !result.signal, `${check.id} execution failed: ${failure}`);
+    requireThat(result.status === 0 || evidence.stdout.trim(), `${check.id} execution failed: ${failure}`);
     const events = result.stdout.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
     requireThat(events.length > 0 && events.every(event => event.nonce === nonce), `${check.id} missing live execution callbacks`);
+    const failed = events.find(event => event.type === 'test:fail' && event.data.details?.type !== 'suite');
+    requireThat(!failed, `${check.id} execution failed: ${failed?.data.name} (${failure})`);
+    requireThat(result.status === 0, `${check.id} execution failed: ${failure}`);
     const completed = events.filter(event => event.type === 'test:pass' && event.data.details?.type !== 'suite');
     requireThat(!events.some(event => event.type === 'test:fail' || event.data.skip || event.data.todo), `${check.id} contains failed, skipped, or unsupported assertions`);
     for (const assertion of check.assertions) {

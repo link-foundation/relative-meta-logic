@@ -59,6 +59,7 @@ export async function preserveIssue183Open({
   event,
   token,
   repository,
+  allowWrite = true,
   apiUrl = 'https://api.github.com',
   request = globalThis.fetch,
 }) {
@@ -69,7 +70,7 @@ export async function preserveIssue183Open({
     return { action: 'ignored' };
   }
 
-  if (!token) throw new Error('GITHUB_TOKEN is required to update PR 184');
+  if (!token) throw new Error('GITHUB_TOKEN is required to read PR 184');
   if (!repository?.includes('/')) {
     throw new Error('GITHUB_REPOSITORY must contain owner/repository');
   }
@@ -91,6 +92,9 @@ export async function preserveIssue183Open({
   }
   if (body === liveBody) return { action: 'unchanged', body };
 
+  if (!allowWrite) {
+    throw new Error('PR 184 still has a live issue-closing directive. Remove it from the PR description and rerun the acceptance workflow.');
+  }
   await requestPullRequest({ ...api, body });
   return { action: 'updated', body };
 }
@@ -101,6 +105,7 @@ export async function repairIssue183PrBody({
   environmentFile,
   token,
   repository,
+  allowWrite,
   apiUrl,
   request = globalThis.fetch,
 }) {
@@ -111,6 +116,7 @@ export async function repairIssue183PrBody({
     event,
     token,
     repository,
+    allowWrite,
     apiUrl,
     request,
   });
@@ -128,6 +134,10 @@ export async function repairIssue183PrBody({
 }
 
 async function main() {
+  const args = process.argv.slice(2);
+  if (args.length && (args.length !== 1 || args[0] !== '--read-only')) {
+    throw new Error('Usage: node scripts/issue-183-pr-body.mjs [--read-only]');
+  }
   const outputEventPath = process.env.RUNNER_TEMP
     ? path.join(process.env.RUNNER_TEMP, 'issue-183-repaired-event.json')
     : process.env.GITHUB_EVENT_PATH;
@@ -138,6 +148,7 @@ async function main() {
     token: process.env.GITHUB_TOKEN,
     repository: process.env.GITHUB_REPOSITORY,
     apiUrl: process.env.GITHUB_API_URL,
+    allowWrite: args.length === 0,
   });
   console.log(`issue 183 PR metadata: ${result.action}`);
 }

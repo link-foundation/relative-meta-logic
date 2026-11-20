@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "9ce64b0c554f08e67fedf0b663131f83f00dfcf83d1bbd0c0b35c325ede477e4"
+    "sha256": "b5ddcc29629373f95576a34c4a01609f843d6c7f924fed33ad31bcc2b1d837c0"
   },
   "requirements": [
     {
@@ -7893,7 +7893,7 @@
       "implementationClaims": [
         {
           "path": "scripts/issue-183-requirements.test.mjs",
-          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81",
+          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70",
           "role": "historical-claim"
         }
       ],
@@ -10183,7 +10183,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81"
+          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70"
         }
       ],
       "claimedEvidence": "`foundation-search.md`, the case-study index, architecture/runtime guides, this ledger, and `issue-183-requirements.test.mjs` cross-link the implementation, finite symmetry result, and enforced claim boundary.",
@@ -11119,12 +11119,12 @@
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "039bd54adf5b2106491671490e78beb2684e880c2af523e3c90ab7cc7a36e03e"
+          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         }
       ],
       "claimedEvidence": "PR 184 uses `Advances #183` rather than an auto-closing directive, while the versioned report retains `foundationStatus: OPEN` and the ledger keeps R71, R73, and R74 open. The solver tooling appends a `Fixes` line naming PR 184 after each work session, and the R136 guard removes it from the live body.",
@@ -12029,12 +12029,12 @@
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "039bd54adf5b2106491671490e78beb2684e880c2af523e3c90ab7cc7a36e03e"
+          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -12385,17 +12385,17 @@
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "039bd54adf5b2106491671490e78beb2684e880c2af523e3c90ab7cc7a36e03e"
+          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81"
+          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -13172,7 +13172,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         }
       ],
       "claimedEvidence": "Rows `R11/R18/R21/R47/R49/R51/R52/R55/R56/R62-R64/R66` now state partial or blocked scope; R65 remains complete only for its idealized unbounded model, while R77/R87 describe the corrected live body.",
@@ -13232,7 +13232,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -34314,7 +34314,7 @@
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "039bd54adf5b2106491671490e78beb2684e880c2af523e3c90ab7cc7a36e03e"
+          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -34324,7 +34324,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81"
+          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70"
         },
         {
           "path": "experiments/issue-183-pr-body-live-repair.mjs",
@@ -36199,7 +36199,7 @@
       "implementationClaims": [
         {
           "path": "scripts/issue-183-requirements.mjs",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396",
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8",
           "role": "historical-claim"
         }
       ],
@@ -41417,7 +41417,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/verify-linked-target.mjs",
@@ -42477,12 +42477,12 @@
         {
           "path": "scripts/issue-183-requirements-gate.test.mjs",
           "role": "test",
-          "sha256": "cccb5358036dfdf537ae1b017e0f12b5bcb24a86e67a17cd71959796ca30245c"
+          "sha256": "26ea70b092929551966904a812c1cf441cd3feef4b28f6d8a184096b1175a110"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -42497,12 +42497,12 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "9ce64b0c554f08e67fedf0b663131f83f00dfcf83d1bbd0c0b35c325ede477e4"
+          "sha256": "b5ddcc29629373f95576a34c4a01609f843d6c7f924fed33ad31bcc2b1d837c0"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
           "role": "fixture",
-          "sha256": "10c1e2cef23a986bff6236fb94cf63319aacdf5a18b652b0c49552fdc2093159"
+          "sha256": "7fedc7756ca902172c311dd5046f285643c6419d0a7e1c0d4d73f3f614859b26"
         }
       ],
       "assertions": [
@@ -52095,7 +52095,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -52593,7 +52593,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -54340,7 +54340,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -54868,7 +54868,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -56135,7 +56135,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -59662,22 +59662,27 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "test",
-          "sha256": "b717fcccbdbc62e642a3de726f0b6ddf8a32ae824927e58e0311c172a5037e81"
+          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70"
         },
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "039bd54adf5b2106491671490e78beb2684e880c2af523e3c90ab7cc7a36e03e"
+          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": ".github/workflows/tests.yml",
           "role": "fixture",
           "sha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
+        },
+        {
+          "path": ".github/workflows/issue-183-acceptance.yml",
+          "role": "fixture",
+          "sha256": "7fedc7756ca902172c311dd5046f285643c6419d0a7e1c0d4d73f3f614859b26"
         }
       ],
       "assertions": [
@@ -59730,6 +59735,21 @@
           "file": "scripts/issue-183-requirements.test.mjs",
           "name": "ignores every other pull request",
           "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "acceptance uses the live PR body when the event contains a stale closing directive",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "acceptance refuses a live closing directive without a metadata write",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "loads live PR metadata read-only before the acceptance gate",
+          "polarity": "positive"
         }
       ],
       "timeoutMs": 600000
@@ -60016,7 +60036,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "d1b9e4fe19a0e428510db98321d52795d17526f7510b50ee116b9795e94104f9"
+          "sha256": "8d173c8555f5ea85e128256487beb6d44e27ce93fb9c10c416fee1795ce9ed2a"
         }
       ],
       "assertions": [
@@ -60825,7 +60845,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "c3b55d0d1e93ca9cd2af1c98cdf32b5c5e2d5b2af0465d68b9e2baa49330f396"
+          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
         },
         {
           "path": "rust/Cargo.toml",

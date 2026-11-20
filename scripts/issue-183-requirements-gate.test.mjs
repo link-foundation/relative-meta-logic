@@ -213,6 +213,7 @@ process.exitCode = report.passed ? 0 : 1;
         assert.equal(progress.checks[0].assertions.length, 2);
         assert.equal(progress.checks[1].passed, false);
         assert.match(progress.checks[1].error, /execution failed/);
+        if (mode === 'failure') assert.match(progress.checks[1].error, /increments according to the independent fixture \(exit status 1\)/);
         assert.equal(progress.passed, false);
         journal.finalize(report);
         assert.equal(JSON.parse(fs.readFileSync(output, 'utf8')).passed, false);

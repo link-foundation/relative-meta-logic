@@ -39,6 +39,11 @@ jobs:
       - name: Install JavaScript dependencies
         working-directory: js
         run: node ../scripts/run-with-cache.mjs -- npm ci
+      - name: Read current PR 184 metadata
+        if: github.event_name == 'pull_request' && github.event.number == 184
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/issue-183-pr-body.mjs --read-only
       - name: Enforce complete execution-backed delivery
         env:
           GITHUB_TOKEN: ${{ github.token }}

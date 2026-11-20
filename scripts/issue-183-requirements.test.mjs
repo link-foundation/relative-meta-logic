@@ -310,12 +310,13 @@ describe('issue 183 requirement traceability', () => {
     };
   }
 
-  function repairAgainstLiveBody(paths, liveBody) {
+  function repairAgainstLiveBody(paths, liveBody, { allowWrite } = {}) {
     const requests = [];
     const result = repairIssue183PrBody({
       ...paths,
       token: 'test-token',
       repository: 'link-foundation/relative-meta-logic',
+      allowWrite,
       request: async (url, options) => {
         requests.push({ url, ...options });
         return options.method === 'GET'
@@ -396,6 +397,27 @@ describe('issue 183 requirement traceability', () => {
     assert.equal(fs.existsSync(paths.outputEventPath), false);
   });
 
+  it('acceptance uses the live PR body when the event contains a stale closing directive', async context => {
+    const liveBody = 'Summary\n\nAdvances #183';
+    const paths = writeIssue183Event(context, { body: `${liveBody}\n\nFixes #183` });
+    const { requests, result } = repairAgainstLiveBody(paths, liveBody, { allowWrite: false });
+
+    assert.deepEqual(await result, { action: 'unchanged', body: liveBody });
+    assert.deepEqual(requests.map(({ method }) => method), ['GET']);
+    const event = JSON.parse(fs.readFileSync(paths.outputEventPath, 'utf8'));
+    assertIssue183RemainsOpen(event.pull_request.body);
+  });
+
+  it('acceptance refuses a live closing directive without a metadata write', async context => {
+    const body = 'Summary\n\nAdvances #183';
+    const paths = writeIssue183Event(context, { body });
+    const { requests, result } = repairAgainstLiveBody(paths, `${body}\n\nFixes #183`, { allowWrite: false });
+
+    await assert.rejects(result, /live issue-closing directive/);
+    assert.deepEqual(requests.map(({ method }) => method), ['GET']);
+    assert.equal(fs.existsSync(paths.outputEventPath), false);
+  });
+
   it('ignores every other pull request', async context => {
     const paths = writeIssue183Event(context, { number: 185, body: 'Fixes #183' });
     const { requests, result } = repairAgainstLiveBody(paths, 'Fixes #183');
@@ -426,6 +448,17 @@ describe('issue 183 requirement traceability', () => {
     assert.doesNotMatch(condition, /github\.event\.action/);
     assert.match(step, /run: node scripts\/issue-183-pr-body\.mjs/);
     assert.match(workflow, /types: \[opened, edited, reopened, synchronize, ready_for_review\]/);
+  });
+
+  it('loads live PR metadata read-only before the acceptance gate', () => {
+    const workflow = fs.readFileSync(
+      path.join(REPOSITORY_ROOT, '.github/workflows/issue-183-acceptance.yml'),
+      'utf8',
+    );
+    const start = workflow.indexOf('- name: Read current PR 184 metadata');
+    const end = workflow.indexOf('- name: Enforce complete execution-backed delivery');
+    assert.ok(start >= 0 && end > start);
+    assert.match(workflow.slice(start, end), /run: node scripts\/issue-183-pr-body\.mjs --read-only/);
   });
 
   it('checks the live PR 184 body on every GitHub PR event', () => {
