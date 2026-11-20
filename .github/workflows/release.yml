@@ -22,12 +22,18 @@ on:
       - '.github/workflows/release.yml'
       - 'js/**'
       - 'scripts/npm-release.mjs'
+      - 'scripts/npm-release.test.mjs'
+      - 'scripts/release-assets.test.mjs'
+      - 'scripts/sync-release-assets.mjs'
   push:
     branches: [main]
     paths:
       - '.github/workflows/release.yml'
       - 'js/**'
       - 'scripts/npm-release.mjs'
+      - 'scripts/npm-release.test.mjs'
+      - 'scripts/release-assets.test.mjs'
+      - 'scripts/sync-release-assets.mjs'
   workflow_dispatch:
 
 permissions:
@@ -69,7 +75,7 @@ jobs:
       - name: Check release policy and packaged inputs
         env:
           RML_CHECK_NPM_TARBALL: '1'
-        run: node --test scripts/npm-release.test.mjs scripts/release-assets.test.mjs
+        run: node scripts/run-with-cache.mjs -- node --test scripts/npm-release.test.mjs scripts/release-assets.test.mjs
 
       - name: Ensure npm supports trusted publishing
         run: |

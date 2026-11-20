@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "96224b6aab9a54a5fe3465731c2d1351592ef33836c7ea0a8723581a1bd802b6",
-  "archiveBytes": 801047,
-  "linkCount": 14611,
+  "archiveSha256": "6f57fa7f5078f3fb86206a6a85f81c9163eb138f524e3e4a37c0d5ef0eec596b",
+  "archiveBytes": 805945,
+  "linkCount": 14646,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -56,6 +56,11 @@
       "generatedSha256": "796e6e532982fa2241dbccb5ada96f65957edb82f9283bf17b38d4468a6b8cd3"
     },
     {
+      "path": ".github/workflows/crates-release.yml",
+      "sourceSha256": "fcf1fcc5b45e65abab709ccea029e1dd40df2aba3532dbafcc717f6b2dd7a39f",
+      "generatedSha256": "fcf1fcc5b45e65abab709ccea029e1dd40df2aba3532dbafcc717f6b2dd7a39f"
+    },
+    {
       "path": ".github/workflows/docker.yml",
       "sourceSha256": "bbf1a2422773e1307be2e0737645fd2eff45c3d45909419dd1609ed8be4e4ee3",
       "generatedSha256": "bbf1a2422773e1307be2e0737645fd2eff45c3d45909419dd1609ed8be4e4ee3"
@@ -77,8 +82,8 @@
     },
     {
       "path": ".github/workflows/linked-recapture.yml",
-      "sourceSha256": "1e75a739df9f5ece51c170889b75b317344a6e91015270a9c1e81d8db649bc7c",
-      "generatedSha256": "1e75a739df9f5ece51c170889b75b317344a6e91015270a9c1e81d8db649bc7c"
+      "sourceSha256": "814992e8bf11901914c0057a9c4fb1a96e90d7baf186483f96902cd9e8600f96",
+      "generatedSha256": "814992e8bf11901914c0057a9c4fb1a96e90d7baf186483f96902cd9e8600f96"
     },
     {
       "path": ".github/workflows/linked-target.yml",
@@ -104,6 +109,11 @@
       "path": ".github/workflows/relational-kernel.yml",
       "sourceSha256": "54b5800a9e83a59deb91ccb0d3d5f412c152b04aca8322303b8ac2a194da051d",
       "generatedSha256": "54b5800a9e83a59deb91ccb0d3d5f412c152b04aca8322303b8ac2a194da051d"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "sourceSha256": "6303be8415da4f7f11a973fbe678d1169e08ab705d747d1398afed6ba1fe6ff9",
+      "generatedSha256": "6303be8415da4f7f11a973fbe678d1169e08ab705d747d1398afed6ba1fe6ff9"
     },
     {
       "path": ".github/workflows/tests.yml",
@@ -172,8 +182,18 @@
     },
     {
       "path": "js/package.json",
-      "sourceSha256": "a1730df6d8b9162c0aa18fc15209c8e91e6d74e74aba48b7fe728a20543fec65",
-      "generatedSha256": "b24b976d2bbfc292baabff77c5d095f665f0a5a0e480421f5b18b3002433c4f5"
+      "sourceSha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082",
+      "generatedSha256": "965fc988b58a79bec16791af7961bf662ec696a491d01ec1c55f8a0bf2d52fc5"
+    },
+    {
+      "path": "js/src/meta-theory/horn-link-substitution.lino",
+      "sourceSha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1",
+      "generatedSha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1"
+    },
+    {
+      "path": "js/src/meta-theory/horn-rml-elaboration.lino",
+      "sourceSha256": "d18caba5aa911743e39fe2b173b83feeda2c5523df20a88574bdeba3a1d268a6",
+      "generatedSha256": "d18caba5aa911743e39fe2b173b83feeda2c5523df20a88574bdeba3a1d268a6"
     },
     {
       "path": "js/vendor/meta-language-provenance.json",
@@ -552,8 +572,8 @@
     },
     {
       "path": "rust/Cargo.toml",
-      "sourceSha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48",
-      "generatedSha256": "491c01d9bade974509dc7e72ec68f55a7ddf6a2a9a7584e783d0ff1dfb281d48"
+      "sourceSha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d",
+      "generatedSha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
     },
     {
       "path": "rust/control-flow/Cargo.lock",
@@ -586,14 +606,24 @@
       "generatedSha256": "8cc3c88a8fbd3e834dc1e070c00cd17304cacc8d73b966a0f11479052e924564"
     },
     {
+      "path": "rust/src/meta-theory/fixed-point-source.lino",
+      "sourceSha256": "5428d711d66b409fc9f0257675d280c75d6718f522a59eadafbcc8398ba44bbe",
+      "generatedSha256": "5428d711d66b409fc9f0257675d280c75d6718f522a59eadafbcc8398ba44bbe"
+    },
+    {
+      "path": "rust/src/meta-theory/fixed-point.ski",
+      "sourceSha256": "9052c5c30dc32ff741f73eb1b3e06d89cece51875fe4d59d55b4d496d41f6252",
+      "generatedSha256": "9052c5c30dc32ff741f73eb1b3e06d89cece51875fe4d59d55b4d496d41f6252"
+    },
+    {
       "path": "scripts/build-cache-windows.ps1",
       "sourceSha256": "b2c328b3a6b70315b13af564d4be6e731e51a2704090fab2ca1993f898576ec2",
       "generatedSha256": "b2c328b3a6b70315b13af564d4be6e731e51a2704090fab2ca1993f898576ec2"
     },
     {
       "path": "scripts/cache-policy.json",
-      "sourceSha256": "963ffdc0eac46b141a17a92cac09b6e75b4716d7e1bfa9039944b850a511958a",
-      "generatedSha256": "36088a2d830404d62849081346b601277312852b093d5585361e96ab3828ce29"
+      "sourceSha256": "797dab731e19ab9a54aac73e7671c24ad0d3ac600a91430656c425e115603f88",
+      "generatedSha256": "a5805fe6d9db6e34f2e4aa386c56665c33bc994064960f9b1cc7f7463b8a47fc"
     },
     {
       "path": "scripts/external-checkouts.json",
@@ -782,13 +812,13 @@
     },
     {
       "path": "vscode/package-lock.json",
-      "sourceSha256": "0c10895fe31dc8cd57c9f7b041a319ea3998c97ec542668a63a9b2ba5e255136",
-      "generatedSha256": "30526e9ff0773334565a85405ce0e182d38d7d2d1bf996e8cf295c2360fec42c"
+      "sourceSha256": "4b1b7692d21ffcd94e9247f956f370f13e4f4345d8f8ecd0a65d51f32c14858d",
+      "generatedSha256": "b85143edc85167074ef6d5924d53d5222ca3eb876aaf6f0a2882a7c891425891"
     },
     {
       "path": "vscode/package.json",
-      "sourceSha256": "e2618ed832d5711c3966cda7e7bca76a49834c3b7378078b6fbc270cfd8606b5",
-      "generatedSha256": "4b7ad3fcb34aea291693af10408d43fede55698b88e610b0c53b26ab8e584423"
+      "sourceSha256": "5015e34ec08215d992a57cf8fcec70826ebd24667fbb9c2a2d60eb38c9a9370c",
+      "generatedSha256": "8ac27b36a2f05940c97a2d73c65e0eb4458958c9e221728ceeea37554f9475c1"
     },
     {
       "path": "vscode/syntaxes/lino.tmLanguage.json",

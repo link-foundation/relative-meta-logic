@@ -403,6 +403,16 @@
       (unlocated 0))
     (cause
       (language Rust)
+      (stage frontend)
+      (kind unsupported)
+      (construct "type Arc<…>")
+      (items 14)
+      (paths 42)
+      (in-item 1)
+      (in-dependency 13)
+      (unlocated 0))
+    (cause
+      (language Rust)
       (stage rml-lowering)
       (kind unsupported)
       (construct "trait-bounded type parameter")
@@ -420,16 +430,6 @@
       (paths 39)
       (in-item 6)
       (in-dependency 7)
-      (unlocated 0))
-    (cause
-      (language Rust)
-      (stage frontend)
-      (kind unsupported)
-      (construct "type Arc<…>")
-      (items 13)
-      (paths 39)
-      (in-item 1)
-      (in-dependency 12)
       (unlocated 0))
     (cause
       (language Rust)
@@ -683,16 +683,6 @@
       (unlocated 0))
     (cause
       (language Rust)
-      (stage frontend)
-      (kind unsupported)
-      (construct "include_str!")
-      (items 6)
-      (paths 18)
-      (in-item 3)
-      (in-dependency 3)
-      (unlocated 0))
-    (cause
-      (language Rust)
       (stage rml-lowering)
       (kind unsupported)
       (construct "where clause")
@@ -880,6 +870,16 @@
       (stage frontend)
       (kind syntax)
       (construct 'expected ) in matches! but found "if"')
+      (items 4)
+      (paths 12)
+      (in-item 2)
+      (in-dependency 2)
+      (unlocated 0))
+    (cause
+      (language Rust)
+      (stage frontend)
+      (kind unsupported)
+      (construct "include_str!")
       (items 4)
       (paths 12)
       (in-item 2)
@@ -1858,6 +1858,16 @@
       (unlocated 0))
     (cause
       (language Rust)
+      (stage checker)
+      (kind type)
+      (construct "unknown name: binding imported from another module")
+      (items 1)
+      (paths 3)
+      (in-item 1)
+      (in-dependency 0)
+      (unlocated 0))
+    (cause
+      (language Rust)
       (stage frontend)
       (kind syntax)
       (construct 'expected } but found "::"')
@@ -2225,8 +2235,8 @@
     (input
       (path "js/src/rml-horn-link-substitution.mjs")
       (language JavaScript)
-      (sha256 d3f17fbae39b244a068f34a2ecdea822c64f5f4db3f1980ff80e85418607b5b4)
-      (bytes 14347)
+      (sha256 3b46c04e2bdb498914b608601c476d92fd2813c338a9f77f70a103d4a864a890)
+      (bytes 14331)
       (items 16)
       (admitted 0))
     (input
@@ -2519,8 +2529,8 @@
     (input
       (path "rust/src/lambda_kernel.rs")
       (language Rust)
-      (sha256 55aaf3e03c6d569d83dbeeff0d2ecb385839efa61367d585eff7fb4f7da9c75e)
-      (bytes 35391)
+      (sha256 aefc77793e8a81ab16d7d8d1cd594c82e36f4114a4f69aa89a3e9a76569a631a)
+      (bytes 35381)
       (items 37)
       (admitted 2))
     (input
@@ -2540,8 +2550,8 @@
     (input
       (path "rust/src/linked_program/combinator_kernel.rs")
       (language Rust)
-      (sha256 c1ab9deb6210233dc013e889393ff4d7febcea4760f15ce7076169bdab837248)
-      (bytes 31295)
+      (sha256 7faf93af03bc23da68a7954ad54f27d8323f8fd74477ff4a506c5e4c177808bd)
+      (bytes 31249)
       (items 33)
       (admitted 4))
     (input
@@ -3313,7 +3323,7 @@
       (sha256 d1fc49cf13b263bdc7143d83a6ab44ab1b60a68def52782514d20f7c48371de5))
     (output
       (path items-javascript.lino)
-      (sha256 e88cfce373e518077823d2dfea1e36942730d9efd8c4d99f32a3e565589c77a1))
+      (sha256 9bb43e42e327e7f0923e87cf97bd42210b94d49f464619431aa5e9fb14cb5e47))
     (output
       (path items-lean.lino)
       (sha256 a19d210ddb5668316b6a4f4ec8e17f6d56e4c10b88857152c270072643b5154f))
@@ -3322,7 +3332,7 @@
       (sha256 53cf389d6b57f9a8309852323b386c3f9da46b3fb48d2369df2b63695f4aaa71))
     (output
       (path items-rust.lino)
-      (sha256 56d2f3542051771d0460c119dcab89a5a31e063286852b0560a83ff68bb3d4f5))
+      (sha256 23cc9b28b84383855186c8d50fa1cc48dc35fb0732d03c166074fcc4d7f4899c))
     (output
       (path mirrors.lino)
       (sha256 505363be4146bf62cefc68a8b7679927822ec5ebdb93b349a1786f90979b2a43))
@@ -3664,13 +3674,13 @@
       (sha256 8956f9b2a3e762c6869438620326bd2dfe8cb6b1380cc6c5a479b4766f3d9cc8))
     (output
       (path "targets/rust/src/lambda_kernel.javascript.js.txt")
-      (sha256 7fe760a09959856fb101649c96241a2d123e3891577b74e0df1eb2af413691d5))
+      (sha256 b781ba02f6654ee6d9529755d228eb371ff30d867beaf28c09642cf7338c4d1b))
     (output
       (path "targets/rust/src/lambda_kernel.lean.lean.txt")
-      (sha256 d81e09accb68880d6a4548b1467078a65be71684d7c5a5d93fb1e942601970a1))
+      (sha256 d5a0a68e575136b1c2e16f83a3dc571fb15aa6d57802647354c89d50b288cee2))
     (output
       (path "targets/rust/src/lambda_kernel.rocq.v.txt")
-      (sha256 2af9ab42265b9c6df5e4e4a4615935ea6f97dc4c391257038cd69c05a6c1e1ca))
+      (sha256 b39f4f2d180c8a654a5ad3ae0efb2bca8b86f52fd43190f090e85c7d8644aeb8))
     (output
       (path "targets/rust/src/lib.javascript.js.txt")
       (sha256 8aacd242cdb928cda7e86b796b9a513e87a85d5a98fd20f12155668bff7c61ac))
@@ -3691,13 +3701,13 @@
       (sha256 883e780c51684e246f02036f30a963959322618611c16ce8695d6124487aeda5))
     (output
       (path "targets/rust/src/linked_program/combinator_kernel.javascript.js.txt")
-      (sha256 fee1beb5183e01214ec729561151878b7bf1a9895d0465ac0f0768821187e48b))
+      (sha256 6db2675f93721d2b8ef9d9a3c88ab0b4ccd660b810400111ea6d900d69812b51))
     (output
       (path "targets/rust/src/linked_program/combinator_kernel.lean.lean.txt")
-      (sha256 78ef73fd062d5c5a7f1d6beac94f828a2000e176ea53a081cbd26758be6144b5))
+      (sha256 8e119e7aa7a47a2593eb5d19e1272b0329c30af6c0896e4e7688a083a3bb6b60))
     (output
       (path "targets/rust/src/linked_program/combinator_kernel.rocq.v.txt")
-      (sha256 5a6aabed738bcade6ad3eb0fee3a6915e0264478ddbc9ffde290d0f6c2bf6af4))
+      (sha256 6bf4c33d79fe2a59d71f92caba4089d3aa3bb2b8242a2bc7f9ad99ac83c5b09a))
     (output
       (path "targets/rust/src/linked_proof.javascript.js.txt")
       (sha256 a6e36daa09a91d2aaf88c3468e8e8b3e36426340953830c4614566dc025e68b5))

@@ -1,4 +1,4 @@
-(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#DEFAULT_MAX_CONTRACTIONS@436 target-sha256=a6085cf1e26752f4765baedbe118a83a1047061d5d542345caac24f70fbcaa69 *)
+(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#DEFAULT_MAX_CONTRACTIONS@390 target-sha256=a6085cf1e26752f4765baedbe118a83a1047061d5d542345caac24f70fbcaa69 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -16,7 +16,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#CONTRACTION_LIMIT_PREFIX@500 target-sha256=23d64f25281b22cf8f634343b36f5e59779b0a391ce8b808bafb86ab809360ea *)
+(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#CONTRACTION_LIMIT_PREFIX@454 target-sha256=23d64f25281b22cf8f634343b36f5e59779b0a391ce8b808bafb86ab809360ea *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -34,7 +34,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#is_contraction_limit@805 target-sha256=e7ae234ef85b6f5966a63b44e32af85a7fba47be1c3f21f038e18b9fdbeb977c *)
+(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#is_contraction_limit@759 target-sha256=e7ae234ef85b6f5966a63b44e32af85a7fba47be1c3f21f038e18b9fdbeb977c *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 
@@ -58,7 +58,7 @@ Definition main : list string :=
   nil.
 
 Eval vm_compute in main.
-(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#KernelSourceSummary@1442 target-sha256=915bfad4eb43385090250d2477ac68ccd6d113a912f11e771b74b677a16e64c4 *)
+(* rml-certified-item rust/src/linked_program/combinator_kernel.rs#KernelSourceSummary@1396 target-sha256=915bfad4eb43385090250d2477ac68ccd6d113a912f11e771b74b677a16e64c4 *)
 (* Translated from Rust by meta-language: portable core, Rocq target. *)
 From Stdlib Require Import NArith ZArith Lia Recdef String List Ascii.
 

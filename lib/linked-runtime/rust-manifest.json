@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-rust-implementation-manifest/v1",
   "moduleCount": 54,
-  "linkCount": 356261,
+  "linkCount": 356258,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -256,9 +256,9 @@
     },
     {
       "path": "rust/src/lambda_kernel.rs",
-      "sourceSha256": "55aaf3e03c6d569d83dbeeff0d2ecb385839efa61367d585eff7fb4f7da9c75e",
-      "astSha256": "89ef5b21eac34c294f9feccd8771c550b928eaa6adfc7174df6120fd530fb87b",
-      "generatedSha256": "16e8b0bb0dc5f360adf118b409b2deb2c11aedc5154865417e56b5c83b10dc9b",
+      "sourceSha256": "aefc77793e8a81ab16d7d8d1cd594c82e36f4114a4f69aa89a3e9a76569a631a",
+      "astSha256": "f88cd36ebbec900c94d02adb84b9003247bd46457e65d223f8c123ffd7ab969d",
+      "generatedSha256": "71b4173b78a57af286d577d8b54ff361b39a99b0e60c5ff9f2718692bcc7a979",
       "macroInvocations": 23,
       "verbatimNodes": 0
     },
@@ -288,10 +288,10 @@
     },
     {
       "path": "rust/src/linked_program/combinator_kernel.rs",
-      "sourceSha256": "c1ab9deb6210233dc013e889393ff4d7febcea4760f15ce7076169bdab837248",
-      "astSha256": "668a6754784aad4eea6e3835f1040c38ddea01ad56a56255ad640cf03b82e272",
-      "generatedSha256": "e327b02cc75f02cf4baaf3dba70740abae9c6adf89e80974ac585988f421c242",
-      "macroInvocations": 20,
+      "sourceSha256": "7faf93af03bc23da68a7954ad54f27d8323f8fd74477ff4a506c5e4c177808bd",
+      "astSha256": "09fdc543b62e7c913dbc8e5f6ee4a7d2e5d25aa286fef9620b36c3810fde0881",
+      "generatedSha256": "175a02e4e183ffcc8c096178e9c7ce6d2aaba7a73e89c716c9d86cda5a30db9b",
+      "macroInvocations": 19,
       "verbatimNodes": 0
     },
     {
@@ -450,8 +450,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveBytes": 1626643,
-  "archiveSha256": "781d12f163e50c87f5e0813307a61928f37c949477693e76568b332c20ed86fd",
+  "archiveBytes": 1626684,
+  "archiveSha256": "a8c02ab68c266300726deebdc895cf4b94806e5ba72d989d4a0e72621927cc66",
   "toolLockSha256": "acfd9616c8b3e7740701bd61a4981f4029cfbedfdacb884af7900526182df829",
   "toolSources": [
     {
