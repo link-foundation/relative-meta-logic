@@ -139,6 +139,20 @@ test('rejects new edited deleted sources, changed bodies and changed thread reso
   assert.equal(compareIssue183LiveSources(before.expected, after).passed, false);
 });
 
+test('identifies the records to review when a delivery run sees source changes', async () => {
+  const { expected } = await snapshot({ conversation: [comment(1), comment(2), comment(3)] });
+  const { request } = api({
+    pullBody: 'Edited PR description',
+    conversation: [comment(1), { ...comment(2), body: 'Edited comment' }, comment(4)],
+  });
+  const result = await verifyIssue183LiveSources(expected, { request, token: 'test-secret' });
+  assert.equal(result.passed, false);
+  assert.deepEqual(result.errors, [
+    'GitHub pullRequest changed since the reviewed snapshot (edited: 184); re-audit new, edited, or deleted sources',
+    'GitHub conversation changed since the reviewed snapshot (added: 4; edited: 2; deleted: 3); re-audit new, edited, or deleted sources',
+  ]);
+});
+
 test('requires actual live access; a missing token is never a passing offline certificate', async () => {
   const { expected } = await snapshot();
   const result = await verifyIssue183LiveSources(expected, { request: () => assert.fail('must not request without token') });

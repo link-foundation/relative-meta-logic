@@ -124,11 +124,34 @@ export async function fetchIssue183LiveSources({ request = fetch, token, timeout
   return { schema: 'rml-issue-183-live-sources/v1', repository: REPOSITORY, issue: record({ ...issue.value, id: 183 }), pullRequest: record({ ...pull.value, id: 184 }), issueComments: uniqueSorted(issueComments.map(record), 'issue comment'), conversation: uniqueSorted(conversation.map(record), 'conversation comment'), reviews: uniqueSorted(reviews.map(item => ({ ...record(item), state: item.state ?? null })), 'review'), inlineComments: restInline, inlineThreads };
 }
 
+function describeChanges(expected, observed) {
+  const byId = value => new Map([value].flat().filter(item => typeof item?.id === 'string').map(item => [item.id, item]));
+  const before = byId(expected);
+  const after = byId(observed);
+  const added = [];
+  const edited = [];
+  const deleted = [];
+  for (const [id, item] of after) {
+    if (!before.has(id)) added.push(id);
+    else if (JSON.stringify(before.get(id)) !== JSON.stringify(item)) edited.push(id);
+  }
+  for (const id of before.keys()) {
+    if (!after.has(id)) deleted.push(id);
+  }
+  return [['added', added], ['edited', edited], ['deleted', deleted]]
+    .filter(([, ids]) => ids.length)
+    .map(([label, ids]) => `${label}: ${ids.join(', ')}`)
+    .join('; ');
+}
+
 export function compareIssue183LiveSources(expected, observed) {
   if (expected?.schema !== 'rml-issue-183-live-sources/v1' || expected.repository !== REPOSITORY) fail('missing or invalid reviewed live-source inventory');
   const errors = [];
   for (const field of ['issue', 'pullRequest', 'issueComments', 'conversation', 'reviews', 'inlineComments', 'inlineThreads']) {
-    if (expected[field] === undefined || JSON.stringify(expected[field]) !== JSON.stringify(observed[field])) errors.push(`GitHub ${field} changed since the reviewed snapshot; re-audit new, edited, or deleted sources`);
+    if (expected[field] !== undefined && JSON.stringify(expected[field]) === JSON.stringify(observed[field])) continue;
+    const changes = describeChanges(expected[field], observed[field]);
+    const details = changes ? ` (${changes})` : '';
+    errors.push(`GitHub ${field} changed since the reviewed snapshot${details}; re-audit new, edited, or deleted sources`);
   }
   return { passed: errors.length === 0, errors };
 }

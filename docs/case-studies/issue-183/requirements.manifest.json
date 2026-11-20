@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "7e53c3208871c949ad3bdd5267c2646e33aa6d24f9217d52fdec5e78f939ef2e"
+    "sha256": "b7f879b9c56186fd4aca205b31dae9de52313a3de309debf3845fa3bacff2ba1"
   },
   "requirements": [
     {
@@ -7897,11 +7897,11 @@
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "The original-text archive includes all 213 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. Each later change requires a reviewed snapshot.",
+      "claimedEvidence": "The original-text archive includes all 216 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. The audit reports added, edited and deleted record IDs. Each later change requires a reviewed snapshot.",
       "checks": [
         "requirements-live-sources"
       ],
-      "remainingGap": "The original-text archive includes all 213 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. Each later change requires a reviewed snapshot.",
+      "remainingGap": "The original-text archive includes all 216 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. The audit reports added, edited and deleted record IDs. Each later change requires a reviewed snapshot.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -7932,6 +7932,12 @@
           "checkId": "requirements-live-sources",
           "file": "scripts/issue-183-requirements-live-sources.test.mjs",
           "name": "does not bless new source digests without preserving and reviewing the actual source text",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "identifies the records to review when a delivery run sees source changes",
           "polarity": "negative"
         }
       ],
@@ -13017,11 +13023,11 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The November 20 scan reconciled all 213 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
+      "claimedEvidence": "The November 20 scan reconciled all 216 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
       "checks": [
         "requirements-live-sources"
       ],
-      "remainingGap": "The November 20 scan reconciled all 213 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
+      "remainingGap": "The November 20 scan reconciled all 216 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -13052,6 +13058,12 @@
           "checkId": "requirements-live-sources",
           "file": "scripts/issue-183-requirements-live-sources.test.mjs",
           "name": "does not bless new source digests without preserving and reviewing the actual source text",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "requirements-live-sources",
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "identifies the records to review when a delivery run sees source changes",
           "polarity": "negative"
         }
       ],
@@ -42663,7 +42675,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "7e53c3208871c949ad3bdd5267c2646e33aa6d24f9217d52fdec5e78f939ef2e"
+          "sha256": "b7f879b9c56186fd4aca205b31dae9de52313a3de309debf3845fa3bacff2ba1"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -46591,12 +46603,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -46953,12 +46965,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -47701,12 +47713,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -48043,12 +48055,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -48816,12 +48828,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -49158,12 +49170,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -49921,12 +49933,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -50183,12 +50195,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -52056,12 +52068,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -52379,12 +52391,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -54301,12 +54313,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -54654,12 +54666,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428"
+          "sha256": "aacb91e9cf20394b9dcd4f33413eaff10312a01bc1de08dec9d766f99e9881b6"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "9f9d60f9e78358b350aa55204b261d61b1ab8a3caf3226a6798a5180851b3dc7"
+          "sha256": "daf7e63f9d13c9b9de9d842f4efad87c4fefd9604ee5dc979f2ee207af70ddd5"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -60468,17 +60480,17 @@
         {
           "path": "scripts/issue-183-requirements-live-sources.test.mjs",
           "role": "test",
-          "sha256": "d9d43338cb6be8a732440ba0ddf5692bb2eb5bc9e6c316bd49266a4f9d2517f0"
+          "sha256": "7624b560d902578f8ce7535e23ad92928abeea1a6cd94e8a98499944ed7ec66d"
         },
         {
           "path": "scripts/issue-183-requirements-live-sources.mjs",
           "role": "implementation",
-          "sha256": "36f5ee3e19f35dcbff3a065f869fa472efc788ea444c7317798aa7664bc1d174"
+          "sha256": "16525c691107c2f38069d7307610d5d33994cda5f13ccc408166151dd0f5edd5"
         },
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "788116045916cee4e75f7b03fffe9249a76e0bb3cf90bbb073e960363228c8fe"
+          "sha256": "964ea9a19787cfbfaccd1ae6069941d654841f48b0954e7cca4d001f647a1d6e"
         },
         {
           "path": "scripts/issue-183-pr-body.mjs",
@@ -60515,6 +60527,11 @@
         {
           "file": "scripts/issue-183-requirements-live-sources.test.mjs",
           "name": "rejects live issue-closing metadata even if it matches the reviewed digest",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "identifies the records to review when a delivery run sees source changes",
           "polarity": "negative"
         }
       ]
