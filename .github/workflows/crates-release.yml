@@ -42,6 +42,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: rust
+          cache-targets: false
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
@@ -94,6 +95,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: rust
+          cache-targets: false
       - uses: actions/setup-node@v6
         with:
           node-version: '24'

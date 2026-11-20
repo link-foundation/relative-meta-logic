@@ -43,6 +43,13 @@ describe('crates.io release workflow (issue #188)', { timeout: 10000 }, () => {
     assert.match(job, /node scripts\/crates-release.mjs verify/);
   });
 
+  it('caches dependency downloads without restoring unowned build outputs', () => {
+    const workflow = read('.github/workflows/crates-release.yml');
+    const restorations = [...workflow.matchAll(/uses: Swatinem\/rust-cache@[^\n]+\n        with:\n((?: {10}[^\n]+\n)+)/g)];
+    assert.equal(restorations.length, 2, 'validate and publish should both cache dependency downloads');
+    for (const [, inputs] of restorations) assert.match(inputs, /^ {10}cache-targets: false$/m);
+  });
+
   it('pins authentication and tries OIDC before both optional fallback secrets', () => {
     const job = read('.github/workflows/crates-release.yml').split('\n  publish:')[1];
     const auth = job.split('- name: Authenticate')[1].split('- name: Publish')[0];
