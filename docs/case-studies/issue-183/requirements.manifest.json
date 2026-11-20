@@ -34332,7 +34332,7 @@
           "sha256": "a34e746e640bc507887134d1c4b6cf153fbdf2f0541b62f17c72f02ed224e112"
         }
       ],
-      "claimedEvidence": "`issue-183-pr-body.mjs` and the PR-184-only step in `tests.yml` run on every pull-request event type. They read the live PR body through the GitHub API instead of trusting the `GITHUB_EVENT_PATH` snapshot, remove whole-line closing directives for both issue `#183` and the erroneous PR self-reference `#184` (including colon, cross-repository, and issue-URL forms), write only when the text changed, fail on a directive inside other text, and test the corrected copy of the event payload. `issue-183-requirements.test.mjs` covers the updated, unchanged, inline-refusal, and other-PR paths and retains the strict live-event rejection; `experiments/issue-183-pr-body-live-repair.mjs` runs the script end to end against a local API. The solver tooling appends a `Fixes` line naming PR 184 after each work session: the one appended at 2026-09-24T22:13:37Z was removed by run `36066220462` at 22:15:33Z, after the session summary had already reported no closing keyword. The settled API body must end with `Advances #183`; earlier synchronize run `35852441345` and edited-event integration run `35853137658` also passed.",
+      "claimedEvidence": "`issue-183-pr-body.mjs` and the PR-184-only step in `tests.yml` run on every pull-request event type. They read the live PR body through the GitHub API instead of trusting the `GITHUB_EVENT_PATH` snapshot, remove whole-line closing directives for both issue `#183` and the erroneous PR self-reference `#184` (including colon, cross-repository, and issue-URL forms), write only when the text changed, fail on a directive inside other text, and test the corrected copy of the event payload. `issue-183-requirements.test.mjs` covers the updated, unchanged, inline-refusal, and other-PR paths and retains the strict live-event rejection; `experiments/issue-183-pr-body-live-repair.mjs` runs the script end to end against a local API. The solver tooling appends a `Fixes` line naming PR 184 after each work session: the one appended at 2026-09-24T22:13:37Z was removed by run `36066220462` at 22:15:33Z, after the session summary had already reported no closing keyword. The settled API body must end with `Advances #183`; earlier synchronize run `35852441345` and edited-event integration run `35853137658` also passed. The read-only step in `issue-183-acceptance.yml` independently fetches the current PR body and supplies it to the gate through a runner-local event copy. The regression tests replay a stale closing directive in the event and reject a directive still present in the live body. The read-only step makes no API writes.",
       "checks": [
         "issue-183-pr-metadata"
       ],
@@ -46410,12 +46410,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -46772,12 +46772,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -47520,12 +47520,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -47862,12 +47862,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -48635,12 +48635,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -48977,12 +48977,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -49740,12 +49740,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -50002,12 +50002,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "implementation",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "implementation",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -51875,12 +51875,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -52198,12 +52198,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -54120,12 +54120,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
@@ -54473,12 +54473,12 @@
         {
           "path": "lib/linked-runtime/configuration-manifest.json",
           "role": "fixture",
-          "sha256": "53de11f8da83b4163a47da8823ef33f4a265ac6ce9551fde5a99c992e4895d9c"
+          "sha256": "d7e031e6835d7c13d727753ad564981ea341f371b8893df5a99cc4e38ee84384"
         },
         {
           "path": "lib/linked-runtime/configuration.links.json.gz",
           "role": "fixture",
-          "sha256": "5a22a156663ff2be7e1720d396c183469f489d1c4bd7a5ebf77eb9262914500c"
+          "sha256": "d4f042c4c356c224ec1c12973aa6f7dd15ba9d377458fa93e5878a6f8d9c977b"
         },
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
