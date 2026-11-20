@@ -14,35 +14,16 @@ const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const clone = value => JSON.parse(JSON.stringify(value));
 const acceptance = '.github/workflows/issue-183-acceptance.yml';
 
-/** The pull-request workflows and the toolchains each one's YAML pins. */
-export function workflowExpectations(files = read) {
-  const directory = path.join(root, '.github/workflows');
-  return fs.readdirSync(directory).filter(name => name.endsWith('.yml')).sort().map(name => {
-    const file = `.github/workflows/${name}`;
-    const yaml = files(file);
-    const trigger = yaml.slice(yaml.search(/^on:/m), yaml.search(/^(?:permissions|concurrency|env|jobs):/m));
-    return {
-      file,
-      pullRequest: /^\s+pull_request:/m.test(trigger),
-      nodeMajors: [...new Set([...yaml.matchAll(/node-version: '(\d+)'/g)].map(m => m[1]))],
-      rust: yaml.includes('rust-toolchain'),
-      lean: yaml.match(/leanprover\/lean4:v(\d+\.\d+\.\d+)/)?.[1] ?? null,
-      rocqImage: yaml.match(/rocq\/rocq-prover:[0-9.]+@sha256:[0-9a-f]{64}/)?.[0] ?? null,
-    };
-  }).filter(item => item.pullRequest);
-}
-
-/** The ledger rows that are not Complete. */
-export function unfinishedRows(files = read) {
-  const manifest = JSON.parse(files('docs/case-studies/issue-183/requirements.manifest.json'));
-  return (manifest.rows ?? manifest.requirements).filter(row => !row.status.startsWith('Complete')).map(row => row.id);
-}
+// Test the immutable receipt against the inventory and ledger at the run's
+// head SHA. New workflows and ledger edits need a new hosted receipt, and the
+// live acceptance gate independently checks the current tree.
+const inputs = JSON.parse(read('docs/case-studies/issue-183/data/ci-matrix-inputs.json'));
 
 /** Every reason the matrix is not a complete, successful run of every workflow at one commit. */
-export function matrixErrors(matrix, expected = workflowExpectations(), unfinished = unfinishedRows()) {
+export function matrixErrors(matrix, expected = inputs.workflowPins, unfinished = inputs.unfinished) {
   const errors = [];
   const p = matrix.provenance ?? {};
-  if (!/^[0-9a-f]{40}$/.test(p.headSha ?? '') || p.event !== 'pull_request') errors.push('missing commit or event provenance');
+  if (!/^[0-9a-f]{40}$/.test(p.headSha ?? '') || p.headSha !== inputs.headSha || p.event !== 'pull_request') errors.push('missing commit or event provenance');
   const recorded = new Map((matrix.workflows ?? []).map(entry => [entry.workflow, entry]));
   if (recorded.size !== (matrix.workflows ?? []).length) errors.push('a workflow is recorded twice');
   for (const workflow of recorded.keys()) if (!expected.some(item => item.file === workflow)) errors.push(`${workflow}: not a pull-request workflow of this tree`);
@@ -76,13 +57,12 @@ test('the committed CI matrix records every pull-request workflow at one commit 
   const matrix = JSON.parse(read(matrixPath));
   assert.equal(matrix.schema, 'rml-ci-matrix/v1');
   assert.deepEqual(matrixErrors(matrix), []);
-  assert.ok(workflowExpectations().length >= 15);
+  assert.ok(inputs.workflowPins.length >= 15);
 });
 
 test('a matrix with a missing, failed, unversioned or mis-gated workflow is rejected', () => {
   const original = JSON.parse(read(matrixPath));
-  const expected = workflowExpectations();
-  const unfinished = unfinishedRows();
+  const { workflowPins: expected, unfinished } = inputs;
   const find = (matrix, name) => matrix.workflows.find(entry => entry.workflow.endsWith(name));
   const mutations = {
     'missing workflow': m => { m.workflows = m.workflows.filter(entry => !entry.workflow.endsWith('tests.yml')); },
@@ -90,17 +70,18 @@ test('a matrix with a missing, failed, unversioned or mis-gated workflow is reje
     'failed job': m => { find(m, 'cache-portability.yml').jobs[0].conclusion = 'failure'; },
     'missing Node version': m => { for (const job of find(m, 'lint-english.yml').jobs) delete job.versions.node; },
     'missing rustc version': m => { for (const job of find(m, 'tests.yml').jobs) delete job.versions.rustc; },
-    'different Lean version': m => { for (const job of find(m, 'formal-corpus.yml').jobs) if (job.versions.leanToolchain) job.versions.leanToolchain = '4.0.0'; },
+    'different Lean version': m => { for (const job of find(m, 'orientation-proofs.yml').jobs) if (job.versions.leanToolchain) job.versions.leanToolchain = '4.0.0'; },
     'unpinned Rocq image': m => { for (const job of find(m, 'formal-corpus.yml').jobs) if (job.versions.rocqImage) job.versions.rocqImage = 'rocq/rocq-prover:latest'; },
     'acceptance fails for another reason': m => { find(m, 'issue-183-acceptance.yml').acceptance.otherFailures.push('R1: check failed'); },
     'acceptance hides an unfinished row': m => { find(m, 'issue-183-acceptance.yml').acceptance.unfinished.pop(); },
     'unknown workflow': m => { m.workflows.push({ ...clone(find(m, 'tests.yml')), workflow: '.github/workflows/removed.yml' }); },
     'missing commit': m => { delete m.provenance.headSha; },
+    'different commit': m => { m.provenance.headSha = '0'.repeat(40); },
   };
   for (const [name, mutate] of Object.entries(mutations)) {
     const matrix = clone(original);
     mutate(matrix);
     assert.notDeepEqual(matrixErrors(matrix, expected, unfinished), [], name);
   }
-  assert.notDeepEqual(matrixErrors(original, expected, unfinished.slice(1)), [], 'a row finished after the recorded run');
+  assert.notDeepEqual(matrixErrors(original, expected, unfinished.slice(1)), [], 'an unfinished row omitted from the historical input');
 });

@@ -1,0 +1,205 @@
+{
+  "headSha": "525e4847a5a5bf35c45f6cfce152ce5f77af4c60",
+  "workflowPins": [
+    {
+      "file": ".github/workflows/api-docs.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": false,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/bootstrap.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": false,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/cache-candidate-validation.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": false,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/cache-portability.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": true,
+      "lean": "4.34.1",
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/docker.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": false,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/formal-corpus.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": true,
+      "lean": "4.34.1",
+      "rocqImage": "rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782"
+    },
+    {
+      "file": ".github/workflows/issue-183-acceptance.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": true,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/linked-implementation.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": true,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/linked-target.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": true,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/lint-english.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": false,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/orientation-proofs.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": false,
+      "lean": "4.34.1",
+      "rocqImage": "rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782"
+    },
+    {
+      "file": ".github/workflows/parity.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": false,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/relational-kernel.yml",
+      "nodeMajors": [
+        "24"
+      ],
+      "rust": true,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/tests.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": true,
+      "lean": null,
+      "rocqImage": null
+    },
+    {
+      "file": ".github/workflows/translation-native.yml",
+      "nodeMajors": [
+        "22"
+      ],
+      "rust": true,
+      "lean": "4.34.1",
+      "rocqImage": "rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782"
+    }
+  ],
+  "unfinished": [
+    "R11",
+    "R12",
+    "R18",
+    "R21",
+    "R22",
+    "R38",
+    "R47",
+    "R49",
+    "R51",
+    "R52",
+    "R55",
+    "R56",
+    "R62",
+    "R63",
+    "R64",
+    "R66",
+    "R71",
+    "R73",
+    "R74",
+    "R97",
+    "R98",
+    "R101",
+    "R103",
+    "R104",
+    "R105",
+    "R106",
+    "R107",
+    "R108",
+    "R109",
+    "R111",
+    "R114",
+    "R120",
+    "R122",
+    "R123",
+    "R130",
+    "R132",
+    "R133",
+    "R134",
+    "R135",
+    "R137",
+    "R139",
+    "R140",
+    "R141",
+    "R142",
+    "R143",
+    "R144",
+    "R145",
+    "R146",
+    "R147",
+    "R148",
+    "R149",
+    "R150",
+    "R151",
+    "R152",
+    "R153",
+    "R154",
+    "R155",
+    "R162",
+    "R163",
+    "R165",
+    "R166",
+    "R167",
+    "R168"
+  ]
+}
