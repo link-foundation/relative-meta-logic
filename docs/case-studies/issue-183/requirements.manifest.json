@@ -35518,7 +35518,7 @@
           "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
         }
       ],
-      "claimedEvidence": "The linked Horn verifier and its JavaScript and companion Rust tests reproduce the seven baseline traces. A 14-case matrix removes or varies 25 linked clauses, two readings, ten resolver laws, and two host operations. It measures which traces survive renaming and reordering and which change on slot reversal, duplication, or relocation. The paired readings give different trace outcomes on the same records. Both runtimes reject malformed inputs, stale replacements, and unknown laws. All four Rust assertions passed in hosted run 44726137773, and the gate now executes the companion test target as well as the JavaScript mirror. The result identifies the choices used by this local verifier. Which description or reading is applicable without a declared selection policy, and whether self-application closes that authority boundary, remain open.",
+      "claimedEvidence": "The linked Horn verifier `lib/meta-theory/horn-local-verifier.lino` and its JavaScript and companion Rust tests reproduce the seven baseline traces. A 14-case matrix removes or varies 25 linked clauses, two readings, ten resolver laws, and two host operations. It measures which traces survive renaming and reordering and which change on slot reversal, duplication, or relocation. The paired readings give different trace outcomes on the same records. Both runtimes reject malformed inputs, stale replacements, and unknown laws. All four Rust assertions passed in hosted run 44726137773, and the gate now executes the companion test target as well as the JavaScript mirror. The result identifies the choices used by this local verifier. Which description or reading is applicable without a declared selection policy, and whether self-application closes that authority boundary, remain open.",
       "checks": [
         "verifier-provenance-js",
         "verifier-provenance-rust"
@@ -36470,7 +36470,7 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The 2026-11-20 paginated live-source audit matched the original issue, current PR description, all 210 conversation comments, and the empty issue-comment, review, inline-comment and review-thread channels. The immutable text archive preserves earlier PR descriptions. Full repository reconciliation and independently executed evidence remain open while product rows are partial.",
+      "claimedEvidence": "The 2026-11-20 paginated live-source audit matched the original issue, current PR description, all 210 conversation comments, and the empty issue-comment, review, inline-comment and review-thread channels. The immutable `requirements.sources.json` archive preserves earlier PR descriptions. Full repository reconciliation and independently executed evidence remain open while product rows are partial.",
       "checks": [
         "issue-183-pr-metadata",
         "requirements-live-sources"
