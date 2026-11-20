@@ -41950,7 +41950,7 @@
         {
           "path": "rust/tests/kernel_replacement_tests.rs",
           "role": "test",
-          "sha256": "193c747d5d08d754c07b77423b6d2aa432210651e1a3d0120e20922e3c926aef"
+          "sha256": "ee7eca90f0695b6fa68f68ac84eb987bca6f3e9c8861345852f219ba5e0ca299"
         },
         {
           "path": "lib/meta-theory/fixed-point.ski",

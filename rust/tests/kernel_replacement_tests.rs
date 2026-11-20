@@ -156,7 +156,11 @@ fn keeps_no_host_language_semantic_description_in_the_runtime() {
     // host-language description of the fixed-point program. Generated runtimes
     // re-emit macro calls with token spacing, so compare without whitespace.
     let compact: String = kernel.chars().filter(|c| !c.is_whitespace()).collect();
-    assert!(compact.contains("include_str!(\"../../../lib/meta-theory/fixed-point.ski\")"));
+    assert!(compact.contains("include_str!(\"../meta-theory/fixed-point.ski\")"));
+    assert_eq!(
+        include_str!("../src/meta-theory/fixed-point.ski"),
+        DEFAULT_ARTIFACT
+    );
     for path in rust_sources(&source_root) {
         let text = std::fs::read_to_string(&path).expect("runtime source");
         assert!(
