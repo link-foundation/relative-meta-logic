@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 import { describe, it } from 'node:test';
-import { loadIssue183Inputs, runIssue183Acceptance, sha256, validateIssue183Inventory, parseCargoAssertions, captureIssue183SourceState, createIssue183ProgressJournal } from './issue-183-requirements.mjs';
+import { loadIssue183Inputs, runIssue183Acceptance, sha256, validateIssue183Inventory, parseCargoAssertions, captureIssue183SourceState, createIssue183ProgressJournal, executeIssue183Check } from './issue-183-requirements.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_URL = 'https://github.com/link-foundation/relative-meta-logic/issues/183';
@@ -433,6 +433,20 @@ process.exitCode = report.passed ? 0 : 1;
       stdout.replace('test negative ... ok\n', ''),
       stdout + stdout,
     ]) assert.throws(() => parseCargoAssertions(altered, check), /native/);
+  });
+
+  it('rejects an unreviewed native package and requires the companion lockfile', () => {
+    const { manifest } = loadIssue183Inputs(ROOT);
+    const check = manifest.checks.find(candidate => candidate.id === 'meta-foundation-comparison-rust');
+    assert.ok(check);
+    assert.throws(() => executeIssue183Check(ROOT, {
+      ...check,
+      testFiles: [`rust/other/tests/${check.testTarget}.rs`],
+    }), /invalid native test target/);
+    assert.throws(() => executeIssue183Check(ROOT, {
+      ...check,
+      files: check.files.filter(pin => pin.path !== 'rust/relational-kernel/Cargo.lock'),
+    }), /omits native dependency input rust\/relational-kernel\/Cargo\.lock/);
   });
 
   it('selects the real completion job for non-code changes without masking failure', () => {

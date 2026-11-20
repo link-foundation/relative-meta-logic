@@ -11124,7 +11124,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         }
       ],
       "claimedEvidence": "PR 184 uses `Advances #183` rather than an auto-closing directive, while the versioned report retains `foundationStatus: OPEN` and the ledger keeps R71, R73, and R74 open. The solver tooling appends a `Fixes` line naming PR 184 after each work session, and the R136 guard removes it from the live body.",
@@ -12034,7 +12034,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -12390,7 +12390,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/issue-183-requirements.test.mjs",
@@ -13172,7 +13172,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         }
       ],
       "claimedEvidence": "Rows `R11/R18/R21/R47/R49/R51/R52/R55/R56/R62-R64/R66` now state partial or blocked scope; R65 remains complete only for its idealized unbounded model, while R77/R87 describe the corrected live body.",
@@ -13232,7 +13232,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -32507,13 +32507,44 @@
           "path": "docs/case-studies/issue-183/meta-foundation-comparison.md",
           "role": "implementation",
           "sha256": "9f656a7b1679c3475e8d6c2334ae9a6ab25e8befa5618b2f3a003f20db8dcf12"
+        },
+        {
+          "path": "rust/relational-kernel/src/lib.rs",
+          "role": "implementation",
+          "sha256": "b46fc7982f318b211e0dd75a3c3a501ae7d5f08b46aeccf1324c57a90d86c8dc"
+        },
+        {
+          "path": "rust/relational-kernel/src/horn_link_substitution.rs",
+          "role": "implementation",
+          "sha256": "2623e87a5dc3bfad8735129513a385af2e386414148e4036094a64e79227e69f"
+        },
+        {
+          "path": "rust/relational-kernel/src/horn_resolution.rs",
+          "role": "implementation",
+          "sha256": "9a2973c208b668e7eabe17577737c98001b64ee50b98f1c5b67becba84301715"
+        },
+        {
+          "path": "rust/relational-kernel/src/relational_kernel.rs",
+          "role": "implementation",
+          "sha256": "300e01be02aed1d17062ea453237b9f07f00c90146ee8e053dfdea62b1b7d793"
+        },
+        {
+          "path": "rust/src/linked_program.rs",
+          "role": "implementation",
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
+        },
+        {
+          "path": "rust/src/linked_program/combinator_kernel.rs",
+          "role": "implementation",
+          "sha256": "7faf93af03bc23da68a7954ad54f27d8323f8fd74477ff4a506c5e4c177808bd"
         }
       ],
-      "claimedEvidence": "The meta-foundation comparison runs S/K and the Horn link-substitution foundation under one workload and observation contract: preserved reductions, judgements and proofs; workload-relative removal minimality ({S,K}; 7 of 11 Horn laws); self-interpretation, self-description and image regeneration; a traced trust boundary; and a lock-step criterion separating Horn from S/K but not from a renamed S/K. The report claims neither ranking nor global minimality. `The relational-kernel Rust mirrors cannot yet be bound by the gate, and S/K self-generation is not shown`.",
+      "claimedEvidence": "The meta-foundation comparison runs S/K and the Horn link-substitution foundation under one workload and observation contract: preserved reductions, judgements and proofs; workload-relative removal minimality ({S,K}; 7 of 11 Horn laws); self-interpretation, self-description and image regeneration; a traced trust boundary; and a lock-step criterion separating Horn from S/K but not from a renamed S/K. The report claims neither ranking nor global minimality. The delivery gate runs seven companion Rust assertions over the same comparison cases, with the package lockfile and linked fixture inputs pinned. `S/K self-generation is not shown`.",
       "checks": [
-        "meta-foundation-comparison-js"
+        "meta-foundation-comparison-js",
+        "meta-foundation-comparison-rust"
       ],
-      "remainingGap": "The meta-foundation comparison runs S/K and the Horn link-substitution foundation under one workload and observation contract: preserved reductions, judgements and proofs; workload-relative removal minimality ({S,K}; 7 of 11 Horn laws); self-interpretation, self-description and image regeneration; a traced trust boundary; and a lock-step criterion separating Horn from S/K but not from a renamed S/K. The report claims neither ranking nor global minimality. `The relational-kernel Rust mirrors cannot yet be bound by the gate, and S/K self-generation is not shown`.",
+      "remainingGap": "The meta-foundation comparison runs S/K and the Horn link-substitution foundation under one workload and observation contract: preserved reductions, judgements and proofs; workload-relative removal minimality ({S,K}; 7 of 11 Horn laws); self-interpretation, self-description and image regeneration; a traced trust boundary; and a lock-step criterion separating Horn from S/K but not from a renamed S/K. The report claims neither ranking nor global minimality. The delivery gate runs seven companion Rust assertions over the same comparison cases, with the package lockfile and linked fixture inputs pinned. `S/K self-generation is not shown`.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -32557,9 +32588,52 @@
           "file": "js/tests/meta-foundation-comparison.test.mjs",
           "name": "the report keeps the full-closure gate open and claims neither ranking nor global minimality",
           "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-rust",
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "two_foundations_execute_one_byte_identical_upper_layer_with_the_same_observations",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-rust",
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "single_and_reduced_basis_law_removal_reproduces_the_recorded_minimality_table",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-rust",
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "unknown_law_names_are_rejected_and_the_default_relation_is_unchanged",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-rust",
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "sk_laws_as_linked_rules_are_interpreted_on_both_foundations_and_a_replaced_k_law_changes_both",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-rust",
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "quoted_linked_horn_interpreter_runs_the_linked_substitution_clauses_and_regenerates_its_image",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "meta-foundation-comparison-rust",
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "lockstep_criterion_separates_horn_from_sk_but_not_a_renamed_sk_control",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "meta-foundation-comparison-rust",
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "report_keeps_the_full_closure_gate_open_and_claims_no_ranking_or_global_minimality",
+          "polarity": "negative"
         }
       ],
-      "completionBindings": []
+      "completionBindings": [],
+      "nativeValidationRequired": true
     },
     {
       "id": "R131",
@@ -36199,7 +36273,7 @@
       "implementationClaims": [
         {
           "path": "scripts/issue-183-requirements.mjs",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8",
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f",
           "role": "historical-claim"
         }
       ],
@@ -41417,7 +41491,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/verify-linked-target.mjs",
@@ -42477,12 +42551,12 @@
         {
           "path": "scripts/issue-183-requirements-gate.test.mjs",
           "role": "test",
-          "sha256": "26ea70b092929551966904a812c1cf441cd3feef4b28f6d8a184096b1175a110"
+          "sha256": "552ac431c5f8c324bd5715b1d613de1d2da369537664c06faf1b949c23827d7f"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -42539,6 +42613,11 @@
         {
           "file": "scripts/issue-183-requirements-gate.test.mjs",
           "name": "rejects omitted per-requirement positive or negative assertion edges",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements-gate.test.mjs",
+          "name": "rejects an unreviewed native package and requires the companion lockfile",
           "polarity": "negative"
         }
       ]
@@ -52095,7 +52174,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -52593,7 +52672,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -54340,7 +54419,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -54868,7 +54947,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -56135,7 +56214,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "scripts/issue-183-requirements-reporter.mjs",
@@ -57759,6 +57838,159 @@
         }
       ],
       "timeoutMs": 1800000
+    },
+    {
+      "id": "meta-foundation-comparison-rust",
+      "kind": "cargo-test",
+      "testTarget": "meta_foundation_comparison_tests",
+      "testFiles": [
+        "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "role": "test",
+          "sha256": "33c8c17295c7e6affb8b5d5b90a0d1c93306aed969a4eb51706cd03c26a33064"
+        },
+        {
+          "path": "rust/relational-kernel/src/lib.rs",
+          "role": "implementation",
+          "sha256": "b46fc7982f318b211e0dd75a3c3a501ae7d5f08b46aeccf1324c57a90d86c8dc"
+        },
+        {
+          "path": "rust/relational-kernel/src/horn_link_substitution.rs",
+          "role": "implementation",
+          "sha256": "2623e87a5dc3bfad8735129513a385af2e386414148e4036094a64e79227e69f"
+        },
+        {
+          "path": "rust/relational-kernel/src/horn_resolution.rs",
+          "role": "implementation",
+          "sha256": "9a2973c208b668e7eabe17577737c98001b64ee50b98f1c5b67becba84301715"
+        },
+        {
+          "path": "rust/relational-kernel/src/relational_kernel.rs",
+          "role": "implementation",
+          "sha256": "300e01be02aed1d17062ea453237b9f07f00c90146ee8e053dfdea62b1b7d793"
+        },
+        {
+          "path": "rust/src/linked_program.rs",
+          "role": "implementation",
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
+        },
+        {
+          "path": "rust/src/linked_program/combinator_kernel.rs",
+          "role": "implementation",
+          "sha256": "7faf93af03bc23da68a7954ad54f27d8323f8fd74477ff4a506c5e4c177808bd"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
+        },
+        {
+          "path": "rust/relational-kernel/Cargo.toml",
+          "role": "dependency",
+          "sha256": "8cc3c88a8fbd3e834dc1e070c00cd17304cacc8d73b966a0f11479052e924564"
+        },
+        {
+          "path": "rust/relational-kernel/Cargo.lock",
+          "role": "dependency",
+          "sha256": "59a26918da13ce908ad02358b916701400827a5bb13f7c73cd2d10a71719cef6"
+        },
+        {
+          "path": "lib/meta-theory/fixed-point-source.lino",
+          "role": "fixture",
+          "sha256": "5428d711d66b409fc9f0257675d280c75d6718f522a59eadafbcc8398ba44bbe"
+        },
+        {
+          "path": "lib/meta-theory/fixed-point.ski",
+          "role": "fixture",
+          "sha256": "9052c5c30dc32ff741f73eb1b3e06d89cece51875fe4d59d55b4d496d41f6252"
+        },
+        {
+          "path": "lib/meta-theory/horn-link-substitution.lino",
+          "role": "fixture",
+          "sha256": "384ce1345aa9e85a9318a9e75ab668c8dfa4a4ab73872a9527f73de394ca08c1"
+        },
+        {
+          "path": "lib/meta-theory/horn-rml-elaboration.lino",
+          "role": "fixture",
+          "sha256": "d18caba5aa911743e39fe2b173b83feeda2c5523df20a88574bdeba3a1d268a6"
+        },
+        {
+          "path": "lib/meta-theory/relational-kernel.lino",
+          "role": "fixture",
+          "sha256": "0dc5b3c4f4828053c49572bc4658f7df367d4ee57bf8967fbcc102218ae49ca1"
+        },
+        {
+          "path": "test-corpus/lambda-kernel/workload.lino",
+          "role": "fixture",
+          "sha256": "ad43d815f5542ae17bef47312e216931d5e6fef45e6b1f042c0dba76bdac067d"
+        },
+        {
+          "path": "test-corpus/lambda-kernel/cases.json",
+          "role": "fixture",
+          "sha256": "b7a06593688b3963eea40390668e0ce317883528de1703f307bcc4062d8d51aa"
+        },
+        {
+          "path": "test-corpus/foundation-comparison/report.json",
+          "role": "fixture",
+          "sha256": "87300f6d6a27c50f0471fe01b706487e2ab5a52e98a97d3023f3abe6d6fdd774"
+        },
+        {
+          "path": "test-corpus/foundation-comparison/sk-laws.lino",
+          "role": "fixture",
+          "sha256": "880c4ace197ffac6585b6afa698b9fe6a75f898b3068b2d53906fcc447378208"
+        },
+        {
+          "path": "test-corpus/kernel-replacement/mechanism-observations.json",
+          "role": "fixture",
+          "sha256": "39fd6ff6d53a4afbd8543275f5d784fe00fde09b37b44f1d98b2318a398e716f"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "two_foundations_execute_one_byte_identical_upper_layer_with_the_same_observations",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "single_and_reduced_basis_law_removal_reproduces_the_recorded_minimality_table",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "unknown_law_names_are_rejected_and_the_default_relation_is_unchanged",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "sk_laws_as_linked_rules_are_interpreted_on_both_foundations_and_a_replaced_k_law_changes_both",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "quoted_linked_horn_interpreter_runs_the_linked_substitution_clauses_and_regenerates_its_image",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "lockstep_criterion_separates_horn_from_sk_but_not_a_renamed_sk_control",
+          "polarity": "negative"
+        },
+        {
+          "file": "rust/relational-kernel/tests/meta_foundation_comparison_tests.rs",
+          "name": "report_keeps_the_full_closure_gate_open_and_claims_no_ranking_or_global_minimality",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1200000
     },
     {
       "id": "horn-rml-elaboration-js",
@@ -59672,7 +59904,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -60845,7 +61077,7 @@
         {
           "path": "scripts/issue-183-requirements.mjs",
           "role": "implementation",
-          "sha256": "a27265715e490f350db007490f18c1bf80f8dd56bf509dc0ee647473cdcdeee8"
+          "sha256": "9c3f19b01db6509b153a91fe20996f91174af00b13500bbde267c2d3f458401f"
         },
         {
           "path": "rust/Cargo.toml",

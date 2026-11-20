@@ -160,9 +160,17 @@ function validateCheck(root, check) {
   nonempty(check.id, 'check ID');
   requireThat(['node-test', 'cargo-test'].includes(check.kind), `${check.id} has unsupported producer kind; native evidence cannot be replaced by a declaration`);
   unique(check.testFiles, `${check.id} test files`);
+  let cargoManifest;
   if (check.kind === 'cargo-test') {
-    requireThat(/^[a-zA-Z0-9_]+$/.test(check.testTarget) && check.testFiles.length === 1 && check.testFiles[0] === `rust/tests/${check.testTarget}.rs`, `${check.id} has an invalid native test target`);
-    requireThat(check.files?.some(pin => pin.path === 'rust/Cargo.toml') && check.files?.some(pin => pin.path === 'rust/Cargo.lock'), `${check.id} omits native dependency inputs`);
+    const target = /^(rust(?:\/relational-kernel)?)\/tests\/([a-zA-Z0-9_]+)\.rs$/.exec(check.testFiles[0]);
+    requireThat(check.testFiles.length === 1 && target && target[2] === check.testTarget, `${check.id} has an invalid native test target`);
+    const directories = new Set(['rust', target[1]]);
+    for (const directory of directories) {
+      for (const file of ['Cargo.toml', 'Cargo.lock']) {
+        requireThat(check.files?.some(pin => pin.path === `${directory}/${file}`), `${check.id} omits native dependency input ${directory}/${file}`);
+      }
+    }
+    cargoManifest = `${target[1]}/Cargo.toml`;
   }
   unique(check.files?.map(pin => pin.path), `${check.id} pinned inputs`);
   for (const file of check.testFiles) {
@@ -178,13 +186,14 @@ function validateCheck(root, check) {
     requireThat(['positive', 'negative'].includes(assertion.polarity), `${check.id} assertion has unsupported polarity`);
   }
   requireThat(check.assertions.some(assertion => assertion.polarity === 'positive') && check.assertions.some(assertion => assertion.polarity === 'negative'), `${check.id} needs positive and negative assertions`);
+  return cargoManifest;
 }
 
 // This is intentionally a producer, not an importer of user-edited evidence JSON.
 // Only test:pass events emitted by the Node runner in this process invocation count.
 export function executeIssue183Check(root, check) {
-  validateCheck(root, check);
-  if (check.kind === 'cargo-test') return executeCargoCheck(root, check);
+  const cargoManifest = validateCheck(root, check);
+  if (cargoManifest) return executeCargoCheck(root, check, cargoManifest);
   const reporter = path.join(ROOT, 'scripts/issue-183-requirements-reporter.mjs');
   const nonce = crypto.randomUUID();
   const command = [process.execPath, '--test', `--test-reporter=${reporter}`, '--test-concurrency=1', ...check.testFiles];
@@ -234,8 +243,8 @@ export function parseCargoAssertions(stdout, check) {
   return check.assertions.map(assertion => ({ ...assertion, passed: true }));
 }
 
-function executeCargoCheck(root, check) {
-  const command = ['cargo', 'test', '--locked', '--jobs', '2', '--manifest-path', 'rust/Cargo.toml', '--test', check.testTarget, '--', '--test-threads=1', '--format=pretty', '--color=never'];
+function executeCargoCheck(root, check, cargoManifest) {
+  const command = ['cargo', 'test', '--locked', '--jobs', '2', '--manifest-path', cargoManifest, '--test', check.testTarget, '--', '--test-threads=1', '--format=pretty', '--color=never'];
   const startedAt = new Date().toISOString();
   const refusal = localRustRefusal();
   if (refusal) return { id: check.id, command, cwd: root, startedAt, finishedAt: startedAt, exitCode: null, signal: null, inputPins: check.files, stdout: '', stderr: '', passed: false, assertions: [], error: `${check.id} native execution refused: ${refusal}` };
