@@ -7369,11 +7369,26 @@
           "sha256": "052aad581b09fe2edd7367db1a885c641457fc45273e132a7d52fd3f9fb45a32"
         }
       ],
-      "claimedEvidence": "The current registry audit finds Rust `meta-language 1.0.0` and npm `0.46.0`; RML consumes the published Rust crate and matching immutable JavaScript release source. Both RML runtimes pin `links-notation 0.26.0`. The npm registry now reports `0.31.8`; this batch leaves the pin in place pending cross-runtime upgrade validation. The historical parser findings against `0.20.0` remain documented in upstream issues `links-notation#312-#316`; their source reports and protective front-end tests are preserved. A matching npm release remains pending. Re-audited 2026-10-13: links-notation 0.26.0 is consumed from both registries; meta-language npm remains 0.46.0 while crates.io has 1.0.0. `npm and Rust meta-language streams still diverge upstream`.",
-      "checks": [],
-      "remainingGap": "The current registry audit finds Rust `meta-language 1.0.0` and npm `0.46.0`; RML consumes the published Rust crate and matching immutable JavaScript release source. Both RML runtimes pin `links-notation 0.26.0`. The npm registry now reports `0.31.8`; this batch leaves the pin in place pending cross-runtime upgrade validation. The historical parser findings against `0.20.0` remain documented in upstream issues `links-notation#312-#316`; their source reports and protective front-end tests are preserved. A matching npm release remains pending. Re-audited 2026-10-13: links-notation 0.26.0 is consumed from both registries; meta-language npm remains 0.46.0 while crates.io has 1.0.0. `npm and Rust meta-language streams still diverge upstream`.",
+      "claimedEvidence": "Rust publishes `meta-language 1.0.0` and npm publishes `0.46.0`. RML consumes the Rust crate and matching immutable JavaScript release source. Both runtimes and the VS Code extension now select `links-notation 0.31.8`, with provenance and remaining dependency observations in `links-notation-audit-2026-11-20.json`. The focused JavaScript upgrade probe passed 144 checks. The hosted matrix verifies native and cross-runtime compatibility. The historical parser findings remain documented in upstream issues `links-notation#312-#316`. A matching npm release is still pending.",
+      "checks": [
+        "dependency-audit"
+      ],
+      "remainingGap": "A matching npm meta-language release is absent. Other observed dependency releases still need compatibility validation.",
       "verificationState": "not-execution-certified",
-      "assertionBindings": [],
+      "assertionBindings": [
+        {
+          "checkId": "dependency-audit",
+          "file": "scripts/dependency-audit.test.mjs",
+          "name": "the dated dependency audit matches every declared and locked direct dependency and none is behind its audited latest release",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "dependency-audit",
+          "file": "scripts/dependency-audit.test.mjs",
+          "name": "an audit that disagrees with a manifest, a lock file or a newer release is rejected",
+          "polarity": "negative"
+        }
+      ],
       "completionBindings": []
     },
     {
