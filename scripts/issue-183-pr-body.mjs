@@ -20,7 +20,18 @@ const ISSUE_183_PR_NUMBER = 184;
 const ISSUE_183_BRANCH = 'issue-183-7fedfddffe9c';
 const REPAIRED_EVENT_ENVIRONMENT = 'ISSUE_183_REPAIRED_EVENT_PATH';
 
-export function removeIssue183ClosingDirectives(body) {
+export function removeIssue183ClosingDirectives(body, reviewedBody) {
+  // The solver can append a Markdown divider along with its closing line.
+  // Restore the exact reviewed bytes when the entire addition is that footer.
+  if (reviewedBody && body.startsWith(reviewedBody)) {
+    const suffix = body.slice(reviewedBody.length);
+    const lines = suffix.split(/\r?\n/);
+    if (lines[0] === '' &&
+      lines.some(line => CLOSING_DIRECTIVE_LINE.test(line)) &&
+      lines.every(line => line.trim() === '' || line === '---' || CLOSING_DIRECTIVE_LINE.test(line))) {
+      return reviewedBody;
+    }
+  }
   const lines = body.split(/\r?\n/);
   const keptLines = lines.filter(line => !CLOSING_DIRECTIVE_LINE.test(line));
   if (keptLines.length === lines.length) return body;
@@ -60,6 +71,7 @@ export async function preserveIssue183Open({
   token,
   repository,
   allowWrite = true,
+  reviewedBody,
   apiUrl = 'https://api.github.com',
   request = globalThis.fetch,
 }) {
@@ -84,7 +96,7 @@ export async function preserveIssue183Open({
   const api = { token, repository, apiUrl, request };
   const current = await requestPullRequest(api);
   const liveBody = (await current.json()).body ?? '';
-  const body = removeIssue183ClosingDirectives(liveBody);
+  const body = removeIssue183ClosingDirectives(liveBody, reviewedBody);
   if (ISSUE_183_CLOSING_DIRECTIVE.test(body)) {
     throw new Error(
       'PR 184 has an issue-closing directive inside other text; remove it by hand',
@@ -106,6 +118,7 @@ export async function repairIssue183PrBody({
   token,
   repository,
   allowWrite,
+  reviewedBody,
   apiUrl,
   request = globalThis.fetch,
 }) {
@@ -117,6 +130,7 @@ export async function repairIssue183PrBody({
     token,
     repository,
     allowWrite,
+    reviewedBody,
     apiUrl,
     request,
   });
@@ -141,8 +155,11 @@ async function main() {
   const outputEventPath = process.env.RUNNER_TEMP
     ? path.join(process.env.RUNNER_TEMP, 'issue-183-repaired-event.json')
     : process.env.GITHUB_EVENT_PATH;
+  const archive = JSON.parse(fs.readFileSync(new URL('../docs/case-studies/issue-183/requirements.sources.json', import.meta.url), 'utf8'));
+  const reviewedBody = archive.sources.find(source => source.id === archive.currentPrBodySourceId)?.originalText;
   const result = await repairIssue183PrBody({
     eventPath: process.env.GITHUB_EVENT_PATH,
+    reviewedBody,
     outputEventPath,
     environmentFile: process.env.GITHUB_ENV,
     token: process.env.GITHUB_TOKEN,

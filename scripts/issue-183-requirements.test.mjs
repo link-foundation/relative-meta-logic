@@ -310,13 +310,14 @@ describe('issue 183 requirement traceability', () => {
     };
   }
 
-  function repairAgainstLiveBody(paths, liveBody, { allowWrite } = {}) {
+  function repairAgainstLiveBody(paths, liveBody, { allowWrite, reviewedBody } = {}) {
     const requests = [];
     const result = repairIssue183PrBody({
       ...paths,
       token: 'test-token',
       repository: 'link-foundation/relative-meta-logic',
       allowWrite,
+      reviewedBody,
       request: async (url, options) => {
         requests.push({ url, ...options });
         return options.method === 'GET'
@@ -382,6 +383,19 @@ describe('issue 183 requirement traceability', () => {
       JSON.parse(fs.readFileSync(paths.outputEventPath, 'utf8')).pull_request.body,
       liveBody,
     );
+  });
+
+  it('restores the reviewed body byte for byte after a generated closing footer', async context => {
+    const reviewedBody = 'Reviewed results.\r\n\r\nAdvances #183\r\n';
+    const footer = '\n\n---\n\n---\n\nFixes #184';
+    const paths = writeIssue183Event(context, { body: reviewedBody });
+    const { requests, result } = repairAgainstLiveBody(paths, reviewedBody + footer, { reviewedBody });
+
+    assert.deepEqual(await result, { action: 'updated', body: reviewedBody });
+    assert.deepEqual(JSON.parse(requests[1].body), { body: reviewedBody });
+    const different = reviewedBody + '\nNew maintainer feedback.' + footer;
+    assert.match(removeIssue183ClosingDirectives(different, reviewedBody), /New maintainer feedback/);
+    assert.equal(removeIssue183ClosingDirectives(reviewedBody + '\n---', reviewedBody), reviewedBody + '\n---');
   });
 
   it('refuses to rewrite a closing directive inside other text', async context => {

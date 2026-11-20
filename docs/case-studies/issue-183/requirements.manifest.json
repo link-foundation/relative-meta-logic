@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "f52191d6e09b8231cdae49d7f0dcfc2f36cad30e3696bf87fb32b4788de5e6cd"
+    "sha256": "a75c78fb5ae6b6fdb9011a5e2138d0f0600b1e59c72a43bbe0a80d2728bb5201"
   },
   "requirements": [
     {
@@ -7893,7 +7893,7 @@
       "implementationClaims": [
         {
           "path": "scripts/issue-183-requirements.test.mjs",
-          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a",
+          "sha256": "5c0881de3f0c7f90f800c3bfb426bf3a67441b2d0edd440adfc4d8f6948f7eb8",
           "role": "historical-claim"
         }
       ],
@@ -10189,7 +10189,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a"
+          "sha256": "5c0881de3f0c7f90f800c3bfb426bf3a67441b2d0edd440adfc4d8f6948f7eb8"
         }
       ],
       "claimedEvidence": "`foundation-search.md`, the case-study index, architecture/runtime guides, this ledger, and `issue-183-requirements.test.mjs` cross-link the implementation, finite symmetry result, and enforced claim boundary.",
@@ -11125,7 +11125,7 @@
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
+          "sha256": "9c1764ceedce815ec79edaef5f3b96a0c863c9d15aec64b87f48fad391aa93ac"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
@@ -12035,7 +12035,7 @@
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
+          "sha256": "9c1764ceedce815ec79edaef5f3b96a0c863c9d15aec64b87f48fad391aa93ac"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
@@ -12391,7 +12391,7 @@
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
+          "sha256": "9c1764ceedce815ec79edaef5f3b96a0c863c9d15aec64b87f48fad391aa93ac"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
@@ -12401,7 +12401,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a"
+          "sha256": "5c0881de3f0c7f90f800c3bfb426bf3a67441b2d0edd440adfc4d8f6948f7eb8"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -34400,7 +34400,7 @@
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
+          "sha256": "9c1764ceedce815ec79edaef5f3b96a0c863c9d15aec64b87f48fad391aa93ac"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -34410,7 +34410,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a"
+          "sha256": "5c0881de3f0c7f90f800c3bfb426bf3a67441b2d0edd440adfc4d8f6948f7eb8"
         },
         {
           "path": "experiments/issue-183-pr-body-live-repair.mjs",
@@ -34418,7 +34418,7 @@
           "sha256": "a34e746e640bc507887134d1c4b6cf153fbdf2f0541b62f17c72f02ed224e112"
         }
       ],
-      "claimedEvidence": "`issue-183-pr-body.mjs` and the PR-184-only step in `tests.yml` run on every pull-request event type. They read the live PR body through the GitHub API instead of trusting the `GITHUB_EVENT_PATH` snapshot, remove whole-line closing directives for both issue `#183` and the erroneous PR self-reference `#184` (including colon, cross-repository, and issue-URL forms), write only when the text changed, fail on a directive inside other text, and test the corrected copy of the event payload. `issue-183-requirements.test.mjs` covers the updated, unchanged, inline-refusal, and other-PR paths and retains the strict live-event rejection; `experiments/issue-183-pr-body-live-repair.mjs` runs the script end to end against a local API. The solver tooling appends a `Fixes` line naming PR 184 after each work session: the one appended at 2026-09-24T22:13:37Z was removed by run `36066220462` at 22:15:33Z, after the session summary had already reported no closing keyword. The settled API body must end with `Advances #183`; earlier synchronize run `35852441345` and edited-event integration run `35853137658` also passed. The acceptance gate independently checks the current PR body in its read-only source audit and records producer results even when the metadata audit fails. Regression tests replay a stale closing directive in an event and reject a directive in the live body even when its digest matches the reviewed snapshot.",
+      "claimedEvidence": "`issue-183-pr-body.mjs` and the PR-184-only step in `tests.yml` run on every pull-request event type. They read the live PR body through the GitHub API instead of trusting the `GITHUB_EVENT_PATH` snapshot, remove whole-line closing directives for both issue `#183` and the erroneous PR self-reference `#184` (including colon, cross-repository, and issue-URL forms), write only when the text changed, fail on a directive inside other text, and test the corrected copy of the event payload. `issue-183-requirements.test.mjs` covers the updated, unchanged, inline-refusal, and other-PR paths and retains the strict live-event rejection; `experiments/issue-183-pr-body-live-repair.mjs` runs the script end to end against a local API. The solver tooling appends a `Fixes` line naming PR 184 after each work session: the one appended at 2026-09-24T22:13:37Z was removed by run `36066220462` at 22:15:33Z, after the session summary had already reported no closing keyword. The settled API body must end with `Advances #183`; earlier synchronize run `35852441345` and edited-event integration run `35853137658` also passed. When only a generated closing footer was appended, the guard restores the exact reviewed bytes, including line endings. It preserves substantive edits for the next source review. The acceptance gate independently checks the current PR body in its read-only source audit and records producer results even when the metadata audit fails. Regression tests replay a stale closing directive in an event and reject a directive in the live body even when its digest matches the reviewed snapshot.",
       "checks": [
         "issue-183-pr-metadata"
       ],
@@ -34454,6 +34454,12 @@
           "file": "scripts/issue-183-requirements.test.mjs",
           "name": "rejects issue-closing metadata while foundational requirements remain open",
           "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "restores the reviewed body byte for byte after a generated closing footer",
+          "polarity": "positive"
         }
       ],
       "completionBindings": [
@@ -34486,6 +34492,12 @@
           "file": "scripts/issue-183-requirements.test.mjs",
           "name": "rejects issue-closing metadata while foundational requirements remain open",
           "polarity": "negative"
+        },
+        {
+          "checkId": "issue-183-pr-metadata",
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "restores the reviewed body byte for byte after a generated closing footer",
+          "polarity": "positive"
         }
       ]
     },
@@ -42675,7 +42687,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "f52191d6e09b8231cdae49d7f0dcfc2f36cad30e3696bf87fb32b4788de5e6cd"
+          "sha256": "a75c78fb5ae6b6fdb9011a5e2138d0f0600b1e59c72a43bbe0a80d2728bb5201"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -46603,12 +46615,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -46965,12 +46977,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -47713,12 +47725,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -48055,12 +48067,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -48828,12 +48840,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -49170,12 +49182,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -49933,12 +49945,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -50195,12 +50207,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -52068,12 +52080,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -52391,12 +52403,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -54313,12 +54325,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -54666,12 +54678,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "7c0a794aa6a983c33bc7b55d5722949e7ffd99e65c544ff86de00b461019923c"
+          "sha256": "a82d1bffea4eabe437f8d0f5f826694a6cadac6e613ec4e30d812f6f996c077c"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "1e0d0fd111307080fdd637494e7b95c02f0f78c6e91c715f8b34ae1ec3828b4a"
+          "sha256": "41b0648be10f53e33b95ca055cf7d9f8d03b40ff4997a8d8014d0f2d7df56cd6"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -60116,12 +60128,12 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "test",
-          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a"
+          "sha256": "5c0881de3f0c7f90f800c3bfb426bf3a67441b2d0edd440adfc4d8f6948f7eb8"
         },
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
+          "sha256": "9c1764ceedce815ec79edaef5f3b96a0c863c9d15aec64b87f48fad391aa93ac"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
@@ -60203,6 +60215,11 @@
         {
           "file": "scripts/issue-183-requirements.test.mjs",
           "name": "checks live PR metadata in the acceptance gate without aborting producers in a preflight",
+          "polarity": "positive"
+        },
+        {
+          "file": "scripts/issue-183-requirements.test.mjs",
+          "name": "restores the reviewed body byte for byte after a generated closing footer",
           "polarity": "positive"
         }
       ],
@@ -60490,12 +60507,12 @@
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "b39eb108e7b139acafe275449681b48addaad50104ac0bb87ec28c5e1cd5d09e"
+          "sha256": "ff1a220920ced8f33b693cebb517eb6675680492635081c57d57e5b58ef71617"
         },
         {
           "path": "scripts/issue-183-pr-body.mjs",
           "role": "implementation",
-          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
+          "sha256": "9c1764ceedce815ec79edaef5f3b96a0c863c9d15aec64b87f48fad391aa93ac"
         }
       ],
       "assertions": [
