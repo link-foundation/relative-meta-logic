@@ -1,8 +1,8 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "51c0687e20ff0a0a591471fb102783f2cf7a4f9e57637c06d8b1ec11d859b374",
-  "archiveBytes": 806082,
-  "linkCount": 14646,
+  "archiveSha256": "45e4fe6723a97ce18cd90a9a7dbd106443044a1100d38242a81bd86396375a54",
+  "archiveBytes": 806125,
+  "linkCount": 14648,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
     "Node/V8, Cargo/rustc/LLVM and PowerShell generic language/tool semantics",
@@ -177,13 +177,13 @@
     },
     {
       "path": "js/package-lock.json",
-      "sourceSha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c",
-      "generatedSha256": "09b57bc0a193acff8c933872b596b11575f84e95345b078896f978dd22ed5d08"
+      "sourceSha256": "41b2da0db7b9a372ff1156060a343f7ad52c6ee15f3e41422a4c2c43adcb3284",
+      "generatedSha256": "ccc2b86d4a12ebb2e19101989f777b202a724bdfeadd808f6048571bdbcc2bfa"
     },
     {
       "path": "js/package.json",
-      "sourceSha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082",
-      "generatedSha256": "965fc988b58a79bec16791af7961bf662ec696a491d01ec1c55f8a0bf2d52fc5"
+      "sourceSha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5",
+      "generatedSha256": "612bf9218a3da0287aac4d78128bd62ad7c6713ad399fe4047760d7888ec2f11"
     },
     {
       "path": "js/src/meta-theory/horn-link-substitution.lino",
@@ -197,8 +197,8 @@
     },
     {
       "path": "js/vendor/meta-language-provenance.json",
-      "sourceSha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e",
-      "generatedSha256": "c9c350dea37b04f86b67f3ce22ffb3b4023fd0e18b7c86dc3d5766cff9762072"
+      "sourceSha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77",
+      "generatedSha256": "ec905e3c018cf468ced40914bb488bb3c7d07fe178630d0ab5d6d592f5eecc6f"
     },
     {
       "path": "lib/algebra/core.lino",
@@ -567,18 +567,18 @@
     },
     {
       "path": "rust/Cargo.lock",
-      "sourceSha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094",
-      "generatedSha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+      "sourceSha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7",
+      "generatedSha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
     },
     {
       "path": "rust/Cargo.toml",
-      "sourceSha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d",
-      "generatedSha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+      "sourceSha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2",
+      "generatedSha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
     },
     {
       "path": "rust/control-flow/Cargo.lock",
-      "sourceSha256": "7123f0cbd0a0d7489c7701339d8bbe04547b00992021d366d8f9ee7f1bfe8a59",
-      "generatedSha256": "7123f0cbd0a0d7489c7701339d8bbe04547b00992021d366d8f9ee7f1bfe8a59"
+      "sourceSha256": "905cbf942d253bcbce0a0f98f09e29960c8553e0044777ee9a7a68b10f0aba93",
+      "generatedSha256": "905cbf942d253bcbce0a0f98f09e29960c8553e0044777ee9a7a68b10f0aba93"
     },
     {
       "path": "rust/control-flow/Cargo.toml",
@@ -587,8 +587,8 @@
     },
     {
       "path": "rust/linked-target/Cargo.lock",
-      "sourceSha256": "e10f909df0f69852b698bd4e8228b71f9e92b005cc6c8f46d6bf75896bdd3324",
-      "generatedSha256": "e10f909df0f69852b698bd4e8228b71f9e92b005cc6c8f46d6bf75896bdd3324"
+      "sourceSha256": "b35b509039c55534af389f957a6ed6f36b04a7139191a2294eec3b8b90479d27",
+      "generatedSha256": "b35b509039c55534af389f957a6ed6f36b04a7139191a2294eec3b8b90479d27"
     },
     {
       "path": "rust/linked-target/Cargo.toml",
@@ -597,8 +597,8 @@
     },
     {
       "path": "rust/relational-kernel/Cargo.lock",
-      "sourceSha256": "5ff0e8b39a62c50cef78a47fcf52a983b922f1a9bfa048f796f638f09636c3ae",
-      "generatedSha256": "5ff0e8b39a62c50cef78a47fcf52a983b922f1a9bfa048f796f638f09636c3ae"
+      "sourceSha256": "59a26918da13ce908ad02358b916701400827a5bb13f7c73cd2d10a71719cef6",
+      "generatedSha256": "59a26918da13ce908ad02358b916701400827a5bb13f7c73cd2d10a71719cef6"
     },
     {
       "path": "rust/relational-kernel/Cargo.toml",
@@ -812,13 +812,13 @@
     },
     {
       "path": "vscode/package-lock.json",
-      "sourceSha256": "4b1b7692d21ffcd94e9247f956f370f13e4f4345d8f8ecd0a65d51f32c14858d",
-      "generatedSha256": "b85143edc85167074ef6d5924d53d5222ca3eb876aaf6f0a2882a7c891425891"
+      "sourceSha256": "ef273cd4976019b9b64ac0f9687e0d3c85d38462767c3c022dfcab5c8ac6b0f9",
+      "generatedSha256": "db0b45c844b16df52e8bfe950ed219d932b1b60c9c0da67e4158b86e85709452"
     },
     {
       "path": "vscode/package.json",
-      "sourceSha256": "5015e34ec08215d992a57cf8fcec70826ebd24667fbb9c2a2d60eb38c9a9370c",
-      "generatedSha256": "8ac27b36a2f05940c97a2d73c65e0eb4458958c9e221728ceeea37554f9475c1"
+      "sourceSha256": "71d1e1134055c923fe922044de7c4a3c767ad49974a9a480dac66c1a183cc7d0",
+      "generatedSha256": "ec220418de48d53cc46709eccdc252045ed48c845ca38b0ac51811a3143bff66"
     },
     {
       "path": "vscode/syntaxes/lino.tmLanguage.json",
