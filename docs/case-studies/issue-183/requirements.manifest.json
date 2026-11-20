@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "b7f879b9c56186fd4aca205b31dae9de52313a3de309debf3845fa3bacff2ba1"
+    "sha256": "7bb48b3c4f83777bc022c954534e0b38d3fc94912a6dc37b1ce56b8ff3dd5746"
   },
   "requirements": [
     {
@@ -42675,7 +42675,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "b7f879b9c56186fd4aca205b31dae9de52313a3de309debf3845fa3bacff2ba1"
+          "sha256": "7bb48b3c4f83777bc022c954534e0b38d3fc94912a6dc37b1ce56b8ff3dd5746"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -60490,7 +60490,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "964ea9a19787cfbfaccd1ae6069941d654841f48b0954e7cca4d001f647a1d6e"
+          "sha256": "2bfacd835a27c21a07eb9086caec65fd657a0cfdf2d98dcba5834dfdd62fe426"
         },
         {
           "path": "scripts/issue-183-pr-body.mjs",
