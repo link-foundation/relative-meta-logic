@@ -55,7 +55,8 @@ jobs:
         run: node scripts/run-with-cache.mjs -- npm --prefix vscode ci --omit=dev
       - name: Run full JS test suite
         working-directory: js
-        run: npm test
+        # Keep the cache wrapper as the step process so it receives cancellation.
+        run: exec node ../scripts/run-with-cache.mjs -- node --test --test-concurrency=2 tests/*.test.mjs ../scripts/*.test.mjs
       - name: Upload cache diagnostics before teardown
         if: always()
         uses: actions/upload-artifact@v7
@@ -88,7 +89,7 @@ jobs:
         run: node scripts/bootstrap.mjs
       - name: Run full Rust test suite
         working-directory: rust
-        run: node ../scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --all-targets
+        run: exec node ../scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --all-targets
       - name: Upload cache diagnostics before teardown
         if: always()
         uses: actions/upload-artifact@v7

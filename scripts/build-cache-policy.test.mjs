@@ -91,6 +91,15 @@ test('the raw-producer lint flags unwrapped cargo, Docker, test and npm producer
   }
 });
 
+test('runtime CI delivers cancellation directly to the full test suite cache wrappers', () => {
+  const runtimeSteps = jobs(read('.github/workflows/tests.yml')).flatMap(steps);
+  const js = runtimeSteps.find(step => step.startsWith('      - name: Run full JS test suite\n'));
+  const rust = runtimeSteps.find(step => step.startsWith('      - name: Run full Rust test suite\n'));
+  const command = step => step?.match(/^        run: (.+)$/m)?.[1];
+  assert.equal(command(js), `exec ${packageScripts('js').test}`);
+  assert.equal(command(rust), 'exec node ../scripts/run-with-cache.mjs --isolate-output rust/target -- cargo test --all-targets');
+});
+
 test('the cross-platform lifecycle job executes every cache lifecycle suite on all supported OSes', () => {
   const portability = read('.github/workflows/cache-portability.yml');
   assert.match(portability, /os: \[ubuntu-latest, macos-latest, windows-latest\]/);

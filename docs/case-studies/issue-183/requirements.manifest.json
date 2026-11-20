@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "89ff886880fde42364ff07301084ac9992cd48e6ebf7a88cec51e87ea439f43f"
+    "sha256": "c1f50cc03c84b70325a3a01fac2dbfa8a82b07d841b89cc8da13533343e4bccc"
   },
   "requirements": [
     {
@@ -12039,7 +12039,7 @@
         {
           "path": ".github/workflows/tests.yml",
           "role": "implementation",
-          "sha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
+          "sha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2"
         }
       ],
       "claimedEvidence": "PR 184 ends with `Advances #183`; `assertIssue183RemainsOpen` rejects GitHub closing keywords, including their colon, cross-repository, and issue-URL forms, and the `tests` workflow runs the PR 184 metadata step on every pull-request event type, repairing and checking the live API body rather than the event snapshot, while R71, R73, and R74 remain open.",
@@ -12400,7 +12400,7 @@
         {
           "path": ".github/workflows/tests.yml",
           "role": "implementation",
-          "sha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
+          "sha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2"
         }
       ],
       "claimedEvidence": "`issue-183-requirements.test.mjs` validates PR 184's body from the event copy that the R136 step refreshes from the live API, falling back to `GITHUB_EVENT_PATH`; `.github/workflows/tests.yml` includes `edited`, so body edits rerun the guard without a code commit. Fixture tests reject `Fixes #183`, `Closes #183`, and `Resolved #183`.",
@@ -34393,7 +34393,7 @@
         {
           "path": ".github/workflows/tests.yml",
           "role": "implementation",
-          "sha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
+          "sha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2"
         },
         {
           "path": "scripts/issue-183-requirements.test.mjs",
@@ -37506,7 +37506,7 @@
           "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         }
       ],
-      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup. The acceptance step replaces the runner shell with the cache wrapper so cancellation reaches the process that owns the lease and child group.",
+      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup. The acceptance and runtime test steps replace the runner shell with the cache wrapper so cancellation reaches the process that owns the lease and child group. The JavaScript CI step executes the same command as `npm test`.",
       "checks": [
         "build-cache-lifecycle",
         "cache-tool-availability"
@@ -37717,6 +37717,12 @@
           "file": "scripts/build-cache.test.mjs",
           "name": "a killed build whose process group still runs, or an interrupted recovery, keeps its lease",
           "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "runtime CI delivers cancellation directly to the full test suite cache wrappers",
+          "polarity": "positive"
         }
       ],
       "completionBindings": [
@@ -37761,6 +37767,12 @@
           "file": "scripts/build-cache-policy.test.mjs",
           "name": "the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones",
           "polarity": "negative"
+        },
+        {
+          "checkId": "cache-tool-availability",
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "runtime CI delivers cancellation directly to the full test suite cache wrappers",
+          "polarity": "positive"
         }
       ]
     },
@@ -42571,7 +42583,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "89ff886880fde42364ff07301084ac9992cd48e6ebf7a88cec51e87ea439f43f"
+          "sha256": "c1f50cc03c84b70325a3a01fac2dbfa8a82b07d841b89cc8da13533343e4bccc"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -56318,7 +56330,7 @@
         {
           "path": "scripts/build-cache-policy.test.mjs",
           "role": "test",
-          "sha256": "45e3021d0d1a20f638aaf3ae3b135604586ab317640786c0c2a4e58618390dd7"
+          "sha256": "366c7e5b6c02d24c1037980829fe4f5c2f75438d1937429c2824d9639cc523f3"
         },
         {
           "path": "scripts/docker-cache-budget.mjs",
@@ -56338,7 +56350,7 @@
         {
           "path": ".github/workflows/tests.yml",
           "role": "fixture",
-          "sha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
+          "sha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2"
         }
       ],
       "assertions": [
@@ -56391,6 +56403,11 @@
           "file": "scripts/build-cache-policy.test.mjs",
           "name": "the raw-producer lint flags unwrapped cargo, Docker, test and npm producers and accepts wrapped ones",
           "polarity": "negative"
+        },
+        {
+          "file": "scripts/build-cache-policy.test.mjs",
+          "name": "runtime CI delivers cancellation directly to the full test suite cache wrappers",
+          "polarity": "positive"
         }
       ]
     },
@@ -59909,7 +59926,7 @@
         {
           "path": ".github/workflows/tests.yml",
           "role": "fixture",
-          "sha256": "37a81f2c0bf6ae40cd1154f01ec1219319de3de9fc39e33054fb8c9fd85c2b6f"
+          "sha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -60268,7 +60285,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "5040998ed9ec0d2f45e2fecea7bf30144e357e1adaa176666887d4c72772e074"
+          "sha256": "f80085f82507a0ae17a84f4c234d7f8275685d71f1efefff80922e3f062290a3"
         }
       ],
       "assertions": [
