@@ -11,7 +11,7 @@ import { publishOutput } from '../../scripts/publish-cache-output.mjs';
 const extensionRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const root = path.dirname(extensionRoot);
 const require = createRequire(path.join(extensionRoot, 'package.json'));
-const destination = 'vscode/relative-meta-logic.vsix';
+const destination = 'vscode/relative-meta-logic-vscode.vsix';
 
 try {
   const cache = context(root);
@@ -22,7 +22,7 @@ try {
   }
   const outputRoot = fs.realpathSync(process.env.RML_CACHE_OUTPUT_DIR);
   if (!outputRoot.startsWith(`${cache.root}${path.sep}`)) throw new Error('VSIX production must stay inside the private worktree output directory');
-  const output = path.join(fs.mkdtempSync(path.join(outputRoot, 'vsix-')), 'relative-meta-logic.vsix');
+  const output = path.join(fs.mkdtempSync(path.join(outputRoot, 'vsix-')), 'relative-meta-logic-vscode.vsix');
   const result = spawnSync(process.execPath, [require.resolve('@vscode/vsce/vsce'), 'package', '--out', output], {
     cwd: extensionRoot, stdio: 'inherit',
   });
@@ -33,6 +33,6 @@ try {
     // including files created while VSCE ran, survive and block publication.
     cleanup(context(root), { full: true, onlyRoots: [destination] });
     publishOutput(output, path.join(root, destination));
-    console.log('Published relative-meta-logic.vsix');
+    console.log('Published relative-meta-logic-vscode.vsix');
   }
 } catch (error) { console.error(`package-vsix: ${error.message}`); process.exitCode = 1; }

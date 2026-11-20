@@ -41,6 +41,15 @@
   ],
   "author": "",
   "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/link-foundation/relative-meta-logic.git",
+    "directory": "js"
+  },
+  "bugs": {
+    "url": "https://github.com/link-foundation/relative-meta-logic/issues"
+  },
+  "homepage": "https://github.com/link-foundation/relative-meta-logic#readme",
   "dependencies": {
     "events": "^3.3.0",
     "links-notation": "0.26.0",
@@ -59,7 +68,7 @@
     "#meta-language-pr201/*": "./vendor/meta-language-pr201/js/src/*"
   },
   "files": [
-    "src",
+    "src/",
     "vendor/meta-language/js/src",
     "vendor/meta-language/js/package.json",
     "vendor/meta-language/js/README.md",
@@ -68,5 +77,9 @@
     "vendor/meta-language-provenance.json",
     "vendor/meta-language-pr201",
     "README.md"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

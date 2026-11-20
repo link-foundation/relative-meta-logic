@@ -49,7 +49,7 @@ Build an installable VSIX from the repository checkout:
 cd vscode
 npm install
 npm run package
-code --install-extension relative-meta-logic.vsix
+code --install-extension relative-meta-logic-vscode.vsix
 ```
 
 The package step copies the JavaScript LSP sources from `../js/src` into the

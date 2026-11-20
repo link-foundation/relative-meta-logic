@@ -13,15 +13,18 @@ Requires VS Code 1.91 or later and Node.js 22 or later.
 cd vscode
 npm install
 npm run package
-code --install-extension relative-meta-logic.vsix
+code --install-extension relative-meta-logic-vscode.vsix
 ```
+
+The extension's npm manifest is named `relative-meta-logic-vscode` and is
+private, so it never collides with the `relative-meta-logic` library on npm.
 
 The VSIX bundles the JavaScript language server sources from `../js/src` at
 package time. In a repository checkout, the extension falls back to that local
 server path for development.
 
 Packaging creates the VSIX in a private build directory, then publishes the
-finished bytes to `relative-meta-logic.vsix`. Repeated packaging replaces only
+finished bytes to `relative-meta-logic-vscode.vsix`. Repeated packaging replaces only
 an unchanged package from an earlier managed build. If that path contains an
 unowned or edited file, packaging fails and preserves it; move that file before
 retrying. The completed package stays available for installation until explicit

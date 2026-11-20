@@ -10,7 +10,7 @@ import { test } from 'node:test';
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const packageManifest = JSON.parse(fs.readFileSync(path.join(repository, 'vscode/package.json'), 'utf8'));
 const require = createRequire(path.join(repository, 'vscode/package.json'));
-const filename = 'relative-meta-logic.vsix';
+const filename = 'relative-meta-logic-vscode.vsix';
 const fakeVsce = `const fs = require('node:fs'), path = require('node:path');
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.VSCE_CALLS, JSON.stringify({ args, cwd: process.cwd(), privateRoot: process.env.RML_CACHE_OUTPUT_DIR }) + '\\n');
