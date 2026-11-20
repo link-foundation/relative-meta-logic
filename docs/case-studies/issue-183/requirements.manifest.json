@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "33372e39d916de5eba7f1a74430a20080413cace239aa2e747176316fec3f210"
+    "sha256": "d64c4c0aa3ea13a64f6c1b10d23fc360807b709741b7245f7516ea1c20a873c5"
   },
   "requirements": [
     {
@@ -42571,7 +42571,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "33372e39d916de5eba7f1a74430a20080413cace239aa2e747176316fec3f210"
+          "sha256": "d64c4c0aa3ea13a64f6c1b10d23fc360807b709741b7245f7516ea1c20a873c5"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
@@ -46499,12 +46499,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -46861,12 +46861,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -47609,12 +47609,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -47951,12 +47951,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -48724,12 +48724,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -49066,12 +49066,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -49829,12 +49829,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -50091,12 +50091,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "implementation",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "implementation",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -51964,12 +51964,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -52287,12 +52287,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -54209,12 +54209,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -54562,12 +54562,12 @@
         {
           "path": "lib/linked-runtime/implementation.links.json.gz",
           "role": "fixture",
-          "sha256": "4155a507253b35f7319f106f7a100ec95ef29f4a5e127e272d08602294c31f48"
+          "sha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d"
         },
         {
           "path": "lib/linked-runtime/manifest.json",
           "role": "fixture",
-          "sha256": "eb15bdd8280d50cb1ae3bb029b4b8f8d0f5aa94d3df0786a48b8794359504968"
+          "sha256": "585e2faafb0307baee8de3dacbee7d847467f2647e540a420e62ced4ede1b77d"
         },
         {
           "path": "lib/linked-runtime/rust-implementation.links.json.gz",
@@ -60268,7 +60268,7 @@
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "b7914a06e44b8ab933dc521d63dad49cd6c158e2d32a2f9b93cd47d03e8f1296"
+          "sha256": "ff72cfd0c207540348eaab3f3924e183e8449811f6e1b8110d34570e427533c4"
         }
       ],
       "assertions": [
