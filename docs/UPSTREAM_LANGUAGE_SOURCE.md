@@ -46,8 +46,8 @@ and licenses are preserved. The verifier checks every shipped runtime file,
 RML's manifests and all four Rust consumer locks; `--source /path/to/official/checkout` additionally
 checks an independently materialized checkout at the exact commit.
 
-RML uses links-notation 0.26.0 in JavaScript and Rust. The vendored JavaScript
-runtime resolves RML's 0.26.0 as well; its unmodified upstream package metadata
+RML uses links-notation 0.31.8 in JavaScript and Rust. The vendored JavaScript
+runtime resolves RML's 0.31.8 as well; its unmodified upstream package metadata
 names 0.22.0, so this is an explicitly tested dependency upgrade. The Rust
 upstream crate retains its own 0.22.0 dependency. Both JavaScript dependencies
 and the Rust registry dependency are locked. Generated upstream parser binaries and

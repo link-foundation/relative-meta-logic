@@ -585,9 +585,9 @@ dependencies = [
 
 [[package]]
 name = "links-notation"
-version = "0.26.0"
+version = "0.31.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39987645430b430b8bbc0cf40c04629c2039e6fb68e541171745c07c155fd16b"
+checksum = "813d02bd0432e83be5851f620f45423b1b6738b3bcdcd854a6702440ab8fcfbc"
 dependencies = [
  "links-notation-macro",
  "nom",
@@ -828,7 +828,7 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 name = "relative-meta-logic"
 version = "0.39.0"
 dependencies = [
- "links-notation 0.26.0",
+ "links-notation 0.31.8",
  "meta-language",
  "regex",
  "serde_json",

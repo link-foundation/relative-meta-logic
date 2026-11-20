@@ -960,7 +960,7 @@
       "web-tree-sitter": "0.27.0"
     },
     "consumerDependencyVersions": {
-      "links-notation": "0.26.0",
+      "links-notation": "0.31.8",
       "web-tree-sitter": "0.27.1"
     },
     "distribution": "git-submodule-snapshot"

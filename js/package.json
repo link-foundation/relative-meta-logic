@@ -52,7 +52,7 @@
   "homepage": "https://github.com/link-foundation/relative-meta-logic#readme",
   "dependencies": {
     "events": "^3.3.0",
-    "links-notation": "0.26.0",
+    "links-notation": "0.31.8",
     "web-tree-sitter": "0.27.1"
   },
   "devDependencies": {

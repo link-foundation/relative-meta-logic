@@ -29,7 +29,7 @@ name = "rml"
 path = "src/lib.rs"
 
 [dependencies]
-links-notation = "0.26.0"
+links-notation = "0.31.8"
 meta-language = { version = "=1.0.0", default-features = false }
 sha2 = "0.11.1"
 

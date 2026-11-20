@@ -1,0 +1,27 @@
+{
+  "schema": "rml-links-notation-audit/v1",
+  "checkedAt": "2026-11-20",
+  "revision": "6f2be531c163d6359d8337d40014dc925e278089",
+  "npm": {
+    "previous": "0.26.0",
+    "selected": "0.31.8",
+    "latest": "0.31.8",
+    "published": "2026-11-18T21:53:08.921Z",
+    "integrity": "sha512-jUGSCZEqlRV4NkofLMfD2eziJBz86kG/QfqoOCcYXEMh+e4JWba5Wc+4gJKD1Pi6TqlrBMJSerBRj7P6n/f9ig=="
+  },
+  "crate": {
+    "previous": "0.26.0",
+    "selected": "0.31.8",
+    "latest": "0.31.8",
+    "checksum": "813d02bd0432e83be5851f620f45423b1b6738b3bcdcd854a6702440ab8fcfbc",
+    "rustVersion": "1.87"
+  },
+  "pendingCompatibility": {
+    "@babel/parser": "8.1.2",
+    "web-tree-sitter": "0.27.2",
+    "vscode-languageclient": "11.0.0",
+    "@vscode/vsce": "4.1.1",
+    "regex": "1.13.2"
+  },
+  "upstreamNpmMetaLanguage": "0.46.0"
+}

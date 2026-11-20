@@ -130,3 +130,19 @@ Release preparation: the repository has no changeset or release-notes
 convention, and this refresh does not change the 0.39.0 package versions. The
 next release would carry the dependency selections above and the build-cache
 lifecycle changes documented in [BUILD_CACHE.md](BUILD_CACHE.md).
+
+## November 20 Links Notation audit
+
+Both registries publish Links Notation 0.31.8 from upstream commit
+[`6f2be53`](https://github.com/link-foundation/links-notation/commit/6f2be531c163d6359d8337d40014dc925e278089).
+The npm archive's integrity and the Rust archive's checksum match the new
+locks. The library, VS Code extension and the three Rust path consumers all
+select 0.31.8 for RML. The isolated JavaScript upgrade probe passed all 144
+shared LiNo front-end and linked-program tests. The hosted matrix verifies Rust
+and shared parity. The upstream Rust meta-language crate retains its own
+Links Notation 0.22.0 dependency.
+
+The [registry and lock record](case-studies/issue-183/data/links-notation-audit-2026-11-20.json)
+supplements the October audit. Newer releases of Babel, web-tree-sitter, the VS
+Code client and packager, and regex were observed and still need separate
+compatibility validation. npm meta-language remains at 0.46.0.

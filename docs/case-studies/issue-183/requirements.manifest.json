@@ -3461,7 +3461,7 @@
         {
           "path": "docs/DEPENDENCY_AUDIT.md",
           "role": "implementation",
-          "sha256": "60a333299406efaf537a5c93607e70c74aa30c80c9bac780a30cd2efe014b6ee"
+          "sha256": "9f308f1399d940cb2e128630526e4b79f88bf5dbaf13bbef929761e39449d9fb"
         },
         {
           "path": "docs/case-studies/issue-183/data/dependency-audit-2026-10-13.json",
@@ -3471,12 +3471,12 @@
         {
           "path": "js/package.json",
           "role": "implementation",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "implementation",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         }
       ],
       "claimedEvidence": "The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current; JavaScript consumes the official meta-language release commit `a79782093cae3b33606483ac9f3e1d05faf36de0` while npm still publishes `meta-language 0.46.0`. `scripts/dependency-audit.test.mjs` checks on every run that each audited selection is what `js/package.json`, `vscode/package.json` and `rust/Cargo.toml` declare, what every package lock and the four Cargo locks resolve (with the audited archive checksums), that no selection is behind its audited latest release, and that every declared Rust dependency is audited; it rejects drifted manifests, unlocked selections, changed checksums, stale selections and unaudited crates. `Currency is established only as of the audit date; npm has no meta-language 1.0.0, and the repository has no release-notes convention, so release preparation remains open`.",
@@ -7362,10 +7362,16 @@
           "bodySha256": "823944ebdfa8ba8ec3219adf1a171a7a1a6321b1f3a2f0375fa9049134458c04"
         }
       ],
-      "implementationClaims": [],
+      "implementationClaims": [
+        {
+          "path": "docs/case-studies/issue-183/data/links-notation-audit-2026-11-20.json",
+          "role": "implementation",
+          "sha256": "052aad581b09fe2edd7367db1a885c641457fc45273e132a7d52fd3f9fb45a32"
+        }
+      ],
       "claimedEvidence": "The current registry audit finds Rust `meta-language 1.0.0` and npm `0.46.0`; RML consumes the published Rust crate and matching immutable JavaScript release source. Both RML runtimes pin `links-notation 0.26.0`. The npm registry now reports `0.31.8`; this batch leaves the pin in place pending cross-runtime upgrade validation. The historical parser findings against `0.20.0` remain documented in upstream issues `links-notation#312-#316`; their source reports and protective front-end tests are preserved. A matching npm release remains pending. Re-audited 2026-10-13: links-notation 0.26.0 is consumed from both registries; meta-language npm remains 0.46.0 while crates.io has 1.0.0. `npm and Rust meta-language streams still diverge upstream`.",
       "checks": [],
-      "remainingGap": "The current registry audit finds Rust `meta-language 1.0.0` and npm `0.46.0`; RML consumes the published Rust crate and matching immutable JavaScript release source. Both RML runtimes use current `links-notation 0.25.1`. The historical parser findings against `0.20.0` remain documented in upstream issues `links-notation#312-#316`; their source reports and protective front-end tests are preserved. A matching npm release remains pending. Re-audited 2026-10-13: links-notation 0.26.0 is consumed from both registries; meta-language npm remains 0.46.0 while crates.io has 1.0.0. `npm and Rust meta-language streams still diverge upstream`.",
+      "remainingGap": "The current registry audit finds Rust `meta-language 1.0.0` and npm `0.46.0`; RML consumes the published Rust crate and matching immutable JavaScript release source. Both RML runtimes pin `links-notation 0.26.0`. The npm registry now reports `0.31.8`; this batch leaves the pin in place pending cross-runtime upgrade validation. The historical parser findings against `0.20.0` remain documented in upstream issues `links-notation#312-#316`; their source reports and protective front-end tests are preserved. A matching npm release remains pending. Re-audited 2026-10-13: links-notation 0.26.0 is consumed from both registries; meta-language npm remains 0.46.0 while crates.io has 1.0.0. `npm and Rust meta-language streams still diverge upstream`.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [],
       "completionBindings": []
@@ -13309,7 +13315,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -14715,7 +14721,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -16863,7 +16869,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -18619,7 +18625,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -20531,7 +20537,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -22596,7 +22602,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -24706,7 +24712,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -32737,7 +32743,7 @@
       "implementationClaims": [
         {
           "path": "js/package.json",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082",
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5",
           "role": "historical-claim"
         },
         {
@@ -32758,7 +32764,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -41660,12 +41666,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -41675,7 +41681,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "test-corpus/foundations/expected.json",
@@ -41766,12 +41772,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -41869,12 +41875,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -41884,7 +41890,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -41940,12 +41946,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/tests/kernel_replacement_tests.rs",
@@ -42058,12 +42064,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "test-corpus/reference-sequences/v1.json",
@@ -42542,12 +42548,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -42557,7 +42563,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -42628,12 +42634,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -42736,12 +42742,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -42751,7 +42757,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -42857,12 +42863,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "test-corpus/meta-language/expansion-cases.json",
@@ -42940,12 +42946,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -42955,7 +42961,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -43101,12 +43107,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -43169,12 +43175,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -43184,7 +43190,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -43270,12 +43276,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -43348,12 +43354,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -43363,7 +43369,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -43429,12 +43435,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -43714,12 +43720,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -43729,7 +43735,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -43925,12 +43931,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -43998,12 +44004,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -44013,7 +44019,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -44090,12 +44096,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -44178,12 +44184,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -44193,7 +44199,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -44465,12 +44471,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -44558,7 +44564,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/README.md",
@@ -45748,12 +45754,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -45939,12 +45945,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "test-corpus/upstream-meta-language/release-regressions.json",
@@ -46042,7 +46048,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "fixture",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -46099,12 +46105,12 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/src/check.mjs",
@@ -46349,7 +46355,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -46946,12 +46952,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/examples/researcher_workflow.rs",
@@ -47209,12 +47215,12 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/src/check.mjs",
@@ -47459,7 +47465,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -48036,12 +48042,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -48329,12 +48335,12 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/src/check.mjs",
@@ -49151,12 +49157,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -49434,12 +49440,12 @@
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/src/check.mjs",
@@ -50176,12 +50182,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -50389,12 +50395,12 @@
         {
           "path": "js/package-lock.json",
           "role": "implementation",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": "js/package.json",
           "role": "implementation",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/src/check.mjs",
@@ -50639,7 +50645,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/package.json",
@@ -52137,7 +52143,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -52372,12 +52378,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "implementation",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "implementation",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -52634,12 +52640,12 @@
         {
           "path": "js/package-lock.json",
           "role": "implementation",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": "js/package.json",
           "role": "implementation",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/src/check.mjs",
@@ -52884,7 +52890,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "js/vendor/meta-language/js/package.json",
@@ -54412,7 +54418,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "implementation",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -54647,12 +54653,12 @@
         {
           "path": "rust/Cargo.lock",
           "role": "implementation",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "implementation",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/src/address_sequence.rs",
@@ -55391,12 +55397,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/tests/certified_translation_tests.rs",
@@ -55766,12 +55772,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -55891,12 +55897,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/tests/language_construct_inventory_tests.rs",
@@ -56071,12 +56077,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/upstream_language.rs",
@@ -56478,12 +56484,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/meta_theory_native.rs",
@@ -56688,12 +56694,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/meta_theory_certificates.rs",
@@ -56858,12 +56864,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/meta_theory_native.rs",
@@ -56993,12 +56999,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/tests/meta_theory_workflow_tests.rs",
@@ -57183,12 +57189,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/foundation_workspace.rs",
@@ -57383,12 +57389,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/semantic_closure.rs",
@@ -58002,12 +58008,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/tests/assumption_removal_tests.rs",
@@ -58090,12 +58096,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "experiments/continuation-join/exhaustive.mjs",
@@ -58173,12 +58179,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -58188,7 +58194,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -58335,12 +58341,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -58508,12 +58514,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -58523,7 +58529,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         },
         {
           "path": "test-corpus/reference-sequences/v1.json",
@@ -59030,12 +59036,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -59045,7 +59051,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -59127,12 +59133,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -59142,7 +59148,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -59314,12 +59320,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -59477,12 +59483,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -59492,7 +59498,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -59584,12 +59590,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -59599,7 +59605,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -59743,12 +59749,12 @@
         {
           "path": "js/package.json",
           "role": "dependency",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "js/package-lock.json",
           "role": "dependency",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": ".gitmodules",
@@ -59758,7 +59764,7 @@
         {
           "path": "js/vendor/meta-language-provenance.json",
           "role": "dependency",
-          "sha256": "621ee3d6b76fe98cdb564d6174f47dcde6e19f64d09f59a36462825905cdc64e"
+          "sha256": "e9035846b74023def5002104052f74e99792f7bbf1af8aedaba2c2784e9a9e77"
         }
       ],
       "assertions": [
@@ -59805,12 +59811,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -60168,12 +60174,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/linked_proof.rs",
@@ -60333,12 +60339,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/linked_proof.rs",
@@ -60473,12 +60479,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/linked_program.rs",
@@ -60608,12 +60614,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         }
       ],
       "assertions": [
@@ -60708,57 +60714,62 @@
         {
           "path": "scripts/dependency-audit.test.mjs",
           "role": "test",
-          "sha256": "a799bd56ef155c7bd7335a4cfc09998f242d0ffd7ea95a3ed636df34a09ae5e8"
+          "sha256": "559de8362399f3f955eb004a5cee6e53b91b1df2cd1e7a1df78206c755e2a952"
         },
         {
           "path": "js/package.json",
           "role": "implementation",
-          "sha256": "cb3d67c3a64804674b47ccfe6395c9ad8c85d4d3b7c2425644752d0621fc3082"
+          "sha256": "85980147c286d7615b70f8e36dc27ab6c6f09225b47afbd95a1c68ceea08d3a5"
         },
         {
           "path": "vscode/package.json",
           "role": "implementation",
-          "sha256": "5015e34ec08215d992a57cf8fcec70826ebd24667fbb9c2a2d60eb38c9a9370c"
+          "sha256": "71d1e1134055c923fe922044de7c4a3c767ad49974a9a480dac66c1a183cc7d0"
         },
         {
           "path": "rust/Cargo.toml",
           "role": "implementation",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "js/package-lock.json",
           "role": "fixture",
-          "sha256": "1a9a7291252d37782d4f988f664e3e60374e990ea45a5974da1217310da9b24c"
+          "sha256": "00b2c2250a879fc6e363d126db0f2bdb65ddb6e51d4b911fee17538c3e272e43"
         },
         {
           "path": "vscode/package-lock.json",
           "role": "fixture",
-          "sha256": "4b1b7692d21ffcd94e9247f956f370f13e4f4345d8f8ecd0a65d51f32c14858d"
+          "sha256": "ef273cd4976019b9b64ac0f9687e0d3c85d38462767c3c022dfcab5c8ac6b0f9"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "fixture",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/relational-kernel/Cargo.lock",
           "role": "fixture",
-          "sha256": "5ff0e8b39a62c50cef78a47fcf52a983b922f1a9bfa048f796f638f09636c3ae"
+          "sha256": "59a26918da13ce908ad02358b916701400827a5bb13f7c73cd2d10a71719cef6"
         },
         {
           "path": "rust/control-flow/Cargo.lock",
           "role": "fixture",
-          "sha256": "7123f0cbd0a0d7489c7701339d8bbe04547b00992021d366d8f9ee7f1bfe8a59"
+          "sha256": "905cbf942d253bcbce0a0f98f09e29960c8553e0044777ee9a7a68b10f0aba93"
         },
         {
           "path": "rust/linked-target/Cargo.lock",
           "role": "fixture",
-          "sha256": "e10f909df0f69852b698bd4e8228b71f9e92b005cc6c8f46d6bf75896bdd3324"
+          "sha256": "b35b509039c55534af389f957a6ed6f36b04a7139191a2294eec3b8b90479d27"
         },
         {
           "path": "docs/case-studies/issue-183/data/dependency-audit-2026-10-13.json",
           "role": "fixture",
           "sha256": "6551ea47a6453208fcf7a6530a59dc61c84f71ba01cde3ecd0438e5169306e01"
+        },
+        {
+          "path": "docs/case-studies/issue-183/data/links-notation-audit-2026-11-20.json",
+          "role": "implementation",
+          "sha256": "052aad581b09fe2edd7367db1a885c641457fc45273e132a7d52fd3f9fb45a32"
         }
       ],
       "assertions": [
@@ -60804,7 +60815,7 @@
         {
           "path": "rust/Cargo.toml",
           "role": "fixture",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "scripts/run-with-cache.mjs",
@@ -60977,12 +60988,12 @@
         {
           "path": "rust/Cargo.toml",
           "role": "dependency",
-          "sha256": "9cb9378d2d36e8631a70e75061e9ca0a495e049ca3b62ca03d04306d4453746d"
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         },
         {
           "path": "rust/Cargo.lock",
           "role": "dependency",
-          "sha256": "ffe87912788a3c9255a64a5cf2ac33399ba0d04c487bb4bfb3502f3e4c11e094"
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
         },
         {
           "path": "rust/src/spec_certificates.rs",

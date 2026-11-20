@@ -10,10 +10,21 @@ import { fileURLToPath } from 'node:url';
 // selected is behind the latest release the audit observed.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const auditPath = 'docs/case-studies/issue-183/data/dependency-audit-2026-10-13.json';
+const notationAuditPath = 'docs/case-studies/issue-183/data/links-notation-audit-2026-11-20.json';
 const npmManifests = ['js/package.json', 'vscode/package.json'];
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const clone = value => JSON.parse(JSON.stringify(value));
 const bare = range => String(range).replace(/^[\^~=]/, '');
+
+function currentAudit() {
+  const audit = JSON.parse(read(auditPath));
+  const notation = JSON.parse(read(notationAuditPath));
+  assert.equal(notation.schema, 'rml-links-notation-audit/v1');
+  assert.match(notation.revision, /^[a-f0-9]{40}$/);
+  audit.npm['links-notation'] = notation.npm;
+  audit.crates['links-notation'] = notation.crate;
+  return audit;
+}
 
 /** The packages of a Cargo lock file as {name, version, checksum} records. */
 export function lockPackages(text) {
@@ -47,8 +58,9 @@ export function auditErrors(audit, state = repositoryState()) {
     for (const manifest of declaring) {
       // A caret range is compared by its floor; the lock below must resolve exactly that release.
       if (bare(manifest.declared[name]) !== bare(entry.selected)) errors.push(`npm ${name}: ${manifest.file} declares ${manifest.declared[name]}, audit selected ${entry.selected}`);
-      const locked = manifest.locked[`node_modules/${name}`]?.version;
-      if (locked !== bare(entry.selected)) errors.push(`npm ${name}: ${manifest.file} lock resolves ${locked}, audit selected ${entry.selected}`);
+      const locked = manifest.locked[`node_modules/${name}`];
+      if (locked?.version !== bare(entry.selected)) errors.push(`npm ${name}: ${manifest.file} lock resolves ${locked?.version}, audit selected ${entry.selected}`);
+      if (entry.integrity && locked?.integrity !== entry.integrity) errors.push(`npm ${name}: ${manifest.file} integrity differs from the audited archive`);
     }
     if (entry.latest && bare(entry.selected) !== entry.latest) errors.push(`npm ${name}: selected ${entry.selected} is behind latest ${entry.latest}`);
   }
@@ -74,7 +86,7 @@ export function auditErrors(audit, state = repositoryState()) {
 }
 
 test('the dated dependency audit matches every declared and locked direct dependency and none is behind its audited latest release', () => {
-  const audit = JSON.parse(read(auditPath));
+  const audit = currentAudit();
   assert.equal(audit.schema, 'rml-dependency-audit/v1');
   assert.deepEqual(auditErrors(audit), []);
   // The one recorded publication gap stays explicit rather than silently dropped.
@@ -82,10 +94,11 @@ test('the dated dependency audit matches every declared and locked direct depend
 });
 
 test('an audit that disagrees with a manifest, a lock file or a newer release is rejected', () => {
-  const original = JSON.parse(read(auditPath));
+  const original = currentAudit();
   const state = repositoryState();
   const mutations = {
     'npm selection differs from the manifest': audit => { audit.npm['links-notation'].selected = '0.25.1'; },
+    'npm integrity differs from the audited archive': audit => { audit.npm['links-notation'].integrity = 'sha512-fixture'; },
     'npm selection behind latest': audit => { audit.npm['web-tree-sitter'].latest = '0.28.0'; },
     'undeclared npm package': audit => { audit.npm['left-pad'] = { selected: '1.3.0', latest: '1.3.0' }; },
     'crate selection not locked': audit => { audit.crates.sha2.selected = '0.11.0'; },
