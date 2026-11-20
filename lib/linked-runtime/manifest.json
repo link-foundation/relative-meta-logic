@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
-  "moduleCount": 196,
-  "linkCount": 373199,
+  "moduleCount": 197,
+  "linkCount": 373474,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -44,7 +44,7 @@
         "target": "vscode/src/extension.js"
       }
     ],
-    "staticImportEdges": 689,
+    "staticImportEdges": 693,
     "dynamicImportSites": [
       {
         "from": "experiments/issue-181-meta-language-js-smoke.mjs",
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "5d12c8400c9a7579c58e606411259c0f106d076c64786cee06c6ddec624b6e4e",
-  "archiveBytes": 2206561,
+  "archiveSha256": "6b19ea91798c8c1101b0fcf1fe008df5db47c30e2eca34f50fa4b665e7c5d428",
+  "archiveBytes": 2208301,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -910,9 +910,9 @@
     },
     {
       "path": "scripts/check-issue-183-completion.mjs",
-      "sourceSha256": "5e4c592ca3910ff3f3b7e2981344bb9b7e132838973ba06f321907317abf8c6f",
-      "astSha256": "7113279cacad52bced67815c7e39e7a0a7acda9f0ccd6e0bf22c7d4e9eca251a",
-      "generatedSha256": "b23289d31160f6b491cd2391c68c576fd1c557afa2378d9e38ea424604c437de"
+      "sourceSha256": "8386ce56202fad04b421c45433b6eb2bb86106305100132cd710fd1702686b6b",
+      "astSha256": "636030eeeb571738d669dbd9ecfee25b52fc04d38ee281fabab4b330848cb2cf",
+      "generatedSha256": "c5785c6d39771b071ea2002c88f40ed0901d70d90bf446177d84b6a9ebca4ab8"
     },
     {
       "path": "scripts/check-linked-implementation.mjs",
@@ -1101,6 +1101,12 @@
       "generatedSha256": "48d0fc4e59d467d021d65476fcf3a98be18eb4b22ab3e4d24d4272803c9de85d"
     },
     {
+      "path": "scripts/issue-183-npm-delivery.mjs",
+      "sourceSha256": "e4d978d2a8a50b59feed0af63cc16f0f9ab0942e56852f6e98f73e1d5f57e113",
+      "astSha256": "20218d16016b64dfe5044fb13a25407e910a54aa71753bcdc247fe430fc7e816",
+      "generatedSha256": "1a9482945ac244fc7d72b92a3f5a5ebaa6178fbeb7c8e0e8fc49102014305c10"
+    },
+    {
       "path": "scripts/issue-183-pr-body.mjs",
       "sourceSha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752",
       "astSha256": "418a4f7b6e804776500edb95e16e61e2134e6d2d488b3b0d3e8e45a0435c3113",
@@ -1108,9 +1114,9 @@
     },
     {
       "path": "scripts/issue-183-requirements-live-sources.mjs",
-      "sourceSha256": "5023978e18e8266c9db5626f87b2bade1d8f79be008e47bc2595fe67ecb1259a",
-      "astSha256": "4b496f7b6b2fa0cb1fca8f5230703a9f9bf0f26398e86a04ad3213ed252e1c87",
-      "generatedSha256": "dc1b233c1302c928b3b97250aa768d1c5d7cea3145949c3c4ca170ffbf8acbb3"
+      "sourceSha256": "36f5ee3e19f35dcbff3a065f869fa472efc788ea444c7317798aa7664bc1d174",
+      "astSha256": "7848e66068b27c1277b13986cf897fde50b554c36a9c2a8acb26437ff248cf30",
+      "generatedSha256": "66d65d95a479e87fe738ad8d0b396912f2925277a2fcc3eae4804d610d384d7b"
     },
     {
       "path": "scripts/issue-183-requirements-reporter.mjs",
