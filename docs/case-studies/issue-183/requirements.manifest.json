@@ -34046,13 +34046,13 @@
           "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         }
       ],
-      "claimedEvidence": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release. The 2026-10-13 registry audit confirms issue 195 closed, PR 196 merged and Rust 1.0.0 consumed; meta-language main is 10 commits past v1.0.0 and unreleased, tracked by upstream #199. `npm still publishes 0.46.0, so matched registry delivery is absent`.",
+      "claimedEvidence": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release. The 2026-10-13 registry audit confirms issue 195 closed, PR 196 merged and Rust 1.0.0 consumed; meta-language main is 10 commits past v1.0.0 and unreleased, tracked by upstream #199. `npm still publishes 0.46.0, so matched registry delivery is absent`. The 2026-11-20 registry check returned E404 for `meta-language@1.0.0` and still reported `0.46.0` as latest. Publishing the matching official JavaScript release to npm requires an upstream npm maintainer. The remaining maintained-dependency audit and installed-package verification are open.",
       "checks": [
         "upstream-language-js",
         "upstream-language-rust",
         "upstream-source-bootstrap"
       ],
-      "remainingGap": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release. The 2026-10-13 registry audit confirms issue 195 closed, PR 196 merged and Rust 1.0.0 consumed; meta-language main is 10 commits past v1.0.0 and unreleased, tracked by upstream #199. `npm still publishes 0.46.0, so matched registry delivery is absent`.",
+      "remainingGap": "The 2026-11-20 registry check returned E404 for `meta-language@1.0.0` and still reported `0.46.0` as latest. Publishing the matching official JavaScript release to npm requires an upstream npm maintainer. The remaining maintained-dependency audit and installed-package verification are open.",
       "verificationState": "live-producer-bound-official-source-integration",
       "assertionBindings": [
         {
@@ -35496,12 +35496,34 @@
           "bodySha256": "5361a046c55e0b0ef94eb026e7a6be53001f2c7aa4bc7dcad61bf3cb44cecad9"
         }
       ],
-      "implementationClaims": [],
-      "claimedEvidence": "The v12 `linkedVerifierStep` probe shows that reversal of correspondence reading or selection of another present description changes the match on the same records; trace replay and self-application retain host execution. The new `conditionalContinuation` probe confirms renaming and record-reordering stability under its declared criterion and shows reversal changes the continuation. Duplicated and relocated descriptions and a complete removal matrix for the local verifier remain untested. A complete removal matrix over 14 cases removes each of 25 clauses, 2 readings, 10 resolver laws and 2 host operations, and varies renaming, record order, slot reversal and duplicated or relocated descriptions; the trace does not follow from the Links alone but needs the declared readings and resolver laws. `The relational-kernel Rust mirror is not yet bindable by the gate`.",
-      "checks": [
-        "verifier-provenance-js"
+      "implementationClaims": [
+        {
+          "path": "rust/relational-kernel/src/lib.rs",
+          "role": "implementation",
+          "sha256": "b46fc7982f318b211e0dd75a3c3a501ae7d5f08b46aeccf1324c57a90d86c8dc"
+        },
+        {
+          "path": "rust/relational-kernel/src/horn_resolution.rs",
+          "role": "implementation",
+          "sha256": "9a2973c208b668e7eabe17577737c98001b64ee50b98f1c5b67becba84301715"
+        },
+        {
+          "path": "rust/relational-kernel/src/relational_kernel.rs",
+          "role": "implementation",
+          "sha256": "300e01be02aed1d17062ea453237b9f07f00c90146ee8e053dfdea62b1b7d793"
+        },
+        {
+          "path": "rust/src/linked_program.rs",
+          "role": "implementation",
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
+        }
       ],
-      "remainingGap": "The v12 `linkedVerifierStep` probe shows that reversal of correspondence reading or selection of another present description changes the match on the same records; trace replay and self-application retain host execution. The new `conditionalContinuation` probe confirms renaming and record-reordering stability under its declared criterion and shows reversal changes the continuation. Duplicated and relocated descriptions and a complete removal matrix for the local verifier remain untested. A complete removal matrix over 14 cases removes each of 25 clauses, 2 readings, 10 resolver laws and 2 host operations, and varies renaming, record order, slot reversal and duplicated or relocated descriptions; the trace does not follow from the Links alone but needs the declared readings and resolver laws. `The relational-kernel Rust mirror is not yet bindable by the gate`.",
+      "claimedEvidence": "The linked Horn verifier and its JavaScript and companion Rust tests reproduce the seven baseline traces. A 14-case matrix removes or varies 25 linked clauses, two readings, ten resolver laws, and two host operations. It measures which traces survive renaming and reordering and which change on slot reversal, duplication, or relocation. The paired readings give different trace outcomes on the same records. Both runtimes reject malformed inputs, stale replacements, and unknown laws. All four Rust assertions passed in hosted run 44726137773, and the gate now executes the companion test target as well as the JavaScript mirror. The result identifies the choices used by this local verifier. Which description or reading is applicable without a declared selection policy, and whether self-application closes that authority boundary, remain open.",
+      "checks": [
+        "verifier-provenance-js",
+        "verifier-provenance-rust"
+      ],
+      "remainingGap": "The result identifies the choices used by this local verifier. Which description or reading is applicable without a declared selection policy, and whether self-application closes that authority boundary, remain open.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -35532,6 +35554,30 @@
           "checkId": "verifier-provenance-js",
           "file": "js/tests/verifier-provenance.test.mjs",
           "name": "malformed inputs, stale replacements and unknown laws are rejected",
+          "polarity": "negative"
+        },
+        {
+          "checkId": "verifier-provenance-rust",
+          "file": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "name": "the_linked_local_verifier_reproduces_every_linked_verifier_step_probe_case_and_trace",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-rust",
+          "file": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "name": "the_removal_matrix_is_reproduced_exactly_from_the_linked_verifier_source",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-rust",
+          "file": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "name": "representation_changes_separate_what_follows_from_the_links_from_declared_readings",
+          "polarity": "positive"
+        },
+        {
+          "checkId": "verifier-provenance-rust",
+          "file": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "name": "malformed_inputs_stale_replacements_and_unknown_laws_are_rejected",
           "polarity": "negative"
         }
       ],
@@ -36424,12 +36470,12 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "`requirements.sources.json` preserves the original issue, the PR body and all 205 conversation comments through `6138933223` (2026-10-13); a paginated rescan on 2026-10-14 found no newer comment, review or inline comment. `requirements.manifest.json` indexes all rows and sources, and each Partial row states its remaining gap. `Full repository reconciliation and independently executed evidence remain open while product rows are Partial`.",
+      "claimedEvidence": "The 2026-11-20 paginated live-source audit matched the original issue, current PR description, all 210 conversation comments, and the empty issue-comment, review, inline-comment and review-thread channels. The immutable text archive preserves earlier PR descriptions. Full repository reconciliation and independently executed evidence remain open while product rows are partial.",
       "checks": [
         "issue-183-pr-metadata",
         "requirements-live-sources"
       ],
-      "remainingGap": "`requirements.sources.json` preserves the original issue, the PR body and all 205 conversation comments through `6138933223` (2026-10-13); a paginated rescan on 2026-10-14 found no newer comment, review or inline comment. `requirements.manifest.json` indexes all rows and sources, and each Partial row states its remaining gap. `Full repository reconciliation and independently executed evidence remain open while product rows are Partial`.",
+      "remainingGap": "Full repository reconciliation and independently executed evidence remain open while product rows are partial.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -38294,7 +38340,7 @@
     {
       "id": "R162",
       "obligation": "Make cleanup repository-scoped, idempotent, concurrency-safe and portable; validate ownership and custom paths, reject traversal/symlink escape, and preserve source, vendored grammars, fixtures, corpus/proofs, uncommitted work, active builds/worktrees and acceptance evidence without purging global caches or unrelated containers/volumes.",
-      "status": "Partial — ownership/path/worktree safety tested; Windows open-file attribution open and Windows junction safety runs await a hosted run",
+      "status": "Partial — Windows junction safety passed; open-file attribution remains open",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -38331,11 +38377,11 @@
           "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         }
       ],
-      "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. The symlink-escape, root-alias, hook/report-link and ancestor-substitution tests now run on Windows with junctions (`build-cache.test.mjs`, `cargo-unit-sweep.test.mjs`), and a descendant that outlives a killed build in the tree keeps its lease on every OS even outside the build's process group. `On Windows such a Node process still defers cleanup because no open-file inventory is read; the junction-based Windows runs await a hosted cache-portability run, and the process-group lease test stays POSIX-only because Windows has no POSIX process groups`.",
+      "claimedEvidence": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. The symlink-escape, root-alias, hook/report-link and ancestor-substitution tests now run on Windows with junctions (`build-cache.test.mjs`, `cargo-unit-sweep.test.mjs`), and a descendant that outlives a killed build in the tree keeps its lease on every OS even outside the build's process group. Hosted cache-portability run 44726137627 passed the Windows junction, custom-path, and ownership checks and finished teardown. `Windows still defers cleanup for the external Node process because no open-file inventory is read. The process-group lease test stays POSIX-only`.",
       "checks": [
         "build-cache-lifecycle"
       ],
-      "remainingGap": "`build-cache.test.mjs` rejects traversal/symlink escapes and external/source roots, protects tracked/preexisting/edited files, peer worktrees, nested clone source and uncommitted work, active outputs and acceptance evidence. Ownership is content-hash based and rooted in the worktree Git directory; leases distinguish process namespaces and boot identities and refuse unsafe cross-namespace recovery; global caches and unrelated Docker resources are excluded. Builders inside nested worktrees or repositories are attributed to their own tree unless they overlap this tree's caches; root aliases map custom targets; ancestor worktrees are not overlaps. On Linux and macOS a Node process started from the tree no longer defers cleanup when it runs a script file installed outside the tree, is not a package manager and holds no open file in the tree (for example a long-lived MCP server); an in-tree script, npm/npx/pnpm/yarn/corepack, a scriptless runner, an open tree file, a missing inventory or an unresolvable script still defer. The symlink-escape, root-alias, hook/report-link and ancestor-substitution tests now run on Windows with junctions (`build-cache.test.mjs`, `cargo-unit-sweep.test.mjs`), and a descendant that outlives a killed build in the tree keeps its lease on every OS even outside the build's process group. `On Windows such a Node process still defers cleanup because no open-file inventory is read; the junction-based Windows runs await a hosted cache-portability run, and the process-group lease test stays POSIX-only because Windows has no POSIX process groups`.",
+      "remainingGap": "Windows still defers cleanup for the external Node process because no open-file inventory is read. The process-group lease test stays POSIX-only.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -38548,7 +38594,7 @@
     {
       "id": "R163",
       "obligation": "Execute temporary-fixture tests for installed fresh-clone hooks, non-code commits, every cache class, repeat runs, success/failure/interruption, absent tools, spaced/custom paths, parallel builds/worktrees, budgets and preservation; CI must detect disabled wrappers/hooks and omitted classes.",
-      "status": "Partial — lifecycle matrix passes on Linux, macOS and Windows CI; Windows equivalents of 14 POSIX-only tests await a hosted run",
+      "status": "Partial — current cross-platform lifecycle jobs passed; Windows POSIX-only cases remain",
       "originalWording": [
         {
           "sourceId": "comment-5856764556",
@@ -38585,13 +38631,13 @@
           "sha256": "10207c855e08cd0200a33102ede249e51b7e428057d69c83a6444dcbb0cc06d7"
         }
       ],
-      "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results; the bare skips that run 38429794746 recorded for tests that now run are accepted for that run only. The source now runs 14 of those 19 Windows tests and the macOS colliding-PID test: junctions replace directory symlinks, a copy of node.exe named cargo/rustc with a NODE_OPTIONS preload replaces the shebang Cargo doubles (`scripts/build-cache-nested.test.mjs`, `scripts/build-cache.test.mjs`), Git for Windows' sh runs the missing-Node hook, the colliding-PID lease uses the host's real process identity, and the grandchild-pipe test relies on the Node command's kill-on-close job (`scripts/build-resource-monitor.test.mjs`); 'hard kill' outcomes and a surviving-descendant lease test cover termination on every OS. `These Windows equivalents await a hosted cache-portability run (predicted bare skips [0, 0, 5] over 215 tests per OS); Windows still skips signal interruption, its two interrupt outcomes, the process-group lease test and the POSIX make/cc test, each with its reason in the source`.",
+      "claimedEvidence": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results; the bare skips that run 38429794746 recorded for tests that now run are accepted for that run only. The source now runs 14 of those 19 Windows tests and the macOS colliding-PID test: junctions replace directory symlinks, a copy of node.exe named cargo/rustc with a NODE_OPTIONS preload replaces the shebang Cargo doubles (`scripts/build-cache-nested.test.mjs`, `scripts/build-cache.test.mjs`), Git for Windows' sh runs the missing-Node hook, the colliding-PID lease uses the host's real process identity, and the grandchild-pipe test relies on the Node command's kill-on-close job (`scripts/build-resource-monitor.test.mjs`); 'hard kill' outcomes and a surviving-descendant lease test cover termination on every OS. In hosted run 44726137627, all three lifecycle and teardown jobs passed. Each ran 223 tests. Linux and macOS each passed 221 and Windows passed 216, with zero failures. The separate measured native cycle was canceled. `Windows still skips signal interruption, its two interrupt outcomes, the process-group lease test and the POSIX make/cc test, each with its reason in the source`.",
       "checks": [
         "build-cache-lifecycle",
         "cache-tool-availability",
         "build-cache-ci-evidence"
       ],
-      "remainingGap": "`scripts/build-cache.test.mjs` (including namespace/boot identity and colliding-PID protection), `scripts/build-cache-policy.test.mjs` (including mocked Docker), and `scripts/cli-paths.test.mjs` (spaced-path scenario) cover installed hooks, every registered class, repetition, failures, interruptions, absent tools, custom paths, worktrees, budgets, disabled wiring and preservation in temporary fixtures. Absent Docker CLIs are reported unavailable and never measured as zero bytes, and a policy test requires every cache lifecycle suite to run in cache-portability on all three OSes. `docs/case-studies/issue-183/data/cache-portability-ci.json` records hosted run 38429794746 on 525e4847 with artifact digests: all 212 lifecycle tests ran on each OS with no failure; Linux passed 210, macOS 209 and Windows 191. `scripts/build-cache-ci-evidence.test.mjs` accepts a skip only when it is an absent optional development tool or a platform skip declared in the committed suite source, and rejects failed, missing, uncounted, undeclared or omitted results; the bare skips that run 38429794746 recorded for tests that now run are accepted for that run only. The source now runs 14 of those 19 Windows tests and the macOS colliding-PID test: junctions replace directory symlinks, a copy of node.exe named cargo/rustc with a NODE_OPTIONS preload replaces the shebang Cargo doubles (`scripts/build-cache-nested.test.mjs`, `scripts/build-cache.test.mjs`), Git for Windows' sh runs the missing-Node hook, the colliding-PID lease uses the host's real process identity, and the grandchild-pipe test relies on the Node command's kill-on-close job (`scripts/build-resource-monitor.test.mjs`); 'hard kill' outcomes and a surviving-descendant lease test cover termination on every OS. `These Windows equivalents await a hosted cache-portability run (predicted bare skips [0, 0, 5] over 215 tests per OS); Windows still skips signal interruption, its two interrupt outcomes, the process-group lease test and the POSIX make/cc test, each with its reason in the source`.",
+      "remainingGap": "Windows still skips signal interruption, its two interrupt outcomes, the process-group lease test and the POSIX make/cc test, each with its reason in the source.",
       "verificationState": "live-producer-bound-cleanup-scope-with-explicit-gaps",
       "assertionBindings": [
         {
@@ -58196,6 +58242,99 @@
         }
       ],
       "timeoutMs": 1800000
+    },
+    {
+      "id": "verifier-provenance-rust",
+      "kind": "cargo-test",
+      "testTarget": "verifier_provenance_tests",
+      "testFiles": [
+        "rust/relational-kernel/tests/verifier_provenance_tests.rs"
+      ],
+      "files": [
+        {
+          "path": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "role": "test",
+          "sha256": "63a3da6eaa9890363ea45485a080f29854645c3b8d1b1566c5898c3ab6243f3f"
+        },
+        {
+          "path": "rust/relational-kernel/src/lib.rs",
+          "role": "implementation",
+          "sha256": "b46fc7982f318b211e0dd75a3c3a501ae7d5f08b46aeccf1324c57a90d86c8dc"
+        },
+        {
+          "path": "rust/relational-kernel/src/horn_resolution.rs",
+          "role": "implementation",
+          "sha256": "9a2973c208b668e7eabe17577737c98001b64ee50b98f1c5b67becba84301715"
+        },
+        {
+          "path": "rust/relational-kernel/src/relational_kernel.rs",
+          "role": "implementation",
+          "sha256": "300e01be02aed1d17062ea453237b9f07f00c90146ee8e053dfdea62b1b7d793"
+        },
+        {
+          "path": "rust/src/linked_program.rs",
+          "role": "implementation",
+          "sha256": "05b55c24fb74f2e682c7d3f558a57498d67a660d8f2df62cb4a76be7fd4a7e83"
+        },
+        {
+          "path": "rust/Cargo.toml",
+          "role": "dependency",
+          "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
+        },
+        {
+          "path": "rust/Cargo.lock",
+          "role": "dependency",
+          "sha256": "566d29cbed08a886dfaf9e6c62efa8f9ba3f64cb30ec271a298e0ed85b7e59c7"
+        },
+        {
+          "path": "rust/relational-kernel/Cargo.toml",
+          "role": "dependency",
+          "sha256": "8cc3c88a8fbd3e834dc1e070c00cd17304cacc8d73b966a0f11479052e924564"
+        },
+        {
+          "path": "rust/relational-kernel/Cargo.lock",
+          "role": "dependency",
+          "sha256": "59a26918da13ce908ad02358b916701400827a5bb13f7c73cd2d10a71719cef6"
+        },
+        {
+          "path": "lib/meta-theory/horn-local-verifier.lino",
+          "role": "fixture",
+          "sha256": "181d3f16a93760ad5a56bd30ef52aec8c67616e044568a1dcd0e1f2b9833f405"
+        },
+        {
+          "path": "test-corpus/verifier-provenance/cases.json",
+          "role": "fixture",
+          "sha256": "d8bba77a0fbab7f54664d87e5ae8b3656dd0b179abdefa90761d462c8aba55c1"
+        },
+        {
+          "path": "test-corpus/verifier-provenance/report.json",
+          "role": "fixture",
+          "sha256": "1efffb31bf320a1472dfda0871c2573dd3d2b6d79fcec83838f12eb6a871c4e1"
+        }
+      ],
+      "assertions": [
+        {
+          "file": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "name": "the_linked_local_verifier_reproduces_every_linked_verifier_step_probe_case_and_trace",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "name": "the_removal_matrix_is_reproduced_exactly_from_the_linked_verifier_source",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "name": "representation_changes_separate_what_follows_from_the_links_from_declared_readings",
+          "polarity": "positive"
+        },
+        {
+          "file": "rust/relational-kernel/tests/verifier_provenance_tests.rs",
+          "name": "malformed_inputs_stale_replacements_and_unknown_laws_are_rejected",
+          "polarity": "negative"
+        }
+      ],
+      "timeoutMs": 1200000
     },
     {
       "id": "assumption-removal-js",
