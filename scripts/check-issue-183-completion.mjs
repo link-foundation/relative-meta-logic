@@ -20,8 +20,9 @@ if (rawArgs.filter(arg => arg === '--offline').length > 1 || (args.length && (ar
   if (offline) freshness = { passed: false, offline: true, errors: ['Offline diagnostic only: live GitHub freshness was not checked, so completion cannot be certified.'] };
   else {
     try {
-      expectedSources = JSON.parse(fs.readFileSync(path.join(root, 'docs/case-studies/issue-183/requirements.live-sources.json'), 'utf8'));
-      validateReviewedLiveSources(expectedSources, loadIssue183Inputs(root).sources);
+      const snapshot = JSON.parse(fs.readFileSync(path.join(root, 'docs/case-studies/issue-183/requirements.live-sources.json'), 'utf8'));
+      validateReviewedLiveSources(snapshot, loadIssue183Inputs(root).sources);
+      expectedSources = snapshot;
       freshness = await verifyIssue183LiveSources(expectedSources, { token: process.env.GITHUB_TOKEN });
     } catch (error) { freshness = { passed: false, errors: [`Missing or invalid reviewed live-source snapshot: ${error.message}`] }; }
   }
@@ -30,10 +31,15 @@ if (rawArgs.filter(arg => arg === '--offline').length > 1 || (args.length && (ar
     console.error(`Producer ${result.id}: ${result.passed ? 'PASS' : 'FAIL'}${result.error ? ` (${result.error.slice(0,600)})` : ''}`);
   } });
   report.liveSourcesBefore = freshness;
-  if (freshness.passed) {
+  if (!freshness.passed) report.errors.push(...freshness.errors);
+  if (expectedSources) {
     report.liveSourcesAfter = await verifyIssue183LiveSources(expectedSources, { token: process.env.GITHUB_TOKEN });
-    if (!report.liveSourcesAfter.passed) report.errors.push(...report.liveSourcesAfter.errors);
-  } else report.errors.push(...freshness.errors);
+    if (!report.liveSourcesAfter.passed) {
+      for (const error of report.liveSourcesAfter.errors) {
+        if (!report.errors.includes(error)) report.errors.push(error);
+      }
+    }
+  }
   report.passed = report.passed && freshness.passed && report.liveSourcesAfter?.passed === true;
 
   progress?.finalize(report);

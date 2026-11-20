@@ -9,7 +9,7 @@ const threadComment = id => ({ fullDatabaseId: String(id), body: `requirement ${
 const pageInfo = (hasNextPage = false, endCursor = null) => ({ hasNextPage, endCursor });
 const response = (value, status = 200, link = '') => ({ ok: status === 200, status, headers: { get: name => name === 'link' ? link : null }, json: async () => value });
 
-function api({ conversation = [comment(1)], issueComments = [], reviews = [], inlineComments = [], threads = [], threadComments = {} } = {}) {
+function api({ conversation = [comment(1)], issueComments = [], reviews = [], inlineComments = [], threads = [], threadComments = {}, pullBody = 'Current PR' } = {}) {
   const calls = [];
   const request = async (url, options) => {
     calls.push({ url, options });
@@ -32,7 +32,7 @@ function api({ conversation = [comment(1)], issueComments = [], reviews = [], in
     const parsed = new URL(url);
     const resource = parsed.pathname.slice('/repos/link-foundation/relative-meta-logic/'.length);
     if (resource === 'issues/183') return response({ id: 9183, body: 'Original issue', user: { login: 'maintainer' }, html_url: `${publicRoot}/issues/183` });
-    if (resource === 'pulls/184') return response({ id: 9184, body: 'Current PR', user: { login: 'maintainer' }, html_url: `${publicRoot}/pull/184` });
+    if (resource === 'pulls/184') return response({ id: 9184, body: pullBody, user: { login: 'maintainer' }, html_url: `${publicRoot}/pull/184` });
     const lists = { 'issues/183/comments': issueComments, 'issues/184/comments': conversation, 'pulls/184/reviews': reviews, 'pulls/184/comments': inlineComments };
     const all = lists[resource];
     assert.ok(all, `unexpected API resource ${resource}`);
@@ -144,6 +144,13 @@ test('requires actual live access; a missing token is never a passing offline ce
   const result = await verifyIssue183LiveSources(expected, { request: () => assert.fail('must not request without token') });
   assert.equal(result.passed, false);
   assert.match(result.errors[0], /read-only GITHUB_TOKEN/);
+});
+
+test('rejects live issue-closing metadata even if it matches the reviewed digest', async () => {
+  const { expected, request } = await snapshot({ pullBody: 'Summary\n\nFixes #183' });
+  const result = await verifyIssue183LiveSources(expected, { request, token: 'test-secret' });
+  assert.equal(result.passed, false);
+  assert.match(result.errors.join(' '), /live issue-closing directive/);
 });
 
 test('fails closed on rate limiting, auth failure, server failure and malformed JSON', async () => {

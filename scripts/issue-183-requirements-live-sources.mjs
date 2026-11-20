@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { ISSUE_183_CLOSING_DIRECTIVE } from './issue-183-pr-body.mjs';
 
 const REPOSITORY = 'link-foundation/relative-meta-logic';
 // Stable ID returned by GET /repos/link-foundation/relative-meta-logic.
@@ -27,7 +28,7 @@ function uniqueSorted(items, label) {
 // authentication, rate limiting and every later validation still fail closed.
 const TRANSIENT_STATUSES = new Set([500, 502, 503, 504]);
 
-export async function fetchIssue183LiveSources({ request = fetch, token, timeoutMs = 20000, attempts = 3, retryDelayMs = 2000 } = {}) {
+export async function fetchIssue183LiveSources({ request = fetch, token, timeoutMs = 20000, attempts = 3, retryDelayMs = 2000, requireIssueOpen = false } = {}) {
   if (!token) fail('live source verification requires the repository read-only GITHUB_TOKEN; use --offline only for uncertified local diagnostics');
   const headers = { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json' };
   async function json(url, options = {}) {
@@ -114,6 +115,9 @@ export async function fetchIssue183LiveSources({ request = fetch, token, timeout
     json(`${REST}/issues/183`), json(`${REST}/pulls/184`),
     pages('issues/183/comments'), pages('issues/184/comments'), pages('pulls/184/reviews'), pages('pulls/184/comments'), threads(),
   ]);
+  if (requireIssueOpen && ISSUE_183_CLOSING_DIRECTIVE.test(pull.value.body ?? '')) {
+    fail('PR 184 has a live issue-closing directive. Remove it from the PR description and rerun the acceptance workflow.');
+  }
   const restInline = uniqueSorted(inlineComments.map(record), 'inline comment');
   const graphInline = uniqueSorted(inlineThreads.flatMap(thread => thread.comments), 'thread comment');
   if (JSON.stringify(restInline.map(({ id, bodySha256 }) => ({ id, bodySha256 }))) !== JSON.stringify(graphInline.map(({ id, bodySha256 }) => ({ id, bodySha256 })))) fail('REST and GraphQL inline inventories disagree; source scan is inconsistent');
@@ -142,7 +146,7 @@ export function validateReviewedLiveSources(expected, sources) {
 export async function verifyIssue183LiveSources(expected, options = {}) {
   const startedAt = new Date().toISOString();
   try {
-    const observed = await fetchIssue183LiveSources(options);
+    const observed = await fetchIssue183LiveSources({ ...options, requireIssueOpen: true });
     return { ...compareIssue183LiveSources(expected, observed), startedAt, finishedAt: new Date().toISOString(), observed };
   } catch (error) {
     return { passed: false, startedAt, finishedAt: new Date().toISOString(), errors: [error.message] };

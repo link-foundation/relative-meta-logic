@@ -39,17 +39,15 @@ jobs:
       - name: Install JavaScript dependencies
         working-directory: js
         run: node ../scripts/run-with-cache.mjs -- npm ci
-      - name: Read current PR 184 metadata
-        if: github.event_name == 'pull_request' && github.event.number == 184
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/issue-183-pr-body.mjs --read-only
       - name: Enforce complete execution-backed delivery
         env:
           GITHUB_TOKEN: ${{ github.token }}
         # The runner signals the step shell on cancellation. Replace it so the
         # cache wrapper can stop its child group and release its lease.
         run: exec node scripts/run-with-cache.mjs --isolate-output rust/target -- node scripts/check-issue-183-completion.mjs --report .rml-cache/evidence/issue-183-acceptance.json
+      - name: Check upstream npm release availability
+        if: ${{ !cancelled() }}
+        run: node scripts/issue-183-npm-delivery.mjs
       - name: Archive acceptance evidence before teardown
         if: always()
         uses: actions/upload-artifact@v7

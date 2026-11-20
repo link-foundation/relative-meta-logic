@@ -2,7 +2,7 @@
   "schema": "rml-issue-183-requirements/v1",
   "sourceSnapshot": {
     "path": "docs/case-studies/issue-183/requirements.sources.json",
-    "sha256": "acb3da8af45816bb85a93cf7848176303f7ff8dac9713085de8c9abb3582f1a2"
+    "sha256": "7e53c3208871c949ad3bdd5267c2646e33aa6d24f9217d52fdec5e78f939ef2e"
   },
   "requirements": [
     {
@@ -7893,15 +7893,15 @@
       "implementationClaims": [
         {
           "path": "scripts/issue-183-requirements.test.mjs",
-          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70",
+          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a",
           "role": "historical-claim"
         }
       ],
-      "claimedEvidence": "The original-text archive includes all 210 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. Each later change requires a reviewed snapshot.",
+      "claimedEvidence": "The original-text archive includes all 213 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. Each later change requires a reviewed snapshot.",
       "checks": [
         "requirements-live-sources"
       ],
-      "remainingGap": "The original-text archive includes all 210 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. Each later change requires a reviewed snapshot.",
+      "remainingGap": "The original-text archive includes all 213 PR conversation comments reviewed on November 20. Maintainer comment `7033234799` maps to R170 and R171. The live snapshot covers the issue and PR bodies, issue and PR discussion, reviews, review comments, and thread state. CI rejects new, edited, or deleted sources before and after producer execution until their content is reviewed. Each later change requires a reviewed snapshot.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -10183,7 +10183,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70"
+          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a"
         }
       ],
       "claimedEvidence": "`foundation-search.md`, the case-study index, architecture/runtime guides, this ledger, and `issue-183-requirements.test.mjs` cross-link the implementation, finite symmetry result, and enforced claim boundary.",
@@ -12395,7 +12395,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70"
+          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a"
         },
         {
           "path": ".github/workflows/tests.yml",
@@ -12403,7 +12403,7 @@
           "sha256": "7d628a967c4e914858de3974f2eb65fb650b2e5f7febd3df8143a856d7492ab2"
         }
       ],
-      "claimedEvidence": "`issue-183-requirements.test.mjs` validates PR 184's body from the event copy that the R136 step refreshes from the live API, falling back to `GITHUB_EVENT_PATH`; `.github/workflows/tests.yml` includes `edited`, so body edits rerun the guard without a code commit. Fixture tests reject `Fixes #183`, `Closes #183`, and `Resolved #183`.",
+      "claimedEvidence": "`issue-183-requirements.test.mjs` validates PR 184's body from the event copy that the R136 step refreshes from the live API; the acceptance gate separately checks the live PR body in its read-only source audit; `.github/workflows/tests.yml` includes `edited`, so body edits rerun the guard without a code commit. Fixture tests reject `Fixes #183`, `Closes #183`, and `Resolved #183`.",
       "checks": [
         "issue-183-pr-metadata"
       ],
@@ -13017,11 +13017,11 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The November 20 scan reconciled all 210 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
+      "claimedEvidence": "The November 20 scan reconciled all 213 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
       "checks": [
         "requirements-live-sources"
       ],
-      "remainingGap": "The November 20 scan reconciled all 210 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
+      "remainingGap": "The November 20 scan reconciled all 213 PR conversation comments and the current PR description with the exact-text archive in `requirements.sources.json`. The latest maintainer instructions map to R170 and R171, and later automation updates are individually classified. The gate repeats the paginated scan around producer execution. Rescan again at the final delivery commit.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -13242,7 +13242,7 @@
         {
           "path": "scripts/check-issue-183-completion.mjs",
           "role": "implementation",
-          "sha256": "5e4c592ca3910ff3f3b7e2981344bb9b7e132838973ba06f321907317abf8c6f"
+          "sha256": "8386ce56202fad04b421c45433b6eb2bb86106305100132cd710fd1702686b6b"
         }
       ],
       "claimedEvidence": "`issue-183-requirements.mjs` accepts Complete/Partial/Open/Blocked statuses; `check-issue-183-completion.mjs` fails on every non-complete row and `issue-183-requirements.test.mjs` verifies that separation.",
@@ -34046,7 +34046,7 @@
           "sha256": "d2d0409b10c56b394006f9c14d778b5f994635c1eec668e0dee9572a87a4e604"
         }
       ],
-      "claimedEvidence": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release. The 2026-10-13 registry audit confirms issue 195 closed, PR 196 merged and Rust 1.0.0 consumed; meta-language main is 10 commits past v1.0.0 and unreleased, tracked by upstream #199. `npm still publishes 0.46.0, so matched registry delivery is absent`. The 2026-11-20 registry check returned E404 for `meta-language@1.0.0` and still reported `0.46.0` as latest. Publishing the matching official JavaScript release to npm requires an upstream npm maintainer. The remaining maintained-dependency audit and installed-package verification are open.",
+      "claimedEvidence": "The prior implementation-availability blocker is removed: both runtimes consume and test official meta-language commit `679a3b3c3c56177b8df1ad82672690c6e9889aeb`, with source provenance and real upstream capabilities. The 2026-10-07 registry checks still report npm 0.46.0 and crates.io 0.58.2; the latter published contents lack the later source implementation. `A matching published delivery, package-release strategy and fresh all-maintained-dependency audit remain required`; installing a source pin is not publishing the release. The 2026-10-13 registry audit confirms issue 195 closed, PR 196 merged and Rust 1.0.0 consumed; meta-language main is 10 commits past v1.0.0 and unreleased, tracked by upstream #199. `npm still publishes 0.46.0, so matched registry delivery is absent`. The 2026-11-20 registry check returned E404 for `meta-language@1.0.0` and still reported `0.46.0` as latest. Publishing the matching official JavaScript release to npm requires an upstream npm maintainer. The remaining maintained-dependency audit and installed-package verification are open. The acceptance workflow checks for the npm version in the pinned upstream JavaScript manifest. It reports an absent release as a skip for the publication check on PRs and fails that step on main with the exact maintainer action. R133 still requires full publication evidence.",
       "checks": [
         "upstream-language-js",
         "upstream-language-rust",
@@ -34398,7 +34398,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "implementation",
-          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70"
+          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a"
         },
         {
           "path": "experiments/issue-183-pr-body-live-repair.mjs",
@@ -34406,7 +34406,7 @@
           "sha256": "a34e746e640bc507887134d1c4b6cf153fbdf2f0541b62f17c72f02ed224e112"
         }
       ],
-      "claimedEvidence": "`issue-183-pr-body.mjs` and the PR-184-only step in `tests.yml` run on every pull-request event type. They read the live PR body through the GitHub API instead of trusting the `GITHUB_EVENT_PATH` snapshot, remove whole-line closing directives for both issue `#183` and the erroneous PR self-reference `#184` (including colon, cross-repository, and issue-URL forms), write only when the text changed, fail on a directive inside other text, and test the corrected copy of the event payload. `issue-183-requirements.test.mjs` covers the updated, unchanged, inline-refusal, and other-PR paths and retains the strict live-event rejection; `experiments/issue-183-pr-body-live-repair.mjs` runs the script end to end against a local API. The solver tooling appends a `Fixes` line naming PR 184 after each work session: the one appended at 2026-09-24T22:13:37Z was removed by run `36066220462` at 22:15:33Z, after the session summary had already reported no closing keyword. The settled API body must end with `Advances #183`; earlier synchronize run `35852441345` and edited-event integration run `35853137658` also passed. The read-only step in `issue-183-acceptance.yml` independently fetches the current PR body and supplies it to the gate through a runner-local event copy. The regression tests replay a stale closing directive in the event and reject a directive still present in the live body. The read-only step makes no API writes.",
+      "claimedEvidence": "`issue-183-pr-body.mjs` and the PR-184-only step in `tests.yml` run on every pull-request event type. They read the live PR body through the GitHub API instead of trusting the `GITHUB_EVENT_PATH` snapshot, remove whole-line closing directives for both issue `#183` and the erroneous PR self-reference `#184` (including colon, cross-repository, and issue-URL forms), write only when the text changed, fail on a directive inside other text, and test the corrected copy of the event payload. `issue-183-requirements.test.mjs` covers the updated, unchanged, inline-refusal, and other-PR paths and retains the strict live-event rejection; `experiments/issue-183-pr-body-live-repair.mjs` runs the script end to end against a local API. The solver tooling appends a `Fixes` line naming PR 184 after each work session: the one appended at 2026-09-24T22:13:37Z was removed by run `36066220462` at 22:15:33Z, after the session summary had already reported no closing keyword. The settled API body must end with `Advances #183`; earlier synchronize run `35852441345` and edited-event integration run `35853137658` also passed. The acceptance gate independently checks the current PR body in its read-only source audit and records producer results even when the metadata audit fails. Regression tests replay a stale closing directive in an event and reject a directive in the live body even when its digest matches the reviewed snapshot.",
       "checks": [
         "issue-183-pr-metadata"
       ],
@@ -36470,7 +36470,7 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The 2026-11-20 paginated live-source audit matched the original issue, current PR description, all 210 conversation comments, and the empty issue-comment, review, inline-comment and review-thread channels. The immutable `requirements.sources.json` archive preserves earlier PR descriptions. Full repository reconciliation and independently executed evidence remain open while product rows are partial.",
+      "claimedEvidence": "The 2026-11-20 paginated live-source audit matched the original issue, current PR description, all 213 conversation comments, and the empty issue-comment, review, inline-comment and review-thread channels. The immutable `requirements.sources.json` archive preserves earlier PR descriptions. Full repository reconciliation and independently executed evidence remain open while product rows are partial.",
       "checks": [
         "issue-183-pr-metadata",
         "requirements-live-sources"
@@ -42643,7 +42643,7 @@
         {
           "path": "scripts/issue-183-requirements-gate.test.mjs",
           "role": "test",
-          "sha256": "10054c6cc923ec468a5c64c8c1e9fb3702817d99696a3c8ea3fa11fb3222b0f6"
+          "sha256": "2ef26cdccc40c954b2a9f9067888bc8ebab7fa929c8ab9d3c8f27df28714e4f3"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
@@ -42658,17 +42658,17 @@
         {
           "path": "scripts/check-issue-183-completion.mjs",
           "role": "implementation",
-          "sha256": "5e4c592ca3910ff3f3b7e2981344bb9b7e132838973ba06f321907317abf8c6f"
+          "sha256": "8386ce56202fad04b421c45433b6eb2bb86106305100132cd710fd1702686b6b"
         },
         {
           "path": "docs/case-studies/issue-183/requirements.sources.json",
           "role": "fixture",
-          "sha256": "acb3da8af45816bb85a93cf7848176303f7ff8dac9713085de8c9abb3582f1a2"
+          "sha256": "7e53c3208871c949ad3bdd5267c2646e33aa6d24f9217d52fdec5e78f939ef2e"
         },
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
           "role": "fixture",
-          "sha256": "fed22cbc2b26d671805ee1012e0df757399e8a42e70a0b596751a9f192879e23"
+          "sha256": "9422e2a7e148a045aa4086ab6161737f50f5e4369b9999dc9d44a663d4f39d82"
         }
       ],
       "assertions": [
@@ -60104,7 +60104,7 @@
         {
           "path": "scripts/issue-183-requirements.test.mjs",
           "role": "test",
-          "sha256": "58be956f2c83081d2db2657974b6906aecf92ce20a00c65557533424ad93ed70"
+          "sha256": "39e3469d98bf415412442ff5b687c67bbedbb4371070a51c5de486f18be7da2a"
         },
         {
           "path": "scripts/issue-183-pr-body.mjs",
@@ -60124,7 +60124,7 @@
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
           "role": "fixture",
-          "sha256": "fed22cbc2b26d671805ee1012e0df757399e8a42e70a0b596751a9f192879e23"
+          "sha256": "9422e2a7e148a045aa4086ab6161737f50f5e4369b9999dc9d44a663d4f39d82"
         }
       ],
       "assertions": [
@@ -60190,7 +60190,7 @@
         },
         {
           "file": "scripts/issue-183-requirements.test.mjs",
-          "name": "loads live PR metadata read-only before the acceptance gate",
+          "name": "checks live PR metadata in the acceptance gate without aborting producers in a preflight",
           "polarity": "positive"
         }
       ],
@@ -60468,17 +60468,22 @@
         {
           "path": "scripts/issue-183-requirements-live-sources.test.mjs",
           "role": "test",
-          "sha256": "4bdf23e9fc6d37b671dee7216086c15c1b65944c21488794f6f189ab0261c993"
+          "sha256": "d9d43338cb6be8a732440ba0ddf5692bb2eb5bc9e6c316bd49266a4f9d2517f0"
         },
         {
           "path": "scripts/issue-183-requirements-live-sources.mjs",
           "role": "implementation",
-          "sha256": "5023978e18e8266c9db5626f87b2bade1d8f79be008e47bc2595fe67ecb1259a"
+          "sha256": "36f5ee3e19f35dcbff3a065f869fa472efc788ea444c7317798aa7664bc1d174"
         },
         {
           "path": "docs/case-studies/issue-183/requirements.live-sources.json",
           "role": "fixture",
-          "sha256": "65248ac6d3f141a4a2a4fcb07d577e5e1f5dfe151678ec644e94801fb96762d8"
+          "sha256": "788116045916cee4e75f7b03fffe9249a76e0bb3cf90bbb073e960363228c8fe"
+        },
+        {
+          "path": "scripts/issue-183-pr-body.mjs",
+          "role": "implementation",
+          "sha256": "ff81cfcda129356d8b9ed743acb658339e53722fd1bc314c30829c5a793a5752"
         }
       ],
       "assertions": [
@@ -60505,6 +60510,11 @@
         {
           "file": "scripts/issue-183-requirements-live-sources.test.mjs",
           "name": "does not bless new source digests without preserving and reviewing the actual source text",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/issue-183-requirements-live-sources.test.mjs",
+          "name": "rejects live issue-closing metadata even if it matches the reviewed digest",
           "polarity": "negative"
         }
       ]
@@ -61191,7 +61201,7 @@
         {
           "path": "scripts/dependency-audit.test.mjs",
           "role": "test",
-          "sha256": "559de8362399f3f955eb004a5cee6e53b91b1df2cd1e7a1df78206c755e2a952"
+          "sha256": "14ef857921a1f11a56f698ae0a8dbcd7722eb39ceda25841e4b9ba11b21c7f73"
         },
         {
           "path": "js/package.json",
@@ -61247,6 +61257,16 @@
           "path": "docs/case-studies/issue-183/data/links-notation-audit-2026-11-20.json",
           "role": "implementation",
           "sha256": "052aad581b09fe2edd7367db1a885c641457fc45273e132a7d52fd3f9fb45a32"
+        },
+        {
+          "path": "scripts/issue-183-npm-delivery.mjs",
+          "role": "implementation",
+          "sha256": "e4d978d2a8a50b59feed0af63cc16f0f9ab0942e56852f6e98f73e1d5f57e113"
+        },
+        {
+          "path": "scripts/npm-release.mjs",
+          "role": "implementation",
+          "sha256": "db6cc765ab2795efdba06655ea6d3bb153333f9ffd1c5789f9d77ab76bce4490"
         }
       ],
       "assertions": [
@@ -61258,6 +61278,11 @@
         {
           "file": "scripts/dependency-audit.test.mjs",
           "name": "an audit that disagrees with a manifest, a lock file or a newer release is rejected",
+          "polarity": "negative"
+        },
+        {
+          "file": "scripts/dependency-audit.test.mjs",
+          "name": "reports a missing upstream npm release on PRs and requires publication on main",
           "polarity": "negative"
         }
       ]

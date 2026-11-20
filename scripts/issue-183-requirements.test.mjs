@@ -450,20 +450,17 @@ describe('issue 183 requirement traceability', () => {
     assert.match(workflow, /types: \[opened, edited, reopened, synchronize, ready_for_review\]/);
   });
 
-  it('loads live PR metadata read-only before the acceptance gate', () => {
+  it('checks live PR metadata in the acceptance gate without aborting producers in a preflight', () => {
     const workflow = fs.readFileSync(
       path.join(REPOSITORY_ROOT, '.github/workflows/issue-183-acceptance.yml'),
       'utf8',
     );
-    const start = workflow.indexOf('- name: Read current PR 184 metadata');
-    const end = workflow.indexOf('- name: Enforce complete execution-backed delivery');
-    assert.ok(start >= 0 && end > start);
-    assert.match(workflow.slice(start, end), /run: node scripts\/issue-183-pr-body\.mjs --read-only/);
+    assert.doesNotMatch(workflow, /scripts\/issue-183-pr-body\.mjs/);
+    assert.match(workflow, /scripts\/check-issue-183-completion\.mjs --report/);
   });
 
   it('checks the live PR 184 body on every GitHub PR event', () => {
-    const eventPath =
-      process.env.ISSUE_183_REPAIRED_EVENT_PATH ?? process.env.GITHUB_EVENT_PATH;
+    const eventPath = process.env.ISSUE_183_REPAIRED_EVENT_PATH;
     if (!eventPath) return;
 
     const event = JSON.parse(fs.readFileSync(eventPath, 'utf8'));

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { checkMetaLanguageNpmDelivery } from './issue-183-npm-delivery.mjs';
 
 // The dated dependency audit records, per direct dependency, the selected and the
 // latest published release. This keeps the record honest offline: every selected
@@ -15,6 +16,23 @@ const npmManifests = ['js/package.json', 'vscode/package.json'];
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const clone = value => JSON.parse(JSON.stringify(value));
 const bare = range => String(range).replace(/^[\^~=]/, '');
+
+test('reports a missing upstream npm release on PRs and requires publication on main', () => {
+  const lookup = (name, version) => {
+    const upstream = JSON.parse(read('js/vendor/meta-language/js/package.json'));
+    assert.equal(name, upstream.name);
+    assert.equal(version, upstream.version);
+    return false;
+  };
+  const pull = checkMetaLanguageNpmDelivery({ event: 'pull_request', lookup });
+  assert.equal(pull.passed, true);
+  assert.match(pull.message, /Skipping.*gate still checks R51 and R133/);
+  const main = checkMetaLanguageNpmDelivery({ event: 'push', lookup });
+  assert.equal(main.passed, false);
+  assert.match(main.message, /npm maintainer.*publish.*official.*then rerun/);
+  assert.equal(checkMetaLanguageNpmDelivery({ event: 'push', lookup: () => true }).passed, true);
+  assert.throws(() => checkMetaLanguageNpmDelivery({ event: 'pull_request', lookup: () => { throw new Error('registry outage'); } }), /registry outage/);
+});
 
 function currentAudit() {
   const audit = JSON.parse(read(auditPath));
