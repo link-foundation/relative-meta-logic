@@ -453,6 +453,17 @@ Not copied: host-wide Docker deletion, deletion based only on modification time,
 and allowing an optional missing sweeper to silently leave an unenforced budget.
 The hash/size/mtime/mode registry prioritizes preserving unknown and edited files.
 
+For implementation batches, draft related changes together and run a focused
+JavaScript test file locally when it can answer a specific question. The full
+runtime suites, native oracles, release builds and source recapture run in
+hosted workflows. The npm release job checks the tarball and release policy on
+Node 24 and shares full-suite results with the separate `tests` workflow. This
+applies the resource split in formal-ai's workstation doctrine. The
+translation receipts apply Router's practice of identifying the input,
+preserving unsupported items, and validating products at the same commit.
+[Formal-ai workstation doctrine](https://github.com/link-assistant/formal-ai/blob/53cbe4430f8b65330f47728401fc83b09977129f/docs/requirements/doctrine-standing-doctrine-workstation-resources-and-continuous-delivery-2026-10-07.md).
+[Router PR 761](https://github.com/link-assistant/router/pull/761).
+
 Fingerprint-aware sweep of superseded Cargo units: after a successful
 `cargo build`, `check`, `test` or `bench` in a private `--isolate-output`
 target, `scripts/cargo-unit-sweep.mjs` re-runs the same Cargo command with

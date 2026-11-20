@@ -15,14 +15,15 @@ To release a new version:
    and lockfile in a pull request, keeping both implementations aligned.
 2. Merge it into `main`.
 
-On every push to `main` that touches `js/`, the workflow runs the JS test
-suite, checks the package contents with `npm publish --dry-run`, and asks the
+On a push to `main` that touches `js/`, this workflow runs the focused release
+tests on Node 24 and checks package contents with `npm publish --dry-run`.
+The `tests` workflow runs the full JavaScript suite. The release workflow asks the
 registry whether `relative-meta-logic@<version>` already exists
 (`node scripts/npm-release.mjs check`). If it does not, the workflow publishes
 it with provenance (`npm publish --provenance --access public`), polls the
 registry until `npm view relative-meta-logic@<version> version` succeeds, and
-creates the GitHub release `js-v<version>`. Pull requests only run the tests
-and the dry run.
+creates the GitHub release `js-v<version>`. Pull requests run the release tests,
+dry run and registry check.
 
 Set `RML_RELEASE_DEBUG: '1'` in the workflow to log every npm command and its
 raw output.
@@ -57,8 +58,8 @@ missing (bootstrap, trusted publisher, or a version bump).
 
 The extension in [`vscode/`](../vscode/) has its own npm manifest named
 `relative-meta-logic-vscode` and is marked `"private": true`, so it can never
-be published to npm or collide with the library. It is distributed as a VSIX
-(`npm run package` in `vscode/`).
+be published to npm or collide with the library. Run `npm run package` in
+`vscode/` to build `relative-meta-logic-vscode.vsix`.
 
 ## crates.io
 
@@ -74,10 +75,15 @@ this guide, or the workflow trigger validation; a manual run on `main` can
 retry a failed release without another version bump.
 
 On pull requests, CI runs the release regression tests and
-`cargo publish --dry-run --locked`. This builds the packaged library and all
-three binaries without uploading anything or requesting credentials. The full
+`cargo publish --dry-run --locked`. This builds the packaged library and
+binaries without uploading anything or requesting credentials. The full
 Rust suite remains in `tests.yml`. Repository integration tests and examples
 that depend on parent directories are excluded from the crate archive.
+
+The npm and Cargo packages carry the theory inputs needed at runtime. The
+canonical inputs are in `lib/meta-theory/`. The hosted recapture workflow
+updates package copies with `node scripts/sync-release-assets.mjs`, and the
+release asset test checks byte equality and npm tarball membership.
 
 On `main`, the helper checks the exact version on crates.io and skips versions
 that already exist (including yanked versions). Any registry error other than

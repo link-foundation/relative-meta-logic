@@ -1,9 +1,9 @@
 {
   "schema": "rml-issue-183-sources/v1",
-  "snapshotAt": "2026-10-13T11:17:25Z",
-  "conversationCutoff": "2026-10-13T05:28:57Z",
-  "latestCommentId": "6138933223",
-  "conversationCount": 205,
+  "snapshotAt": "2026-11-20T08:03:48Z",
+  "conversationCutoff": "2026-11-20T07:53:32Z",
+  "latestCommentId": "7033234799",
+  "conversationCount": 207,
   "requiredRequirementIds": [
     "R1",
     "R2",
@@ -173,7 +173,9 @@
     "R166",
     "R167",
     "R168",
-    "R169"
+    "R169",
+    "R170",
+    "R171"
   ],
   "sources": [
     {
@@ -3200,7 +3202,44 @@
       ],
       "originalText": "## Status\n\nThis PR advances #183 and is still in progress. The requirement ledger and the execution-backed acceptance manifest under `docs/case-studies/issue-183/` track **169 requirements**:\n\n| Status | Rows |\n|---|---|\n| Complete | 99 |\n| Partial | 62 |\n| Open | 7 |\n| Blocked by upstream | 1 |\n\nEvery Complete row is now bound to executed positive and negative completion assertions. The always-selected `issue-183-acceptance` job stays red while any requirement is unmet.\n\nStill unfinished:\n- full production-language semantics and translation;\n- complete native RML replay of the upstream corpus;\n- product-level Link-driven closure (the parser, checker, compiler and code generation are still host code);\n- the foundational questions R71, R73 and R74.\n\n## 2026-10-13 iteration\n\nRequirements from comment 6138933223 are registered as R165–R169, with their original wording preserved.\n\n### Provable automated translation (R66, R106–R109, R165–R168)\n\n- **Vendored meta-language code:** `js/vendor/meta-language-pr201/` copies the needed meta-language#201 code byte-for-byte. Upstream commit `7c4bf8f1`, a hash lock, the license, removal criteria and shims are recorded in its `VENDORED.md`.\n- **Certified pipeline:** `js/src/rml-certified-translation.mjs` translates through the registered RML structure network along all 12 JavaScript/Rust/Lean/Rocq paths.\n  - Every translation emits a linked certificate, which RML checks itself. It records source, intermediate and target identities, construct correspondence, a seven-dimension preservation contract, an RML-native observation, and discharged versus open obligations.\n  - Forged, stale, mismatched, dropped-obligation, relabelled and authority-granting certificates are rejected.\n  - External kernels act only as oracles. `translation-native.yml` runs rustc, Lean 4.34.1 and Rocq 9.3 on every target, and each must also reject a false statement. All four languages pass.\n- **Repository-scale bulk translation:** `scripts/generate-certified-bulk.mjs` translates 2583 items from `js/src`, `rust/src` and `lib/`.\n  - 148 items are admitted, 101 lowered and 2334 refused, each refusal with an exact first-refusal record. That gives 416 certified translations.\n  - Fourteen admitted translations match their hand-written mirrors on 50 documented calls.\n  - The receipt is freshness-gated.\n- **Upstream requests:** `meta-language-upstream-requests.md` drafts 37 of them; none has been filed. They include a Rocq emitter that qualifies a module's own names while the module is still open (found by the native oracle) and comment extras that diverge between the JavaScript and Rust construct trees.\n\n### Structured RML representation (R11, R101, R103–R105)\n\n- `rml:structure:1` carries exact layout, provenance and checked semantic identities. Full source is re-emitted byte-for-byte after the buffer is discarded, and stage results are reported separately.\n- Every upstream native-grammar construct for the four languages is classified on ten axes, with a freshness gate.\n- Capture-checked binding rewrites are tested on corpora shared by both runtimes.\n\n### Meta-theory corpus, foundations and closure (R47, R63, R111–R123)\n\n- **Native execution:** all 229 declarations and 197 commands of the pinned corpus are elaborated as native linked definitions. All 90 evaluations reach values.\n- **Certificates and stage map:** 14 theorems are certified by the linked proof verifier. A re-executed stage map covers every declaration and command.\n- **Unseen logic:** a versioned modal-frames logic runs through the public foundation APIs purely as linked data. Foundation-declared cycle policies, assumption isolation and one outcome contract are in place.\n- **Semantic closure:** a projection puts programs, rules, foundations, judgements, proofs, substitutions, values and the ontology into one validated links network.\n\n### Link-driven closure and research (R55, R64, R127–R151)\n\n- **Second meta-foundation:** a Horn link-substitution foundation executes the same byte-identical upper layer as S/K. Linked D/D′ edits of matching, substitution, rule selection and verification change execution identically on the lambda control, S/K and Horn.\n- **Linked elaboration:** RML elaboration decisions on the Horn source workflows are linked clauses.\n- **Removal matrices:** new matrices cover verifier host operations, assumptions of the addressed representation, and continuation joins over every small structure. None of these results is claimed as an intrinsic law or as global minimality.\n\n### Gate, cleanup and infrastructure (R152–R164, R169)\n\n- **Gate:** real producer-to-gate mutations show the gate rejects removed tests, suppressed callback streams, placeholder semantics and falsified statuses.\n- **Cleanup:** builders in nested worktrees are attributed to their own tree, and a cleanup deferral never aborts a commit. The changes also add a fingerprint-aware Cargo superseded-unit sweep and Windows-safe Docker resolution, and report absent tools as unavailable.\n- **CI fixes:** the VS Code packaging regression, Windows Docker accounting and the Isabelle oracle's permissions, temporary prefix and reserved local names are fixed.\n- **Hosted recapture:** `linked-recapture.yml` runs the linked-implementation migration on a hosted runner, so contributors never compile Rust locally.\n- **Dependencies:** links-notation 0.26.0 is consumed. meta-language is still on npm 0.46.0 versus crates.io 1.0.0, which keeps R51 blocked.\n\nVerification: local runs used JavaScript only (Node 24). Rust is compiled and tested only by CI.\n\nEvidence: `docs/case-studies/issue-183/` (`requirements.md`, `certified-translation.md`, `meta-foundation-comparison.md`, `meta-language-upstream-requests.md`), `docs/META_THEORY_NATIVE.md`, `docs/LINKED_IMPLEMENTATION.md` and `docs/BUILD_CACHE.md`.\n\nAdvances #183\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
       "bodySha256": "823944ebdfa8ba8ec3219adf1a171a7a1a6321b1f3a2f0375fa9049134458c04"
+    },
+    {
+      "id": "comment-7033234799",
+      "url": "https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-7033234799",
+      "author": "konard",
+      "createdAt": "2026-11-20T07:24:37Z",
+      "updatedAt": "2026-11-20T07:25:05Z",
+      "classification": "requirement-bearing",
+      "bodySha256": "6fa5098cd06d7c955d0c41f0807126723da65963d29f27cfb71c0a958466ef9f",
+      "originalText": "We should also adopt all best practices for minimization of using local development machine resources, and bulk drafting from github.com/link-assistant/router and https://github.com/link-assistant/formal-ai so locally we mostly focus on bulk drafting of changes, and in CI/CD we do all the heavy lifting.\r\n\r\nAll that to fully deliver all our requirements planned in scope of this pull request and the issue.\r\n\r\nWe need to ensure all changes are correct, consistent, validated, tested, documented, logged and fully meet each and all discussed requirements in deepest and widest possible sense (check issue description and all comments in issue and in pull request, make sure each and every requirement listed before actually checking if they were addressed). Nothing should be defered or delayed. The scope is the entire repository, every change in one place should also be applied in all places in the codebase and docs. Ensure all CI/CD checks pass.\r\n\r\nPlease plan and execute everything in this single pull request, you have unlimited time and context, as context auto-compacts and you can continue indefinitely, until each and every requirement fully addressed, and everything is totally done.",
+      "requirementIds": [
+        "R170",
+        "R171"
+      ]
+    },
+    {
+      "id": "comment-7033750248",
+      "url": "https://github.com/link-foundation/relative-meta-logic/pull/184#issuecomment-7033750248",
+      "author": "konard",
+      "createdAt": "2026-11-20T07:53:32Z",
+      "updatedAt": "2026-11-20T07:53:32Z",
+      "classification": "implementation-report-or-automation",
+      "bodySha256": "4fe861cc7379702e6bd16b173166d21e0d3fd3edf142faf2bca1044b2e8692a3",
+      "originalText": "🤖 **AI Work Session Started**\n\nStarted at 2026-11-20T07:53:30.900Z. Please wait for it to finish before giving feedback.\n\n_Runtime: solve `v2.39.10` · tool `codex` · model `gpt-6.2-sol` · task image `konard/hive-mind-dind:2.39.10@sha256:3be89e0510e606204a332e64547ebcfb4c8e527476abbbbbcdc7dac124476a86`_",
+      "requirementIds": []
+    },
+    {
+      "id": "pull-184@be95f058f8cd",
+      "url": "https://github.com/link-foundation/relative-meta-logic/pull/184",
+      "author": "konard",
+      "createdAt": "2026-09-20T14:32:54Z",
+      "updatedAt": "2026-11-20T08:02:24Z",
+      "classification": "implementation-report-or-automation",
+      "bodySha256": "be95f058f8cd5f2f61e767ca5414eccbd15dfbe54f1b575d7db43f2b53b9d80a",
+      "originalText": "## Status\n\nThis draft advances #183. The [requirement ledger](https://github.com/link-foundation/relative-meta-logic/blob/issue-183-7fedfddffe9c/docs/case-studies/issue-183/requirements.md) records the original wording, review feedback, executable evidence, and remaining gaps. The delivery gate checks the current source inventory and requires both positive and negative evidence for each requirement.\n\n## Implementation\n\n- Both runtimes execute linked definitions for Links, finite sets, types, graphs, and relational algebra. Addressed links support recursive sequences, and set operations check extensional equality.\n- The pinned meta-theory draft elaborates 229 declarations and 197 commands into native RML. All 90 evaluations produce values, and the linked verifier certifies 17 of 36 theorems. Lean and Rocq serve as external conformance oracles.\n- The certified translation fragment covers all 12 directed paths among JavaScript, Rust, Lean, and Rocq. It carries exact source provenance and explicit refusals, with checked certificates for admitted translations.\n- S/K and Horn execute the same upper linked layer in the comparative foundation witness. The branch includes linked elaboration experiments, authority and orientation countermodels, and replayable structural evidence.\n\n## November 20 update\n\n- Merged current `main`, preserving the npm and crates.io release workflows, the higher branch version, and cache-managed VSIX packaging.\n- Fixed a regression that compared archived CI evidence with the current requirement ledger and workflow inventory. The historical matrix now validates against its original commit, and the live delivery gate remains authoritative for the current branch.\n- Adapted the release pipeline so npm checks the tarball on a supported Node version and the crates.io dry run can compile with the packaged theory inputs. Rust compilation, linked recapture, and bulk regeneration run on hosted CI.\n- Registered the maintainer's November resource-minimization and bulk-drafting instructions.\n\n## Remaining delivery gates\n\nFull native corpus proof replay, production-language semantics and translation, Link-driven parser/compiler/code generation, intrinsic authority and ontology, and verification of the complete delivery matrix remain open. The exact requirements and evidence are linked above.\n\nTo reproduce the CI matrix regression, run `node --test scripts/ci-matrix-evidence.test.mjs`. To check packaged inputs, run `RML_CHECK_NPM_TARBALL=1 node --test scripts/release-assets.test.mjs scripts/npm-release.test.mjs scripts/crates-release.test.mjs` from an initialized checkout. The release workflows run the npm and Cargo dry runs.\n\nAdvances #183\n",
+      "requirementIds": [],
+      "title": "Execute, translate, and verify linked meta-theory in RML"
     }
   ],
-  "currentPrBodySourceId": "pull-184@823944ebdfa8"
+  "currentPrBodySourceId": "pull-184@be95f058f8cd"
 }

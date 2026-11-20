@@ -86,6 +86,9 @@ push the tree to a `recapture/**` branch, and `.github/workflows/linked-recaptur
 runs `update-linked-implementation.mjs`, then uploads the resulting
 `linked-recapture.patch` artifact without committing anything. Review the
 patch and apply it with `git apply` before committing.
+For PR #184, a commit message containing `[recapture]` requests the same
+artifact on the existing issue branch. This run also refreshes the staged
+release assets and certified bulk translation receipts.
 
 `node scripts/generate-linked-runtime.mjs --capture` explicitly imports the
 current JavaScript runtime and non-test build scripts, checks structural
