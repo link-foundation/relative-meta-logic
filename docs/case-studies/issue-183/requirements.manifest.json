@@ -1577,7 +1577,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "c961b08a3de51f1b58d3f85a280d416564af90100cda0d8bfad088447932eb53"
+          "sha256": "0f2c6b56e52c233dfde5f31b1102cabf2c8d73f73f4193ffae3b5b81cf20c16a"
         }
       ],
       "claimedEvidence": "`rml:structure:1` now carries layout/trivia/token links bound to syntax occurrences and a SHA-256 provenance receipt; `emitRmlExactSource` / `emit_rml_exact_source` rebuild every file of the shared frontend corpus byte-for-byte after the buffer is discarded, and `rmlStageReport` / `rml_stage_report` separate preservation, exact source, parsing, resolution, elaboration, execution and verification. Swapped layout, refusal receipts and tampered provenance are rejected. `No RML elaborator or proof checker runs in this representation; elaboration/verification report not-run`.",
@@ -2990,7 +2990,7 @@
       "implementationClaims": [
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42",
+          "sha256": "26e0ed9b343c02f186aaf19b8d2fd7c50bef9a9c8f2cdf7412ca137cd808a575",
           "role": "historical-claim"
         },
         {
@@ -3442,7 +3442,7 @@
     {
       "id": "R22",
       "obligation": "Use current dependency releases and prepare the next release.",
-      "status": "Partial — direct dependencies current and lock-consistent as of 2026-10-13; npm meta-language 1.0.0 and release preparation absent",
+      "status": "Partial — November registry audit and release preparation recorded",
       "originalWording": [
         {
           "sourceId": "pull-184",
@@ -3479,11 +3479,11 @@
           "sha256": "b6744c6bf7ea2db370ce0e03ece3ac44949c3064ca7cd3ad59d3bf51f97fd8b2"
         }
       ],
-      "claimedEvidence": "The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current; JavaScript consumes the official meta-language release commit `a79782093cae3b33606483ac9f3e1d05faf36de0` while npm still publishes `meta-language 0.46.0`. `scripts/dependency-audit.test.mjs` checks on every run that each audited selection is what `js/package.json`, `vscode/package.json` and `rust/Cargo.toml` declare, what every package lock and the four Cargo locks resolve (with the audited archive checksums), that no selection is behind its audited latest release, and that every declared Rust dependency is audited; it rejects drifted manifests, unlocked selections, changed checksums, stale selections and unaudited crates. `Currency is established only as of the audit date; npm has no meta-language 1.0.0, and the repository has no release-notes convention, so release preparation remains open`.",
+      "claimedEvidence": "The dependency audit records Links Notation 0.31.8 for JavaScript, Rust and the editor extension, and retains the October archive of other dependency selections. The release manifests prepare version 0.39.0, with npm and Cargo dry runs on hosted CI. Rust uses the official meta-language 1.0.0 crate and JavaScript consumes its matching immutable source because npm still publishes 0.46.0. The November audit records newer major JavaScript tooling releases and the newer regex crate whose compatibility is still open.",
       "checks": [
         "dependency-audit"
       ],
-      "remainingGap": "The 2026-10-13 audit (`docs/DEPENDENCY_AUDIT.md`, `data/dependency-audit-2026-10-13.json`) consumes links-notation 0.26.0 in js, vscode and rust after byte-comparing its sources with 0.25.1, re-resolves four Cargo locks (sha2 0.11.1, serde_json 1.0.154, syn 3.0.9) and finds every other direct dependency current; JavaScript consumes the official meta-language release commit `a79782093cae3b33606483ac9f3e1d05faf36de0` while npm still publishes `meta-language 0.46.0`. `scripts/dependency-audit.test.mjs` checks on every run that each audited selection is what `js/package.json`, `vscode/package.json` and `rust/Cargo.toml` declare, what every package lock and the four Cargo locks resolve (with the audited archive checksums), that no selection is behind its audited latest release, and that every declared Rust dependency is audited; it rejects drifted manifests, unlocked selections, changed checksums, stale selections and unaudited crates. `Currency is established only as of the audit date; npm has no meta-language 1.0.0, and the repository has no release-notes convention, so release preparation remains open`.",
+      "remainingGap": "A matching npm meta-language release is absent. Newer tooling and regex releases require compatibility validation.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -7238,7 +7238,7 @@
         },
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42",
+          "sha256": "26e0ed9b343c02f186aaf19b8d2fd7c50bef9a9c8f2cdf7412ca137cd808a575",
           "role": "historical-claim"
         },
         {
@@ -7369,7 +7369,7 @@
           "sha256": "052aad581b09fe2edd7367db1a885c641457fc45273e132a7d52fd3f9fb45a32"
         }
       ],
-      "claimedEvidence": "Rust publishes `meta-language 1.0.0` and npm publishes `0.46.0`. RML consumes the Rust crate and matching immutable JavaScript release source. Both runtimes and the VS Code extension now select `links-notation 0.31.8`, with provenance and remaining dependency observations in `links-notation-audit-2026-11-20.json`. The focused JavaScript upgrade probe passed 144 checks. The hosted matrix verifies native and cross-runtime compatibility. The historical parser findings remain documented in upstream issues `links-notation#312-#316`. A matching npm release is still pending.",
+      "claimedEvidence": "Rust publishes `meta-language 1.0.0` and npm publishes `0.46.0`. RML consumes the Rust crate and matching immutable JavaScript release source. Both runtimes and the VS Code extension now select `links-notation 0.31.8`, with provenance and remaining dependency observations in `links-notation-audit-2026-11-20.json`. The focused JavaScript upgrade checks passed 174 cases. Native and cross-runtime compatibility are checked by the hosted matrix. The historical parser findings remain documented in upstream issues `links-notation#312-#316`. A matching npm release is still pending.",
       "checks": [
         "dependency-audit"
       ],
@@ -7443,7 +7443,7 @@
         },
         {
           "path": "docs/META_THEORY.md",
-          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42",
+          "sha256": "26e0ed9b343c02f186aaf19b8d2fd7c50bef9a9c8f2cdf7412ca137cd808a575",
           "role": "historical-claim"
         }
       ],
@@ -13310,7 +13310,7 @@
         {
           "path": "docs/case-studies/issue-183/language-coverage.json",
           "role": "coverage-inventory-artifact",
-          "sha256": "7e09566b3bc9cae42c5a16a8e13976aeab942bcab8fc6a1f3eeb2e291f5b4e78"
+          "sha256": "4cd7beba11b70dae91572e9f1df08fc94e9f43e8da8d06276773971bf28d81de"
         },
         {
           "path": "js/src/rml-upstream-language.mjs",
@@ -16407,7 +16407,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "c961b08a3de51f1b58d3f85a280d416564af90100cda0d8bfad088447932eb53"
+          "sha256": "0f2c6b56e52c233dfde5f31b1102cabf2c8d73f73f4193ffae3b5b81cf20c16a"
         }
       ],
       "claimedEvidence": "Declaration, binder, role and resolution records (bound/global/ambiguous/free) keyed by occurrence address are recomputed and compared on every read by `rmlSemanticIdentities` / `rml_semantic_identities`, so stored identities are never trusted; 11 corpus cases pass and 9 mutations (retargeted binder, forged occurrence, dangling target, contradicted status, unaccounted record, layout/provenance tampering) are rejected. `Resolution covers RML/LiNo binders, not type-checked elaboration of rules, proofs and substitutions`.",
@@ -18089,7 +18089,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "c961b08a3de51f1b58d3f85a280d416564af90100cda0d8bfad088447932eb53"
+          "sha256": "0f2c6b56e52c233dfde5f31b1102cabf2c8d73f73f4193ffae3b5b81cf20c16a"
         }
       ],
       "claimedEvidence": "`rmlStructureOnly` and typed-link serialization with `checkRmlPlanes` require every link to be accounted for and reachable; exact source is emitted from links alone and stage outcomes are reported separately. `Elaboration and verification stages, and Rust execution evidence pending CI, remain open; full networks parse about 3x slower`.",
@@ -19845,7 +19845,7 @@
         {
           "path": "docs/case-studies/issue-183/meta-language-integration.md",
           "role": "implementation",
-          "sha256": "c961b08a3de51f1b58d3f85a280d416564af90100cda0d8bfad088447932eb53"
+          "sha256": "0f2c6b56e52c233dfde5f31b1102cabf2c8d73f73f4193ffae3b5b81cf20c16a"
         },
         {
           "path": "test-corpus/meta-language/four-language-binding-rewrites.json",
@@ -34212,11 +34212,11 @@
         }
       ],
       "implementationClaims": [],
-      "claimedEvidence": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. The 2026-10-14 sweep corrected the certified-translation counts against `receipt.lino` (12 programs, 36 translations, 48 refusal receipts), links-notation 0.26.0 across the guides, the Node engines range, the dependency lists, the shared-versus-JavaScript-only test scope, the examples and test-corpus indexes, and every Rust test command (now `node scripts/cargo.mjs` or marked hosted-CI only); `docs/case-studies/issue-183/README.md` indexes every note with its status. Not reconciled: historical case studies (issues 26, 68, 97, 138, 163, 167, 181) keep references to removed files, `docs/DEPENDENCY_AUDIT.md` keeps its dated table, `docs/FORMAL_PROPOSITIONS.md` is hash-frozen with a raw `cargo test` line, no release notes are published, and documentation claims are checked only by path, link and freshness tests rather than executed against behavior.",
+      "claimedEvidence": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. The 2026-10-14 sweep corrected the certified-translation counts against `receipt.lino` (12 programs, 36 translations, 48 refusal receipts), links-notation 0.26.0 across the guides, the Node engines range, the dependency lists, the shared-versus-JavaScript-only test scope, the examples and test-corpus indexes, and every Rust test command (now `node scripts/cargo.mjs` or marked hosted-CI only); `docs/case-studies/issue-183/README.md` indexes every note with its status. The November update also aligns the public meta-theory proof count, researcher workflow diagnostics and current integration versions. Outstanding: historical case studies (issues 26, 68, 97, 138, 163, 167, 181) keep references to removed files, `docs/DEPENDENCY_AUDIT.md` keeps its dated table, `docs/FORMAL_PROPOSITIONS.md` is hash-frozen with a raw `cargo test` line, no release notes are published, and documentation claims are checked only by path, link and freshness tests rather than executed against behavior.",
       "checks": [
         "docs-issue-183"
       ],
-      "remainingGap": "The foundation, proof, archive, portable-language, cache and official-source guides describe their tested APIs and remaining boundaries; source provenance and native receipts are versioned alongside this ledger. The 2026-10-14 sweep corrected the certified-translation counts against `receipt.lino` (12 programs, 36 translations, 48 refusal receipts), links-notation 0.26.0 across the guides, the Node engines range, the dependency lists, the shared-versus-JavaScript-only test scope, the examples and test-corpus indexes, and every Rust test command (now `node scripts/cargo.mjs` or marked hosted-CI only); `docs/case-studies/issue-183/README.md` indexes every note with its status. Not reconciled: historical case studies (issues 26, 68, 97, 138, 163, 167, 181) keep references to removed files, `docs/DEPENDENCY_AUDIT.md` keeps its dated table, `docs/FORMAL_PROPOSITIONS.md` is hash-frozen with a raw `cargo test` line, no release notes are published, and documentation claims are checked only by path, link and freshness tests rather than executed against behavior.",
+      "remainingGap": "Historical case studies retain stale paths, the hash-frozen formal propositions guide retains a raw Cargo command, release notes are unpublished, and behavioral documentation checks are incomplete.",
       "verificationState": "not-execution-certified",
       "assertionBindings": [
         {
@@ -46110,7 +46110,7 @@
         {
           "path": "docs/case-studies/issue-183/researcher-workflow.md",
           "role": "specification",
-          "sha256": "e7c055725a84a2af2b205b9d77f61df958cbac306aabdd26f5ba2d1305274ed3"
+          "sha256": "d33451c5f5a91718752c3d94d6c4cd7149f37206d0badfe7ff75ae05c5c33498"
         },
         {
           "path": "examples/researcher-workflow.mjs",
@@ -46732,7 +46732,7 @@
         {
           "path": "docs/case-studies/issue-183/researcher-workflow.md",
           "role": "specification",
-          "sha256": "e7c055725a84a2af2b205b9d77f61df958cbac306aabdd26f5ba2d1305274ed3"
+          "sha256": "d33451c5f5a91718752c3d94d6c4cd7149f37206d0badfe7ff75ae05c5c33498"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -48345,7 +48345,7 @@
         {
           "path": "docs/META_THEORY.md",
           "role": "specification",
-          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42"
+          "sha256": "26e0ed9b343c02f186aaf19b8d2fd7c50bef9a9c8f2cdf7412ca137cd808a575"
         },
         {
           "path": "js/package-lock.json",
@@ -48937,7 +48937,7 @@
         {
           "path": "docs/META_THEORY.md",
           "role": "specification",
-          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42"
+          "sha256": "26e0ed9b343c02f186aaf19b8d2fd7c50bef9a9c8f2cdf7412ca137cd808a575"
         },
         {
           "path": "lib/algebra/core.lino",
@@ -59580,7 +59580,7 @@
         {
           "path": "docs/META_THEORY.md",
           "role": "specification",
-          "sha256": "79393b74d87bc1d5bcb5799c599da86227a4c22044d1b91198622da75619ff42"
+          "sha256": "26e0ed9b343c02f186aaf19b8d2fd7c50bef9a9c8f2cdf7412ca137cd808a575"
         },
         {
           "path": "docs/case-studies/issue-183/foundation-search.md",

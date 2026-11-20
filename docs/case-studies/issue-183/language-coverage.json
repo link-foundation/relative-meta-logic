@@ -4,7 +4,7 @@
   "requirementScope": "Full four-language grammar, semantic representation, and twelve directed faithful translations remain required. Inventory statuses do not narrow acceptance.",
   "publishedDependencies": {
     "npmMetaLanguage": "0.46.0",
-    "rustMetaLanguage": "0.58.2",
+    "rustMetaLanguage": "1.0.0",
     "issue195": "closed 2026-10-06; official resolving implementation consumed by immutable source pin; matching registry delivery remains absent"
   },
   "rmlExtension": {

@@ -136,11 +136,11 @@ from public APIs. The recipe has six steps:
    their certificates (see
    [meta-theory-specifications.md](meta-theory-specifications.md)).
 
-These steps add executable meta-theory semantics, not completion. Typed
-elaboration covers 72 declarations. 183 declarations have execution
-witnesses: 150 from upstream cases and 33 from untyped probes on upstream
-data. 14 of the 36 theorems are certified. Inductive and rewriting
-proofs remain outside the certificate fragment.
+Typed elaboration covers 72 declarations. The 183 declarations with
+execution witnesses include 150 from upstream cases and 33 from untyped
+probes on upstream data. The linked verifier certifies 17 of the 36 theorems,
+including list induction and list case analysis with internal rewrites. The
+remaining proofs and their diagnostics are listed in [META_THEORY_NATIVE.md](../../META_THEORY_NATIVE.md).
 
 ## Public entry points and trust boundaries
 
