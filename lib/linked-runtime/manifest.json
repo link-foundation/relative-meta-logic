@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-implementation-manifest/v1",
   "moduleCount": 196,
-  "linkCount": 373000,
+  "linkCount": 373199,
   "sourceArtifactConsistency": true,
   "compiledFromStructuredLinks": true,
   "fullImplementationClosure": false,
@@ -131,8 +131,8 @@
     "source-to-compiled-target preservation beyond the declared parser, term and proof-receipt observations",
     "minimal bootstrap and independently comparable foundations"
   ],
-  "archiveSha256": "877523d4db8f57caa1d89e393a76b799998646747230aa57619568f9ea2c299d",
-  "archiveBytes": 2205610,
+  "archiveSha256": "5d12c8400c9a7579c58e606411259c0f106d076c64786cee06c6ddec624b6e4e",
+  "archiveBytes": 2206561,
   "modules": [
     {
       "path": ".github/candidates/cache-portability/validate.mjs",
@@ -1180,9 +1180,9 @@
     },
     {
       "path": "scripts/measure-build-cache.mjs",
-      "sourceSha256": "68cdb2ae2a2192838e83443fb71323832db57f5bd0cc8f2d14a254ea8edeb4d8",
-      "astSha256": "aabcbb861a3e84cba66d71008fd3f2de4f2bb3e469ed4398adc8da5566674fd1",
-      "generatedSha256": "c47662188b3dc43eb657a108e07ac5301697bf85a3b1b4216eae7fee4410c2ac"
+      "sourceSha256": "6fc6d8723b94aff24bbb787f37c1d95f3df741c30c9bb6e21db31355bb6c5e74",
+      "astSha256": "752fe9924dc16f959d353beb4d13aaa3219fc5996bb5ff084f58fb86bb4c47a9",
+      "generatedSha256": "90397888677b8943ab6a72255b50e79392dcbabb1c8786a15e3cb9096e4ba82a"
     },
     {
       "path": "scripts/measurement-source.mjs",

@@ -1,7 +1,7 @@
 {
   "schema": "rml-linked-configuration-manifest/v1",
-  "archiveSha256": "fac11d9139d8b78b39b24247bce9c1dec95d5996de8b9c7b200c0b7bbb18d1c6",
-  "archiveBytes": 806759,
+  "archiveSha256": "53585848410565fba6bf648b20e9a1ace855d1a1e733d822103dd5611d63ca84",
+  "archiveBytes": 806768,
   "linkCount": 14648,
   "providerScope": "declared npm/Cargo dependency closures, vendored syntax adapter, and owned generic OS metadata helpers",
   "externalExecutionBoundary": [
@@ -52,8 +52,8 @@
     },
     {
       "path": ".github/workflows/cache-portability.yml",
-      "sourceSha256": "796e6e532982fa2241dbccb5ada96f65957edb82f9283bf17b38d4468a6b8cd3",
-      "generatedSha256": "796e6e532982fa2241dbccb5ada96f65957edb82f9283bf17b38d4468a6b8cd3"
+      "sourceSha256": "b8073b0913f45f97c753a4d6a384b25b0900a3a865d30deed67e86305464d693",
+      "generatedSha256": "b8073b0913f45f97c753a4d6a384b25b0900a3a865d30deed67e86305464d693"
     },
     {
       "path": ".github/workflows/crates-release.yml",
