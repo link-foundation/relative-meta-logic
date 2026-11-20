@@ -37506,7 +37506,7 @@
           "sha256": "5d3e40da22a2ca9ab5094ee13b717def395cb0352cbef3045362b969ffb59c80"
         }
       ],
-      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup.",
+      "claimedEvidence": "`scripts/run-with-cache.mjs`, package scripts, `scripts/cargo.mjs` and checkout-based CI jobs wrap owned producers/consumers, preserve command failures, archive evidence before teardown, check low disk, settle owned children and run full cleanup; handled interruption stops the child, cleans and keeps logs. A hard-killed wrapper leaves its lease; `node scripts/build-cache.mjs --recover` recovers it only when the recorded processes and, on POSIX, their process groups are gone, under a recovery mutex that re-reads the owner record, and the next `--full` reclaims orphaned owned Docker resources. `scripts/build-cache-policy.test.mjs` lints every workflow step and fails on an unwrapped cargo, Docker, test or npm producer, with one documented temporary-directory exemption that fails when stale. Raw commands typed outside the repository entry points are not wrapped, but their registered outputs are reclaimed by the next cleanup. The acceptance step replaces the runner shell with the cache wrapper so cancellation reaches the process that owns the lease and child group.",
       "checks": [
         "build-cache-lifecycle",
         "cache-tool-availability"
@@ -42551,7 +42551,7 @@
         {
           "path": "scripts/issue-183-requirements-gate.test.mjs",
           "role": "test",
-          "sha256": "552ac431c5f8c324bd5715b1d613de1d2da369537664c06faf1b949c23827d7f"
+          "sha256": "10054c6cc923ec468a5c64c8c1e9fb3702817d99696a3c8ea3fa11fb3222b0f6"
         },
         {
           "path": "scripts/issue-183-requirements.mjs",
@@ -42576,7 +42576,7 @@
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
           "role": "fixture",
-          "sha256": "7fedc7756ca902172c311dd5046f285643c6419d0a7e1c0d4d73f3f614859b26"
+          "sha256": "fed22cbc2b26d671805ee1012e0df757399e8a42e70a0b596751a9f192879e23"
         }
       ],
       "assertions": [
@@ -59914,7 +59914,7 @@
         {
           "path": ".github/workflows/issue-183-acceptance.yml",
           "role": "fixture",
-          "sha256": "7fedc7756ca902172c311dd5046f285643c6419d0a7e1c0d4d73f3f614859b26"
+          "sha256": "fed22cbc2b26d671805ee1012e0df757399e8a42e70a0b596751a9f192879e23"
         }
       ],
       "assertions": [

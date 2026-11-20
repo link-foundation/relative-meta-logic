@@ -458,7 +458,7 @@ process.exitCode = report.passed ? 0 : 1;
     assert.doesNotMatch(workflow, /^\s+(?:contents|issues|pull-requests): write$/m);
     assert.match(workflow, /GITHUB_TOKEN: \$\{\{ github.token \}\}/);
     assert.match(workflow, /node scripts\/check-issue-183-completion\.mjs --report/);
-    assert.match(workflow, /run-with-cache\.mjs --isolate-output rust\/target -- node scripts\/check-issue-183-completion\.mjs/);
+    assert.match(workflow, /^\s+run: exec node scripts\/run-with-cache\.mjs --isolate-output rust\/target -- node scripts\/check-issue-183-completion\.mjs/m);
     assert.doesNotMatch(workflow, /^\s*(?:paths|paths-ignore|continue-on-error|workflow_dispatch):/m);
     const gate = workflow.slice(workflow.indexOf('- name: Enforce complete'), workflow.indexOf('- name: Archive'));
     assert.doesNotMatch(gate, /if:|\|\|\s*true|continue-on-error/);
