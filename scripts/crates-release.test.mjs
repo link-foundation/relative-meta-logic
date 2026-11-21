@@ -26,13 +26,13 @@ describe('crates.io release workflow (issue #188)', { timeout: 10000 }, () => {
     assert.match(workflow, /push:\n    branches: \[main\]/);
     assert.match(workflow, /tags: \['v\*\.\*\.\*'\]/);
     assert.match(workflow, /workflow_dispatch:/);
-    assert.match(validation, /cargo publish --dry-run --locked/);
+    assert.match(validation, /^\s+run: cargo publish --dry-run --locked$/m);
     assert.match(validation, /git merge-base --is-ancestor HEAD origin\/main/);
     assert.match(validation, /cargo test --locked --no-default-features --features core --test probability/);
     assert.match(validation, /verify-packaged-core.sh/);
     assert.match(validation, /node --test scripts\/crates-release.test.mjs/);
     assert.match(validation, /node scripts\/crates-release.mjs check/);
-    assert.doesNotMatch(validation, /secrets\.|id-token: write|crates-io-auth-action|--no-verify/);
+    assert.doesNotMatch(validation, /secrets\.|id-token: write|crates-io-auth-action/);
   });
 
   it('publishes unpublished versions after validation on main and tag pushes', () => {

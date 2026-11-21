@@ -71,6 +71,11 @@ jobs:
       - name: Test probability core without default features
         working-directory: rust
         run: cargo test --locked --no-default-features --features core --test probability
+      # cargo publish stages an archive temporarily. cargo package retains
+      # the archive for the downstream consumer check.
+      - name: Create the crate archive for the consumer test
+        working-directory: rust
+        run: cargo package --locked --no-verify
       - name: Build a fresh WebAssembly consumer of the packaged core
         env:
           VERSION: ${{ steps.check.outputs.version }}
