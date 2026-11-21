@@ -7,6 +7,8 @@ This extension adds editor support for Relative Meta Logic `.lino` files:
 
 ## Install From VSIX
 
+The bundled language server requires VS Code 1.90 or later.
+
 ```sh
 cd vscode
 npm install

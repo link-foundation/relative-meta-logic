@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import {
   run,
+  parseLino,
   tokenizeOne,
   parseOne,
   Env,
@@ -17,6 +18,24 @@ import {
 const approx = (actual, expected, epsilon = 1e-9) =>
   assert.ok(Math.abs(actual - expected) < epsilon,
     `Expected ${expected}, got ${actual} (diff: ${Math.abs(actual - expected)})`);
+
+describe('parseLino', () => {
+  it('treats line breaks inside RML forms as whitespace', () => {
+    assert.deepStrictEqual(
+      parseLino('(claim\r\n    (first item)\r\n\r\n (second item))\r\n(? true)'),
+      ['(claim (first item) (second item))', '(? true)'],
+    );
+  });
+
+  it('preserves quoted line breaks and parentheses in multiline forms', () => {
+    const singleLineForm = parseLino("(claim 'a )\nb' (second item))");
+    assert.notDeepStrictEqual(singleLineForm, parseLino("(claim 'a ) b' (second item))"));
+    assert.deepStrictEqual(
+      parseLino("(claim 'a )\nb'\n (second item))"),
+      singleLineForm,
+    );
+  });
+});
 
 describe('tokenizeOne', () => {
   it('should tokenize simple link', () => {
@@ -266,6 +285,10 @@ describe('run', () => {
     const results = run(text);
     assert.strictEqual(results.length, 1);
     assert.strictEqual(results[0], 1);
+  });
+
+  it('still treats a hash inside a link as an RML comment', () => {
+    assert.deepStrictEqual(run('(? true # note)\n(? false)'), [1, 0]);
   });
 
   it('handles inline comments that contain colons', () => {

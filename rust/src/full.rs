@@ -295,6 +295,97 @@ fn inline_comment_index(line: &str) -> Option<usize> {
     None
 }
 
+#[derive(PartialEq, Eq)]
+enum LinoFormContents {
+    Empty,
+    Reference,
+    Compound,
+}
+
+impl LinoFormContents {
+    fn add_item(&mut self, is_reference: bool) {
+        *self = if *self == Self::Empty && is_reference {
+            Self::Reference
+        } else {
+            Self::Compound
+        };
+    }
+}
+
+// RML treats line breaks in explicit forms as whitespace and parenthesized
+// references as atoms. Keep top-level parentheses so indentation paths are
+// still constructed by Links Notation.
+fn normalize_lino_forms(text: &str) -> std::borrow::Cow<'_, str> {
+    if !text.contains('(') {
+        return std::borrow::Cow::Borrowed(text);
+    }
+    let mut edits = Vec::new();
+    let mut forms = Vec::<(usize, LinoFormContents)>::new();
+    let mut pending_form = 0;
+    let mut quoted_until = 0;
+    for (index, ch) in text.char_indices() {
+        if index < quoted_until {
+            continue;
+        }
+        match ch {
+            '(' => {
+                if forms.is_empty() {
+                    pending_form = edits.len();
+                }
+                forms.push((index, LinoFormContents::Empty));
+            }
+            ')' => {
+                if let Some((opening, contents)) = forms.pop() {
+                    if let Some((_, parent)) = forms.last_mut() {
+                        let is_reference = contents == LinoFormContents::Reference
+                            && !text[index + 1..]
+                                .trim_start_matches([' ', '\t', '\r', '\n'])
+                                .starts_with(':');
+                        parent.add_item(is_reference);
+                        if is_reference {
+                            edits.extend([opening, index]);
+                        }
+                    }
+                }
+            }
+            '\n' if !forms.is_empty() => edits.push(index),
+            ':' => {
+                if let Some((_, contents)) = forms.last_mut() {
+                    *contents = LinoFormContents::Compound;
+                }
+            }
+            ' ' | '\t' | '\n' | '\r' => {}
+            _ if index == quoted_until
+                    || matches!(
+                        text.as_bytes()[index - 1],
+                        b' ' | b'\t' | b'\n' | b'\r' | b'(' | b')' | b':'
+                    ) =>
+            {
+                if let Some((_, contents)) = forms.last_mut() {
+                    contents.add_item(true);
+                }
+                if matches!(ch, '"' | '\'' | '`') {
+                    quoted_until =
+                        links_notation::parser::quoted_reference_end(text, index).unwrap_or(index);
+                }
+            }
+            _ => {}
+        }
+    }
+    // Keep blank-line separators after an unclosed form so parsing can recover.
+    if !forms.is_empty() {
+        edits.truncate(pending_form);
+    }
+    if edits.is_empty() {
+        return std::borrow::Cow::Borrowed(text);
+    }
+    let mut normalized = text.to_owned();
+    for index in edits {
+        normalized.replace_range(index..index + 1, " ");
+    }
+    std::borrow::Cow::Owned(normalized)
+}
+
 /// Parse LiNo text into a vector of link strings (each a top-level parenthesized expression).
 pub fn parse_lino(text: &str) -> Vec<String> {
     parse_lino_with_errors(text).0
@@ -305,9 +396,10 @@ pub fn parse_lino(text: &str) -> Vec<String> {
 /// for unbalanced/invalid input — mirrors `parseLinoForms` in
 /// `js/src/rml-links.mjs`, which throws and is caught into an E006 diagnostic.
 fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
-    // Strip both full-line and inline comments (# ...) before parsing —
-    // the LiNo parser doesn't handle them and an inline comment containing a
-    // colon would otherwise be misread as a binding.
+    use links_notation::LiNo;
+
+    // RML trims hash comments on their own line or after a complete form.
+    // Other hash comments are handled after Links Notation parses the forms.
     let stripped: String = text
         .lines()
         .map(|line| {
@@ -327,15 +419,25 @@ fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
     // so we split the input by blank lines and parse each segment separately.
     let mut all_links = Vec::new();
     let mut errors = Vec::new();
-    for segment in stripped.split("\n\n") {
+    // RML handles its own comment syntax, including parenthesized comments.
+    let config = links_notation::ParserConfig::without_comments();
+    let normalized = normalize_lino_forms(&stripped);
+    for segment in normalized.split("\n\n") {
         let trimmed = segment.trim();
         if trimmed.is_empty() {
             continue;
         }
-        match links_notation::parse_lino_to_links(trimmed) {
+        match links_notation::parse_lino_to_links_with_config(trimmed, &config) {
             Ok(links) => {
                 for link in links {
-                    all_links.push(link.to_string());
+                    let rendered = match &link {
+                        LiNo::Link { id: None, values } => match values.as_slice() {
+                            [reference @ LiNo::Ref(_)] => reference.to_string(),
+                            _ => link.to_string(),
+                        },
+                        _ => link.to_string(),
+                    };
+                    all_links.push(rendered);
                 }
             }
             Err(e) => {
@@ -344,6 +446,13 @@ fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
         }
     }
     (all_links, errors)
+}
+
+fn is_lino_comment_link(link: &str) -> bool {
+    let link = link.trim();
+    link.strip_prefix("(#")
+        .or_else(|| link.strip_prefix("('#'"))
+        .is_some_and(|rest| rest.starts_with(char::is_whitespace))
 }
 
 fn is_literate_lino_path(file: Option<&str>) -> bool {
@@ -447,6 +556,12 @@ pub fn tokenize_one(s: &str) -> Vec<String> {
     // Strip inline comments (everything after #) but balance parens
     if let Some(comment_idx) = s.find('#') {
         s = s[..comment_idx].to_string();
+        // Links Notation quotes references that start with a hash.
+        if let Some(prefix) = s.strip_suffix('\'') {
+            if prefix.ends_with([' ', '(']) {
+                s.truncate(prefix.len());
+            }
+        }
         // Count unmatched opening parens and add closing parens to balance
         let mut depth: i32 = 0;
         for c in s.chars() {
@@ -8985,10 +9100,7 @@ fn apply_tactic(
 pub fn parse_tactic_links(text: &str) -> Vec<Node> {
     parse_lino(text)
         .iter()
-        .filter(|link_str| {
-            let s = link_str.trim();
-            !(s.starts_with("(#") && s.chars().nth(2).map_or(false, |c| c.is_whitespace()))
-        })
+        .filter(|link_str| !is_lino_comment_link(link_str))
         .filter_map(|link_str| {
             let toks = tokenize_one(link_str);
             let toks = if toks.len() == 1 && toks[0] != "(" && toks[0] != ")" {
@@ -13371,10 +13483,7 @@ fn evaluate_inner(
     }
     let forms: Vec<Node> = links
         .iter()
-        .filter(|link_str| {
-            let s = link_str.trim();
-            !(s.starts_with("(#") && s.chars().nth(2).map_or(false, |c| c.is_whitespace()))
-        })
+        .filter(|link_str| !is_lino_comment_link(link_str))
         .filter_map(|link_str| {
             // The LiNo parser collapses single-token links like `(whnf)` to
             // the bare token `whnf` — no parens. Re-wrap as a single-element

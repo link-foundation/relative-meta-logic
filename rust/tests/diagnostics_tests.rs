@@ -46,6 +46,14 @@ fn lino_parse_error_surfaces_as_e006_not_panic() {
 }
 
 #[test]
+fn lino_parse_error_keeps_results_from_the_next_group() {
+    let out = evaluate("(? false\n\n(? true)", None, None);
+    assert_eq!(out.diagnostics.len(), 1);
+    assert_eq!(out.diagnostics[0].code, "E006");
+    assert_eq!(out.results, vec![RunResult::Num(1.0)]);
+}
+
+#[test]
 fn unknown_aggregator_surfaces_as_e004() {
     let out = evaluate("(and: bogus_agg)", Some("agg.lino"), None);
     assert_eq!(out.diagnostics.len(), 1);
