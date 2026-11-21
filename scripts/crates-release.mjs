@@ -57,10 +57,11 @@ export function publishGuidance(name) {
   ].join('\n');
 }
 
-export function assertReleaseContext(env = process.env) {
-  if (env.GITHUB_REF !== 'refs/heads/main' || !['push', 'workflow_dispatch'].includes(env.GITHUB_EVENT_NAME)) {
-    throw new Error('crates.io publishing is only allowed from a push or manual run on main');
-  }
+export function assertReleaseContext(env, version) {
+  const { GITHUB_EVENT_NAME: event, GITHUB_REF: ref } = env;
+  if (ref === 'refs/heads/main' && ['push', 'workflow_dispatch'].includes(event)) return;
+  if (version && event === 'push' && ref === `refs/tags/v${version}`) return;
+  throw new Error(`Package publishing is only allowed from main or a push of the matching version tag (v${version}).`);
 }
 
 export async function verify(name, version, {
@@ -81,7 +82,7 @@ export async function publish(manifest, {
   env = process.env,
   run = spawnSync,
 } = {}) {
-  assertReleaseContext(env);
+  assertReleaseContext(env, manifest.version);
   if (!env.CARGO_REGISTRY_TOKEN?.trim()) {
     throw new Error(`No crates.io publishing credential was selected.\n${publishGuidance(manifest.name)}`);
   }
@@ -99,6 +100,7 @@ async function main(command) {
   }
   const { name, version } = readCrateManifest();
   if (command === 'check') {
+    if (process.env.GITHUB_REF_TYPE === 'tag') assertReleaseContext(process.env, version);
     const published = await isPublished(name, version);
     const outputs = `name=${name}\nversion=${version}\nshould_publish=${!published}\n`;
     console.log(`${name}@${version}: ${published ? 'already published' : 'not published yet'}`);

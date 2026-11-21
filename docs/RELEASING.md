@@ -1,31 +1,32 @@
 # Releasing
 
-## npm: `relative-meta-logic`
+## Release a version
 
-The JavaScript library in [`js/`](../js/) is published to npm as
-[`relative-meta-logic`](https://www.npmjs.com/package/relative-meta-logic) by
-a single workflow, [`.github/workflows/release.yml`](../.github/workflows/release.yml),
-using [npm trusted publishing](https://docs.npmjs.com/trusted-publishers)
-(OIDC). No long-lived npm token is stored in the repository.
+Update the versions in `rust/Cargo.toml`, `rust/Cargo.lock`,
+`js/package.json`, and `js/package-lock.json` in one pull request. Merge the
+PR into `main`. A push to `main` that touches the packages or release
+configuration checks and publishes any missing versions. A push of a
+`v<version>` tag, such as `v0.20.0`, runs the same release workflow when the tag
+points to a commit on `main` and matches both manifests. Run the workflow
+manually on `main` to retry a failed release. Both registries skip versions
+they already have. [Release workflow](../.github/workflows/crates-release.yml)
 
-To release a new version:
+Pull requests validate the npm archive with `npm pack --dry-run` and the Rust
+crate with `cargo publish --dry-run --locked`. Rust validation also builds a
+fresh WebAssembly consumer of the packaged probability core. Publication
+requires credentials only when a version is missing.
 
-1. Bump `"version"` in [`js/package.json`](../js/package.json) (and the
-   matching `version` entries in `js/package-lock.json`) and the Rust manifest
-   and lockfile in a pull request, keeping both implementations aligned.
-2. Merge it into `main`.
+## npm
 
-On every push to `main` that touches `js/`, the workflow runs the JS test
-suite, checks the package contents with `npm publish --dry-run`, and asks the
-registry whether `relative-meta-logic@<version>` already exists
-(`node scripts/npm-release.mjs check`). If it does not, the workflow publishes
-it with provenance (`npm publish --provenance --access public`), polls the
-registry until `npm view relative-meta-logic@<version> version` succeeds, and
-creates the GitHub release `js-v<version>`. Pull requests only run the tests
-and the dry run.
+The [npm package](https://www.npmjs.com/package/relative-meta-logic) uses
+`crates-release.yml` for [trusted publishing](https://docs.npmjs.com/trusted-publishers).
+The workflow tries OIDC first and falls back to `NPM_TOKEN`,
+`NODE_AUTH_TOKEN`, or `NPM_AUTH_TOKEN` when configured. It polls until the new
+version appears on npm and creates the GitHub release `js-v<version>`.
+`release.yml` tests and checks the package archive.
 
-Set `RML_RELEASE_DEBUG: '1'` in the workflow to log every npm command and its
-raw output.
+Set `RML_RELEASE_DEBUG=1` when running the npm helper to log npm commands and
+their output.
 
 ### One-time setup
 
@@ -36,19 +37,19 @@ the very first version has to be bootstrapped once:
   publishes the first version with a short-lived token, registers the trusted
   publisher, and revokes the token.
 - Alternative: add a short-lived granular npm token as the `NPM_TOKEN`
-  repository secret, re-run the `release` workflow on `main`, configure the
+  repository secret, re-run the `crates-release` workflow on `main`, configure the
   trusted publisher (below), and delete the `NPM_TOKEN` secret again.
 
 Then configure the trusted publisher, as an npm owner of the package:
 
 ```sh
-npm trust github relative-meta-logic --file release.yml \
+npm trust github relative-meta-logic --file crates-release.yml \
   --repository link-foundation/relative-meta-logic --allow-publish --yes
 ```
 
 or, on <https://www.npmjs.com/package/relative-meta-logic/access>, add a
 GitHub Actions trusted publisher with organization `link-foundation`,
-repository `relative-meta-logic`, workflow `release.yml`, and no environment.
+repository `relative-meta-logic`, workflow `crates-release.yml`, and no environment.
 
 If a publish on `main` fails, the job log ends with the exact step that is
 missing (bootstrap, trusted publisher, or a version bump).
@@ -63,23 +64,11 @@ be published to npm or collide with the library. It is distributed as a VSIX
 ## crates.io
 
 The Rust library (`rml`) and the `rml`, `rml-check`, and `rml-meta` binaries
-are intended for crates.io as `relative-meta-logic`. The separate
-[crates-release.yml](../.github/workflows/crates-release.yml) workflow handles
-Rust releases; npm keeps its existing `release.yml` identity.
+are published as [`relative-meta-logic`](https://crates.io/crates/relative-meta-logic).
+The package includes the probability assessment example. Integration tests
+that depend on parent directories run in `tests.yml`.
 
-To release, bump `version` in `rust/Cargo.toml` and the crate's entry in
-`rust/Cargo.lock`, together with the matching JavaScript manifest/lockfile
-versions, and merge the PR into `main`. Changes to `rust/`, the release helper,
-this guide, or the workflow trigger validation; a manual run on `main` can
-retry a failed release without another version bump.
-
-On pull requests, CI runs the release regression tests and
-`cargo publish --dry-run --locked`. This builds the packaged library and all
-three binaries without uploading anything or requesting credentials. The full
-Rust suite remains in `tests.yml`. Repository integration tests and examples
-that depend on parent directories are excluded from the crate archive.
-
-On `main`, the helper checks the exact version on crates.io and skips versions
+The helper checks the exact version on crates.io and skips versions
 that already exist (including yanked versions). Any registry error other than
 404 fails the check. For a new version, the publishing job:
 
@@ -94,7 +83,8 @@ that already exist (including yanked versions). Any registry error other than
 
 Set `RML_RELEASE_DEBUG=1` to log registry lookup URLs. Credentials are never
 printed by the helper. Publishing is guarded both by the workflow and helper
-so that it only runs for `push` or `workflow_dispatch` on `main`.
+so that it runs for pushes to `main` or matching version tags, or a manual
+run on `main`.
 
 ### First publication and trusted publisher setup
 
@@ -129,7 +119,6 @@ token, which is revoked, with separately managed fallback secrets.
 
 If neither OIDC nor a fallback secret is usable, the publishing job on `main`
 fails with these setup steps. PR validation needs no secrets and still passes.
-Workflow readiness does not prove the first upload or trust registration:
-confirm the crate is visible on crates.io and an OIDC release succeeds after
+Confirm the crate is visible on crates.io and an OIDC release succeeds after
 owner setup. Then `cargo install relative-meta-logic --locked` installs the
 CLIs, or `cargo add relative-meta-logic` adds the library (imported as `rml`).

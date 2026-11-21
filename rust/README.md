@@ -8,8 +8,7 @@ Rust implementation of the Relative Meta-Logic (RML) framework.
 
 ## Installing from crates.io
 
-After the [first publication](../docs/RELEASING.md#first-publication-and-trusted-publisher-setup),
-install the CLI tools with:
+Install the CLI tools with:
 
 ```bash
 cargo install relative-meta-logic --locked
@@ -18,6 +17,49 @@ cargo install relative-meta-logic --locked
 For library use, run `cargo add relative-meta-logic`; the Rust library is named
 `rml`, so imports use `use rml::...`. Source builds remain available below.
 See [Releasing](../docs/RELEASING.md#cratesio) for OIDC setup and token fallback.
+
+## Probability core
+
+The `core` feature exposes `rml::probability` with `no_std` and `alloc` when
+default features are disabled. It has no third-party dependencies. The default
+`std` feature includes the probability API, LiNo evaluator, CST, REPL, and
+exporters.
+
+```sh
+cargo add relative-meta-logic --no-default-features --features core
+rustup target add wasm32-unknown-unknown
+cargo build --target wasm32-unknown-unknown
+```
+
+`TruthValue` bounds probabilities to `[0, 1]`, round-trips through a
+six-decimal grid, and maps non-finite input to `0.5`. `Aggregator` provides
+minimum, maximum, arithmetic mean, product, and probabilistic sum.
+
+`StatementAssessment` takes a prior and evidence with a strength, source tier,
+and stance. Source weights are `1.00` for first-party sources, `0.85` for
+first-hand reporting, `0.50` for independent corroboration, and `0.00` for
+reposts. Supporting and implying evidence raise the prior by probabilistic
+sum. Contradicting evidence reduces the result by the combined contradiction
+mass. Neutral evidence contributes zero mass.
+
+Run the [assessment example](https://github.com/link-foundation/relative-meta-logic/blob/main/rust/examples/assess_statement.rs)
+from this directory. A station operator's log supports the claim at strength
+`0.8`, an independent witness contradicts it at strength `0.5`, and a repost
+carries zero weight. The default prior is `0.6`. The witness contributes
+`0.5 × 0.5 = 0.25`, so the posterior is `(1 - (1 - 0.6) × (1 - 0.8)) × (1 - 0.25) = 0.69`.
+
+```text
+$ cargo run --no-default-features --features core --example assess_statement
+prior=0.600000 support=0.800000 contradiction=0.250000 posterior=0.690000 ignored=1
+```
+
+For related statements, pass one assessment to
+`RelativeEvidence::from_statement` with a stance and relation strength. For
+example, an assessed premise of probability `0.8` that implies another
+statement with certainty contributes strength `0.8` to that statement's
+support. Pass the resulting assessment forward through a chain to carry the
+evidence into later conclusions. Supply independent evidence for each
+assessment.
 
 ## Building
 

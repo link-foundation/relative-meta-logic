@@ -1,18 +1,14 @@
 #!/usr/bin/env node
 // npm release helper for the `relative-meta-logic` library (issue #189).
 //
-// Used by `.github/workflows/release.yml`, the single workflow file that is
-// registered as the npm trusted publisher for the package. npm trusted
-// publishing (OIDC) binds one workflow file per package, so every npm release
-// must go through that workflow. crates.io publishing uses the separate
-// crates-release.yml workflow (issue #188) and is not handled here.
+// Used by crates-release.yml, the npm trusted publisher for the package.
 //
 // Subcommands:
 //   check   Decide whether js/package.json's version still needs publishing.
 //           Writes `name`, `version`, `tag` and `should_publish` to
 //           $GITHUB_OUTPUT when it is set.
-//   publish Run `npm publish --provenance --access public` in js/ and, when the
-//           registry refuses it, print what a maintainer has to do.
+//   publish Upload the npm package, using a prerelease dist-tag when applicable.
+//           When the registry refuses it, print what a maintainer has to do.
 //   verify  Poll the registry until `name@version` is visible.
 //
 // Set RML_RELEASE_DEBUG=1 to print every npm command and its raw output.
@@ -21,9 +17,10 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { assertReleaseContext } from './crates-release.mjs';
 
 export const REPOSITORY = 'link-foundation/relative-meta-logic';
-export const WORKFLOW_FILE = 'release.yml';
+export const WORKFLOW_FILE = 'crates-release.yml';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const LIBRARY_DIR = path.join(repoRoot, 'js');
@@ -40,6 +37,10 @@ export function readLibraryManifest(dir = LIBRARY_DIR) {
 
 export function releaseTag(version) {
   return `js-v${version}`;
+}
+
+export function distTag(version) {
+  return version.split('+')[0].includes('-') ? 'next' : 'latest';
 }
 
 function runNpm(args, { cwd = LIBRARY_DIR } = {}) {
@@ -138,6 +139,7 @@ function writeOutputs(outputs) {
 
 function check() {
   const { name, version } = readLibraryManifest();
+  if (process.env.GITHUB_REF_TYPE === 'tag') assertReleaseContext(process.env, version);
   const published = isPublished(name, version);
   console.log(published
     ? `${name}@${version} is already on npm; nothing to publish.`
@@ -147,11 +149,12 @@ function check() {
 
 function publish() {
   const { name, version } = readLibraryManifest();
-  const result = runNpm(['publish', '--provenance', '--access', 'public']);
+  assertReleaseContext(process.env, version);
+  const result = runNpm(['publish', '--provenance', '--access', 'public', '--tag', distTag(version)]);
   process.stdout.write(result.stdout);
   process.stderr.write(result.stderr);
   if (result.status === 0) {
-    console.log(`Published ${name}@${version} through npm trusted publishing.`);
+    console.log(`Published ${name}@${version} to npm.`);
     return;
   }
   const kind = classifyPublishFailure(result.output);
