@@ -1,6 +1,6 @@
 {
   "name": "relative-meta-logic",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "A prototype for logic framework that can reason about anything relative to given probability of input statements",
   "type": "module",
   "main": "src/rml-links.mjs",
@@ -46,7 +46,7 @@
   },
   "homepage": "https://github.com/link-foundation/relative-meta-logic#readme",
   "dependencies": {
-    "links-notation": "^0.13.0",
+    "links-notation": "^0.31.8",
     "meta-language": "^0.46.0"
   },
   "devDependencies": {
@@ -54,7 +54,7 @@
     "jsdoc": "^4.0.5"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "publishConfig": {
     "access": "public",

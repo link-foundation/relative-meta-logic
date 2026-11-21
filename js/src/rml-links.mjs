@@ -14,7 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { Parser } from 'links-notation';
+import { Parser, referenceQuote } from 'links-notation';
 
 // ---------- Structured Diagnostics ----------
 // Every parser/evaluator error is reported as a `Diagnostic` with an error
@@ -92,6 +92,8 @@ function tokenizeOne(s) {
   const commentIdx = s.indexOf('#');
   if (commentIdx !== -1) {
     s = s.substring(0, commentIdx);
+    // Links Notation quotes references that start with a hash.
+    s = s.replace(/([ (])'$/, '$1');
     // Count unmatched opening parens and add closing parens to balance
     let depth = 0;
     for (let i = 0; i < s.length; i++) {
@@ -7032,12 +7034,47 @@ function sourceForEvaluation(code, file) {
   return isLiterateLinoPath(file) ? extractLiterateLino(source) : source;
 }
 
+function flattenLinoForms(text) {
+  if (!/[\r\n]/.test(text)) return text;
+  let depth = 0;
+  let start = 0;
+  const parts = [];
+  const tokens = /"+|'+|`+|[()\r\n]/g;
+  for (let token; (token = tokens.exec(text));) {
+    const { 0: value, index } = token;
+    if (value === '(') {
+      depth++;
+    } else if (value === ')') {
+      depth = Math.max(0, depth - 1);
+    } else if (value === '\r' || value === '\n') {
+      if (depth > 0) {
+        parts.push(text.slice(start, index), ' ');
+        start = index + 1;
+      }
+    } else if (index === 0 || /[ \t\r\n():]/.test(text[index - 1])) {
+      const delimiters = new RegExp(value[0] + '+', 'g');
+      delimiters.lastIndex = tokens.lastIndex;
+      for (let closing; (closing = delimiters.exec(text));) {
+        if (Math.floor(closing[0].length / value.length) % 2 === 0) continue;
+        if (referenceQuote(text.slice(index, delimiters.lastIndex))) {
+          tokens.lastIndex = delimiters.lastIndex;
+        }
+        break;
+      }
+    }
+  }
+  parts.push(text.slice(start));
+  return parts.join('');
+}
+
 /**
  * Parse LiNo source text with the official links-notation parser.
  */
 function parseLino(text) {
-  const parser = new Parser();
-  return parser.parse(stripLinoComments(text)).map(link => String(link));
+  // RML handles its own comment syntax, including parenthesized comments.
+  const parser = new Parser({ comments: false });
+  // RML treats line breaks within explicit parentheses as whitespace.
+  return parser.parse(flattenLinoForms(stripLinoComments(text))).map(link => String(link));
 }
 
 function parseLinoForms(text) {
@@ -7045,7 +7082,7 @@ function parseLinoForms(text) {
     .filter(linkStr => {
       const s = String(linkStr).trim();
       // Skip if it's just a comment link like "(# ...)"
-      return !s.match(/^\(#\s/);
+      return !/^\((?:#|'#')\s/.test(s);
     })
     .map(linkStr => {
       const toks = tokenizeOne(String(linkStr));

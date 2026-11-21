@@ -1,4 +1,27 @@
 use rml::*;
+
+#[test]
+fn parse_lino_treats_line_breaks_inside_rml_forms_as_whitespace() {
+    assert_eq!(
+        parse_lino("(claim\r\n    (first item)\r\n\r\n (second item))\r\n(? true)"),
+        vec!["(claim (first item) (second item))", "(? true)"],
+    );
+}
+
+#[test]
+fn parse_lino_preserves_quoted_line_breaks_and_parentheses_in_multiline_forms() {
+    let single_line_form = parse_lino("(claim 'a )\nb' (second item))");
+    assert!(!single_line_form.is_empty());
+    assert_ne!(
+        single_line_form,
+        parse_lino("(claim 'a ) b' (second item))"),
+    );
+    assert_eq!(
+        parse_lino("(claim 'a )\nb'\n (second item))"),
+        single_line_form,
+    );
+}
+
 fn approx(actual: f64, expected: f64) {
     let epsilon = 1e-9;
     assert!(
@@ -408,6 +431,11 @@ fn run_handle_inline_comments() {
     let results = run(text, None);
     assert_eq!(results.len(), 1);
     assert_eq!(results[0], 1.0);
+}
+
+#[test]
+fn run_handles_a_hash_inside_a_link_as_an_rml_comment() {
+    assert_eq!(run("(? true # note)\n(? false)", None), vec![1.0, 0.0]);
 }
 
 #[test]
