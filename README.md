@@ -115,6 +115,9 @@ cargo run -- ../examples/demo.lino
 cargo run -- export lean ../examples/lean-export-basic.lino -o out.lean
 ```
 
+For a dependency-free Rust probability API that builds for WebAssembly, see
+the [probability core and weighted-evidence example](./rust/README.md#probability-core).
+
 ### Docker
 
 Container images for both implementations live under

@@ -13,6 +13,7 @@ import {
   WORKFLOW_FILE,
   buildPublishGuidance,
   classifyPublishFailure,
+  distTag,
   interpretViewResult,
   readLibraryManifest,
   releaseTag,
@@ -21,7 +22,8 @@ import {
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const workflowsDir = path.join(repoRoot, '.github', 'workflows');
-const releaseWorkflow = fs.readFileSync(path.join(workflowsDir, WORKFLOW_FILE), 'utf8');
+const releaseWorkflow = fs.readFileSync(path.join(workflowsDir, 'release.yml'), 'utf8');
+const publishingWorkflow = fs.readFileSync(path.join(workflowsDir, WORKFLOW_FILE), 'utf8');
 
 const SKIP_DIRS = new Set(['.git', 'node_modules', 'target', '_site']);
 
@@ -102,39 +104,45 @@ describe('npm release workflow (issue #189)', () => {
         const text = fs.readFileSync(path.join(workflowsDir, name), 'utf8');
         return /npm publish(?! --dry-run)|npm-release\.mjs publish/.test(text);
       });
-    assert.deepStrictEqual(publishers.sort(), [WORKFLOW_FILE, 'crates-release.yml'].sort());
+    assert.deepStrictEqual(publishers, [WORKFLOW_FILE]);
   });
 
-  it('keeps the npm job in the crates release workflow main-only and OIDC-capable', () => {
-    const cratesRelease = fs.readFileSync(path.join(workflowsDir, 'crates-release.yml'), 'utf8');
-    assert.match(cratesRelease, /id-token: write/);
-    assert.match(cratesRelease, /npm publish --provenance --access public/);
-    assert.match(cratesRelease, /github\.ref == format\('refs\/heads\/\{0\}', github\.event\.repository\.default_branch\)/);
+  it('validates the archive even if its version already exists', () => {
+    assert.match(releaseWorkflow, /npm pack --dry-run/);
+    assert.doesNotMatch(releaseWorkflow, /npm publish/);
   });
 
-  it('publishes through trusted publishing from main only', () => {
-    assert.match(releaseWorkflow, /id-token: write/);
-    assert.match(releaseWorkflow, /node scripts\/npm-release\.mjs publish/);
-    assert.match(releaseWorkflow, /node scripts\/npm-release\.mjs verify/);
-    assert.match(releaseWorkflow, /npm publish --dry-run/);
-    const publishStep = releaseWorkflow.slice(releaseWorkflow.indexOf('- name: Publish to npm'));
-    assert.match(publishStep.split(/\n\s+- name:/)[0], /github\.ref == 'refs\/heads\/main'/);
-    assert.match(publishStep, /github\.event_name != 'pull_request'/);
+  it('publishes through OIDC after validation on main and version tags', () => {
+    const validation = publishingWorkflow.split('\n  npm-validate:')[1].split('\n  prm-publish-npm-1:')[0];
+    const job = publishingWorkflow.split('\n  prm-publish-npm-1:')[1];
+    assert.match(validation, /github\.ref == 'refs\/heads\/main'/);
+    assert.match(validation, /github\.event_name == 'push' && github.ref_type == 'tag'/);
+    assert.match(job, /needs: \[validate, npm-validate\]/);
+    assert.match(job, /id-token: write/);
+    assert.match(job, /id: npm_oidc[\s\S]+?node scripts\/npm-release\.mjs publish/);
+    assert.match(job, /steps.npm_oidc.outcome == 'failure'/);
+    assert.match(job, /node scripts\/npm-release\.mjs verify/);
   });
 
   it('upgrades npm when it is older than 11.5.1 (the first OIDC-capable release)', () => {
-    assert.match(releaseWorkflow, /npm install -g npm@\^11\.5\.1/);
+    assert.match(publishingWorkflow, /npm install -g npm@\^11\.5\.1/);
   });
 
   it('keeps crates.io publication in the separate crates-release workflow', () => {
     assert.doesNotMatch(releaseWorkflow, /cargo publish/);
-    assert.match(releaseWorkflow, /crates-release\.yml/);
+    assert.match(publishingWorkflow, /cargo publish/);
   });
 });
 
 describe('npm-release helpers', () => {
   it('names release tags after the npm version', () => {
     assert.strictEqual(releaseTag('0.19.0'), 'js-v0.19.0');
+  });
+
+  it('publishes prereleases under next without advancing latest', () => {
+    assert.strictEqual(distTag('0.20.0'), 'latest');
+    assert.strictEqual(distTag('0.20.0-rc.1'), 'next');
+    assert.strictEqual(distTag('0.20.0+build-id'), 'latest');
   });
 
   it('treats a registry 404 as "not published"', () => {
@@ -167,7 +175,7 @@ describe('npm-release helpers', () => {
   it('tells maintainers how to configure the trusted publisher', () => {
     assert.strictEqual(
       trustedPublisherCommand('relative-meta-logic'),
-      'npm trust github relative-meta-logic --file release.yml --repository link-foundation/relative-meta-logic --allow-publish --yes',
+      'npm trust github relative-meta-logic --file crates-release.yml --repository link-foundation/relative-meta-logic --allow-publish --yes',
     );
     const guidance = buildPublishGuidance('relative-meta-logic', '0.19.0', 'not-found');
     assert.match(guidance, /npm trust github relative-meta-logic/);

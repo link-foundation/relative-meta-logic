@@ -24,19 +24,24 @@ describe('crates.io release workflow (issue #188)', { timeout: 10000 }, () => {
     const validation = workflow.split('\n  validate:')[1].split('\n  publish:')[0];
     assert.match(workflow, /pull_request:\n    branches: \[main\]/);
     assert.match(workflow, /push:\n    branches: \[main\]/);
+    assert.match(workflow, /tags: \['v\*\.\*\.\*'\]/);
     assert.match(workflow, /workflow_dispatch:/);
     assert.match(validation, /cargo publish --dry-run --locked/);
+    assert.match(validation, /git merge-base --is-ancestor HEAD origin\/main/);
+    assert.match(validation, /cargo test --locked --no-default-features --features core --test probability/);
+    assert.match(validation, /verify-packaged-core.sh/);
     assert.match(validation, /node --test scripts\/crates-release.test.mjs/);
     assert.match(validation, /node scripts\/crates-release.mjs check/);
     assert.doesNotMatch(validation, /secrets\.|id-token: write|crates-io-auth-action|--no-verify/);
   });
 
-  it('publishes only unpublished versions on main after validation', () => {
+  it('publishes unpublished versions after validation on main and tag pushes', () => {
     const job = read('.github/workflows/crates-release.yml').split('\n  publish:')[1];
     assert.match(job, /needs: validate/);
     const guard = job.split('runs-on:')[0];
     assert.match(guard, /github.ref == 'refs\/heads\/main'/);
     assert.match(guard, /github.event_name == 'push' \|\| github.event_name == 'workflow_dispatch'/);
+    assert.match(guard, /github.event_name == 'push' && github.ref_type == 'tag'/);
     assert.match(guard, /needs.validate.outputs.should_publish == 'true'/);
     assert.match(job, /id-token: write/);
     assert.match(job, /node scripts\/crates-release.mjs publish/);
@@ -57,7 +62,7 @@ describe('crates.io release workflow (issue #188)', { timeout: 10000 }, () => {
     const manifest = read('rust/Cargo.toml');
     assert.doesNotMatch(manifest, /publish\s*=\s*false/);
     assert.match(manifest, /repository = "https:\/\/github.com\/link-foundation\/relative-meta-logic"/);
-    assert.match(manifest, /include = \["src\/\*\*", "Cargo.toml", "Cargo.lock", "README.md"\]/);
+    assert.match(manifest, /include = \[[^\n]*"src\/\*\*"[^\n]*"examples\/assess_statement.rs"/);
     for (const file of ['src/lib.rs', 'src/main.rs', 'src/bin/rml-check.rs', 'src/bin/rml-meta.rs']) {
       assert.match(manifest, new RegExp(`path = "${file.replaceAll('.', '\\.')}"`));
     }
@@ -98,13 +103,16 @@ describe('crates.io release helpers', { timeout: 10000 }, () => {
     await assert.rejects(isPublished(name, version, async () => { throw new Error('network unavailable'); }), /network unavailable/);
   });
 
-  it('blocks pull requests, fork branches, and local publication', () => {
+  it('accepts main and matching version-tag pushes and rejects other contexts', () => {
+    const tag = { ...releaseEnv, GITHUB_REF: `refs/tags/v${version}` };
     for (const env of [{}, { ...releaseEnv, GITHUB_EVENT_NAME: 'pull_request' },
-      { ...releaseEnv, GITHUB_REF: 'refs/heads/feature' }, { ...releaseEnv, GITHUB_EVENT_NAME: 'release' }]) {
-      assert.throws(() => assertReleaseContext(env), /only allowed/);
+      { ...releaseEnv, GITHUB_REF: 'refs/heads/feature' }, { ...releaseEnv, GITHUB_EVENT_NAME: 'release' },
+      { ...tag, GITHUB_REF: 'refs/tags/v1.2.3' }, { ...tag, GITHUB_EVENT_NAME: 'workflow_dispatch' }]) {
+      assert.throws(() => assertReleaseContext(env, version), /only allowed/);
     }
-    assertReleaseContext(releaseEnv);
-    assertReleaseContext({ ...releaseEnv, GITHUB_EVENT_NAME: 'workflow_dispatch' });
+    assertReleaseContext(releaseEnv, version);
+    assertReleaseContext({ ...releaseEnv, GITHUB_EVENT_NAME: 'workflow_dispatch' }, version);
+    assertReleaseContext(tag, version);
   });
 
   it('rejects missing credentials before invoking Cargo and explains bootstrap', async () => {
