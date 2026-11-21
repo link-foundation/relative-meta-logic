@@ -22,6 +22,14 @@ fn parse_lino_preserves_quoted_line_breaks_and_parentheses_in_multiline_forms() 
     );
 }
 
+#[test]
+fn parse_lino_collapses_parenthesized_references_but_preserves_paths_and_groups() {
+    assert_eq!(
+        parse_lino("(outer ((atom)) ((p q)))\n(single)\n  (child)"),
+        vec!["(outer atom ((p q)))", "single", "((single) (child))"],
+    );
+}
+
 fn approx(actual: f64, expected: f64) {
     let epsilon = 1e-9;
     assert!(

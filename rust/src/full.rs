@@ -295,15 +295,33 @@ fn inline_comment_index(line: &str) -> Option<usize> {
     None
 }
 
-// RML treats line breaks within explicit parentheses as whitespace.
-fn flatten_lino_forms(text: &str) -> std::borrow::Cow<'_, str> {
-    if !text.contains('\n') {
+#[derive(PartialEq, Eq)]
+enum LinoFormContents {
+    Empty,
+    Reference,
+    Compound,
+}
+
+impl LinoFormContents {
+    fn add_item(&mut self, is_reference: bool) {
+        *self = if *self == Self::Empty && is_reference {
+            Self::Reference
+        } else {
+            Self::Compound
+        };
+    }
+}
+
+// RML treats line breaks in explicit forms as whitespace and parenthesized
+// references as atoms. Keep top-level parentheses so indentation paths are
+// still constructed by Links Notation.
+fn normalize_lino_forms(text: &str) -> std::borrow::Cow<'_, str> {
+    if !text.contains('(') {
         return std::borrow::Cow::Borrowed(text);
     }
-    let mut flattened = String::new();
-    let mut depth = 0usize;
-    let mut start = 0;
-    let mut pending_form = (0, 0);
+    let mut edits = Vec::new();
+    let mut forms = Vec::<(usize, LinoFormContents)>::new();
+    let mut pending_form = 0;
     let mut quoted_until = 0;
     for (index, ch) in text.char_indices() {
         if index < quoted_until {
@@ -311,40 +329,61 @@ fn flatten_lino_forms(text: &str) -> std::borrow::Cow<'_, str> {
         }
         match ch {
             '(' => {
-                if depth == 0 {
-                    pending_form = (flattened.len(), start);
+                if forms.is_empty() {
+                    pending_form = edits.len();
                 }
-                depth += 1;
+                forms.push((index, LinoFormContents::Empty));
             }
-            ')' => depth = depth.saturating_sub(1),
-            '\n' if depth > 0 => {
-                flattened.push_str(&text[start..index]);
-                flattened.push(' ');
-                start = index + 1;
+            ')' => {
+                if let Some((opening, contents)) = forms.pop() {
+                    if let Some((_, parent)) = forms.last_mut() {
+                        let is_reference = contents == LinoFormContents::Reference
+                            && !text[index + 1..]
+                                .trim_start_matches([' ', '\t', '\r', '\n'])
+                                .starts_with(':');
+                        parent.add_item(is_reference);
+                        if is_reference {
+                            edits.extend([opening, index]);
+                        }
+                    }
+                }
             }
-            '"' | '\'' | '`'
-                if index == 0
+            '\n' if !forms.is_empty() => edits.push(index),
+            ':' => {
+                if let Some((_, contents)) = forms.last_mut() {
+                    *contents = LinoFormContents::Compound;
+                }
+            }
+            ' ' | '\t' | '\n' | '\r' => {}
+            _ if index == quoted_until
                     || matches!(
                         text.as_bytes()[index - 1],
                         b' ' | b'\t' | b'\n' | b'\r' | b'(' | b')' | b':'
                     ) =>
             {
-                quoted_until =
-                    links_notation::parser::quoted_reference_end(text, index).unwrap_or(index);
+                if let Some((_, contents)) = forms.last_mut() {
+                    contents.add_item(true);
+                }
+                if matches!(ch, '"' | '\'' | '`') {
+                    quoted_until =
+                        links_notation::parser::quoted_reference_end(text, index).unwrap_or(index);
+                }
             }
             _ => {}
         }
     }
     // Keep blank-line separators after an unclosed form so parsing can recover.
-    if depth > 0 {
-        flattened.truncate(pending_form.0);
-        start = pending_form.1;
+    if !forms.is_empty() {
+        edits.truncate(pending_form);
     }
-    if start == 0 {
+    if edits.is_empty() {
         return std::borrow::Cow::Borrowed(text);
     }
-    flattened.push_str(&text[start..]);
-    std::borrow::Cow::Owned(flattened)
+    let mut normalized = text.to_owned();
+    for index in edits {
+        normalized.replace_range(index..index + 1, " ");
+    }
+    std::borrow::Cow::Owned(normalized)
 }
 
 /// Parse LiNo text into a vector of link strings (each a top-level parenthesized expression).
@@ -357,6 +396,8 @@ pub fn parse_lino(text: &str) -> Vec<String> {
 /// for unbalanced/invalid input — mirrors `parseLinoForms` in
 /// `js/src/rml-links.mjs`, which throws and is caught into an E006 diagnostic.
 fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
+    use links_notation::LiNo;
+
     // RML trims hash comments on their own line or after a complete form.
     // Other hash comments are handled after Links Notation parses the forms.
     let stripped: String = text
@@ -380,8 +421,8 @@ fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
     let mut errors = Vec::new();
     // RML handles its own comment syntax, including parenthesized comments.
     let config = links_notation::ParserConfig::without_comments();
-    let flattened = flatten_lino_forms(&stripped);
-    for segment in flattened.split("\n\n") {
+    let normalized = normalize_lino_forms(&stripped);
+    for segment in normalized.split("\n\n") {
         let trimmed = segment.trim();
         if trimmed.is_empty() {
             continue;
@@ -389,7 +430,14 @@ fn parse_lino_with_errors(text: &str) -> (Vec<String>, Vec<String>) {
         match links_notation::parse_lino_to_links_with_config(trimmed, &config) {
             Ok(links) => {
                 for link in links {
-                    all_links.push(link.to_string());
+                    let rendered = match &link {
+                        LiNo::Link { id: None, values } => match values.as_slice() {
+                            [reference @ LiNo::Ref(_)] => reference.to_string(),
+                            _ => link.to_string(),
+                        },
+                        _ => link.to_string(),
+                    };
+                    all_links.push(rendered);
                 }
             }
             Err(e) => {
